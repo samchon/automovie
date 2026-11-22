@@ -53,7 +53,7 @@ export function test_motion_posture_equipment_kinematics(): void {
     yaw: 0,
     proficiency: { level: "trained" as const },
   };
-  const stand = HumanChain.subject("a").stand({ seconds: 0.3, sway: 0 }).node;
+  const stand = HumanChain.subject("a").stand({ hold: 0.3, sway: 0 }).node;
   const event = (part: IAutoMovieMotionHumanSegment, key: string): number =>
     part.start +
     part.plan.events.find((e) => e.name === key)!.share * part.plan.duration;
@@ -73,7 +73,7 @@ export function test_motion_posture_equipment_kinematics(): void {
     laws: [HumanSportGym.hipThrust],
     props: [HumanObject.prop("bench", bench, { position: benchAt, rotation })],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .registered("hipThrust", {
         reps: 1,
         on: { prop: "bench", affordance: "edge" },
@@ -150,7 +150,7 @@ export function test_motion_posture_equipment_kinematics(): void {
         }),
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3 })
+        .stand({ hold: 0.3 })
         .pickUp({ prop: "bell", handle: "grip" })
         .registered(name, { reps: 1, load: { prop: "bell" } }).node,
     });

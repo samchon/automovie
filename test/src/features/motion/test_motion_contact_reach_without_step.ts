@@ -7,10 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanTouch,
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanRefusal,
-  touch,
 } from "@automovie/motions";
 
 import { MOTION_HUMAN_LAW_STAGES_TOUCH } from "../internal/MOTION_HUMAN_LAW_STAGES_TOUCH";
@@ -65,7 +65,7 @@ export function test_motion_contact_reach_without_step(): void {
           normal: { x: 0, y: 0, z: -1 },
         },
         kind: "hold",
-        side: "right",
+        hand: "right",
       }),
     );
   const near: motionHumanLaw.IFilm = at(arm / 2);
@@ -85,12 +85,12 @@ export function test_motion_contact_reach_without_step(): void {
     body,
     near.bones("a", nearSeconds),
     "right",
-    touch.EFFECTORS.palm,
+    AutoMovieMotionHumanTouch.touch.EFFECTORS.palm,
   );
   const palmPad: number = AutoMovieMotionHumanTouchEffector.pad(
     body,
     "right",
-    touch.EFFECTORS.palm,
+    AutoMovieMotionHumanTouch.touch.EFFECTORS.palm,
   );
   const nearPoint: IAutoMovieVector3 = {
     ...shoulder,
@@ -197,12 +197,12 @@ export function test_motion_contact_reach_without_step(): void {
       body,
       film.bones("a", ready),
       "right",
-      touch.EFFECTORS.fingertips,
+      AutoMovieMotionHumanTouch.touch.EFFECTORS.fingertips,
     );
     const pad: number = AutoMovieMotionHumanTouchEffector.pad(
       body,
       "right",
-      touch.EFFECTORS.fingertips,
+      AutoMovieMotionHumanTouch.touch.EFFECTORS.fingertips,
     );
     const gap: number = Vector3.distance(
       shown,

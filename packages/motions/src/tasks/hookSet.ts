@@ -35,50 +35,77 @@ const LIFT: number = 90;
  * @evidence contracts/development/design.md#minimal-and-owned-surface Reuses the held-prop reader and the wardrobe's grip frame, arm goal and reach check.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The rod is never posed: the hand carries it.
  */
-export const hookSet: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHookSet> = {
-  name: "hookSet",
-  interrupts: {
-    any: [{ window: ["set", 1], kind: "inertialize", entry: 0 }],
-  },
-  plan: (
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHookSet>,
-  ): IAutoMovieMotionHumanActionPlan => {
-    const { body, entry, params }: typeof context = context;
-    HumanBound.within("angle", params.angle, 0, LIFT, "deg");
-    HumanBound.least("seconds", params.seconds, 1e-3, "s");
-    const hand: AutoMovieHumanSide =
-      params.hand ?? (entry.holds.right === params.rod ? "right" : "left");
-    const held: ReturnType<typeof AutoMovieMotionHumanHeld.of> = AutoMovieMotionHumanHeld.of(context, hand, params.rod);
-    const rod: IAutoMovieRigidTransform = context.prop(params.rod).frame(context.start);
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(rod.rotation, { x: 0, y: 1, z: 0 });
-    // The tip rises about the horizontal axis square to the rod: a positive
-    // turn about along x up carries the rod toward up.
-    const axis: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(along, { x: 0, y: 1, z: 0 }));
-    const grip: IAutoMovieRigidTransform = wardrobeHands.grip(body, entry.posture, hand);
-    const duration: number = params.seconds + HOLD;
-    const turned: (t: number) => IAutoMovieRigidTransform = (t: number): IAutoMovieRigidTransform => ({
-      position: grip.position,
-      rotation: Quaternion.multiply(
-        Quaternion.fromAxisAngle(axis, params.angle * minimumJerk(Math.min(1, t / params.seconds)).s),
-        grip.rotation,
-      ),
-    });
-    const posture: (t: number) => IAutoMovieMotionHumanPosture = (
-      t: number,
-    ): IAutoMovieMotionHumanPosture => wardrobeHands.arm(body, entry.posture, hand, turned(t));
-    wardrobeHands.verify(context, posture(params.seconds), hand, turned(params.seconds), wardrobeHands.MISS);
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(context, duration);
-    return {
-      ...base,
-      // The rod hand takes the rod's hold over and leaves it held.
-      contacts: [...base.contacts, AutoMovieMotionHumanHeld.grip(held)],
-      holds: [AutoMovieMotionHumanHeld.hold(context, held)],
-      events: [
-        { name: "set", share: params.seconds / duration },
-        { name: "relax", share: 1 },
-      ],
-      hands: [hand],
-      posture,
-    };
-  },
-};
+export const hookSet: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHookSet> =
+  {
+    name: "hookSet",
+    interrupts: {
+      any: [{ window: ["set", 1], kind: "inertialize", entry: 0 }],
+    },
+    plan: (
+      context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHookSet>,
+    ): IAutoMovieMotionHumanActionPlan => {
+      const { body, entry, params }: typeof context = context;
+      HumanBound.within("angle", params.angle, 0, LIFT, "deg");
+      HumanBound.least("duration", params.duration, 1e-3, "s");
+      const hand: AutoMovieHumanSide =
+        params.hand ?? (entry.holds.right === params.rod ? "right" : "left");
+      const held: ReturnType<typeof AutoMovieMotionHumanHeld.of> =
+        AutoMovieMotionHumanHeld.of(context, hand, params.rod);
+      const rod: IAutoMovieRigidTransform = context
+        .prop(params.rod)
+        .frame(context.start);
+      const along: IAutoMovieVector3 = Quaternion.rotateVector(rod.rotation, {
+        x: 0,
+        y: 1,
+        z: 0,
+      });
+      // The tip rises about the horizontal axis square to the rod: a positive
+      // turn about along x up carries the rod toward up.
+      const axis: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.cross(along, { x: 0, y: 1, z: 0 }),
+      );
+      const grip: IAutoMovieRigidTransform = wardrobeHands.grip(
+        body,
+        entry.posture,
+        hand,
+      );
+      const duration: number = params.duration + HOLD;
+      const turned: (t: number) => IAutoMovieRigidTransform = (
+        t: number,
+      ): IAutoMovieRigidTransform => ({
+        position: grip.position,
+        rotation: Quaternion.multiply(
+          Quaternion.fromAxisAngle(
+            axis,
+            params.angle * minimumJerk(Math.min(1, t / params.duration)).s,
+          ),
+          grip.rotation,
+        ),
+      });
+      const posture: (t: number) => IAutoMovieMotionHumanPosture = (
+        t: number,
+      ): IAutoMovieMotionHumanPosture =>
+        wardrobeHands.arm(body, entry.posture, hand, turned(t));
+      wardrobeHands.verify(
+        context,
+        posture(params.duration),
+        hand,
+        turned(params.duration),
+        wardrobeHands.MISS,
+      );
+      const base: IAutoMovieMotionHumanActionPlan =
+        AutoMovieMotionHumanBase.under(context, duration);
+      return {
+        ...base,
+        // The rod hand takes the rod's hold over and leaves it held.
+        contacts: [...base.contacts, AutoMovieMotionHumanHeld.grip(held)],
+        holds: [AutoMovieMotionHumanHeld.hold(context, held)],
+        events: [
+          { name: "set", share: params.duration / duration },
+          { name: "relax", share: 1 },
+        ],
+        hands: [hand],
+        posture,
+      };
+    },
+  };

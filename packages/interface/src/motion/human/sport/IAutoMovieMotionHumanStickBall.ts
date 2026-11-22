@@ -44,13 +44,13 @@ export namespace IAutoMovieMotionHumanStickBall {
     ball: string;
 
     /** The destination direction, read from this target at contact. Defaults to the performer's heading. */
-    toward?: IAutoMovieMotionTarget;
+    target?: IAutoMovieMotionTarget;
 
     /** The hand closer to the stick head. Defaults to right. */
     hand?: "left" | "right";
 
     /** Duration in seconds. Defaults to 0.75 s. */
-    seconds?: number;
+    duration?: number;
 
     /** The release speed in m/s for a pass. The scoop retains the ball. */
     speed?: number;

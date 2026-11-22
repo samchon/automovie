@@ -10,16 +10,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGait,
+  AutoMovieMotionHumanRide,
   HUMAN_LEXICON,
   HumanChain,
   HumanObject,
   HumanObstacle,
   HumanPerformance,
-  HumanPursuit,
   HumanRefusal,
   HumanSignature,
-  HumanTravelCar,
-  HumanTravelLeaf,
   HumanVerdicts,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -65,10 +64,10 @@ export function test_motion_posture_travel_target(): void {
     ] = [motionHumanBody(names[0]), motionHumanBody(names[1])];
     const label: string = `${names[0]} heading off ${names[1]}`;
     const walking: IAutoMovieMotionHumanChain = HumanChain.subject("b")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .walk({ to: { x: 3, y: 0, z: 5 } });
     const running: IAutoMovieMotionHumanChain = HumanChain.subject("a")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .registered("intercept", { target: "b" });
     const perform = (
       first: IAutoMovieMotionHumanChain,
@@ -173,13 +172,15 @@ function checkSearchStop(): void {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanPursuit.search(
+    composition: AutoMovieMotionHumanGait.HumanPursuit.search(
       HumanChain.subject("walker"),
       [waypoint],
       "stop",
       pause,
     ).node,
-    layers: { walker: HumanPursuit.sweeps(1, "stop", pause) },
+    layers: {
+      walker: AutoMovieMotionHumanGait.HumanPursuit.sweeps(1, "stop", pause),
+    },
   });
   const [walk, stop] = performance.segments("walker");
   TestValidator.equals(
@@ -238,7 +239,7 @@ function checkMovingTarget(): void {
   } as const;
   const performance = new HumanPerformance({
     seed: "follow",
-    laws: [HumanPursuit.follow],
+    laws: [AutoMovieMotionHumanGait.HumanPursuit.follow],
     performers: ["leader", "follower"].map((subject, i) => ({
       subject,
       body,
@@ -247,11 +248,11 @@ function checkMovingTarget(): void {
       proficiency: { level: "trained" as const },
     })),
     composition: HumanChain.subject("leader")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .walk({ to: { ...origin, z: 7 } })
       .with(
         HumanChain.subject("follower")
-          .stand({ seconds: 0.3 })
+          .stand({ hold: 0.3 })
           .registered("follow", { target }),
       ).node,
   });
@@ -275,10 +276,22 @@ function checkMovingTarget(): void {
     gap >= 1.2 && gap <= 2.1,
   );
   for (const [row, fixed] of [
-    [HumanPursuit.follow, { side: "behind", at: "social", track: "pace" }],
-    [HumanPursuit.escort, { side: "left", at: "personal", track: "pace" }],
-    [HumanPursuit.chase, { pace: "fast", at: "handing", track: true }],
-    [HumanPursuit.confront, { side: "front", at: "faceToFace" }],
+    [
+      AutoMovieMotionHumanGait.HumanPursuit.follow,
+      { side: "behind", at: "social", track: "pace" },
+    ],
+    [
+      AutoMovieMotionHumanGait.HumanPursuit.escort,
+      { side: "left", at: "personal", track: "pace" },
+    ],
+    [
+      AutoMovieMotionHumanGait.HumanPursuit.chase,
+      { pace: "fast", at: "handing", track: true },
+    ],
+    [
+      AutoMovieMotionHumanGait.HumanPursuit.confront,
+      { side: "front", at: "faceToFace" },
+    ],
   ] as const)
     TestValidator.equals(
       "author target and selected approach geometry",
@@ -320,7 +333,7 @@ function checkSeatEntrance(): void {
   const enter = (through: IAutoMovieMotionObstacleAperture) =>
     new HumanPerformance({
       seed: "aperture",
-      laws: [HumanTravelCar.getIn],
+      laws: [AutoMovieMotionHumanRide.travelCar.getIn],
       performers: [
         {
           subject: "rider",
@@ -406,7 +419,7 @@ function checkMovingHandle(): void {
   const perform = (over: number) =>
     new HumanPerformance({
       seed: "moving-support",
-      laws: [HumanTravelLeaf.openDoor],
+      laws: [AutoMovieMotionHumanRide.travelLeaf.openDoor],
       props: [
         HumanObject.prop(
           "door",
@@ -444,7 +457,8 @@ function checkMovingHandle(): void {
       ),
     );
   };
-  const taken = stroke.entryTime + HumanTravelLeaf.TAKE + 0.01;
+  const taken =
+    stroke.entryTime + AutoMovieMotionHumanRide.travelLeaf.TAKE + 0.01;
   const base = local(taken);
   TestValidator.predicate(
     "feet step to follow the displacement",

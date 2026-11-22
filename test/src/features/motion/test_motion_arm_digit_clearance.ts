@@ -55,7 +55,7 @@ export function test_motion_arm_digit_clearance(): void {
         }),
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3 })
+        .stand({ hold: 0.3 })
         .pickUp({ prop: "box", handle: "hold", hand: "right" }).node,
     });
   const hip: number = body.measure.hipHeight;

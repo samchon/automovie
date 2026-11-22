@@ -11,8 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
   HumanChain,
-  HumanGymnastics,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
@@ -140,7 +140,7 @@ function stage(
   // short of that, so the hands come down inside its top.
   const tableAt: number = boardAt + 1.1 + further;
   const running: ReturnType<typeof HumanChain.subject> = HumanChain.subject("a")
-    .stand({ seconds: 0.3, sway: 0 })
+    .stand({ hold: 0.3, sway: 0 })
     .run({ to: { x: 0, y: 0, z: 30 }, pace: "jog" });
   const node: IAutoMovieComposition =
     cut === undefined
@@ -151,7 +151,7 @@ function stage(
           .registered("handspringVault", { on: "table", landOn: "mat" }).node;
   return new HumanPerformance({
     seed: "vault-approach",
-    laws: [HumanGymnastics.handspringVault],
+    laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.handspringVault],
     performers: [
       {
         subject: "a",

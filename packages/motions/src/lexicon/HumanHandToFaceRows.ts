@@ -21,74 +21,74 @@ export namespace HumanHandToFaceRows {
   export const faceDrink: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceDrink"]
   > = HumanActionRow.of("faceDrink", handToFace, {
-    task: "drink",
+    kind: "drink",
   });
 
   /** `handToFace` doing `sip`: held 0.5 s at the mouth, provisional; a taste, a small sip ({@link handToFaceRows.ROWS}; the hand's travel to the face comes before). */
   export const faceSip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceSip"]
   > = HumanActionRow.of("faceSip", handToFace, {
-    task: "sip",
+    kind: "sip",
   });
 
   /** `handToFace` doing `eat`: held 0.3 s at the mouth, provisional; a mouthful by hand ({@link handToFaceRows.ROWS}; the hand's travel to the face comes before). */
   export const faceEat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceEat"]
   > = HumanActionRow.of("faceEat", handToFace, {
-    task: "eat",
+    kind: "eat",
   });
 
   /** `handToFace` doing `bite`: held 0.4 s at the mouth, provisional; a bite of something held ({@link handToFaceRows.ROWS}; the hand's travel to the face comes before). */
   export const faceBite: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceBite"]
   > = HumanActionRow.of("faceBite", handToFace, {
-    task: "bite",
+    kind: "bite",
   });
 
   /** `handToFace` doing `phone`: held 3 s at the ear, provisional; a phone call ({@link handToFaceRows.ROWS}; the hand's travel to the face comes before). */
   export const facePhone: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["facePhone"]
   > = HumanActionRow.of("facePhone", handToFace, {
-    task: "phone",
+    kind: "phone",
   });
 
   /** `handToFace` doing `read`: held 3 s at the reading distance, provisional; a glance at a sheet or a screen ({@link handToFaceRows.ROWS}; the hand's travel to the face comes before). */
   export const faceRead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceRead"]
   > = HumanActionRow.of("faceRead", handToFace, {
-    task: "read",
+    kind: "read",
   });
 
   /** `handToFace` doing `brushTeeth`: 8 strokes at the mouth, then 0.2 s, provisional; brushing the teeth ({@link handToFaceRows.ROWS}; the hand's travel to the face comes before). */
   export const faceBrushTeeth: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceBrushTeeth"]
-  > = HumanActionRow.of("faceBrushTeeth", handToFace, { task: "brushTeeth" });
+  > = HumanActionRow.of("faceBrushTeeth", handToFace, { kind: "brushTeeth" });
 
   /** `handToFace` doing `comb`: 3 strokes at the temple, then 0.2 s, provisional; combing the hair ({@link handToFaceRows.ROWS}; the hand's travel to the face comes before). */
   export const faceComb: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceComb"]
   > = HumanActionRow.of("faceComb", handToFace, {
-    task: "comb",
+    kind: "comb",
   });
 
   /** `handToFace` doing `washFace`: 3 strokes on the cheeks with both palms, then 0.2 s, provisional; washing the face ({@link handToFaceRows.ROWS}; the hand's travel to the face comes before). */
   export const faceWashFace: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceWashFace"]
   > = HumanActionRow.of("faceWashFace", handToFace, {
-    task: "washFace",
+    kind: "washFace",
   });
 
   /** `handToFace` doing `wipeMouth`: 2 strokes across the mouth, then 0.2 s, provisional; wiping the mouth ({@link handToFaceRows.ROWS}; the hand's travel to the face comes before). */
   export const faceWipeMouth: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceWipeMouth"]
   > = HumanActionRow.of("faceWipeMouth", handToFace, {
-    task: "wipeMouth",
+    kind: "wipeMouth",
   });
 
   /** `handToFace` doing `pinchNose`: held 1 s at the nose, provisional; a diver equalizing ({@link handToFaceRows.ROWS}; the hand's travel to the face comes before). */
   export const facePinchNose: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["facePinchNose"]
   > = HumanActionRow.of("facePinchNose", handToFace, {
-    task: "pinchNose",
+    kind: "pinchNose",
   });
 }

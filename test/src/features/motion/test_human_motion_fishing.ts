@@ -49,7 +49,7 @@ const LINE: number = 13;
 const SET: IAutoMovieMotionHumanHookSet = {
   rod: "rod",
   angle: 40,
-  seconds: 0.25,
+  duration: 0.25,
 };
 
 /** How near the tip's rise is to the authored lift, degrees (provisional). */
@@ -181,7 +181,7 @@ export function test_human_motion_fishing(): void {
     TestValidator.predicate(
       `${name}: the hook set lifts the tip ${rise.toFixed(1)} degrees in ${(done - set.start).toFixed(2)} s`,
       Math.abs(rise - SET.angle) <= RISE &&
-        Math.abs(done - set.start - SET.seconds) <= 1e-6,
+        Math.abs(done - set.start - SET.duration) <= 1e-6,
     );
   }
   // From a rowboat drifting along +X, the angler standing on its floorboards.
@@ -271,14 +271,14 @@ function fish(
     composition: HumanChain.subject("a")
       .pickUp({ prop: "rod", handle: "grip", hand: "right", lift: 0.1 })
       .throwObject({
-        at: { kind: "point", at: target, frame: "world" },
+        target: { kind: "point", at: target, frame: "world" },
         hand: "right",
         prop: "lure",
         implement: { prop: "rod", point: "tip" },
       })
-      .stand({ seconds: 1 })
+      .stand({ hold: 1 })
       .operate({
-        mechanism: {
+        kind: {
           kind: "knob",
           at: { kind: "prop", subject: "rod", point: "handle" },
           turn: 360 * TURNS,
@@ -357,15 +357,15 @@ function aboard(body: IAutoMovieMotionHumanBody, rod: Rod): HumanPerformance {
       },
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.5, on: { prop: "boat" } })
+      .stand({ hold: 0.5, on: { prop: "boat" } })
       .pickUp({ prop: "rod", handle: "grip", hand: "right", lift: 0.1 })
       .throwObject({
-        at: { kind: "point", at: TARGET, frame: "world" },
+        target: { kind: "point", at: TARGET, frame: "world" },
         hand: "right",
         prop: "lure",
         implement: { prop: "rod", point: "tip" },
       })
-      .stand({ seconds: 3 }).node,
+      .stand({ hold: 3 }).node,
   });
 }
 

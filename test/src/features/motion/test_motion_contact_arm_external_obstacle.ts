@@ -8,10 +8,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTarget,
   HumanRefusal,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -37,11 +37,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_contact_arm_external_obstacle(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const quiet: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const quiet: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const side: AutoMovieHumanSide = "right";
   const place = {
     point: { x: -0.2, y: 0.95, z: 0.4 },

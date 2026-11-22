@@ -89,7 +89,9 @@ export namespace kick {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function leg(params: IAutoMovieMotionHumanKick.IParams): "lead" | "rear" {
+  export function leg(
+    params: IAutoMovieMotionHumanKick.IParams,
+  ): "lead" | "rear" {
     return params.leg ?? (params.technique === "round" ? "rear" : "lead");
   }
 
@@ -98,7 +100,7 @@ export namespace kick {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When a redirect's source is not a planned kick, when either kick of a redirect is not a round kick, or when the plan is read back while it is being built.
+   * @throws {Error} When a redirect's source is not a planned kick, when either kick of a redirect is not a round kick, when the plan is read back while it is being built, or when a feint's share lies outside (0, 1) or past the chamber's share.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
    * @evidence contracts/development/implementation.md#principled-implementation Superposed minimum-jerk units carry the ankle through the chamber to the contact goal decided on the fitted figure; the performance's joint contact resolution stops the leg's capsules, after which the chain retraces its approach.
@@ -108,13 +110,34 @@ export namespace kick {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per committed stop and dropped on settle, when the stop or the target may have changed.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds original geometry and its source until plan release. Each current full posture/weapon observation may borrow exact FK and genuine unchanged-table ROM metadata; no query workspace or projector is retained by the plan.
    */
-  export function plan(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>): IAutoMovieMotionHumanKick.IPlan {
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
+  ): IAutoMovieMotionHumanKick.IPlan {
     const p: IAutoMovieMotionHumanKick.IParams = context.params;
+    if (p.feint !== undefined && !(p.feint > 0 && p.feint < 1))
+      throw new Error("A feint shows a share of the delivery in (0, 1)");
 
     // A redirect continues its source's clock: the kick's own time zero is
     // the source's, and this instance shows it from the cut on.
-    const source: IAutoMovieMotionHumanKickGeometry.ISource | undefined = redirected(context);
-    const timing: IAutoMovieMotionHumanKickGeometry.ITiming = source?.timing ?? measure(context);
+    const source: IAutoMovieMotionHumanKickGeometry.ISource | undefined =
+      redirected(context);
+    const timing: IAutoMovieMotionHumanKickGeometry.ITiming =
+      source?.timing ?? measure(context);
+
+    // A feint shows the chamber, the share of the committed delivery its
+    // chamber takes (a feint's timing ends on the chamber, so the committed
+    // extension is added back); a share past it would need a partial
+    // extension the kick does not have, so it is refused, never clamped.
+    if (p.feint !== undefined) {
+      const chamberShare: number =
+        timing.chamber /
+        (timing.chamber +
+          StrikingSkill.KICK_EXTENSION * StrikingSkill.strike(context.skill));
+      if (p.feint > chamberShare + 1e-9)
+        throw new Error(
+          `A kick feint shows its chamber: a share up to ${chamberShare.toFixed(3)}`,
+        );
+    }
     const t0: number = source?.start ?? context.start;
     const offset: number = context.start - t0;
     const duration: number = timing.duration - offset;
@@ -127,7 +150,7 @@ export namespace kick {
       ...(timing.chamber >= offset
         ? [{ name: "chamber", share: share(timing.chamber) }]
         : []),
-      ...(p.feint === true
+      ...(p.feint !== undefined
         ? []
         : [{ name: "impact", share: share(timing.impact) }]),
       { name: "replant", share: 1 },
@@ -138,7 +161,7 @@ export namespace kick {
     // path until the performance commits its stop, as the joint resolution
     // assumes of every weapon not yet stopped.
     const strikes: boolean =
-      p.feint !== true &&
+      p.feint === undefined &&
       p.at.kind === "person" &&
       StrikingQuality.stops(p.accuracy);
     let fixed: number | null | undefined = strikes ? null : undefined;
@@ -152,9 +175,20 @@ export namespace kick {
     // figure shows.
     const limb: "leftLeg" | "rightLeg" =
       timing.side === "left" ? "leftLeg" : "rightLeg";
-    const course: StrikingWeapon.Course = (at: number, channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2], projection?: Parameters<StrikingWeapon.Course>[3]): IAutoMovieMotionHumanPosture =>
-      geometry().posture(Math.min(timing.duration, Math.max(0, at - t0)), channels, resolution, projection?.());
-    const frames: ReturnType<typeof StrikingWeapon.frames> = StrikingWeapon.frames(context.body, limb);
+    const course: StrikingWeapon.Course = (
+      at: number,
+      channels?: Parameters<StrikingWeapon.Course>[1],
+      resolution?: Parameters<StrikingWeapon.Course>[2],
+      projection?: Parameters<StrikingWeapon.Course>[3],
+    ): IAutoMovieMotionHumanPosture =>
+      geometry().posture(
+        Math.min(timing.duration, Math.max(0, at - t0)),
+        channels,
+        resolution,
+        projection?.(),
+      );
+    const frames: ReturnType<typeof StrikingWeapon.frames> =
+      StrikingWeapon.frames(context.body, limb);
     const chain: StrikingWeapon.IChain = {
       ids: ["thigh", "shin", "foot"],
       limb,
@@ -172,8 +206,20 @@ export namespace kick {
           frames,
         ),
       read: StrikingWeaponTable.reader(
-        (seconds: number, near: Parameters<typeof StrikingWeapon.leg>[4], kept: NonNullable<Parameters<typeof StrikingWeapon.leg>[5]>): IAutoMovieVector3[] =>
-          StrikingWeapon.leg(context.body, course, timing.side, seconds, near, kept, frames),
+        (
+          seconds: number,
+          near: Parameters<typeof StrikingWeapon.leg>[4],
+          kept: NonNullable<Parameters<typeof StrikingWeapon.leg>[5]>,
+        ): IAutoMovieVector3[] =>
+          StrikingWeapon.leg(
+            context.body,
+            course,
+            timing.side,
+            seconds,
+            near,
+            kept,
+            frames,
+          ),
       ),
       on: (): object => geometry(),
     };
@@ -239,19 +285,22 @@ export namespace kick {
       get contacts(): IAutoMovieMotionHumanContactWindow[] {
         return geometry()
           .contacts.map(
-            (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
+            (
+              c: IAutoMovieMotionHumanContactWindow,
+            ): IAutoMovieMotionHumanContactWindow => ({
               ...c,
               from: share(c.from * timing.duration),
               to: share(c.to * timing.duration),
             }),
           )
           .filter(
-            (c: IAutoMovieMotionHumanContactWindow): boolean => c.to > c.from || c.to === 1,
+            (c: IAutoMovieMotionHumanContactWindow): boolean =>
+              c.to > c.from || c.to === 1,
           );
       },
       // A feint's chamber is the committed kick's, so the contact it
       // pretends is one extension past its chamber key.
-      ...(p.feint === true
+      ...(p.feint !== undefined
         ? {
             feigned:
               timing.chamber +
@@ -260,7 +309,12 @@ export namespace kick {
               offset,
           }
         : { contact: timing.impact - offset }),
-      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(
           timing.duration,
           Math.max(0, seconds + offset),
@@ -285,7 +339,8 @@ export namespace kick {
             },
           }
         : {}),
-      record: (): IAutoMovieMotionHumanStrikingRecord.IRecord => geometry().record,
+      record: (): IAutoMovieMotionHumanStrikingRecord.IRecord =>
+        geometry().record,
       source: {
         timing,
         geometry,
@@ -297,7 +352,9 @@ export namespace kick {
   }
 
   /** Whether a plan is a kick's, carrying what a redirect continues. */
-  function continues(plan: IAutoMovieMotionHumanActionPlan): plan is IAutoMovieMotionHumanKick.IPlan {
+  function continues(
+    plan: IAutoMovieMotionHumanActionPlan,
+  ): plan is IAutoMovieMotionHumanKick.IPlan {
     return StrikingRecord.carries(plan) && "source" in plan;
   }
 
@@ -346,11 +403,11 @@ export namespace kick {
       );
     const impact: number =
       chamber +
-      (context.params.feint === true
+      (context.params.feint !== undefined
         ? 0
         : StrikingSkill.KICK_EXTENSION * StrikingSkill.strike(context.skill));
     const recoil: number =
-      context.params.feint === true
+      context.params.feint !== undefined
         ? chamber - prep
         : StrikingSkill.KICK_RECOIL * slow;
     return { side, lead, prep, chamber, impact, duration: impact + recoil };

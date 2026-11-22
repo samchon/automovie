@@ -18,12 +18,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanHandToBody,
   HumanChain,
   HumanGaze,
   gestureSignal,
   gestureStroke,
   resolveHumanPosture,
-  selfAction,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -266,11 +266,11 @@ function checkAuthoredChannels(): void {
   const standing = motionHumanLaw.perform(
     "channels",
     [{ subject: "a", body }],
-    HumanChain.subject("a").stand({ seconds: 1 }),
+    HumanChain.subject("a").stand({ hold: 1 }),
   );
   const context = standing.performance.segments("a")[0]!.context;
   const authored = (params: IAutoMovieMotionHumanSelfAction.IParams) =>
-    selfAction.plan({ ...context, params });
+    AutoMovieMotionHumanHandToBody.selfAction.plan({ ...context, params });
   const at = (plan: IAutoMovieMotionHumanActionPlan, name: string) =>
     plan.events.find((e) => e.name === name)!.share * plan.duration;
   for (const [kind, bone] of [
@@ -329,7 +329,7 @@ function checkAuthoredChannels(): void {
       );
     }
   }
-  const pump = authored({ kind: "fistPump", side: "left" }),
+  const pump = authored({ kind: "fistPump", hand: "left" }),
     start = at(pump, "strokeStart"),
     period = (at(pump, "strokeEnd") - start) / 3;
   const [entry, down, release] = [

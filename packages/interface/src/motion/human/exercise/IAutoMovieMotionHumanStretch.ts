@@ -32,8 +32,8 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * Not drafted: seated and floor stretches, PNF, dynamic stretches and the
  * flows (sun salutation); they need floor supports for the hands and seat.
  *
- * @evidence contracts/development/common.md#meaningful-documentation side: The side stretched or lifted; `right` when absent. seconds: Seconds held; `HOLD` when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. intensity: How far into the range; `moderate` when absent.
- * @evidence contracts/development/design.md#principled-representation side: The side stretched or lifted; `right` when absent. seconds: Seconds held; `HOLD` when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. intensity: How far into the range; `moderate` when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation side: The side stretched or lifted; `right` when absent. hold: Seconds held; `HOLD` when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. depth: How far into the range; `moderate` when absent.
+ * @evidence contracts/development/design.md#principled-representation side: The side stretched or lifted; `right` when absent. hold: Seconds held; `HOLD` when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. depth: How far into the range; `moderate` when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.stretch, params); exercise/stretch.ts (stretch.plan, context); exercise/stretch.ts (stretch.plan); executable/cases/stretchCases.ts (stretchCases).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -54,10 +54,10 @@ export namespace IAutoMovieMotionHumanStretch {
     side?: "left" | "right";
 
     /** Seconds held at the end of the range, at least 0, after 1.5 s to enter and before 1.5 s to release; `HOLD` when absent (`stretch.HOLD`, 30 s, Bandy et al. 1997). */
-    seconds?: number;
+    hold?: number;
 
     /** How far into the joint's own range (`stretch.INTENSITY`): `mild` half of it, a gentle stretch; `moderate` deep, a working stretch or a held pose. `moderate` when absent. */
-    intensity?: "mild" | "moderate";
+    depth?: "mild" | "moderate";
 
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;

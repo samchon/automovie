@@ -8,11 +8,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTarget,
   HumanHand,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,11 +36,8 @@ export function test_motion_contact_primitive_arm_carry_carried(): void {
   for (const yaw of [0, 90] as const) {
     const placement: IAutoMovieVector3 =
       yaw === 0 ? { x: 0, y: 0, z: 0 } : { x: 1, y: 0, z: 2 };
-    const rest: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      placement,
-      yaw,
-    );
+    const rest: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, placement, yaw);
     const expected: IAutoMovieVector3 =
       yaw === 0 ? { x: -0.2, y: 0.95, z: 0.4 } : { x: 1.4, y: 0.95, z: 2.2 };
     const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanArm.goal(

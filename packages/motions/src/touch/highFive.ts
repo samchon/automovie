@@ -146,7 +146,9 @@ export namespace highFive {
       roles: ["slapper", "slapper"],
       contacts: { meet: { height: 0.9, range: 0.8, facing: "performer" } },
       place: (roles) => highFiveContact.place(roles, kind, side, bare, height),
-      surfaces: bare ? (roles) => highFiveContact.surface(roles, kind, side, height) : undefined,
+      surfaces: bare
+        ? (roles) => highFiveContact.surface(roles, kind, side, height)
+        : undefined,
       timing: (role, contacts) => {
         const reach: number = touchReach.meeting(
           role.body,
@@ -182,7 +184,7 @@ export namespace highFive {
     const p: IAutoMovieMotionHumanHighFive.IParams = context.params;
     const body = context.body;
     const kind: IAutoMovieMotionHumanHighFive.Kind = p.kind ?? "high";
-    const side: AutoMovieHumanSide = p.side ?? "right";
+    const side: AutoMovieHumanSide = p.hand ?? "right";
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const met: IAutoMovieMotionMeeting = context.meeting(
       meeting(kind, side, p.prop === undefined),
@@ -197,7 +199,9 @@ export namespace highFive {
     const target: IAutoMovieMotionHumanTarget.IPlace =
       AutoMovieMotionMeeting.place(met, "meet", entry);
     const paired: IAutoMovieMotionHumanTarget.IPlace =
-      met.solid && p.prop === undefined && met.roles[0]!.subject !== context.subject
+      met.solid &&
+      p.prop === undefined &&
+      met.roles[0]!.subject !== context.subject
         ? { ...target, normal: Vector3.scale(target.normal, -1) }
         : target;
 
@@ -270,8 +274,8 @@ export namespace highFive {
     // A held vessel stands upright at the meeting and the fingers keep it.
     const lay: "upright" | "tangent" =
       p.prop === undefined ? "tangent" : "upright";
-    const tangent: IAutoMovieMotionHumanTouchForm.Tangent = p.prop === undefined
-      ? highFiveContact.tangent(kind) : "up";
+    const tangent: IAutoMovieMotionHumanTouchForm.Tangent =
+      p.prop === undefined ? highFiveContact.tangent(kind) : "up";
 
     // Seated, the trunk leans forward over the seat as far as this arm
     // needs to reach the meeting, the arm's target first
@@ -295,7 +299,9 @@ export namespace highFive {
       p.prop === undefined
         ? highFiveContact.arm(role, side, effector, tangent, place, shoulder)
         : handshake.arm(body, side, shoulder);
-    const need = (limit: number): IAutoMovieMotionHumanSeatedReach.INeedResult =>
+    const need = (
+      limit: number,
+    ): IAutoMovieMotionHumanSeatedReach.INeedResult =>
       HumanSeatedReach.need(
         role,
         shoulder,
@@ -306,18 +312,23 @@ export namespace highFive {
     // A seated reach can keep swivel room at the meeting by using more of
     // its available trunk flexion. The comfortable radius is the same
     // named radius the meeting already prefers in placing the contact.
-    const held: IAutoMovieMotionHumanSeatedReach.INeedResult = need(wrist.limit);
+    const held: IAutoMovieMotionHumanSeatedReach.INeedResult = need(
+      wrist.limit,
+    );
     const lean: IAutoMovieMotionHumanSeatedReach.INeedResult =
-      role.seated === true && p.prop === undefined && held.share > 0 ? need(wrist.reach) : held;
+      role.seated === true && p.prop === undefined && held.share > 0
+        ? need(wrist.reach)
+        : held;
     const reached: IAutoMovieMotionHumanPosture = HumanSeatedReach.posed(
       body,
       entry,
       lean.joints,
       lean.share,
     );
-    const clear: IAutoMovieMotionHumanColliders.IPlaced[] = met.solid && p.prop === undefined
-      ? highFiveContact.blocking(context, p.partner, side)
-      : [];
+    const clear: IAutoMovieMotionHumanColliders.IPlaced[] =
+      met.solid && p.prop === undefined
+        ? highFiveContact.blocking(context, p.partner, side)
+        : [];
     // The elbow and wrist are fitted on the same trunk the meeting displays.
     const facing: IAutoMovieVector3 | undefined =
       p.prop === undefined
@@ -381,9 +392,11 @@ export namespace highFive {
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
           effector,
           region: (): IAutoMovieMotionHumanTarget.IPlace => place,
-        ...(clear.length === 0 ? {} : {
-          others: (): IObstacles => ({ clear, rests: [] }),
-        }),
+          ...(clear.length === 0
+            ? {}
+            : {
+                others: (): IObstacles => ({ clear, rests: [] }),
+              }),
           kind: "press",
           count: 1,
           tangent,

@@ -128,7 +128,7 @@ export function test_motion_exercise_stage_blade(): void {
     const hasProp: boolean = sample.params.style === "fencing";
     const entry: IAutoMovieMotionHumanChain = hasProp
       ? performer.pickUp({ prop: prop.subject, handle: "grip", hand: "right" })
-      : performer.stand({ seconds: 0.3 });
+      : performer.stand({ hold: 0.3 });
     const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: `stage-blade-${style}`,
       laws: HUMAN_LEXICON.blade,

@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanCover,
   HumanChain,
-  HumanCover,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
@@ -109,9 +109,11 @@ export function test_human_motion_cover(): void {
           },
         ],
         props,
-        laws: [HumanCover.moveInCover],
-        composition: HumanChain.subject("a").registered("moveInCover", stage.move)
-          .node,
+        laws: [AutoMovieMotionHumanCover.cover.moveInCover],
+        composition: HumanChain.subject("a").registered(
+          "moveInCover",
+          stage.move,
+        ).node,
       });
     const covered = (take: HumanPerformance): IAutoMovieMotionHumanSegment =>
       take

@@ -27,8 +27,8 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * The knee-down marks posture, the first free sprint stride, hurdles and
  * relay exchanges are outside this block-start action.
  *
- * @evidence contracts/development/common.md#meaningful-documentation front: The front foot; with `on` and no `front`, the side of the placed front plate, otherwise `left`. on: Scene id of a starting block whose `front` and `rear` pedal affordances bear the feet; absent uses the body-scaled setting. sex: The sprinter's sex, the stratum whose measured centre-of-mass distance the set takes (`CENTRE`); `male` when absent. seconds: Seconds held in the set; 1.5 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation front: The front foot; with `on` and no `front`, the side of the placed front plate, otherwise `left`. on: Scene id of a starting block whose `front` and `rear` pedal affordances bear the feet; absent uses the body-scaled setting. sex: The sprinter's sex, the stratum whose measured centre-of-mass distance the set takes (`CENTRE`); `male` when absent. seconds: Seconds held in the set; 1.5 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/common.md#meaningful-documentation front: The front foot; with `on` and no `front`, the side of the placed front plate, otherwise `left`. on: Scene id of a starting block whose `front` and `rear` pedal affordances bear the feet; absent uses the body-scaled setting. sex: The sprinter's sex, the stratum whose measured centre-of-mass distance the set takes (`CENTRE`); `male` when absent. hold: Seconds held in the set; 1.5 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/design.md#principled-representation front: The front foot; with `on` and no `front`, the side of the placed front plate, otherwise `left`. on: Scene id of a starting block whose `front` and `rear` pedal affordances bear the feet; absent uses the body-scaled setting. sex: The sprinter's sex, the stratum whose measured centre-of-mass distance the set takes (`CENTRE`); `male` when absent. hold: Seconds held in the set; 1.5 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.athletics, params); sport/athletics.ts (athletics.plan, context); sport/athletics.ts (athletics.plan).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -52,7 +52,7 @@ export namespace IAutoMovieMotionHumanAthletics {
     sex?: "female" | "male";
 
     /** Seconds held in the set, at least 0; 1.5 when absent. */
-    seconds?: number;
+    hold?: number;
 
     /** The drive from the gun to the front block's exit, seconds, positive; the action ends at the gun when absent. */
     drive?: number;

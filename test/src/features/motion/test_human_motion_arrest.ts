@@ -67,7 +67,7 @@ export function test_human_motion_arrest(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
   try {
     let frisk: IAutoMovieMotionHumanChain = HumanChain.subject("o")
-      .stand({ seconds: 1.2, sway: 0 })
+      .stand({ hold: 1.2, sway: 0 })
       .walk({ to: { x: 0, y: 0, z: -0.5 } });
     FRISK.forEach((region: AutoMovieHumanoidRegion, k: number): void => {
       frisk = frisk.act(
@@ -75,7 +75,7 @@ export function test_human_motion_arrest(): void {
         {
           target: { kind: "person", subject: "s", region },
           kind: "pat",
-          side: region.endsWith("Left") ? "left" : "right",
+          hand: region.endsWith("Left") ? "left" : "right",
         },
         `pat${k}`,
       );
@@ -95,7 +95,7 @@ export function test_human_motion_arrest(): void {
     // The subject keeps the hands clasped behind until the cuffs are on, and
     // walks off bound when the cuffing ends.
     const subjectChain: IAutoMovieMotionHumanChain = HumanChain.subject("s")
-      .registered("paradeRest", { seconds: HELD })
+      .registered("paradeRest", { hold: HELD })
       .walk({ to: { x: 0, y: 0, z: 1.5 } })
       .sync({ of: "cuff", event: "end" });
     const film: HumanPerformance = new HumanPerformance({

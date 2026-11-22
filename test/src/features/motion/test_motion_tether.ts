@@ -38,8 +38,13 @@ const ARC: number = 0.01;
 export function test_motion_tether(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const far: HumanPerformance = staged(body, { x: 3, y: 0, z: 0 });
-  const taut: IAutoMovieMotionHumanTether.ISpan = far.tether("anchor", "line", 0.5);
-  const rest: number = staged(body, { x: 1, y: 0, z: 0 }).prop("lure", 0.5).position.y;
+  const taut: IAutoMovieMotionHumanTether.ISpan = far.tether(
+    "anchor",
+    "line",
+    0.5,
+  );
+  const rest: number = staged(body, { x: 1, y: 0, z: 0 }).prop("lure", 0.5)
+    .position.y;
   const reached: number = Vector3.distance(taut.from, taut.to);
   TestValidator.predicate(
     `a far lure is pulled to the line's length (${reached.toFixed(4)} m of ${LENGTH} m), keeping its height`,
@@ -47,14 +52,27 @@ export function test_motion_tether(): void {
       Vector3.distance(taut.to, eye(far.prop("lure", 0.5))) <= 1e-9 &&
       Math.abs(far.prop("lure", 0.5).position.y - rest) <= 1e-9,
   );
-  TestValidator.predicate("the pulled line runs taut and straight", taut.taut && taut.points.length === 2);
+  TestValidator.predicate(
+    "the pulled line runs taut and straight",
+    taut.taut && taut.points.length === 2,
+  );
 
   const near: HumanPerformance = staged(body, { x: 1, y: 0, z: 0 });
-  const slack: IAutoMovieMotionHumanTether.ISpan = near.tether("anchor", "line", 0.5);
+  const slack: IAutoMovieMotionHumanTether.ISpan = near.tether(
+    "anchor",
+    "line",
+    0.5,
+  );
   const arc: number = slack.points
     .slice(1)
-    .reduce((sum: number, p: IAutoMovieVector3, i: number): number => sum + Vector3.distance(slack.points[i]!, p), 0);
-  const lowest: number = Math.min(...slack.points.map((p: IAutoMovieVector3): number => p.y));
+    .reduce(
+      (sum: number, p: IAutoMovieVector3, i: number): number =>
+        sum + Vector3.distance(slack.points[i]!, p),
+      0,
+    );
+  const lowest: number = Math.min(
+    ...slack.points.map((p: IAutoMovieVector3): number => p.y),
+  );
   TestValidator.predicate(
     `a near lure leaves the line slack, hanging ${arc.toFixed(3)} m below its ends`,
     !slack.taut &&
@@ -66,7 +84,10 @@ export function test_motion_tether(): void {
 }
 
 /** A standing performer, a fixed anchor with a 2 m line to a lure resting at a floor point. */
-function staged(body: IAutoMovieMotionHumanBody, at: IAutoMovieVector3): HumanPerformance {
+function staged(
+  body: IAutoMovieMotionHumanBody,
+  at: IAutoMovieVector3,
+): HumanPerformance {
   const line: IAutoMovieMotionHumanTether = {
     id: "line",
     from: "eye",
@@ -76,11 +97,26 @@ function staged(body: IAutoMovieMotionHumanBody, at: IAutoMovieVector3): HumanPe
   return new HumanPerformance({
     seed: "tether",
     props: [
-      { ...HumanObject.prop("anchor", createLure({ id: "anchor" }), { at: ANCHOR, yaw: 0, fixed: true }), tethers: [line] },
+      {
+        ...HumanObject.prop("anchor", createLure({ id: "anchor" }), {
+          at: ANCHOR,
+          yaw: 0,
+          fixed: true,
+        }),
+        tethers: [line],
+      },
       HumanObject.prop("lure", createLure({ id: "lure" }), placement(at)),
     ],
-    performers: [{ subject: "a", body, at: { x: 0, y: 0, z: -2 }, yaw: 0, proficiency: { level: "trained" } }],
-    composition: HumanChain.subject("a").stand({ seconds: 1 }).node,
+    performers: [
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: -2 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("a").stand({ hold: 1 }).node,
   });
 }
 
@@ -91,5 +127,11 @@ function placement(at: IAutoMovieVector3): IAutoMovieRigidTransform {
 
 /** A lure's eye at a frame. */
 function eye(frame: IAutoMovieRigidTransform): IAutoMovieVector3 {
-  return Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, createLure().affordance("eye").frame.translation));
+  return Vector3.add(
+    frame.position,
+    Quaternion.rotateVector(
+      frame.rotation,
+      createLure().affordance("eye").frame.translation,
+    ),
+  );
 }

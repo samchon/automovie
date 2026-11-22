@@ -30,7 +30,11 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
           { anchor: "ss-back" },
         ),
         act("dontKnow"),
-        act("slapped", { from: at("wyn", "palmRight") }, { anchor: "ss-sold" }),
+        act(
+          "slapped",
+          { target: at("wyn", "palmRight") },
+          { anchor: "ss-sold" },
+        ),
         act(
           "poke",
           { target: at("wyn", "chestLeft"), count: 1 },
@@ -38,7 +42,7 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
         ),
         act(
           "leanBack",
-          { from: at("wyn", "handBackRight") },
+          { target: at("wyn", "handBackRight") },
           { anchor: "ss-lean" },
         ),
         act(
@@ -56,12 +60,12 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
       person("wyn", "f1", 0, 0.6, 180, [
         act(
           "slapped",
-          { from: at("vic", "palmRight") },
+          { target: at("vic", "palmRight") },
           { sync: { of: "ss-slap" } },
         ),
         act(
           "slapped",
-          { from: at("vic", "handBackRight") },
+          { target: at("vic", "handBackRight") },
           { sync: { of: "ss-back" } },
         ),
         act(
@@ -71,7 +75,7 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
         ),
         act(
           "pushed",
-          { from: at("vic", "indexTipRight") },
+          { target: at("vic", "indexTipRight") },
           { sync: { of: "ss-poke" } },
         ),
         act(
@@ -81,12 +85,12 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
         ),
         act(
           "slapped",
-          { from: at("vic", "palmRight") },
+          { target: at("vic", "palmRight") },
           { sync: { of: "ss-slap2" } },
         ),
         act(
           "slapped",
-          { from: at("vic", "handBackRight") },
+          { target: at("vic", "handBackRight") },
           { sync: { of: "ss-back2" } },
         ),
         act("thumbsUp"),
@@ -122,24 +126,24 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
           { target: at("yan", "neckLeft"), other: at("yan", "neckRight") },
           { anchor: "choke" },
         ),
-        act("stand", { seconds: 1.4 }),
-        act("pushed", { from: at("yan", "palmRight") }, { anchor: "ch-off" }),
+        act("stand", { hold: 1.4 }),
+        act("pushed", { target: at("yan", "palmRight") }, { anchor: "ch-off" }),
         act("shakeFist"),
         act(
           "leanBack",
-          { from: at("yan", "palmRight") },
+          { target: at("yan", "palmRight") },
           { anchor: "ch-lean" },
         ),
       ]),
       person("yan", "m1", 0, 0.5, 180, [
         act(
           "pushed",
-          { from: at("xia", "indexTipRight") },
+          { target: at("xia", "indexTipRight") },
           { sync: { of: "ch-poke" } },
         ),
         act(
           "grabbed",
-          { from: at("xia", "palmRight") },
+          { target: at("xia", "palmRight") },
           { sync: { of: "ch-grab" } },
         ),
         act("halt"),
@@ -153,7 +157,7 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
         ),
         act(
           "shove",
-          { target: at("xia", "chestLeft"), side: "right" },
+          { target: at("xia", "chestLeft"), hand: "right" },
           { sync: { of: "ch-off", event: "start", align: "stroke" } },
         ),
         act(
@@ -185,11 +189,11 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
         ),
         act("clinch", { partner: "abe", hold: 1.5 }, { anchor: "sc-tie" }),
         act("hairPull", { target: at("abe", "crown") }, { anchor: "pull" }),
-        act("pushed", { from: at("abe", "palmRight") }, { anchor: "sc-off" }),
+        act("pushed", { target: at("abe", "palmRight") }, { anchor: "sc-off" }),
         act("shakeFist"),
         act(
           "leanBack",
-          { from: at("abe", "palmRight") },
+          { target: at("abe", "palmRight") },
           { anchor: "sc-lean" },
         ),
         act("dontKnow"),
@@ -197,7 +201,7 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
       person("abe", "m1", 0, 0.6, 180, [
         act(
           "grabbed",
-          { from: at("zak", "palmRight") },
+          { target: at("zak", "palmRight") },
           { sync: { of: "sc-grab" } },
         ),
         act("wince"),
@@ -211,12 +215,12 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
         ),
         act(
           "grabbed",
-          { from: at("zak", "palmRight") },
+          { target: at("zak", "palmRight") },
           { sync: { of: "pull" } },
         ),
         act(
           "shove",
-          { target: at("zak", "chestLeft"), side: "right" },
+          { target: at("zak", "chestLeft"), hand: "right" },
           { sync: { of: "sc-off", event: "start", align: "stroke" } },
         ),
         act(

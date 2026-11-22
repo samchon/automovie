@@ -137,7 +137,7 @@ export namespace motionUpperPhrase {
             handle: "handle",
             hand,
           })
-        : HumanChain.subject("a").stand({ seconds: 0.3 })
+        : HumanChain.subject("a").stand({ hold: 0.3 })
       ).registered(law, params).node,
     });
   }

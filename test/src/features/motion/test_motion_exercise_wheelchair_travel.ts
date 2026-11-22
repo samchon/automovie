@@ -21,11 +21,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
+  AutoMovieMotionHumanRide,
   HumanChain,
-  HumanHandrimStroke,
   HumanObject,
   HumanPerformance,
-  HumanRide,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -178,7 +178,7 @@ function take(key: BodyKey, failures: string[]): void {
   const brake: IAutoMovieMotionHumanHandrimStroke = {
     on: "chair",
     rims,
-    side: "left",
+    hand: "left",
     approach: pivotAt - brakeStart,
     push: turnSeconds,
     recovery: 0.7,
@@ -198,7 +198,10 @@ function take(key: BodyKey, failures: string[]): void {
   const performance: HumanPerformance = new HumanPerformance({
     seed,
     performers: [performer],
-    laws: [HumanHandrimStroke, HumanRide.ride],
+    laws: [
+      AutoMovieMotionHumanRide.handrimStroke,
+      AutoMovieMotionHumanMount.rideHorse.ride,
+    ],
     props: [
       HumanObject.prop("chair", chair, origin, pose, (id, film) =>
         part(id as createWheelchair.Affordance, film),

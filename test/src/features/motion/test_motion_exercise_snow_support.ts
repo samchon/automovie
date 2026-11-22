@@ -20,13 +20,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanRide,
   HumanChain,
   HumanFoot,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanSurface,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -105,14 +105,14 @@ function take(key: BodyKey, failures: string[]): void {
     new HumanPerformance({
       seed: "snow-support",
       performers: [performer],
-      laws: [HumanSurface.snowGlide],
+      laws: [AutoMovieMotionHumanRide.HumanSurface.snowGlide],
       props,
       composition: HumanChain.subject("snow").registered("snowGlide", params)
         .node,
     });
   const ski: ReturnType<typeof createSki> = createSki({}, 8);
   const before: ReturnType<HumanPerformance["bones"]> = snowGlide({
-    seconds: 1,
+    duration: 1,
     speed: 1,
   }).bones("snow", 0);
   const stance: IAutoMovieVector3 = ski.affordance("stance").frame.translation;
@@ -144,7 +144,7 @@ function take(key: BodyKey, failures: string[]): void {
   };
   const alpine: HumanPerformance = snowGlide(
     {
-      seconds: 3.2,
+      duration: 3.2,
       speed: 1.4,
       grade: downhill,
       slope: "slope",
@@ -296,7 +296,7 @@ function take(key: BodyKey, failures: string[]): void {
   };
   const skiStroke = (grip: string): HumanPerformance =>
     snowGlide(
-      { seconds: 2.2, speed: 1.15, stop: true, nordic: { ...stroke, grip } },
+      { duration: 2.2, speed: 1.15, stop: true, nordic: { ...stroke, grip } },
       [pole],
     );
   const nordic: HumanPerformance = skiStroke("grip");
@@ -449,7 +449,7 @@ function snowboard(
     seed: "snowboard-edge",
     performers: [{ ...performer, at: { x: 0, y: binding, z: 0 }, yaw: 90 }],
     props: [prop],
-    laws: [HumanSurface.boardRide],
+    laws: [AutoMovieMotionHumanRide.HumanSurface.boardRide],
     composition: HumanChain.subject("snow")
       .support({
         // A bearing foot never slides onto its binding: the feet first bear

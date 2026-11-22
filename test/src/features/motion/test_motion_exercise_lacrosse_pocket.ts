@@ -11,12 +11,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
+  AutoMovieMotionHumanThrowCatch,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  stand,
-  stickBall,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -62,12 +62,12 @@ export function test_motion_exercise_lacrosse_pocket(): void {
   );
   const seat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
     {
-      ...stand,
+      ...AutoMovieMotionHumanStance.stand,
       name: "seatCrosseBall",
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
       ): IAutoMovieMotionHumanActionPlan => ({
-        ...stand.plan(context),
+        ...AutoMovieMotionHumanStance.stand.plan(context),
         mounts: [{ prop: "ball", onto: "crosse", point: "pocket", from: 0.5 }],
       }),
     };
@@ -76,7 +76,7 @@ export function test_motion_exercise_lacrosse_pocket(): void {
       HumanChain.subject("player");
     return new HumanPerformance({
       seed: "exercise-crosse-pass",
-      laws: [seat, stickBall],
+      laws: [seat, AutoMovieMotionHumanThrowCatch.stickBall],
       performers: [
         {
           subject: "player",

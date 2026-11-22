@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanOperate } from "../affordance/IAutoMovieMotionHumanOperate";
+import type { IAutoMovieMotionHumanOperate } from "../next/IAutoMovieMotionHumanOperate";
 
 /**
  * Open parameters of the revolver lexicon family, keyed by each runtime export name: a revolver's handling of #3488.

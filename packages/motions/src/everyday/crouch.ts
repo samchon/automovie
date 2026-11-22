@@ -274,7 +274,7 @@ export namespace crouch {
       });
     const base: IAutoMovieMotionHumanActionPlan = stand.plan({
       ...context,
-      params: { seconds: duration },
+      params: { hold: duration },
     });
     const standing: IAutoMovieMotionHumanPosture = base.posture(0);
     const yaw: number = standing.yaw;

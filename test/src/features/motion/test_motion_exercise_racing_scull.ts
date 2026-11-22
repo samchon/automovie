@@ -16,13 +16,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSwim,
   HumanChain,
   HumanFoot,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  aquatic,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -83,7 +83,7 @@ function verifyCrew(body: IAutoMovieMotionHumanBody): void {
   ): HumanPerformance =>
     new HumanPerformance({
       seed: "racing-scull",
-      laws: [aquatic],
+      laws: [AutoMovieMotionHumanSwim.aquatic],
       props: [HumanObject.prop("shell", shell, motion(0), motion)],
       performers: ["bow", "stroke"].map((subject: string) => ({
         subject,

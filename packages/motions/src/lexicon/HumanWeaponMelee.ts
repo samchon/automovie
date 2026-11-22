@@ -70,9 +70,9 @@ export namespace HumanWeaponMelee {
   export const reload: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["reload"]
   > = HumanActionRow.of("reloadFirearm", touch, {
-    with: "palm",
+    effector: "palm",
     kind: "press",
     count: 1,
-    side: "left",
+    hand: "left",
   });
 }

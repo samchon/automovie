@@ -81,13 +81,13 @@ export namespace HumanCarried {
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IParams>,
       ): IAutoMovieMotionHumanActionPlan => {
-        const { by, seconds } = context.params;
+        const { partner: by, hold: seconds } = context.params;
         const bone: AutoMovieHumanoidBone = context.params.on ?? "upperChest";
         HumanCarriedBorne.lasting(seconds);
         if (by === context.subject)
           throw new HumanRefusal({
             kind: "participant",
-            axis: "by",
+            axis: "partner",
             value: by,
             reason: "a person is carried by someone else",
             fix: "name the carrier",

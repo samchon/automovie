@@ -27,7 +27,7 @@ export function test_motion_contact_face_effector(): void {
   const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
     "wipe-mouth",
     [{ subject: "a", body }],
-    HumanChain.subject("a").handToFace({ task: "wipeMouth", side: "right" }),
+    HumanChain.subject("a").handToFace({ kind: "wipeMouth", hand: "right" }),
   );
   const start: number = motionHumanLaw.event(film, "strokeStart");
   const end: number = motionHumanLaw.event(film, "strokeEnd");

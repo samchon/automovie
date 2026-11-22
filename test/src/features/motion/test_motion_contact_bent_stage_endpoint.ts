@@ -5,7 +5,11 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanStance,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -25,11 +29,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_contact_bent_stage_endpoint(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
-  const rest: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const rest: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const before: ReturnType<typeof poseBones> = poseBones(
     body,
     resolveHumanPosture(body, rest),

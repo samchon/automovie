@@ -173,7 +173,7 @@ export namespace selfAction {
         : kind === "fistPump"
           ? [
               {
-                side: p.side ?? "right",
+                side: p.hand ?? "right",
                 grid: PLACES.fistPump,
                 shape: "fist",
                 pump: true,
@@ -268,7 +268,6 @@ export namespace selfAction {
       modifiers,
     );
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-
 
     // Two arms raised over one span are planned on one base, each beside
     // the other at its rest (`IAutoMovieMotionHumanArmCarry.beside`): they

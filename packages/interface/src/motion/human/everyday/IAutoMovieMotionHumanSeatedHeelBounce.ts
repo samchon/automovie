@@ -13,7 +13,7 @@ export interface IAutoMovieMotionHumanSeatedHeelBounce {
   side: AutoMovieHumanSide;
 
   /** The positive integer number of raises and returns. */
-  beats: number;
+  count: number;
 
   /** Positive finite beats per second. */
   cadence: number;

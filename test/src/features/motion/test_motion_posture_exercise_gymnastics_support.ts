@@ -5,11 +5,8 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  GymnasticsFlight,
-  GymnasticsMat,
-  GymnasticsWheel,
+  AutoMovieMotionHumanAcrobatics,
   HumanChain,
-  HumanGymnastics,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
@@ -44,7 +41,7 @@ export function test_motion_posture_exercise_gymnastics_support(): void {
     });
     return new HumanPerformance({
       seed: "bar",
-      laws: [HumanGymnastics.fosburyFlop],
+      laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.fosburyFlop],
       props: [
         HumanObject.prop("mat", createPlyoBox({ height: top }), {
           at: { ...origin, z: 2.5 },
@@ -69,7 +66,7 @@ export function test_motion_posture_exercise_gymnastics_support(): void {
         },
       ],
       composition: HumanChain.subject("jumper")
-        .stand({ seconds: 0.3 })
+        .stand({ hold: 0.3 })
         .registered("fosburyFlop", {
           to: { x: 0, y: top, z: 2.5 },
           on: "mat",
@@ -109,7 +106,8 @@ export function test_motion_posture_exercise_gymnastics_support(): void {
     "unreachable bar is attributed",
     refused instanceof HumanRefusal && refused.kind === "parameter",
   );
-  const lowest = GymnasticsFlight.prepareLowest(body);
+  const lowest =
+    AutoMovieMotionHumanAcrobatics.GymnasticsFlight.prepareLowest(body);
   const from: IAutoMovieMotionHumanPosture = {
     root: { ...origin },
     yaw: 0,
@@ -119,17 +117,23 @@ export function test_motion_posture_exercise_gymnastics_support(): void {
     limbs: {},
   };
   from.root.y = top - lowest(from);
-  const settled = GymnasticsMat.lie({
+  const settled = AutoMovieMotionHumanAcrobatics.GymnasticsMat.lie({
     body,
     model: body.massModel,
     from,
     velocity: { x: 0.6, y: -1, z: 0 },
     height: top,
   });
-  const prior = settled(GymnasticsMat.SETTLE / 2);
+  const prior = settled(
+    AutoMovieMotionHumanAcrobatics.GymnasticsMat.SETTLE / 2,
+  );
   prior.root.x += 1;
   prior.joints.head = [999, 0, 0];
-  for (const time of [GymnasticsMat.SETTLE, 0, GymnasticsMat.SETTLE / 2]) {
+  for (const time of [
+    AutoMovieMotionHumanAcrobatics.GymnasticsMat.SETTLE,
+    0,
+    AutoMovieMotionHumanAcrobatics.GymnasticsMat.SETTLE / 2,
+  ]) {
     const posture = settled(time);
     TestValidator.predicate(
       "independent settled posture rests on the mat",
@@ -143,7 +147,7 @@ export function test_motion_posture_exercise_gymnastics_support(): void {
     { bones: ["rightHand"], height: 0, support: { kind: "ground" } },
   ];
   const contacts = (rows: IAutoMovieMotionHumanGymnasticsWheel.IRow[]) =>
-    GymnasticsWheel.contacts(
+    AutoMovieMotionHumanAcrobatics.GymnasticsWheel.contacts(
       { rows, root: () => origin },
       spokes,
       (angle) => angle / 360,

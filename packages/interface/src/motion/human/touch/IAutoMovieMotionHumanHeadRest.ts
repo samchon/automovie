@@ -22,7 +22,7 @@ export interface IAutoMovieMotionHumanHeadRest {
   own?: AutoMovieHumanoidRegion;
 
   /** How long the head rests, seconds. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
-  seconds: number;
+  hold: number;
 
   /** How the head goes down and comes up. */
   manner?: IAutoMovieMotionManner;

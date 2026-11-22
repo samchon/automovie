@@ -22,9 +22,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMilitaryDrill,
   HUMAN_LEXICON,
   HumanChain,
-  HumanGunCrew,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
@@ -239,7 +239,7 @@ export function test_motion_exercise_artillery_drill(): void {
       ),
       composition: AutoMovieComposition.sequence(
         taking,
-        HumanGunCrew.drill(ROLES, scene),
+        AutoMovieMotionHumanMilitaryDrill.HumanGunCrew.drill(ROLES, scene),
       ),
     });
     const entry: (anchor: string) => IAutoMovieScheduleEntry = (

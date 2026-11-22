@@ -8,12 +8,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  typeText,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -119,7 +119,7 @@ export function test_motion_contact_keyboard_press(): void {
         const miss: number = Vector3.length(
           Vector3.subtract(tip, {
             x: at.x + offset,
-            y: at.y - typeText.TRAVEL,
+            y: at.y - AutoMovieMotionHumanOperate.typeText.TRAVEL,
             z: at.z,
           }),
         );

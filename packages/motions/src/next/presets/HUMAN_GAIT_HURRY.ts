@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanNext } from "@automovie/interface";
+import type { IAutoMovieMotionHumanGait } from "@automovie/interface";
 
 /**
  * The hurry preset: the `fast` walk (about 1.72 m/s at the reference hip) on
@@ -13,9 +13,8 @@ import type { IAutoMovieMotionHumanNext } from "@automovie/interface";
  * @evidence contracts/development/design.md#minimal-and-owned-surface Re-exported as `AutoMovieMotionHumanGait.HURRY`; the hurry row reads it.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the row and the preset share one value instead of two copies.
  */
-export const HUMAN_GAIT_HURRY: IAutoMovieMotionHumanNext.IAutoMovieMotionHumanGait.IStridePreset =
-  {
-    pace: "fast",
-    stride: 1.1,
-    armSwing: 1.3,
-  };
+export const HUMAN_GAIT_HURRY: IAutoMovieMotionHumanGait.IStridePreset = {
+  pace: "fast",
+  stride: 1.1,
+  armSwing: 1.3,
+};

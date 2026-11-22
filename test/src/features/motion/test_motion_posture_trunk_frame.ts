@@ -15,10 +15,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanChannel,
-  HumanRide,
+  AutoMovieMotionHumanMount,
+  AutoMovieMotionHumanStance,
   HumanTrunk,
   HumanTrunkTurn,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -113,15 +113,15 @@ export function test_motion_posture_trunk_frame(): void {
   );
   TestValidator.predicate(
     "the two carriers yield axial turning",
-    [HumanRide.ride, stand].every((law) => law.yields?.includes("trunkTurn")),
+    [
+      AutoMovieMotionHumanMount.rideHorse.ride,
+      AutoMovieMotionHumanStance.stand,
+    ].every((law) => law.yields?.includes("trunkTurn")),
   );
   stagedTrunkInput();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const base: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const base: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const posture: IAutoMovieMotionHumanPosture = {
     ...base,
     joints: {

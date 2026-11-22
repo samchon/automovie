@@ -22,11 +22,11 @@ import {
   AutoMovieMotionHumanAuditContact,
   AutoMovieMotionHumanAuditGround,
   AutoMovieMotionHumanAuditRange,
+  AutoMovieMotionHumanSwim,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanVerdicts,
-  aquatic,
   swimImmersed,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -405,7 +405,7 @@ export function test_motion_audit_moving_support(): void {
   const surface: number = block.affordance("water").frame.translation.y;
   const swim: HumanPerformance = new HumanPerformance({
     seed: "audit-aquatic",
-    laws: [aquatic],
+    laws: [AutoMovieMotionHumanSwim.aquatic],
     performers: [
       {
         subject: "swimmer",
@@ -475,7 +475,7 @@ export function test_motion_audit_moving_support(): void {
             .map(resolveHydrodynamicForce.volume)
             .reduce((sum: number, volume: number): number => sum + volume, 0),
       },
-      seconds: 0.4,
+      duration: 0.4,
     }).node,
   });
   TestValidator.predicate(

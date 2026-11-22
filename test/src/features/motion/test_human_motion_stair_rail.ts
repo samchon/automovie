@@ -73,7 +73,7 @@ export function test_human_motion_stair_rail(): void {
     const standing = new HumanPerformance({
       seed: "stair-rail-standing",
       performers: [performer],
-      composition: HumanChain.subject("a").stand({ seconds: 0.25 }).node,
+      composition: HumanChain.subject("a").stand({ hold: 0.25 }).node,
     });
     const entered = standing.bones("a", 0);
     const start: number = -Math.max(
@@ -87,7 +87,7 @@ export function test_human_motion_stair_rail(): void {
         tread,
         start,
         on: "stairs",
-        rail: { point, side: "left" },
+        rail: { point, hand: "left" },
       };
       return new HumanPerformance({
         seed: "stair-rail",

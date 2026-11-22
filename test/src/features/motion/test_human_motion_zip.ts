@@ -69,7 +69,7 @@ export function test_human_motion_zip(): void {
     index: "index",
     brace: "brace",
     travel: STROKE,
-    seconds: 0.65,
+    duration: 0.65,
   };
 
   /** Run one action or the round trip with the same staged model. */

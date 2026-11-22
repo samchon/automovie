@@ -50,7 +50,7 @@ export function test_motion_catalogue_case_failure_attribution(): void {
         }
         return motionHumanLawSweep.solo(
           body,
-          HumanChain.subject("a").stand({ seconds: 0.05, sway: 0 }),
+          HumanChain.subject("a").stand({ hold: 0.05, sway: 0 }),
         );
       },
     });

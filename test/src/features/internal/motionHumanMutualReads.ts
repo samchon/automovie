@@ -79,8 +79,8 @@ export namespace motionHumanMutualReads {
         kind: "press" as const,
         hold: 2,
       });
-      xia = xia.stand({ seconds: 0.3 }).touch(press("yan"));
-      yan = yan.stand({ seconds: 0.3 }).touch(press("xia"));
+      xia = xia.stand({ hold: 0.3 }).touch(press("yan"));
+      yan = yan.stand({ hold: 0.3 }).touch(press("xia"));
     } else {
       xia = xia.registered("choke", {
         target: { kind: "person", subject: "yan", region: "neckLeft" },
@@ -96,7 +96,7 @@ export namespace motionHumanMutualReads {
           .registered("hairPull", {
             target: { kind: "person", subject: "yan", region: "crown" },
           });
-        yan = yan.stand({ seconds: 3 }).registered("grabbed", {
+        yan = yan.stand({ hold: 3 }).registered("grabbed", {
           from: { kind: "person", subject: "xia", region: "handRight" },
         });
       }

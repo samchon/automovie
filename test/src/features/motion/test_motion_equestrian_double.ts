@@ -13,13 +13,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanBoard,
+  AutoMovieMotionHumanMount,
+  AutoMovieMotionHumanRide,
   HumanClasp,
   HumanDrape,
   HumanObject,
   HumanRefusal,
   HumanSignature,
-  HumanUnseat,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -97,7 +97,7 @@ export function test_motion_equestrian_double(): void {
       gait: "walk",
       wait: WAIT,
       course,
-      laws: [HumanBoard, HumanClasp],
+      laws: [AutoMovieMotionHumanRide.board, HumanClasp],
       from: { x: 0.6, y: 0, z: -0.2 },
       acts: (seated) =>
         seated.registered("ride", {
@@ -114,7 +114,7 @@ export function test_motion_equestrian_double(): void {
           from: { x: 0.45, y: 0, z: -0.45 },
           acts: (chain) =>
             chain
-              .stand({ seconds: WAIT - 0.4 })
+              .stand({ hold: WAIT - 0.4 })
               // The rider's waist taken standing, before the swing-up.
               .registered("clasp", {
                 seconds: 1,
@@ -408,7 +408,7 @@ export function test_motion_equestrian_double(): void {
       gait: "walk",
       wait: WAIT,
       course: bronc,
-      laws: [HumanBoard, HumanUnseat],
+      laws: [AutoMovieMotionHumanRide.board, AutoMovieMotionHumanMount.unseat],
       props: [
         HumanObject.prop(
           "pickup",
@@ -450,7 +450,7 @@ export function test_motion_equestrian_double(): void {
             chain
               .sit({
                 seat: HumanObject.seat(pickupHorse, pickupAt, "seat"),
-                seconds: 0.5,
+                hold: 0.5,
               })
               .registered("ride", {
                 on: "pickup",

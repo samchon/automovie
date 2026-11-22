@@ -9,13 +9,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGrapple,
   HumanChain,
   HumanColliders,
   HumanCoupled,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  grapple,
 } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -290,7 +290,7 @@ function staged(
 ): HumanPerformance {
   return new HumanPerformance({
     seed: "matched-stage-mat",
-    laws: [grapple],
+    laws: [AutoMovieMotionHumanGrapple.grapple],
     performers: [
       {
         subject: "a",
@@ -310,8 +310,8 @@ function staged(
     composition: HumanChain.mutual(
       HumanCoupled.grappling,
       {
-        initiator: HumanChain.subject("a").stand({ seconds: 0.3, sway: 0 }),
-        receiver: HumanChain.subject("b").stand({ seconds: 0.3, sway: 0 }),
+        initiator: HumanChain.subject("a").stand({ hold: 0.3, sway: 0 }),
+        receiver: HumanChain.subject("b").stand({ hold: 0.3, sway: 0 }),
       },
       scene,
     ).node,

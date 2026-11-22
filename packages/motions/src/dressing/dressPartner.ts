@@ -77,7 +77,7 @@ export const dressPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanD
             subject: params.partner,
             region: params.region,
           },
-          side,
+          hand: side,
           // An item set onto a region facing up, as a crown does, is set down
           // from above it: the palm faces down and the fingers forward, so the
           // hand's frame is defined where the region's normal points up. On

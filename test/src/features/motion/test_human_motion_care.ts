@@ -38,7 +38,10 @@ const STRAIGHT: number = 170;
 const OVER: number = 0.1;
 
 /** How far short of the lying partner's sternum line the knees come down, metres: half the partner's chest breadth and the carer's shank radius, the knee against the partner's side. */
-function beside(a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody): number {
+function beside(
+  a: IAutoMovieMotionHumanBody,
+  b: IAutoMovieMotionHumanBody,
+): number {
   return b.measure.chestBreadth / 2 + a.measure.shankRadius;
 }
 
@@ -276,7 +279,7 @@ function stage(
     composition: HumanChain.subject("b")
       .act("lieDown", {})
       .with(
-        care(HumanChain.subject("a").stand({ seconds: alone.duration }), {
+        care(HumanChain.subject("a").stand({ hold: alone.duration }), {
           kind: "point",
           frame: "world",
           at: knee,

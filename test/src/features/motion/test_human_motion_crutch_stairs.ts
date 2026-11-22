@@ -16,8 +16,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGait,
   HumanChain,
-  HumanCrutchStairs,
   HumanFoot,
   HumanObject,
   HumanPerformance,
@@ -305,7 +305,7 @@ function climb(body: IAutoMovieMotionHumanBody, flight: Flight): IClimb {
   const stand: HumanPerformance = new HumanPerformance({
     seed: "crutch stairs toes",
     performers: [{ ...performer, at: { x: 0, y: 0, z: 0 } }],
-    composition: HumanChain.subject("a").stand({ seconds: 0.1, sway: 0 }).node,
+    composition: HumanChain.subject("a").stand({ hold: 0.1, sway: 0 }).node,
   });
   const toes: number = Math.max(
     ...(["left", "right"] as const).flatMap(
@@ -324,7 +324,10 @@ function climb(body: IAutoMovieMotionHumanBody, flight: Flight): IClimb {
         side === "left" ? params.left : params.right,
         models[side],
         placed,
-        HumanCrutchStairs.track(HumanObject.frame(placed), params),
+        AutoMovieMotionHumanGait.HumanCrutchStairs.track(
+          HumanObject.frame(placed),
+          params,
+        ),
       );
     },
   );
@@ -333,9 +336,9 @@ function climb(body: IAutoMovieMotionHumanBody, flight: Flight): IClimb {
       seed: "crutch stairs",
       performers: [performer],
       props,
-      laws: [HumanCrutchStairs],
+      laws: [AutoMovieMotionHumanGait.HumanCrutchStairs],
       composition: HumanChain.subject("a").registered(
-        HumanCrutchStairs.name,
+        AutoMovieMotionHumanGait.HumanCrutchStairs.name,
         params,
       ).node,
     }),

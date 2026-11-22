@@ -101,16 +101,16 @@ function planWrite(
       reason: "a writing stroke needs at least two finite planar vertices",
       fix: "give [X, Z] vertices in metres on the surface",
     });
-  if (!(Number.isFinite(p.seconds) && p.seconds > 0))
+  if (!(Number.isFinite(p.duration) && p.duration > 0))
     throw new HumanRefusal({
       kind: "parameter",
-      axis: "seconds",
-      value: p.seconds,
+      axis: "duration",
+      value: p.duration,
       reason: "a writing stroke needs a finite positive duration",
       fix: "give the duration of this stroke in seconds",
     });
   const side: AutoMovieHumanSide =
-    p.side ?? (context.entry.holds.left === p.tool ? "left" : "right");
+    p.hand ?? (context.entry.holds.left === p.tool ? "left" : "right");
   const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
     context,
     side,
@@ -236,7 +236,7 @@ function planWrite(
     Quaternion.rotateVector(toolFrame.rotation, site.frame.translation),
   );
   const tempo: number = context.tempo ?? 1;
-  const writing: number = p.seconds * tempo;
+  const writing: number = p.duration * tempo;
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare:
       tempo *

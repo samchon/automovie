@@ -214,8 +214,8 @@ function scene(
   const partner: Chain = HumanChain.subject("b");
   const first: Chain =
     pose === "stand"
-      ? partner.stand({ seconds: 8 })
-      : partner.sit({ seat, seconds: 8 }).rise({});
+      ? partner.stand({ hold: 8 })
+      : partner.sit({ seat, hold: 8 }).rise({});
   return new HumanPerformance({
     seed: "place-over-head",
     laws: [placeOverHead],

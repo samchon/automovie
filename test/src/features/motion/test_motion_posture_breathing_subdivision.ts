@@ -4,13 +4,19 @@ import type {
   IAutoMoviePose,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import { HumanBreath, HumanChain, HumanPerformance } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanExpression,
+  HumanChain,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";
 import { vclose } from "../internal/vclose";
+
+const { HumanBreath } = AutoMovieMotionHumanExpression;
 
 /** The observed spinal joints with flexion contributions from a tidal breath. */
 const TRUNK = ["spine", "chest"] as const;
@@ -176,7 +182,7 @@ function guard(
     HumanChain.subject("actor");
   for (let index: number = 0; index < segments; ++index)
     chain = chain.guard({
-      seconds: DURATION / segments,
+      duration: DURATION / segments,
       stance: "orthodox",
       style: "kickboxing",
     });

@@ -66,9 +66,7 @@ export namespace HumanCarriedBearing {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IBearing>,
   ): IAutoMovieMotionHumanActionPlan {
-    const seconds: number = HumanCarriedBorne.lasting(
-      context.params.seconds ?? 2,
-    );
+    const seconds: number = HumanCarriedBorne.lasting(context.params.hold ?? 2);
     const carry: IAutoMovieMotionHumanCarried.Carry =
       context.params.carry ?? "piggyback";
     const row: IAutoMovieMotionHumanCarried.IRow = HumanCarried.CARRIES[carry];

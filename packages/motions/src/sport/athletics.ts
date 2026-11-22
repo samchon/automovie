@@ -165,8 +165,8 @@ export namespace athletics {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanAthletics.IParams = context.params;
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-    const hold: number = p.seconds ?? 1.5;
-    HumanBound.least("seconds", hold, 0, "s");
+    const hold: number = p.hold ?? 1.5;
+    HumanBound.least("hold", hold, 0, "s");
     if (p.drive !== undefined) HumanBound.above("drive", p.drive, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);

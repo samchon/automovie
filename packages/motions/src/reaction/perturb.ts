@@ -124,8 +124,7 @@ export namespace perturb {
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanEntryState = context.entry;
-    const model: IAutoMovieResolveCenterOfMass.IModel =
-      body.massModel;
+    const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
     const length: number = resolveAutoMovieCenterOfMass.pendulum(
       body.measure.hipHeight,
     );
@@ -135,14 +134,19 @@ export namespace perturb {
     const impulses: IAutoMovieMotionHumanImpulse[] = (
       context.forces?.(-1 / w0, 0) ?? []
     ).filter(
-      (f: IAutoMovieMotionHumanForce): f is IAutoMovieMotionHumanImpulse => f.kind === "impulse",
+      (f: IAutoMovieMotionHumanForce): f is IAutoMovieMotionHumanImpulse =>
+        f.kind === "impulse",
     );
     const impulse: IAutoMovieVector3 = impulses.reduce(
-      (sum: IAutoMovieVector3, f: IAutoMovieMotionHumanImpulse): IAutoMovieVector3 =>
-        Vector3.add(sum, f.impulse),
+      (
+        sum: IAutoMovieVector3,
+        f: IAutoMovieMotionHumanImpulse,
+      ): IAutoMovieVector3 => Vector3.add(sum, f.impulse),
       { x: 0, y: 0, z: 0 },
     );
-    const requestedBones: Set<AutoMovieHumanoidBone> = new Set(HumanColliders.bones(body));
+    const requestedBones: Set<AutoMovieHumanoidBone> = new Set(
+      HumanColliders.bones(body),
+    );
 
     // Prepare both sides' fixed socket demand without observing planted
     // state before the original pose admission and centre measurement.
@@ -157,16 +161,16 @@ export namespace perturb {
       undefined,
       requestedBones,
     );
-    const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(model, bones);
+    const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+      model,
+      bones,
+    );
     const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
       (side: "left" | "right"): boolean => entry.feet[side].planted,
     );
-    const bearing: readonly ("left" | "right")[] = planted.length === 0 ? ["left", "right"] : planted;
-    const support: IAutoMovieVector3[] = HumanFoot.base(
-      body,
-      bones,
-      bearing,
-    );
+    const bearing: readonly ("left" | "right")[] =
+      planted.length === 0 ? ["left", "right"] : planted;
+    const support: IAutoMovieVector3[] = HumanFoot.base(body, bones, bearing);
     // The steps' times are `stagger`'s: each later one after the swing of a
     // recovery step in the push's direction from the heading, the first at
     // the landing of the step `stagger` itself takes, read from its plan.
@@ -188,7 +192,11 @@ export namespace perturb {
             ? "backward"
             : "side"
       ];
-    const decide: (first: number) => IAutoMovieResolveBalanceOutcome.IOutcome = (first: number): IAutoMovieResolveBalanceOutcome.IOutcome =>
+    const decide: (
+      first: number,
+    ) => IAutoMovieResolveBalanceOutcome.IOutcome = (
+      first: number,
+    ): IAutoMovieResolveBalanceOutcome.IOutcome =>
       resolveAutoMovieBalanceOutcome({
         centre,
         velocity: entry.velocity.linear,
@@ -225,7 +233,7 @@ export namespace perturb {
       try {
         caught = stagger.plan({
           ...context,
-          params: { from, speed: Math.max(speed, Number.MIN_VALUE) },
+          params: { target: from, speed: Math.max(speed, Number.MIN_VALUE) },
         });
       } catch (error) {
         if (!(error instanceof HumanRefusal)) throw error;
@@ -239,8 +247,9 @@ export namespace perturb {
         : caught === null || landing === undefined
           ? { ...balanced, outcome: "fall" }
           : decide(landing.share * caught.duration);
-    const requested: NonNullable<IAutoMovieMotionHumanPerturb.IParams["outcome"]> =
-      context.params.outcome ?? "auto";
+    const requested: NonNullable<
+      IAutoMovieMotionHumanPerturb.IParams["outcome"]
+    > = context.params.outcome ?? "auto";
 
     // The two-body outcomes are the two-body response's (#3439), which
     // answers them before this law plans its own.
@@ -304,10 +313,10 @@ export namespace perturb {
           params: {
             direction: local.z >= Math.abs(local.x) ? "forward" : "sideways",
             side: local.x >= 0 ? "left" : "right",
-            from,
+            target: from,
           },
         });
-      return knockdown.plan({ ...context, params: { from } });
+      return knockdown.plan({ ...context, params: { target: from } });
     }
     return absorb(context, outcome, push);
   }
@@ -336,57 +345,64 @@ export namespace perturb {
     // Settled to within e^-4 (under 2 %) of the peak: x(t) / x(1 / ω0) =
     // τ e^(1 - τ) at τ = ω0 t, which falls to e^-4 where τ - ln τ = 5.
     const duration: number = SETTLED / w0;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      duration,
-      [{ name: "peak", seconds: 1 / w0 }],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+      { name: "peak", seconds: 1 / w0 },
+    ]);
     const local: IAutoMovieVector3 = HumanFrame.local(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       push,
     );
     const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
-    const legsAt: ReturnType<typeof StrikingStance.prepareLegs> = StrikingStance.prepareLegs(body, feet);
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(duration, {
-        root: entry.root,
-        yaw: entry.yaw,
-        pitch: entry.pitch,
-        roll: entry.roll,
-        joints: entry.joints,
-        limbs: {},
-      }),
-      clock,
-      primitives: [
-        AutoMovieMotionHumanLean.sway({
-          body,
-          from: 0,
-          to: duration,
-          angles: (): IAutoMovieMotionHumanLean.IAngles => ({
-            pitch: 0,
-            roll: 0,
-          }),
-          shift: (seconds: number): IAutoMovieVector3 =>
-            Vector3.scale(local, speed * seconds * Math.exp(-w0 * seconds)),
-          legs: legsAt,
+    const legsAt: ReturnType<typeof StrikingStance.prepareLegs> =
+      StrikingStance.prepareLegs(body, feet);
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.still(duration, {
+          root: entry.root,
+          yaw: entry.yaw,
+          pitch: entry.pitch,
+          roll: entry.roll,
+          joints: entry.joints,
+          limbs: {},
         }),
-
-        // The sway reads the legs for the hips' height only; the legs stand
-        // on the entry's feet through their own channels.
-        {
-          channels: ["leftLeg", "rightLeg"],
-          from: 0,
-          to: duration,
-          write: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => ({
-            ...posture,
-            limbs: { ...posture.limbs, ...legsAt() },
+        clock,
+        primitives: [
+          AutoMovieMotionHumanLean.sway({
+            body,
+            from: 0,
+            to: duration,
+            angles: (): IAutoMovieMotionHumanLean.IAngles => ({
+              pitch: 0,
+              roll: 0,
+            }),
+            shift: (seconds: number): IAutoMovieVector3 =>
+              Vector3.scale(local, speed * seconds * Math.exp(-w0 * seconds)),
+            legs: legsAt,
           }),
-        },
-      ],
-    });
+
+          // The sway reads the legs for the hips' height only; the legs stand
+          // on the entry's feet through their own channels.
+          {
+            channels: ["leftLeg", "rightLeg"],
+            from: 0,
+            to: duration,
+            write: (
+              posture: IAutoMovieMotionHumanPosture,
+            ): IAutoMovieMotionHumanPosture => ({
+              ...posture,
+              limbs: { ...posture.limbs, ...legsAt() },
+            }),
+          },
+        ],
+      });
 
     // Both feet stay planted through the absorb.
-    const plant: (part: "leftFoot" | "rightFoot") => IAutoMovieMotionHumanContactWindow = (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
+    const plant: (
+      part: "leftFoot" | "rightFoot",
+    ) => IAutoMovieMotionHumanContactWindow = (
+      part: "leftFoot" | "rightFoot",
+    ): IAutoMovieMotionHumanContactWindow => ({
       part,
       kind: "plant",
       from: 0,

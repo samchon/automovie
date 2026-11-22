@@ -17,13 +17,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFoot,
   HumanFrame,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanRide,
   HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -312,7 +312,7 @@ function stage(
     seed: "equine-timeline",
     cues: cueTracks,
     props: [HumanObject.prop("horse", horse, place(0), place, part)],
-    laws: [HumanRide.ride],
+    laws: [AutoMovieMotionHumanMount.rideHorse.ride],
     performers: [
       {
         subject: "rider",
@@ -326,7 +326,7 @@ function stage(
       },
     ],
     composition: HumanChain.subject("rider")
-      .sit({ seat, seconds: 0.5 })
+      .sit({ seat, hold: 0.5 })
       .registered("ride", {
         on: "horse",
         seconds: WAIT + ride.duration,

@@ -27,44 +27,44 @@ export const SCENES_GYM: readonly IScene[] = [
     "gym",
     [
       person("ada", "m2", -3, 0, 0, [
-        act("backSquat", { reps: 3 }),
-        act("overheadPress", { reps: 1 }),
+        act("backSquat", { count: 3 }),
+        act("overheadPress", { count: 1 }),
       ]),
       person("bo", "f1", -1.8, 0, 0, [
-        act("deadlift", { reps: 4 }),
-        act("romanianDeadlift", { reps: 1 }),
+        act("deadlift", { count: 4 }),
+        act("romanianDeadlift", { count: 1 }),
       ]),
       person("cy", "m1", -0.6, 0, 0, [
-        act("kettlebellSwing", { reps: 5 }),
-        act("gobletSquat", { reps: 1 }),
-        act("kettlebellSwing", { reps: 3 }),
+        act("kettlebellSwing", { count: 5 }),
+        act("gobletSquat", { count: 1 }),
+        act("kettlebellSwing", { count: 3 }),
       ]),
       person("di", "f2", 0.6, 0, 0, [
         act("pullUp", {
-          reps: 3,
+          count: 3,
           stay: true,
           on: { prop: "pullBar", affordance: "bar" },
         }),
         act("kneeRaise", {
-          reps: 2,
+          count: 2,
           on: { prop: "pullBar", affordance: "bar" },
         }),
       ]),
       person("ed", "m1", 1.8, 0, 0, [
         act("dip", {
-          reps: 4,
+          count: 4,
           stay: true,
           on: { prop: "dips", affordance: "barLeft", other: "barRight" },
         }),
         act("kneeRaise", {
-          reps: 1,
+          count: 1,
           on: { prop: "dips", affordance: "barLeft", other: "barRight" },
         }),
       ]),
       person("fe", "m2", 3, -1, 0, [
         act("farmersWalk", { to: SceneBuild.to(3, 2) }),
         act("farmersWalk", { to: SceneBuild.to(3, -1) }),
-        act("calfRaise", { reps: 2 }),
+        act("calfRaise", { count: 2 }),
       ]),
     ],
     [
@@ -91,11 +91,11 @@ export const SCENES_GYM: readonly IScene[] = [
     "yoga",
     [
       person("tea", "f1", 0, 2.4, 180, [
-        act("stand", { seconds: 0.8 }),
-        act("warriorOne", { reps: 1, hold: 0.8, stay: true }),
-        act("warriorTwo", { reps: 1, hold: 0.8, stay: true }),
-        act("triangle", { reps: 1, hold: 0.8 }),
-        act("treePose", { seconds: 1 }),
+        act("stand", { hold: 0.8 }),
+        act("warriorOne", { count: 1, hold: 0.8, stay: true }),
+        act("warriorTwo", { count: 1, hold: 0.8, stay: true }),
+        act("triangle", { count: 1, hold: 0.8 }),
+        act("treePose", { hold: 1 }),
       ]),
       ...[-1.5, -0.5, 0.5, 1.5].map(
         (x: number, i: number): SceneBuild.Performer =>
@@ -106,11 +106,11 @@ export const SCENES_GYM: readonly IScene[] = [
             0,
             0,
             [
-              act("stand", { seconds: 1 }),
-              act("warriorOne", { reps: 1, hold: 0.8, stay: true }),
-              act("warriorTwo", { reps: 1, hold: 0.8, stay: true }),
-              act("triangle", { reps: 1, hold: 0.8 }),
-              act("treePose", { seconds: 1 }),
+              act("stand", { hold: 1 }),
+              act("warriorOne", { count: 1, hold: 0.8, stay: true }),
+              act("warriorTwo", { count: 1, hold: 0.8, stay: true }),
+              act("triangle", { count: 1, hold: 0.8 }),
+              act("treePose", { hold: 1 }),
             ],
             i % 2 === 0 ? "amateur" : "novice",
           ),
@@ -130,20 +130,20 @@ export const SCENES_GYM: readonly IScene[] = [
     "core",
     [
       person("gi", "f1", -1.5, 0, 0, [
-        act("crunch", { reps: 2, hold: 0.3, stay: true }),
-        act("bicycleCrunch", { reps: 4, hold: 0.2 }),
+        act("crunch", { count: 2, hold: 0.3, stay: true }),
+        act("bicycleCrunch", { count: 4, hold: 0.2 }),
       ]),
       person("ha", "m1", -0.5, 0, 0, [
-        act("birdDog", { reps: 2, hold: 0.3, stay: true }),
-        act("plank", { reps: 1, hold: 3 }),
+        act("birdDog", { count: 2, hold: 0.3, stay: true }),
+        act("plank", { count: 1, hold: 3 }),
       ]),
       person("io", "f2", 0.5, 0, 0, [
-        act("russianTwist", { reps: 6, hold: 0.2, stay: true }),
-        act("sidePlank", { reps: 1, hold: 1.5 }),
+        act("russianTwist", { count: 6, hold: 0.2, stay: true }),
+        act("sidePlank", { count: 1, hold: 1.5 }),
       ]),
       person("ju", "m2", 1.5, 0, 0, [
-        act("gluteBridge", { reps: 2, hold: 0.3, stay: true }),
-        act("mountainClimber", { reps: 6, hold: 0 }),
+        act("gluteBridge", { count: 2, hold: 0.3, stay: true }),
+        act("mountainClimber", { count: 6, hold: 0 }),
       ]),
     ],
   ),
@@ -160,28 +160,28 @@ export const SCENES_GYM: readonly IScene[] = [
     "stretch",
     [
       person("ka", "f1", 0, 0, 0, [
-        act("quadStretch", { side: "left", seconds: 1.2 }),
-        act("quadStretch", { side: "right", seconds: 1.2 }),
-        act("calfStretch", { reps: 1, hold: 1 }),
-        act("legSwings", { reps: 2, hold: 0 }),
+        act("quadStretch", { side: "left", hold: 1.2 }),
+        act("quadStretch", { side: "right", hold: 1.2 }),
+        act("calfStretch", { count: 1, hold: 1 }),
+        act("legSwings", { count: 2, hold: 0 }),
       ]),
       person("lo", "m1", 1.4, 1.4, 270, [
-        act("legSwings", { reps: 2, hold: 0 }),
-        act("chestStretch", { reps: 1, hold: 1 }),
-        act("sideStretch", { side: "right", seconds: 1.2 }),
-        act("tricepsStretch", { reps: 1, hold: 1 }),
+        act("legSwings", { count: 2, hold: 0 }),
+        act("chestStretch", { count: 1, hold: 1 }),
+        act("sideStretch", { side: "right", hold: 1.2 }),
+        act("tricepsStretch", { count: 1, hold: 1 }),
       ]),
       person("mi", "f2", 0, 2.8, 180, [
-        act("shoulderStretch", { side: "right", seconds: 1.2 }),
-        act("shoulderStretch", { side: "left", seconds: 1.2 }),
-        act("armCircles", { reps: 2, hold: 0 }),
-        act("neckStretch", { seconds: 0.6 }),
+        act("shoulderStretch", { side: "right", hold: 1.2 }),
+        act("shoulderStretch", { side: "left", hold: 1.2 }),
+        act("armCircles", { count: 2, hold: 0 }),
+        act("neckStretch", { hold: 0.6 }),
       ]),
       person("no", "m2", -1.4, 1.4, 90, [
-        act("sideStretch", { side: "right", seconds: 1.2 }),
-        act("sideStretch", { side: "left", seconds: 1.2 }),
-        act("calfStretch", { reps: 1, hold: 0.6 }),
-        act("armCircles", { reps: 2, hold: 0 }),
+        act("sideStretch", { side: "right", hold: 1.2 }),
+        act("sideStretch", { side: "left", hold: 1.2 }),
+        act("calfStretch", { count: 1, hold: 0.6 }),
+        act("armCircles", { count: 2, hold: 0 }),
       ]),
     ],
   ),
@@ -204,13 +204,13 @@ export const SCENES_GYM: readonly IScene[] = [
         act("cross", { at: at("m2", "face") }),
         act("guard"),
         act("frontKick", { at: at("m2", "abdomen") }),
-        act("guard", { seconds: 0.3 }),
+        act("guard", { duration: 0.3 }),
         act("exercise", {
           kind: "jumpingJack",
-          reps: 4,
+          count: 4,
           tempo: [0.5, 0, 0.5],
         }),
-        act("exercise", { kind: "highKnees", reps: 4, tempo: [0.6, 0, 0.6] }),
+        act("exercise", { kind: "highKnees", count: 4, tempo: [0.6, 0, 0.6] }),
       ]),
       ...[-40, 0, 40].map(
         (angle: number, i: number): SceneBuild.Performer =>
@@ -228,12 +228,12 @@ export const SCENES_GYM: readonly IScene[] = [
               act("roundKick", { at: at("coa", "ribsLeft") }),
               act("exercise", {
                 kind: "jumpingJack",
-                reps: 4,
+                count: 4,
                 tempo: [0.5, 0, 0.5],
               }),
               act("exercise", {
                 kind: "highKnees",
-                reps: 4,
+                count: 4,
                 tempo: [0.6, 0, 0.6],
               }),
             ],

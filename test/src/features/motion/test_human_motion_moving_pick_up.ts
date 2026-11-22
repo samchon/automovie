@@ -118,7 +118,7 @@ export function test_human_motion_moving_pick_up(): void {
       composition: composition.node,
     });
 
-  const film: HumanPerformance = perform(chain.stand({ seconds: 1, sway: 0 }));
+  const film: HumanPerformance = perform(chain.stand({ hold: 1, sway: 0 }));
   const pick: IAutoMovieMotionHumanSegment = film.segments("a")[0]!;
   /** Read an authored pickup event in film seconds. */
   const instant = (name: string): number =>
@@ -204,7 +204,7 @@ export function test_human_motion_moving_pick_up(): void {
   );
 
   const cut: HumanPerformance = perform(
-    chain.until({ share: 0.25 }).stand({ seconds: 1, sway: 0 }),
+    chain.until({ share: 0.25 }).stand({ hold: 1, sway: 0 }),
   );
   TestValidator.predicate(
     "a cut before closure leaves the glass on its moving mount",

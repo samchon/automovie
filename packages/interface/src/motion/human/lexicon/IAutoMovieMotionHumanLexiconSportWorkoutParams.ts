@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanR
 import type { IAutoMovieMotionHumanStand } from "../actions/IAutoMovieMotionHumanStand";
 import type { IAutoMovieMotionHumanExercise } from "../exercise/IAutoMovieMotionHumanExercise";
 import type { IAutoMovieMotionHumanRopeSkip } from "../exercise/IAutoMovieMotionHumanRopeSkip";
-import type { IAutoMovieMotionHumanWorkout } from "../exercise/IAutoMovieMotionHumanWorkout";
+import type { IAutoMovieMotionHumanWorkout } from "../next/IAutoMovieMotionHumanWorkout";
 
 /**
  * Open parameters of the sportWorkout lexicon family, keyed by each runtime export name.
@@ -110,7 +110,7 @@ export interface IAutoMovieMotionHumanLexiconSportWorkoutParams {
   lungeTwist: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
 
   /** The mountain pose of yoga: standing still ten seconds (provisional). */
-  mountainPose: Omit<IAutoMovieMotionHumanStand.IParams, "seconds">;
+  mountainPose: Omit<IAutoMovieMotionHumanStand.IParams, "hold">;
 
   /** Warrior I of yoga. */
   warriorOne: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;

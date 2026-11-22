@@ -93,7 +93,7 @@ export function test_motion_exercise_basketball_dribble(): void {
       .sync({ of: "feed" });
     for (let index: number = 0; index <= catches.length && index < 2; ++index) {
       chain = chain.ballSport(
-        { kind: "dribbleRelease", side: "right", prop: "ball" },
+        { kind: "dribbleRelease", hand: "right", prop: "ball" },
         `dribble${index}`,
       );
       if (index < catches.length)
@@ -114,7 +114,7 @@ export function test_motion_exercise_basketball_dribble(): void {
           "shot",
         )
         // The film runs on while the shot flies to the ring.
-        .stand({ seconds: 1.2, sway: 0 });
+        .stand({ hold: 1.2, sway: 0 });
     return new HumanPerformance({
       seed: `basketball-dribble-${catches.length}-${shoot}`,
       laws: [stageCatch],
@@ -146,7 +146,7 @@ export function test_motion_exercise_basketball_dribble(): void {
       ],
       composition: AutoMovieComposition.parallel(
         feed.node,
-        chain.stand({ seconds: 2, sway: 0 }).node,
+        chain.stand({ hold: 2, sway: 0 }).node,
       ),
     });
   };

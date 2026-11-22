@@ -14,7 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanCarried,
+  AutoMovieMotionHumanCarryPerson,
   HumanChain,
   HumanCoupled,
   HumanPerformance,
@@ -104,7 +104,7 @@ export function test_motion_posture_coupled_support(): void {
         composition: HumanChain.mutual(
           HumanCoupled.helpUp,
           {
-            helper: HumanChain.subject("a").stand({ seconds: START }),
+            helper: HumanChain.subject("a").stand({ hold: START }),
             helped: HumanChain.subject("b").lieDown(),
           },
           hand === undefined ? {} : { hand },
@@ -199,7 +199,7 @@ export function test_motion_posture_coupled_support(): void {
 
   const carried: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "passenger",
-    laws: [HumanCarried.borne],
+    laws: [AutoMovieMotionHumanCarryPerson.carryPerson.borne],
     performers: [
       {
         subject: "a",
@@ -217,7 +217,7 @@ export function test_motion_posture_coupled_support(): void {
       },
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 3 })
+      .stand({ hold: 3 })
       .with(
         HumanChain.subject("b").registered("borne", {
           by: "a",

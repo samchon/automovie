@@ -89,14 +89,14 @@ function care(body: IAutoMovieMotionHumanBody, profile: string): void {
         }),
       ],
       composition: HumanChain.subject("carer")
-        .stand({ seconds: 0.3 })
+        .stand({ hold: 0.3 })
         .pickUp({ prop: "infant", handle: "seat", hand: "right" })
         .registered("cradleInfant", { prop: "infant", rock: ROCK, seconds: 3 })
         .registered("burpInfant", { prop: "infant", seconds: 2 })
         // The crib lies below the reach of the standing arm: bend to it.
-        .bend({ toward: { kind: "prop", subject: "crib", point: "surface" } })
+        .bend({ target: { kind: "prop", subject: "crib", point: "surface" } })
         .until({ event: "deepest" })
-        .putDown({ prop: "infant", at, yaw: 0, hand: "right" }).node,
+        .putDown({ prop: "infant", to: at, yaw: 0, hand: "right" }).node,
     });
   const film: HumanPerformance = take(
     Vector3.add(surface, { x: 0, y: 0.06, z: 0 }),
@@ -214,7 +214,7 @@ function feed(body: IAutoMovieMotionHumanBody, profile: string): void {
       }),
     ],
     composition: HumanChain.subject("carer")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .pickUp({ prop: "bottle", handle: "grip", hand: "left" })
       .pickUp({ prop: "infant", handle: "seat", hand: "right" })
       .registered("feedInfant", {

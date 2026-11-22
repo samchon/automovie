@@ -47,7 +47,7 @@ export namespace hostageHold {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHostageHold.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const params: IAutoMovieMotionHumanHostageHold.IParams = context.params;
-    const seconds: number = params.seconds ?? 3;
+    const seconds: number = params.duration ?? 3;
     const back: number = params.back ?? 0;
     for (const [axis, value] of [
       ["seconds", seconds],
@@ -89,7 +89,7 @@ export namespace hostageHold {
       params.prop === undefined || weapon === undefined
         ? {
             target: { kind: "person", subject: params.partner, region: across },
-            side: free,
+            hand: free,
             kind: "hold",
             count: 1,
             hold: seconds,
@@ -97,7 +97,7 @@ export namespace hostageHold {
         : {
             target: { kind: "person", subject: params.partner, region },
             other: { kind: "person", subject: params.partner, region: across },
-            side: weapon,
+            hand: weapon,
             prop: params.prop,
             point: params.point!,
             kind: "hold",

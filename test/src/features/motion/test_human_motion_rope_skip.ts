@@ -11,13 +11,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanWorkout,
   HumanChain,
   HumanFoot,
   HumanHand,
   HumanPerformance,
   HumanRefusal,
   prepareRopeSkip,
-  ropeSkip,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -60,15 +60,17 @@ export function test_human_motion_rope_skip(): void {
     proficiency: { level: "trained" },
   };
   const chain: ReturnType<
-    typeof HumanChain.extend<{ ropeSkip: typeof ropeSkip }>
-  > = HumanChain.extend({ ropeSkip });
+    typeof HumanChain.extend<{
+      ropeSkip: typeof AutoMovieMotionHumanWorkout.ropeSkip;
+    }>
+  > = HumanChain.extend({ ropeSkip: AutoMovieMotionHumanWorkout.ropeSkip });
   for (const periodSeconds of [2 ** 54, 2 ** 50]) {
     let refusal: unknown;
     try {
       new HumanPerformance({
         seed: "unrepresentable skip",
         performers: [performer],
-        laws: [ropeSkip],
+        laws: [AutoMovieMotionHumanWorkout.ropeSkip],
         composition: chain
           .subject(performer.subject)
           .ropeSkip({ periodSeconds }).node,
@@ -84,10 +86,10 @@ export function test_human_motion_rope_skip(): void {
   const performance: HumanPerformance = new HumanPerformance({
     seed: "single-under",
     performers: [performer],
-    laws: [ropeSkip],
+    laws: [AutoMovieMotionHumanWorkout.ropeSkip],
     composition: chain
       .subject(performer.subject)
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .ropeSkip({}, "regular-turn")
       .ropeSkip({ periodSeconds: 8 }, "slow-turn").node,
   });

@@ -1,5 +1,4 @@
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
-import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanStrikingQuality } from "./IAutoMovieMotionHumanStrikingQuality";
 
 /**
@@ -75,7 +74,7 @@ import type { IAutoMovieMotionHumanStrikingQuality } from "./IAutoMovieMotionHum
  * @evidence contracts/development/common.md#meaningful-documentation hand: Which hand: the stance's lead or rear; lead for a straight or a hook and rear for an uppercut when absent. accuracy: Declared accuracy; `hit` when absent. feint: A feint: the share of the delivery shown before returning, in (0, 1).
  * @evidence contracts/development/design.md#principled-representation hand: Which hand: the stance's lead or rear; lead for a straight or a hook and rear for an uppercut when absent. accuracy: Declared accuracy; `hit` when absent. feint: A feint: the share of the delivery shown before returning, in (0, 1).
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.punch, params); striking/punch.ts (punch.hand, params); striking/punch.ts (punch.plan, context); striking/punchContact.ts (punchContact.solve, context); striking/punchGeometry.ts (punchGeometry.build, context); striking/defend.ts (defend.telegraph).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanStrikingQuality.Accuracy, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanStrikingQuality.Accuracy identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanPunch {
   /**
@@ -91,7 +90,7 @@ export namespace IAutoMovieMotionHumanPunch {
     technique: IAutoMovieMotionHumanPunch.Technique;
 
     /** Which hand: the stance's lead or rear; lead for a straight or a hook and rear for an uppercut when absent. */
-    hand?: "lead" | "rear";
+    hand?: IAutoMovieMotionHumanPunch.Hand;
 
     /** What it strikes. */
     at: IAutoMovieMotionTarget;
@@ -103,14 +102,31 @@ export namespace IAutoMovieMotionHumanPunch {
     feint?: number;
 
     /**
-     * How much repeats of the punch differ: `variation` in [0, 1] scales the
-     * spread of the point aimed at within a person's region, and
-     * `proficiency` replaces the performer's skill for that spread. Absent or
+     * How much repeats of the punch differ (`IManner`): `variation` scales
+     * the spread of the point aimed at within a person's region, and
+     * `aimSkill` replaces the performer's skill for that spread. Absent or
      * 0, every repeat is aimed at the region's own point. Neither member
      * changes the times or the fist's speed: these follow the performer's
      * skill (see the namespace).
      */
-    manner?: Pick<IAutoMovieMotionManner, "variation" | "proficiency">;
+    manner?: IAutoMovieMotionHumanPunch.IManner;
+  }
+
+  /**
+   * How much repeats of a punch differ in where they aim. It changes neither
+   * the times nor the fist's speed, which follow the performer's skill.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the two members change and what they leave to the performer's skill.
+   * @evidence contracts/development/design.md#principled-representation Two shares in [0, 1]; the punch maps `aimSkill` onto the manner's `consistency` when it draws the spread.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two members the punch's aim spread reads; the manner's other members do not apply to a punch.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a named type instead of an inline pick of the manner, and its own name for the aim skill, since `accuracy` is the declared outcome.
+   */
+  export interface IManner {
+    /** How far repeats spread the point aimed at within a person's region, in [0, 1]; 0 when absent: every repeat aims at the region's own point. */
+    variation?: number;
+
+    /** A skill in [0, 1] that replaces the performer's skill for the aim spread only; the performer's skill when absent. */
+    aimSkill?: number;
   }
 
   /**
@@ -130,4 +146,14 @@ export namespace IAutoMovieMotionHumanPunch {
     | "backfist"
     | "hammerfist"
     | "verticalFist";
+
+  /**
+   * The hand that punches: the stance's lead hand or its rear hand.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two hands by the stance.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the stance's two hands, so no other hand type-checks.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the punch law's `hand` member and by the strike family's punch presets.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Explicit literals; the stance owns which physical hand each names.
+   */
+  export type Hand = "lead" | "rear";
 }

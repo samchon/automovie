@@ -96,7 +96,7 @@ export function test_motion_catalogue_claim_conflict(): void {
       ],
       composition: (sequential
         ? HumanChain.subject("a")
-            .stand({ seconds: 3 })
+            .stand({ hold: 3 })
             .over((layer) =>
               over.reduce((chain, name) => chain.registered(name), layer),
             )
@@ -106,7 +106,7 @@ export function test_motion_catalogue_claim_conflict(): void {
               name: string,
             ): IAutoMovieMotionHumanChain =>
               chain.over((o) => o.registered(name)),
-            HumanChain.subject("a").stand({ seconds: 3 }),
+            HumanChain.subject("a").stand({ hold: 3 }),
           )
       ).node,
     });

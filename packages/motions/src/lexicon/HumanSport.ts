@@ -240,7 +240,7 @@ export namespace HumanSport {
   export const corpsePose: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["corpsePose"]
   > = HumanActionRow.of("corpsePose", lieDown, {
-    position: "supine",
+    kind: "supine",
     hold: 10,
   });
 
@@ -248,7 +248,7 @@ export namespace HumanSport {
   export const toeTouch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["toeTouch"]
   > = HumanActionRow.of("toeTouch", bend, {
-    toward: { kind: "self", region: "footTopRight" },
+    target: { kind: "self", region: "footTopRight" },
     hold: 20,
   });
 

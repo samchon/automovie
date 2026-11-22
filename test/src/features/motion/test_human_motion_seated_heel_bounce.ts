@@ -42,8 +42,8 @@ export function test_human_motion_seated_heel_bounce(): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const props: IAutoMovieMotionHumanSeatedHeelBounce =
       name === "m-average"
-        ? { side: "right", beats: 1, cadence: 2, amplitude: 10 }
-        : { side: "left", beats: 2, cadence: 3, amplitude: 10 };
+        ? { side: "right", count: 1, cadence: 2, amplitude: 10 }
+        : { side: "left", count: 2, cadence: 3, amplitude: 10 };
     const elevated: boolean = name === "f-small";
     const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const at: IAutoMovieVector3 = elevated
@@ -58,7 +58,7 @@ export function test_human_motion_seated_heel_bounce(): void {
       let chain: ReturnType<typeof HumanChain.subject> = HumanChain.subject(
         "a",
       ).stand({
-        seconds: 0.3,
+        hold: 0.3,
         sway: 0,
         ...(elevated ? { on: { prop: "platform" } } : {}),
       });
@@ -73,7 +73,7 @@ export function test_human_motion_seated_heel_bounce(): void {
             yaw: 0,
             depth: 0.45,
           },
-          seconds: 0.4,
+          hold: 0.4,
         });
       return new HumanPerformance({
         seed: "heel-bounce",
@@ -124,7 +124,7 @@ export function test_human_motion_seated_heel_bounce(): void {
         radius,
       ).y - radius.y;
 
-    if (Math.abs(bounce.plan.duration - props.beats / props.cadence) > 1e-8)
+    if (Math.abs(bounce.plan.duration - props.count / props.cadence) > 1e-8)
       findings.push(
         `${name}: the duration does not match the beat count and cadence`,
       );
@@ -151,7 +151,7 @@ export function test_human_motion_seated_heel_bounce(): void {
           `${name}: the ${part} does not retain its ${kind} on the entry support`,
         );
     }
-    for (let i: number = 1; i <= 2 * props.beats; ++i) {
+    for (let i: number = 1; i <= 2 * props.count; ++i) {
       const seconds: number = bounce.start + i / (2 * props.cadence);
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         performance.bones("a", seconds);

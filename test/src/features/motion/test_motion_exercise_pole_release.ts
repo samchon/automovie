@@ -7,8 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
   HumanChain,
-  HumanGymnastics,
   HumanHand,
   HumanObject,
   HumanPerformance,
@@ -43,7 +43,7 @@ export function test_motion_exercise_pole_release(): void {
   });
   const film: HumanPerformance = new HumanPerformance({
     seed: "pole-release",
-    laws: [HumanGymnastics.vaultOnPole],
+    laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.vaultOnPole],
     performers: [
       {
         subject: "a",
@@ -64,9 +64,9 @@ export function test_motion_exercise_pole_release(): void {
       }),
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .pickUp({ prop: "pole", handle: "shaft", hand: "right", lift: 0.05 })
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .run({ to: { x: 0, y: 0, z: 10 }, pace: "sprint" })
       .until({ event: "leftHeelStrike3" })
       .registered("vaultOnPole", { pole: "pole" }).node,

@@ -5,11 +5,11 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import {
+  AutoMovieMotionHumanInstrument,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  playWindInstrument,
   poseBones,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -58,7 +58,7 @@ export function test_human_motion_play_wind_instrument(): void {
         yaw: 0,
       }),
     ],
-    laws: [playWindInstrument],
+    laws: [AutoMovieMotionHumanInstrument.playWindInstrument],
   };
   const started = HumanChain.subject("a")
     .pickUp({

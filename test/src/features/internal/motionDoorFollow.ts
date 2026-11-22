@@ -12,12 +12,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanRide,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  HumanTravelLeaf,
   HumanVerdicts,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -99,7 +99,7 @@ export function motionDoorFollow(
   const perform = (stage: IStage): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "door",
-      laws: [HumanTravelLeaf.openDoor],
+      laws: [AutoMovieMotionHumanRide.travelLeaf.openDoor],
       props: [stage.prop],
       performers: [
         {
@@ -176,7 +176,7 @@ export function motionDoorFollow(
     );
     const reach: number =
       0.8 *
-      HumanTravelLeaf.REACH *
+      AutoMovieMotionHumanRide.travelLeaf.REACH *
       (body.measure.upperArm + body.measure.forearm);
     const rise: number = body.measure.shoulderHeight - rest.translation.y;
     const away: number = Math.sqrt(Math.max(0.0025, reach ** 2 - rise ** 2));
@@ -249,7 +249,8 @@ export function motionDoorFollow(
         ),
       );
     };
-    const taken: number = hold.entryTime + HumanTravelLeaf.TAKE + 0.01;
+    const taken: number =
+      hold.entryTime + AutoMovieMotionHumanRide.travelLeaf.TAKE + 0.01;
     const first: IAutoMovieVector3 = local(taken);
     let drift: number = 0;
     let worst: number = taken;

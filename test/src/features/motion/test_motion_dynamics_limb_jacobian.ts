@@ -3,10 +3,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanJacobian,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -27,7 +27,11 @@ import { vclose } from "../internal/vclose";
  */
 export function test_motion_dynamics_limb_jacobian(): void {
   const body = motionHumanBody("m-average"),
-    standing = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    standing = AutoMovieMotionHumanStance.stand.posture(
+      body,
+      { x: 0, y: 0, z: 0 },
+      0,
+    );
   const posture = (flexion: number): IAutoMovieMotionHumanPosture => ({
     ...standing,
     limbs: {},

@@ -15,7 +15,7 @@ export interface IAutoMovieMotionHumanBackToBack {
   partner: string;
 
   /** How long the two lean on each other, seconds; positive. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
-  seconds: number;
+  hold: number;
 
   /** The anchor of the partner's own lean, placed before this one: both must lean and sit up together, or one is left leaning on nothing; unchecked when absent. */
   with?: string;

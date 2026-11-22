@@ -7,8 +7,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionClock,
-  HumanAffect,
-  HumanBreath,
+  AutoMovieMotionHumanExpression,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
@@ -18,6 +17,8 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { throwsError } from "../internal/throwsError";
+
+const { HumanAffect, HumanBreath } = AutoMovieMotionHumanExpression;
 
 /**
  * Channel demand reads an active dependency inside its closed interval.
@@ -116,12 +117,12 @@ export function test_motion_dynamics_channel_timing(): void {
         proficiency: { level: "trained" as const },
       })),
       composition: HumanChain.subject("a")
-        .stand({ seconds: 6 })
+        .stand({ hold: 6 })
         .with(
           HumanChain.subject("b")
-            .stand({ seconds: 1 })
+            .stand({ hold: 1 })
             .gesture({ kind: "wave" }, "bye")
-            .stand({ seconds: 2 }),
+            .stand({ hold: 2 }),
         ).node,
     });
 

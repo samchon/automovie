@@ -12,5 +12,5 @@ export interface IAutoMovieMotionHumanHeadTilt {
   degrees: number;
 
   /** Seconds for tilt, hold and return combined. Finite and at least 0.6, 0.9 when omitted. */
-  seconds?: number;
+  duration?: number;
 }

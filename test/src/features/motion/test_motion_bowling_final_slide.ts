@@ -75,7 +75,7 @@ export function test_motion_bowling_final_slide(): void {
       ],
       composition: (cut === undefined
         ? chain
-        : chain.until({ event: cut }).stand({ seconds: 0.3, sway: 0 })
+        : chain.until({ event: cut }).stand({ hold: 0.3, sway: 0 })
       ).node,
     });
   };

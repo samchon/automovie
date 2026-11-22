@@ -1,5 +1,5 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
-import type { IAutoMovieMotionHumanDance } from "./IAutoMovieMotionHumanDance";
+import type { IAutoMovieMotionHumanDance } from "../next/IAutoMovieMotionHumanDance";
 
 /**
  * Street grooves on the beat clock (#4010): the rock, a bounce of the knees
@@ -40,7 +40,7 @@ export namespace IAutoMovieMotionHumanStreetDance {
     bpm?: number;
 
     /** How many beats, a whole number of at least 1; 8 when absent, at the dance law's tempo (`dance.BPM`, 0.5 s a beat): 4 s plus one beat. */
-    beats?: number;
+    count?: number;
 
     /** The rock's popping hits, in quarter beats from the first beat; one on each beat's "and" when absent. */
     hits?: number[];

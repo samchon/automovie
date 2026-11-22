@@ -106,11 +106,11 @@ function plan(
         "a held work drives an articulation, moves the prop or takes a prop",
       fix: "give `drive`, `at` or `take`",
     });
-  if (!(Number.isFinite(p.seconds) && p.seconds > 0))
+  if (!(Number.isFinite(p.duration) && p.duration > 0))
     throw new HumanRefusal({
       kind: "parameter",
-      axis: "seconds",
-      value: p.seconds,
+      axis: "duration",
+      value: p.duration,
       feasible: {
         kind: "range",
         minimum: 0,
@@ -121,7 +121,7 @@ function plan(
       fix: "give the work's duration in seconds",
     });
   const side: AutoMovieHumanSide =
-    p.side ?? (context.entry.holds.left === p.prop ? "left" : "right");
+    p.hand ?? (context.entry.holds.left === p.prop ? "left" : "right");
   const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
     context,
     side,
@@ -154,7 +154,7 @@ function plan(
       AutoMovieMotionHumanTiming.transport(
         Math.max(goal?.travel ?? 0, push?.travel ?? 0),
       ),
-    attack: tempo * p.seconds,
+    attack: tempo * p.duration,
     retract:
       push === undefined
         ? 0

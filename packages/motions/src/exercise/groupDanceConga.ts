@@ -87,7 +87,7 @@ export namespace groupDanceConga {
     const step: number = STEP * body.measure.footLength;
     const kick: number = KICK * body.measure.stature;
     const travel: number = TRAVEL * beats.period;
-    const end: number = beats.at(beats.beats) + beats.period;
+    const end: number = beats.at(beats.count) + beats.period;
     const ground: Record<
       AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
@@ -241,10 +241,7 @@ export namespace groupDanceConga {
         surface: "palm",
         shape: "relaxed",
         point,
-        rotation: Quaternion.fromAxisAngle(
-          { x: 0, y: 1, z: 0 },
-          entry.yaw,
-        ),
+        rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, entry.yaw),
         bend: { ...point, y: point.y - 0.3 },
       };
     };

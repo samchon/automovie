@@ -37,9 +37,9 @@ export function composeHumanStraightenPartnerTie<
     "touch",
     {
       target: { kind: "person", subject: partner, region: "sternum" },
-      side,
+      hand: side,
       kind: "rub",
-      with: "palm",
+      effector: "palm",
       tangent: "up",
       count: 1,
       hold: 0,

@@ -73,7 +73,7 @@ export namespace IAutoMovieMotionHumanPushSled {
     facing?: IAutoMovieMotionHumanWalkFacing.IFacing;
 
     /** Seconds to stand in place against the load instead of walking to `to`, the hands on the handles throughout; absent, the body walks. */
-    seconds?: number;
+    duration?: number;
 
     /** Whether the load moves with the hands; `false` presses the handles without gripping, so the load stays where it stands (a stuck door, a car that will not move); `true` when absent. */
     moves?: boolean;

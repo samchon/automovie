@@ -24,7 +24,7 @@ export interface IAutoMovieMotionHumanTendHorse {
   task: IAutoMovieMotionHumanTendHorse.Task;
 
   /** Seconds the action lasts, acquiring and releasing included, more than twice `transition`. No natural value is defined: choose it for the beat (provisional, missing). */
-  seconds: number;
+  duration: number;
 
   /** Seconds the hand takes to reach the place, and again to let go, positive. No natural value is defined: choose it for the beat (provisional, missing). */
   transition: number;

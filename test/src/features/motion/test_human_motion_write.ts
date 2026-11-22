@@ -16,13 +16,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanHand,
   HumanPerformance,
   HumanRefusal,
   poseBones,
   resolveHumanPosture,
-  stand,
   write,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -60,7 +60,8 @@ const BOUND: number = 0.001;
 export function test_human_motion_write(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const at: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const initial: IAutoMovieMotionHumanPosture = stand.posture(body, at, 0);
+  const initial: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, at, 0);
   const fingers: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
     "right",
     "fist",
@@ -136,7 +137,7 @@ export function test_human_motion_write(): void {
       [0, -EDGE],
       [-EDGE, -EDGE],
     ],
-    seconds: 0.6,
+    duration: 0.6,
   };
   const run = (
     tool: IAutoMovieMotionHumanProp,

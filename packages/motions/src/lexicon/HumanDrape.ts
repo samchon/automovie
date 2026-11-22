@@ -56,7 +56,7 @@ export const HumanDrape: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanDra
     plan(context: Context): IAutoMovieMotionHumanActionPlan {
       const params: IAutoMovieMotionHumanDrape = context.params;
       const lay: number = params.lay ?? 0.6;
-      HumanBound.above("seconds", params.seconds, 0, "s");
+      HumanBound.above("duration", params.duration, 0, "s");
       HumanBound.least("lay", lay, 0, "s");
       const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
         context.prop(params.on),
@@ -79,7 +79,7 @@ export const HumanDrape: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanDra
         joints: { ...HANGING },
         limbs: {},
       };
-      const duration: number = lay + params.seconds;
+      const duration: number = lay + params.duration;
       return {
         duration,
         events: [{ name: "laid", share: lay / duration }],

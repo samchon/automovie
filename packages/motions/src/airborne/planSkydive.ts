@@ -150,7 +150,7 @@ export function planSkydive(
     for (const toggle of p.toggles ?? []) {
       if (toggle.side !== side) continue;
       const from: number = path.open + toggle.at;
-      const to: number = from + toggle.seconds;
+      const to: number = from + toggle.hold;
       if (t > from && t < to)
         w = Math.max(w, Math.min(1, (t - from) / PULL, (to - t) / PULL));
     }

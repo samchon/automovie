@@ -9,9 +9,9 @@ import type {
 import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanLeg,
+  AutoMovieMotionHumanStance,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -33,11 +33,8 @@ import { vclose } from "../internal/vclose";
  */
 export function test_motion_dynamics_primitive_leg_step(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const base: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 1, y: 0, z: 2 },
-    90,
-  );
+  const base: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 1, y: 0, z: 2 }, 90);
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(2, [
     { name: "ready", seconds: 0.25 },
     { name: "strokeStart", seconds: 0.5 },

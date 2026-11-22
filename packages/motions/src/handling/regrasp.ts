@@ -91,11 +91,11 @@ export namespace regrasp {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRegrasp.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const { prop: subject, side, kind } = context.params;
+    const { prop: subject, hand: side, kind } = context.params;
     if (context.entry.holds[side] !== subject)
       throw new HumanRefusal({
         kind: "base",
-        axis: "side",
+        axis: "hand",
         value: side,
         reason: `the ${side} hand does not hold ${subject} at the act's start`,
         fix: "take the object up in that hand first",
@@ -225,7 +225,7 @@ export namespace regrasp {
     frame: IAutoMovieRigidTransform,
     hand: IAutoMovieRigidTransform,
   ): NonNullable<IAutoMovieMotionHumanContactWindow["inHand"]> {
-    const { side, kind } = context.params;
+    const { hand: side, kind } = context.params;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
 
     // Where it is held now, in the hand's frame.

@@ -56,8 +56,8 @@ export function test_human_motion_social_shoulder_clasp(): void {
     composition: HumanChain.mutual(
       shoulderClasp,
       {
-        one: HumanChain.subject("a").stand({ seconds: start }),
-        other: HumanChain.subject("b").stand({ seconds: start }),
+        one: HumanChain.subject("a").stand({ hold: start }),
+        other: HumanChain.subject("b").stand({ hold: start }),
       },
       { hold },
     ).node,

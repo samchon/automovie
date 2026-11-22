@@ -10,11 +10,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanInstrument,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  sideDrumStrike,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -65,7 +65,7 @@ export function test_human_motion_side_drum_strike(): void {
   ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "side drum",
-      laws: [sideDrumStrike],
+      laws: [AutoMovieMotionHumanInstrument.sideDrumStrike],
       cues: { score: [{ name: "beat", seconds: beat }] },
       performers: [
         {
@@ -95,14 +95,18 @@ export function test_human_motion_side_drum_strike(): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3 })
+        .stand({ hold: 0.3 })
         .pickUp({
           prop: "stick",
           hand: "right",
           handle: "grip",
           use: { tip: "face", line: "square" },
         })
-        .registered(sideDrumStrike.name, { hand, stick: "stick", drum: "drum" })
+        .registered(AutoMovieMotionHumanInstrument.sideDrumStrike.name, {
+          hand,
+          stick: "stick",
+          drum: "drum",
+        })
         .sync({ of: "score", event: "beat", align: "contact1" }).node,
     });
   const film: IAutoMovieMotionHumanPerformance = stage("right");
@@ -110,7 +114,7 @@ export function test_human_motion_side_drum_strike(): void {
     .segments("a")
     .find(
       (s: IAutoMovieMotionHumanSegment): boolean =>
-        s.name === sideDrumStrike.name,
+        s.name === AutoMovieMotionHumanInstrument.sideDrumStrike.name,
     )!;
   TestValidator.predicate(
     "the decisive instant falls on the authored beat",
@@ -178,7 +182,7 @@ export function test_human_motion_side_drum_strike(): void {
 
   refused = false;
   try {
-    sideDrumStrike.plan({
+    AutoMovieMotionHumanInstrument.sideDrumStrike.plan({
       ...stroke.context,
       params: { hand: "right", stick: "stick", drum: "drum" },
       prop: (subject) => {

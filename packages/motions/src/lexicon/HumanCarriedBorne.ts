@@ -52,12 +52,12 @@ export namespace HumanCarriedBorne {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IBorne>,
   ): IAutoMovieMotionHumanActionPlan {
-    const by: string | undefined = context.params.by;
-    const seconds: number = lasting(context.params.seconds ?? 2);
+    const by: string | undefined = context.params.partner;
+    const seconds: number = lasting(context.params.hold ?? 2);
     if (by === context.subject)
       throw new HumanRefusal({
         kind: "participant",
-        axis: "by",
+        axis: "partner",
         value: by,
         reason: "a person is carried by someone else",
         fix: "name the carrier",
@@ -324,6 +324,6 @@ export namespace HumanCarriedBorne {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lasting(seconds: number): number {
-    return HumanBound.above("seconds", seconds, 0, "s");
+    return HumanBound.above("hold", seconds, 0, "s");
   }
 }

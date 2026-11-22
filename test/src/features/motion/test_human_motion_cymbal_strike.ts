@@ -9,11 +9,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanInstrument,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  cymbalStrike,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -78,7 +78,7 @@ export function test_human_motion_cymbal_strike(): void {
   const beat: number = 4;
   const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "cymbal strike",
-    laws: [cymbalStrike],
+    laws: [AutoMovieMotionHumanInstrument.cymbalStrike],
     cues: { score: [{ name: "beat", seconds: beat }] },
     performers: [
       {
@@ -105,14 +105,14 @@ export function test_human_motion_cymbal_strike(): void {
       }),
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .pickUp({
         prop: "stick",
         hand: "right",
         handle: "grip",
         use: { tip: "face", line: "square" },
       })
-      .registered(cymbalStrike.name, {
+      .registered(AutoMovieMotionHumanInstrument.cymbalStrike.name, {
         hand: "right",
         stick: "stick",
         cymbal: "cymbal",
@@ -124,7 +124,7 @@ export function test_human_motion_cymbal_strike(): void {
     .segments("a")
     .find(
       (segment: IAutoMovieMotionHumanSegment): boolean =>
-        segment.name === cymbalStrike.name,
+        segment.name === AutoMovieMotionHumanInstrument.cymbalStrike.name,
     );
   TestValidator.predicate(
     "the decisive instant falls on the authored beat",
@@ -135,7 +135,7 @@ export function test_human_motion_cymbal_strike(): void {
   if (stroke === undefined) throw new Error("The staged strike was not placed");
   let refused: boolean = false;
   try {
-    cymbalStrike.plan({
+    AutoMovieMotionHumanInstrument.cymbalStrike.plan({
       ...stroke.context,
       params: { hand: "right", stick: "stick", cymbal: "cymbal" },
       prop: (subject) => {

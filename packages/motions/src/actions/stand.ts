@@ -95,8 +95,8 @@ export namespace stand {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
     side: AutoMovieHumanSide = "right",
   ): IAutoMovieMotionHumanActionPlan {
-    const duration: number = context.params.seconds ?? SECONDS;
-    HumanBound.above("seconds", duration, 0, "s");
+    const duration: number = context.params.hold ?? SECONDS;
+    HumanBound.above("hold", duration, 0, "s");
     return prepare(context, side)(duration);
   }
 
@@ -420,7 +420,7 @@ export namespace stand {
   ): IFootprints {
     const stood: IAutoMovieMotionHumanActionPlan = plan({
       ...context,
-      params: { seconds: 1 },
+      params: { hold: 1 },
     });
     const standing: IAutoMovieMotionHumanPosture = stood.posture(0);
     const settled: IAutoMovieMotionHumanPosture = stood.posture(stood.duration);
@@ -471,7 +471,10 @@ export namespace stand {
 }
 
 /** The rest feet's midpoint in world offset for a heading, so a stand centres the pelvis over its feet. */
-function centre(body: IAutoMovieMotionHumanBody, yaw: number): IAutoMovieVector3 {
+function centre(
+  body: IAutoMovieMotionHumanBody,
+  yaw: number,
+): IAutoMovieVector3 {
   const l: IAutoMovieVector3 = body.rest.get("leftFoot")!;
   const r: IAutoMovieVector3 = body.rest.get("rightFoot")!;
   return HumanFrame.point(

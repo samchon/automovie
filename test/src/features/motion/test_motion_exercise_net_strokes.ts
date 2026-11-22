@@ -108,7 +108,7 @@ function tennisForehand(
       }),
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .pickUp({
         prop: "racket",
         handle: "grip",
@@ -252,7 +252,7 @@ function volleyballSpike(
     seed: "volleyball-spike-contact",
     performers: [player(body)],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .ballSport({ kind: "volleyballSpike", contactAt: mark }).node,
   });
   const segment: IAutoMovieMotionHumanSegment = film

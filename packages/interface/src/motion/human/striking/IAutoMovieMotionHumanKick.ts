@@ -36,8 +36,8 @@ import type { IAutoMovieMotionHumanStrikingRecord } from "./IAutoMovieMotionHuma
  * levels on `HumanSkill.LEVELS`), so launch to contact is 0.39 s at
  * novice, 0.38 at amateur, 0.35 at trained and 0.33 at elite, and the whole
  * kick 1.30, 1.22, 1.06 and 0.98 s. A seeded timing variability is added to
- * the chamber (`HumanSkill.jitter`). A feint shows the chamber and
- * returns without extending. The round kick lands at 0.55 of its peak foot
+ * the chamber (`HumanSkill.jitter`). A feint (a share of the delivery up
+ * to the chamber's) shows the chamber and returns without extending. The round kick lands at 0.55 of its peak foot
  * speed; the peak (6.5 m/s novice, 14.3 m/s elite) is a reference the kick
  * does not read (`StrikingSkill.KICK_PEAK_SPEED`). The chamber's fold
  * and the pelvis's turn scale by the skill's range share
@@ -58,16 +58,16 @@ export namespace IAutoMovieMotionHumanKick {
    * Parameters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation Closed unions for the technique and the leg, the interface's motion target, the accuracy union and a feint flag.
+   * @evidence contracts/development/design.md#principled-representation Closed unions for the technique and the leg, the interface's motion target, the accuracy union and a feint share in (0, 1).
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan, the defence's telegraph and the kickboxing rules read.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target and accuracy types.
    */
   export interface IParams {
     /** The technique: the round kick with the shin, or the push kick (teep) with the ball of the foot. */
-    technique: "round" | "push";
+    technique: IAutoMovieMotionHumanKick.Technique;
 
     /** Which leg: the stance's lead or rear; rear for a round kick and lead for a push kick when absent. */
-    leg?: "lead" | "rear";
+    leg?: IAutoMovieMotionHumanKick.Leg;
 
     /** What it strikes. */
     at: IAutoMovieMotionTarget;
@@ -75,9 +75,36 @@ export namespace IAutoMovieMotionHumanKick {
     /** Declared accuracy; `hit` when absent. */
     accuracy?: IAutoMovieMotionHumanStrikingQuality.Accuracy;
 
-    /** A feint: the kick shows its chamber and returns without extending. */
-    feint?: boolean;
+    /**
+     * A feint: the share of the delivery, from the kick's start to the
+     * committed contact, shown before returning, in (0, 1). A share up to the
+     * chamber's (`chamber / (chamber + KICK_EXTENSION × strike)`, about 0.66 at
+     * elite skill, less on a quick seeded chamber) shows the chamber and
+     * returns without extending; a larger share is refused, since the kick
+     * has no partial extension.
+     */
+    feint?: number;
   }
+
+  /**
+   * The technique: the round kick with the shin, or the push kick (teep) with the ball of the foot.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two techniques and the surface each lands.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the two kicks this law plans, so no other technique type-checks.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the kick law's `technique` member and by the strike family's kick presets.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Explicit literals; the kick law owns each technique's geometry.
+   */
+  export type Technique = "round" | "push";
+
+  /**
+   * The kicking leg: the stance's lead leg or its rear leg.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two legs by the stance.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the stance's two legs, so no other leg type-checks.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the kick law's `leg` member and by the strike family's kick presets.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Explicit literals; the stance owns which physical leg each names.
+   */
+  export type Leg = "lead" | "rear";
 
   /**
    * A kick's plan: a strike's plan that another kick may continue from.

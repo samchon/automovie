@@ -53,7 +53,7 @@ export namespace IAutoMovieMotionHumanHoldInfant {
    */
   export interface IParams {
     /** The hold. */
-    hold: Hold;
+    kind: Hold;
 
     /** The held infant's prop subject, taken up at its `seat` by `hand`. */
     prop: string;
@@ -62,7 +62,7 @@ export namespace IAutoMovieMotionHumanHoldInfant {
     hand?: AutoMovieHumanSide;
 
     /** Seconds the hold lasts once taken; 4 when absent. */
-    seconds?: number;
+    hold?: number;
 
     /** A rocking of the held infant; none when absent. */
     rock?: IRock;

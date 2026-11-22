@@ -161,7 +161,7 @@ export function test_motion_exercise_archery_take(): void {
             },
             "cue",
           )
-          .stand({ seconds: 0.6, sway: 0 }).node,
+          .stand({ hold: 0.6, sway: 0 }).node,
       });
       const at: (anchor: string, event: string) => number = (
         anchor: string,

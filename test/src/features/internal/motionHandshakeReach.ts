@@ -62,8 +62,8 @@ export function motionHandshakeReach(
       },
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.1 })
-      .with(HumanChain.subject("b").stand({ seconds: 0.1 })).node,
+      .stand({ hold: 0.1 })
+      .with(HumanChain.subject("b").stand({ hold: 0.1 })).node,
   });
   const shoulder = (subject: string): IAutoMovieVector3 =>
     standing.bones(subject, 0).get("rightUpperArm")!.worldPosition;
@@ -102,7 +102,7 @@ export function motionHandshakeReach(
       composition: HumanChain.pair(
         HumanChain.subject("a"),
         HumanChain.subject("b"),
-      ).handshake({ pumps: 2 }).node,
+      ).handshake({ count: 2 }).node,
     });
   const out: string[] = [];
 

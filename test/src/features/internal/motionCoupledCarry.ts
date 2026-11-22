@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanCarried,
+  AutoMovieMotionHumanCarryPerson,
   HumanCarriedCoupling,
   HumanCarriedCouplingLoad,
   HumanCarriedLean,
@@ -59,11 +59,11 @@ export function motionCoupledCarry(
       b: motionHumanBody(names[1]),
     };
   const own: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
-    seconds: 0.3,
+    hold: 0.3,
   });
   const moved: IAutoMovieMotionHumanChain = walking
     ? own.walk({ to: { x: 0, y: 0, z: 2 } })
-    : own.stand({ seconds: 2 });
+    : own.stand({ hold: 2 });
   let coupling: PendingCoupling = known;
   const film: IAutoMovieMotionHumanPerformance = profileHumanMotion(
     `${walking ? "coupled-walk" : "coupled-stand"}/${carry}/${names[0]}/${names[1]}`,
@@ -71,13 +71,16 @@ export function motionCoupledCarry(
       coupling ??= HumanCarriedCoupling.couple(
         bodies.a,
         bodies.b,
-        HumanCarried.CARRIES[carry],
+        AutoMovieMotionHumanCarryPerson.carryPerson.CARRIES[carry],
         carry,
         extra.mass ?? 0,
       );
       return new HumanPerformance({
         seed: "coupled",
-        laws: [HumanCarried.borne, HumanCarried.bearing],
+        laws: [
+          AutoMovieMotionHumanCarryPerson.carryPerson.borne,
+          AutoMovieMotionHumanCarryPerson.carryPerson.bearing,
+        ],
         performers: (["a", "b"] as const).map(
           (
             subject: motionCoupledCarry.Subject,
@@ -101,7 +104,7 @@ export function motionCoupledCarry(
           )
           .with(
             HumanChain.subject("b")
-              .stand({ seconds: 0.3 })
+              .stand({ hold: 0.3 })
               .registered("borne", { by: "a", carry, seconds: 2, ...extra }),
           ).node,
 
@@ -113,7 +116,7 @@ export function motionCoupledCarry(
                 HumanCarriedCouplingLoad.lean(bodies.a, coupling),
               ),
               from: 0.3,
-              fade: HumanCarried.TAKE,
+              fade: AutoMovieMotionHumanCarryPerson.carryPerson.TAKE,
             },
           ],
         },

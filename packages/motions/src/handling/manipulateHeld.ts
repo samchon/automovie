@@ -198,7 +198,7 @@ export function manipulateHeld(
         fix: "use increasing times or use the seeded tap interval",
       });
     if (
-      (contact.side !== undefined && contact.side !== side) ||
+      (contact.hand !== undefined && contact.hand !== side) ||
       (contact.digit !== undefined && contact.digit !== "thumb")
     )
       throw new HumanRefusal({

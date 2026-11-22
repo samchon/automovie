@@ -63,14 +63,14 @@ export function test_motion_posture_slope_overlay(): void {
     }
   };
   const wave = (part: IAutoMovieMotionHumanChain) =>
-    part.gesture({ kind: "wave", side: "right" });
+    part.gesture({ kind: "wave", hand: "right" });
   run("f-small", subject.climbStairs({ count: 4, direction: "up" }), wave);
   run(
     "m-average",
     subject.carry({
       to: { x: 0, y: 0, z: 2.5 },
-      how: "oneHand",
-      side: "left",
+      kind: "oneHand",
+      hand: "left",
       load: 0.15,
     }),
     wave,

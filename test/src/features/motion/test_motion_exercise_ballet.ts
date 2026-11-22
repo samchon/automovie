@@ -11,14 +11,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanDance,
   AutoMovieMotionHumanRange,
   HumanChain,
-  HumanDanceStyles,
   HumanFoot,
   HumanPerformance,
   HumanRefusal,
-  balletPositions,
-  balletStep,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -50,7 +48,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the shared Human fixture.
  */
 export function test_motion_exercise_ballet(): void {
-  const turnout: number = balletStep.TURNOUT;
+  const turnout: number = AutoMovieMotionHumanDance.ballet.TURNOUT;
   const bodies: readonly Fixture[] = ["f-small", "m-average"];
 
   // 1. Positions.
@@ -61,7 +59,7 @@ export function test_motion_exercise_ballet(): void {
       kind: "position",
       position,
       movement: "hold",
-      beats: 1,
+      count: 1,
     });
     const step: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
     const t: number = step.start + at(step, "position") + 0.05;
@@ -73,14 +71,15 @@ export function test_motion_exercise_ballet(): void {
     const ahead: number = left.z - right.z;
     const expected: number =
       position === 1
-        ? balletPositions.HEEL * fl
+        ? AutoMovieMotionHumanDance.balletPositions.HEEL * fl
         : position === 2
-          ? balletPositions.SECOND * fl
+          ? AutoMovieMotionHumanDance.balletPositions.SECOND * fl
           : position === 3
-            ? 0.5 * c * fl + balletPositions.WIDTH * fl
+            ? 0.5 * c * fl +
+              AutoMovieMotionHumanDance.balletPositions.WIDTH * fl
             : position === 4
-              ? c * fl + balletPositions.FOURTH * fl
-              : c * fl + balletPositions.WIDTH * fl;
+              ? c * fl + AutoMovieMotionHumanDance.balletPositions.FOURTH * fl
+              : c * fl + AutoMovieMotionHumanDance.balletPositions.WIDTH * fl;
     const measured: number = position <= 2 ? apart : -ahead;
     const outL: number = heading(film, t, "left");
     const outR: number = heading(film, t, "right");
@@ -99,7 +98,7 @@ export function test_motion_exercise_ballet(): void {
       kind: "position",
       position: 1,
       movement: "releve",
-      beats: 2,
+      count: 2,
     });
     const step: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
     const before: number = step.start + at(step, "beat1");
@@ -234,7 +233,7 @@ function take(
 ): HumanPerformance {
   return new HumanPerformance({
     seed: "ballet",
-    laws: [HumanDanceStyles.ballet],
+    laws: [AutoMovieMotionHumanDance.HumanDanceStyles.ballet],
     performers: [
       {
         subject: "a",
@@ -245,7 +244,7 @@ function take(
       },
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .registered("ballet", params).node,
   });
 }

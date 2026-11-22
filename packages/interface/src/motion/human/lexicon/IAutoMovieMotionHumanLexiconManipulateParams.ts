@@ -33,28 +33,28 @@ export interface IAutoMovieMotionHumanLexiconManipulateParams {
   sequence: IAutoMovieMotionHumanManipulate.IParams;
 
   /** Touch typing: a text on a keyboard, both hands, each letter by the digit the home-row chart assigns. */
-  type: Omit<IAutoMovieMotionHumanManipulate.IParams, "side">;
+  type: Omit<IAutoMovieMotionHumanManipulate.IParams, "hand">;
 
   /** Two-finger typing: a text on a keyboard, each key pressed by the forefinger of the hand on its side, `typeText`'s act as a row of the keyed sequence (#3361). */
   typeTwoFinger: Omit<
     IAutoMovieMotionHumanManipulate.IParams,
-    "side" | "digit"
+    "hand" | "digit"
   >;
 
   /** Playing a keyboard instrument: both hands, each note's digit by the fingering that keeps the hands still unless the score names it. */
-  play: Omit<IAutoMovieMotionHumanManipulate.IParams, "side">;
+  play: Omit<IAutoMovieMotionHumanManipulate.IParams, "hand">;
 
   /** Fretting a guitar: the left hand's digits on the fret sites, the fingering keeping the hand still (Handrix's outcome, ElKoura and Singh 2003). */
-  fret: Omit<IAutoMovieMotionHumanManipulate.IParams, "side">;
+  fret: Omit<IAutoMovieMotionHumanManipulate.IParams, "hand">;
 
   /** Strumming or plucking: the right hand's digits across the string sites. */
-  strum: Omit<IAutoMovieMotionHumanManipulate.IParams, "side">;
+  strum: Omit<IAutoMovieMotionHumanManipulate.IParams, "hand">;
 
   /** Dialling: the right forefinger on each key in turn. */
-  dial: Omit<IAutoMovieMotionHumanManipulate.IParams, "side" | "digit">;
+  dial: Omit<IAutoMovieMotionHumanManipulate.IParams, "hand" | "digit">;
 
   /** Texting with a thumb: the right thumb on each key of the held phone's screen. */
-  thumbText: Omit<IAutoMovieMotionHumanManipulate.IParams, "side" | "digit">;
+  thumbText: Omit<IAutoMovieMotionHumanManipulate.IParams, "hand" | "digit">;
 
   /** Write on a staged surface with a held tool. */
   write: IAutoMovieMotionHumanWrite;

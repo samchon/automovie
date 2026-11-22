@@ -8,10 +8,10 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanRide,
 } from "@automovie/motions";
 
 import { locationTrackedRideFixture } from "./locationTrackedRideFixture";
@@ -50,7 +50,7 @@ export function locationTrackedRidePassenger(
   };
   const film: HumanPerformance = new HumanPerformance({
     seed: "tracked-ride",
-    laws: [HumanRide.ride],
+    laws: [AutoMovieMotionHumanMount.rideHorse.ride],
     props: [HumanObject.prop(carrier, car, placed(0), placed)],
     performers: [
       {

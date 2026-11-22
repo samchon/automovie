@@ -9,13 +9,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanWorkout,
   HumanChain,
   HumanFoot,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  workout,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -309,7 +309,7 @@ function take(name: Specimen, kind: Lift, grip: number, handle: Handle): ITake {
   const contact: IAutoMovieVector3 =
     bar.affordance("gripRight").frame.translation;
   const hold = HumanChain.subject("actor")
-    .stand({ seconds: 0.3, sway: 0 })
+    .stand({ hold: 0.3, sway: 0 })
     .pickUp({ prop: "bar", handle: "gripRight" })
     .registered("workout", {
       kind,
@@ -329,7 +329,7 @@ function take(name: Specimen, kind: Lift, grip: number, handle: Handle): ITake {
   );
   const film: HumanPerformance = new HumanPerformance({
     seed: "athletics/lift-baseline",
-    laws: [workout],
+    laws: [AutoMovieMotionHumanWorkout.workout],
     performers: [
       {
         subject: "actor",
@@ -352,7 +352,7 @@ function take(name: Specimen, kind: Lift, grip: number, handle: Handle): ITake {
     composition: (kind === "snatch" || kind === "cleanAndJerk"
       ? hold
           .putDown({ prop: "bar", onto: { prop: "rack", point: "rest" } })
-          .stand({ seconds: 0.3, sway: 0 })
+          .stand({ hold: 0.3, sway: 0 })
       : hold
     ).node,
   });

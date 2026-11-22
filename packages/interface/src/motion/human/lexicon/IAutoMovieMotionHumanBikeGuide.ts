@@ -20,5 +20,5 @@ export interface IAutoMovieMotionHumanBikeGuide {
   side?: AutoMovieHumanSide;
 
   /** Duration in seconds, positive: the span of the bicycle's course to walk beside. */
-  seconds: number;
+  duration: number;
 }

@@ -16,11 +16,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanBodyFit,
   HumanVerdicts,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -85,11 +85,12 @@ export function test_motion_contact_goal_fit(): void {
   };
   for (const name of ["f-small", "m-average", "m-short-armed"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const entry: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      { x: 0.7, y: body.measure.stature, z: -0.4 },
-      name === "m-short-armed" ? 90 : 25,
-    );
+    const entry: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(
+        body,
+        { x: 0.7, y: body.measure.stature, z: -0.4 },
+        name === "m-short-armed" ? 90 : 25,
+      );
     try {
       const wanted: IAutoMovieMotionHumanPosture = {
         ...entry,

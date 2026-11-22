@@ -284,7 +284,7 @@ function load(aperture: string, lead: string): IAutoMovieMotionHumanChain {
   return HumanChain.subject("a")
     .operate({
       hand: "left",
-      mechanism: {
+      kind: {
         kind: "hinge",
         at: { kind: "prop", subject: "washer", point: "doorHandle" },
         swing: 94,
@@ -296,7 +296,7 @@ function load(aperture: string, lead: string): IAutoMovieMotionHumanChain {
       facing: { yaw: 0 },
       pace: "slow",
     })
-    .stand({ seconds: 0.2 })
+    .stand({ hold: 0.2 })
     .registered("putDownAperture", {
       prop: "cloth",
       onto: {
@@ -312,16 +312,16 @@ function load(aperture: string, lead: string): IAutoMovieMotionHumanChain {
       facing: { yaw: 0 },
       pace: "slow",
     })
-    .stand({ seconds: 0.2 })
+    .stand({ hold: 0.2 })
     .operate({
       hand: "right",
-      mechanism: {
+      kind: {
         kind: "hinge",
         at: { kind: "prop", subject: "washer", point: "doorHandle" },
         swing: -94,
       },
     })
-    .stand({ seconds: 0.3 });
+    .stand({ hold: 0.3 });
 }
 
 /** The least signed distance, metres, from the cloth to any piece of a placed model. */

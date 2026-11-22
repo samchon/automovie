@@ -25,8 +25,8 @@
  * Events: `handsDown` (the first hand bears), `inverted` (half the wheel),
  * `feetDown` (the feet bear again), `relax` (the end).
  *
- * @evidence contracts/development/common.md#meaningful-documentation lead: The hand that goes down first; `left` when absent. seconds: Seconds the round-off takes; `SECONDS` when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation lead: The hand that goes down first; `left` when absent. seconds: Seconds the round-off takes; `SECONDS` when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/common.md#meaningful-documentation lead: The hand that goes down first; `left` when absent. duration: Seconds the round-off takes; `SECONDS` when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/design.md#principled-representation lead: The hand that goes down first; `left` when absent. duration: Seconds the round-off takes; `SECONDS` when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: sport/roundOff.ts (roundOff.plan, context).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in roundOff.plan.
  */
@@ -44,6 +44,6 @@ export namespace IAutoMovieMotionHumanRoundOff {
     lead?: "left" | "right";
 
     /** Seconds the round-off takes, positive; 1.2 s when absent (`roundOff.SECONDS`, provisional: quicker than the cartwheel, the entry to a tumbling run). */
-    seconds?: number;
+    duration?: number;
   }
 }

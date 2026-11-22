@@ -92,7 +92,7 @@ export function test_motion_contact_equipment_marker(): void {
           }),
         ],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
+          .stand({ hold: 0.3 })
           .pickUp({
             prop: "racket",
             handle: "grip",

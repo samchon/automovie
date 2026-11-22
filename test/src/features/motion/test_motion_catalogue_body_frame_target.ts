@@ -18,12 +18,12 @@ import {
   AutoMovieMotionHumanArm,
   AutoMovieMotionHumanBend,
   AutoMovieMotionHumanPlaced,
+  AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTarget,
   HumanFoot,
   HumanHand,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -197,11 +197,8 @@ export function test_motion_catalogue_body_frame_target(): void {
       P.pitch(body, -2 * length) === P.pitch(body, -length),
   );
 
-  const quiet: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const quiet: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const pitched: IAutoMovieMotionHumanPosture = {
     ...quiet,
     pitch: 30,

@@ -202,7 +202,7 @@ function checkHighSeat(complaints: string[]): void {
     HumanObject.seat(stool, { at: { x: 0, y: height, z: -0.6 }, yaw: 0 });
   const drink = (
     chain: IAutoMovieMotionHumanChain,
-  ): IAutoMovieMotionHumanChain => chain.handToFace({ task: "drink" });
+  ): IAutoMovieMotionHumanChain => chain.handToFace({ kind: "drink" });
   const perform = (
     seat: IAutoMovieMotionHumanSeated.ISeat,
     then: typeof drink = drink,
@@ -222,8 +222,7 @@ function checkHighSeat(complaints: string[]): void {
           ),
         },
       ],
-      composition: then(HumanChain.subject("a").sit({ seat, seconds: 0.5 }))
-        .node,
+      composition: then(HumanChain.subject("a").sit({ seat, hold: 0.5 })).node,
     });
   const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);

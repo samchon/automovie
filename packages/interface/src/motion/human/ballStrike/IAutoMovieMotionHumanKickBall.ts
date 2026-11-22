@@ -25,8 +25,8 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * Supply speed to meet the ball at the stroke's film instant and launch it
  * with the authored velocity. The support foot remains planted.
  *
- * @evidence contracts/development/common.md#meaningful-documentation foot: The kicking foot; `right` when absent. toward: Where the ball is kicked toward; along the heading when absent.
- * @evidence contracts/development/design.md#principled-representation foot: The kicking foot; `right` when absent. toward: Where the ball is kicked toward; along the heading when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation foot: The kicking foot; `right` when absent. target: Where the ball is kicked toward; along the heading when absent.
+ * @evidence contracts/development/design.md#principled-representation foot: The kicking foot; `right` when absent. target: Where the ball is kicked toward; along the heading when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ballStrike/kickBall.ts (kickBall.plan, context); chain/HumanChainMutual.ts (HumanChainMutual.kickBall, params); executable/cases/ballStrikeCases.ts (ballStrikeCases).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -47,7 +47,7 @@ export namespace IAutoMovieMotionHumanKickBall {
     foot?: "left" | "right";
 
     /** Where the ball is kicked toward; along the heading when absent. */
-    toward?: IAutoMovieMotionTarget;
+    target?: IAutoMovieMotionTarget;
 
     /** Horizontal launch speed of the ball, m/s, authored and never derived from the leg. Omit for a contact-only kick: the foot meets the ball and the ball is not launched. The foot meets the ball at the stroke's film instant, 0.45 s after the start (the backswing 0.35 s and the swing 0.1 s; the follow-through 0.15 s and the return 0.45 s end the kick at 1.05 s; all provisional, scaled by the manner's tempo). */
     speed?: number;

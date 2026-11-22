@@ -109,7 +109,7 @@ export function prepareHumanEquestrianRide(
       "choose stride, jump or lookBack",
     );
 
-  const seconds: number = context.params.seconds;
+  const seconds: number = context.params.duration;
   const strides: readonly IStrideWindow[] = strideWindows(
     context,
     options.stride,
@@ -164,7 +164,7 @@ export function prepareHumanEquestrianRide(
       options.lookBack.cue,
       "equestrian.lookBack.cue",
     );
-    const length: number = options.lookBack.seconds;
+    const length: number = options.lookBack.duration;
     HumanBound.above("equestrian.lookBack.seconds", length, 0, "s");
     const half: number = length / 2;
     if (!(half > 0 && peak - half >= 0 && peak + half <= seconds))
@@ -317,7 +317,7 @@ function times(context: Context, id: string): readonly number[] {
 /** The single cue event inside this ride. */
 function instant(context: Context, id: string, axis: string): number {
   const active: readonly number[] = times(context, id).filter(
-    (at: number): boolean => at >= 0 && at <= context.params.seconds,
+    (at: number): boolean => at >= 0 && at <= context.params.duration,
   );
   if (active.length !== 1)
     refuse(

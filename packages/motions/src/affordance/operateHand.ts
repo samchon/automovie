@@ -57,8 +57,7 @@ export function operateHand(
     seconds?: number,
   ) => IAutoMovieVector3;
 } {
-  const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
-    context.params.mechanism;
+  const mechanism: IAutoMovieMotionHumanOperate.Mechanism = context.params.kind;
   const side: AutoMovieHumanSide = context.params.hand ?? "right";
   if (mechanism.kind === "insert") {
     const insertion: ReturnType<typeof operateInsert.prepareMoving> =

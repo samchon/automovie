@@ -1,4 +1,3 @@
-import type { IAutoMovieMotionHumanSupport } from "../actions/IAutoMovieMotionHumanSupport";
 import type { IAutoMovieMotionHumanBend } from "../everyday/IAutoMovieMotionHumanBend";
 import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHumanCrouch";
 import type { IAutoMovieMotionHumanKneel } from "../everyday/IAutoMovieMotionHumanKneel";
@@ -7,6 +6,7 @@ import type { IAutoMovieMotionHumanShift } from "../everyday/IAutoMovieMotionHum
 import type { IAutoMovieMotionHumanSit } from "../everyday/IAutoMovieMotionHumanSit";
 import type { IAutoMovieMotionHumanGetUp } from "../floor/IAutoMovieMotionHumanGetUp";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
+import type { IAutoMovieMotionHumanSupport } from "../next/IAutoMovieMotionHumanSupport";
 import type { IAutoMovieMotionHumanChainTravel } from "./IAutoMovieMotionHumanChainTravel";
 
 /**

@@ -72,7 +72,7 @@ function mopFloor(body: IAutoMovieMotionHumanBody, failures: string[]): void {
         load: "light",
         to: { x: 0, y: 0, z: 0.38 },
       })
-      .stand({ seconds: 0.35 }),
+      .stand({ hold: 0.35 }),
     [HumanObject.prop("mop", mop, { at: start, yaw: 0 })],
   );
   const work: IAutoMovieMotionHumanSegment = film.performance.segments("a")[0]!;

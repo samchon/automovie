@@ -145,7 +145,7 @@ export function test_archetype_catalogue_actor_touchscreen(): void {
           ],
           props: [prop],
           composition: Chain.subject("a")
-            .stand({ seconds: 0.6, sway: 0 })
+            .stand({ hold: 0.6, sway: 0 })
             .swipeTouchscreen({
               prop: "phone",
               screen: "screen",

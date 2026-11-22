@@ -13,9 +13,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanPolo,
   HumanFoot,
   HumanObject,
-  HumanPolo,
   HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
@@ -286,7 +286,7 @@ function stage(
     gait: "canter",
     wait: WAIT,
     course,
-    laws: [HumanPolo],
+    laws: [AutoMovieMotionHumanPolo.polo],
     props: [
       HumanObject.prop("mallet", mallet, {
         // Standing on its head on the floor below the rack, the grip about chest high.

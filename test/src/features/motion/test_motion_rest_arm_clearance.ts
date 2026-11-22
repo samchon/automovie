@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditTangle,
+  AutoMovieMotionHumanStance,
   HumanArmClearance,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -44,11 +44,8 @@ const GIVE: number = 0.01;
 export function test_motion_rest_arm_clearance(): void {
   for (const profile of ["m-average", "f-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(profile);
-    const quiet: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      { x: 0, y: 0, z: 0 },
-      0,
-    );
+    const quiet: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
     const thigh: (posture: IAutoMovieMotionHumanPosture) => number = (
       posture: IAutoMovieMotionHumanPosture,
     ): number =>

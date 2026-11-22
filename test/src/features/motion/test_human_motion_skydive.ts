@@ -11,10 +11,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanSkydive,
 } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -92,7 +92,7 @@ export function test_human_motion_skydive(): void {
           },
         ],
         props: [exit],
-        laws: [HumanSkydive.skydive],
+        laws: [AutoMovieMotionHumanAcrobatics.skydive.skydive],
         composition: HumanChain.subject("a").registered("skydive", {
           from: "roof",
           edge: "top",
@@ -202,7 +202,7 @@ export function test_human_motion_skydive(): void {
     // 2. The toggle turn.
     try {
       const steered: HumanPerformance = jump({
-        toggles: [{ at: 2, side: "left", seconds: 2 }],
+        toggles: [{ at: 2, side: "left", hold: 2 }],
       });
       assertTakeClean(`${fit} steered skydive`, steered);
       const s: IAutoMovieMotionHumanSegment = segment(steered);

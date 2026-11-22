@@ -5,11 +5,10 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
   HumanChain,
-  HumanGymnastics,
   HumanPerformance,
   HumanSportWorkout,
-  cartwheel,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,7 +40,7 @@ export function test_motion_sport_native_playback(): void {
     { name: "pushUp", node: entry.registered("pushUp", { reps: 3 }).node },
     {
       name: "breaststroke",
-      node: entry.swim({ kind: "breaststroke", cycles: 3 }).node,
+      node: entry.swim({ kind: "breaststroke", count: 3 }).node,
     },
     {
       name: "cartwheel",
@@ -70,9 +69,9 @@ export function test_motion_sport_native_playback(): void {
           laws: [
             HumanSportWorkout.backSquat,
             HumanSportWorkout.pushUp,
-            cartwheel,
-            HumanGymnastics.roundOffLeft,
-            HumanGymnastics.frontHandspring,
+            AutoMovieMotionHumanAcrobatics.cartwheel,
+            AutoMovieMotionHumanAcrobatics.HumanGymnastics.roundOffLeft,
+            AutoMovieMotionHumanAcrobatics.HumanGymnastics.frontHandspring,
           ],
           composition: node,
         },

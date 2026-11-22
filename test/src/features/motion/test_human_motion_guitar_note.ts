@@ -19,10 +19,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanInstrument,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  guitarNote,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -96,7 +96,7 @@ export function test_human_motion_guitar_note(): void {
   );
   const film: HumanPerformance = new HumanPerformance({
     seed: "stopped string",
-    laws: [guitarNote],
+    laws: [AutoMovieMotionHumanInstrument.guitarNote],
     performers: [
       {
         subject: "player",

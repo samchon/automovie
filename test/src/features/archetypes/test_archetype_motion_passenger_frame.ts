@@ -4,10 +4,10 @@ import {
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanRide,
   HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -79,7 +79,7 @@ export function test_archetype_motion_passenger_frame(): void {
     body = motionHumanBody("m-average");
   const film = new HumanPerformance({
     seed: "passenger",
-    laws: [HumanRide.ride],
+    laws: [AutoMovieMotionHumanMount.rideHorse.ride],
     props: [HumanObject.prop("coach", car, placed(0), placed)],
     performers: [
       {

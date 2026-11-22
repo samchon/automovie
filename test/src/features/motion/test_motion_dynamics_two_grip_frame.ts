@@ -9,11 +9,11 @@ import type {
 import {
   AutoMovieMotionHumanArm,
   AutoMovieMotionHumanAudit,
+  AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTarget,
   HumanHand,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -33,11 +33,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_dynamics_two_grip_frame(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const quiet: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const quiet: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const span = { start: 0, ready: 0.6, relax: 1.1, end: 1.5 };
   const lift = (seconds: number): number => {
     const s: number = Math.min(1, Math.max(0, (seconds - 0.65) / 0.4));

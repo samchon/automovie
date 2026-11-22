@@ -90,7 +90,7 @@ export namespace IAutoMovieMotionHumanClimbStairs {
    */
   export interface IRail {
     /** The performer's hand that braces on the rail. */
-    side: AutoMovieHumanSide;
+    hand: AutoMovieHumanSide;
 
     /** Id of the `bar` affordance on the fixed stair prop. */
     point: string;

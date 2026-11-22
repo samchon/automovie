@@ -22,12 +22,12 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanHeld,
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanPrecisionSport,
   PrecisionStrokeForms,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -207,7 +207,7 @@ export function test_motion_exercise_court_strokes(): void {
             },
           ],
           composition: HumanChain.subject("striker").stand({
-            seconds: 0.2,
+            hold: 0.2,
             sway: 0,
           }).node,
         },
@@ -246,18 +246,18 @@ export function test_motion_exercise_court_strokes(): void {
         seed: `${stroke.row}-ready`,
         performers,
         composition: HumanChain.subject("striker").stand({
-          seconds: 0.2,
+          hold: 0.2,
           sway: 0,
         }).node,
       });
       const hold: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
         {
-          ...stand,
+          ...AutoMovieMotionHumanStance.stand,
           name: "strokeFixtureHold",
           plan: (
             context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
           ): IAutoMovieMotionHumanActionPlan => ({
-            ...stand.plan(context),
+            ...AutoMovieMotionHumanStance.stand.plan(context),
             holds: [{ side: "right", prop: "tool", from: 0 }],
           }),
         };
@@ -285,7 +285,7 @@ export function test_motion_exercise_court_strokes(): void {
             toward: { kind: "point", frame: "world", at: toward },
             ...(stroke.miss === true ? { miss: true } : {}),
           })
-          .stand({ seconds: 0.5, sway: 0 }).node,
+          .stand({ hold: 0.5, sway: 0 }).node,
       });
       const play: IAutoMovieMotionHumanBallPlay = take.play("ball");
       const launches: number = play.events.filter(

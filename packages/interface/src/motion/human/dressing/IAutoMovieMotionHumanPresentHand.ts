@@ -16,5 +16,5 @@ export interface IAutoMovieMotionHumanPresentHand {
   side?: AutoMovieHumanSide;
 
   /** How long the hand stays presented, seconds; positive. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
-  seconds: number;
+  hold: number;
 }

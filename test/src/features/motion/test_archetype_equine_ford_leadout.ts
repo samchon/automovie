@@ -48,7 +48,7 @@ export function test_archetype_equine_ford_leadout(): void {
     {
       seat: "entered",
       transfer: 0.4,
-      seconds: halt - equineFordRider.settled(rehearsed, body) - 0.4,
+      hold: halt - equineFordRider.settled(rehearsed, body) - 0.4,
       supports: equineFordRider.WADING,
     },
   ];

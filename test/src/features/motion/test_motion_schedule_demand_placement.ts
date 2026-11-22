@@ -56,13 +56,13 @@ export function test_motion_schedule_demand_placement(): void {
     laws: Object.values(HumanStrike),
     performers,
     composition: HumanChain.subject("a")
-      .guard({ seconds: 0.6, style: "kickboxing" })
+      .guard({ duration: 0.6, style: "kickboxing" })
       .registered(
         "jab",
         { at: { kind: "person", subject: "b", region: "chin" } },
         "strike",
       )
-      .with(HumanChain.subject("b").guard({ seconds: 2, style: "kickboxing" }))
+      .with(HumanChain.subject("b").guard({ duration: 2, style: "kickboxing" }))
       .node,
   });
   const strike: IAutoMovieScheduleEntry | undefined =

@@ -73,7 +73,7 @@ export function test_human_motion_pocket(): void {
       composition: HumanPocket.putBack(
         HumanPocket.takeOut(HumanChain.subject("a"), "phone", "grip", hand).act(
           "stand",
-          { seconds: 0.5 },
+          { hold: 0.5 },
         ),
         "phone",
         body,

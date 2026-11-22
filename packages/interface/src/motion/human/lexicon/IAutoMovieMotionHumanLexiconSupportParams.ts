@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanSupport } from "../actions/IAutoMovieMotionHumanSupport";
+import type { IAutoMovieMotionHumanSupport } from "../next/IAutoMovieMotionHumanSupport";
 import type { IAutoMovieMotionHumanAidWalk } from "./IAutoMovieMotionHumanAidWalk";
 import type { IAutoMovieMotionHumanAssistedTransfer } from "./IAutoMovieMotionHumanAssistedTransfer";
 

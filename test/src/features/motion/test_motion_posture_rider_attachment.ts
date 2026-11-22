@@ -16,13 +16,13 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFoot,
   HumanFrame,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanRide,
   HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -59,7 +59,7 @@ export function test_motion_posture_rider_attachment(): void {
   const drive = (chain: IAutoMovieMotionHumanChain) =>
     new HumanPerformance({
       seed: "attached",
-      laws: [HumanRide.ride],
+      laws: [AutoMovieMotionHumanMount.rideHorse.ride],
       props: [HumanObject.prop("car", car, placed(0), placed)],
       performers: [
         {
@@ -80,7 +80,7 @@ export function test_motion_posture_rider_attachment(): void {
     actor
       .sit({ seat })
       .registered("ride", { on: "car", seconds: 7 })
-      .over((part) => part.handToFace({ task: "phone" })),
+      .over((part) => part.handToFace({ kind: "phone" })),
   );
   const segment = carFilm.segments("a")[1]!,
     reader = HumanSignature.of(carFilm, "a", driver, 0);
@@ -110,9 +110,7 @@ export function test_motion_posture_rider_attachment(): void {
   let bad: unknown;
   try {
     drive(
-      actor
-        .stand({ seconds: 0.5 })
-        .registered("ride", { on: "car", seconds: 2 }),
+      actor.stand({ hold: 0.5 }).registered("ride", { on: "car", seconds: 2 }),
     );
   } catch (error) {
     bad = error;
@@ -154,7 +152,7 @@ export function test_motion_posture_rider_attachment(): void {
   const mount = (target: IAutoMovieMotionHumanSeated.ISeat) =>
     new HumanPerformance({
       seed: "rising",
-      laws: [HumanRide.ride],
+      laws: [AutoMovieMotionHumanMount.rideHorse.ride],
       cues: { strides: cues },
       props: [HumanObject.prop("horse", horse, placement(0), placement, part)],
       performers: [
@@ -169,15 +167,13 @@ export function test_motion_posture_rider_attachment(): void {
           proficiency: { level: "trained" },
         },
       ],
-      composition: actor
-        .sit({ seat: target, seconds: 0.5 })
-        .registered("ride", {
-          on: "horse",
-          seconds: wait + gait.duration,
-          rising: { cue: "strides" },
-          seat: "seat",
-          feet: { left: "leftStirrup", right: "rightStirrup" },
-        }).node,
+      composition: actor.sit({ seat: target, hold: 0.5 }).registered("ride", {
+        on: "horse",
+        seconds: wait + gait.duration,
+        rising: { cue: "strides" },
+        seat: "seat",
+        feet: { left: "leftStirrup", right: "rightStirrup" },
+      }).node,
     });
   const { footrests: _rests, ...bare } = saddle;
   bad = undefined;
@@ -317,7 +313,7 @@ function checkGripAndLanding(findings: string[]): void {
     const perform = (x: number, chain: IAutoMovieMotionHumanChain) =>
       new HumanPerformance({
         seed: "mounts",
-        laws: [HumanRide.ride],
+        laws: [AutoMovieMotionHumanMount.rideHorse.ride],
         props: [HumanObject.prop("mount", m.model, place(0), place, part)],
         performers: [
           {
@@ -333,7 +329,7 @@ function checkGripAndLanding(findings: string[]): void {
         ],
         composition: chain.node,
       });
-    const sit = actor.sit({ seat, seconds: 0.5 });
+    const sit = actor.sit({ seat, hold: 0.5 });
     const params = { on: "mount", seconds: WAIT + m.duration, ...m.ride };
     if (m.ride.seat) {
       let error: unknown;

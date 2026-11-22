@@ -77,7 +77,7 @@ export async function test_physical_human_quiet_support(): Promise<void> {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject("a").stand({ seconds: 1, sway: 0 }).node,
+      composition: HumanChain.subject("a").stand({ hold: 1, sway: 0 }).node,
     });
     await stance(body, performance, 0.9, name, failures);
   }
@@ -96,7 +96,7 @@ export async function test_physical_human_quiet_support(): Promise<void> {
     ],
     laws: [shiftStandingWeight],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.6, sway: 0 })
+      .stand({ hold: 0.6, sway: 0 })
       .registered("shiftStandingWeight", {
         by: -SHIFT,
         seconds: 0.8,

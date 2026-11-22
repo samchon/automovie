@@ -72,7 +72,7 @@ export const HumanLunge: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLun
         point = "lead",
         whip,
         change,
-        seconds,
+        duration: seconds,
         transition,
       } = context.params;
       if (
@@ -234,7 +234,10 @@ export const HumanLunge: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLun
       const hands: readonly AutoMovieHumanSide[] =
         whip === undefined ? [line] : [line, other];
       const first: HumanRideHands.IHands = HumanRideHands.of(
-        { ...context, params: { on, seconds, hands: { [line]: point } } },
+        {
+          ...context,
+          params: { on, duration: seconds, hands: { [line]: point } },
+        },
         on,
         support,
         stance(0),
@@ -253,7 +256,7 @@ export const HumanLunge: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLun
                 start: context.start + taking,
                 params: {
                   on,
-                  seconds: seconds - taking,
+                  duration: seconds - taking,
                   hands: { [other]: point },
                 },
               },

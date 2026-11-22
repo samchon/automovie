@@ -74,7 +74,7 @@ export function test_human_motion_captive(): void {
     );
     let captorChain: IAutoMovieMotionHumanChain = HumanChain.subject("c").stand(
       {
-        seconds: 1.5,
+        hold: 1.5,
         sway: 0,
       },
     );
@@ -95,11 +95,11 @@ export function test_human_motion_captive(): void {
           prop,
         );
     captorChain = captorChain
-      .stand({ seconds: 1, sway: 0 })
+      .stand({ hold: 1, sway: 0 })
       .pickUp({ prop: "ropeLeft", handle: "hold", hand: "right" }, "release");
     const captiveChain: IAutoMovieMotionHumanChain = HumanChain.subject(
       "s",
-    ).sit({ seat, seconds: 14 });
+    ).sit({ seat, hold: 14 });
     const film: HumanPerformance = new HumanPerformance({
       seed: "captive",
       performers: [

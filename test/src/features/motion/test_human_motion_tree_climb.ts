@@ -12,10 +12,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanClimb,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanTreeClimb,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -134,13 +134,12 @@ export function test_human_motion_tree_climb(): void {
           },
         ],
         props: [tree, tall],
-        laws: [HumanTreeClimb.climbTree],
+        laws: [AutoMovieMotionHumanClimb.treeClimb.climbTree],
         composition: chain.node,
       });
-    const climb: IAutoMovieMotionHumanChain = HumanChain.subject("a").registered(
-      "climbTree",
-      { kind: "climb", tree: "tree", branch: 1 },
-    );
+    const climb: IAutoMovieMotionHumanChain = HumanChain.subject(
+      "a",
+    ).registered("climbTree", { kind: "climb", tree: "tree", branch: 1 });
 
     // 1. The climb's holds and its three contacts.
     try {
@@ -226,7 +225,11 @@ export function test_human_motion_tree_climb(): void {
     // 3. Down by the drop.
     try {
       const take: HumanPerformance = perform(
-        climb.registered("climbTree", { kind: "descend", tree: "tree", branch: 1 }),
+        climb.registered("climbTree", {
+          kind: "descend",
+          tree: "tree",
+          branch: 1,
+        }),
       );
       assertTakeClean(`${fit} climb down and drop`, take);
       const down: IAutoMovieMotionHumanSegment = take

@@ -56,7 +56,7 @@ export function test_human_motion_buttoning_contacts(): void {
     {
       contact: {
         site: "button",
-        side: "right",
+        hand: "right",
         digit: "thumb",
         at: seconds,
         depth: 0,
@@ -67,7 +67,7 @@ export function test_human_motion_buttoning_contacts(): void {
     {
       contact: {
         site: "buttonholeRim",
-        side: "left",
+        hand: "left",
         digit: "index",
         at: seconds,
         depth: 0,

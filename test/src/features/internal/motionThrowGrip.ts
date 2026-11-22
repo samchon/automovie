@@ -41,10 +41,10 @@ export function motionThrowGrip(
     seed,
     performers: [...performers],
     composition: HumanChain.subject("b")
-      .stand({ seconds: start + seconds })
+      .stand({ hold: start + seconds })
       .with(
         HumanChain.subject("a")
-          .stand({ seconds: start })
+          .stand({ hold: start })
           .registered(act.name, act.params),
       ).node,
   });

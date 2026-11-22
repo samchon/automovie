@@ -56,7 +56,7 @@ export function test_motion_contact_high_five_surfaces(): void {
       HumanChain.mutual(
         HumanMutual.highFive,
         { one: HumanChain.subject("a"), other: HumanChain.subject("b") },
-        { kind, side: "right" },
+        { kind, hand: "right" },
       ).node,
     );
   const cast: motionHumanLawSweep.IPerson[] = people(0.7);

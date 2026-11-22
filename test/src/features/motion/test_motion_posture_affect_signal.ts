@@ -3,12 +3,18 @@ import type {
   IAutoMovieMotionHumanLayer,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import { HumanAffect, HumanChain, HumanPerformance } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanExpression,
+  HumanChain,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
+
+const { HumanAffect } = AutoMovieMotionHumanExpression;
 
 /**
  * Affect displays start and end at rest, move smoothly, leave limb goals
@@ -131,7 +137,7 @@ export function test_motion_posture_affect_signal(): void {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("a").stand({ seconds: 1 }).node,
+    composition: HumanChain.subject("a").stand({ hold: 1 }).node,
   };
   const stage: HumanPerformance = new HumanPerformance(stageInput);
   const segment = stage.segments("a")[0]!;
@@ -182,7 +188,7 @@ export function test_motion_posture_affect_signal(): void {
   const installed: HumanPerformance = new HumanPerformance({
     ...stageInput,
     layers: {
-      a: [HumanAffect.layer([{ kind: "yawn", at, seconds: duration }])],
+      a: [HumanAffect.layer([{ kind: "yawn", at, duration: duration }])],
     },
   });
   const phases: readonly (readonly [number, number, number])[] = [

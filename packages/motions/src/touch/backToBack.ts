@@ -69,7 +69,7 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
     ): IAutoMovieMotionHumanActionPlan => {
       const p: IAutoMovieMotionHumanBackToBack = context.params;
       const body: IAutoMovieMotionHumanBody = context.body;
-      HumanBound.above("seconds", p.seconds, 0, "s");
+      HumanBound.above("hold", p.hold, 0, "s");
       if (p.partner === context.subject)
         throw new HumanRefusal({
           kind: "parameter",
@@ -174,7 +174,7 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
         AutoMovieMotionClock.phrase({
           prepare: approach,
           attack: 0,
-          hold: p.seconds,
+          hold: p.hold,
           retract: approach,
         }),
         modifiers,
@@ -206,8 +206,8 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
         if (mineRelax < at("relax") - TOGETHER)
           throw new HumanRefusal({
             kind: "parameter",
-            axis: "seconds",
-            value: p.seconds,
+            axis: "hold",
+            value: p.hold,
             reason: `this back is withdrawn at ${mineRelax.toFixed(2)} s while the partner still leans on it until ${at("relax").toFixed(2)} s`,
             fix: "hold the lean as long as the partner's",
           });

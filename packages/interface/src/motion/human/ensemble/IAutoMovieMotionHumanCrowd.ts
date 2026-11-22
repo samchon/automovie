@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanEnsemble } from "../next/IAutoMovieMotionHumanEnsemble";
 import type { IAutoMovieMotionHumanObstacle } from "../perform/IAutoMovieMotionHumanObstacle";
 import type { IAutoMovieMotionHumanResponse } from "../skill/IAutoMovieMotionHumanResponse";
-import type { IAutoMovieMotionHumanEnsemble } from "./IAutoMovieMotionHumanEnsemble";
 import type { IAutoMovieMotionHumanFormation } from "./IAutoMovieMotionHumanFormation";
 
 /**

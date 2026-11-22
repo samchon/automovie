@@ -28,8 +28,8 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * defence may cancel it from the peak on, a stagger or a knockdown at any
  * time.
  *
- * @evidence contracts/development/common.md#meaningful-documentation from: Where the threat comes from; a place ahead of the performer when absent. intensity: How strong, in (0, 1]; 1 when absent.
- * @evidence contracts/development/design.md#principled-representation from: Where the threat comes from; a place ahead of the performer when absent. intensity: How strong, in (0, 1]; 1 when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation target: Where the threat comes from; a place ahead of the performer when absent. intensity: How strong, in (0, 1]; 1 when absent.
+ * @evidence contracts/development/design.md#principled-representation target: Where the threat comes from; a place ahead of the performer when absent. intensity: How strong, in (0, 1]; 1 when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.flinch, params); reaction/flinch.ts (flinch.plan, context); reaction/flinch.ts (flinch.plan).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -44,7 +44,7 @@ export namespace IAutoMovieMotionHumanFlinch {
    */
   export interface IParams {
     /** Where the threat comes from; a place ahead of the performer when absent. */
-    from?: IAutoMovieMotionTarget;
+    target?: IAutoMovieMotionTarget;
 
     /** How strong, in (0, 1]; 1 when absent. It scales the size and not the time: at 1 the trunk leans a quarter of the reach's lean limit, the hips shift 1.8 % of the stature and the neck ducks lightly (`flinch.LEAN`, `flinch.SHIFT`, `flinch.DUCK`, provisional); the peak comes at 0.2 s and the body is back by 0.6 s (Landis and Hunt 1939). 1 fits a start or a near miss; less fits a small twitch. */
     intensity?: number;

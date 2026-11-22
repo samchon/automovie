@@ -159,7 +159,7 @@ export namespace kickBall {
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const standing: IAutoMovieMotionHumanPosture = stand
-      .plan({ ...context, params: { seconds: 1 } })
+      .plan({ ...context, params: { hold: 1 } })
       .posture(0);
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
@@ -196,10 +196,10 @@ export namespace kickBall {
       { x: 0, y: 0, z: 1 },
     );
     const toward: IAutoMovieVector3 =
-      context.params.toward === undefined
+      context.params.target === undefined
         ? heading
         : Vector3.subtract(
-            context.aim(context.params.toward, sampleAt).point,
+            context.aim(context.params.target, sampleAt).point,
             centre,
           );
     const direction: IAutoMovieVector3 = Vector3.normalize({
@@ -275,7 +275,7 @@ export namespace kickBall {
     // The body stands under the kick, its sway signed in the kicking side's
     // frame, so a left kick mirrors a right one (`stand.plan`).
     const base: IAutoMovieMotionHumanActionPlan = stand.plan(
-      { ...context, params: { seconds: duration } },
+      { ...context, params: { hold: duration } },
       side,
     );
     const plan: IAutoMovieMotionHumanActionPlan =

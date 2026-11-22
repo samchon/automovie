@@ -85,7 +85,7 @@ export function motionBladeSeed(name: motionHumanBody.Name): string[] {
         HumanObject.prop("pell", pell, place),
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3 })
+        .stand({ hold: 0.3 })
         .pickUp({
           prop: "sword",
           handle: "grip",

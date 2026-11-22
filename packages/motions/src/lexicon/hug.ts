@@ -36,8 +36,8 @@ export const hug: IAutoMovieMotionHumanMutual<
       params: {
         target: { kind: "person", subject, region: "upperBack" },
         other: { kind: "person", subject, region: "lowerBack" },
-        side: "right",
-        with: "palm",
+        hand: "right",
+        effector: "palm",
         kind: "hold",
         hold: params.hold ?? 1,
       } satisfies IAutoMovieMotionHumanTouch.IParams,

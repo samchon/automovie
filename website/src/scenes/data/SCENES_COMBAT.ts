@@ -16,7 +16,10 @@ const SPARRING: SceneBuild.Composition = {
       yaw: 0,
       proficiency: "trained",
       actions: [
-        { name: "guard", params: { seconds: 0.8, facing: at("blue", "face") } },
+        {
+          name: "guard",
+          params: { duration: 0.8, facing: at("blue", "face") },
+        },
         { name: "step", params: { direction: "forward", steps: 1 } },
         {
           name: "punch",
@@ -47,7 +50,7 @@ const SPARRING: SceneBuild.Composition = {
         },
         {
           name: "guard",
-          params: { seconds: 1.4, facing: at("blue", "face") },
+          params: { duration: 1.4, facing: at("blue", "face") },
           anchor: "shell",
         },
         { name: "step", params: { direction: "left", steps: 1 } },
@@ -93,15 +96,15 @@ const SPARRING: SceneBuild.Composition = {
           params: { at: at("blue", "abdomen") },
           anchor: "knee",
         },
-        { name: "guard", params: { seconds: 1, facing: at("blue", "face") } },
+        { name: "guard", params: { duration: 1, facing: at("blue", "face") } },
         {
           name: "pushed",
-          params: { from: at("blue", "soleRight") },
+          params: { target: at("blue", "soleRight") },
           anchor: "teeped",
         },
         { name: "step", params: { direction: "back", steps: 1 } },
         { name: "step", params: { direction: "right", steps: 2 } },
-        { name: "guard", params: { seconds: 1, facing: at("blue", "face") } },
+        { name: "guard", params: { duration: 1, facing: at("blue", "face") } },
       ],
     },
     {
@@ -112,7 +115,7 @@ const SPARRING: SceneBuild.Composition = {
       yaw: 180,
       proficiency: "trained",
       actions: [
-        { name: "guard", params: { seconds: 1.2, facing: at("red", "face") } },
+        { name: "guard", params: { duration: 1.2, facing: at("red", "face") } },
         { name: "defend", params: { kind: "parry", against: "jab" } },
         { name: "defend", params: { kind: "slip", against: "cross" } },
         { name: "defend", params: { kind: "elbowBlock", against: "body" } },
@@ -150,7 +153,7 @@ const SPARRING: SceneBuild.Composition = {
           sync: { of: "teeped", event: "start", align: "impact" },
         },
         { name: "step", params: { direction: "left", steps: 2 } },
-        { name: "guard", params: { seconds: 1, facing: at("red", "face") } },
+        { name: "guard", params: { duration: 1, facing: at("red", "face") } },
       ],
     },
   ],
@@ -201,7 +204,7 @@ const DOJO: SceneBuild.Composition = {
 function lesson(): SceneBuild.Action[] {
   return [
     { name: "gesture", params: { kind: "bow" } },
-    { name: "martialArt", params: { kind: "horseStance", seconds: 1 } },
+    { name: "martialArt", params: { kind: "horseStance", hold: 1 } },
     { name: "martialArt", params: { kind: "chokuZuki", count: 3 } },
     {
       name: "martialArt",

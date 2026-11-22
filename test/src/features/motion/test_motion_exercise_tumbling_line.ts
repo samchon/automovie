@@ -8,9 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
   HumanChain,
   HumanFoot,
-  HumanGymnastics,
   HumanPerformance,
   HumanSportThrow,
 } from "@automovie/motions";
@@ -49,7 +49,10 @@ export function test_motion_exercise_tumbling_line(): void {
     const landing: IAutoMovieVector3 = { x: 0, y: 0, z: 2.2 * reach };
     const film: HumanPerformance = new HumanPerformance({
       seed: "tumbling-line",
-      laws: [HumanGymnastics.roundOffLeft, HumanSportThrow.backSalto],
+      laws: [
+        AutoMovieMotionHumanAcrobatics.HumanGymnastics.roundOffLeft,
+        HumanSportThrow.backSalto,
+      ],
       performers: [
         {
           subject: "a",
@@ -60,7 +63,7 @@ export function test_motion_exercise_tumbling_line(): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3, sway: 0 })
+        .stand({ hold: 0.3, sway: 0 })
         .registered("roundOffLeft", {})
         .registered("backSalto", { to: landing }).node,
     });

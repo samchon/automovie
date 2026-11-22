@@ -44,8 +44,8 @@
  * Amplitudes and timings are provisional except where cited; an intensity
  * scales every amplitude.
  *
- * @evidence contracts/development/common.md#meaningful-documentation seconds: How long, seconds; the display's own length when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. intensity: Amplitude scale; 1 when absent.
- * @evidence contracts/development/design.md#principled-representation seconds: How long, seconds; the display's own length when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. intensity: Amplitude scale; 1 when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation duration: How long, seconds; the display's own length when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. amplitude: Amplitude scale; 1 when absent.
+ * @evidence contracts/development/design.md#principled-representation duration: How long, seconds; the display's own length when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. amplitude: Amplitude scale; 1 when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanAffect.ts (HumanAffect.angles, kind); everyday/HumanAffect.ts (HumanAffect.layer, displays); everyday/HumanAffect.ts (HumanAffect.LENGTH).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanAffect.angles.
  */
@@ -85,10 +85,10 @@ export namespace IAutoMovieMotionHumanAffect {
     at: number;
 
     /** How long, seconds, positive; the display's own length when absent (`HumanAffect.LENGTH`, per kind: a laugh is brief, a weep long). */
-    seconds?: number;
+    duration?: number;
 
     /** Amplitude scale; 1 when absent: every joint angle of the display (`HumanAffect`) is multiplied by it, so 0.5 is a suppressed or quiet display and 2 an exaggerated one. For a sob it also sets the interval of its inspirations, 0.5 s at 1, shorter above and longer below, within [0.5, 2] (provisional beyond that range). */
-    intensity?: number;
+    amplitude?: number;
 
     /** The key of a sob's or weep's seeded irregular timing; the display's kind and start when absent, so equal displays repeat. */
     seed?: string;

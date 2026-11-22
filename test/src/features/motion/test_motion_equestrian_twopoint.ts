@@ -37,11 +37,11 @@ const HOLD: IAutoMovieMotionHumanMounted.ISupports = {
 
 /** Seated, two-point, a crouch with a hand ride, standing in the stirrups, seated again. */
 const FIGURES: IAutoMovieMotionHumanMounted.IFigure[] = [
-  { seat: "entered", transfer: 0.4, seconds: 0.3, supports: HOLD },
-  { seat: "twoPoint", transfer: 0.8, seconds: 1.5, supports: HOLD },
-  { seat: "crouch", transfer: 0.8, seconds: 2, supports: HOLD, handRide: true },
-  { seat: "standing", transfer: 0.8, seconds: 1, supports: HOLD },
-  { seat: "entered", transfer: 0.8, seconds: 0.5, supports: HOLD },
+  { seat: "entered", transfer: 0.4, hold: 0.3, supports: HOLD },
+  { seat: "twoPoint", transfer: 0.8, hold: 1.5, supports: HOLD },
+  { seat: "crouch", transfer: 0.8, hold: 2, supports: HOLD, handRide: true },
+  { seat: "standing", transfer: 0.8, hold: 1, supports: HOLD },
+  { seat: "entered", transfer: 0.8, hold: 0.5, supports: HOLD },
 ];
 
 /**
@@ -81,7 +81,7 @@ export function test_motion_equestrian_twopoint(): void {
     take.start + take.plan.events[i]!.share * length;
   const begin = (i: number): number =>
     i === 0 ? take.start : arrive(i) - FIGURES[i]!.transfer;
-  const held = (i: number): number => arrive(i) + FIGURES[i]!.seconds / 2;
+  const held = (i: number): number => arrive(i) + FIGURES[i]!.hold / 2;
 
   // 1. The seat clears the saddle out of it, and bears in it.
   const seatAt = (at: number): IAutoMovieVector3 =>
@@ -243,7 +243,7 @@ export function test_motion_equestrian_twopoint(): void {
     .map((e): number => WAIT + e.seconds)
     .filter(
       (t: number): boolean =>
-        t > arrive(2) + 0.4 && t < arrive(2) + FIGURES[2]!.seconds - 0.4,
+        t > arrive(2) + 0.4 && t < arrive(2) + FIGURES[2]!.hold - 0.4,
     );
   const whipped: mountedHorseScene.IScene = stage(
     horse,
@@ -254,7 +254,7 @@ export function test_motion_equestrian_twopoint(): void {
         i: number,
       ): IAutoMovieMotionHumanMounted.IFigure =>
         i === 2
-          ? { ...figure, whip: { side: "right", cue: "stride" } }
+          ? { ...figure, whip: { hand: "right", cue: "stride" } }
           : figure,
     ),
     true,

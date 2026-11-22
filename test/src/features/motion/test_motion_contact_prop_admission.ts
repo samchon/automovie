@@ -14,11 +14,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanPerformance,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -48,11 +48,8 @@ import { vclose } from "../internal/vclose";
  */
 export function test_motion_contact_prop_admission(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const standing: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const standing: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const initial: IAutoMovieResolvedBone = poseBones(
     body,
     resolveHumanPosture(body, standing),
@@ -80,7 +77,10 @@ export function test_motion_contact_prop_admission(): void {
     plan: (
       context: IAutoMovieMotionHumanActionContext,
     ): IAutoMovieMotionHumanActionPlan => ({
-      ...stand.plan({ ...context, params: { seconds: 1 } }),
+      ...AutoMovieMotionHumanStance.stand.plan({
+        ...context,
+        params: { hold: 1 },
+      }),
       mounts: [
         { prop: "part", onto: "carrier", point: "socket", from: 0 },
         { prop: "nested", onto: "part", point: "socket", from: 0 },

@@ -44,8 +44,8 @@ export function test_motion_posture_overlap_yield(): void {
       ],
       composition: HumanChain.subject("a")
         .walk({ to: { x: 0, y: 0, z: 3 } })
-        .over((part) => part.handToFace({ task: "phone", side: "right" }))
-        .over((part) => part.handToFace({ task: "drink", side })).node,
+        .over((part) => part.handToFace({ kind: "phone", hand: "right" }))
+        .over((part) => part.handToFace({ kind: "drink", hand: side })).node,
     });
   TestValidator.equals(
     "two distinct arms admit two tasks",
@@ -123,7 +123,7 @@ function checkCutOverlay(body: IAutoMovieMotionHumanBody): void {
     });
 
   const stand = (): IAutoMovieMotionHumanChain =>
-    HumanChain.subject("a").stand({ seconds: 1 });
+    HumanChain.subject("a").stand({ hold: 1 });
   const changeCarrier = (share: number): IAutoMovieMotionHumanPerformance =>
     perform(
       stand()

@@ -502,14 +502,14 @@ function rules(complaints: motionComplaints.IGatherer): void {
     anchor: "rule",
     kind,
     first: {
-      chain: HumanChain.subject("a").stand({ seconds: 0.2, sway: 0 }),
+      chain: HumanChain.subject("a").stand({ hold: 0.2, sway: 0 }),
       direction: "forward",
       distance: 0.1,
       blade: "a.blade",
       target: target(region),
     },
     second: {
-      chain: HumanChain.subject("b").stand({ seconds: 0.2, sway: 0 }),
+      chain: HumanChain.subject("b").stand({ hold: 0.2, sway: 0 }),
       direction: "forward",
       distance: 0.1,
       blade: "b.blade",

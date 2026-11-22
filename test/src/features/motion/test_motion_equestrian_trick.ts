@@ -13,11 +13,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanBoard,
+  AutoMovieMotionHumanAcrobatics,
+  AutoMovieMotionHumanRide,
   HumanObject,
   HumanRefusal,
-  HumanRoman,
-  HumanTrick,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -87,11 +86,11 @@ export function test_motion_equestrian_trick(): void {
     gait: "walk",
     wait: WAIT,
     course: easy,
-    laws: [HumanBoard],
+    laws: [AutoMovieMotionHumanRide.board],
     from: { x: 0.6, y: 0, z: 0.1 },
     seated: false,
     acts: (chain) =>
-      chain.stand({ seconds: WAIT + 0.8 }).registered("board", {
+      chain.stand({ hold: WAIT + 0.8 }).registered("board", {
         on: "horse",
         seat: "seat",
         hand: { side: "right", contact: "horn" },
@@ -146,26 +145,26 @@ export function test_motion_equestrian_trick(): void {
     kind: "tennis",
   });
   const figures: IAutoMovieMotionHumanTrick.IFigure[] = [
-    { kind: "hippodrome", transfer: 0.8, seconds: 1 },
-    { kind: "seat", transfer: 0.6, seconds: 0.5 },
-    { kind: "sideDrag", side: "left", transfer: 0.8, seconds: 1 },
-    { kind: "seat", transfer: 0.8, seconds: 0.5 },
-    { kind: "backDrag", transfer: 0.8, seconds: 1 },
-    { kind: "seat", transfer: 0.8, seconds: 0.5 },
+    { kind: "hippodrome", transfer: 0.8, hold: 1 },
+    { kind: "seat", transfer: 0.6, hold: 0.5 },
+    { kind: "sideDrag", side: "left", transfer: 0.8, hold: 1 },
+    { kind: "seat", transfer: 0.8, hold: 0.5 },
+    { kind: "backDrag", transfer: 0.8, hold: 1 },
+    { kind: "seat", transfer: 0.8, hold: 0.5 },
     {
       kind: "pickup",
       side: "right",
       object: "ball",
       transfer: 0.8,
-      seconds: 0.6,
+      hold: 0.6,
     },
-    { kind: "seat", transfer: 0.8, seconds: 0.5 },
+    { kind: "seat", transfer: 0.8, hold: 0.5 },
   ];
   const tricks = (out: number): mountedHorseScene.IScene => {
     const dry: number =
       WAIT +
       0.6 +
-      figures.slice(0, 6).reduce((s, f) => s + f.transfer + f.seconds, 0) +
+      figures.slice(0, 6).reduce((s, f) => s + f.transfer + f.hold, 0) +
       0.8;
     const local: number = Math.max(0, dry - WAIT);
     const seat: IAutoMovieTransform = easy.frame("seat", local);
@@ -180,7 +179,7 @@ export function test_motion_equestrian_trick(): void {
       gait: "walk",
       wait: WAIT,
       course: easy,
-      laws: [HumanTrick],
+      laws: [AutoMovieMotionHumanAcrobatics.trick],
       props: [
         HumanObject.prop("ball", ball, {
           position: spot,
@@ -318,7 +317,7 @@ export function test_motion_equestrian_trick(): void {
           startFromStanding: true,
         },
       ),
-      laws: [HumanRoman],
+      laws: [AutoMovieMotionHumanAcrobatics.roman],
       props: [
         HumanObject.prop(
           "pair",

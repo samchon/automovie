@@ -1,14 +1,14 @@
-import type { IAutoMovieMotionHumanOperate } from "../affordance/IAutoMovieMotionHumanOperate";
 import type { IAutoMovieMotionHumanHandToFace } from "../daily/IAutoMovieMotionHumanHandToFace";
-import type { IAutoMovieMotionHumanDress } from "../dressing/IAutoMovieMotionHumanDress";
-import type { IAutoMovieMotionHumanGesture } from "../everyday/IAutoMovieMotionHumanGesture";
 import type { IAutoMovieMotionHumanLook } from "../everyday/IAutoMovieMotionHumanLook";
 import type { IAutoMovieMotionHumanRest } from "../everyday/IAutoMovieMotionHumanRest";
 import type { IAutoMovieMotionHumanTypeText } from "../everyday/IAutoMovieMotionHumanTypeText";
+import type { IAutoMovieMotionHumanDress } from "../next/IAutoMovieMotionHumanDress";
+import type { IAutoMovieMotionHumanGesture } from "../next/IAutoMovieMotionHumanGesture";
+import type { IAutoMovieMotionHumanOperate } from "../next/IAutoMovieMotionHumanOperate";
+import type { IAutoMovieMotionHumanTouch } from "../next/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanUseTool } from "../tasks/IAutoMovieMotionHumanUseTool";
 import type { IAutoMovieMotionHumanWipe } from "../tasks/IAutoMovieMotionHumanWipe";
 import type { IAutoMovieMotionHumanSelfAction } from "../touch/IAutoMovieMotionHumanSelfAction";
-import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanChainPosture } from "./IAutoMovieMotionHumanChainPosture";
 
 /**

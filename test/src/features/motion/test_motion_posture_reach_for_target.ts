@@ -6,11 +6,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanMountReach,
-  HumanMountRider,
+  AutoMovieMotionHumanMount,
+  AutoMovieMotionHumanStance,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -18,7 +17,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * A rider's trunk leans forward exactly as far as the hands need to reach
- * what they hold (`HumanMountReach.reach`), as a fixed-seat rower leans to
+ * what they hold (`AutoMovieMotionHumanMount.HumanMountReach.reach`), as a fixed-seat rower leans to
  * the catch: the least flexion of the spine that brings each shoulder within
  * `ARM` of its arm's length of its point, read in closed form from the
  * shoulder's circle under the spine's flexion.
@@ -47,11 +46,8 @@ export function test_motion_posture_reach_for_target(): void {
   const complaints: string[] = [];
   for (const name of ["f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const seated: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      { x: 0, y: 0, z: 0 },
-      0,
-    );
+    const seated: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
     const read = (degrees: number): ReturnType<typeof poseBones> =>
       poseBones(
         body,
@@ -66,7 +62,7 @@ export function test_motion_posture_reach_for_target(): void {
       side: AutoMovieHumanSide,
     ): IAutoMovieVector3 => bones.get(`${side}UpperArm`)!.worldPosition;
     const span = (side: AutoMovieHumanSide): number =>
-      HumanMountRider.ARM *
+      AutoMovieMotionHumanMount.HumanMountRider.ARM *
       (Vector3.length(
         Vector3.subtract(
           upright.get(`${side}LowerArm`)!.worldPosition,
@@ -90,7 +86,11 @@ export function test_motion_posture_reach_for_target(): void {
       });
     const reach: (
       points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
-    ) => number = HumanMountReach.reach(body, seated, ["left", "right"]);
+    ) => number = AutoMovieMotionHumanMount.HumanMountReach.reach(
+      body,
+      seated,
+      ["left", "right"],
+    );
 
     // 1. Within reach.
     const near: number = reach({ right: ahead("right", 0.95) });

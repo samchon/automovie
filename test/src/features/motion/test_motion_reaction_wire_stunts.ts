@@ -9,11 +9,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanFall,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  wireArrest,
-  wireFlight,
 } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -67,8 +66,8 @@ export function test_motion_reaction_wire_stunts(): void {
       const film: HumanPerformance = perform(
         body,
         HumanChain.subject("a")
-          .stand({ seconds: 0.3, sway: 0 })
-          .registered(wireFlight.name, {
+          .stand({ hold: 0.3, sway: 0 })
+          .registered(AutoMovieMotionHumanFall.wireFlight.name, {
             to: { x: 0, y: 0.4, z: 3 },
             seconds: 2,
             shape: "stride",
@@ -80,7 +79,7 @@ export function test_motion_reaction_wire_stunts(): void {
               },
             ],
           })
-          .stand({ seconds: 0.3, sway: 0 }),
+          .stand({ hold: 0.3, sway: 0 }),
       );
       const flight: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
       const at: number = flight.start + flight.plan.duration * 0.5;
@@ -100,8 +99,8 @@ export function test_motion_reaction_wire_stunts(): void {
       perform(
         body,
         HumanChain.subject("a")
-          .stand({ seconds: 0.3, sway: 0 })
-          .registered(wireFlight.name, {
+          .stand({ hold: 0.3, sway: 0 })
+          .registered(AutoMovieMotionHumanFall.wireFlight.name, {
             to: { x: -2, y: 0.4, z: 3 },
             seconds: 2,
             touches: [
@@ -126,8 +125,8 @@ export function test_motion_reaction_wire_stunts(): void {
       const film: HumanPerformance = perform(
         body,
         HumanChain.subject("a")
-          .stand({ seconds: 0.3, sway: 0 })
-          .registered(wireFlight.name, {
+          .stand({ hold: 0.3, sway: 0 })
+          .registered(AutoMovieMotionHumanFall.wireFlight.name, {
             to: { x: 0, y: RISE, z: 0.2 },
             seconds: 2,
             shape: "limp",
@@ -158,12 +157,12 @@ export function test_motion_reaction_wire_stunts(): void {
       perform(
         body,
         HumanChain.subject("a")
-          .stand({ seconds: 0.3, sway: 0 })
-          .registered(wireFlight.name, {
+          .stand({ hold: 0.3, sway: 0 })
+          .registered(AutoMovieMotionHumanFall.wireFlight.name, {
             to: { x: 0, y: 2.2, z: 0 },
             seconds: 2,
           })
-          .registered(wireArrest.name, {
+          .registered(AutoMovieMotionHumanFall.wireArrest.name, {
             drop: DROP,
             stop: STOP,
             ...(deceleration === undefined ? {} : { deceleration }),
@@ -219,7 +218,10 @@ function perform(
 ): HumanPerformance {
   return new HumanPerformance({
     seed: "wire-stunts",
-    laws: [wireFlight, wireArrest],
+    laws: [
+      AutoMovieMotionHumanFall.wireFlight,
+      AutoMovieMotionHumanFall.wireArrest,
+    ],
     props: [wall()],
     performers: [
       {

@@ -15,12 +15,12 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanSharedCarry,
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanHand,
   HumanPerformance,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -236,7 +236,8 @@ function carrier(
   body: IAutoMovieMotionHumanBody,
 ): IAutoMovieMotionHumanSharedCarry.ICarrier {
   const at: IAutoMovieVector3 = { x, y: 0, z: 0 };
-  const standing: IAutoMovieMotionHumanPosture = stand.posture(body, at, 0);
+  const standing: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, at, 0);
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,
     resolveHumanPosture(body, standing),

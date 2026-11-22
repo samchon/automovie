@@ -75,7 +75,7 @@ function diningChopsticks(
   // Seated, the chin stands about the standing shoulder less the thigh's drop.
   const chin: number = body.measure.shoulderHeight - 0.3;
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
-    .sit({ seat: s.seat, seconds: 1 })
+    .sit({ seat: s.seat, hold: 1 })
     .pickUp({ prop: "sticks", handle: "grip", hand: side, lift: 0.05 })
     .registered("write", {
       tool: "sticks",

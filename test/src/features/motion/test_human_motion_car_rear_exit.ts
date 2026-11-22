@@ -18,6 +18,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanRide,
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanFoot,
   HumanObject,
@@ -25,9 +27,7 @@ import {
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  HumanTravelCarExit,
   seated,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -100,11 +100,8 @@ export function test_human_motion_car_rear_exit(): void {
       at: { ...bench.at, x: at.x },
     };
     const socket: IAutoMovieVector3 = seated.point(body, occupied);
-    const neutral: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      at,
-      occupied.yaw,
-    );
+    const neutral: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, at, occupied.yaw);
     const root: IAutoMovieVector3 = seated.root(body, socket, neutral);
     const feet: Record<"left" | "right", IAutoMovieVector3> = {
       left: neutral.limbs.leftLeg!.point,
@@ -113,7 +110,12 @@ export function test_human_motion_car_rear_exit(): void {
     const posed: IAutoMovieMotionHumanPosture = {
       ...neutral,
       root,
-      limbs: stand.legs(body, root, occupied.yaw, feet),
+      limbs: AutoMovieMotionHumanStance.stand.legs(
+        body,
+        root,
+        occupied.yaw,
+        feet,
+      ),
     };
     const support: IAutoMovieMotionHumanContactWindow.Support = {
       kind: "prop",
@@ -140,7 +142,7 @@ export function test_human_motion_car_rear_exit(): void {
     ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "rear-seat-egress",
-        laws: [stage, HumanTravelCarExit.getOut],
+        laws: [stage, AutoMovieMotionHumanRide.travelCarExit.getOut],
         props: [HumanObject.prop("car", opened, placement)],
         performers: [
           {

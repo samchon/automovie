@@ -20,6 +20,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanHeld,
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanHand,
   HumanObject,
@@ -28,7 +29,6 @@ import {
   PrecisionStrokeForms,
   bakePrecisionDeck,
   pocketedBalls,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -94,7 +94,7 @@ export async function test_motion_exercise_golf_putt(): Promise<void> {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("golfer").stand({ seconds: 0.2, sway: 0 })
+    composition: HumanChain.subject("golfer").stand({ hold: 0.2, sway: 0 })
       .node,
   }).bones("golfer", 0);
 
@@ -137,7 +137,7 @@ export async function test_motion_exercise_golf_putt(): Promise<void> {
   const ready: HumanPerformance = new HumanPerformance({
     seed: "golf-ready",
     performers,
-    composition: HumanChain.subject("golfer").stand({ seconds: 0.2, sway: 0 })
+    composition: HumanChain.subject("golfer").stand({ hold: 0.2, sway: 0 })
       .node,
   });
   const hand: IAutoMovieVector3 = HumanHand.frame(
@@ -149,12 +149,12 @@ export async function test_motion_exercise_golf_putt(): Promise<void> {
 
   const hold: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
     {
-      ...stand,
+      ...AutoMovieMotionHumanStance.stand,
       name: "golfFixtureHold",
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
       ): IAutoMovieMotionHumanActionPlan => ({
-        ...stand.plan(context),
+        ...AutoMovieMotionHumanStance.stand.plan(context),
         holds: [{ side: "right", prop: "putter", from: 0 }],
       }),
     };

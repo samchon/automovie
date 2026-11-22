@@ -10,13 +10,13 @@ import type {
   IAutoMovieMotionHumanObstacle,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGait,
   HumanChain,
   HumanFoot,
   HumanObject,
   HumanObstacle,
   HumanPerformance,
   HumanRefusal,
-  HumanTravelDoor,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -228,7 +228,7 @@ function checkWallCrossing(findings: motionComplaints.IGatherer): void {
   ) =>
     new HumanPerformance({
       seed: "wall",
-      laws: [HumanTravelDoor.passThrough],
+      laws: [AutoMovieMotionHumanGait.HumanTravelDoor.passThrough],
       obstacles: [obstacle],
       performers: [
         {

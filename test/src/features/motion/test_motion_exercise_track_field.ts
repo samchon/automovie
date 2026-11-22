@@ -13,8 +13,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
   HumanChain,
-  HumanGymnastics,
   HumanObject,
   HumanPerformance,
   HumanSignature,
@@ -59,7 +59,7 @@ export function test_motion_exercise_track_field(): void {
     laws: [HumanSport.sprintStart],
     performers: [athlete],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .registered("sprintStart", {
         seconds: 0.4,
         drive: driveSeconds,
@@ -123,7 +123,7 @@ export function test_motion_exercise_track_field(): void {
     const barYaw: number = side === "left" ? 0 : 30;
     const jump: HumanPerformance = new HumanPerformance({
       seed: "exercise-field",
-      laws: [HumanGymnastics.fosburyFlop],
+      laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.fosburyFlop],
       performers: [athlete],
       props: [
         HumanObject.prop("bar", crossbar, {
@@ -136,7 +136,7 @@ export function test_motion_exercise_track_field(): void {
         }),
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3, sway: 0 })
+        .stand({ hold: 0.3, sway: 0 })
         .registered("fosburyFlop", {
           bar: "bar",
           on: "mat",
@@ -204,7 +204,7 @@ export function test_motion_exercise_track_field(): void {
   const vault = (mat?: IAutoMovieVector3): HumanPerformance =>
     new HumanPerformance({
       seed: "exercise-vault",
-      laws: [HumanGymnastics.handspringVault],
+      laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.handspringVault],
       performers: [
         { ...athlete, body: gymnast, at: { x: -1.5, y: 0, z: 1 }, yaw: 90 },
       ],
@@ -215,7 +215,7 @@ export function test_motion_exercise_track_field(): void {
           : [HumanObject.prop("pad", pad, { at: mat, yaw: 0 })]),
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.5, sway: 0 })
+        .stand({ hold: 0.5, sway: 0 })
         .registered("handspringVault", {
           on: "box",
           ...(mat === undefined ? {} : { landOn: "pad" }),

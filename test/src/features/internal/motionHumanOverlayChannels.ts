@@ -69,7 +69,10 @@ export namespace motionHumanOverlayChannels {
   const mm = (metres: number): string => (metres * 1000).toFixed(2);
   const gap = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
-  const perform = (body: IAutoMovieMotionHumanBody, chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
+  const perform = (
+    body: IAutoMovieMotionHumanBody,
+    chain: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "overlay",
       performers: [
@@ -85,11 +88,13 @@ export namespace motionHumanOverlayChannels {
     });
   const walk = (): IAutoMovieMotionHumanChain =>
     HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: 2 } });
-  const reading = (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanPerformance =>
+  const reading = (
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanPerformance =>
     perform(
       body,
       walk().over((u) =>
-        u.handToFace({ task: "read", side: "right", seconds: 0.5 }),
+        u.handToFace({ kind: "read", hand: "right", hold: 0.5 }),
       ),
     );
 
@@ -156,7 +161,8 @@ export namespace motionHumanOverlayChannels {
         continuity(name, withRead, part, complaints);
 
     // 2 and 3. The phone hand is up, ahead of the chest, and held with it.
-    const task: IAutoMovieMotionHumanSegment.IOverlay | undefined = withRead.overlays("a")[0];
+    const task: IAutoMovieMotionHumanSegment.IOverlay | undefined =
+      withRead.overlays("a")[0];
     if (task === undefined) {
       complaints.push(`${name}: the performance holds no overlay`);
       return;
@@ -222,8 +228,8 @@ export namespace motionHumanOverlayChannels {
       [
         "one hand for two tasks",
         walk()
-          .over((u) => u.handToFace({ task: "phone", side: "right" }))
-          .over((u) => u.handToFace({ task: "drink", side: "right" })),
+          .over((u) => u.handToFace({ kind: "phone", hand: "right" }))
+          .over((u) => u.handToFace({ kind: "drink", hand: "right" })),
         ["rightArm", "handToFace"],
       ],
       [
@@ -235,7 +241,7 @@ export namespace motionHumanOverlayChannels {
         "a task over an action that yields nothing",
         HumanChain.subject("a")
           .sit({ seat: chair })
-          .over((u) => u.handToFace({ task: "phone" })),
+          .over((u) => u.handToFace({ kind: "phone" })),
         ["sit"],
       ],
     ] as const) {
@@ -263,8 +269,8 @@ export namespace motionHumanOverlayChannels {
       perform(
         body,
         walk()
-          .over((u) => u.handToFace({ task: "phone", side: "right" }))
-          .over((u) => u.handToFace({ task: "drink", side: "left" })),
+          .over((u) => u.handToFace({ kind: "phone", hand: "right" }))
+          .over((u) => u.handToFace({ kind: "drink", hand: "left" })),
       );
     } catch (error) {
       complaints.push(
@@ -310,7 +316,9 @@ export namespace motionHumanOverlayChannels {
           seconds: number,
         ): ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =>
           film.bones(subject, from + seconds),
-        segments: (subject: string): ReturnType<IAutoMovieMotionHumanPerformance["segments"]> =>
+        segments: (
+          subject: string,
+        ): ReturnType<IAutoMovieMotionHumanPerformance["segments"]> =>
           film.segments(subject).map((s) => ({
             ...s,
             start: s.start - from,

@@ -10,10 +10,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -96,12 +96,12 @@ export function test_human_motion_initial_prop_mount(): void {
   };
   const take: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
     {
-      ...stand,
+      ...AutoMovieMotionHumanStance.stand,
       name: "takeTray",
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
       ): IAutoMovieMotionHumanActionPlan => ({
-        ...stand.plan(context),
+        ...AutoMovieMotionHumanStance.stand.plan(context),
         holds: [{ side: "right", prop: "tray", from: 0.5 }],
       }),
     };
@@ -160,12 +160,12 @@ export function test_human_motion_initial_prop_mount(): void {
   const reverse = (
     detachTray: boolean,
   ): IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> => ({
-    ...stand,
+    ...AutoMovieMotionHumanStance.stand,
     name: "reverseMount",
     plan: (
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
     ): IAutoMovieMotionHumanActionPlan => ({
-      ...stand.plan(context),
+      ...AutoMovieMotionHumanStance.stand.plan(context),
       holds: detachTray ? [{ side: "right", prop: "tray", from: 0.25 }] : [],
       mounts: [{ prop: "cart", onto: "tray", point: "dock", from: 0.5 }],
     }),

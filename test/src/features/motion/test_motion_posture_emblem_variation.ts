@@ -64,9 +64,9 @@ export function test_motion_posture_emblem_variation(): void {
     ],
     composition: HumanChain.subject("a").touch({
       target: { kind: "self", region: "templeRight" },
-      with: "forefinger",
+      effector: "forefinger",
       kind: "hold",
-      side: "right",
+      hand: "right",
       elbow: "level",
     }).node,
   });

@@ -14,13 +14,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFrame,
-  HumanLeadHorse,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanRide,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -320,12 +319,12 @@ function stage(body: IAutoMovieMotionHumanBody, aside: number): ITake {
   ];
   const feet = { left: "leftStirrup", right: "rightStirrup" };
   const riderA = HumanChain.subject("riderA")
-    .sit({ seat: saddles[0]!, seconds: 0.5 })
+    .sit({ seat: saddles[0]!, hold: 0.5 })
     .registered("ride", { on: "horseA", seconds: halted, seat: "seat", feet })
     .rise({})
     .walk({ to: { x: -3, y: 0, z: groomAt.z - 2 } });
   const riderB = HumanChain.subject("riderB")
-    .sit({ seat: saddles[1]!, seconds: 0.5 })
+    .sit({ seat: saddles[1]!, hold: 0.5 })
     .registered("ride", {
       on: "horseB",
       seconds: handoff + 40,
@@ -357,7 +356,10 @@ function stage(body: IAutoMovieMotionHumanBody, aside: number): ITake {
       seed: "mounted-reset",
       performers,
       cues,
-      laws: [HumanRide.ride, HumanLeadHorse],
+      laws: [
+        AutoMovieMotionHumanMount.rideHorse.ride,
+        AutoMovieMotionHumanMount.leadHorse,
+      ],
       props: ["horseA", "horseB"].map((name: string) =>
         HumanObject.prop(
           name,

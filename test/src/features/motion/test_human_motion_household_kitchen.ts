@@ -117,15 +117,15 @@ function kitchen(body: IAutoMovieMotionHumanBody, failures: string[]): void {
         tool: "stir",
         prop: "spoon",
         on: { kind: "prop", subject: "pan", point: "inside" },
-        cycles: 2,
+        count: 2,
       })
-      .putDown({ prop: "spoon", at: home, yaw: 0 })
+      .putDown({ prop: "spoon", to: home, yaw: 0 })
       .wipe({
         hand: "left",
         on: { kind: "point", at: { x: 0.28, y: TOP, z: 0.35 }, frame: "world" },
-        cycles: 1,
+        count: 1,
       })
-      .stand({ seconds: 0.3 }),
+      .stand({ hold: 0.3 }),
     stageProps,
   );
   const stir: householdFilm.EventTimes = householdFilm.events(film, "useTool");

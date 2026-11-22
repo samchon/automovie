@@ -161,7 +161,7 @@ function checkSupportRoles(): void {
   const seconds = 2;
   TestValidator.equals(
     "authored duration reaches all three role-specific bindings",
-    ordered.map((role) => law.act(role, { seconds }, cast)),
+    ordered.map((role) => law.act(role, { duration: seconds }, cast)),
     expected.map((act) => ({ ...act, params: { ...act.params, seconds } })),
   );
 }

@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMilitaryDrill,
   HUMAN_LEXICON,
-  HumanGunCrew,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
@@ -100,7 +100,7 @@ export function test_motion_exercise_artillery_take(): void {
           proficiency: { level: "trained" },
         }),
       ),
-      composition: HumanGunCrew.stage(
+      composition: AutoMovieMotionHumanMilitaryDrill.HumanGunCrew.stage(
         { of: "command", event: "fire" },
         STATIONS.map(
           ([
@@ -108,11 +108,14 @@ export function test_motion_exercise_artillery_take(): void {
             ,
             mark,
             offset,
-          ]: IStation): HumanGunCrew.IStageStation => ({
+          ]: IStation): AutoMovieMotionHumanMilitaryDrill.HumanGunCrew.IStageStation => ({
             subject,
             mark,
             offset,
-            gaze: { target: { kind: "prop", subject: "gun", point: "muzzle" }, cue: "seen" },
+            gaze: {
+              target: { kind: "prop", subject: "gun", point: "muzzle" },
+              cue: "seen",
+            },
           }),
         ),
       ),

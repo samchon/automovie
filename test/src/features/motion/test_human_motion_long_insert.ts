@@ -156,7 +156,7 @@ function ram(
       .pickUp({ prop: "rammer", handle: "shaft", hand: "right", lift: 0.05 })
       .operate({
         hand: "right",
-        mechanism: {
+        kind: {
           kind: "insert",
           prop: "rammer",
           tip: "rammer",

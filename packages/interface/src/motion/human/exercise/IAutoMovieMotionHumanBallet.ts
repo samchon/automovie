@@ -1,5 +1,5 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
-import type { IAutoMovieMotionHumanDance } from "./IAutoMovieMotionHumanDance";
+import type { IAutoMovieMotionHumanDance } from "../next/IAutoMovieMotionHumanDance";
 
 /**
  * Classical ballet on the beat clock (#3991): the five positions of the feet
@@ -82,7 +82,7 @@ export namespace IAutoMovieMotionHumanBallet {
     bpm?: number;
 
     /** How many beats a position is danced over, a whole number of at least 1; 4 when absent, at the dance law's tempo (`dance.BPM`, 0.5 s a beat): 2 s. */
-    beats?: number;
+    count?: number;
 
     /** A cue track to lock the beats to, as the dance law's. */
     lock?: IAutoMovieMotionHumanDance.IParams["lock"];

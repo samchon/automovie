@@ -183,7 +183,7 @@ export function test_archetype_equine_bank_scramble(): void {
       {
         seat: "entered",
         transfer: TRANSFER,
-        seconds:
+        hold:
           equineFordRider.WAIT +
           start -
           equineFordRider.settled(mounted, body) -
@@ -193,13 +193,13 @@ export function test_archetype_equine_bank_scramble(): void {
       {
         seat: "ascent",
         transfer: TRANSFER,
-        seconds: end - start - TRANSFER,
+        hold: end - start - TRANSFER,
         supports: equineFordRider.WADING,
       },
       {
         seat: "entered",
         transfer: TRANSFER,
-        seconds: mounted.halt - equineFordRider.WAIT - end - TRANSFER,
+        hold: mounted.halt - equineFordRider.WAIT - end - TRANSFER,
         supports: equineFordRider.WADING,
       },
     ]),

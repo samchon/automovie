@@ -16,13 +16,13 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanHeld,
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanPrecisionSport,
   PrecisionStrokeForms,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -54,7 +54,7 @@ export function test_motion_exercise_precision_contact(): void {
   const ready: HumanPerformance = new HumanPerformance({
     seed: "precision-ready",
     performers,
-    composition: HumanChain.subject("player").stand({ seconds: 0.2, sway: 0 })
+    composition: HumanChain.subject("player").stand({ hold: 0.2, sway: 0 })
       .node,
   });
   const hand: IAutoMovieVector3 = HumanHand.frame(
@@ -65,12 +65,12 @@ export function test_motion_exercise_precision_contact(): void {
   ).point;
   const hold: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
     {
-      ...stand,
+      ...AutoMovieMotionHumanStance.stand,
       name: "precisionFixtureHold",
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
       ): IAutoMovieMotionHumanActionPlan => ({
-        ...stand.plan(context),
+        ...AutoMovieMotionHumanStance.stand.plan(context),
         holds: [{ side: "right", prop: "implement", from: 0 }],
       }),
     };

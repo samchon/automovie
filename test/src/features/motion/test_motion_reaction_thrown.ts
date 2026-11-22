@@ -8,10 +8,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanFall,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  thrown,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -67,15 +67,15 @@ export function test_motion_reaction_thrown(): void {
             proficiency: { level: "trained" },
           },
         ],
-        laws: [thrown],
+        laws: [AutoMovieMotionHumanFall.thrown],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3, sway: 0 })
-          .registered(thrown.name, params).node,
+          .stand({ hold: 0.3, sway: 0 })
+          .registered(AutoMovieMotionHumanFall.thrown.name, params).node,
       });
     for (const rig of ["blast", "jerkBack"] as const) {
       const film: HumanPerformance = play({
         rig,
-        from: SOURCE,
+        target: SOURCE,
         distance: DISTANCE,
         height: HEIGHT,
       });
@@ -144,7 +144,7 @@ export function test_motion_reaction_thrown(): void {
     }
     let refusal: unknown;
     try {
-      play({ from: SOURCE, distance: 0, height: HEIGHT });
+      play({ target: SOURCE, distance: 0, height: HEIGHT });
     } catch (error: unknown) {
       refusal = error;
     }

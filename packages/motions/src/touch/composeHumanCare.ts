@@ -80,7 +80,7 @@ export namespace composeHumanCare {
       target: { kind: "person", subject: partner, region: "sternum" },
       other: { kind: "person", subject: partner, region: "sternum" },
       kind: "press",
-      with: "palm",
+      effector: "palm",
       arms: "straight",
       count: COMPRESSIONS,
       hold: 0,
@@ -114,9 +114,9 @@ export namespace composeHumanCare {
       site === "carotid" ? "neckLeft" : "wristLeft";
     return chain.act("touch", {
       target: { kind: "person", subject: partner, region },
-      side,
+      hand: side,
       kind: "hold",
-      with: "fingertips",
+      effector: "fingertips",
       hold: PULSE_HOLD,
     });
   }
@@ -148,7 +148,7 @@ export namespace composeHumanCare {
       target: { kind: "person", subject: partner, region },
       other: { kind: "person", subject: partner, region },
       kind: "press",
-      with: "palm",
+      effector: "palm",
       count: 1,
       hold,
     });

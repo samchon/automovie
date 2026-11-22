@@ -9,13 +9,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSupport,
   HUMAN_LEXICON,
   HumanChain,
   HumanHand,
   HumanPerformance,
   HumanPerformanceParams,
   HumanSport,
-  HumanSupportRows,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -79,7 +79,7 @@ export function test_motion_catalogue_public_reach_registry(): void {
               },
             ],
             composition: HumanChain.subject("a")
-              .stand({ seconds: 0.3 })
+              .stand({ hold: 0.3 })
               .registered("toeTouch").node,
           }),
         ["a"],
@@ -171,7 +171,7 @@ export function test_motion_catalogue_public_reach_registry(): void {
     try {
       const film = new HumanPerformance({
         seed: "support-rows",
-        laws: [HumanSupportRows.scramble],
+        laws: [AutoMovieMotionHumanSupport.rows.scramble],
         performers: [
           {
             subject: "a",

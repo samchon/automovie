@@ -242,7 +242,7 @@ function fixTake(
   const chain: IAutoMovieMotionHumanChain = laws
     .subject("drill")
     .takeFromCarrier({ prop: "bayonet", handle: "handle", lift: 0.18 })
-    .stand({ seconds: 0.5, sway: 0 })
+    .stand({ hold: 0.5, sway: 0 })
     .putDownAperture({
       prop: "bayonet",
       onto: {

@@ -1,9 +1,7 @@
-export type { IAutoMovieMotionHumanJump } from "./IAutoMovieMotionHumanJump";
 export type { IAutoMovieMotionHumanJumpAirborne } from "./IAutoMovieMotionHumanJumpAirborne";
 export type { IAutoMovieMotionHumanRun } from "./IAutoMovieMotionHumanRun";
 export type { IAutoMovieMotionHumanStand } from "./IAutoMovieMotionHumanStand";
 export type { IAutoMovieMotionHumanStandUpright } from "./IAutoMovieMotionHumanStandUpright";
-export type { IAutoMovieMotionHumanSupport } from "./IAutoMovieMotionHumanSupport";
 export type { IAutoMovieMotionHumanWalkCadence } from "./IAutoMovieMotionHumanWalkCadence";
 export type { IAutoMovieMotionHumanWalkFacing } from "./IAutoMovieMotionHumanWalkFacing";
 export type { IAutoMovieMotionHumanWalkFoot } from "./IAutoMovieMotionHumanWalkFoot";

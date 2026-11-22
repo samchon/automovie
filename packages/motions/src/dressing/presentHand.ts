@@ -51,7 +51,7 @@ export const presentHand: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPr
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPresentHand>,
     ): IAutoMovieMotionHumanActionPlan => {
       const p: IAutoMovieMotionHumanPresentHand = context.params;
-      HumanBound.above("seconds", p.seconds, 0, "s");
+      HumanBound.above("hold", p.hold, 0, "s");
       const body: IAutoMovieMotionHumanBody = context.body;
       const side: AutoMovieHumanSide = p.side ?? "left";
       const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
@@ -105,7 +105,7 @@ export const presentHand: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPr
       const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
         prepare: travel,
         attack: 0,
-        hold: p.seconds,
+        hold: p.hold,
         retract: travel,
       });
       const plan: IAutoMovieMotionHumanActionPlan =

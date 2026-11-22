@@ -1,19 +1,14 @@
-import type { IAutoMovieMotionHumanJump } from "./actions/IAutoMovieMotionHumanJump";
 import type { IAutoMovieMotionHumanRun } from "./actions/IAutoMovieMotionHumanRun";
 import type { IAutoMovieMotionHumanStand } from "./actions/IAutoMovieMotionHumanStand";
-import type { IAutoMovieMotionHumanSupport } from "./actions/IAutoMovieMotionHumanSupport";
 import type { IAutoMovieMotionHumanWalkParams } from "./actions/IAutoMovieMotionHumanWalkParams";
-import type { IAutoMovieMotionHumanOperate } from "./affordance/IAutoMovieMotionHumanOperate";
 import type { IAutoMovieMotionHumanKickBall } from "./ballStrike/IAutoMovieMotionHumanKickBall";
 import type { IAutoMovieMotionHumanCarry } from "./carrying/IAutoMovieMotionHumanCarry";
 import type { IAutoMovieMotionHumanClimbLadder } from "./climbing/IAutoMovieMotionHumanClimbLadder";
 import type { IAutoMovieMotionHumanHandToFace } from "./daily/IAutoMovieMotionHumanHandToFace";
-import type { IAutoMovieMotionHumanDress } from "./dressing/IAutoMovieMotionHumanDress";
 import type { IAutoMovieMotionHumanApproach } from "./everyday/IAutoMovieMotionHumanApproach";
 import type { IAutoMovieMotionHumanBend } from "./everyday/IAutoMovieMotionHumanBend";
 import type { IAutoMovieMotionHumanBrace } from "./everyday/IAutoMovieMotionHumanBrace";
 import type { IAutoMovieMotionHumanCrouch } from "./everyday/IAutoMovieMotionHumanCrouch";
-import type { IAutoMovieMotionHumanGesture } from "./everyday/IAutoMovieMotionHumanGesture";
 import type { IAutoMovieMotionHumanKneel } from "./everyday/IAutoMovieMotionHumanKneel";
 import type { IAutoMovieMotionHumanLook } from "./everyday/IAutoMovieMotionHumanLook";
 import type { IAutoMovieMotionHumanRest } from "./everyday/IAutoMovieMotionHumanRest";
@@ -22,7 +17,6 @@ import type { IAutoMovieMotionHumanShift } from "./everyday/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanSit } from "./everyday/IAutoMovieMotionHumanSit";
 import type { IAutoMovieMotionHumanStepOver } from "./everyday/IAutoMovieMotionHumanStepOver";
 import type { IAutoMovieMotionHumanTypeText } from "./everyday/IAutoMovieMotionHumanTypeText";
-import type { IAutoMovieMotionHumanDance } from "./exercise/IAutoMovieMotionHumanDance";
 import type { IAutoMovieMotionHumanExercise } from "./exercise/IAutoMovieMotionHumanExercise";
 import type { IAutoMovieMotionHumanStretch } from "./exercise/IAutoMovieMotionHumanStretch";
 import type { IAutoMovieMotionHumanCrawl } from "./floor/IAutoMovieMotionHumanCrawl";
@@ -35,6 +29,14 @@ import type { IAutoMovieMotionHumanPickUp } from "./handling/IAutoMovieMotionHum
 import type { IAutoMovieMotionHumanPushPull } from "./handling/IAutoMovieMotionHumanPushPull";
 import type { IAutoMovieMotionHumanPutDown } from "./handling/IAutoMovieMotionHumanPutDown";
 import type { IAutoMovieMotionHumanReceive } from "./handling/IAutoMovieMotionHumanReceive";
+import type { IAutoMovieMotionHumanDance } from "./next/IAutoMovieMotionHumanDance";
+import type { IAutoMovieMotionHumanDress } from "./next/IAutoMovieMotionHumanDress";
+import type { IAutoMovieMotionHumanGesture } from "./next/IAutoMovieMotionHumanGesture";
+import type { IAutoMovieMotionHumanJump } from "./next/IAutoMovieMotionHumanJump";
+import type { IAutoMovieMotionHumanOperate } from "./next/IAutoMovieMotionHumanOperate";
+import type { IAutoMovieMotionHumanSupport } from "./next/IAutoMovieMotionHumanSupport";
+import type { IAutoMovieMotionHumanSwim } from "./next/IAutoMovieMotionHumanSwim";
+import type { IAutoMovieMotionHumanTouch } from "./next/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanFlinch } from "./reaction/IAutoMovieMotionHumanFlinch";
 import type { IAutoMovieMotionHumanKnockdown } from "./reaction/IAutoMovieMotionHumanKnockdown";
 import type { IAutoMovieMotionHumanPerturb } from "./reaction/IAutoMovieMotionHumanPerturb";
@@ -46,7 +48,6 @@ import type { IAutoMovieMotionHumanChiSau } from "./sport/IAutoMovieMotionHumanC
 import type { IAutoMovieMotionHumanGymnastics } from "./sport/IAutoMovieMotionHumanGymnastics";
 import type { IAutoMovieMotionHumanMartialArt } from "./sport/IAutoMovieMotionHumanMartialArt";
 import type { IAutoMovieMotionHumanRacket } from "./sport/IAutoMovieMotionHumanRacket";
-import type { IAutoMovieMotionHumanSwim } from "./sport/IAutoMovieMotionHumanSwim";
 import type { IAutoMovieMotionHumanCloseStrike } from "./striking/IAutoMovieMotionHumanCloseStrike";
 import type { IAutoMovieMotionHumanDefend } from "./striking/IAutoMovieMotionHumanDefend";
 import type { IAutoMovieMotionHumanFootStrike } from "./striking/IAutoMovieMotionHumanFootStrike";
@@ -64,7 +65,6 @@ import type { IAutoMovieMotionHumanThrowObjectParams } from "./throwing/IAutoMov
 import type { IAutoMovieMotionHumanHighFive } from "./touch/IAutoMovieMotionHumanHighFive";
 import type { IAutoMovieMotionHumanKiss } from "./touch/IAutoMovieMotionHumanKiss";
 import type { IAutoMovieMotionHumanSelfAction } from "./touch/IAutoMovieMotionHumanSelfAction";
-import type { IAutoMovieMotionHumanTouch } from "./touch/IAutoMovieMotionHumanTouch";
 
 /**
  * The parameters of every action by its name: the one table that types a

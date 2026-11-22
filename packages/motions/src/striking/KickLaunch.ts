@@ -147,7 +147,7 @@ export namespace KickLaunch {
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const round: boolean = p.technique === "round";
-    const feint: boolean = p.feint === true;
+    const feint: boolean = p.feint !== undefined;
     const recovery: strikingStepSupport.ISupport | undefined =
       strikingStepSupport(context);
     const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =

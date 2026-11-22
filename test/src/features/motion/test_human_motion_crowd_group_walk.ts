@@ -9,10 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanEnsemble,
-  HumanFormation,
+  AutoMovieMotionHumanEnsemble,
   HumanPerformance,
-  humanCrowdGroupFormation,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,37 +39,43 @@ export function test_human_motion_crowd_group_walk(): void {
     body.measure.shoulderHalfWidth + body.measure.upperArmRadius;
   const start: number = 1;
   const end: number = 10;
-  const formation: IAutoMovieMotionHumanFormation = humanCrowdGroupFormation(
-    {
-      kind: "course",
-      samples: [
-        { seconds: start, x: 0, y: 0, z: 0, heading: 0 },
-        { seconds: start + 3, x: 0, y: 0, z: 2.4, heading: 0 },
-        { seconds: start + 6, x: 0.55, y: 0, z: 4.8, heading: 24 },
-        { seconds: end, x: 1.6, y: 0, z: 7.2, heading: 24 },
-      ],
-    },
-    [half, half, half, half],
-    0.25,
-  );
-  const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
-    id: "quartet",
-    seed: "quartet",
-    count: 4,
-    bodies: [body],
-    formation,
-  });
+  const formation: IAutoMovieMotionHumanFormation =
+    AutoMovieMotionHumanEnsemble.humanCrowdGroupFormation(
+      {
+        kind: "course",
+        samples: [
+          { seconds: start, x: 0, y: 0, z: 0, heading: 0 },
+          { seconds: start + 3, x: 0, y: 0, z: 2.4, heading: 0 },
+          { seconds: start + 6, x: 0.55, y: 0, z: 4.8, heading: 24 },
+          { seconds: end, x: 1.6, y: 0, z: 7.2, heading: 24 },
+        ],
+      },
+      [half, half, half, half],
+      0.25,
+    );
+  const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble =
+    AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+      id: "quartet",
+      seed: "quartet",
+      count: 4,
+      bodies: [body],
+      formation,
+    });
   const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "quartet",
-    performers: HumanEnsemble.performers(ensemble),
-    composition: HumanEnsemble.chains(
+    performers: AutoMovieMotionHumanEnsemble.HumanEnsemble.performers(ensemble),
+    composition: AutoMovieMotionHumanEnsemble.HumanEnsemble.chains(
       ensemble,
       (
         member: IAutoMovieMotionHumanEnsemble.IMember,
         chain: IAutoMovieMotionHumanChain,
       ): IAutoMovieMotionHumanChain =>
-        chain.stand({ seconds: start }).walk({
-          to: HumanFormation.slot(formation, member.index, end).at,
+        chain.stand({ hold: start }).walk({
+          to: AutoMovieMotionHumanEnsemble.HumanFormation.slot(
+            formation,
+            member.index,
+            end,
+          ).at,
           station: { formation, slot: member.index, until: end },
         }),
     ),
@@ -100,11 +104,12 @@ export function test_human_motion_crowd_group_walk(): void {
   for (const member of ensemble.members) {
     const first: IAutoMovieVector3 = markAt(member.subject, 0.75);
     const stopped: IAutoMovieVector3 = markAt(member.subject, 30);
-    const mark: IAutoMovieVector3 = HumanFormation.slot(
-      formation,
-      member.index,
-      end,
-    ).at;
+    const mark: IAutoMovieVector3 =
+      AutoMovieMotionHumanEnsemble.HumanFormation.slot(
+        formation,
+        member.index,
+        end,
+      ).at;
     if (
       !nclose(
         first.x - reference.x,

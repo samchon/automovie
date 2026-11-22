@@ -4,16 +4,12 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGait,
+  AutoMovieMotionHumanReaction,
   AutoMovieMotionManner,
   HumanEffort,
-  HumanProxemics,
-  HumanPursuit,
   HumanSkill,
   StrikingSkill,
-  flinch,
-  give,
-  run,
-  walk,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -50,7 +46,12 @@ const REFERENCE: number = 0.53 * 1.753;
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic over constants; no performance is built.
  */
 export function test_motion_documented_numbers(): void {
-  const near = (title: string, actual: number, expected: number, tol: number): void =>
+  const near = (
+    title: string,
+    actual: number,
+    expected: number,
+    tol: number,
+  ): void =>
     TestValidator.predicate(
       `${title}: ${actual} against ${expected} +- ${tol}`,
       Math.abs(actual - expected) <= tol,
@@ -62,10 +63,8 @@ export function test_motion_documented_numbers(): void {
   // 1. Gait speeds and steps a minute.
   const speed = (froude: number): number =>
     Math.sqrt(froude * AutoMovieGravity.STANDARD * REFERENCE);
-  const cadence = (
-    froude: number,
-    step: (fr: number) => number,
-  ): number => (speed(froude) / (step(froude) * REFERENCE)) * 60;
+  const cadence = (froude: number, step: (fr: number) => number): number =>
+    (speed(froude) / (step(froude) * REFERENCE)) * 60;
   const walks: Record<"slow" | "normal" | "fast", [number, number]> = {
     slow: [0.82, 85],
     normal: [1.5, 120],
@@ -75,17 +74,22 @@ export function test_motion_documented_numbers(): void {
     "slow" | "normal" | "fast",
     [number, number],
   ][]) {
-    const froude: number = walk.FROUDE[pace];
+    const froude: number = AutoMovieMotionHumanGait.walk.FROUDE[pace];
     near(`walk ${pace} speed`, speed(froude), metres, 0.03);
     near(
       `walk ${pace} steps`,
-      cadence(froude, walk.walking(froude).step),
+      cadence(froude, AutoMovieMotionHumanGait.walk.walking(froude).step),
       steps,
       1.5,
     );
   }
-  near("walk longest step", walk.longestStep() * REFERENCE, 0.75, 0.01);
-  near("walk shoulder swing", walk.SHOULDER, 15, 0);
+  near(
+    "walk longest step",
+    AutoMovieMotionHumanGait.walk.longestStep() * REFERENCE,
+    0.75,
+    0.01,
+  );
+  near("walk shoulder swing", AutoMovieMotionHumanGait.walk.SHOULDER, 15, 0);
   const runs: Record<"jog" | "run" | "sprint", [number, number, number]> = {
     jog: [2.3, 165, 25],
     run: [3.4, 176, 35],
@@ -95,7 +99,7 @@ export function test_motion_documented_numbers(): void {
     "jog" | "run" | "sprint",
     [number, number, number],
   ][]) {
-    const gait = run.GAITS[pace];
+    const gait = AutoMovieMotionHumanGait.run.GAITS[pace];
     near(`run ${pace} speed`, speed(gait.froude), metres, 0.06);
     near(`run ${pace} steps`, cadence(gait.froude, gait.step), steps, 1.5);
     near(`run ${pace} shoulder swing`, gait.arms.shoulder, shoulder, 0);
@@ -110,7 +114,12 @@ export function test_motion_documented_numbers(): void {
   const tempo = (manner: IAutoMovieMotionManner): number =>
     AutoMovieMotionManner.resolve(manner, random).tempo;
   near("pace 1.5 tempo", tempo({ pace: 1.5 }), 1 / 1.5, 1e-9);
-  near("pace 1.5 walk speed", speed(walk.FROUDE.normal) / tempo({ pace: 1.5 }), 2.26, 0.03);
+  near(
+    "pace 1.5 walk speed",
+    speed(AutoMovieMotionHumanGait.walk.FROUDE.normal) / tempo({ pace: 1.5 }),
+    2.26,
+    0.03,
+  );
   near("effort time 1", tempo({ effort: { time: 1 } }), 0.7, 1e-9);
   near("effort time -1", tempo({ effort: { time: -1 } }), 1.3, 1e-9);
   const flow = HumanEffort.modifiers({ flow: 1 });
@@ -120,7 +129,12 @@ export function test_motion_documented_numbers(): void {
   near("flow elbow", flow.elbow, -0.15, 1e-9);
   near("weight extent", HumanEffort.modifiers({ weight: 1 }).extent, 1.1, 1e-9);
   near("weight swing", HumanEffort.modifiers({ weight: 1 }).swing, 1.2, 1e-9);
-  near("space curvature", HumanEffort.modifiers({ space: -1 }).curvature, 0.15, 1e-9);
+  near(
+    "space curvature",
+    HumanEffort.modifiers({ space: -1 }).curvature,
+    0.15,
+    1e-9,
+  );
   near(
     "flow hold",
     AutoMovieMotionManner.resolve({ effort: { flow: 1 } }, random).hold,
@@ -131,14 +145,14 @@ export function test_motion_documented_numbers(): void {
   near("bounds tempo elite", AutoMovieMotionManner.BOUNDS.tempo[1], 0.05, 0);
   near("bounds extent novice", AutoMovieMotionManner.BOUNDS.extent[0], 0.2, 0);
   near("bounds extent elite", AutoMovieMotionManner.BOUNDS.extent[1], 0.08, 0);
-  const preset = (
-    name: IAutoMovieMotionManner.Preset,
-    metres: number,
-  ): void =>
+  const preset = (name: IAutoMovieMotionManner.Preset, metres: number): void =>
     near(
       `${name} walk speed`,
-      speed(walk.FROUDE.normal) /
-        AutoMovieMotionManner.resolve(AutoMovieMotionManner.PRESETS[name], random).tempo,
+      speed(AutoMovieMotionHumanGait.walk.FROUDE.normal) /
+        AutoMovieMotionManner.resolve(
+          AutoMovieMotionManner.PRESETS[name],
+          random,
+        ).tempo,
       metres,
       0.06,
     );
@@ -150,7 +164,10 @@ export function test_motion_documented_numbers(): void {
   preset("glide", 1.2);
 
   // 3. Striking timing by skill level.
-  const levels: Record<"novice" | "amateur" | "trained" | "elite", [number, number, number]> = {
+  const levels: Record<
+    "novice" | "amateur" | "trained" | "elite",
+    [number, number, number]
+  > = {
     novice: [1.06, 0.33, 1.4],
     amateur: [1.04, 0.32, 1.3],
     trained: [1.02, 0.315, 1.1],
@@ -162,35 +179,77 @@ export function test_motion_documented_numbers(): void {
   ][]) {
     const at: IAutoMovieMotionHumanSkill = HumanSkill.resolve({ level }, "s");
     near(`${level} strike factor`, StrikingSkill.strike(at), strike, 0.005);
-    near(`${level} lone rear straight`, StrikingSkill.lone(1, 1, at), lone, 0.005);
-    near(`${level} recovery factor`, StrikingSkill.recovery(at), recovery, 0.005);
+    near(
+      `${level} lone rear straight`,
+      StrikingSkill.lone(1, 1, at),
+      lone,
+      0.005,
+    );
+    near(
+      `${level} recovery factor`,
+      StrikingSkill.recovery(at),
+      recovery,
+      0.005,
+    );
   }
   near("elite cross", StrikingSkill.CROSS_DELIVERY, 0.31, 0);
   near("alternating interval", StrikingSkill.ALTERNATING_INTERVAL, 0.35, 1e-9);
   near("same-hand interval", StrikingSkill.SAME_HAND_INTERVAL, 0.45, 1e-9);
-  const novice: IAutoMovieMotionHumanSkill = HumanSkill.resolve({ level: "novice" }, "s");
-  const elite: IAutoMovieMotionHumanSkill = HumanSkill.resolve({ level: "elite" }, "s");
-  near("novice alternating interval", StrikingSkill.interval(novice, false), 0.37, 0.005);
-  near("novice same-hand interval", StrikingSkill.interval(novice, true), 0.48, 0.005);
-  near("elite alternating interval", StrikingSkill.interval(elite, false), 0.35, 1e-9);
-  near("elite same-hand interval", StrikingSkill.interval(elite, true), 0.45, 1e-9);
+  const novice: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
+    { level: "novice" },
+    "s",
+  );
+  const elite: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
+    { level: "elite" },
+    "s",
+  );
+  near(
+    "novice alternating interval",
+    StrikingSkill.interval(novice, false),
+    0.37,
+    0.005,
+  );
+  near(
+    "novice same-hand interval",
+    StrikingSkill.interval(novice, true),
+    0.48,
+    0.005,
+  );
+  near(
+    "elite alternating interval",
+    StrikingSkill.interval(elite, false),
+    0.35,
+    1e-9,
+  );
+  near(
+    "elite same-hand interval",
+    StrikingSkill.interval(elite, true),
+    0.45,
+    1e-9,
+  );
   near("hand return", StrikingSkill.HAND_RECOVERY, 0.35, 1e-9);
   near("punch peak novice", StrikingSkill.PUNCH_PEAK_SPEED[0], 3.2, 0.05);
   near("punch peak elite", StrikingSkill.PUNCH_PEAK_SPEED[1], 7.16, 0);
   near("punch impact share", StrikingSkill.IMPACT_SPEED_SHARE.punch, 0.78, 0);
 
   // 4. Proxemic gaps and reaction sizes.
-  near("intimate gap", HumanProxemics.GAPS.intimate, 0.3, 0);
-  near("face to face gap", HumanProxemics.GAPS.faceToFace, 0.6, 0);
-  near("personal gap", HumanProxemics.GAPS.personal, 1.0, 0);
-  near("social gap", HumanProxemics.GAPS.social, 1.6, 0);
-  near("handing elbow", HumanProxemics.HANDING_ELBOW, 35, 0);
-  near("flight distance", HumanPursuit.FLIGHT * HIP, 8, 0.5);
-  near("flinch shift", flinch.SHIFT, 0.018, 0);
-  near("give turn", give.TURN, 45, 0);
-  near("give tilt", give.TILT, 8, 0);
-  near("give shift", give.SHIFT, 0.03, 0);
-  near("give rise", give.RISE, 0.12, 0);
-  near("give hold", give.RETURN[0], 0.15, 0);
-  near("give return", give.RETURN[1], 0.45, 0);
+  const proxemics = AutoMovieMotionHumanGait.HumanProxemics;
+  near("intimate gap", proxemics.GAPS.intimate, 0.3, 0);
+  near("face to face gap", proxemics.GAPS.faceToFace, 0.6, 0);
+  near("personal gap", proxemics.GAPS.personal, 1.0, 0);
+  near("social gap", proxemics.GAPS.social, 1.6, 0);
+  near("handing elbow", proxemics.HANDING_ELBOW, 35, 0);
+  near(
+    "flight distance",
+    AutoMovieMotionHumanGait.HumanPursuit.FLIGHT * HIP,
+    8,
+    0.5,
+  );
+  near("flinch shift", AutoMovieMotionHumanReaction.flinch.SHIFT, 0.018, 0);
+  near("give turn", AutoMovieMotionHumanReaction.give.TURN, 45, 0);
+  near("give tilt", AutoMovieMotionHumanReaction.give.TILT, 8, 0);
+  near("give shift", AutoMovieMotionHumanReaction.give.SHIFT, 0.03, 0);
+  near("give rise", AutoMovieMotionHumanReaction.give.RISE, 0.12, 0);
+  near("give hold", AutoMovieMotionHumanReaction.give.RETURN[0], 0.15, 0);
+  near("give return", AutoMovieMotionHumanReaction.give.RETURN[1], 0.45, 0);
 }

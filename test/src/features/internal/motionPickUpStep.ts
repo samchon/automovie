@@ -18,6 +18,7 @@ import {
   HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
+
 import { motionHumanBody } from "./motionHumanBody";
 
 /**
@@ -78,7 +79,7 @@ export function motionPickUpStep(
         },
       ],
       composition: (at === null
-        ? HumanChain.subject("a").stand({ seconds: 0.5 })
+        ? HumanChain.subject("a").stand({ hold: 0.5 })
         : HumanChain.subject("a").pickUp({ prop: "glass", handle: "body" })
       ).node,
     });

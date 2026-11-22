@@ -80,8 +80,8 @@ export namespace holdInfant {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHoldInfant.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params } = context;
-    const seconds: number = params.seconds ?? 4;
-    HumanBound.within("seconds", seconds, 0.5, 600);
+    const seconds: number = params.hold ?? 4;
+    HumanBound.within("hold", seconds, 0.5, 600);
     const side: AutoMovieHumanSide =
       params.hand ??
       (entry.holds.left === params.prop && entry.holds.right !== params.prop
@@ -105,7 +105,7 @@ export namespace holdInfant {
       params.prop,
     );
     const bottle: IAutoMovieMotionHumanHeld.IHeld | undefined =
-      params.hold === "feed"
+      params.kind === "feed"
         ? params.bottle === undefined
           ? refuse("feed", "a feed holds a bottle in the other hand")
           : AutoMovieMotionHumanHeld.of(context, other, params.bottle)
@@ -142,12 +142,12 @@ export namespace holdInfant {
     // The elbow and the wrist are the arm's own lengths from the shoulder,
     // so the hold, and the rock about it, stay within the arm's reach.
     const crook: holdInfantCrook.ICrook | undefined =
-      params.hold === "shoulder"
+      params.kind === "shoulder"
         ? undefined
         : holdInfantCrook.of(
             body,
             side,
-            params.hold,
+            params.kind,
             shoulder,
             forward,
             toward,
@@ -227,7 +227,7 @@ export namespace holdInfant {
     const events: IAutoMovieMotionEvent[] = [
       { name: "held", share: SETTLE / duration },
     ];
-    if (params.hold === "shoulder")
+    if (params.kind === "shoulder")
       for (let k: number = 1; SETTLE + k / rate <= duration; k++)
         events.push({ name: `pat${k}`, share: (SETTLE + k / rate) / duration });
     events.push({ name: "relax", share: 1 });

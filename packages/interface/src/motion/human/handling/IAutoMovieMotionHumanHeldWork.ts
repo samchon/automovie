@@ -28,7 +28,7 @@ export namespace IAutoMovieMotionHumanHeldWork {
     prop: string;
 
     /** The holding hand; the one holding `prop` at entry when absent. */
-    side?: AutoMovieHumanSide;
+    hand?: AutoMovieHumanSide;
 
     /** Articulations the holding hand's fingers drive, all over the same span. */
     drive?: readonly IDrive[];
@@ -43,7 +43,7 @@ export namespace IAutoMovieMotionHumanHeldWork {
     push?: string;
 
     /** Seconds of the work before tempo scaling; positive. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
-    seconds: number;
+    duration: number;
   }
 
   /**

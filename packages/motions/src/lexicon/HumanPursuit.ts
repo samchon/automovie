@@ -17,6 +17,9 @@ import { approach } from "../everyday/approach";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HUMAN_GAIT_CONFRONT } from "../next/presets/HUMAN_GAIT_CONFRONT";
+import { HUMAN_GAIT_ESCORT } from "../next/presets/HUMAN_GAIT_ESCORT";
+import { HUMAN_GAIT_FOLLOW } from "../next/presets/HUMAN_GAIT_FOLLOW";
 
 /**
  * Travel relative to another person, each a row of `approach`: the
@@ -46,28 +49,17 @@ export namespace HumanPursuit {
   /** Come up behind a person at the social distance, as a follower closes the gap. */
   export const follow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["follow"]
-  > = HumanActionRow.of("follow", approach, {
-    side: "behind",
-    at: "social",
-    track: "pace",
-  });
+  > = HumanActionRow.of("follow", approach, HUMAN_GAIT_FOLLOW);
 
   /** Come to a person's left side at the personal distance, as an escort takes station. */
   export const escort: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["escort"]
-  > = HumanActionRow.of("escort", approach, {
-    side: "left",
-    at: "personal",
-    track: "pace",
-  });
+  > = HumanActionRow.of("escort", approach, HUMAN_GAIT_ESCORT);
 
   /** Step up face to face, as a confrontation begins. */
   export const confront: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["confront"]
-  > = HumanActionRow.of("confront", approach, {
-    side: "front",
-    at: "faceToFace",
-  });
+  > = HumanActionRow.of("confront", approach, HUMAN_GAIT_CONFRONT);
 
   /**
    * Head a moving person off: a run to where they will be when the runner

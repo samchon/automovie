@@ -17,7 +17,7 @@ export interface IAutoMovieMotionHumanHookSet {
   angle: number;
 
   /** How long the lift takes, seconds. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
-  seconds: number;
+  duration: number;
 
   /** The hand holding the rod; whichever hand holds it when absent. */
   hand?: AutoMovieHumanSide;

@@ -34,7 +34,7 @@ export function test_motion_contact_primitive_clinch_held_arm(): void {
     ],
     HumanChain.subject("a")
       .act("clinch", { partner: "b", grip: "collarSleeve" })
-      .with(HumanChain.subject("b").stand({ seconds: 4 })),
+      .with(HumanChain.subject("b").stand({ hold: 4 })),
   );
   const segment: IAutoMovieMotionHumanSegment =
     film.performance.segments("a")[0]!;

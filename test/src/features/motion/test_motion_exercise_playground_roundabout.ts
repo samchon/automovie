@@ -9,11 +9,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanRide,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanSurface,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -121,7 +121,10 @@ function roundabout(key: playgroundTake.BodyKey, failures: string[]): void {
       seed: "roundabout",
       performers: [performer],
       props: staged(),
-      laws: [HumanSurface.roundaboutPush, HumanSurface.supportStep],
+      laws: [
+        AutoMovieMotionHumanRide.HumanSurface.roundaboutPush,
+        AutoMovieMotionHumanRide.HumanSurface.supportStep,
+      ],
       composition: HumanChain.subject("a")
         .registered("roundaboutPush", {
           ...path,
@@ -154,7 +157,7 @@ function roundabout(key: playgroundTake.BodyKey, failures: string[]): void {
     seed: "roundabout",
     performers: [performer],
     props: staged(),
-    laws: [HumanSurface.roundaboutPush],
+    laws: [AutoMovieMotionHumanRide.HumanSurface.roundaboutPush],
     composition: HumanChain.subject("a")
       .registered("roundaboutPush", {
         ...path,
@@ -167,7 +170,7 @@ function roundabout(key: playgroundTake.BodyKey, failures: string[]): void {
         face: (Math.atan2(-edge.x, -edge.z) * 180) / Math.PI,
       })
       .climbStairs({ count: 1, riser: top, start: RISER_START, on: "disc" })
-      .stand({ seconds: 1.5, on: { prop: "disc" } }).node,
+      .stand({ hold: 1.5, on: { prop: "disc" } }).node,
   });
   playgroundTake.clean(`${key} roundabout`, film, failures);
   const [push, , , riding]: readonly IAutoMovieMotionHumanSegment[] =

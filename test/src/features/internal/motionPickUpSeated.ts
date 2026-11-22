@@ -1,9 +1,13 @@
 import { createDrinkware } from "@automovie/archetypes";
-import { Vector3, physicalShapeBounds, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Vector3,
+  physicalShapeBounds,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -14,10 +18,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditMotion,
   AutoMovieMotionHumanAuditGround,
-  HumanColliders,
+  AutoMovieMotionHumanAuditMotion,
   HumanChain,
+  HumanColliders,
   HumanHand,
   HumanObject,
   HumanPerformance,
@@ -26,6 +30,7 @@ import {
   HumanVerdicts,
   seated,
 } from "@automovie/motions";
+
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanLaw } from "./motionHumanLaw";
 import { nclose } from "./nclose";
@@ -91,7 +96,7 @@ export function motionPickUpSeated(
   ): IAutoMovieMotionHumanPerformance => {
     const sitting: IAutoMovieMotionHumanChain = HumanChain.subject("a").sit({
       seat: chair,
-      seconds: 0.5,
+      hold: 0.5,
     });
     return new HumanPerformance({
       seed: "seated",
@@ -119,7 +124,8 @@ export function motionPickUpSeated(
   const still: IAutoMovieMotionHumanPerformance = perform(null);
   const sat: IAutoMovieMotionHumanSegment = still.segments("a")[0]!;
   const seatedBones: ReturnType<typeof still.bones> = still.bones("a", sat.end);
-  const shoulder: IAutoMovieVector3 = seatedBones.get("rightUpperArm")!.worldPosition;
+  const shoulder: IAutoMovieVector3 =
+    seatedBones.get("rightUpperArm")!.worldPosition;
   const chest: IAutoMovieVector3 = seatedBones.get("chest")!.worldPosition;
   const socket: number = Vector3.length(
     HumanHand.offset(body, "right", "grip").point,
@@ -177,33 +183,58 @@ export function motionPickUpSeated(
       );
     const sitting: IAutoMovieVector3 = seated.point(body, chair);
     const seat: typeof body.surfaces.sockets.seat = body.surfaces.sockets.seat;
-    const soles: ReturnType<typeof HumanColliders.preparePlaced> = HumanColliders.preparePlaced(body,
-      new Set<AutoMovieHumanoidBone>(["leftFoot", "leftToes", "rightFoot", "rightToes"]));
+    const soles: ReturnType<typeof HumanColliders.preparePlaced> =
+      HumanColliders.preparePlaced(
+        body,
+        new Set<AutoMovieHumanoidBone>([
+          "leftFoot",
+          "leftToes",
+          "rightFoot",
+          "rightToes",
+        ]),
+      );
     const times: Set<number> = new Set([pick.start, pick.end]);
     for (const t of AutoMovieMotionHumanAuditMotion.grid(0, film.duration, 24))
       if (t >= pick.start && t <= pick.end) times.add(t);
-    for (let i: number = 1; i < 4; ++i) times.add(pick.start + (i * pick.plan.duration) / 4);
+    for (let i: number = 1; i < 4; ++i)
+      times.add(pick.start + (i * pick.plan.duration) / 4);
     // Retain the audit's global frame clock, per-window endpoints and
     // bearing-socket anchor. Its result now covers just the pick-up, so
     // a larger slip elsewhere in the sitting film cannot hide this one.
     const shared: motionHumanLaw.IFilm = motionHumanLaw.film(film);
     const picking: IAutoMovieMotionHumanAuditMotion = {
-      duration: film.duration, segments: () => [pick], bones: shared.bones,
+      duration: film.duration,
+      segments: () => [pick],
+      bones: shared.bones,
     };
-    const slip: IAutoMovieMotionHumanAuditMeasure = AutoMovieMotionHumanAuditGround.slip(picking, "a", body, 24);
-    const lift: IAutoMovieMotionHumanAuditMeasure = AutoMovieMotionHumanAuditGround.lift(picking, "a", body, 24);
+    const slip: IAutoMovieMotionHumanAuditMeasure =
+      AutoMovieMotionHumanAuditGround.slip(picking, "a", body, 24);
+    const lift: IAutoMovieMotionHumanAuditMeasure =
+      AutoMovieMotionHumanAuditGround.lift(picking, "a", body, 24);
     let seatDrift: number = 0;
     let depth: number = 0;
     for (const t of times) {
       const bones: motionHumanLaw.Bones = shared.bones("a", t);
-      const point: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(seat, bones.get(seat.bone)!).point;
+      const point: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+        seat,
+        bones.get(seat.bone)!,
+      ).point;
       seatDrift = Math.max(seatDrift, Vector3.distance(point, sitting));
       for (const part of soles(bones))
         for (const shape of part.shapes)
           depth = Math.max(depth, -physicalShapeBounds(part.pose, shape).min.y);
     }
-    if (!(seatDrift <= 0.005 && slip.value <= 0.005 && lift.value <= 0.005 && depth <= 0.005))
-      complaints.push(`${name}: seat drift ${seatDrift * 1000}, sole slip ${slip.value * 1000}, lift ${lift.value * 1000}, penetration ${depth * 1000} mm, each within 5 mm expected`);
+    if (
+      !(
+        seatDrift <= 0.005 &&
+        slip.value <= 0.005 &&
+        lift.value <= 0.005 &&
+        depth <= 0.005
+      )
+    )
+      complaints.push(
+        `${name}: seat drift ${seatDrift * 1000}, sole slip ${slip.value * 1000}, lift ${lift.value * 1000}, penetration ${depth * 1000} mm, each within 5 mm expected`,
+      );
   } catch (error) {
     complaints.push(
       `${name}: a glass just beyond the seated arm: expected to plan, got ${said(error)}`,
@@ -221,7 +252,10 @@ export function motionPickUpSeated(
   // acromion-to-fingertip length. Horizontal and vertical offsets form
   // the independent hypotenuse from this seated shoulder to the grip.
   const maximum: number = 1.633 * (arm + body.measure.hand);
-  const distance: number = Math.hypot(2 * arm, chair.at.y + grip.y - shoulder.y);
+  const distance: number = Math.hypot(
+    2 * arm,
+    chair.at.y + grip.y - shoulder.y,
+  );
   // A grip inside the population reach envelope can still exceed this
   // body's two straight arm segments after maximal seated lean. Then
   // leaning must shorten the distance, yet leave a positive reach deficit.
@@ -233,9 +267,13 @@ export function motionPickUpSeated(
       thrown.axis === "prop" &&
       /stand/.test(thrown.fix ?? "") &&
       typeof thrown.value === "number" &&
-      (envelopeExceeded ? nclose(thrown.value, distance) : thrown.value > arm && thrown.value < distance) &&
-      thrown.feasible?.kind === "range" && thrown.feasible.minimum === 0 &&
-      thrown.feasible.unit === "m" && nclose(thrown.feasible.maximum ?? NaN, envelopeExceeded ? maximum : arm)
+      (envelopeExceeded
+        ? nclose(thrown.value, distance)
+        : thrown.value > arm && thrown.value < distance) &&
+      thrown.feasible?.kind === "range" &&
+      thrown.feasible.minimum === 0 &&
+      thrown.feasible.unit === "m" &&
+      nclose(thrown.feasible.maximum ?? NaN, envelopeExceeded ? maximum : arm)
     )
   )
     complaints.push(

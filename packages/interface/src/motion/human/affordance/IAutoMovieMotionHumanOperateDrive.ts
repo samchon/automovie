@@ -1,5 +1,5 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
-import type { IAutoMovieMotionHumanOperate } from "./IAutoMovieMotionHumanOperate";
+import type { IAutoMovieMotionHumanOperate } from "../next/IAutoMovieMotionHumanOperate";
 
 /**
  * The part an operation moves on a prop that articulates, and the drive the

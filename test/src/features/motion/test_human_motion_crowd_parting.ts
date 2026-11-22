@@ -8,11 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HUMAN_ATTRIBUTE_EFFECTS,
+  AutoMovieMotionHumanEnsemble,
+  AutoMovieMotionHumanGait,
   HumanCrowd,
-  HumanEnsemble,
-  HumanFormation,
-  walk,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -61,14 +59,16 @@ export function test_human_motion_crowd_parting(): void {
     Math.min(
       ...pool.map((b: IAutoMovieMotionHumanBody): number =>
         Math.sqrt(
-          walk.FROUDE.normal * AutoMovieGravity.STANDARD * b.measure.hipHeight,
+          AutoMovieMotionHumanGait.walk.FROUDE.normal *
+            AutoMovieGravity.STANDARD *
+            b.measure.hipHeight,
         ),
       ),
     ) *
     HumanCrowd.SLOWEST *
     Math.min(
-      HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace.low,
-      HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace.high,
+      AutoMovieMotionHumanEnsemble.HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace.low,
+      AutoMovieMotionHumanEnsemble.HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace.high,
     );
   const tau: number = steerAutoMovieCrowd.RELAXATION;
   const near: number = slowest * tau * steerAutoMovieCrowd.ARRIVAL;
@@ -79,25 +79,28 @@ export function test_human_motion_crowd_parting(): void {
       steerAutoMovieCrowd.ARRIVAL *
       Math.log(near / Math.min(...e.members.map(HumanCrowd.half)));
   const scene = (dx: number, dz: number): IScene => {
-    const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
-      id: "street",
-      seed: "parting",
-      count: 40,
-      bodies: pool,
-      preset: "civilians",
-      places: (index: number): { at: IAutoMovieVector3; yaw: number } => ({
-        at: {
-          // Three abreast 0.8 m apart, wider than any two of the bodies' shoulders, each flow keeping to its own side.
-          x: dx + (index % 2 === 0 ? -1 : 1) * (1.5 + 0.8 * ((index >> 1) % 3)),
-          y: 0,
-          z:
-            dz +
-            (index % 2 === 0 ? -14 : 14) +
-            (index % 2 === 0 ? -1 : 1) * 1.1 * Math.floor(index / 6),
-        },
-        yaw: index % 2 === 0 ? 0 : 180,
-      }),
-    });
+    const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble =
+      AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+        id: "street",
+        seed: "parting",
+        count: 40,
+        bodies: pool,
+        preset: "civilians",
+        places: (index: number): { at: IAutoMovieVector3; yaw: number } => ({
+          at: {
+            // Three abreast 0.8 m apart, wider than any two of the bodies' shoulders, each flow keeping to its own side.
+            x:
+              dx +
+              (index % 2 === 0 ? -1 : 1) * (1.5 + 0.8 * ((index >> 1) % 3)),
+            y: 0,
+            z:
+              dz +
+              (index % 2 === 0 ? -14 : 14) +
+              (index % 2 === 0 ? -1 : 1) * 1.1 * Math.floor(index / 6),
+          },
+          yaw: index % 2 === 0 ? 0 : 180,
+        }),
+      });
     const carriage: IAutoMovieMotionHumanObstacle = {
       subject: "carriage",
       footprint: [
@@ -138,7 +141,9 @@ export function test_human_motion_crowd_parting(): void {
   const at = (
     frame: IAutoMovieMotionHumanFormation.ICourse,
     t: number,
-  ): IAutoMovieVector3 => HumanFormation.frame({ blocks: [], frame }, t).at;
+  ): IAutoMovieVector3 =>
+    AutoMovieMotionHumanEnsemble.HumanFormation.frame({ blocks: [], frame }, t)
+      .at;
   for (let t: number = 0; t <= SPAN; t += 1 / 24) {
     const c: IAutoMovieVector3 = carriage.motion!(t).position;
     const points: IAutoMovieVector3[] = result.frames.map(
@@ -206,16 +211,17 @@ export function test_human_motion_crowd_parting(): void {
         `${ensemble.members[i]!.subject} never arrives in the moved scene`,
       );
   });
-  const grouped: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
-    id: "walking-groups",
-    seed: "parting",
-    count: 6,
-    bodies: pool,
-    places: (index: number): IAutoMovieMotionHumanEnsemble.IPlace => ({
-      at: { x: index < 2 ? -4 : 4, y: 0, z: 0 },
-      yaw: 0,
-    }),
-  });
+  const grouped: IAutoMovieMotionHumanEnsemble.IEnsemble =
+    AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+      id: "walking-groups",
+      seed: "parting",
+      count: 6,
+      bodies: pool,
+      places: (index: number): IAutoMovieMotionHumanEnsemble.IPlace => ({
+        at: { x: index < 2 ? -4 : 4, y: 0, z: 0 },
+        yaw: 0,
+      }),
+    });
   const requested: number[] = [];
   const groups: IAutoMovieMotionHumanCrowd.IResult = HumanCrowd.steer(grouped, {
     goals: (

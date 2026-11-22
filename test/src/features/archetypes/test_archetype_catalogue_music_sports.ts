@@ -299,7 +299,7 @@ function heldLongAxis(model: AutoMovieArchetype): IHeldAxis {
     ],
     composition: HumanChain.subject("player")
       .pickUp({ prop: "ball", handle: "grip" })
-      .stand({ seconds: 0.6, sway: 0 }).node,
+      .stand({ hold: 0.6, sway: 0 }).node,
   });
   const start: number = performance.segments("player")[0]!.end;
   const end: number = performance.duration;

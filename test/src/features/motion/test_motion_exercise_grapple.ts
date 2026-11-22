@@ -10,13 +10,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGrapple,
   HumanChain,
   HumanColliders,
   HumanCoupled,
   HumanFoot,
   HumanPerformance,
   HumanSignature,
-  grapple,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -79,16 +79,16 @@ export function test_motion_exercise_grapple(): void {
               proficiency: { level: "trained" },
             },
           ],
-          laws: [grapple],
+          laws: [AutoMovieMotionHumanGrapple.grapple],
           composition: HumanChain.mutual(
             HumanCoupled.grappling,
             {
               initiator: HumanChain.subject("a").stand({
-                seconds: 0.3,
+                hold: 0.3,
                 sway: 0,
               }),
               receiver: HumanChain.subject("b").stand({
-                seconds: 0.3,
+                hold: 0.3,
                 sway: 0,
               }),
             },

@@ -17,11 +17,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanInstrument,
   HumanChain,
   HumanFoot,
   HumanObject,
   HumanPerformance,
-  pianoPerformance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -58,7 +58,7 @@ export function test_human_motion_piano_performance(): void {
     notes: [
       {
         key: "key35",
-        side: "left",
+        hand: "left",
         digit: "index",
         from: 0.5,
         at: 0.7,
@@ -67,7 +67,7 @@ export function test_human_motion_piano_performance(): void {
       },
       {
         key: "key46",
-        side: "right",
+        hand: "right",
         digit: "index",
         from: 1.2,
         at: 1.4,
@@ -120,9 +120,9 @@ export function test_human_motion_piano_performance(): void {
           yaw: 0,
         }),
       ],
-      laws: [pianoPerformance],
+      laws: [AutoMovieMotionHumanInstrument.pianoPerformance],
       composition: HumanChain.subject("pianist")
-        .sit({ seat, seconds: 1 })
+        .sit({ seat, hold: 1 })
         .registered("pianoPerformance", phrase, "phrase").node,
     });
 

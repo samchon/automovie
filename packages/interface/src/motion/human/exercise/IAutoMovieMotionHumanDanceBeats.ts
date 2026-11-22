@@ -15,7 +15,7 @@ export interface IAutoMovieMotionHumanDanceBeats {
   lead: number;
 
   /** How many beats. */
-  beats: number;
+  count: number;
 
   /**
    * The seconds of a beat.

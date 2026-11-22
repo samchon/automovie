@@ -7,9 +7,9 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanEnsemble,
   HumanChain,
   HumanPerformance,
-  HumanPopulation,
   HumanRefusal,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -54,22 +54,23 @@ export function test_human_motion_ensemble_population_stand(): void {
       { ...template, subject: "short-then-stand", at: { x: 12, y: 0, z: -3 } },
     ],
     composition: HumanChain.subject("template")
-      .stand({ seconds: 2 })
+      .stand({ hold: 2 })
       .with(
-        HumanChain.subject("short-final").stand({ seconds: 0.25 }),
+        HumanChain.subject("short-final").stand({ hold: 0.25 }),
         HumanChain.subject("short-then-stand")
-          .stand({ seconds: 0.25 })
-          .stand({ seconds: 1 }),
+          .stand({ hold: 0.25 })
+          .stand({ hold: 1 }),
       ).node,
   });
 
   // 1. The same held articulation fills each of the population take's phases.
-  const take: IAutoMovieFormationPoseTake = HumanPopulation.standing(
-    performance,
-    "template",
-    0.25,
-    3,
-  );
+  const take: IAutoMovieFormationPoseTake =
+    AutoMovieMotionHumanEnsemble.HumanPopulation.standing(
+      performance,
+      "template",
+      0.25,
+      3,
+    );
   const settled: IAutoMoviePose = performance.pose("template", 0.5);
   TestValidator.equals("stand gait", take.gait, "stand");
   TestValidator.equals("held phase count", take.poses.length, 3);
@@ -110,12 +111,13 @@ export function test_human_motion_ensemble_population_stand(): void {
 
   // 2. Selection still needs an active stand and an integral phase count.
   // 3. The event itself may be at the end, if the stand is still displayed.
-  const short: IAutoMovieFormationPoseTake = HumanPopulation.standing(
-    performance,
-    "short-final",
-    0,
-    1,
-  );
+  const short: IAutoMovieFormationPoseTake =
+    AutoMovieMotionHumanEnsemble.HumanPopulation.standing(
+      performance,
+      "short-final",
+      0,
+      1,
+    );
   TestValidator.predicate(
     "the settled endpoint of a short final stand can supply a take",
     nclose(short.periodSeconds, 0.25) && short.poses.length === 1,
@@ -127,7 +129,12 @@ export function test_human_motion_ensemble_population_stand(): void {
   ] as const) {
     let refusal: unknown;
     try {
-      HumanPopulation.standing(performance, subject, from, samples);
+      AutoMovieMotionHumanEnsemble.HumanPopulation.standing(
+        performance,
+        subject,
+        from,
+        samples,
+      );
     } catch (error) {
       refusal = error;
     }

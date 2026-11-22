@@ -1,12 +1,12 @@
 import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanRun";
 import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
 import type { IAutoMovieMotionHumanCrabWalk } from "../floor/IAutoMovieMotionHumanCrabWalk";
-import type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
-import type { IAutoMovieMotionHumanCrossing } from "./IAutoMovieMotionHumanCrossing";
+import type { IAutoMovieMotionHumanCover } from "../next/IAutoMovieMotionHumanCover";
+import type { IAutoMovieMotionHumanCrossing } from "../next/IAutoMovieMotionHumanCrossing";
+import type { IAutoMovieMotionHumanGait } from "../next/IAutoMovieMotionHumanGait";
 import type { IAutoMovieMotionHumanEdgeRescue } from "./IAutoMovieMotionHumanEdgeRescue";
 import type { IAutoMovieMotionHumanEnvironmentRecovery } from "./IAutoMovieMotionHumanEnvironmentRecovery";
 import type { IAutoMovieMotionHumanFrailWalk } from "./IAutoMovieMotionHumanFrailWalk";
-import type { IAutoMovieMotionHumanGait } from "./IAutoMovieMotionHumanGait";
 import type { IAutoMovieMotionHumanRope } from "./IAutoMovieMotionHumanRope";
 import type { IAutoMovieMotionHumanSkydive } from "./IAutoMovieMotionHumanSkydive";
 import type { IAutoMovieMotionHumanStuntFall } from "./IAutoMovieMotionHumanStuntFall";

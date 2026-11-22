@@ -15,12 +15,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanHand,
-  HumanMounted,
   HumanObject,
   HumanPerformance,
-  HumanRide,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -99,7 +98,10 @@ export function test_motion_equestrian_driver_aids(): void {
   const gather: number = touch + 2;
   const film: HumanPerformance = new HumanPerformance({
     seed: "driver-aids",
-    laws: [HumanRide.ride, HumanMounted],
+    laws: [
+      AutoMovieMotionHumanMount.rideHorse.ride,
+      AutoMovieMotionHumanMount.mounted,
+    ],
     cues: {
       go: [{ name: "go", seconds: go }],
       touch: [{ name: "touch", seconds: touch }],
@@ -118,7 +120,7 @@ export function test_motion_equestrian_driver_aids(): void {
       },
     ],
     composition: HumanChain.subject("driver")
-      .stand({ seconds: 0.3, on: { prop: "cart" } })
+      .stand({ hold: 0.3, on: { prop: "cart" } })
       .sit({
         seat: {
           ...seat,
@@ -127,7 +129,7 @@ export function test_motion_equestrian_driver_aids(): void {
             right: onBoard(-board.width! / 8),
           },
         },
-        seconds: 0.5,
+        hold: 0.5,
       })
       .registered("ride", {
         on: "cart",

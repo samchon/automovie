@@ -6,9 +6,9 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanCourse,
+  AutoMovieMotionHumanStance,
   HumanBalance,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import { motionComplaints } from "./motionComplaints";
@@ -71,7 +71,7 @@ export function motionComposeCourse(): void {
     const carried =
       (yaw: Heading) =>
       (_seconds: number, along: number): IAutoMovieMotionHumanPosture =>
-        stand.posture(
+        AutoMovieMotionHumanStance.stand.posture(
           body,
           yaw === 90 ? { x: along, y: 0, z: 0.4 } : { x: -0.3, y: 0, z: along },
           yaw,
@@ -147,11 +147,8 @@ export function motionComposeCourse(): void {
     }
 
     // 4. Hips carried over planted feet.
-    const standing: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      { x: 0, y: 0, z: 0 },
-      0,
-    );
+    const standing: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
     const planted = (
       _seconds: number,
       along: number,
@@ -195,7 +192,7 @@ export function motionComposeCourse(): void {
       _t: number,
       z: number,
     ): IAutoMovieMotionHumanPosture =>
-      stand.posture(body, { x: 0, y: 0, z }, 0);
+      AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z }, 0);
     const rest: number = HumanBalance.support(body, posture(0, 0)).centre.z;
     const solved: (time: number) => number = AutoMovieMotionHumanCourse.solve({
       body,

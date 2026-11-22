@@ -10,10 +10,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanLean,
+  AutoMovieMotionHumanStance,
   HumanBalance,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
@@ -83,11 +83,8 @@ export function motionComposeLean(
       posture: IAutoMovieMotionHumanPosture,
       bone: AutoMovieHumanoidBone,
     ): IAutoMovieVector3 => bones(posture).get(bone)!.worldPosition;
-    const standing: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      { x: 0, y: 0, z: 0 },
-      0,
-    );
+    const standing: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
     const hips: IAutoMovieVector3 = at(standing, "hips");
     const head: IAutoMovieVector3 = at(standing, "head");
 
@@ -148,11 +145,12 @@ export function motionComposeLean(
 
     // 2. A tip with the hips moved back.
     for (const yaw of [0, 90] as const) {
-      const turned: IAutoMovieMotionHumanPosture = stand.posture(
-        body,
-        { x: 0.3, y: 0, z: -0.2 },
-        yaw,
-      );
+      const turned: IAutoMovieMotionHumanPosture =
+        AutoMovieMotionHumanStance.stand.posture(
+          body,
+          { x: 0.3, y: 0, z: -0.2 },
+          yaw,
+        );
       const was: IAutoMovieVector3 = at(turned, "hips");
       const tipped: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.tip(
         body,
@@ -242,12 +240,26 @@ export function motionComposeLean(
           roll: 0,
         }),
         shift: (): IAutoMovieVector3 => ({ x: 0, y: 0, z: 0.05 }),
-      }).write(stand.posture(body, { x: 0, y: 0, z: 0 }, 90), 0.5);
+      }).write(
+        AutoMovieMotionHumanStance.stand.posture(
+          body,
+          { x: 0, y: 0, z: 0 },
+          90,
+        ),
+        0.5,
+      );
     all.check(
       `${name}: a sway's shift is in the performer's frame`,
       Math.abs(
         at(turnedSway, "hips").x -
-          at(stand.posture(body, { x: 0, y: 0, z: 0 }, 90), "hips").x -
+          at(
+            AutoMovieMotionHumanStance.stand.posture(
+              body,
+              { x: 0, y: 0, z: 0 },
+              90,
+            ),
+            "hips",
+          ).x -
           0.05,
       ) <= 1e-6,
     );
@@ -291,23 +303,35 @@ export function motionComposeLean(
       barePitch.pitch === 40 && near(at(barePitch, "hips"), hips, 1e-9),
     );
     for (const peak of [15, 40, 70] as const) {
-      const phrase: IAutoMovieMotionHumanPrimitive = bow(peak, motionComposeTrunk.BALANCE);
+      const phrase: IAutoMovieMotionHumanPrimitive = bow(
+        peak,
+        motionComposeTrunk.BALANCE,
+      );
       const full: IAutoMovieMotionHumanPosture = phrase.write(standing, 1);
       const half: IAutoMovieMotionHumanPosture = phrase.write(standing, 0.5);
       const none: IAutoMovieMotionHumanPosture = phrase.write(standing, 0);
       const shifted: number = back(full);
       function margin(shift: number): number {
         return HumanBalance.margin(
-          body, AutoMovieMotionHumanLean.tip(body, standing, peak, shift),
+          body,
+          AutoMovieMotionHumanLean.tip(body, standing, peak, shift),
         );
       }
       all.check(
         `${name}: a bow of ${peak} at weight 0 changes nothing`,
         none.pitch === 0 && near(at(none, "hips"), hips, 1e-9),
       );
-      all.check(`${name}: bow of ${peak} reaches its peak`, full.pitch === peak);
+      all.check(
+        `${name}: bow of ${peak} reaches its peak`,
+        full.pitch === peak,
+      );
       motionComposeTrunk.minimumSupportShift(
-        all, `${name}: bow of ${peak}`, margin(0), HumanBalance.margin(body, full), shifted, margin,
+        all,
+        `${name}: bow of ${peak}`,
+        margin(0),
+        HumanBalance.margin(body, full),
+        shifted,
+        margin,
       );
       all.check(
         `${name}: half a bow of ${peak} moves the hips back by the ratio of sines, ${(back(half) * 1000).toFixed(1)} mm of ${(back(full) * 1000).toFixed(1)} mm`,
@@ -317,11 +341,8 @@ export function motionComposeLean(
       );
       all.check(
         `${name}: a bow of ${peak}'s weight outside [0, 1] is the nearer end`,
-        near(
-          at(phrase.write(standing, 2), "hips"),
-          at(full, "hips"),
-          1e-9,
-        ) && near(at(phrase.write(standing, -1), "hips"), hips, 1e-9),
+        near(at(phrase.write(standing, 2), "hips"), at(full, "hips"), 1e-9) &&
+          near(at(phrase.write(standing, -1), "hips"), hips, 1e-9),
       );
     }
   }

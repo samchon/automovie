@@ -24,9 +24,9 @@ export namespace HumanEmblem {
     IAutoMovieMotionHumanLexiconParams["emblem"]["salute"]
   > = HumanActionRow.of("salute", touch, {
     target: { kind: "self", region: "templeRight" },
-    with: "forefinger",
+    effector: "forefinger",
     kind: "hold",
-    side: "right",
+    hand: "right",
     elbow: "level",
   });
 
@@ -34,7 +34,7 @@ export namespace HumanEmblem {
   export const hush: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["hush"]
   > = HumanActionRow.of("hush", handToFace, {
-    task: {
+    kind: {
       region: "mouth",
       effector: {
         surface: "indexTip",
@@ -67,9 +67,9 @@ export namespace HumanEmblem {
     IAutoMovieMotionHumanLexiconParams["emblem"]["handOnHeart"]
   > = HumanActionRow.of("handOnHeart", touch, {
     target: { kind: "self", region: "chestLeft" },
-    with: "palm",
+    effector: "palm",
     kind: "hold",
-    side: "right",
+    hand: "right",
   });
 
   /** The blown kiss's send, performed after `blownKiss`: the open hand, palm up, swept forward from the lips and held a moment at the shoulder's height, 0.818 of the stature, the forearm and the hand's length, 0.146 and 0.108 of it, ahead of the performer (Drillis and Contini's segment proportions, as Winter's Biomechanics and Motor Control of Human Movement tabulates them), in the performer's own statures so it fits every body. */
@@ -82,7 +82,7 @@ export namespace HumanEmblem {
       frame: "stature",
       normal: { x: 0, y: -1, z: 0 },
     },
-    with: "palm",
+    effector: "palm",
     kind: "hold",
     hold: 0.3,
   });
@@ -91,7 +91,7 @@ export namespace HumanEmblem {
   export const blownKiss: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["blownKiss"]
   > = HumanActionRow.of("blownKiss", handToFace, {
-    task: {
+    kind: {
       region: "mouth",
       effector: {
         surface: "indexTip",
@@ -112,7 +112,7 @@ export namespace HumanEmblem {
   export const facepalm: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["facepalm"]
   > = HumanActionRow.of("facepalm", handToFace, {
-    task: {
+    kind: {
       region: "face",
       effector: { surface: "palm", shape: "flat" },
       kind: "hold",
@@ -262,9 +262,9 @@ export namespace HumanEmblem {
     IAutoMovieMotionHumanLexiconParams["emblem"]["coverMouth"]
   > = HumanActionRow.of("coverMouth", touch, {
     target: { kind: "self", region: "mouth" },
-    with: "palm",
+    effector: "palm",
     kind: "hold",
-    side: "right",
+    hand: "right",
   });
 
   /** Both hands over the ears. */
@@ -273,8 +273,8 @@ export namespace HumanEmblem {
   > = HumanActionRow.of("coverEars", touch, {
     target: { kind: "self", region: "earRight" },
     other: { kind: "self", region: "earLeft" },
-    with: "palm",
+    effector: "palm",
     kind: "hold",
-    side: "right",
+    hand: "right",
   });
 }

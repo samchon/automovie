@@ -14,6 +14,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanRide,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieTransform,
@@ -24,6 +25,7 @@ import { seated as seatSocket } from "../everyday/seated";
 import { HumanMountReach } from "./HumanMountReach";
 import { HumanMountRider } from "./HumanMountRider";
 import { closeRideHandGrips } from "./closeRideHandGrips";
+import { crossRideReinGrip } from "./crossRideReinGrip";
 import { fixedSeatGripPosture } from "./fixedSeatGripPosture";
 import { fixedSeatGripReach } from "./fixedSeatGripReach";
 import { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
@@ -53,10 +55,29 @@ export namespace HumanRideHands {
     palmDepth?: number;
     /** A rein meets the body's actual wrist-relative palm surface. */
     reinPalm?: IAutoMovieMotionHumanHand.IFrame;
+    /** Degrees a rein's hold turns about its outward normal from fingers square across the line: the angle the line crosses the fist at (`crossRideReinGrip`); none holds the fingers square. */
+    cross?: number;
   }
 
   /** Each hand's current, complete support-relative hold. */
   type Grips = Partial<Record<AutoMovieHumanSide, IMaterialGrip>>;
+
+  /**
+   * Where a law is entered with hands already holding: the pose displayed
+   * there and the hands that hold in it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member.
+   * @evidence contracts/development/design.md#principled-representation The entry's own displayed pose and its holding sides.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Both members are read by `of`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IShown {
+    /** The pose displayed where the plan begins. */
+    pose: IAutoMoviePose;
+
+    /** The hands that hold in it. */
+    holding: ReadonlySet<AutoMovieHumanSide>;
+  }
 
   /**
    * A holding hand's affordance and resting geometry, fixed for this ride.
@@ -74,6 +95,8 @@ export namespace HumanRideHands {
     palmDepth?: number;
     /** The canonical palm frame retained for a rein over all pose reads. */
     reinPalm?: IAutoMovieMotionHumanHand.IFrame;
+    /** The angle a rein crosses the palm at, degrees, chosen once where the ride begins (`IMaterialGrip.cross`). */
+    cross?: number;
     /** The named point within the support. */
     id: string;
 
@@ -129,8 +152,10 @@ export namespace HumanRideHands {
    * @param support The support.
    * @param seated The seated posture the ride is entered with.
    * @param origin The support's frame when the ride begins.
+   * @param take Seconds a hand takes to reach what it holds.
+   * @param shown For a law entered with hands already holding: the pose displayed where the plan begins and the hands that hold there. Each such rein keeps the crossing it is displayed with (`crossRideReinGrip`); none when every hand takes its hold.
    * @returns The hands.
-   * @throws {HumanRefusal} When a hand names a point the support lacks, or the support declares no colliders to close on.
+   * @throws {HumanRefusal} When a hand names a point the support lacks, the support declares no colliders to close on, or no crossing of a rein the hand takes lies within its arm's ranges.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The grip is the support's point carried by its frame, a moving part's own reading preferred; the lean and the closure are `HumanMountRider`'s.
@@ -147,6 +172,7 @@ export namespace HumanRideHands {
     seated: IAutoMovieMotionHumanPosture,
     origin: IAutoMovieRigidTransform,
     take: number,
+    shown?: IShown,
   ): IHands {
     const handles: Partial<Record<AutoMovieHumanSide, IHandle>> =
       readRideHandles(context.body, on, support, context.params.hands);
@@ -254,6 +280,7 @@ export namespace HumanRideHands {
       return {
         ...(material ? { palmDepth: held.palmDepth } : {}),
         ...(held.reinPalm === undefined ? {} : { reinPalm: held.reinPalm }),
+        ...(held.cross === undefined ? {} : { cross: held.cross }),
         point:
           part?.point ??
           Vector3.add(
@@ -384,12 +411,28 @@ export namespace HumanRideHands {
     for (const side of holding)
       if (across[side] !== undefined)
         begun[side] = { ...begun[side]!, across: across[side] };
+    // The angle each rein crosses its palm at, chosen once where the hold begins (`crossRideReinGrip`), kept by its handle for every second after.
+    let reaching: IAutoMovieMotionHumanPosture | undefined;
+    for (const side of holding) {
+      const handle: IHandle = handles[side]!;
+      const grip: IMaterialGrip | undefined = begun[side];
+      if (handle.reinPalm === undefined || grip?.axis === undefined) continue;
+      handle.cross = crossRideReinGrip(
+        context.body,
+        side,
+        (reaching ??= bow(lean(begun, origin))),
+        grip,
+        handle.reinPalm,
+        shown?.holding.has(side) === true ? shown.pose : undefined,
+      );
+      begun[side] = { ...grip, cross: handle.cross };
+    }
     let working: ReturnType<typeof fixedSeatGripPosture>;
     let alternatives: ReturnType<typeof fixedSeatWorkingPostures>;
     if (
       check !== undefined &&
       seat !== undefined &&
-      context.params.seconds >= take
+      context.params.duration >= take
     ) {
       const heldAt: number = context.start + take;
       const heldFrame: IAutoMovieRigidTransform = support.frame(heldAt);

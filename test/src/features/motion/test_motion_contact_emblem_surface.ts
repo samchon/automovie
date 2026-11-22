@@ -6,12 +6,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanTouch,
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanEmblem,
   HumanPerformance,
   HumanSignature,
-  touch,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -79,7 +79,7 @@ export function test_motion_contact_emblem_surface(): void {
         body,
         performance.bones("a", held),
         side,
-        touch.EFFECTORS.palm,
+        AutoMovieMotionHumanTouch.touch.EFFECTORS.palm,
       );
       const mouth: IAutoMovieVector3 = HumanSignature.region(
         HumanSignature.of(performance, "a", body, 0),

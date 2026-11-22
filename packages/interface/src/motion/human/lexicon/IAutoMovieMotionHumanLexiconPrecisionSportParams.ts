@@ -75,7 +75,7 @@ export namespace IAutoMovieMotionHumanLexiconPrecisionSportParams {
     ball: string;
 
     /** The outgoing shot's horizontal direction, from the ball toward this target. */
-    toward: IAutoMovieMotionTarget;
+    target: IAutoMovieMotionTarget;
 
     /** Positive seconds from the action start to impact. Omit for the stroke's neutral timing (the row's own, provisional). */
     impact?: number;

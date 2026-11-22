@@ -4,11 +4,11 @@ import type {
   IAutoMovieMotionHumanSignature,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGait,
   AutoMovieMotionManner,
   HumanChain,
   HumanPerformance,
   HumanSignature,
-  walk,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -114,13 +114,14 @@ export function test_motion_dynamics_gait_study_readouts(): void {
  */
 function walkingSimilarity(): void {
   const slow: number = 1 / 256;
-  const step = walk.walking(slow).step;
+  const step = AutoMovieMotionHumanGait.walk.walking(slow).step;
   TestValidator.predicate(
     "fourth-root scaling",
     nclose(step(16 * slow), 2 * step(slow)),
   );
   TestValidator.predicate(
     "reach saturation",
-    nclose(step(1), walk.longestStep()) && step(1) > step(16 * slow),
+    nclose(step(1), AutoMovieMotionHumanGait.walk.longestStep()) &&
+      step(1) > step(16 * slow),
   );
 }

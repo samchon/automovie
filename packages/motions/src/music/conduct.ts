@@ -120,7 +120,7 @@ function plan(
     p.lock,
   );
   const side: AutoMovieHumanSide =
-    p.side ?? (context.entry.holds.left === p.baton ? "left" : "right");
+    p.hand ?? (context.entry.holds.left === p.baton ? "left" : "right");
   const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
     context,
     side,
@@ -161,14 +161,14 @@ function plan(
       },
     );
   const ictus: IAutoMovieVector3[] = [];
-  for (let k: number = 0; k < beats.beats; ++k) {
+  for (let k: number = 0; k < beats.count; ++k) {
     const share: readonly [number, number] = figure[k % figure.length]!;
     ictus.push(place(share[0], share[1]));
   }
   const top: IAutoMovieVector3 = place(0, 1);
   writeWith.reach(context, side, [...ictus, top], lever);
   const first: number = beats.at(1);
-  const last: number = beats.at(beats.beats);
+  const last: number = beats.at(beats.count);
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: first,
     attack: last - first,
@@ -180,7 +180,7 @@ function plan(
     if (seconds <= first) return arc(top, ictus[0]!, seconds / first);
     if (seconds >= last) return ictus[ictus.length - 1]!;
     const k: number = Math.min(
-      beats.beats - 1,
+      beats.count - 1,
       Math.max(1, Math.floor((seconds - first) / beats.period) + 1),
     );
     return arc(

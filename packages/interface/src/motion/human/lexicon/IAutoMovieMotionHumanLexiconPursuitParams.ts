@@ -11,16 +11,16 @@ import type { IAutoMovieMotionHumanPursuit } from "./IAutoMovieMotionHumanPursui
  */
 export interface IAutoMovieMotionHumanLexiconPursuitParams {
   /** Come up behind a person at the social distance, as a follower closes the gap. */
-  follow: Omit<IAutoMovieMotionHumanApproach.IParams, "side" | "at" | "track">;
+  follow: Omit<IAutoMovieMotionHumanApproach.IParams, "from" | "at" | "track">;
 
   /** Come to a person's left side at the personal distance, as an escort takes station. */
-  escort: Omit<IAutoMovieMotionHumanApproach.IParams, "side" | "at" | "track">;
+  escort: Omit<IAutoMovieMotionHumanApproach.IParams, "from" | "at" | "track">;
 
   /** Run after a person to arm's length of where they will be, as a chase ends: a row of `intercept`, so a chase runs. */
   chase: IAutoMovieMotionHumanPursuit.IIntercept;
 
   /** Step up face to face, as a confrontation begins. */
-  confront: Omit<IAutoMovieMotionHumanApproach.IParams, "side" | "at">;
+  confront: Omit<IAutoMovieMotionHumanApproach.IParams, "from" | "at">;
 
   /**
    * Head a moving person off: a run to where they will be when the runner

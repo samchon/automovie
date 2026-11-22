@@ -28,6 +28,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanHand,
   HumanObject,
@@ -35,7 +36,6 @@ import {
   HumanSportThrow,
   bakePrecisionDeck,
   bowlingPinfall,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -243,12 +243,13 @@ export async function test_motion_bowling_deck(): Promise<void> {
   const holdingStand = (
     holding: boolean,
   ): IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> => ({
-    ...stand,
+    ...AutoMovieMotionHumanStance.stand,
     name: holding ? "bowlingFixtureHold" : "bowlingFixtureAddress",
     plan: (
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
     ): IAutoMovieMotionHumanActionPlan => {
-      const stationary: IAutoMovieMotionHumanActionPlan = stand.plan(context);
+      const stationary: IAutoMovieMotionHumanActionPlan =
+        AutoMovieMotionHumanStance.stand.plan(context);
       return {
         ...stationary,
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
@@ -313,7 +314,7 @@ export async function test_motion_bowling_deck(): Promise<void> {
       .registered(held.name, { seconds: 0.2, sway: 0 })
       .carry({
         to: line,
-        how: "twoHands",
+        kind: "twoHands",
         load: ball.properties.mass / body.profile.mass,
       })
       .registered(address.name, { seconds: 0.2, sway: 0 })

@@ -8,10 +8,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanRide,
   HumanChain,
   HumanFoot,
   HumanPerformance,
-  HumanSurface,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -82,13 +82,16 @@ function take(key: BodyKey, failures: string[]): void {
           proficiency: { level: "trained" },
         },
       ],
-      laws: [HumanSurface.skate],
-      composition: HumanChain.subject("a").registered(HumanSurface.skate.name, {
-        seconds: 2,
-        speed: 2,
-        turn: 30,
-        stop: true,
-      } satisfies IAutoMovieMotionHumanSurface.ISkateParams).node,
+      laws: [AutoMovieMotionHumanRide.HumanSurface.skate],
+      composition: HumanChain.subject("a").registered(
+        AutoMovieMotionHumanRide.HumanSurface.skate.name,
+        {
+          duration: 2,
+          speed: 2,
+          turn: 30,
+          stop: true,
+        } satisfies IAutoMovieMotionHumanSurface.ISkateParams,
+      ).node,
     }),
   );
   collectTakeClean(`${key} ice glide`, ice.performance, failures);
@@ -121,7 +124,7 @@ function take(key: BodyKey, failures: string[]): void {
     const before: IAutoMovieResolvedBone = from.get(`${side}Foot`)!;
     const after: IAutoMovieResolvedBone = to.get(`${side}Foot`)!;
     const measured: IAutoMovieMotionHumanSurface.IGlideMeasure =
-      HumanSurface.measureGlide(
+      AutoMovieMotionHumanRide.HumanSurface.measureGlide(
         {
           point: before.worldPosition,
           forward: Quaternion.rotateVector(before.worldRotation, FORWARD),
@@ -181,11 +184,11 @@ function take(key: BodyKey, failures: string[]): void {
           points: {},
         },
       ],
-      laws: [HumanSurface.snowGlide],
+      laws: [AutoMovieMotionHumanRide.HumanSurface.snowGlide],
       composition: HumanChain.subject("a").registered(
-        HumanSurface.snowGlide.name,
+        AutoMovieMotionHumanRide.HumanSurface.snowGlide.name,
         {
-          seconds: 2,
+          duration: 2,
           speed: 2,
           grade: 8,
           slope: "slope",
@@ -212,7 +215,7 @@ function take(key: BodyKey, failures: string[]): void {
   }
 
   const drift: IAutoMovieMotionHumanSurface.IGlideMeasure =
-    HumanSurface.measureGlide(
+    AutoMovieMotionHumanRide.HumanSurface.measureGlide(
       { point: plane.point, forward: FORWARD },
       { point: { x: 0.05, y: 0.02, z: 0.4 }, forward: FORWARD },
       plane,

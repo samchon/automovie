@@ -82,7 +82,12 @@ export function HumanSurfaceBoard(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.IBoardRideParams>,
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params }: typeof context = context;
-  const duration: number = HumanBound.above("seconds", params.seconds, 0, "s");
+  const duration: number = HumanBound.above(
+    "duration",
+    params.duration,
+    0,
+    "s",
+  );
   const sides: readonly ["left", "right"] = ["left", "right"];
   for (const side of sides)
     if (

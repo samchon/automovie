@@ -31,6 +31,6 @@ export namespace IAutoMovieMotionHumanThrowPottery {
     rpm?: number;
 
     /** Seconds of the pull before tempo scaling; positive. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
-    seconds: number;
+    duration: number;
   }
 }

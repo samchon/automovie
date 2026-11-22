@@ -9,9 +9,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
   HumanChain,
   HumanFoot,
-  HumanGymnastics,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
@@ -201,7 +201,7 @@ function stage(
   cut: string | undefined,
 ): HumanPerformance {
   const running: ReturnType<typeof HumanChain.subject> = HumanChain.subject("a")
-    .stand({ seconds: 0.3, sway: 0 })
+    .stand({ hold: 0.3, sway: 0 })
     .run({ to: { x: 0, y: 0, z: 30 }, pace: "run" });
   const node: IAutoMovieComposition =
     cut === undefined
@@ -212,7 +212,7 @@ function stage(
           .run({ to: { x: 0, y: 0, z: near + 12 }, pace: "run" }).node;
   return new HumanPerformance({
     seed: "hurdle",
-    laws: [HumanGymnastics.hurdleClear],
+    laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.hurdleClear],
     performers: [
       {
         subject: "a",

@@ -1,5 +1,5 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
-import type { IAutoMovieMotionHumanHandover } from "./IAutoMovieMotionHumanHandover";
+import type { IAutoMovieMotionHumanHandover } from "../next/IAutoMovieMotionHumanHandover";
 
 /**
  * The giver's authored parameters for offering a held prop to a receiver.

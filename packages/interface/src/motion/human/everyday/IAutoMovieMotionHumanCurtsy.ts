@@ -18,5 +18,5 @@ export interface IAutoMovieMotionHumanCurtsy {
   depth?: number;
 
   /** Seconds for weight transfer, crossing, dipping and recovery together. Defaults to 1.8 s at 0.93 m hip height, scaled by the square root of hip height. */
-  seconds?: number;
+  duration?: number;
 }

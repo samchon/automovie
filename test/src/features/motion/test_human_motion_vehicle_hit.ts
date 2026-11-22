@@ -16,10 +16,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanFall,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanVehicleHit,
 } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -117,29 +117,24 @@ export function test_human_motion_vehicle_hit(): void {
   const placed: (course: ICourse) => (seconds: number) => IAt =
     (course: ICourse) =>
     (seconds: number): IAt => {
-    const cruise: number = course.from + course.speed * seconds;
-    if (course.brake === undefined || cruise <= course.brake)
-      return { at: { x: course.aside, y: 0, z: cruise }, yaw: 0 };
-    const t0: number = (course.brake - course.from) / course.speed;
-    const s: number = Math.min(seconds - t0, course.speed / BRAKE);
-    return {
-      at: {
-        x: course.aside,
-        y: 0,
-        z: course.brake + course.speed * s - 0.5 * BRAKE * s * s,
-      },
-      yaw: 0,
+      const cruise: number = course.from + course.speed * seconds;
+      if (course.brake === undefined || cruise <= course.brake)
+        return { at: { x: course.aside, y: 0, z: cruise }, yaw: 0 };
+      const t0: number = (course.brake - course.from) / course.speed;
+      const s: number = Math.min(seconds - t0, course.speed / BRAKE);
+      return {
+        at: {
+          x: course.aside,
+          y: 0,
+          z: course.brake + course.speed * s - 0.5 * BRAKE * s * s,
+        },
+        yaw: 0,
+      };
     };
-  };
   const car: (course: ICourse) => IAutoMovieMotionHumanProp = (
     course: ICourse,
   ): IAutoMovieMotionHumanProp =>
-    HumanObject.prop(
-      "car",
-      sedan,
-      placed(course)(0),
-      placed(course),
-    );
+    HumanObject.prop("car", sedan, placed(course)(0), placed(course));
   // A box-fronted truck: one box 1.6 m tall, 2.4 m wide and 6 m long.
   const truck: (course: ICourse) => IAutoMovieMotionHumanProp = (
     course: ICourse,
@@ -167,10 +162,18 @@ export function test_human_motion_vehicle_hit(): void {
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     }),
   });
-  const coming: ICourse = { from: -(length + 8), speed: 8, aside: 0, brake: 0.5 };
+  const coming: ICourse = {
+    from: -(length + 8),
+    speed: 8,
+    aside: 0,
+    brake: 0.5,
+  };
   for (const fit of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
-    const perform: (prop: IAutoMovieMotionHumanProp, act: Act) => HumanPerformance = (
+    const perform: (
+      prop: IAutoMovieMotionHumanProp,
+      act: Act,
+    ) => HumanPerformance = (
       prop: IAutoMovieMotionHumanProp,
       act: Act,
     ): HumanPerformance =>
@@ -187,8 +190,12 @@ export function test_human_motion_vehicle_hit(): void {
           },
         ],
         props: [prop],
-        laws: [HumanVehicleHit.vehicleHit, HumanVehicleHit.vehicleDive],
-        composition: HumanChain.subject("a").registered(act, { vehicle: "car" }).node,
+        laws: [
+          AutoMovieMotionHumanFall.vehicleHit.vehicleHit,
+          AutoMovieMotionHumanFall.vehicleHit.vehicleDive,
+        ],
+        composition: HumanChain.subject("a").registered(act, { vehicle: "car" })
+          .node,
       });
     const segment: (take: HumanPerformance) => IAutoMovieMotionHumanSegment = (
       take: HumanPerformance,
@@ -207,13 +214,17 @@ export function test_human_motion_vehicle_hit(): void {
       const event: IAutoMovieMotionEvent | undefined = s.plan.events.find(
         (e: IAutoMovieMotionEvent): boolean => e.name === name,
       );
-      return event === undefined ? NaN : s.start + event.share * (s.end - s.start);
+      return event === undefined
+        ? NaN
+        : s.start + event.share * (s.end - s.start);
     };
-    const hips: (take: HumanPerformance, seconds: number) => IAutoMovieVector3 = (
+    const hips: (
       take: HumanPerformance,
       seconds: number,
-    ): IAutoMovieVector3 =>
-      take.bones("a", seconds).get("hips")!.worldPosition;
+    ) => IAutoMovieVector3 = (
+      take: HumanPerformance,
+      seconds: number,
+    ): IAutoMovieVector3 => take.bones("a", seconds).get("hips")!.worldPosition;
 
     // 1. The wrap.
     try {
@@ -285,7 +296,10 @@ export function test_human_motion_vehicle_hit(): void {
       motionHumanRefusal(
         () =>
           perform(
-            HumanObject.prop("car", sedan, { at: { x: 0, y: 0, z: -6 }, yaw: 0 }),
+            HumanObject.prop("car", sedan, {
+              at: { x: 0, y: 0, z: -6 },
+              yaw: 0,
+            }),
             "vehicleHit",
           ).bones("a", 0.5),
         { kind: "reach", axis: "vehicle", act: "vehicleHit" },
@@ -305,10 +319,17 @@ export function test_human_motion_vehicle_hit(): void {
         ...take.bones("a", arrival).entries(),
       ]
         .filter(
-          ([, bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean =>
-            Math.abs(bone.worldPosition.x - carAt.x) <= width / 2,
+          ([, bone]: [
+            AutoMovieHumanoidBone,
+            IAutoMovieResolvedBone,
+          ]): boolean => Math.abs(bone.worldPosition.x - carAt.x) <= width / 2,
         )
-        .map(([name]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): AutoMovieHumanoidBone => name);
+        .map(
+          ([name]: [
+            AutoMovieHumanoidBone,
+            IAutoMovieResolvedBone,
+          ]): AutoMovieHumanoidBone => name,
+        );
       all.check(
         `${fit} every joint is clear of the car's width at its arrival (${inside.join(", ")})`,
         inside.length === 0,

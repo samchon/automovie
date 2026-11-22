@@ -120,7 +120,7 @@ export namespace IAutoMovieMotionHumanAquatic {
     role?: Role;
 
     /** Seconds of a distress before submersion (20 to 60, 30 when absent), or of a fin swim or snorkel (4 when absent). */
-    seconds?: number;
+    duration?: number;
 
     /** The victim a rescuer tows or lifts out, or the rescuer a towed victim holds on to. */
     partner?: string;

@@ -11,12 +11,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -45,7 +45,10 @@ export function test_human_motion_moving_socket_put_down(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const hand: IAutoMovieResolvedBone = poseBones(
     body,
-    resolveHumanPosture(body, stand.posture(body, origin, 0)),
+    resolveHumanPosture(
+      body,
+      AutoMovieMotionHumanStance.stand.posture(body, origin, 0),
+    ),
   ).get("rightHand")!;
   const seat: IAutoMovieVector3 = Vector3.add(hand.worldPosition, {
     x: 0.02,
@@ -64,7 +67,10 @@ export function test_human_motion_moving_socket_put_down(): void {
     plan: (
       context: IAutoMovieMotionHumanActionContext,
     ): IAutoMovieMotionHumanActionPlan => ({
-      ...stand.plan({ ...context, params: { seconds: 0.5, sway: 0 } }),
+      ...AutoMovieMotionHumanStance.stand.plan({
+        ...context,
+        params: { hold: 0.5, sway: 0 },
+      }),
       holds: [{ side: "right", prop: "parcel", from: 0 }],
     }),
   };
@@ -163,7 +169,7 @@ export function test_human_motion_moving_socket_put_down(): void {
             ...(viaSocket ? { via: "base" } : {}),
           },
         })
-        .stand({ seconds: 1 }).node,
+        .stand({ hold: 1 }).node,
     });
   };
   const film: HumanPerformance = stage("translate");

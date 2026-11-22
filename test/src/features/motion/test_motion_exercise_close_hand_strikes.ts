@@ -122,17 +122,17 @@ function play(
       },
     ],
     composition: HumanChain.subject("a")
-      .guard({ seconds: 1.2, style: "kickboxing" })
+      .guard({ duration: 1.2, style: "kickboxing" })
       .registered(
         technique,
         { at: { kind: "person", subject: "b", region: "chin" } },
         "strike",
       )
-      .stand({ seconds: 1, sway: 0 })
+      .stand({ hold: 1, sway: 0 })
       .with(
         HumanChain.subject("b")
-          .guard({ seconds: 3, style: "kickboxing" })
-          .stand({ seconds: 0.5, sway: 0 }),
+          .guard({ duration: 3, style: "kickboxing" })
+          .stand({ hold: 0.5, sway: 0 }),
       ).node,
   });
   assertTakeClean(cell, film);

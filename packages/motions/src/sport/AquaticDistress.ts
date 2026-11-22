@@ -44,7 +44,7 @@ export namespace AquaticDistress {
     water: number,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params } = context;
-    const struggle: number = params.seconds ?? STRUGGLE;
+    const struggle: number = params.duration ?? STRUGGLE;
     HumanBound.within("seconds", struggle, 20, 60);
     const duration: number = struggle + SINK;
     const key = (raise: number): IAutoMovieMotionHumanPosture =>

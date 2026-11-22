@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanGait } from "../lexicon/IAutoMovieMotionHumanGait";
+import type { IAutoMovieMotionHumanGait } from "./IAutoMovieMotionHumanGait";
 
 /**
  * The gaits of a horror creature, stage readings of a walk with its own Froude number, step and unevenness (provisional; no study was read).

@@ -6,9 +6,9 @@ import type { IAutoMovieMotionHumanTouchDrink } from "../compose/IAutoMovieMotio
 import type { IAutoMovieMotionHumanTouchEffector } from "../compose/IAutoMovieMotionHumanTouchEffector";
 import type { IAutoMovieMotionHumanTouchForm } from "../compose/IAutoMovieMotionHumanTouchForm";
 import type { IAutoMovieMotionHumanGrasp } from "../handling/IAutoMovieMotionHumanGrasp";
+import type { IAutoMovieMotionHumanTouch } from "../next/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
-import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
 
 /**
  * The arm a hand-to-face task lays on its place (`handToFace`): how the

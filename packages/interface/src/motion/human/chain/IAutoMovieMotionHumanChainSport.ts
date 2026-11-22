@@ -1,13 +1,13 @@
-import type { IAutoMovieMotionHumanDance } from "../exercise/IAutoMovieMotionHumanDance";
 import type { IAutoMovieMotionHumanExercise } from "../exercise/IAutoMovieMotionHumanExercise";
 import type { IAutoMovieMotionHumanStretch } from "../exercise/IAutoMovieMotionHumanStretch";
+import type { IAutoMovieMotionHumanDance } from "../next/IAutoMovieMotionHumanDance";
+import type { IAutoMovieMotionHumanSwim } from "../next/IAutoMovieMotionHumanSwim";
 import type { IAutoMovieMotionHumanAthletics } from "../sport/IAutoMovieMotionHumanAthletics";
 import type { IAutoMovieMotionHumanBallSport } from "../sport/IAutoMovieMotionHumanBallSport";
 import type { IAutoMovieMotionHumanBaseball } from "../sport/IAutoMovieMotionHumanBaseball";
 import type { IAutoMovieMotionHumanGymnastics } from "../sport/IAutoMovieMotionHumanGymnastics";
 import type { IAutoMovieMotionHumanMartialArt } from "../sport/IAutoMovieMotionHumanMartialArt";
 import type { IAutoMovieMotionHumanRacket } from "../sport/IAutoMovieMotionHumanRacket";
-import type { IAutoMovieMotionHumanSwim } from "../sport/IAutoMovieMotionHumanSwim";
 import type { IAutoMovieMotionHumanChainMutual } from "./IAutoMovieMotionHumanChainMutual";
 
 /**

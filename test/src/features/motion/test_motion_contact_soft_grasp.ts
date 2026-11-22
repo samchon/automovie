@@ -131,7 +131,7 @@ export function test_motion_contact_soft_grasp(): void {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject("a").stand({ seconds: 4, sway: 0 }).node,
+      composition: HumanChain.subject("a").stand({ hold: 4, sway: 0 }).node,
     });
   const performance = hang(domain);
   const end: number = performance.duration;

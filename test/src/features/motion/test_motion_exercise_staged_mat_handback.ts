@@ -8,11 +8,11 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGrapple,
   HumanChain,
   HumanCoupled,
   HumanPerformance,
   HumanSignature,
-  grapple,
 } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -77,15 +77,15 @@ function handback(
   const pair = HumanChain.mutual(
     HumanCoupled.grappling,
     {
-      initiator: initiator.stand({ seconds: 0.3, sway: 0 }),
-      receiver: receiver.stand({ seconds: 0.3, sway: 0 }),
+      initiator: initiator.stand({ hold: 0.3, sway: 0 }),
+      receiver: receiver.stand({ hold: 0.3, sway: 0 }),
     },
     scene,
     "mat",
   );
   const film: HumanPerformance = new HumanPerformance({
     seed: "stage-mat-handback",
-    laws: [grapple],
+    laws: [AutoMovieMotionHumanGrapple.grapple],
     performers: [
       {
         subject: "a",
@@ -104,10 +104,7 @@ function handback(
     ],
     composition: {
       kind: "sequence",
-      parts: [
-        pair.node,
-        initiator.stand({ seconds: 0.4, sway: 0 }, "next").node,
-      ],
+      parts: [pair.node, initiator.stand({ hold: 0.4, sway: 0 }, "next").node],
     },
   });
   assertTakeClean(`staged_mat_handback ${film.duration}`, film);

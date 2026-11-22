@@ -62,7 +62,7 @@ export function test_archetype_equine_ford_float(): void {
   const wading: IAutoMovieMotionHumanMounted.IFigure = {
     seat: "entered",
     transfer: 0.4,
-    seconds: float - equineFordRider.settled(staged, body) - 0.4,
+    hold: float - equineFordRider.settled(staged, body) - 0.4,
     supports: equineFordRider.WADING,
   };
   const take = (
@@ -71,18 +71,16 @@ export function test_archetype_equine_ford_float(): void {
     equineFordRider.perform(
       staged,
       body,
-      equineFordRider
-        .mount(staged, [wading])
-        .registered("floatBeside", {
-          on: "horse",
-          side: "right",
-          hold: "mane",
-          water: equineFordRider.WATER,
-          blocked: ["left"],
-          seconds: SLIDE + AFLOAT,
-          transition: SLIDE,
-          ...change,
-        } satisfies IAutoMovieMotionHumanFloatBeside),
+      equineFordRider.mount(staged, [wading]).registered("floatBeside", {
+        on: "horse",
+        side: "right",
+        hold: "mane",
+        water: equineFordRider.WATER,
+        blocked: ["left"],
+        duration: SLIDE + AFLOAT,
+        transition: SLIDE,
+        ...change,
+      } satisfies IAutoMovieMotionHumanFloatBeside),
     );
   const film: HumanPerformance = take({});
   const reader: ReturnType<typeof HumanSignature.of> = HumanSignature.of(

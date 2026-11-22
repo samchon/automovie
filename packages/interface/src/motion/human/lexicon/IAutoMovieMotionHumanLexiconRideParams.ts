@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanPolo } from "../next/IAutoMovieMotionHumanPolo";
+import type { IAutoMovieMotionHumanRide } from "../next/IAutoMovieMotionHumanRide";
 import type { IAutoMovieMotionHumanBicycleEffort } from "./IAutoMovieMotionHumanBicycleEffort";
 import type { IAutoMovieMotionHumanBikeGuide } from "./IAutoMovieMotionHumanBikeGuide";
 import type { IAutoMovieMotionHumanBikeTransfer } from "./IAutoMovieMotionHumanBikeTransfer";
@@ -12,8 +14,6 @@ import type { IAutoMovieMotionHumanLasso } from "./IAutoMovieMotionHumanLasso";
 import type { IAutoMovieMotionHumanLeadHorse } from "./IAutoMovieMotionHumanLeadHorse";
 import type { IAutoMovieMotionHumanLunge } from "./IAutoMovieMotionHumanLunge";
 import type { IAutoMovieMotionHumanMounted } from "./IAutoMovieMotionHumanMounted";
-import type { IAutoMovieMotionHumanPolo } from "./IAutoMovieMotionHumanPolo";
-import type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 import type { IAutoMovieMotionHumanRoman } from "./IAutoMovieMotionHumanRoman";
 import type { IAutoMovieMotionHumanSabre } from "./IAutoMovieMotionHumanSabre";
 import type { IAutoMovieMotionHumanTrick } from "./IAutoMovieMotionHumanTrick";
@@ -61,7 +61,7 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
   HumanUnseat: IAutoMovieMotionHumanUnseat;
 
   /** Strike a ground ball with a polo mallet from the saddle, forehand or backhand, on either side. */
-  HumanPolo: IAutoMovieMotionHumanPolo;
+  HumanPolo: IAutoMovieMotionHumanPolo.IPolo;
 
   /** Board a moving carrier's seat at speed, from the ground, a height or another carrier. */
   HumanBoard: IAutoMovieMotionHumanBoard;

@@ -13,7 +13,7 @@ export interface IAutoMovieMotionHumanSwimImmersed {
   water: IAutoMovieMotionHumanWater;
 
   /** Positive finite duration, seconds. */
-  seconds: number;
+  duration: number;
 
   /** Nonnegative finite head-first speed at passive entry, m/s. Omit it to float in place or to start the stroke from rest. */
   speed?: number;

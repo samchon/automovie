@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanBicycleEffort,
+  AutoMovieMotionHumanRide,
   HumanChain,
   HumanFoot,
   HumanFrame,
@@ -112,7 +112,7 @@ function take(key: BodyKey, failures: string[]): void {
     HumanChain.subject("cyclist");
   const sitting: ReturnType<typeof HumanChain.subject> = actor.sit({
     seat,
-    seconds: 0.5,
+    hold: 0.5,
   });
   const performer: ConstructorParameters<
     typeof HumanPerformance
@@ -150,7 +150,7 @@ function take(key: BodyKey, failures: string[]): void {
     seat: "saddle",
     feet: { left: "leftPedal", right: "rightPedal" },
     hands: { left: "leftGrip", right: "rightGrip" },
-    seconds: 4,
+    duration: 4,
     seatOff: 1,
     up: 1.3,
     lower: 2,
@@ -161,7 +161,7 @@ function take(key: BodyKey, failures: string[]): void {
     new HumanPerformance({
       seed: "bicycle-effort",
       performers: [performer],
-      laws: [HumanBicycleEffort],
+      laws: [AutoMovieMotionHumanRide.bicycleEffort],
       props: [prop],
       composition: sit.registered("bicycleEffort", params).node,
     });
@@ -192,7 +192,7 @@ function take(key: BodyKey, failures: string[]): void {
   ] as const) {
     let refusal: unknown;
     try {
-      performEffort(actor.sit({ seat: misaligned, seconds: 0.5 }));
+      performEffort(actor.sit({ seat: misaligned, hold: 0.5 }));
     } catch (error) {
       refusal = error;
     }

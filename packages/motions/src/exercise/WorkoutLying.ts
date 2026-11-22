@@ -82,7 +82,7 @@ export namespace WorkoutLying {
         { part: "back", kind: "lie", at: ["down"] },
       ],
       enter: 2.4,
-      reps: 5,
+      count: 5,
       route: (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
@@ -112,7 +112,7 @@ export namespace WorkoutLying {
       pin: ["leftUpperLeg", "rightUpperLeg"],
       supports: SUPINE,
       enter: 2.4,
-      reps: 8,
+      count: 8,
       route: (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
@@ -146,7 +146,7 @@ export namespace WorkoutLying {
         { part: "back", kind: "lie" },
       ],
       enter: 2.4,
-      reps: 5,
+      count: 5,
       route: (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
@@ -172,7 +172,7 @@ export namespace WorkoutLying {
       pin: ["leftUpperLeg", "rightUpperLeg"],
       supports: SUPINE,
       enter: 2.4,
-      reps: 1,
+      count: 1,
       route: (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
@@ -209,7 +209,7 @@ export namespace WorkoutLying {
         { part: "leftFoot", kind: "plant" },
       ],
       enter: 2.4,
-      reps: 1,
+      count: 1,
       route: (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
@@ -241,7 +241,7 @@ export namespace WorkoutLying {
       pin: ["leftUpperLeg", "rightUpperLeg"],
       supports: SEATED,
       enter: 2,
-      reps: 1,
+      count: 1,
       route: (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
@@ -265,7 +265,7 @@ export namespace WorkoutLying {
       pin: ["leftUpperLeg", "rightUpperLeg"],
       supports: SEATED,
       enter: 2,
-      reps: 1,
+      count: 1,
       route: (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
@@ -297,7 +297,7 @@ export namespace WorkoutLying {
         { part: "rightFoot", kind: "plant" },
       ],
       enter: 2.4,
-      reps: 5,
+      count: 5,
       route: (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
@@ -337,7 +337,7 @@ export namespace WorkoutLying {
         { part: "rightFoot", kind: "plant" },
       ],
       enter: 2,
-      reps: 5,
+      count: 5,
       route: (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
@@ -373,7 +373,7 @@ export namespace WorkoutLying {
         0.9 * (body.measure.thigh + body.measure.shank),
       supports: SEATED,
       enter: 2,
-      reps: 8,
+      count: 8,
       route: (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => {

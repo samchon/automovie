@@ -18,6 +18,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanHeld,
+  AutoMovieMotionHumanStance,
   HumanBallPlay,
   HumanChain,
   HumanFoot,
@@ -28,7 +29,6 @@ import {
   HumanSportThrow,
   PrecisionStrokeForms,
   stageCatch,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -125,7 +125,7 @@ export function test_motion_exercise_baseball_play(): void {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("batter").stand({ seconds: 0.2, sway: 0 })
+    composition: HumanChain.subject("batter").stand({ hold: 0.2, sway: 0 })
       .node,
   });
   const hand: IAutoMovieVector3 = HumanHand.frame(
@@ -178,12 +178,12 @@ export function test_motion_exercise_baseball_play(): void {
     name: string,
     prop: string,
   ): IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> => ({
-    ...stand,
+    ...AutoMovieMotionHumanStance.stand,
     name,
     plan: (
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
     ): IAutoMovieMotionHumanActionPlan => ({
-      ...stand.plan(context),
+      ...AutoMovieMotionHumanStance.stand.plan(context),
       holds: [{ side: "right", prop, from: 0 }],
     }),
   });
@@ -206,7 +206,7 @@ export function test_motion_exercise_baseball_play(): void {
         },
       ],
       composition: HumanChain.subject("pitcher").stand({
-        seconds: 0.2,
+        hold: 0.2,
         sway: 0,
       }).node,
     });
@@ -266,7 +266,7 @@ export function test_motion_exercise_baseball_play(): void {
           )
           // The film ends once the play needs no later instant: every ball
           // read sweeps the flight to the film's end.
-          .stand({ seconds: input.follow ?? 1, sway: 0 }).node,
+          .stand({ hold: input.follow ?? 1, sway: 0 }).node,
         ...input.roles.map((role: IRole): IAutoMovieComposition => role.chain),
       ),
     });

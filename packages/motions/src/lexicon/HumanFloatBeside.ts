@@ -107,7 +107,7 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
         hold = "mane",
         water,
         blocked = [],
-        seconds,
+        duration: seconds,
         transition,
       } = context.params;
       const body: IAutoMovieMotionHumanBody = context.body;
@@ -162,7 +162,10 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
       const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
       const first: IAutoMovieRigidTransform = support.frame(context.start);
       const { gripsAt, closures }: HumanRideHands.IHands = HumanRideHands.of(
-        { ...context, params: { on, seconds, hands: { [near]: hold } } },
+        {
+          ...context,
+          params: { on, duration: seconds, hands: { [near]: hold } },
+        },
         on,
         support,
         entry,

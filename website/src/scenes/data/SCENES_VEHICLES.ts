@@ -106,7 +106,7 @@ function carRide(): IScene {
           act("openDoor", {
             door: "car",
             handle: role + "DoorHandle",
-            seconds: 3.15,
+            duration: 3.15,
           }),
           act("walk", { to: to(0.75 * side, -0.2), face: enter }),
           act("getIn", {
@@ -115,7 +115,7 @@ function carRide(): IScene {
           }),
           act("ride", {
             on: "car",
-            seconds: 9,
+            duration: 9,
             seat: role + "Seat",
             placeFeet: true,
             ...(role === "driver"
@@ -176,7 +176,7 @@ function twoWheelRide(
         mode: "mount",
         line: { x: 0, z: -0.6, heading: 0 },
       })
-    : act("sit", { seat: seat(support.subject, seatName), seconds: 0.25 });
+    : act("sit", { seat: seat(support.subject, seatName), hold: 0.25 });
   const leave: SceneBuild.Action = act("bikeTransfer", {
     on: support.subject,
     mode: "dismount",
@@ -197,7 +197,7 @@ function twoWheelRide(
         enter,
         act("ride", {
           on: support.subject,
-          seconds: 10,
+          duration: 10,
           seat: seatName,
           hands: { left: "leftGrip", right: "rightGrip" },
           feet,
@@ -233,7 +233,7 @@ export const SCENES_VEHICLES: readonly IScene[] = [
           right: "rightHandle",
           to: { x: 0, y: 0, z: 0.35 },
         }),
-        act("stand", { seconds: 0.8 }),
+        act("stand", { hold: 0.8 }),
       ]),
     ],
     [object("cart", "createCart", "trolley", 0, 0)],

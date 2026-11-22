@@ -8,15 +8,15 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
+  AutoMovieMotionHumanWorkout,
   HumanChain,
   HumanColliders,
   HumanFoot,
-  HumanGymnastics,
   HumanObject,
   HumanPerformance,
   HumanSignature,
   HumanSportThrow,
-  workout,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -24,7 +24,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanStance } from "../internal/motionHumanStance";
 
 /**
- * A two-hand box vault (`HumanGymnastics.boxVault`, the squat vault law)
+ * A two-hand box vault (`AutoMovieMotionHumanAcrobatics.HumanGymnastics.boxVault`, the squat vault law)
  * lays the hands on the box, flies over it and lands beyond it, on the
  * average man and the small woman.
  *
@@ -71,7 +71,7 @@ export function test_motion_posture_gym_support(): void {
     try {
       film = new HumanPerformance({
         seed: "box-vault",
-        laws: [HumanGymnastics.boxVault],
+        laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.boxVault],
         performers: [
           {
             subject: "a",
@@ -173,7 +173,7 @@ function checkSupportedWorkout(complaints: motionComplaints.IGatherer): void {
     try {
       const p = new HumanPerformance({
         seed: "workout-floor",
-        laws: [workout],
+        laws: [AutoMovieMotionHumanWorkout.workout],
         performers: [
           {
             subject: "a",
@@ -216,8 +216,8 @@ function checkInvertedSupport(findings: motionComplaints.IGatherer): void {
     stature = body.measure.stature;
   for (const law of [
     HumanSportThrow.cartwheelLeft,
-    HumanGymnastics.roundOffLeft,
-    HumanGymnastics.roundOffRight,
+    AutoMovieMotionHumanAcrobatics.HumanGymnastics.roundOffLeft,
+    AutoMovieMotionHumanAcrobatics.HumanGymnastics.roundOffRight,
   ]) {
     const p = new HumanPerformance({
       seed: "inverted",
@@ -232,7 +232,7 @@ function checkInvertedSupport(findings: motionComplaints.IGatherer): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3 })
+        .stand({ hold: 0.3 })
         .registered(law.name).node,
     });
     const span = p.segments("a")[1]!,

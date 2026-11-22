@@ -167,7 +167,8 @@ export namespace stagger {
   };
 
   /** A forward recovery step's landing after the push (`staggerBounds.LANDING`), the step's time `perturb` reads. */
-  export const LANDING: IAutoMovieMotionHumanTiming.Span = staggerBounds.LANDING;
+  export const LANDING: IAutoMovieMotionHumanTiming.Span =
+    staggerBounds.LANDING;
 
   /**
    * Plan a stagger.
@@ -188,8 +189,14 @@ export namespace stagger {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const { RIGHTING, STEPS, VERIFIED, RESOLUTION, ONSET, ABDUCTION }: typeof staggerBounds =
-      staggerBounds;
+    const {
+      RIGHTING,
+      STEPS,
+      VERIFIED,
+      RESOLUTION,
+      ONSET,
+      ABDUCTION,
+    }: typeof staggerBounds = staggerBounds;
     const p: IAutoMovieMotionHumanStagger.IParams = context.params;
     if (!(p.speed > 0)) throw new Error("A stagger's speed is positive");
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
@@ -206,7 +213,7 @@ export namespace stagger {
       ...AutoMovieMotionHumanTarget.away(
         ReactionSource.at(
           context,
-          p.from,
+          p.target,
           context.start - StrikingTarget.LOOK,
           entry,
           AutoMovieMotionHumanTarget.DEFAULTS.ahead,
@@ -217,10 +224,8 @@ export namespace stagger {
       y: 0,
     });
 
-    const fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(
-      body,
-      context.entry,
-    );
+    const fixed: ReturnType<typeof StaggerPendulum.prepare> =
+      StaggerPendulum.prepare(body, context.entry);
     const recovery: staggerRecover.IRecovery | null = staggerRecover.recover(
       body,
       context.entry,
@@ -260,20 +265,41 @@ export namespace stagger {
     );
     const duration: number = clock.duration;
     const last: () => number = (): number => recovery.steps.at(-1)!.land;
-    const feet: StaggerFeet = new StaggerFeet(body, context.entry, recovery, fixed.bend);
-    const landing: Map<staggerRecover.IStep, IAutoMovieHumanLimbReference> = new Map();
-    const rocking: ReturnType<typeof staggerRocking> = staggerRocking(body, context.entry, recovery, landing);
+    const feet: StaggerFeet = new StaggerFeet(
+      body,
+      context.entry,
+      recovery,
+      fixed.bend,
+    );
+    const landing: Map<staggerRecover.IStep, IAutoMovieHumanLimbReference> =
+      new Map();
+    const rocking: ReturnType<typeof staggerRocking> = staggerRocking(
+      body,
+      context.entry,
+      recovery,
+      landing,
+    );
     const settledEntry: number = feet.settle(0, feet.standing(0)).root.y;
-    const reaction: number = AutoMovieMotionHumanTiming.seconds(staggerBounds.REACTION);
+    const reaction: number = AutoMovieMotionHumanTiming.seconds(
+      staggerBounds.REACTION,
+    );
 
     // The root's level shift at a second, `balanced` interpolated; the feet
     // settle their steps' ends under the same reader (`StaggerFeet.shifted`).
-    const shiftAt: (seconds: number) => IAutoMovieVector3 = (seconds: number): IAutoMovieVector3 => {
-      const at: number = Math.min(Math.max(0, seconds * KNOTS), Math.max(0, balanced.length - 1));
+    const shiftAt: (seconds: number) => IAutoMovieVector3 = (
+      seconds: number,
+    ): IAutoMovieVector3 => {
+      const at: number = Math.min(
+        Math.max(0, seconds * KNOTS),
+        Math.max(0, balanced.length - 1),
+      );
       const k: number = Math.floor(at);
       const a: IAutoMovieVector3 | undefined = balanced[k];
-      const b: IAutoMovieVector3 | undefined = balanced[Math.min(balanced.length - 1, k + 1)];
-      return a === undefined || b === undefined ? { x: 0, y: 0, z: 0 } : Vector3.lerp(a, b, at - k);
+      const b: IAutoMovieVector3 | undefined =
+        balanced[Math.min(balanced.length - 1, k + 1)];
+      return a === undefined || b === undefined
+        ? { x: 0, y: 0, z: 0 }
+        : Vector3.lerp(a, b, at - k);
     };
     const legs: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
@@ -291,21 +317,35 @@ export namespace stagger {
         // pelvis is settled where that puts it, under the trunk's tilt: the
         // legs are fitted to the hips the pose shows.
         const reacting: number = minimumJerk.share(seconds / reaction);
-        const shift: IAutoMovieVector3 = Vector3.scale(shiftAt(seconds), reacting);
+        const shift: IAutoMovieVector3 = Vector3.scale(
+          shiftAt(seconds),
+          reacting,
+        );
         const solved: ReturnType<StaggerFeet["solve"]> =
-          lent !== undefined && lent.seconds === seconds ? lent.solved : feet.solve(seconds, resolution, shift);
-        const settled: ReturnType<StaggerFeet["solve"]>["settled"] = solved.settled;
-        const root: IAutoMovieVector3 = reacting === 1 ? settled.root : {
-          ...settled.root,
-          y: settled.root.y + (entry.root.y - settledEntry) * (1 - reacting),
-        };
+          lent !== undefined && lent.seconds === seconds
+            ? lent.solved
+            : feet.solve(seconds, resolution, shift);
+        const settled: ReturnType<StaggerFeet["solve"]>["settled"] =
+          solved.settled;
+        const root: IAutoMovieVector3 =
+          reacting === 1
+            ? settled.root
+            : {
+                ...settled.root,
+                y:
+                  settled.root.y +
+                  (entry.root.y - settledEntry) * (1 - reacting),
+              };
         return rocking({ posture, solved, root, seconds, reacting });
       },
     };
     // Both arms abduct from the entry's angles as balance reactions and come
     // down as the body settles, each let out further where it would pass
     // into the body by its plan-time carriage (`carried`).
-    const held: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles> = {
+    const held: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanArmAngles.IAngles
+    > = {
       left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
       right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
     };
@@ -324,20 +364,30 @@ export namespace stagger {
       channels: ["leftArm", "rightArm"],
       from: 0,
       to: duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const more: number = raised(seconds);
 
         // The let-out's envelope between the two samples around this second.
-        const at: number = Math.min(Math.max(0, seconds * KNOTS), Math.max(0, carried.left.length - 1));
+        const at: number = Math.min(
+          Math.max(0, seconds * KNOTS),
+          Math.max(0, carried.left.length - 1),
+        );
         const k: number = Math.floor(at);
-        const out: (side: "left" | "right") => number = (side: "left" | "right"): number => {
+        const out: (side: "left" | "right") => number = (
+          side: "left" | "right",
+        ): number => {
           const series: number[] = carried[side];
           if (series.length === 0) return 0;
           const a: number = series[k]!;
           const b: number = series[Math.min(series.length - 1, k + 1)]!;
           return a + (b - a) * (at - k);
         };
-        const abducted: (side: "left" | "right") => IAutoMovieMotionHumanArmAngles.IAngles = (
+        const abducted: (
+          side: "left" | "right",
+        ) => IAutoMovieMotionHumanArmAngles.IAngles = (
           side: "left" | "right",
         ): IAutoMovieMotionHumanArmAngles.IAngles => ({
           ...held[side],
@@ -365,20 +415,21 @@ export namespace stagger {
     let carried: Record<"left" | "right", number[]> = { left: [], right: [] };
     let balanced: IAutoMovieVector3[] = [];
     let lent: ILoan | undefined;
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: {
-        ...AutoMovieMotionHumanBase.still(duration, {
-          root: entry.root,
-          yaw: entry.yaw,
-          pitch: entry.pitch,
-          roll: entry.roll,
-          joints: entry.joints,
-          limbs: {},
-        }),
-      },
-      clock,
-      primitives: [legs, arms],
-    });
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: {
+          ...AutoMovieMotionHumanBase.still(duration, {
+            root: entry.root,
+            yaw: entry.yaw,
+            pitch: entry.pitch,
+            roll: entry.roll,
+            joints: entry.joints,
+            limbs: {},
+          }),
+        },
+        clock,
+        primitives: [legs, arms],
+      });
     const samples: number[] = Array.from(
       { length: Math.ceil(duration * KNOTS - 1e-9) + 1 },
       (_: unknown, i: number): number => Math.min(duration, i / KNOTS),
@@ -389,10 +440,17 @@ export namespace stagger {
     // exists: the arms' carriage and the first balance pass each settled
     // that same pelvis again.
     const unshifted: ReturnType<StaggerFeet["solve"]>[] = samples.map(
-      (seconds: number): ReturnType<StaggerFeet["solve"]> => feet.solve(seconds),
+      (seconds: number): ReturnType<StaggerFeet["solve"]> =>
+        feet.solve(seconds),
     );
-    const lend: <T>(i: number, read: () => T) => T = <T>(i: number, read: () => T): T => {
-      lent = balanced.length === 0 ? { seconds: samples[i]!, solved: unshifted[i]! } : undefined;
+    const lend: <T>(i: number, read: () => T) => T = <T>(
+      i: number,
+      read: () => T,
+    ): T => {
+      lent =
+        balanced.length === 0
+          ? { seconds: samples[i]!, solved: unshifted[i]! }
+          : undefined;
       try {
         return read();
       } finally {
@@ -402,11 +460,15 @@ export namespace stagger {
     const resolved: staggerResolved.IReader = staggerResolved(body);
     const needs: Record<"left" | "right", number>[] = samples.map(
       (seconds: number, i: number): Record<"left" | "right", number> =>
-        lend(i, (): Record<"left" | "right", number> =>
-          resolved.carriage(i, composed.posture(seconds)),
+        lend(
+          i,
+          (): Record<"left" | "right", number> =>
+            resolved.carriage(i, composed.posture(seconds)),
         ),
     );
-    const envelope: (side: "left" | "right") => number[] = (side: "left" | "right"): number[] =>
+    const envelope: (side: "left" | "right") => number[] = (
+      side: "left" | "right",
+    ): number[] =>
       needs.map((_: Record<"left" | "right", number>, i: number): number =>
         Math.max(
           needs[Math.max(0, i - 1)]![side],
@@ -427,8 +489,10 @@ export namespace stagger {
     // (`staggerShift`).
     const residuals: () => IAutoMovieVector3[] = (): IAutoMovieVector3[] =>
       samples.map((seconds: number, i: number): IAutoMovieVector3 => {
-        const shown: IAutoMovieVector3 = lend(i, (): IAutoMovieVector3 =>
-          resolved.centre(i, composed.posture(seconds)),
+        const shown: IAutoMovieVector3 = lend(
+          i,
+          (): IAutoMovieVector3 =>
+            resolved.centre(i, composed.posture(seconds)),
         );
         const travel: IAutoMovieVector3 = recovery.course(seconds);
         return {
@@ -441,7 +505,10 @@ export namespace stagger {
     balanced = first;
     feet.shifted(shiftAt);
     const second: IAutoMovieVector3[] = residuals();
-    balanced = first.map((e: IAutoMovieVector3, i: number): IAutoMovieVector3 => staggerShift(e, second[i]!));
+    balanced = first.map(
+      (e: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
+        staggerShift(e, second[i]!),
+    );
     feet.shifted(shiftAt);
     // A crossing leg may have two almost equal swivels; use the touchdown
     // solution through the approach and the ensuing stance. One scoped fit
@@ -449,22 +516,31 @@ export namespace stagger {
     for (const step of recovery.steps) {
       const key: keyof IAutoMovieMotionHumanPosture["limbs"] = `${step.side}Leg`;
       const postfix: AutoMovieHumanoidBone = `${step.side}LowerLeg`;
-      const wanted: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([postfix, `${step.side}Foot`]);
-      const posture: IAutoMovieMotionHumanPosture = composed.posture(step.land, ["root", "trunk", key]);
-      const solved: ReturnType<typeof resolveHumanPosture.seeded> = resolveHumanPosture.seeded(
-        body,
-        posture,
-        undefined,
-        undefined,
-        undefined,
-        wanted,
+      const wanted: ReadonlySet<AutoMovieHumanoidBone> =
+        new Set<AutoMovieHumanoidBone>([postfix, `${step.side}Foot`]);
+      const posture: IAutoMovieMotionHumanPosture = composed.posture(
+        step.land,
+        ["root", "trunk", key],
       );
+      const solved: ReturnType<typeof resolveHumanPosture.seeded> =
+        resolveHumanPosture.seeded(
+          body,
+          posture,
+          undefined,
+          undefined,
+          undefined,
+          wanted,
+        );
       landing.set(step, resolveHumanPosture.reference(solved.pose, key));
     }
     const contacts: IAutoMovieMotionHumanContactWindow[] = staggerContacts(
       recovery,
       duration,
     );
-    return { ...composed, contacts, physicalWindow: { from: 0, to: recovery.settled } };
+    return {
+      ...composed,
+      contacts,
+      physicalWindow: { from: 0, to: recovery.settled },
+    };
   }
 }

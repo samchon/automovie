@@ -9,12 +9,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanThrowCatch,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  catchObject,
-  throwObject,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -50,7 +49,9 @@ export function test_motion_exercise_self_catch(): void {
     const height: number = 1.2 * body.measure.stature;
     const apex: IAutoMovieVector3 = aimed(body, height);
     const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch =
-      throwObject.of(take(body, apex, false).segments("a")[1]!.plan)!;
+      AutoMovieMotionHumanThrowCatch.throwObject.of(
+        take(body, apex, false).segments("a")[1]!.plan,
+      )!;
     const across: number = Math.hypot(launch.velocity.x, launch.velocity.z);
     const peak: number =
       launch.point.y + launch.velocity.y ** 2 / (2 * AutoMovieGravity.STANDARD);
@@ -98,8 +99,11 @@ export function test_motion_exercise_self_catch(): void {
     const at: IAutoMovieVector3 = film.prop("ball", contact).position;
     TestValidator.predicate(
       `${name} meets the ball at the chest (${at.y.toFixed(2)} m) and holds it (${(worst * 1000).toFixed(0)} mm)`,
-      Math.abs(at.y - catchObject.TOSS * body.measure.stature) <= 0.1 &&
-        worst <= 2.5 * radius,
+      Math.abs(
+        at.y -
+          AutoMovieMotionHumanThrowCatch.catchObject.TOSS *
+            body.measure.stature,
+      ) <= 0.1 && worst <= 2.5 * radius,
     );
     assertTakeClean(`${name} toss and catch`, film);
   }
@@ -136,7 +140,9 @@ function aimed(
   let apex: IAutoMovieVector3 = { x: 0, y: height, z: 0.35 };
   for (let pass: number = 0; pass < PASSES; pass++) {
     const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch =
-      throwObject.of(take(body, apex, false).segments("a")[1]!.plan)!;
+      AutoMovieMotionHumanThrowCatch.throwObject.of(
+        take(body, apex, false).segments("a")[1]!.plan,
+      )!;
     const rise: number = height - launch.point.y;
     apex = {
       x: launch.point.x,

@@ -52,7 +52,7 @@ export namespace IAutoMovieMotionHumanVehicleHit {
     horizon?: number;
 
     /** How long the body lies after landing, seconds; 1 when absent; see {@link IAutoMovieMotionHumanKnockdown.IParams.seconds}. */
-    seconds?: number;
+    hold?: number;
   }
 
   /**

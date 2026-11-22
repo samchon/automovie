@@ -34,12 +34,22 @@ import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHum
  * 1991), a running catch (McLeod and Dienes 1996), a fumble, the catch
  * against the chest, and a held prop handed from the throw.
  *
- * @evidence contracts/development/common.md#meaningful-documentation hands: One hand or two; `two` when absent. side: The catching hand when one; `right` when absent. glove: A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent.
- * @evidence contracts/development/design.md#principled-representation hands: One hand or two; `two` when absent. side: The catching hand when one; `right` when absent. glove: A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation hands: One hand or two; `two` when absent. hand: The catching hand when one; `right` when absent. glove: A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent.
+ * @evidence contracts/development/design.md#principled-representation hands: One hand or two; `two` when absent. hand: The catching hand when one; `right` when absent. glove: A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/HumanMutual.ts (HumanMutual.pass, params); chain/HumanChainMutual.ts (HumanChainMutual.catchObject, params); throwing/catchObject.ts (catchObject.plan, context); throwing/catchObject.ts (catchObject.plan, return); actions/HumanMutual.ts (HumanMutual.pass); executable/cases/throwCases.ts (throwCases.object).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanCatchObject {
+  /**
+   * How many hands take the object: `one` or `two`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two hand counts a catch takes.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the catch's two hand counts.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The parameters' `hands` member and the catch presets read it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per hand count, with no optional fields to combine.
+   */
+  export type Hands = "one" | "two";
+
   /**
    * Parameters.
    *
@@ -50,13 +60,13 @@ export namespace IAutoMovieMotionHumanCatchObject {
    */
   export interface IParams {
     /** The anchor of the throw caught. */
-    from: string;
+    partner: string;
 
     /** One hand or two; `two` when absent. The hands reach the object in the aimed movement time to its size (McIntosh et al. 2018), give 0.05 to 0.15 m with it (provisional) and hold it at the sternum. */
-    hands?: "one" | "two";
+    hands?: IAutoMovieMotionHumanCatchObject.Hands;
 
     /** The catching hand when one; `right` when absent. */
-    side?: AutoMovieHumanSide;
+    hand?: AutoMovieHumanSide;
 
     /** The ball caught, its prop subject: its `grip` contact's aperture is its diameter (`createBall`'s contacts). */
     ball: string;

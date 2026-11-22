@@ -138,7 +138,7 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
     ): IAutoMovieMotionHumanActionPlan => {
       const p: IAutoMovieMotionHumanEmbraceFromBehind = context.params;
       const body: IAutoMovieMotionHumanBody = context.body;
-      HumanBound.above("seconds", p.seconds, 0, "s");
+      HumanBound.above("hold", p.hold, 0, "s");
       if (p.partner === context.subject)
         throw new HumanRefusal({
           kind: "parameter",
@@ -228,7 +228,7 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
         AutoMovieMotionClock.phrase({
           prepare: approach,
           attack: 0,
-          hold: p.seconds,
+          hold: p.hold,
           retract: approach,
         }),
         modifiers,
@@ -578,7 +578,11 @@ function solve(
     ).get("neck")!.worldPosition;
     const at: IAutoMovieVector3 = chin(posture, resolution);
     const yaw: number = (entry.yaw * Math.PI) / 180;
-    const ahead: IAutoMovieVector3 = { x: Math.sin(yaw), y: 0, z: Math.cos(yaw) };
+    const ahead: IAutoMovieVector3 = {
+      x: Math.sin(yaw),
+      y: 0,
+      z: Math.cos(yaw),
+    };
     const out: number = Vector3.dot(Vector3.subtract(at, base), ahead);
     const up: number = at.y - base.y;
     const radius: number = Math.hypot(out, up);
@@ -600,8 +604,10 @@ function solve(
     // rise's limit: the rise lifts it as the sine of the heels' angle.
     const flexed: ISolved = { ...best, flexion, raise: 0 };
     const low: number = chin(posed(flexed), resolution).y;
-    const high: number = chin(posed({ ...flexed, raise: kiss.RAISE }), resolution)
-      .y;
+    const high: number = chin(
+      posed({ ...flexed, raise: kiss.RAISE }),
+      resolution,
+    ).y;
     const sine: number = Math.sin((kiss.RAISE * Math.PI) / 180);
     const lift: number = rest.y - low;
     const raise: number =

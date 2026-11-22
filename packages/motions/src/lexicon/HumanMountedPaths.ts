@@ -378,7 +378,7 @@ export namespace HumanMountedPaths {
         if (!HumanMountedStirrups.free(figure.seat)) return;
         const from: number = start + clock.starts[i]!;
         const span: number =
-          clock.arrivals[i]! - clock.starts[i]! + figure.seconds;
+          clock.arrivals[i]! - clock.starts[i]! + figure.hold;
         const count: number = Math.ceil(
           (2 * HumanMountedStride.SAMPLES * span) / stride,
         );

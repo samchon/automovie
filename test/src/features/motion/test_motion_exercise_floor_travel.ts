@@ -132,7 +132,7 @@ export function test_motion_exercise_floor_travel(): void {
       },
     ],
     composition: HumanChain.subject("b")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .registered("babyFreeze", {}).node,
   });
   const held: IAutoMovieMotionHumanSegment = freeze.segments("b")[1]!;

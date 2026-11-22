@@ -15,13 +15,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFoot,
   HumanFrame,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanRide,
   HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -282,12 +282,12 @@ function trial(
             landing: reversed ? "takeoff" : "landing",
             recovery: "recovery",
           },
-          lookBack: { cue: "look", side: "left", seconds: 1 },
+          lookBack: { cue: "look", side: "left", duration: 1 },
         }),
   };
   const film: HumanPerformance = new HumanPerformance({
     seed: "equestrian",
-    laws: [HumanRide.ride],
+    laws: [AutoMovieMotionHumanMount.rideHorse.ride],
     cues: {
       stride: strides,
       approach: [cue("approach", APPROACH)],
@@ -310,7 +310,7 @@ function trial(
       },
     ],
     composition: HumanChain.subject("rider")
-      .sit({ seat: saddle, seconds: 0.5 })
+      .sit({ seat: saddle, hold: 0.5 })
       .registered("ride", {
         on: "horse",
         seconds: WAIT + canter.duration,

@@ -76,7 +76,7 @@ export function test_motion_exercise_basketball_contest(): void {
           { kind: "setShot", prop: "ball", at: ring, flightSeconds: 1.12 },
           "shot",
         )
-        .stand({ seconds: 2, sway: 0 }).node,
+        .stand({ hold: 2, sway: 0 }).node,
     ];
     const performers: IAutoMovieMotionHumanPerformance.IInput["performers"] = [
       {
@@ -104,7 +104,7 @@ export function test_motion_exercise_basketball_contest(): void {
             intercept: defender.intercept,
           })
           .sync({ of: "shot" })
-          .stand({ seconds: 2, sway: 0 }).node,
+          .stand({ hold: 2, sway: 0 }).node,
       );
     }
     return new HumanPerformance({

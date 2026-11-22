@@ -48,7 +48,7 @@ export function test_motion_posture_bend_strategy(): void {
         ? 0
         : ankle + (row === "semiSquat" ? 0.2 : 0.6) * body.measure.shank;
     const chain = HumanChain.subject("a").bend({
-      toward: {
+      target: {
         kind: "point",
         frame: "world",
         at: {
@@ -57,7 +57,7 @@ export function test_motion_posture_bend_strategy(): void {
           z: row === "squat" || row === "semiSquat" ? 0.3 : 0.45,
         },
       },
-      side,
+      hand: side,
       ...(row === "auto" ? {} : { strategy: row }),
     });
     const bend: M.IStaged = {

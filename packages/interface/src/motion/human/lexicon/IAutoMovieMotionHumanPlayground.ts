@@ -32,7 +32,7 @@ export namespace IAutoMovieMotionHumanPlayground {
     hands: Partial<Record<AutoMovieHumanSide, string>>;
 
     /** Duration in seconds, positive. */
-    seconds: number;
+    duration: number;
 
     /** The trunk's lean back from upright at full pump, degrees in [0, 45]. */
     lean: number;
@@ -58,7 +58,7 @@ export namespace IAutoMovieMotionHumanPlayground {
     hands: Partial<Record<AutoMovieHumanSide, string>>;
 
     /** Duration in seconds, positive. */
-    seconds: number;
+    duration: number;
 
     /** Ground height in metres; zero when absent. */
     ground?: number;

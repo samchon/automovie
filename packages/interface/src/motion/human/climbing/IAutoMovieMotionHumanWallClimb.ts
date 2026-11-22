@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
-import type { IAutoMovieMotionHumanSupport } from "../actions/IAutoMovieMotionHumanSupport";
+import type { IAutoMovieMotionHumanSupport } from "../next/IAutoMovieMotionHumanSupport";
 import type { IAutoMovieMotionHumanClimbLadder } from "./IAutoMovieMotionHumanClimbLadder";
 
 /**

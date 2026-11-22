@@ -269,7 +269,7 @@ function held(
     props: [prop],
     composition: HumanChain.subject("actor")
       .pickUp({ prop: "prop", handle: cell.handle, hand: "right" })
-      .stand({ seconds: 0.4, sway: 0 }).node,
+      .stand({ hold: 0.4, sway: 0 }).node,
   });
   const [pick, hold]: readonly IAutoMovieMotionHumanSegment[] =
     performance.segments("actor");
@@ -336,7 +336,7 @@ function paired(failures: string[]): void {
         (who: string): IAutoMovieComposition =>
           HumanChain.subject(who)
             .pickUp({ prop: who, handle: "grip", hand: "right" })
-            .stand({ seconds: 0.4, sway: 0 }).node,
+            .stand({ hold: 0.4, sway: 0 }).node,
       ),
     },
   });
@@ -484,9 +484,9 @@ function transfer(
       },
     ],
     composition: HumanChain.subject("actor")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .pickUp({ prop: "rifle", handle: "grip", hand: "right" })
-      .stand({ seconds: 0.4, sway: 0 }).node,
+      .stand({ hold: 0.4, sway: 0 }).node,
   });
   const [before, , after]: readonly IAutoMovieMotionHumanSegment[] =
     performance.segments("actor");

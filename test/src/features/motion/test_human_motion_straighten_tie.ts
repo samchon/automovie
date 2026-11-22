@@ -6,11 +6,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanTouch,
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanPerformance,
   composeHumanStraightenTie,
-  touch,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -70,7 +70,7 @@ export function test_human_motion_straighten_tie(): void {
         body,
         bones,
         "left",
-        touch.EFFECTORS.fingertips,
+        AutoMovieMotionHumanTouch.touch.EFFECTORS.fingertips,
       ),
       chest,
     );

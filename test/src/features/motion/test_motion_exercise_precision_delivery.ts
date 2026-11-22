@@ -18,12 +18,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanSportThrow,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -59,7 +59,7 @@ export function test_motion_exercise_precision_delivery(): void {
   const ready: HumanPerformance = new HumanPerformance({
     seed: "790",
     performers,
-    composition: HumanChain.subject("player").stand({ seconds: 0.2, sway: 0 })
+    composition: HumanChain.subject("player").stand({ hold: 0.2, sway: 0 })
       .node,
   });
   const grip: IAutoMovieVector3 = HumanHand.frame(
@@ -70,12 +70,12 @@ export function test_motion_exercise_precision_delivery(): void {
   ).point;
   const hold: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
     {
-      ...stand,
+      ...AutoMovieMotionHumanStance.stand,
       name: "deliveryFixtureHold",
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
       ): IAutoMovieMotionHumanActionPlan => ({
-        ...stand.plan(context),
+        ...AutoMovieMotionHumanStance.stand.plan(context),
         holds: [{ side: "right", prop: "ball", from: 0 }],
       }),
     };

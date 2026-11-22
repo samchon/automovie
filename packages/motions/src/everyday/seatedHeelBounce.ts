@@ -81,7 +81,7 @@ export namespace seatedHeelBounce {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSeatedHeelBounce>,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params } = context;
-    const { side, beats, cadence, amplitude } = params;
+    const { side, count: beats, cadence, amplitude } = params;
     const duration: number = beats / cadence;
     if (side !== "left" && side !== "right")
       throw new HumanRefusal({
@@ -94,7 +94,7 @@ export namespace seatedHeelBounce {
     if (!Number.isSafeInteger(beats) || beats < 1)
       throw new HumanRefusal({
         kind: "parameter",
-        axis: "beats",
+        axis: "count",
         value: beats,
         reason: "a heel bounce consists of a positive whole number of beats",
         fix: "specify one or more whole beats",

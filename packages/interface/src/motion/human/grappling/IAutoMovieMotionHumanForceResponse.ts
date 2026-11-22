@@ -61,7 +61,7 @@ export namespace IAutoMovieMotionHumanForceResponse {
    */
   export interface IParams {
     /** The thrower's subject id, for `thrown`. */
-    by?: string;
+    partner?: string;
 
     /** The thrower's region the body turns over (a hip, a shoulder), for `thrown`. */
     fulcrum?: AutoMovieHumanoidRegion;

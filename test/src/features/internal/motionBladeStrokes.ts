@@ -122,7 +122,7 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
       ),
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .pickUp({
         prop: "sword",
         handle: "grip",
@@ -277,7 +277,7 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
         },
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3 })
+        .stand({ hold: 0.3 })
         .registered("thrust", {
           target: {
             kind: "point",

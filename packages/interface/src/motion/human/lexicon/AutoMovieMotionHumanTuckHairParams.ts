@@ -12,5 +12,5 @@ import type { IAutoMovieMotionHumanArmPhrase } from "../compose/IAutoMovieMotion
  */
 export type AutoMovieMotionHumanTuckHairParams = Pick<
   IAutoMovieMotionHumanArmPhrase.IParams,
-  "side" | "manner"
+  "hand" | "manner"
 >;

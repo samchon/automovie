@@ -11,12 +11,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBlade,
   HumanChain,
   HumanFoot,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  HumanStageFight,
   HumanStrike,
 } from "@automovie/motions";
 
@@ -195,7 +195,10 @@ function perform(
 ): HumanPerformance {
   const film: HumanPerformance = new HumanPerformance({
     seed: `close-${row}`,
-    laws: [...Object.values(HumanStrike), ...Object.values(HumanStageFight)],
+    laws: [
+      ...Object.values(HumanStrike),
+      ...Object.values(AutoMovieMotionHumanBlade.stageBladeFootwork),
+    ],
     performers: [
       {
         subject: "a",
@@ -213,14 +216,14 @@ function perform(
       },
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.5, sway: 0 })
+      .stand({ hold: 0.5, sway: 0 })
       .registered(
         row,
         { at: { kind: "person", subject: "b", region: at } },
         "strike",
       )
-      .stand({ seconds: 1, sway: 0 })
-      .with(HumanChain.subject("b").stand({ seconds: 1.5, sway: 0 })).node,
+      .stand({ hold: 1, sway: 0 })
+      .with(HumanChain.subject("b").stand({ hold: 1.5, sway: 0 })).node,
   });
   if (film.schedule.entries.length === 0) throw new Error("nothing was placed");
   return film;

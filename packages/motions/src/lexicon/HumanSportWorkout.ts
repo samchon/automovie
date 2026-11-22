@@ -250,7 +250,7 @@ export namespace HumanSportWorkout {
   export const mountainPose: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["mountainPose"]
   > = HumanActionRow.of("mountainPose", stand, {
-    seconds: 10,
+    hold: 10,
   });
 
   /** Warrior I of yoga. */

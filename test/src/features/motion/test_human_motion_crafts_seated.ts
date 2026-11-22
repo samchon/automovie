@@ -151,7 +151,7 @@ function knitting(
     ),
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
-    .sit({ seat: HumanObject.seat(chair, placement), seconds: 1 })
+    .sit({ seat: HumanObject.seat(chair, placement), hold: 1 })
     .pickUp({ prop: "leftNeedle", handle: "grip", hand: "left", lift: 0.1 })
     .pickUp({ prop: "rightNeedle", handle: "grip", hand: "right", lift: 0.1 })
     .registered("workHeld", {
@@ -233,7 +233,7 @@ function pottery(
     ),
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
-    .sit({ seat: HumanObject.seat(chair, placement), seconds: 1 })
+    .sit({ seat: HumanObject.seat(chair, placement), hold: 1 })
     .registered("throwPottery", { wheel: "wheel", seconds: 2 });
   const take: HumanPerformance = play(`${label} pottery`, body, props, chain);
   const pull: IAutoMovieMotionHumanSegment = named(take, "throwPottery")[0]!;

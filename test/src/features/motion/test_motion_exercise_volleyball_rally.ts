@@ -12,13 +12,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanBallPlay,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanPrecisionSport,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -123,12 +123,12 @@ export function test_motion_exercise_volleyball_rally(): void {
   };
   const holding: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
     {
-      ...stand,
+      ...AutoMovieMotionHumanStance.stand,
       name: "volleyballHold",
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
       ): IAutoMovieMotionHumanActionPlan => ({
-        ...stand.plan(context),
+        ...AutoMovieMotionHumanStance.stand.plan(context),
         holds: [{ side: "left", prop: "ball", from: 0 }],
       }),
     };
@@ -145,7 +145,7 @@ export function test_motion_exercise_volleyball_rally(): void {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject("server").stand({ seconds: 0.2, sway: 0 })
+      composition: HumanChain.subject("server").stand({ hold: 0.2, sway: 0 })
         .node,
     }).bones("server", 0),
     "left",
@@ -168,7 +168,7 @@ export function test_motion_exercise_volleyball_rally(): void {
               .ballSport(
                 {
                   kind: "handballThrow",
-                  side: "left",
+                  hand: "left",
                   prop: "ball",
                   at: toss,
                   flightSeconds: tossSeconds,
@@ -176,8 +176,8 @@ export function test_motion_exercise_volleyball_rally(): void {
                 "toss",
               )
               .until({ event: "relax" })
-              .stand({ seconds: 0.05, sway: 0 })
-          : HumanChain.subject(player).stand({ seconds: 0.2, sway: 0 });
+              .stand({ hold: 0.05, sway: 0 })
+          : HumanChain.subject(player).stand({ hold: 0.2, sway: 0 });
     touches.forEach((touch: ITouch, index: number): void => {
       if (touch.station === undefined) return;
       // Each player touches the ball once, from where the player starts.
@@ -244,7 +244,7 @@ export function test_motion_exercise_volleyball_rally(): void {
       composition: AutoMovieComposition.parallel(
         ...players.map(
           (player: string) =>
-            chains[player]!.stand({ seconds: 2.5, sway: 0 }).node,
+            chains[player]!.stand({ hold: 2.5, sway: 0 }).node,
         ),
       ),
     });

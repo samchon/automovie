@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanGesture } from "../everyday/IAutoMovieMotionHumanGesture";
-import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
+import type { IAutoMovieMotionHumanGesture } from "../next/IAutoMovieMotionHumanGesture";
+import type { IAutoMovieMotionHumanTouch } from "../next/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanWeaponPresent } from "./IAutoMovieMotionHumanWeaponPresent";
 
 /**
@@ -14,7 +14,7 @@ export interface IAutoMovieMotionHumanLexiconFirearmParams {
   /** Reach for a holster at the right hip. */
   reachHolster: Omit<
     IAutoMovieMotionHumanTouch.IParams,
-    "target" | "with" | "kind" | "side" | "hold"
+    "target" | "effector" | "kind" | "hand" | "hold"
   >;
 
   /** Level the weapon at the target and hold the aim. */

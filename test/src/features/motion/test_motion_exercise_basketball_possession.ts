@@ -135,7 +135,7 @@ export function test_motion_exercise_basketball_possession(): void {
             "shot",
           )
           // The film runs on while the shot's result plays out.
-          .stand({ seconds: 2, sway: 0 }).node,
+          .stand({ hold: 2, sway: 0 }).node,
       ),
     });
 

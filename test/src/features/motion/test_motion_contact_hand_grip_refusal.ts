@@ -37,7 +37,7 @@ export function test_motion_contact_hand_grip_refusal(): void {
       ],
       HumanChain.subject("a")
         .act("kiss", { partner: "b", region: "forehead" })
-        .with(HumanChain.subject("b").stand({ seconds: 6, sway: 0 })),
+        .with(HumanChain.subject("b").stand({ hold: 6, sway: 0 })),
     );
   } catch (error: unknown) {
     refused = error;

@@ -92,10 +92,20 @@ export namespace useTool {
   /** Cancel table: work stops between cycles. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["recover", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["recover", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
     putDown: [
-      { window: ["recover", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["recover", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
   };
 
@@ -112,7 +122,9 @@ export namespace useTool {
    * only under pacing); a stir's cycle follows from its circle
    * (`STROKE_SPEED`).
    */
-  export const PERIODS: Readonly<Record<Exclude<IAutoMovieMotionHumanToolWork.Kind, "stir">, number>> = {
+  export const PERIODS: Readonly<
+    Record<Exclude<IAutoMovieMotionHumanToolWork.Kind, "stir">, number>
+  > = {
     hammer: 0.5,
     saw: 0.5,
     screwdriver: 0.7,
@@ -177,7 +189,9 @@ export namespace useTool {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The working pose, the turn's axis and the pose at a contact's half cycle are computed once for the plan, since none depends on the second.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the tool's geometry, the clock and the kept fingers for its lifetime; nothing grows with the seconds evaluated.
    */
-  export function plan(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUseTool.IParams>): IAutoMovieMotionHumanUseTool.IPlan {
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUseTool.IParams>,
+  ): IAutoMovieMotionHumanUseTool.IPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const kind: IAutoMovieMotionHumanToolWork.Kind = context.params.tool;
@@ -190,12 +204,14 @@ export namespace useTool {
         : "right");
     // Four cycles when the author names none, the contract's default
     // (`IAutoMovieMotionHumanUseTool.IParams.cycles`).
-    const cycles: number = context.params.cycles ?? 4;
-    HumanBound.whole("cycles", cycles);
+    const cycles: number = context.params.count ?? 4;
+    HumanBound.whole("count", cycles);
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const yaw: number = context.entry.posture.yaw;
-    const axes: (v: IAutoMovieVector3) => IAutoMovieVector3 = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+    const axes: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
+      v: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
       HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, v);
     const forward: IAutoMovieVector3 = axes({ x: 0, y: 0, z: 1 });
     const left: IAutoMovieVector3 = axes({ x: 1, y: 0, z: 0 });
@@ -239,7 +255,12 @@ export namespace useTool {
       length,
     });
     const on: IAutoMovieVector3 = work.on;
-    const gripOffset: IAutoMovieVector3 = HumanHand.offset(body, side, "grip", "relaxed").point;
+    const gripOffset: IAutoMovieVector3 = HumanHand.offset(
+      body,
+      side,
+      "grip",
+      "relaxed",
+    ).point;
     const contact: IAutoMovieVector3 = Vector3.add(gripOffset, face.point);
 
     // The working pose: the hand turned the least that lays the tool's line
@@ -249,11 +270,18 @@ export namespace useTool {
     const keyed: boolean =
       (kind === "hammer" || kind === "saw") &&
       Math.abs(Vector3.dot(face.direction, line)) < 0.95;
-    const align: ReturnType<typeof HumanHand.prepareAlignment> = HumanHand.prepareAlignment(
-      { normal: line, forward: keyed ? face.direction : PALM },
-    );
-    const posed: (axis: IAutoMovieVector3) => IWork = (axis: IAutoMovieVector3): IWork => {
-      const rotation: IAutoMovieQuaternion = align({ normal: axis, forward: keyed ? down : inward });
+    const align: ReturnType<typeof HumanHand.prepareAlignment> =
+      HumanHand.prepareAlignment({
+        normal: line,
+        forward: keyed ? face.direction : PALM,
+      });
+    const posed: (axis: IAutoMovieVector3) => IWork = (
+      axis: IAutoMovieVector3,
+    ): IWork => {
+      const rotation: IAutoMovieQuaternion = align({
+        normal: axis,
+        forward: keyed ? down : inward,
+      });
       return {
         axis,
         grip: Vector3.subtract(
@@ -263,20 +291,22 @@ export namespace useTool {
         rotation,
       };
     };
-    const strain: (pose: IWork, bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare>) => number = (
-      pose: IWork, bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare>,
+    const strain: (
+      pose: IWork,
+      bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare>,
+    ) => number = (
+      pose: IWork,
+      bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare>,
     ): number => {
       const props: IAutoMovieMotionHumanBend.ISolve = {
         body,
         posture: context.entry.posture,
         side,
-        point: placeHumanHandSurface(gripOffset, pose.grip, pose.rotation).point,
+        point: placeHumanHandSurface(gripOffset, pose.grip, pose.rotation)
+          .point,
         rotation: pose.rotation,
       };
-      return bends.strain(
-        props,
-        bends.solve({ ...props, fallback: "hang" }),
-      );
+      return bends.strain(props, bends.solve({ ...props, fallback: "hang" }));
     };
     const pose: IWork = ((): IWork => {
       switch (kind) {
@@ -287,7 +317,11 @@ export namespace useTool {
           return posed(down);
         case "saw": {
           const bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare> =
-            AutoMovieMotionHumanBend.prepare({ body, posture: context.entry.posture, side });
+            AutoMovieMotionHumanBend.prepare({
+              body,
+              posture: context.entry.posture,
+              side,
+            });
           const poses: IWork[] = SLOPES.map((degrees: number): IWork => {
             const slope: number = (degrees * Math.PI) / 180;
             return posed(
@@ -297,7 +331,9 @@ export namespace useTool {
               ),
             );
           });
-          const strains: number[] = poses.map((candidate: IWork): number => strain(candidate, bends));
+          const strains: number[] = poses.map((candidate: IWork): number =>
+            strain(candidate, bends),
+          );
           return poses[strains.indexOf(Math.min(...strains))]!;
         }
       }
@@ -307,8 +343,12 @@ export namespace useTool {
     const origin: IAutoMovieMotionHumanArmTarget.IOrigin =
       AutoMovieMotionHumanArm.origin(
         body,
-        poseBones(body, context.entry.pose, undefined,
-          new Set<AutoMovieHumanoidBone>([`${side}Hand`])),
+        poseBones(
+          body,
+          context.entry.pose,
+          undefined,
+          new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
+        ),
         { origin: context.entry.posture.root, yaw },
         side,
         "grip",
@@ -325,9 +365,11 @@ export namespace useTool {
       ),
       {
         solid: true,
-        width: context.prop(subject).prop.affordances?.find(
-          (a: IAutoMovieAffordance): boolean => a.id === "face",
-        )?.width,
+        width: context
+          .prop(subject)
+          .prop.affordances?.find(
+            (a: IAutoMovieAffordance): boolean => a.id === "face",
+          )?.width,
       },
     );
     const period: number =
@@ -356,9 +398,15 @@ export namespace useTool {
     // The turning works: a hammer's head rises about the wrist, the axis
     // across the body; a screwdriver turns about its own line through the
     // work point.
-    const turn: ((degrees: number) => Pick<IWork, "grip" | "rotation">) | undefined =
+    const turn:
+      | ((degrees: number) => Pick<IWork, "grip" | "rotation">)
+      | undefined =
       kind === "hammer"
-        ? HumanToolTurn(pose, left, placeHumanHandSurface(gripOffset, pose.grip, pose.rotation).point)
+        ? HumanToolTurn(
+            pose,
+            left,
+            placeHumanHandSurface(gripOffset, pose.grip, pose.rotation).point,
+          )
         : kind === "screwdriver"
           ? HumanToolTurn(pose, forward, on)
           : undefined;

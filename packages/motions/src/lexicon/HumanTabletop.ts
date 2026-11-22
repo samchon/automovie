@@ -103,7 +103,7 @@ export namespace HumanTabletop {
         });
       next = next
         .pickUp({ prop: params.capture, handle: "grip", hand, lift: 0.05 })
-        .putDown({ prop: params.capture, at: aside, hand });
+        .putDown({ prop: params.capture, to: aside, hand });
     }
     return next
       .pickUp({ prop: params.piece, handle: "grip", hand, lift: 0.05 })
@@ -151,13 +151,11 @@ export namespace HumanTabletop {
         card: string,
         i: number,
       ): IAutoMovieMotionHumanChain =>
-        next
-          .pickUp({ prop: card, handle: "grip", hand, lift: 0.04 })
-          .putDown({
-            prop: card,
-            at: params.seats[i % params.seats.length]!,
-            hand,
-          }),
+        next.pickUp({ prop: card, handle: "grip", hand, lift: 0.04 }).putDown({
+          prop: card,
+          to: params.seats[i % params.seats.length]!,
+          hand,
+        }),
       chain,
     );
   }
@@ -204,14 +202,12 @@ export namespace HumanTabletop {
         card: string,
         i: number,
       ): IAutoMovieMotionHumanChain =>
-        next
-          .pickUp({ prop: card, handle: "grip", hand, lift: 0.04 })
-          .putDown({
-            prop: card,
-            at: params.places[i]!.at,
-            rotation: params.places[i]!.rotation,
-            hand,
-          }),
+        next.pickUp({ prop: card, handle: "grip", hand, lift: 0.04 }).putDown({
+          prop: card,
+          to: params.places[i]!.at,
+          rotation: params.places[i]!.rotation,
+          hand,
+        }),
       chain,
     );
   }
@@ -238,7 +234,7 @@ export namespace HumanTabletop {
     return chain
       .pickUp({ prop: params.left, handle: "grip", hand: "left", lift: 0.05 })
       .pickUp({ prop: params.right, handle: "grip", hand: "right", lift: 0.05 })
-      .putDown({ prop: params.left, at: params.at, hand: "left" })
+      .putDown({ prop: params.left, to: params.at, hand: "left" })
       .putDown({
         prop: params.right,
         onto: { prop: params.leftTop, point: "top", via: "base" },
@@ -269,7 +265,7 @@ export namespace HumanTabletop {
       params.hand ?? "right";
     return chain
       .pickUp({ prop: params.stack, handle: "grip", hand, lift: 0.01 })
-      .putDown({ prop: params.stack, at: params.to, hand });
+      .putDown({ prop: params.stack, to: params.to, hand });
   }
 
   /**
@@ -295,6 +291,6 @@ export namespace HumanTabletop {
       params.hand ?? "right";
     return chain
       .pickUp({ prop: params.die, handle: "grip", hand, lift: 0.08 })
-      .putDown({ prop: params.die, at: params.to, yaw: 90, hand });
+      .putDown({ prop: params.die, to: params.to, yaw: 90, hand });
   }
 }

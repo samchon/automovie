@@ -103,10 +103,10 @@ export function test_motion_posture_exercise_support(): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
     let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
-      seconds: 0.3,
+      hold: 0.3,
     });
     for (const [row, given] of rows)
-      chain = chain.registered(row, given).stand({ seconds: 0.3 });
+      chain = chain.registered(row, given).stand({ hold: 0.3 });
     let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
@@ -410,7 +410,7 @@ export function test_motion_posture_exercise_support(): void {
             },
           ],
           composition: HumanChain.subject("a")
-            .stand({ seconds: 0.3 })
+            .stand({ hold: 0.3 })
             .registered("frontSalto", { to: { x: 0, y: 0, z: 0.8 }, ...params })
             .node,
         });

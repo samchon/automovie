@@ -173,7 +173,8 @@ function lain(
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("x").lieDown({ position, hold: 0.5 }).node,
+    composition: HumanChain.subject("x").lieDown({ kind: position, hold: 0.5 })
+      .node,
   });
   return resolveAutoMovieHumanoidSurfaces.place(
     body.surfaces.regions[name],
@@ -223,16 +224,16 @@ function scene(
     ],
     // The partner is placed first, so the performer reads where it lies.
     composition: HumanChain.subject("b")
-      .lieDown({ position: w.partner, hold: HOLD + 6 })
+      .lieDown({ kind: w.partner, hold: HOLD + 6 })
       .with(
         HumanChain.subject("a")
           // Lies down once the partner is down, so the two never cross on the way.
-          .stand({ seconds: 3 })
-          .lieDown({ position: w.own, hold: 0.5 })
+          .stand({ hold: 3 })
+          .lieDown({ kind: w.own, hold: 0.5 })
           .registered(lieTogether.name, {
             partner: "b",
             way: w.way,
-            seconds: HOLD,
+            hold: HOLD,
           }),
       ).node,
   });

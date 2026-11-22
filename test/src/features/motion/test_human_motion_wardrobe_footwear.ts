@@ -101,7 +101,7 @@ function footwear(
     ],
     HumanChain.subject("actor")
       .pickUp({ prop: "footwear", handle: "hold", hand, lift: 0.04 })
-      .sit({ seat: HumanObject.seat(chair, chairAt), seconds: 0.8 })
+      .sit({ seat: HumanObject.seat(chair, chairAt), hold: 0.8 })
       .registered("wardrobe", {
         kind: "footwearOn",
         prop: "footwear",
@@ -109,8 +109,8 @@ function footwear(
         hand,
       })
       .rise({})
-      .stand({ seconds: 0.35 })
-      .sit({ seat: HumanObject.seat(chair, chairAt), seconds: 0.8 })
+      .stand({ hold: 0.35 })
+      .sit({ seat: HumanObject.seat(chair, chairAt), hold: 0.8 })
       .registered("wardrobe", {
         kind: "footwearOff",
         prop: "footwear",
@@ -121,11 +121,11 @@ function footwear(
       // The table top lies below the standing arm of the smaller cast (her
       // shoulder stands higher above it than her arm is long): bend to it.
       .bend({
-        toward: { kind: "point", at: touch.position, frame: "world" },
-        side: hand,
+        target: { kind: "point", at: touch.position, frame: "world" },
+        hand: hand,
       })
       .until({ event: "deepest" })
-      .putDown({ prop: "footwear", at: touch.position, hand }).node,
+      .putDown({ prop: "footwear", to: touch.position, hand }).node,
   );
   const segments: readonly IAutoMovieMotionHumanSegment[] =
     performance.segments("actor");

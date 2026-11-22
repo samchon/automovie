@@ -31,14 +31,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanEnsemble,
   HUMAN_LEXICON,
-  HumanEnsemble,
   HumanFoot,
-  HumanFormation,
-  HumanManoeuvre,
   HumanObject,
   HumanPerformance,
-  HumanPopulation,
 } from "@automovie/motions";
 import * as THREE from "three";
 
@@ -134,7 +131,7 @@ export function test_human_motion_ground_ensemble_cues(): void {
 
 /** Build a neutral straight row from the production formation vocabulary. */
 function row(space: number, z: number): IAutoMovieMotionHumanFormation {
-  return HumanFormation.of({
+  return AutoMovieMotionHumanEnsemble.HumanFormation.of({
     blocks: [
       {
         count: 5,
@@ -155,16 +152,17 @@ function row(space: number, z: number): IAutoMovieMotionHumanFormation {
 function assemble(variant: Variant): IRehearsal {
   const from: IAutoMovieMotionHumanFormation = row(NARROWER, 0);
   const to: IAutoMovieMotionHumanFormation = row(WIDER, ADVANCE);
-  const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
-    id: "cast",
-    seed: "dress-rehearsal",
-    count: 5,
-    bodies: [motionHumanBody("m-average"), motionHumanBody("f-small")],
-    attributes: { discipline: { mean: 1, spread: 0 } },
-    formation: from,
-    detail: (member): IAutoMovieMotionHumanEnsemble.Detail =>
-      member.index === 0 || member.index === 4 ? "population" : "full",
-  });
+  const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble =
+    AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+      id: "cast",
+      seed: "dress-rehearsal",
+      count: 5,
+      bodies: [motionHumanBody("m-average"), motionHumanBody("f-small")],
+      attributes: { discipline: { mean: 1, spread: 0 } },
+      formation: from,
+      detail: (member): IAutoMovieMotionHumanEnsemble.Detail =>
+        member.index === 0 || member.index === 4 ? "population" : "full",
+    });
   const order: IAutoMovieMotionHumanManoeuvre = {
     from,
     to,
@@ -173,10 +171,8 @@ function assemble(variant: Variant): IRehearsal {
     on: { of: "director", event: "advance" },
     at: STEP_OFF,
   };
-  const parts: IAutoMovieMotionHumanManoeuvre.IPart[] = HumanManoeuvre.plan(
-    ensemble,
-    order,
-  );
+  const parts: IAutoMovieMotionHumanManoeuvre.IPart[] =
+    AutoMovieMotionHumanEnsemble.HumanManoeuvre.plan(ensemble, order);
   const foreground: readonly IAutoMovieMotionHumanEnsemble.IMember[] =
     ensemble.members.filter(
       (member: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
@@ -214,7 +210,7 @@ function assemble(variant: Variant): IRehearsal {
   const performance: HumanPerformance = new HumanPerformance({
     seed: "dress-rehearsal",
     laws: [...HUMAN_LEXICON.gait!],
-    performers: HumanEnsemble.performers(ensemble),
+    performers: AutoMovieMotionHumanEnsemble.HumanEnsemble.performers(ensemble),
     props: objects,
     cues: {
       director: [
@@ -223,14 +219,14 @@ function assemble(variant: Variant): IRehearsal {
         { name: "look-right", seconds: RIGHT_CUE },
       ],
     },
-    composition: HumanEnsemble.chains(
+    composition: AutoMovieMotionHumanEnsemble.HumanEnsemble.chains(
       ensemble,
       (
         member: IAutoMovieMotionHumanEnsemble.IMember,
         chain: IAutoMovieMotionHumanChain,
       ): IAutoMovieMotionHumanChain => {
         const waiting: IAutoMovieMotionHumanChain = chain.stand({
-          seconds: 0.2,
+          hold: 0.2,
           sway: 0,
         });
         const board: Board | undefined = boards.get(member.subject);
@@ -243,15 +239,16 @@ function assemble(variant: Variant): IRehearsal {
                 hand: "right",
                 lift: 0.02,
               });
-        const moving: IAutoMovieMotionHumanChain = HumanManoeuvre.append(
-          ready,
-          parts[member.index]!,
-          order,
-        );
-        if (member.index === 2) return moving.stand({ seconds: 3, sway: 0 });
+        const moving: IAutoMovieMotionHumanChain =
+          AutoMovieMotionHumanEnsemble.HumanManoeuvre.append(
+            ready,
+            parts[member.index]!,
+            order,
+          );
+        if (member.index === 2) return moving.stand({ hold: 3, sway: 0 });
         const event: string = member.index === 1 ? "look-left" : "look-right";
         return moving
-          .stand({ seconds: 3, sway: 0 })
+          .stand({ hold: 3, sway: 0 })
           .look(
             {
               target: {
@@ -259,23 +256,21 @@ function assemble(variant: Variant): IRehearsal {
                 frame: "world",
                 at: { x: member.index === 1 ? 2.5 : -2.5, y: 1.4, z: 4.2 },
               },
-              with: "head",
-              seconds: 0.45,
+              recruit: "head",
+              duration: 0.45,
             },
             event,
           )
           .sync({ of: "director", event })
-          .stand({ seconds: 0.25, sway: 0 });
+          .stand({ hold: 0.25, sway: 0 });
       },
     ),
   });
-  const population: IAutoMovieFormationDesign = HumanPopulation.design(
-    ensemble,
-    {
+  const population: IAutoMovieFormationDesign =
+    AutoMovieMotionHumanEnsemble.HumanPopulation.design(ensemble, {
       id: "background",
       model: "background-figure",
-    },
-  );
+    });
   const ends: number[] = foreground.map(
     ({ subject }: IAutoMovieMotionHumanEnsemble.IMember): number =>
       performance

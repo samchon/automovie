@@ -20,13 +20,13 @@ export interface IAutoMovieMotionHumanLeadHorse {
   on: string;
 
   /** The hand that holds the rope. */
-  side: AutoMovieHumanSide;
+  hand: AutoMovieHumanSide;
 
   /** The horse's affordance id for the held run of a round rope; `lead` when absent. */
   point?: string;
 
   /** Seconds the action lasts, acquiring and releasing included, more than twice `transition`. No natural value is defined: choose it for the beat (provisional, missing). */
-  seconds: number;
+  duration: number;
 
   /** Seconds the hand takes to reach the rope, and again to let it go, positive. No natural value is defined: choose it for the beat (provisional, missing). */
   transition: number;

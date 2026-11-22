@@ -8,13 +8,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
+  AutoMovieMotionHumanWorkout,
   HumanChain,
   HumanFoot,
-  HumanGymnastics,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  lineWalk,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -100,8 +100,9 @@ export function test_motion_exercise_line_walk(): void {
     const end: IAutoMovieVector3 = hips(film, walk.start + walk.plan.duration);
     TestValidator.predicate(
       `${name} hips stay over the line (${(widest * 1000).toFixed(1)} mm) and stop at the point`,
-      widest <= lineWalk.SWAY * body.measure.stature + 0.001 &&
-        Math.abs(end.z - stop.z) <= body.measure.footLength,
+      widest <=
+        AutoMovieMotionHumanWorkout.lineWalk.SWAY * body.measure.stature +
+          0.001 && Math.abs(end.z - stop.z) <= body.measure.footLength,
     );
   }
 
@@ -142,7 +143,7 @@ function take(
 ): HumanPerformance {
   return new HumanPerformance({
     seed: "line-walk",
-    laws: [HumanGymnastics.lineWalk],
+    laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.lineWalk],
     performers: [
       { subject: "a", body, at, yaw: 0, proficiency: { level: "trained" } },
     ],

@@ -47,7 +47,7 @@ export function inspectRefrigerator<
   return chain
     .act("operate", {
       ...(scene.hand === undefined ? {} : { hand: scene.hand }),
-      mechanism: {
+      kind: {
         kind: "hinge",
         at: {
           kind: "prop",

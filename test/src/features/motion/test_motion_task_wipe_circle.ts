@@ -42,7 +42,7 @@ export function test_motion_task_wipe_circle(): void {
     ],
     composition: HumanChain.subject("a").act("wipe", {
       on: { kind: "point", frame: "world", at: centre },
-      cycles: 1,
+      count: 1,
     }).node,
   });
   const segment: IAutoMovieMotionHumanSegment = film.segments("a")[0]!;

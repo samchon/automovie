@@ -106,12 +106,12 @@ export function test_human_motion_operate_paper(): void {
           },
         ],
         composition: HumanChain.subject("reader")
-          .stand({ seconds: 1 })
+          .stand({ hold: 1 })
           .operate({
             hand: "right",
-            mechanism: { kind: "hinge", at: target, swing: 180 },
+            kind: { kind: "hinge", at: target, swing: 180 },
           })
-          .stand({ seconds: 1 }).node,
+          .stand({ hold: 1 }).node,
       });
     };
     const observed: string[] = [];

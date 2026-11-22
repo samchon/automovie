@@ -114,7 +114,7 @@ export namespace LexiconRowNet {
 
   /** A performer's chain out of a short stand. */
   const starting = (subject: string): IAutoMovieMotionHumanChain =>
-    HumanChain.subject(subject).stand({ seconds: 0.3 });
+    HumanChain.subject(subject).stand({ hold: 0.3 });
 
   /** Build one performance and note its refusal or its misplaced name. */
   const check = (

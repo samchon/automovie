@@ -23,8 +23,8 @@
  * farther ahead than the push-off is refused: no flight carries the body
  * over the box to it. Events: `handsDown`, `tucked` (the push-off), `touchdown`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation seconds: How long the landing is held, seconds; 0.5 when absent.
- * @evidence contracts/development/design.md#principled-representation seconds: How long the landing is held, seconds; 0.5 when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation hold: How long the landing is held, seconds; 0.5 when absent.
+ * @evidence contracts/development/design.md#principled-representation hold: How long the landing is held, seconds; 0.5 when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: sport/squatVault.ts (squatVault.plan, context).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in squatVault.plan.
  */
@@ -42,6 +42,6 @@ export namespace IAutoMovieMotionHumanSquatVault {
     on: string;
 
     /** How long the landing is held, seconds; 0.5 when absent. */
-    seconds?: number;
+    hold?: number;
   }
 }

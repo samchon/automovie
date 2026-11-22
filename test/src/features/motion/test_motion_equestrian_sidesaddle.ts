@@ -27,7 +27,7 @@ const FIGURES: IAutoMovieMotionHumanMounted.IFigure[] = [
   {
     seat: "aside",
     transfer: 1.5,
-    seconds: 4,
+    hold: 4,
     supports: {
       rightThigh: "fixedHead",
       leftFoot: "leftStirrup",
@@ -35,7 +35,7 @@ const FIGURES: IAutoMovieMotionHumanMounted.IFigure[] = [
       rightHand: "rightRein",
     },
   },
-  { seat: "entered", transfer: 1.2, seconds: 0.3 },
+  { seat: "entered", transfer: 1.2, hold: 0.3 },
 ];
 
 /**
@@ -80,7 +80,7 @@ export function test_motion_equestrian_sidesaddle(): void {
   const begin = (i: number): number =>
     i === 0 ? take.start : arrive(i) - FIGURES[i]!.transfer;
   const holding: number[] = [0.1, 0.5, 0.9].map(
-    (share: number): number => arrive(0) + FIGURES[0]!.seconds * share,
+    (share: number): number => arrive(0) + FIGURES[0]!.hold * share,
   );
 
   // 1. The carrier moves while the rider sits aside.

@@ -66,9 +66,9 @@ export namespace composeHumanRitual {
       (current: Chain, region: CrossRegion): Chain =>
         current.act("touch", {
           target: { kind: "self", region },
-          side,
+          hand: side,
           kind: "hold",
-          with: "fingertips",
+          effector: "fingertips",
           hold: TOUCH_HOLD,
           // The patch of each region nearest the signing shoulder: the front
           // of the shoulder a hand reaches across the chest, not its top.

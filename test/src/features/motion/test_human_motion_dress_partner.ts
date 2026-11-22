@@ -46,6 +46,12 @@ const RECEIVE: number = 4;
 /** The partner's receiving action's anchor, which the dresser waits for. */
 const RECEIVING: string = "receiving";
 
+/** How far apart the two stand, metres, where nothing else asks more. */
+const APART: number = 0.55;
+
+/** The skin a hand may lie within on another body, metres: the audit's 10 mm partner bound. */
+const SKIN: number = 0.01;
+
 /**
  * A held wearable passes from the dresser's hand to the partner's body.
  *
@@ -161,9 +167,24 @@ function stage(
     dressPartner: typeof dressPartner;
   }> = HumanChain.extend({ dressPartner });
   const dresser: ReturnType<typeof Chain.subject> = Chain.subject("a")
-    .stand({ seconds: 2 * RECEIVE })
+    .stand({ hold: 2 * RECEIVE })
     .until({ of: RECEIVING, event: item.kneels ? "settled" : "ready" })
     .pickUp({ prop: "item", handle: "hold", hand: "right", lift: 0.05 });
+  // A presented forearm and hand reach forward of the partner's trunk, and
+  // the dresser's front lies half its chest depth ahead of its root, so the
+  // partner who presents a wrist stands far enough off that the presented
+  // fingers stay a skin clear of the dresser; a kneeling partner keeps the
+  // usual distance.
+  const apart: number = item.kneels
+    ? APART
+    : Math.max(
+        APART,
+        a.measure.chestDepth / 2 +
+          b.measure.upperArmRadius +
+          b.measure.forearm +
+          b.measure.hand +
+          SKIN,
+      );
   return new HumanPerformance({
     seed: "dress-partner",
     laws: [dressPartner, presentHand],
@@ -178,7 +199,7 @@ function stage(
       {
         subject: "b",
         body: b,
-        at: { x: 0, y: 0, z: 0.55 },
+        at: { x: 0, y: 0, z: apart },
         yaw: 180,
         proficiency: { level: "trained" },
       },
@@ -202,7 +223,7 @@ function stage(
             at: {
               kind: "point",
               frame: "world",
-              at: { x: -b.rest.get("rightFoot")!.x, y: 0, z: 0.55 },
+              at: { x: -b.rest.get("rightFoot")!.x, y: 0, z: apart },
             },
           },
           RECEIVING,
@@ -212,10 +233,10 @@ function stage(
         HumanChain.subject("b")
           .registered(
             presentHand.name,
-            { side: "left", seconds: RECEIVE },
+            { side: "left", hold: RECEIVE },
             RECEIVING,
           )
-          .walk({ to: { x: 0, y: 0, z: 0.55 }, face: 120 })
+          .walk({ to: { x: 0, y: 0, z: apart }, face: 120 })
     ).with(
       dresser.dressPartner({
         prop: "item",

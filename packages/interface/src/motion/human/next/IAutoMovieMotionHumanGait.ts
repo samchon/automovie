@@ -1,7 +1,10 @@
 import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanRun";
 import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
 import type { IAutoMovieMotionHumanCarry } from "../carrying/IAutoMovieMotionHumanCarry";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanApproach } from "../everyday/IAutoMovieMotionHumanApproach";
+import type { IAutoMovieMotionHumanProxemics } from "../everyday/IAutoMovieMotionHumanProxemics";
+import type { IAutoMovieMotionHumanDrillRegulation } from "../lexicon/IAutoMovieMotionHumanDrillRegulation";
 import type { IAutoMovieMotionHumanPursuit } from "../lexicon/IAutoMovieMotionHumanPursuit";
 import type { IAutoMovieMotionHumanTravelDoor } from "../lexicon/IAutoMovieMotionHumanTravelDoor";
 import type { IAutoMovieMotionHumanGaitAided } from "./IAutoMovieMotionHumanGaitAided";
@@ -12,7 +15,7 @@ import type { IAutoMovieMotionHumanGaitStyled } from "./IAutoMovieMotionHumanGai
  *
  * Every gait shares one speed model: a pace is a Froude number `Fr` and the speed is `v = sqrt(Fr g l)` for the hip height `l` (`walk.FROUDE`, `run.GAITS`): a body with a longer leg is faster by the square root of `l`, its step is longer by `l` and its steps a minute fall by the square root of `l`. Every speed and steps a minute stated on these types is at the reference hip, 0.93 m (`walkRoot.REFERENCE_HIP`). `stride` changes the step and the steps a minute inversely and leaves the speed; `manner.pace` multiplies the speed (`IAutoMovieMotionManner.pace`).
  *
- * `WalkPace` and `RunPace` name the closed paces. A style that fixes more than the pace is a preset, data spread into `walk`'s parameters beside the destination: `AutoMovieMotionHumanGait.STROLL`, `HURRY` and `TRUDGE` (`IStridePreset`) and `SWAGGER` (`ICarriagePreset`); a preset adds no method. A jog and a sprint fix only the run's pace, so they are `pace: "jog"` and `pace: "sprint"`, with no preset.
+ * `WalkPace` and `RunPace` name the closed paces. A style that fixes more than the pace is a preset, data spread into `walk`'s parameters beside the destination: `AutoMovieMotionHumanGait.STROLL`, `HURRY` and `TRUDGE` (`IStridePreset`) and `SWAGGER` (`ICarriagePreset`); a preset adds no method. The approach has presets too: `FOLLOW` and `ESCORT` (`ITrackingApproachPreset`) and `CONFRONT` (`IFacingApproachPreset`). A jog and a sprint fix only the run's pace, so they are `pace: "jog"` and `pace: "sprint"`, with no preset.
  *
  * Every method appends its action to the chain and returns the chain. Its `anchor` is the action's id, unique in the composition, which another action syncs to (`sync({ of })`) or is cut on (`until({ of, event })`).
  *
@@ -314,5 +317,134 @@ export namespace IAutoMovieMotionHumanGait {
 
     /** The elbows held out from the body, degrees in [0, 30], as `IAutoMovieMotionHumanWalkParams.elbows`. */
     elbows: number;
+  }
+
+  /**
+   * The side of a person an approach comes to: `front`, `left`, `right` or `behind`, as `IAutoMovieMotionHumanApproach.IParams.from`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the four sides and the member that reads them.
+   * @evidence contracts/development/design.md#principled-representation A closed string union of the body-relative sides, so only a side of the person is admitted.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the approach presets that fix a side; the approach's `from` takes the same four.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the preset type reads this named union instead of an indexed access onto the approach's parameters.
+   */
+  export type ApproachSide = "front" | "left" | "right" | "behind";
+
+  /**
+   * Whether an approach follows a person where they go: `true` stops at the place they come to rest, `"pace"` also matches their speed on the way, and `false` reads them once where they are when it begins; as `IAutoMovieMotionHumanApproach.IParams.track`, whose result is stated there.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the three modes and the member that reads them.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the tracking modes the approach admits.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the approach presets that fix tracking; the approach's `track` takes the same modes.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the preset type reads this named union instead of an inline union.
+   */
+  export type ApproachTrack = boolean | "pace";
+
+  /**
+   * An approach preset that fixes the side, the distance and whether the walk tracks the person: the follow and the escort. Spread into `approach`'s parameters with the person; each value means what the approach's member of the same name does.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, which presets use it, how it is applied and where its members' meanings are.
+   * @evidence contracts/development/design.md#principled-representation Three required members with the approach's own units, so a preset always fixes exactly these three and the approach keeps every other default.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `AutoMovieMotionHumanGait.FOLLOW` and `ESCORT` are its data and the follow and escort rows read them.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the members are named once here instead of an inline pick of the approach's parameters.
+   */
+  export interface ITrackingApproachPreset {
+    /** The side of the person the walker comes to. */
+    from: ApproachSide;
+
+    /** The distance the walker stops at: a proxemic band of `IAutoMovieMotionHumanProxemics`. */
+    at: IAutoMovieMotionHumanProxemics.Band;
+
+    /** Whether, and how, the walker keeps up with the person while they move. */
+    track: ApproachTrack;
+  }
+
+  /**
+   * An approach preset that fixes the side and the distance: the confrontation. Spread into `approach`'s parameters with the person; each value means what the approach's member of the same name does.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, which preset uses it, how it is applied and where its members' meanings are.
+   * @evidence contracts/development/design.md#principled-representation Two required members with the approach's own units, so the preset always fixes exactly these two and the approach keeps every other default.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `AutoMovieMotionHumanGait.CONFRONT` is its data and the confront row reads it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the members are named once here instead of an inline pick of the approach's parameters.
+   */
+  export interface IFacingApproachPreset {
+    /** The side of the person the walker comes to. */
+    from: ApproachSide;
+
+    /** The distance the walker stops at: a proxemic band of `IAutoMovieMotionHumanProxemics`. */
+    at: IAutoMovieMotionHumanProxemics.Band;
+  }
+}
+
+/**
+ * The parameters of the styled gaits: named ways of going somewhere on foot,
+ * whose destination the composition gives. The speed model and the walk
+ * presets (`stroll`, `hurry`, `trudge`, `swagger`) are on the Gait family
+ * (`IAutoMovieMotionHumanGait<Chain>`, above).
+ *
+ * A styled gait has a speed no pace has. It runs the walk's stepping plan in
+ * a gait of its own, as the run does, and counts as a walk wherever actions
+ * are told apart by kind:
+ *
+ * - `march` keeps the drill regulation's cadence and step, 120 steps a
+ *   minute and 30 inches (0.762 m) in quick time, the same step for every
+ *   marcher (US Army TC 3-21.5). The cadence governs: the way is covered in
+ *   the whole number of steps nearest it in drill steps, so over a way that
+ *   is not a whole number of them the step gives and the cadence stays.
+ * - `doubleTime` keeps 180 steps a minute on the same step, which is a
+ *   jog's speed, so it is run in the jog's gait with the count kept.
+ * - `prowl` is the sneak on deeply bent knees; `sad` and `proud` carry a
+ *   mood in speed, arm swing and trunk; `limp` spares one leg, standing on
+ *   it briefly; `drunk` is slow, unsteady in time and wanders off its line.
+ *   All provisional, each constant saying what was read and what was not.
+ * - `sneak` goes slower than the slow walk on shorter steps, with the
+ *   pelvis lowered and the arms held close (provisional values; no study of
+ *   stealthy gait has been read).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation regulation: The drill regulation (`HUMAN_DRILL_CADENCES`); TC 3-21.5's quick time (`MARCH`) when absent. time: The regulation's time by its own name (`ordinary`, `quick`...); its first time when absent. side: The leg spared; the right when absent.
+ * @evidence contracts/development/design.md#principled-representation regulation: The drill regulation (`HUMAN_DRILL_CADENCES`); TC 3-21.5's quick time (`MARCH`) when absent. time: The regulation's time by its own name (`ordinary`, `quick`...); its first time when absent. side: The leg spared; the right when absent.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanGait.ts (HumanGait.march, context); lexicon/HumanGait.ts (regulated, params); lexicon/HumanGait.ts (HumanGait.doubleTime, context); lexicon/HumanGait.ts (HumanGait.sad, context); lexicon/HumanGait.ts (HumanGait.proud, context); lexicon/HumanGait.ts (HumanGait.drunk, context).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanWalkParams, IAutoMovieMotionHumanDrillRegulation.Name identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ */
+export namespace IAutoMovieMotionHumanGait {
+  /**
+   * What a styled gait leaves to the composition: the walk's destination, waypoints, arrival heading and elbows.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation What a styled gait leaves to the composition: the walk's destination, waypoints, arrival heading and elbows.
+   * @evidence contracts/development/design.md#principled-representation Closed choices "pace", "stride", "armSwing" distinguish the admitted cases.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanGait.ts (HumanGait.doubleTime, context); lexicon/HumanGait.ts (HumanGait.sad, context); lexicon/HumanGait.ts (HumanGait.proud, context); lexicon/HumanGait.ts (HumanGait.drunk, context); lexicon/HumanGait.ts (mood, context); lexicon/HumanGait.ts (distance, context).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanWalkParams identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   */
+  export type IParams = Omit<
+    IAutoMovieMotionHumanWalkParams,
+    "pace" | "stride" | "armSwing"
+  >;
+
+  /**
+   * What a march leaves to the composition: the walk's, and the regulation and time it marches at.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation regulation: The drill regulation (`HUMAN_DRILL_CADENCES`); TC 3-21.5's quick time (`MARCH`) when absent. time: The regulation's time by its own name (`ordinary`, `quick`...); its first time when absent.
+   * @evidence contracts/development/design.md#principled-representation regulation: The drill regulation (`HUMAN_DRILL_CADENCES`); TC 3-21.5's quick time (`MARCH`) when absent. time: The regulation's time by its own name (`ordinary`, `quick`...); its first time when absent.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanGait.ts (HumanGait.march, context); lexicon/HumanGait.ts (regulated, params); lexicon/HumanGait.ts (HumanGait.march).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanDrillRegulation.Name identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   */
+  export interface IMarch extends IAutoMovieMotionHumanGait.IParams {
+    /** The drill regulation (`HUMAN_DRILL_CADENCES`); TC 3-21.5's quick time (`MARCH`) when absent. */
+    regulation?: IAutoMovieMotionHumanDrillRegulation.Name;
+
+    /** The regulation's time by its own name (`ordinary`, `quick`...); its first time when absent. */
+    time?: string;
+  }
+
+  /**
+   * What a limp leaves to the composition: the walk's, and the leg spared.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation side: The leg spared; the right when absent.
+   * @evidence contracts/development/design.md#principled-representation side: The leg spared; the right when absent.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanGait.ts (HumanGait.stiffLimp, context); lexicon/HumanGait.ts (HumanGait.limp, context); lexicon/HumanGait.ts (HumanGait.stiffLimp); lexicon/HumanGait.ts (HumanGait.limp).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanGait.stiffLimp.
+   */
+  export interface ILimp extends IAutoMovieMotionHumanGait.IParams {
+    /** The leg spared; the right when absent. */
+    side?: AutoMovieHumanSide;
   }
 }

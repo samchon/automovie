@@ -199,7 +199,7 @@ export namespace operate {
     const context: typeof entered = routed.context;
     const body: IAutoMovieMotionHumanBody = context.body;
     const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
-      context.params.mechanism;
+      context.params.kind;
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);

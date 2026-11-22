@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanNext } from "@automovie/interface";
+import type { IAutoMovieMotionHumanGait } from "@automovie/interface";
 
 /**
  * The swagger preset: the `normal` walk (about 1.5 m/s at the reference hip),
@@ -12,9 +12,8 @@ import type { IAutoMovieMotionHumanNext } from "@automovie/interface";
  * @evidence contracts/development/design.md#minimal-and-owned-surface Re-exported as `AutoMovieMotionHumanGait.SWAGGER`; the swagger row reads it.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the row and the preset share one value instead of two copies.
  */
-export const HUMAN_GAIT_SWAGGER: IAutoMovieMotionHumanNext.IAutoMovieMotionHumanGait.ICarriagePreset =
-  {
-    pace: "normal",
-    armSwing: 1.5,
-    elbows: 20,
-  };
+export const HUMAN_GAIT_SWAGGER: IAutoMovieMotionHumanGait.ICarriagePreset = {
+  pace: "normal",
+  armSwing: 1.5,
+  elbows: 20,
+};

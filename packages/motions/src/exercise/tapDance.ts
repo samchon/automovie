@@ -192,7 +192,7 @@ export namespace tapDance {
           });
       }
     }
-    const end: number = beats.at(beats.beats) + beats.period;
+    const end: number = beats.at(beats.count) + beats.period;
     for (const side of ["left", "right"] as const) {
       const final: IAutoMovieMotionHumanDanceFootKey =
         keys[side][keys[side].length - 1]!;
@@ -251,9 +251,9 @@ export namespace tapDance {
       {},
       { shoulder: 10, raise: 25, elbow: 35 },
     ).joints;
-    for (let k: number = 1; k <= beats.beats; k++)
+    for (let k: number = 1; k <= beats.count; k++)
       instants.push({ name: `beat${k}`, seconds: beats.at(k) });
-    instants.push({ name: "relax", seconds: beats.at(beats.beats) });
+    instants.push({ name: "relax", seconds: beats.at(beats.count) });
     return DanceFootwork.compose(
       body,
       entry,

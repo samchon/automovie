@@ -56,7 +56,7 @@ const sitting = (
   a: IAutoMovieMotionHumanBody,
   params: object = {},
 ): IAutoMovieMotionHumanChain =>
-  S.chain().act("sit", { seat: seat(a), seconds: 0.5, ...params });
+  S.chain().act("sit", { seat: seat(a), hold: 0.5, ...params });
 
 /**
  * The stages of the laws that reshape the body where it stands: looking,
@@ -89,7 +89,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
       a,
       S.chain().act("look", {
         target: S.point(1, a.measure.shoulderHeight, 2),
-        ...S.set(pick, "with", "cue"),
+        ...S.set(pick, "recruit", "cue"),
       }),
     ),
   gesture: (
@@ -107,7 +107,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
         ...(kind === "point"
           ? { target: S.point(1, a.measure.shoulderHeight, 2) }
           : {}),
-        ...S.set(pick, "side"),
+        ...S.set(pick, "hand"),
       }),
     );
   },
@@ -126,7 +126,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
           : place === "elbowSupport"
             ? { left: place, right: "chinRest" }
             : { left: place, right: place }),
-        seconds: 1,
+        hold: 1,
       }),
     );
   },
@@ -137,7 +137,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     S.solo(
       a,
       S.chain().act("brace", {
-        toward: S.point(0, 1.2, 2),
+        target: S.point(0, 1.2, 2),
         ...S.set(pick, "kind"),
       }),
     ),
@@ -146,8 +146,8 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const strategy: string | undefined = pick("strategy");
-    const side: string | undefined = pick("side");
-    const x: number = 0.15 * S.sign(side);
+    const hand: string | undefined = pick("hand");
+    const x: number = 0.15 * S.sign(hand);
     const low: number = a.measure.ankleHeight;
     const toward: object =
       strategy === "squat"
@@ -158,9 +158,9 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     return S.solo(
       a,
       S.chain().act("bend", {
-        toward,
+        target: toward,
         ...(strategy === undefined ? {} : { strategy }),
-        ...(side === undefined ? {} : { side }),
+        ...(hand === undefined ? {} : { hand }),
       }),
     );
   },
@@ -184,7 +184,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     pick: motionHumanLawSweep.Pick,
     a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
-    S.solo(a, S.chain().act("lieDown", S.set(pick, "position"))),
+    S.solo(a, S.chain().act("lieDown", S.set(pick, "kind"))),
   support: (
     _pick: motionHumanLawSweep.Pick,
     a: IAutoMovieMotionHumanBody,
@@ -223,7 +223,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     S.solo(
       a,
       S.chain()
-        .act("lieDown", { position: "supine", hold: 0.3 })
+        .act("lieDown", { kind: "supine", hold: 0.3 })
         .act("getUp", S.set(pick, "pattern")),
     ),
   sit: (

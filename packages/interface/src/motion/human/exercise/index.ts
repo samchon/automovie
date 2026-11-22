@@ -1,4 +1,3 @@
-export type { IAutoMovieMotionHumanDance } from "./IAutoMovieMotionHumanDance";
 export type { IAutoMovieMotionHumanBallet } from "./IAutoMovieMotionHumanBallet";
 export type { IAutoMovieMotionHumanDanceCourse } from "./IAutoMovieMotionHumanDanceCourse";
 export type { IAutoMovieMotionHumanDanceFootKey } from "./IAutoMovieMotionHumanDanceFootKey";
@@ -16,7 +15,6 @@ export type { IAutoMovieMotionHumanExerciseKey } from "./IAutoMovieMotionHumanEx
 export type { IAutoMovieMotionHumanRopeSkip } from "./IAutoMovieMotionHumanRopeSkip";
 export type { IAutoMovieMotionHumanRopeSkipPresentation } from "./IAutoMovieMotionHumanRopeSkipPresentation";
 export type { IAutoMovieMotionHumanStretch } from "./IAutoMovieMotionHumanStretch";
-export type { IAutoMovieMotionHumanWorkout } from "./IAutoMovieMotionHumanWorkout";
 export type { IAutoMovieMotionHumanWorkoutBodyweight } from "./IAutoMovieMotionHumanWorkoutBodyweight";
 export type { IAutoMovieMotionHumanWorkoutEquipment } from "./IAutoMovieMotionHumanWorkoutEquipment";
 export type { IAutoMovieMotionHumanWorkoutFloor } from "./IAutoMovieMotionHumanWorkoutFloor";

@@ -46,7 +46,7 @@ export function test_motion_segment_final_pose_holds(): void {
     ],
     composition: HumanChain.subject("a")
       .pickUp({ prop: "ball", handle: "grip" })
-      .putDown({ prop: "ball", at: { x: -0.1, y: 0.9, z: 0.45 } }).node,
+      .putDown({ prop: "ball", to: { x: -0.1, y: 0.9, z: 0.45 } }).node,
   });
   const last = performance.segments("a").at(-1)!;
   const end: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =

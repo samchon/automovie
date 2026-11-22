@@ -15,7 +15,7 @@ import type { IAutoMovieMotionHumanThrowObjectLever } from "./IAutoMovieMotionHu
  */
 export interface IAutoMovieMotionHumanThrowObjectParams {
   /** Where the object goes. */
-  at: IAutoMovieMotionTarget;
+  target: IAutoMovieMotionTarget;
 
   /** The style; `overarm` when absent. It fixes the release angle, the windup and the trunk's turn and tilt ({@link IAutoMovieMotionHumanThrowObjectForm.Style} gives each style's angle and windup, provisional). The speed follows from the distance and the angle by the range equation, so a farther target is a faster throw. */
   style?: IAutoMovieMotionHumanThrowObjectForm.Style;

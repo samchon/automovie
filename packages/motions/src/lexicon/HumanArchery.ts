@@ -245,8 +245,7 @@ function toAnchor(
 ): IAutoMovieMotionHumanActionContext<
   IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
 > {
-  const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
-    context.params.mechanism;
+  const mechanism: IAutoMovieMotionHumanOperate.Mechanism = context.params.kind;
   if (mechanism.kind !== "slider" || mechanism.at.kind !== "prop")
     return context;
   const point: string = mechanism.at.point;
@@ -304,7 +303,7 @@ function toAnchor(
     ...context,
     params: {
       ...context.params,
-      mechanism: { ...mechanism, travel: mechanism.travel * (toChin / run) },
+      kind: { ...mechanism, travel: mechanism.travel * (toChin / run) },
     },
   };
 }
@@ -349,8 +348,7 @@ function onBowArm(
 ): IAutoMovieMotionHumanActionContext<
   IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
 > {
-  const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
-    context.params.mechanism;
+  const mechanism: IAutoMovieMotionHumanOperate.Mechanism = context.params.kind;
   if (mechanism.kind === "insert" || mechanism.at.kind !== "prop")
     return context;
   const bow: string = mechanism.at.subject;

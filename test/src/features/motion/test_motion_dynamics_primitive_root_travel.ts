@@ -4,7 +4,10 @@ import type {
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanRoot,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanRoot, stand } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanRoot,
+  AutoMovieMotionHumanStance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -35,11 +38,8 @@ export function test_motion_dynamics_primitive_root_travel(): void {
       }),
     });
   for (const yaw of [0, 90]) {
-    const base: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      { x: 2, y: 0, z: 3 },
-      yaw,
-    );
+    const base: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, { x: 2, y: 0, z: 3 }, yaw);
     for (const t of [0, 1, 2]) {
       const out: IAutoMovieMotionHumanPosture = primitive.write(base, t);
       TestValidator.predicate(

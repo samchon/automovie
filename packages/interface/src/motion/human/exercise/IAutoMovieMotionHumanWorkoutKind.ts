@@ -64,7 +64,7 @@ export interface IAutoMovieMotionHumanWorkoutKind {
   enter: number;
 
   /** Repetitions when the author names none. */
-  reps: number;
+  count: number;
 
   /**
    * The postures of one repetition on a body: the first is where the

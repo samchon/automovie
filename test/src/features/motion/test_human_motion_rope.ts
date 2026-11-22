@@ -15,10 +15,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanClimb,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanRope,
 } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -149,12 +149,13 @@ export function test_human_motion_rope(): void {
           },
         ],
         props,
-        laws: [HumanRope.rope],
+        laws: [AutoMovieMotionHumanClimb.rope.rope],
         composition: stage.chain.node,
       });
     const rope = (
       p: IAutoMovieMotionHumanRope.IParams,
-    ): IAutoMovieMotionHumanChain => HumanChain.subject("a").registered("rope", p);
+    ): IAutoMovieMotionHumanChain =>
+      HumanChain.subject("a").registered("rope", p);
 
     // 1-2. Climb, then descend at the bound.
     try {

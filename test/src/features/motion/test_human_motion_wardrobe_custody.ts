@@ -91,12 +91,12 @@ function jacket(cast: motionHumanBody.Name, hand: AutoMovieHumanSide): void {
       ),
     ],
     HumanChain.subject("actor")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .pickUp({ prop: "jacket", handle: "hold", hand, lift: 0.02 })
       .registered("wardrobe", { kind: "jacketOn", prop: "jacket", hand })
       .registered("wardrobe", { kind: "sleeveIn", prop: "jacket", side: hand })
       .registered("wardrobe", { kind: "closeZip", prop: "jacket", side: other })
-      .stand({ seconds: 0.24 })
+      .stand({ hold: 0.24 })
       .registered("wardrobe", { kind: "openZip", prop: "jacket", side: other })
       .registered("wardrobe", { kind: "sleeveOut", prop: "jacket", side: hand })
       .registered("wardrobe", {
@@ -107,7 +107,7 @@ function jacket(cast: motionHumanBody.Name, hand: AutoMovieHumanSide): void {
       .pickUp({ prop: "jacket", handle: "hold", hand, lift: 0 })
       .putDown({
         prop: "jacket",
-        at: { x: 0.1 * sign, y: 1.06, z: 0.24 },
+        to: { x: 0.1 * sign, y: 1.06, z: 0.24 },
         hand,
       })
       .walk({ to: Vector3.create(sign * 0.65, 0, 0.4) }).node,

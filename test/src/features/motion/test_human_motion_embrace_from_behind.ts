@@ -168,11 +168,11 @@ function scene(
     ],
     // The partner is placed first, so the embrace reads where the partner stands.
     composition: HumanChain.subject("b")
-      .stand({ seconds: HOLD + 4 })
+      .stand({ hold: HOLD + 4 })
       .with(
         HumanChain.subject("a").registered(embraceFromBehind.name, {
           partner: "b",
-          seconds: HOLD,
+          hold: HOLD,
         }),
       ).node,
   });

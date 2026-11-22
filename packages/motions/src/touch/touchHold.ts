@@ -331,7 +331,7 @@ export namespace touchHold {
       target: IAutoMovieMotionTarget,
     ): ILaid => {
       const tangent: IAutoMovieMotionHumanTouchForm.Tangent = p.tangent ?? "up";
-      const reach: boolean = p.with === "forefinger";
+      const reach: boolean = p.effector === "forefinger";
       // A hand laid on another person's limb lies along it (`limb`): a flat
       // hand across a curved segment sinks its fingers into it.
       const limb: IAutoMovieVector3 | undefined =

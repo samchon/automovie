@@ -7,10 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTouchEffector,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -42,11 +42,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_contact_arm_twist(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const base: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const base: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const complaints: string[] = [];
   const degrees = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     (Math.acos(

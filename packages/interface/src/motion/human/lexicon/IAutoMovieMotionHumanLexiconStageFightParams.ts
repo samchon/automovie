@@ -2,15 +2,15 @@ import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHu
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionHumanClinch";
 import type { IAutoMovieMotionHumanDisarm } from "../grappling/IAutoMovieMotionHumanDisarm";
-import type { IAutoMovieMotionHumanGrapple } from "../grappling/IAutoMovieMotionHumanGrapple";
 import type { IAutoMovieMotionHumanHostageHold } from "../grappling/IAutoMovieMotionHumanHostageHold";
 import type { IAutoMovieMotionHumanLungeGrab } from "../grappling/IAutoMovieMotionHumanLungeGrab";
+import type { IAutoMovieMotionHumanGrapple } from "../next/IAutoMovieMotionHumanGrapple";
+import type { IAutoMovieMotionHumanTouch } from "../next/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
 import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionHumanStagger";
 import type { IAutoMovieMotionHumanCloseStrike } from "../striking/IAutoMovieMotionHumanCloseStrike";
 import type { IAutoMovieMotionHumanPunch } from "../striking/IAutoMovieMotionHumanPunch";
 import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHumanStep";
-import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanStageProp } from "./IAutoMovieMotionHumanStageProp";
 
 /**
@@ -58,29 +58,32 @@ export interface IAutoMovieMotionHumanLexiconStageFightParams {
   /** A forehand slap: one tap of the open palm. The composition gives the cheek as the target. */
   slap: Omit<
     IAutoMovieMotionHumanTouch.IParams,
-    "with" | "kind" | "count" | "tangent"
+    "effector" | "kind" | "count" | "tangent"
   >;
 
   /** A stage slap, the non-contact one a stage fight uses: the open palm swung across the cheek the composition names, half a hand's length clear of it (provisional), with no contact declared. The receiver's `slapped` sells it. */
   stageSlap: Omit<
     IAutoMovieMotionHumanTouch.IParams,
-    "with" | "kind" | "count" | "tangent" | "clear"
+    "effector" | "kind" | "count" | "tangent" | "clear"
   >;
 
   /** A backhand slap: one tap of the hand's back. */
   backhand: Omit<
     IAutoMovieMotionHumanTouch.IParams,
-    "with" | "kind" | "count" | "tangent"
+    "effector" | "kind" | "count" | "tangent"
   >;
 
   /** A shove: the palm pressed on the partner's chest. */
-  shove: Omit<IAutoMovieMotionHumanTouch.IParams, "with" | "kind" | "count">;
+  shove: Omit<
+    IAutoMovieMotionHumanTouch.IParams,
+    "effector" | "kind" | "count"
+  >;
 
   /** A grab: the hand closed on the partner's region and held (a collar, an arm, the hair at the crown). */
-  grab: Omit<IAutoMovieMotionHumanTouch.IParams, "with" | "kind" | "count">;
+  grab: Omit<IAutoMovieMotionHumanTouch.IParams, "effector" | "kind" | "count">;
 
   /** A poke of the forefinger into the partner's chest, repeated. */
-  poke: Omit<IAutoMovieMotionHumanTouch.IParams, "with" | "kind">;
+  poke: Omit<IAutoMovieMotionHumanTouch.IParams, "effector" | "kind">;
 
   /** A hold on the partner by the clinch, kept three seconds (provisional). */
   restrain: Omit<IAutoMovieMotionHumanClinch.IParams, "hold">;
@@ -97,7 +100,7 @@ export interface IAutoMovieMotionHumanLexiconStageFightParams {
   /** A choke from the front: both palms closed on the neck and held two seconds (provisional). The composition gives the two sides of the neck as `target` and `other`. */
   choke: Omit<
     IAutoMovieMotionHumanTouch.IParams,
-    "with" | "kind" | "count" | "hold"
+    "effector" | "kind" | "count" | "hold"
   >;
 
   /** A headlock or a choke from behind: the clinch's hold on the partner's neck, kept two seconds (provisional). */
@@ -106,17 +109,17 @@ export interface IAutoMovieMotionHumanLexiconStageFightParams {
   /** A hair pull: the hand closed on the crown, the temple or the nape the composition names and held; the receiver's `grabbed` follows it. The puller stands as close as for a slap: the row does not close the distance itself, and a region beyond the arm is refused. */
   hairPull: Omit<
     IAutoMovieMotionHumanTouch.IParams,
-    "with" | "kind" | "count" | "hold"
+    "effector" | "kind" | "count" | "hold"
   >;
 
   /** The receiver of a choke: both hands brought to the attacker's forearms. The composition gives them as `target` and `other`. */
   struggle: Omit<
     IAutoMovieMotionHumanTouch.IParams,
-    "with" | "kind" | "count" | "hold"
+    "effector" | "kind" | "count" | "hold"
   >;
 
   /** A dive for cover: down onto the floor, prone, and stay there three seconds (provisional). */
-  diveForCover: Omit<IAutoMovieMotionHumanLieDown.IParams, "position" | "hold">;
+  diveForCover: Omit<IAutoMovieMotionHumanLieDown.IParams, "kind" | "hold">;
 
   /** A duck under a threat with no strike to answer: a short partial crouch (0.3 s held, provisional). */
   duck: Omit<IAutoMovieMotionHumanCrouch.IParams, "depth" | "hold">;

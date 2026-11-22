@@ -7,11 +7,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanThrowCatch,
   HumanBallPlay,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  stickBall,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -71,7 +71,7 @@ export function test_motion_exercise_hockey_goal(): void {
           proficiency: { level: "trained" },
         },
       ],
-      laws: [stickBall],
+      laws: [AutoMovieMotionHumanThrowCatch.stickBall],
       props: [
         HumanObject.prop("puck", puck, { at: puckAt, yaw: 0 }),
         HumanObject.prop("stick", stick, stickFrame),
@@ -99,7 +99,7 @@ export function test_motion_exercise_hockey_goal(): void {
             .sync({ of: "low", event: "lowest" }),
         )
         // The film runs on while the puck slides.
-        .stand({ seconds: 3.5, sway: 0 }).node,
+        .stand({ hold: 3.5, sway: 0 }).node,
     });
   const mouth: IAutoMovieMotionHumanBallPlay.IRectangle = {
     kind: "rectangle",

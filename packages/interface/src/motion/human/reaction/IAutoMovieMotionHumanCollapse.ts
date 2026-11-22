@@ -62,12 +62,12 @@ export namespace IAutoMovieMotionHumanCollapse {
     side?: "left" | "right";
 
     /** Where the blow came from; a place ahead of the performer when absent. */
-    from?: IAutoMovieMotionTarget;
+    target?: IAutoMovieMotionTarget;
 
     /** How long the knees give and the trunk sways before the drop, seconds; 0 when absent, the drop starting at once. A faint is shown with a sag (Smeesters, Hayes and McMahon 2001); no study gives its duration, so the value is the author's. */
     sag?: number;
 
     /** How long the body lies after landing, seconds; 1 when absent; see {@link IAutoMovieMotionHumanKnockdown.IParams.seconds}. */
-    seconds?: number;
+    hold?: number;
   }
 }

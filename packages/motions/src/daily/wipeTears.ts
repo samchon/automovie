@@ -22,10 +22,10 @@ import { handToFace } from "./handToFace";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The cheek and timing are row data, and the planner handles mirroring, contact and return.
  */
 export const wipeTears: IAutoMovieMotionHumanActionLaw<
-  Omit<IAutoMovieMotionHumanHandToFace.IParams, "task" | "other">
+  Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind" | "other">
 > = HumanActionRow.of("wipeTears", handToFace, {
   other: undefined,
-  task: {
+  kind: {
     region: "cheekRight",
     effector: { surface: "palm", shape: "flat" },
     kind: "rub",

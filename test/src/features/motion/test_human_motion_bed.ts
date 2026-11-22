@@ -37,7 +37,13 @@ const SINK: number = 0.01;
 const ROLLING: number = 0.15;
 
 /** The bones whose collision shapes a lying body rests on. */
-const BEARING: readonly AutoMovieHumanoidBone[] = ["hips", "chest", "head", "leftFoot", "rightFoot"];
+const BEARING: readonly AutoMovieHumanoidBone[] = [
+  "hips",
+  "chest",
+  "head",
+  "leftFoot",
+  "rightFoot",
+];
 
 /**
  * Going to bed, turning over, waking and getting up, and a log roll on the
@@ -64,26 +70,50 @@ const BEARING: readonly AutoMovieHumanoidBone[] = ["hips", "chest", "head", "lef
 export function test_human_motion_bed(): void {
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const film: HumanPerformance = bedtime(body, createBed({ kind: "double", height: HEIGHT }));
+    const film: HumanPerformance = bedtime(
+      body,
+      createBed({ kind: "double", height: HEIGHT }),
+    );
     assertTakeClean(`${name} goes to bed`, film);
-    const segments: readonly IAutoMovieMotionHumanSegment[] = film.segments("a");
-    const lie: IAutoMovieMotionHumanSegment = named(segments, "lieOnSurface")[0]!;
-    const up: IAutoMovieMotionHumanSegment = named(segments, "lieOnSurface")[1]!;
+    const segments: readonly IAutoMovieMotionHumanSegment[] =
+      film.segments("a");
+    const lie: IAutoMovieMotionHumanSegment = named(
+      segments,
+      "lieOnSurface",
+    )[0]!;
+    const up: IAutoMovieMotionHumanSegment = named(
+      segments,
+      "lieOnSurface",
+    )[1]!;
     const from: number = mark(lie, "lateral");
     const to: number = up.start + 0.5 * (mark(up, "lateral") - up.start);
-    const worst: number = Array.from({ length: 25 }, (_v: unknown, k: number): number => from + ((to - from) * k) / 24)
+    const worst: number = Array.from(
+      { length: 25 },
+      (_v: unknown, k: number): number => from + ((to - from) * k) / 24,
+    )
       .map((t: number): number => {
-        const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = film.bones("a", t);
-        return Math.min(...BEARING.map((b: AutoMovieHumanoidBone): number => bones.get(b)!.worldPosition.y - HEIGHT));
+        const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          film.bones("a", t);
+        return Math.min(
+          ...BEARING.map(
+            (b: AutoMovieHumanoidBone): number =>
+              bones.get(b)!.worldPosition.y - HEIGHT,
+          ),
+        );
       })
       .reduce((a: number, b: number): number => Math.min(a, b));
     TestValidator.predicate(
       `${name}: lying on the bed, no bearing bone sinks under the mattress and no foot is below it (${(worst * 1000).toFixed(0)} mm)`,
       worst >= -SINK,
     );
-    const turns: readonly IAutoMovieMotionHumanSegment[] = named(segments, "turnOver");
+    const turns: readonly IAutoMovieMotionHumanSegment[] = named(
+      segments,
+      "turnOver",
+    );
     TestValidator.equals(`${name}: turns over twice`, turns.length, 2);
-    const facing: readonly number[] = turns.map((s: IAutoMovieMotionHumanSegment): number => chest(film, s.end - 1e-3).y);
+    const facing: readonly number[] = turns.map(
+      (s: IAutoMovieMotionHumanSegment): number => chest(film, s.end - 1e-3).y,
+    );
     const sideways: boolean = Math.abs(facing[0]!) < 0.35;
     const faceDown: boolean = facing[1]! < -0.8;
     TestValidator.predicate(
@@ -93,27 +123,41 @@ export function test_human_motion_bed(): void {
     TestValidator.predicate(
       `${name}: stands at the end`,
       segments.at(-1)!.name === "rise" &&
-        film.bones("a", film.duration).get("hips")!.worldPosition.y > 0.7 * body.rest.get("hips")!.y,
+        film.bones("a", film.duration).get("hips")!.worldPosition.y >
+          0.7 * body.rest.get("hips")!.y,
     );
 
     const floor: HumanPerformance = rolled(body, 4);
     assertTakeClean(`${name} log-rolls`, floor);
-    const roll: IAutoMovieMotionHumanSegment = named(floor.segments("a"), "logRoll")[0]!;
-    const a: IAutoMovieVector3 = floor.bones("a", roll.start).get("hips")!.worldPosition;
-    const b: IAutoMovieVector3 = floor.bones("a", roll.end).get("hips")!.worldPosition;
+    const roll: IAutoMovieMotionHumanSegment = named(
+      floor.segments("a"),
+      "logRoll",
+    )[0]!;
+    const a: IAutoMovieVector3 = floor
+      .bones("a", roll.start)
+      .get("hips")!.worldPosition;
+    const b: IAutoMovieVector3 = floor
+      .bones("a", roll.end)
+      .get("hips")!.worldPosition;
     const expected: number = 4 * (perimeter(body) / 2);
     const advance: number = Math.hypot(b.x - a.x, b.z - a.z);
     TestValidator.predicate(
       `${name}: the pelvis rolls ${(advance * 1000).toFixed(0)} mm for ${(expected * 1000).toFixed(0)} mm`,
       Math.abs(advance - expected) <= ROLLING * expected,
     );
-    TestValidator.predicate(`${name}: the roll ends on the back`, chest(floor, roll.end).y > 0.8);
+    TestValidator.predicate(
+      `${name}: the roll ends on the back`,
+      chest(floor, roll.end).y > 0.8,
+    );
   }
   TestValidator.predicate(
     "a bed too short for the body is refused with its length",
     (() => {
       try {
-        bedtime(motionHumanBody("m-tall"), createBed({ kind: "single", length: 1.6, height: HEIGHT })).bones("a", 6);
+        bedtime(
+          motionHumanBody("m-tall"),
+          createBed({ kind: "single", length: 1.6, height: HEIGHT }),
+        ).bones("a", 6);
         return false;
       } catch (error: unknown) {
         return error instanceof HumanRefusal && error.axis === "length";
@@ -128,12 +172,31 @@ type Bed = ReturnType<typeof createBed>;
 /** `a` stands by the bed's left edge, sits, lies down, turns onto the left side and face down, sits up and stands. */
 function bedtime(body: IAutoMovieMotionHumanBody, bed: Bed): HumanPerformance {
   const half: number = (bed.affordance("surface").width ?? 1.35) / 2;
-  const lie: IAutoMovieMotionHumanLieOnSurface = { prop: "bed", edge: "leftSide", hold: 0.5 };
-  const left: IAutoMovieMotionHumanTurnOver = { to: "lateralLeft", on: { prop: "bed" }, hold: 0.5 };
-  const prone: IAutoMovieMotionHumanTurnOver = { to: "prone", on: { prop: "bed" }, hold: 0.5 };
-  const back: IAutoMovieMotionHumanTurnOver = { to: "supine", on: { prop: "bed" }, via: "right" };
+  const lie: IAutoMovieMotionHumanLieOnSurface = {
+    prop: "bed",
+    edge: "leftSide",
+    hold: 0.5,
+  };
+  const left: IAutoMovieMotionHumanTurnOver = {
+    to: "lateralLeft",
+    on: { prop: "bed" },
+    hold: 0.5,
+  };
+  const prone: IAutoMovieMotionHumanTurnOver = {
+    to: "prone",
+    on: { prop: "bed" },
+    hold: 0.5,
+  };
+  const back: IAutoMovieMotionHumanTurnOver = {
+    to: "supine",
+    on: { prop: "bed" },
+    via: "right",
+  };
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("a")
-    .sit({ seat: HumanObject.seat(bed, { at: ORIGIN, yaw: 0 }, "leftSide"), seconds: 0.5 })
+    .sit({
+      seat: HumanObject.seat(bed, { at: ORIGIN, yaw: 0 }, "leftSide"),
+      hold: 0.5,
+    })
     .registered(lieOnSurface.name, lie)
     .registered(turnOver.name, left)
     .registered(turnOver.name, prone)
@@ -145,20 +208,39 @@ function bedtime(body: IAutoMovieMotionHumanBody, bed: Bed): HumanPerformance {
     laws: [lieOnSurface, turnOver],
     props: [HumanObject.prop("bed", bed, { at: ORIGIN, yaw: 0, fixed: true })],
     performers: [
-      { subject: "a", body, at: { x: half + 0.2, y: 0, z: 0 }, yaw: 90, proficiency: { level: "trained" } },
+      {
+        subject: "a",
+        body,
+        at: { x: half + 0.2, y: 0, z: 0 },
+        yaw: 90,
+        proficiency: { level: "trained" },
+      },
     ],
     composition: chain.node,
   });
 }
 
 /** `a` lies down on the floor and log-rolls toward its left. */
-function rolled(body: IAutoMovieMotionHumanBody, halfTurns: number): HumanPerformance {
+function rolled(
+  body: IAutoMovieMotionHumanBody,
+  halfTurns: number,
+): HumanPerformance {
   const roll: IAutoMovieMotionHumanLogRoll = { toward: "left", halfTurns };
   return new HumanPerformance({
     seed: "log-roll",
     laws: [logRoll],
-    performers: [{ subject: "a", body, at: ORIGIN, yaw: 0, proficiency: { level: "trained" } }],
-    composition: HumanChain.subject("a").lieDown({ position: "supine" }).registered(logRoll.name, roll).node,
+    performers: [
+      {
+        subject: "a",
+        body,
+        at: ORIGIN,
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("a")
+      .lieDown({ kind: "supine" })
+      .registered(logRoll.name, roll).node,
   });
 }
 
@@ -167,7 +249,9 @@ function named(
   segments: readonly IAutoMovieMotionHumanSegment[],
   name: string,
 ): IAutoMovieMotionHumanSegment[] {
-  return segments.filter((s: IAutoMovieMotionHumanSegment): boolean => s.name === name);
+  return segments.filter(
+    (s: IAutoMovieMotionHumanSegment): boolean => s.name === name,
+  );
 }
 
 /** The film second of a segment's named event. */
@@ -175,13 +259,18 @@ function mark(segment: IAutoMovieMotionHumanSegment, name: string): number {
   return (
     segment.start +
     segment.plan.duration *
-      segment.plan.events.find((event: IAutoMovieMotionEvent): boolean => event.name === name)!.share
+      segment.plan.events.find(
+        (event: IAutoMovieMotionEvent): boolean => event.name === name,
+      )!.share
   );
 }
 
 /** The displayed chest's forward normal. */
 function chest(film: HumanPerformance, t: number): IAutoMovieVector3 {
-  return Quaternion.rotateVector(film.bones("a", t).get("chest")!.worldRotation, { x: 0, y: 0, z: 1 });
+  return Quaternion.rotateVector(
+    film.bones("a", t).get("chest")!.worldRotation,
+    { x: 0, y: 0, z: 1 },
+  );
 }
 
 /** The chest's cross-section perimeter: Ramanujan's ellipse approximation of its breadth and depth. */
@@ -190,4 +279,3 @@ function perimeter(body: IAutoMovieMotionHumanBody): number {
   const b: number = body.measure.chestDepth / 2;
   return Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
 }
-

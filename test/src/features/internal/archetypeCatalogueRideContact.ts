@@ -15,12 +15,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanRide,
   poseBones,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -289,7 +289,7 @@ function standingFloor(body: IAutoMovieMotionHumanBody): number {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("a").stand({ seconds: 0.5, sway: 0 }).node,
+    composition: HumanChain.subject("a").stand({ hold: 0.5, sway: 0 }).node,
   });
   const entry: IAutoMovieMotionHumanEntryState =
     film.segments("a")[0]!.context.entry;
@@ -330,11 +330,11 @@ function rideFilm(
   );
   const actor: IAutoMovieMotionHumanChain = HumanChain.subject("a");
   const entry: IAutoMovieMotionHumanChain = seated
-    ? actor.sit({ seat, seconds: 0.5 })
-    : actor.stand({ seconds: 0.5 });
+    ? actor.sit({ seat, hold: 0.5 })
+    : actor.stand({ hold: 0.5 });
   return new HumanPerformance({
     seed: "catalogue/sedan/ride",
-    laws: [HumanRide.ride],
+    laws: [AutoMovieMotionHumanMount.rideHorse.ride],
     props: [HumanObject.prop("sedan", model, placed(0), placed)],
     performers: [
       {

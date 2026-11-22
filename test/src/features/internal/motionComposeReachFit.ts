@@ -9,9 +9,9 @@ import type {
 import {
   AutoMovieMotionHumanLean,
   AutoMovieMotionHumanReach,
+  AutoMovieMotionHumanStance,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import { motionComplaints } from "./motionComplaints";
@@ -81,11 +81,8 @@ export function motionComposeReachFit(): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const bones = (posture: IAutoMovieMotionHumanPosture): Bones =>
       poseBones(body, resolveHumanPosture(body, posture));
-    const standing: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      { x: 0, y: 0, z: 0 },
-      0,
-    );
+    const standing: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
     const upright: Bones = bones(standing);
     const hips: IAutoMovieVector3 = upright.get("hips")!.worldPosition;
     const length = (limb: (typeof LIMBS)[number]): number =>
@@ -105,7 +102,11 @@ export function motionComposeReachFit(): void {
         "turned and pitched",
         AutoMovieMotionHumanLean.pivot(
           body,
-          stand.posture(body, { x: 0.4, y: 0, z: -0.2 }, 90),
+          AutoMovieMotionHumanStance.stand.posture(
+            body,
+            { x: 0.4, y: 0, z: -0.2 },
+            90,
+          ),
           { pitch: 20, roll: 0 },
         ),
       ],
@@ -333,11 +334,8 @@ export function motionComposeReachFit(): void {
   for (const profile of ["m-short-armed", "m-long-armed"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(profile);
     const origin: IAutoMovieVector3 = { x: 0.4, y: 0, z: -0.2 };
-    const posture: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      origin,
-      90,
-    );
+    const posture: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, origin, 90);
     const joints: Bones = poseBones(
       body,
       resolveHumanPosture(body, { ...posture, limbs: {} }),

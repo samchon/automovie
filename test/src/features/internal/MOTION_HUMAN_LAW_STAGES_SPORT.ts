@@ -56,13 +56,13 @@ export const MOTION_HUMAN_LAW_STAGES_SPORT: Readonly<
       a,
       S.chain().act("exercise", {
         kind: pick("kind") ?? (side === undefined ? "squat" : "lunge"),
-        reps: 3,
+        count: 3,
         ...S.set(pick, "depth"),
         ...(side === undefined ? {} : { side }),
       }),
     );
   },
-  stretch: kinded("stretch", "crossBody", { seconds: 3 }, "side", "intensity"),
+  stretch: kinded("stretch", "crossBody", { hold: 3 }, "side", "depth"),
   dance: kinded("dance", "stepTouch", { bpm: 120 }, "side"),
   athletics: (
     pick: motionHumanLawSweep.Pick,

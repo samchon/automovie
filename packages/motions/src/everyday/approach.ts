@@ -179,7 +179,9 @@ export namespace approach {
       last.position.x - began.position.x,
       last.position.z - began.position.z,
     );
-    const off: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
+    const off: (p: IAutoMovieVector3) => number = (
+      p: IAutoMovieVector3,
+    ): number =>
       line < 1e-6
         ? Math.hypot(p.x - began.position.x, p.z - began.position.z)
         : Math.abs(
@@ -280,7 +282,7 @@ export namespace approach {
 
     // The stop: along the line from the start, or on a named side of a person.
     let stop: { at: IAutoMovieVector3; yaw: number };
-    if (p.side === undefined) {
+    if (p.from === undefined) {
       const now: number = Math.hypot(point.x - feet.x, point.z - feet.z) - lead;
       if (now < gap - 1e-9)
         throw new HumanRefusal({
@@ -296,15 +298,15 @@ export namespace approach {
       if (target.kind !== "person")
         throw new HumanRefusal({
           kind: "parameter",
-          axis: "side",
-          value: context.params.side,
+          axis: "from",
+          value: context.params.from,
           reason: `a side is a person's side; this target is a ${target.kind}`,
           fix: "leave side out for a target that is not a person",
         });
       const facing: number =
         (Math.atan2(aimed.normal.x, aimed.normal.z) * 180) / Math.PI;
       const turn: number = { front: 0, left: 90, right: -90, behind: 180 }[
-        p.side
+        p.from
       ];
       const out: IAutoMovieVector3 = HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: facing + turn },
@@ -326,7 +328,7 @@ export namespace approach {
     // Walk round people in the way: a waypoint abeam each one the straight leg would pass nearer than the clearance plus their half breadth, on the side that deviates least. The person approached is walked round too when the stop lies on a side of them the straight leg would reach through them.
     const round: string[] = [...(p.avoid ?? [])];
     if (
-      p.side !== undefined &&
+      p.from !== undefined &&
       target.kind === "person" &&
       !round.includes(target.subject)
     )
@@ -363,8 +365,14 @@ export namespace approach {
           ...(p.effort === undefined
             ? {}
             : {
-                stride: Math.min(walk.STRIDE_RANGE.maximum, Math.max(walk.STRIDE_RANGE.minimum, mods.step)),
-                armSwing: Math.min(walk.ARM_SWING_RANGE.maximum, Math.max(walk.ARM_SWING_RANGE.minimum, mods.swing)),
+                stride: Math.min(
+                  walk.STRIDE_RANGE.maximum,
+                  Math.max(walk.STRIDE_RANGE.minimum, mods.step),
+                ),
+                armSwing: Math.min(
+                  walk.ARM_SWING_RANGE.maximum,
+                  Math.max(walk.ARM_SWING_RANGE.minimum, mods.swing),
+                ),
                 // The elbow modifier is an outward offset in upper-arm
                 // lengths, and an upper arm abducted by an angle carries the
                 // elbow out by its length times the angle's sine, so the

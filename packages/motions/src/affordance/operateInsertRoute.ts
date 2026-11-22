@@ -41,8 +41,7 @@ export function operateInsertRoute(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
   constants: operateInsertRoute.IConstants,
 ): operateInsertRoute.IRouted {
-  const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
-    context.params.mechanism;
+  const mechanism: IAutoMovieMotionHumanOperate.Mechanism = context.params.kind;
   if (mechanism.kind !== "insert") return { context };
   const into: IAutoMovieMotionTarget = mechanism.into;
   const socket: string | undefined =
@@ -70,7 +69,7 @@ export function operateInsertRoute(
     depth,
   };
   const routed: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams> =
-    { ...context, params: { ...context.params, mechanism: resolved } };
+    { ...context, params: { ...context.params, kind: resolved } };
   const side: AutoMovieHumanSide = context.params.hand ?? "right";
   const tool: IAutoMovieMotionHumanStrikingHeld.ITool = operateInsert.tool(
     routed,
@@ -89,8 +88,7 @@ export function operateInsertRoute(
       Vector3.scale(tool.axis, Vector3.dot(tool.tip, tool.axis)),
     ),
   );
-  if (across > half || depth <= tool.length - half)
-    return { context: routed };
+  if (across > half || depth <= tool.length - half) return { context: routed };
   return {
     context: routed,
     plan: operateLongInsert(routed, {

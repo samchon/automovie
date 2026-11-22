@@ -144,13 +144,13 @@ export namespace AutoMovieMotionHumanVariation {
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "skill" | "series">,
     manner:
-      | Pick<IAutoMovieMotionManner, "variation" | "proficiency">
+      | Pick<IAutoMovieMotionManner, "variation" | "consistency">
       | undefined,
   ): IAutoMovieMotionHumanVariation.ISource | undefined {
     const variation: number = manner?.variation ?? 0;
     HumanBound.within("manner.variation", variation, 0, 1);
     if (variation === 0) return undefined;
-    const proficiency: number | undefined = manner?.proficiency;
+    const proficiency: number | undefined = manner?.consistency;
     if (proficiency !== undefined)
       HumanBound.within("manner.proficiency", proficiency, 0, 1);
     return {

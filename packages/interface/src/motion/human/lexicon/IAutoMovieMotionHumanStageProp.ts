@@ -41,5 +41,5 @@ export interface IAutoMovieMotionHumanStageProp {
   /**
    * Staged time, seconds, positive; the beat's authored time when absent.
    */
-  seconds?: number;
+  duration?: number;
 }

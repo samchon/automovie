@@ -12,12 +12,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
+  AutoMovieMotionHumanThrowCatch,
   HumanChain,
-  HumanGymnastics,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  juggle,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -117,7 +117,7 @@ export function test_motion_exercise_juggle(): void {
     const t4: number = second("throw4")!;
     const flight: number = c1 - t1;
     const cycle: number = 2 * (t2 - t1);
-    const dwell: number = juggle.DWELL * cycle;
+    const dwell: number = AutoMovieMotionHumanThrowCatch.juggle.DWELL * cycle;
     const vacancy: number = cycle - dwell;
     TestValidator.predicate(
       `${name} satisfies Shannon's theorem (F ${flight.toFixed(3)}, D ${dwell.toFixed(3)}, V ${vacancy.toFixed(3)})`,
@@ -181,7 +181,7 @@ function take(
   const root: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   return new HumanPerformance({
     seed: "juggle",
-    laws: [HumanGymnastics.juggling],
+    laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.juggling],
     performers: [
       {
         subject: "a",
@@ -194,17 +194,24 @@ function take(
     props: params.balls.map(
       (b: string, i: number): IAutoMovieMotionHumanProp =>
         HumanObject.prop(b, createBall({ kind: "tennis" }), {
-          at: Vector3.subtract(juggle.start(body, root, 0, i, radius), {
-            x: 0,
-            y: radius,
-            z: 0,
-          }),
+          at: Vector3.subtract(
+            AutoMovieMotionHumanThrowCatch.juggle.start(
+              body,
+              root,
+              0,
+              i,
+              radius,
+            ),
+            {
+              x: 0,
+              y: radius,
+              z: 0,
+            },
+          ),
           yaw: 0,
         }),
     ),
-    composition: (after > 0
-      ? juggled.stand({ seconds: after, sway: 0 })
-      : juggled
-    ).node,
+    composition: (after > 0 ? juggled.stand({ hold: after, sway: 0 }) : juggled)
+      .node,
   });
 }

@@ -1,4 +1,3 @@
-import type { IAutoMovieMotionHumanJump } from "../actions/IAutoMovieMotionHumanJump";
 import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanRun";
 import type { IAutoMovieMotionHumanStand } from "../actions/IAutoMovieMotionHumanStand";
 import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
@@ -8,6 +7,7 @@ import type { IAutoMovieMotionHumanApproach } from "../everyday/IAutoMovieMotion
 import type { IAutoMovieMotionHumanStepOver } from "../everyday/IAutoMovieMotionHumanStepOver";
 import type { IAutoMovieMotionHumanCrawl } from "../floor/IAutoMovieMotionHumanCrawl";
 import type { IAutoMovieMotionHumanPushPull } from "../handling/IAutoMovieMotionHumanPushPull";
+import type { IAutoMovieMotionHumanJump } from "../next/IAutoMovieMotionHumanJump";
 import type { IAutoMovieMotionHumanClimbStairs } from "../terrain/IAutoMovieMotionHumanClimbStairs";
 import type { IAutoMovieMotionHumanChainCore } from "./IAutoMovieMotionHumanChainCore";
 

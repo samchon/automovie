@@ -38,7 +38,7 @@ export namespace IAutoMovieMotionHumanTrick {
   /**
    * One figure.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation kind: The figure. side: The side it is made on. transfer: Seconds it takes to reach. seconds: Seconds it is held. object: The prop a pickup takes from the ground.
+   * @evidence contracts/development/common.md#meaningful-documentation kind: The figure. side: The side it is made on. transfer: Seconds it takes to reach. hold: Seconds it is held. object: The prop a pickup takes from the ground.
    * @evidence contracts/development/design.md#principled-representation A closed kind, a side, seconds and a prop id.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `HumanTrick`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
@@ -54,7 +54,7 @@ export namespace IAutoMovieMotionHumanTrick {
     transfer: number;
 
     /** Seconds it is held. No natural value is defined: choose it for the beat (provisional, missing). */
-    seconds: number;
+    hold: number;
 
     /** The prop a pickup takes from the ground. */
     object?: string;

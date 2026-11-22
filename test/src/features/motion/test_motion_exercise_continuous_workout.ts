@@ -42,7 +42,7 @@ export function test_motion_exercise_continuous_workout(): void {
       proficiency: { level: "trained" as const },
     };
     const floor = HumanChain.subject(cast.subject)
-      .stand({ seconds: 0.25 })
+      .stand({ hold: 0.25 })
       .kneel({ kind: "one", hold: 0.25, rise: false })
       .registered("plank", { hold: 0.3, stay: true });
     const fail = (label: string, observed: unknown): void => {
@@ -53,9 +53,8 @@ export function test_motion_exercise_continuous_workout(): void {
       laws,
       props: [],
       performers: [cast],
-      composition: floor
-        .registered("pushUp", { reps: 1 })
-        .stand({ seconds: 0.25 }).node,
+      composition: floor.registered("pushUp", { reps: 1 }).stand({ hold: 0.25 })
+        .node,
     });
     const read = HumanSignature.of(film, cast.subject, body, 0);
     const [standing, kneel, plank, press, recover] = film.segments(

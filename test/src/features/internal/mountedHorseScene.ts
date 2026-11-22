@@ -12,13 +12,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFrame,
   HumanHand,
-  HumanMounted,
   HumanObject,
   HumanPerformance,
-  HumanRide,
   HumanSignature,
 } from "@automovie/motions";
 
@@ -173,9 +172,7 @@ export namespace mountedHorseScene {
       const ground: Chain = (props.before ?? ((c: Chain): Chain => c))(
         HumanChain.subject("rider"),
       );
-      return props.seated === false
-        ? ground
-        : ground.sit({ seat, seconds: 0.5 });
+      return props.seated === false ? ground : ground.sit({ seat, hold: 0.5 });
     };
     const film: HumanPerformance = new HumanPerformance({
       seed: "equine-mounted-supports",
@@ -183,7 +180,11 @@ export namespace mountedHorseScene {
         HumanObject.prop("horse", horse, place(0), place, part),
         ...(props.props ?? []),
       ],
-      laws: [HumanRide.ride, HumanMounted, ...(props.laws ?? [])],
+      laws: [
+        AutoMovieMotionHumanMount.rideHorse.ride,
+        AutoMovieMotionHumanMount.mounted,
+        ...(props.laws ?? []),
+      ],
       ...(props.cues === undefined ? {} : { cues: props.cues }),
       performers: [
         {

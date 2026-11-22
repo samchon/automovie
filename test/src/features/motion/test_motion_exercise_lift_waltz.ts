@@ -7,11 +7,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanWorkout,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanSport,
-  workout,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -42,7 +42,7 @@ export function test_motion_exercise_lift_waltz(): void {
   const proficiency = { level: "trained" as const };
   const lift: HumanPerformance = new HumanPerformance({
     seed: "exercise-lift",
-    laws: [workout],
+    laws: [AutoMovieMotionHumanWorkout.workout],
     performers: [{ subject: "a", body, at: origin, yaw: 0, proficiency }],
     props: [
       HumanObject.prop("bar", bar, {
@@ -54,7 +54,7 @@ export function test_motion_exercise_lift_waltz(): void {
       }),
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .pickUp({ prop: "bar", handle: "gripRight" })
       .registered("workout", {
         kind: "cleanAndJerk",
@@ -134,7 +134,7 @@ export function test_motion_exercise_lift_waltz(): void {
     ],
     cues: { score },
     composition: HumanChain.subject("lead")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .registered("boxStep", {
         lock: { of: "score" },
         beats: beats.length,
@@ -143,7 +143,7 @@ export function test_motion_exercise_lift_waltz(): void {
       })
       .with(
         HumanChain.subject("follow")
-          .stand({ seconds: 0.3, sway: 0 })
+          .stand({ hold: 0.3, sway: 0 })
           .registered("boxStep", {
             lock: { of: "score" },
             beats: beats.length,

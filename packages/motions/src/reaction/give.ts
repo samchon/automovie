@@ -104,7 +104,9 @@ export namespace give {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous observation lends its exact FK workspace and body-bound head-demand producer to the entry and both actual joint-override trials; every authored joint is still admitted and each changed neck pose is read afresh, while direction is still read once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The observation IIFE releases its lazy FK workspace, fixed head-demand reader and fresh bone maps before constructing the returned primitive; only its direction and computed head angles escape, never an FK reader, callback or posed-result cache.
    */
-  export function plan(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGive.IParams>): IAutoMovieMotionHumanActionPlan {
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGive.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanGive.IParams = context.params;
     const intensity: number = p.intensity ?? 1;
     HumanBound.within("intensity", intensity, 0, 1, "", "minimum");
@@ -147,7 +149,7 @@ export namespace give {
           AutoMovieMotionHumanTarget.away(
             ReactionSource.at(
               context,
-              p.from,
+              p.target,
               context.start - StrikingTarget.LOOK,
               entry,
               AutoMovieMotionHumanTarget.DEFAULTS.ahead,
@@ -162,7 +164,14 @@ export namespace give {
         ? {
             part: "head",
             away,
-            angles: turned(context, trunk, away.x >= 0 ? 1 : -1, intensity, resolution, headAt),
+            angles: turned(
+              context,
+              trunk,
+              away.x >= 0 ? 1 : -1,
+              intensity,
+              resolution,
+              headAt,
+            ),
           }
         : { part: "trunk", away };
     })();
@@ -227,11 +236,8 @@ export namespace give {
       const tried: [number, number, number] = [held[0], held[1], held[2]];
       tried[axis] += 10;
       const moved: IAutoMovieVector3 = Quaternion.rotateVector(
-        headAt(
-          entry,
-          resolution,
-          { ...entry.joints, neck: tried },
-        ).get("head")!.worldRotation,
+        headAt(entry, resolution, { ...entry.joints, neck: tried }).get("head")!
+          .worldRotation,
         probe,
       );
       const rest: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -257,7 +263,6 @@ export namespace give {
   }
 
   /** All reaction observations read only this head and its actual ancestry. */
-  const HEAD: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-    "head",
-  ]);
+  const HEAD: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>(["head"]);
 }

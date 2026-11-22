@@ -39,8 +39,8 @@ export interface IAutoMovieMotionHumanButton {
   thickness: number;
 
   /** Duration of the push, seconds, at unit tempo. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
-  seconds: number;
+  duration: number;
 
   /** Hand pushing the button. Defaults to the right. */
-  side?: AutoMovieHumanSide;
+  hand?: AutoMovieHumanSide;
 }

@@ -64,7 +64,7 @@ export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
     plan(
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTendHorse>,
     ): IAutoMovieMotionHumanActionPlan {
-      const { on, side, point, task, seconds, transition } = context.params;
+      const { on, side, point, task, duration: seconds, transition } = context.params;
       const stroke: number = context.params.stroke ?? 0;
       if (
         ![seconds, transition, stroke].every(Number.isFinite) ||
@@ -105,7 +105,10 @@ export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
       const base: IAutoMovieMotionHumanActionPlan =
         AutoMovieMotionHumanBase.under(context, seconds);
       const { gripsAt, closures }: HumanRideHands.IHands = HumanRideHands.of(
-        { ...context, params: { on, seconds, hands: { [side]: point } } },
+        {
+          ...context,
+          params: { on, duration: seconds, hands: { [side]: point } },
+        },
         on,
         support,
         base.posture(0),

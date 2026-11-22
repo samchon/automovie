@@ -1,5 +1,5 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
-import type { IAutoMovieMotionHumanDance } from "./IAutoMovieMotionHumanDance";
+import type { IAutoMovieMotionHumanDance } from "../next/IAutoMovieMotionHumanDance";
 
 /**
  * Tap dance on the beat clock (#3991): the shuffle, the flap, the ball

@@ -1,3 +1,4 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanFlinch } from "../reaction/IAutoMovieMotionHumanFlinch";
 import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
 
@@ -69,4 +70,43 @@ export namespace IAutoMovieMotionHumanReaction {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IGive = IAutoMovieMotionHumanGive.IParams;
+}
+
+/**
+ * Contracts used by `AutoMovieMotionHumanReaction.report`, and the home of the
+ * reactions that leave the feet where they are, by the size of the answer.
+ *
+ * - `flinch` ({@link IAutoMovieMotionHumanFlinch}): a startle, the trunk
+ *   leans and the head ducks in place; peak at 0.2 s, back by 0.6 s.
+ * - `give` ({@link IAutoMovieMotionHumanGive}): the head turned or the
+ *   trunk carried by a slap or a light push, the feet kept; peak at 0.12 s,
+ *   back by 0.72 s.
+ *
+ * A reaction that moves the feet or the whole body (a stagger, a knockdown,
+ * a collapse, a body thrown, a perturbation) is a fall, and
+ * `IAutoMovieMotionHumanFall` owns it. `intensity` of `flinch` and `give`
+ * scales the size of the answer and never its time. Every size and time of
+ * `flinch` and `give` is provisional except the startle's 0.2 s peak
+ * (Landis and Hunt 1939).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation point: World-space location where the shot is fired, metres; sound travels from this source to the listener. seconds: Shot instant in performance seconds.
+ * @evidence contracts/development/design.md#principled-representation point: World-space location where the shot is fired, metres; sound travels from this source to the listener. seconds: Shot instant in performance seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: reaction/HumanReaction.ts (HumanReaction.report, shot).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ */
+export namespace IAutoMovieMotionHumanReaction {
+  /**
+   * The film second a shot's report reaches a listener. Input shot of HumanReaction.report. Where and when the shot is fired, world metres and film seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation point: World-space location where the shot is fired, metres; sound travels from this source to the listener. seconds: Shot instant in performance seconds.
+   * @evidence contracts/development/design.md#principled-representation point: World-space location where the shot is fired, metres; sound travels from this source to the listener. seconds: Shot instant in performance seconds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: reaction/HumanReaction.ts (HumanReaction.report, shot).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   */
+  export interface IReportShot {
+    /** World-space location where the shot is fired, metres; sound travels from this source to the listener. */
+    point: IAutoMovieVector3;
+    /** Shot instant in performance seconds. */
+    seconds: number;
+  }
 }

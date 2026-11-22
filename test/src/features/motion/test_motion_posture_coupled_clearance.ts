@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanPerformance,
 } from "@automovie/interface";
 import {
-  HumanCarried,
+  AutoMovieMotionHumanCarryPerson,
   HumanCarriedLean,
   HumanChain,
   HumanPerformance,
@@ -74,13 +74,16 @@ export function test_motion_posture_coupled_clearance(): void {
       b: motionHumanBody(names[1]),
     };
     const walk: IAutoMovieMotionHumanChain = HumanChain.subject("a")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .walk({ to: { x: 0, y: 0, z: 2 } });
     return {
       bodies,
       film: new HumanPerformance({
         seed: "carry",
-        laws: [HumanCarried.borne, HumanCarried.bearing],
+        laws: [
+          AutoMovieMotionHumanCarryPerson.carryPerson.borne,
+          AutoMovieMotionHumanCarryPerson.carryPerson.bearing,
+        ],
         performers: (["a", "b"] as const).map((subject) => ({
           subject,
           body: bodies[subject],
@@ -90,14 +93,14 @@ export function test_motion_posture_coupled_clearance(): void {
         })),
         composition: (carry === null
           ? walk
-          : walk.over((o) => o.registered("bearing", { carry, seconds: 2 }))
+          : walk.over((o) => o.registered("bearing", { carry, hold: 2 }))
         ).with(
           HumanChain.subject("b")
-            .stand({ seconds: 0.3 })
+            .stand({ hold: 0.3 })
             .registered("borne", {
-              by,
+              partner: by,
               carry: carry ?? "piggyback",
-              seconds: 2,
+              hold: 2,
               ...phases,
             }),
         ).node,
@@ -109,7 +112,7 @@ export function test_motion_posture_coupled_clearance(): void {
                   {
                     layer: HumanCarriedLean.layer(carry),
                     from: 0.3,
-                    fade: HumanCarried.TAKE,
+                    fade: AutoMovieMotionHumanCarryPerson.carryPerson.TAKE,
                   },
                 ],
               },
@@ -122,7 +125,7 @@ export function test_motion_posture_coupled_clearance(): void {
   for (const carry of Object.keys(
     RESTS,
   ) as IAutoMovieMotionHumanCarried.Carry[]) {
-    const row = HumanCarried.CARRIES[carry];
+    const row = AutoMovieMotionHumanCarryPerson.carryPerson.CARRIES[carry];
     TestValidator.equals(
       carry + " anatomical support",
       [row.mine, row.theirs],

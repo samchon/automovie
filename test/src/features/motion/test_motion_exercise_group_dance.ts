@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanDance,
   HumanChain,
-  HumanDanceStyles,
   HumanPerformance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -219,13 +219,13 @@ function group(
   );
   return new HumanPerformance({
     seed: "group-dance",
-    laws: [HumanDanceStyles.socialDance],
+    laws: [AutoMovieMotionHumanDance.HumanDanceStyles.socialDance],
     performers,
     composition: AutoMovieComposition.parallel(
       ...places.map(
         (_: IAutoMovieVector3, i: number): IAutoMovieComposition =>
           HumanChain.subject(id(i))
-            .stand({ seconds: 0.3, sway: 0 })
+            .stand({ hold: 0.3, sway: 0 })
             .registered("socialDance", params(i)).node,
       ),
     ),

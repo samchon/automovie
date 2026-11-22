@@ -47,7 +47,7 @@ export function test_motion_posture_stretch_return_support(): void {
       ],
       composition: HumanChain.subject("a").act("stretch", {
         kind: "quadriceps",
-        seconds: 0.5,
+        hold: 0.5,
       }).node,
     });
   const late: HumanPerformance = build();

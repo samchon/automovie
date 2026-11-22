@@ -172,7 +172,7 @@ function perform(
       },
     ],
     composition: HumanChain.subject("s")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .registered("crabWalk", params).node,
   });
 }

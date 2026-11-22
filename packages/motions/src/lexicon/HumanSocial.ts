@@ -50,7 +50,7 @@ export namespace HumanSocial {
   export const shoulderPat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["shoulderPat"]
   > = HumanActionRow.of("shoulderPat", touch, {
-    with: "palm",
+    effector: "palm",
     kind: "pat",
     count: 2,
   });
@@ -59,7 +59,7 @@ export namespace HumanSocial {
   export const comfort: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["comfort"]
   > = HumanActionRow.of("comfort", touch, {
-    with: "palm",
+    effector: "palm",
     kind: "hold",
     hold: 2,
   });
@@ -82,7 +82,7 @@ export namespace HumanSocial {
   export const toastSip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["toastSip"]
   > = HumanActionRow.of("toastSip", handToFace, {
-    task: "sip",
+    kind: "sip",
   });
 
   /** A fist bump between two people: both perform `fistBump`. With `window`, film seconds, the fists meet no earlier than its `from` and part at its `to` (`AutoMovieMotionMeeting.IWindow`). */
@@ -161,7 +161,7 @@ export namespace HumanSocial {
   export const firmPress: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["firmPress"]
   > = HumanActionRow.of("firmPress", touch, {
-    with: "palm",
+    effector: "palm",
     kind: "press",
     manner: AutoMovieMotionManner.PRESETS.press,
   });
@@ -170,7 +170,7 @@ export namespace HumanSocial {
   export const flickOff: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["flickOff"]
   > = HumanActionRow.of("flickOff", touch.stroked(touch.FLICK), {
-    with: "fingertips",
+    effector: "fingertips",
     kind: "stroke",
     manner: AutoMovieMotionManner.PRESETS.flick,
   });

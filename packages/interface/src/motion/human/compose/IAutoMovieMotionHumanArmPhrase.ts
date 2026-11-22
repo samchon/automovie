@@ -147,7 +147,7 @@ export namespace IAutoMovieMotionHumanArmPhrase {
     swing?: IAutoMovieMotionHumanArmPhrase.IOffset;
 
     /** The oscillation's cycles; 2 when absent (provisional: no measured count read). */
-    cycles?: number;
+    count?: number;
 
     /**
      * `true` when the target is written for the right hand, as a row writes
@@ -158,7 +158,7 @@ export namespace IAutoMovieMotionHumanArmPhrase {
     mirror?: boolean;
 
     /** The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent. */
-    side?: AutoMovieHumanSide | "both";
+    hand?: AutoMovieHumanSide | "both";
 
     /** The hand's surface brought to the target; the palm when absent. */
     surface?: IAutoMovieMotionHumanHand.Surface;

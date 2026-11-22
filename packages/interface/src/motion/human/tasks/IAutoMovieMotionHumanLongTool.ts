@@ -58,6 +58,6 @@ export namespace IAutoMovieMotionHumanLongTool {
     hand?: AutoMovieHumanSide;
 
     /** How many strokes, a whole number of at least 1; 3 when absent. */
-    cycles?: number;
+    count?: number;
   }
 }

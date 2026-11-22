@@ -13,11 +13,11 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFrame,
   HumanObject,
   HumanPerformance,
-  HumanRide,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -112,10 +112,10 @@ export function test_world_cavalry_charge_seat(): void {
         proficiency: { level: "trained" },
       },
     ],
-    laws: [HumanRide.ride],
+    laws: [AutoMovieMotionHumanMount.rideHorse.ride],
     props: [HumanObject.prop("charger", horse, place(0), place, part)],
     composition: HumanChain.subject("trooper")
-      .sit({ seat: saddle, seconds: 0.5 })
+      .sit({ seat: saddle, hold: 0.5 })
       .registered("ride", {
         on: "charger",
         seconds: MOUNT + ride.duration,

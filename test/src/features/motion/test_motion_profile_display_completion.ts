@@ -39,7 +39,7 @@ export function test_motion_profile_display_completion(): void {
               proficiency: { level: "trained" },
             },
           ],
-          composition: HumanChain.subject("a").stand({ seconds: 0.05 }).node,
+          composition: HumanChain.subject("a").stand({ hold: 0.05 }).node,
         }),
       ["a"],
     );

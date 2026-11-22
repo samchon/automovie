@@ -15,10 +15,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  stand,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -95,12 +95,12 @@ export namespace filmStageScreenCue {
     const rehearsal: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
       {
         name: "sceneryRehearsal",
-        interrupts: stand.interrupts,
+        interrupts: AutoMovieMotionHumanStance.stand.interrupts,
         plan(
           context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
         ): IAutoMovieMotionHumanActionPlan {
           return {
-            ...stand.plan(context),
+            ...AutoMovieMotionHumanStance.stand.plan(context),
             launches: [
               {
                 prop: "foam-token",
@@ -120,15 +120,15 @@ export namespace filmStageScreenCue {
       },
     );
     const waiting = HumanChain.subject("observer").stand({
-      seconds: contact ? RESPONSE : 1,
+      hold: contact ? RESPONSE : 1,
       sway: 0,
     });
     const response = contact
       ? waiting.look(
           {
             target: { kind: "point", frame: "world", at: { x: 0, y: 1, z: 0 } },
-            with: "head",
-            seconds: 1 - RESPONSE,
+            recruit: "head",
+            duration: 1 - RESPONSE,
           },
           "notice-the-panel",
         )

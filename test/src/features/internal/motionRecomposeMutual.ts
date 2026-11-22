@@ -87,7 +87,7 @@ export function motionRecomposeMutual(
   const start: Start = (who: Subject): IAutoMovieMotionHumanChain => {
     const body: IAutoMovieMotionHumanBody = bodies[who];
     if (base === "standing")
-      return HumanChain.subject(who).stand({ seconds: 0.3 });
+      return HumanChain.subject(who).stand({ hold: 0.3 });
     const seat: IAutoMovieMotionHumanSeated.ISeat = {
       at: {
         x: 0,
@@ -339,7 +339,7 @@ export function motionRecomposeMutual(
               parts: [
                 start("a")
                   .pickUp({ prop: name, handle })
-                  .putDown({ prop: name, at: before("a").at }).node,
+                  .putDown({ prop: name, to: before("a").at }).node,
                 start("b").node,
               ],
             },

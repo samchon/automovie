@@ -63,8 +63,8 @@ export function test_human_motion_hug(): void {
       composition: HumanChain.mutual(
         hug,
         {
-          one: HumanChain.subject("a").stand({ seconds: entry }),
-          other: HumanChain.subject("b").stand({ seconds: entry }),
+          one: HumanChain.subject("a").stand({ hold: entry }),
+          other: HumanChain.subject("b").stand({ hold: entry }),
         },
         { hold },
       ).node,

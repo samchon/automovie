@@ -7,11 +7,10 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGait,
   HumanChain,
   HumanFoot,
   HumanPerformance,
-  HumanRaceGait,
-  walk,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -43,7 +42,7 @@ export function test_motion_exercise_race_walk(): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const film: HumanPerformance = new HumanPerformance({
       seed: "race-walk",
-      laws: [HumanRaceGait.raceWalk],
+      laws: [AutoMovieMotionHumanGait.HumanRaceGait.raceWalk],
       performers: [
         {
           subject: "a",
@@ -54,7 +53,7 @@ export function test_motion_exercise_race_walk(): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3, sway: 0 })
+        .stand({ hold: 0.3, sway: 0 })
         .registered("raceWalk", { to: { x: 0, y: 0, z: 10 } }).node,
     });
     const race: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
@@ -90,8 +89,12 @@ export function test_motion_exercise_race_walk(): void {
       (film.bones("a", b).get("hips")!.worldPosition.z -
         film.bones("a", a).get("hips")!.worldPosition.z) /
       (b - a);
-    const fast: number = Math.sqrt(walk.FROUDE.fast * G * l);
-    const race0: number = Math.sqrt(HumanRaceGait.FROUDE * G * l);
+    const fast: number = Math.sqrt(
+      AutoMovieMotionHumanGait.walk.FROUDE.fast * G * l,
+    );
+    const race0: number = Math.sqrt(
+      AutoMovieMotionHumanGait.HumanRaceGait.FROUDE * G * l,
+    );
     TestValidator.predicate(
       `${name} race walks at ${speed.toFixed(2)} m/s, past the fast walk's ${fast.toFixed(2)}`,
       speed > fast && Math.abs(speed - race0) <= 0.15 * race0,

@@ -5,12 +5,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanTouch,
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanPartner,
   HumanPerformance,
   HumanSignature,
-  touch,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -82,7 +82,7 @@ export function test_motion_posture_paired_dance(): void {
       ],
       composition: HumanChain.subject("a")
         .registered("danceLead", { to: { x: 0, y: 0, z: 4 } })
-        .stand({ seconds: 4 })
+        .stand({ hold: 4 })
         .with(
           HumanChain.subject("b")
             .registered("danceFollow", {
@@ -145,7 +145,7 @@ export function test_motion_posture_paired_dance(): void {
       follow,
       performance.bones("b", middle),
       "left",
-      touch.EFFECTORS.palm,
+      AutoMovieMotionHumanTouch.touch.EFFECTORS.palm,
     );
     const shoulder: IAutoMovieVector3 = HumanSignature.region(
       readers.a,

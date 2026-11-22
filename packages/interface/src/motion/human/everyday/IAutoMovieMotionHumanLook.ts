@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
-import type { IAutoMovieMotionHumanGaze } from "./IAutoMovieMotionHumanGaze";
+import type { IAutoMovieMotionHumanGaze } from "../next/IAutoMovieMotionHumanGaze";
 
 /**
  * Standing and turning the eyes, head and trunk to a target, either at once
@@ -29,8 +29,8 @@ import type { IAutoMovieMotionHumanGaze } from "./IAutoMovieMotionHumanGaze";
  * Events: `gazeOn`, when the eyes reach the target, and `settled`, when the
  * head and trunk end their turn.
  *
- * @evidence contracts/development/common.md#meaningful-documentation with: Which segments may join; `auto` when absent. cue: What drew the look; an immediate, willed look when absent. seconds: How long the action lasts, seconds; 0.6 s after `settled` when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation with: Which segments may join; `auto` when absent. cue: What drew the look; an immediate, willed look when absent. seconds: How long the action lasts, seconds; 0.6 s after `settled` when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/common.md#meaningful-documentation recruit: Which segments may join; `auto` when absent. cue: What drew the look; an immediate, willed look when absent. duration: How long the action lasts, seconds; 0.6 s after `settled` when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/design.md#principled-representation recruit: Which segments may join; `auto` when absent. cue: What drew the look; an immediate, willed look when absent. duration: How long the action lasts, seconds; 0.6 s after `settled` when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.look, params); everyday/look.ts (look.plan, context); everyday/look.ts (look.reactionLaw, return).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanGaze.Recruit identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -49,12 +49,12 @@ export namespace IAutoMovieMotionHumanLook {
     target: IAutoMovieMotionTarget;
 
     /** Which segments may join; `auto` when absent. */
-    with?: IAutoMovieMotionHumanGaze.Recruit;
+    recruit?: IAutoMovieMotionHumanGaze.Recruit;
 
     /** What drew the look; an immediate, willed look when absent. */
     cue?: "seen" | "signal";
 
     /** How long the action lasts, seconds, positive; 0.6 s after `settled` when absent. */
-    seconds?: number;
+    duration?: number;
   }
 }

@@ -7,11 +7,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGait,
   HumanChain,
   HumanFoot,
   HumanPerformance,
   HumanVerdicts,
-  walkSteps,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -48,8 +48,7 @@ export function test_motion_posture_gait_path(): void {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("walker").stand({ seconds: 1, sway: 0 })
-      .node,
+    composition: HumanChain.subject("walker").stand({ hold: 1, sway: 0 }).node,
   }).segments("walker")[0]!.context.entry;
   const start: number =
     (entry.feet.left.ankle.z + entry.feet.right.ankle.z) / 2;
@@ -59,7 +58,8 @@ export function test_motion_posture_gait_path(): void {
       HumanFoot.offset(body, "left", "mtp").z) /
     2;
   for (const swing of [0.999, 1, 1.001]) {
-    const plan: IAutoMovieMotionHumanWalkSteps.IPlan = walkSteps.plan({
+    const plan: IAutoMovieMotionHumanWalkSteps.IPlan =
+      AutoMovieMotionHumanGait.walkSteps.plan({
       body,
       entry,
       to: {

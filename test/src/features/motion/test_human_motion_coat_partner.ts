@@ -260,7 +260,7 @@ function stage(
     // stands; the partner threads the jacket where the dresser holds it, at
     // the partner's own collar, without reading the dresser.
     composition: HumanChain.subject("b")
-      .stand({ seconds: WAIT })
+      .stand({ hold: WAIT })
       .registered("wardrobe", {
         kind: "sleeveIn",
         prop: "jacket",
@@ -273,12 +273,12 @@ function stage(
         side: "right",
         held: true,
       })
-      .stand({ seconds: 2 })
+      .stand({ hold: 2 })
       .walk({ to: { x: 0.3, y: 0, z: 0.8 }, face: 60 })
       .with(
         HumanChain.extend({ coatPartner })
           .subject("a")
-          .stand({ seconds: 0.3 })
+          .stand({ hold: 0.3 })
           // The dresser stands behind the partner, so it takes the jacket by
           // its back collar; the `hold` handle is on the front.
           .pickUp({ prop: "jacket", handle: "backCollar", hand, lift: 0.02 })

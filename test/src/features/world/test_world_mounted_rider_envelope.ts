@@ -13,11 +13,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFrame,
   HumanObject,
   HumanPerformance,
-  HumanRide,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -104,10 +104,10 @@ export function test_world_mounted_rider_envelope(): void {
         proficiency: { level: "trained" },
       },
     ],
-    laws: [HumanRide.ride],
+    laws: [AutoMovieMotionHumanMount.rideHorse.ride],
     props: [HumanObject.prop("horse", horse, place(0), place, part)],
     composition: HumanChain.subject("rider")
-      .sit({ seat: saddle, seconds: 0.5 })
+      .sit({ seat: saddle, hold: 0.5 })
       .registered("ride", {
         on: "horse",
         seconds: MOUNT + ride.duration,

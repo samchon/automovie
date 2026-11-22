@@ -26,7 +26,8 @@ export function test_motion_posture_knockdown_hold(): void {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject("actor").knockdown({ seconds }).node,
+      composition: HumanChain.subject("actor").knockdown({ hold: seconds })
+        .node,
     });
   const control: HumanPerformance = film(0);
   const held: HumanPerformance = film(2);

@@ -17,15 +17,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGait,
+  AutoMovieMotionHumanStrike,
   HumanBlade,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanPropFrame,
-  HumanProxemics,
   StrikingStance,
   composeHumanBladeExchange,
-  step,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -78,7 +78,10 @@ const BRANCHES: readonly IBranch[] = [
  * @returns Metres.
  */
 function apart(body: IAutoMovieMotionHumanBody): number {
-  return HumanProxemics.GAPS.fighting + body.measure.chestDepth;
+  return (
+    AutoMovieMotionHumanGait.HumanProxemics.GAPS.fighting +
+    body.measure.chestDepth
+  );
 }
 
 /**
@@ -90,7 +93,9 @@ function apart(body: IAutoMovieMotionHumanBody): number {
  * @returns Metres.
  */
 function closing(body: IAutoMovieMotionHumanBody): number {
-  return step.STEP_SHARE * StrikingStance.length(body);
+  return (
+    AutoMovieMotionHumanStrike.step.STEP_SHARE * StrikingStance.length(body)
+  );
 }
 
 /** A held grip holds within this, metres: the staged piste's grip bound. */
@@ -377,7 +382,7 @@ function stage(
           { blade: "a.blade", target: exchange.openingMark, outcome: "lands" },
           "duel.opening",
         )
-        .stand({ seconds: 0.8, sway: 0 })
+        .stand({ hold: 0.8, sway: 0 })
         .with(
           HumanChain.subject("b").pickUp({
             prop: "b.blade",

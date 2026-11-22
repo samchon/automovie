@@ -65,11 +65,11 @@ export namespace wireFlight {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const seconds: number = context.params.seconds;
+    const seconds: number = context.params.duration;
     if (!(seconds > 0) || !Number.isFinite(seconds))
       throw new HumanRefusal({
         kind: "parameter",
-        axis: "seconds",
+        axis: "duration",
         value: seconds,
         feasible: {
           kind: "range",

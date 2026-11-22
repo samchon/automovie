@@ -8,13 +8,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBlade,
+  AutoMovieMotionHumanGrapple,
   HumanFoot,
   HumanPerformance,
   HumanSignature,
   HumanSportThrow,
-  HumanStageFight,
   HumanStrike,
-  grapple,
 } from "@automovie/motions";
 
 /**
@@ -51,9 +51,9 @@ export namespace motionCombatPair {
       seed,
       laws: [
         ...Object.values(HumanStrike),
-        ...Object.values(HumanStageFight),
+        ...Object.values(AutoMovieMotionHumanBlade.stageBladeFootwork),
         ...Object.values(HumanSportThrow),
-        grapple,
+        AutoMovieMotionHumanGrapple.grapple,
       ],
       performers: [
         {

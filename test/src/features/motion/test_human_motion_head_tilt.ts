@@ -36,7 +36,7 @@ export function test_human_motion_head_tilt(): void {
   const Chain = HumanChain.extend(HUMAN_EVERYDAY_LAWS);
   for (const name of ["m-average", "f-small"] as const) {
     const walk = Chain.subject("a")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .walk({ to: { x: 0, y: 0, z: 2 } });
     const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] =
       {
@@ -108,7 +108,7 @@ export function test_human_motion_head_tilt(): void {
       perform({ degrees: 21 });
     });
     TestValidator.error(`${name} refuses a 0.59 s phrase`, (): void => {
-      perform({ degrees: 15, seconds: 0.59 });
+      perform({ degrees: 15, duration: 0.59 });
     });
   }
 }

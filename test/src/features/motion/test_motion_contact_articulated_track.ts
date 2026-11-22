@@ -62,7 +62,7 @@ export function test_motion_contact_articulated_track(): void {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("a").stand({ seconds: 3 }).node,
+    composition: HumanChain.subject("a").stand({ hold: 3 }).node,
   });
   TestValidator.predicate(
     "at rest before the track",

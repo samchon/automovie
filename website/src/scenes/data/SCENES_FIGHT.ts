@@ -53,7 +53,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
           },
           { anchor: "wind" },
         ),
-        act("ochs", { blade: "swordR", seconds: 1 }),
+        act("ochs", { blade: "swordR", duration: 1 }),
         act("retreat", { length: STEP }),
       ]),
       person("blu", "m2", 0, 2.2, 180, [
@@ -120,17 +120,17 @@ export const SCENES_FIGHT: readonly IScene[] = [
       person("mac", "m1", 0, 0.52, 180, [
         act(
           "grabbed",
-          { from: at("joe", "palmRight") },
+          { target: at("joe", "palmRight") },
           { sync: { of: "grab" } },
         ),
         act(
           "shoved",
-          { from: at("joe", "palmRight") },
+          { target: at("joe", "palmRight") },
           { sync: { of: "shove" } },
         ),
         act(
           "slapped",
-          { from: at("joe", "palmRight") },
+          { target: at("joe", "palmRight") },
           { sync: { of: "slap" } },
         ),
         act("duck", {}, { sync: { of: "swing", offset: -0.2 } }),
@@ -165,10 +165,10 @@ export const SCENES_FIGHT: readonly IScene[] = [
       ]),
       person("ace", "m2", 0, 6, 180, [
         act("drawFirearm", { prop: "pistolB" }),
-        act("highReady", { gun: "pistolB", seconds: 1.5 }),
+        act("highReady", { gun: "pistolB", hold: 1.5 }),
         act("holsterFirearm", {
           prop: "pistolB",
-          at: { x: 0.18, y: SceneBuild.COUNTER_TOP, z: 5.7 },
+          to: { x: 0.18, y: SceneBuild.COUNTER_TOP, z: 5.7 },
         }),
         act("surrender"),
       ]),
@@ -213,7 +213,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
           act("reloadFirearm", {
             target: { kind: "prop", subject: `gun${i + 1}`, point: "magazine" },
           }),
-          act("highReady", { gun: `gun${i + 1}`, seconds: 1 }),
+          act("highReady", { gun: `gun${i + 1}`, hold: 1 }),
         ]),
     ),
     [-2.2, 0, 2.2].flatMap(

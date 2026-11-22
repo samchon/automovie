@@ -4,8 +4,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanFall,
   HumanChain,
-  HumanFloorFall,
   HumanFloorRoll,
   HumanPerformance,
   HumanVerdicts,
@@ -38,9 +38,9 @@ export function test_motion_posture_floor_support_entry(): void {
   const laws = [
     HumanFloorRoll.forwardRoll,
     HumanFloorRoll.backwardRoll,
-    HumanFloorFall.goalkeeperDiveLeft,
-    HumanFloorFall.goalkeeperDiveRight,
-    HumanFloorFall.slidingTackle,
+    AutoMovieMotionHumanFall.HumanFloorFall.goalkeeperDiveLeft,
+    AutoMovieMotionHumanFall.HumanFloorFall.goalkeeperDiveRight,
+    AutoMovieMotionHumanFall.HumanFloorFall.slidingTackle,
   ];
   for (const law of laws) {
     const label = law.name;
@@ -58,7 +58,7 @@ export function test_motion_posture_floor_support_entry(): void {
           },
         ],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
+          .stand({ hold: 0.3 })
           .registered(label, {}).node,
       });
       const segment = p.segments("a")[1]!;
@@ -178,7 +178,7 @@ export function test_motion_posture_floor_support_entry(): void {
       seed: "sweep-1",
       performers: [performer],
       composition: HumanChain.subject("a").lieDown(
-        position === "supine" ? {} : { position },
+        position === "supine" ? {} : { kind: position },
       ).node,
     });
     const segment = lying.segments("a")[0]!;

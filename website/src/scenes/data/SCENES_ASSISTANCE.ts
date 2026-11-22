@@ -105,11 +105,9 @@ export const SCENES_ASSISTANCE: readonly IScene[] = [
     },
     "chair-to-bed",
     [
-      person("helper", "m1", -0.14, -0.36, 160, [
-        act("stand", { seconds: 0.25 }),
-      ]),
+      person("helper", "m1", -0.14, -0.36, 160, [act("stand", { hold: 0.25 })]),
       person("recipient", "f1", -0.2, -0.72, -90, [
-        act("sit", { seat: seat("chair"), seconds: 0.25 }),
+        act("sit", { seat: seat("chair"), hold: 0.25 }),
       ]),
     ],
     [
@@ -124,7 +122,7 @@ export const SCENES_ASSISTANCE: readonly IScene[] = [
           from: { prop: "chair", point: "seat" },
           to: { prop: "bed", point: "rightSide", along: -0.62 },
           clasp: { x: -0.2, y: 0.88, z: -0.43 },
-          seconds: 0.55,
+          duration: 0.55,
         },
       ),
     ],

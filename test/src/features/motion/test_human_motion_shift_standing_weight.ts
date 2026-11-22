@@ -57,7 +57,7 @@ export function test_human_motion_shift_standing_weight(): void {
         ],
         laws: [shiftStandingWeight],
         composition: HumanChain.subject("actor")
-          .stand({ seconds: 0.6, sway: 0 })
+          .stand({ hold: 0.6, sway: 0 })
           .registered("shiftStandingWeight", params).node,
       });
 
@@ -65,7 +65,7 @@ export function test_human_motion_shift_standing_weight(): void {
       const returns: boolean = by > 0;
       const performance: IAutoMovieMotionHumanPerformance = perform({
         by,
-        seconds: 0.8,
+        duration: 0.8,
         hold: 0.3,
         ...(returns ? { returnSeconds: 0.6 } : {}),
       });

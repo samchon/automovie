@@ -26,11 +26,11 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { courseArmGoal } from "../compose/courseArmGoal";
+import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanHand } from "../posture/HumanHand";
-import { HumanTrunk } from "../everyday/HumanTrunk";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
@@ -156,19 +156,28 @@ export namespace HumanWeaponPresent {
           context,
           HumanWeaponHeld.held(context),
         );
-        const seconds: number = p.seconds ?? 1;
-        HumanBound.least("seconds", seconds, 0, "s");
+        const seconds: number = p.hold ?? 1;
+        HumanBound.least("hold", seconds, 0, "s");
         // Over a carrier the weapon is presented from the carrier's posture
         // where the presentation begins (a stance raised onto a cart's bed),
         // not from the state before the carrier began.
-        const { turn, bladed, eye, target, line, carriage, pose, tool, back }: HumanWeaponPose.IPosed =
-          HumanWeaponPose.of(
-            context,
-            context.carrier?.posture(0) ?? context.entry.posture,
-            context.start,
-            s,
-            context.entry.base.kind === "seated",
-          );
+        const {
+          turn,
+          bladed,
+          eye,
+          target,
+          line,
+          carriage,
+          pose,
+          tool,
+          back,
+        }: HumanWeaponPose.IPosed = HumanWeaponPose.of(
+          context,
+          context.carrier?.posture(0) ?? context.entry.posture,
+          context.start,
+          s,
+          context.entry.base.kind === "seated",
+        );
         StrikingRoll.reachable(
           context,
           tool,
@@ -213,54 +222,56 @@ export namespace HumanWeaponPresent {
           carriage === "recover" && s.lock !== undefined
             ? s.lock
             : HumanWeaponHeld.supported(context, s, pose, bladed);
-        const presented: IAutoMovieMotionHumanActionPlan = HumanWeaponHeld.carried(
-          context,
-          s,
-          StrikingBlade.plan(context, {
-            tool,
-            clock: AutoMovieMotionManner.time(
-              AutoMovieMotionClock.phrase({
-                prepare: ready === undefined ? set : set / 2,
-                attack: ready === undefined ? 0 : set / 2,
-                hold: seconds,
-                retract: 0,
-              }),
-              AutoMovieMotionManner.of(context, p.manner),
-            ),
-            path:
-              ready === undefined
-                ? aimed
-                : (
-                    progress: number,
-                    at: number,
-                  ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
-                    const to: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
-                      aimed(progress, at);
-                    return {
-                      point: Vector3.lerp(ready.point, to.point, progress),
-                      rotation: Quaternion.slerp(
-                        ready.rotation,
-                        to.rotation,
-                        progress,
-                      ),
-                    };
-                  },
-            back,
-            support,
-            turn,
-            advance: "none",
-            line,
-            stay: true,
-            stop: 1,
-          }),
-          // An aimed weapon keeps its line on the target from a moving support.
-          carriage === "aim" ? { target, pivot: eye, arms: TURN } : undefined,
-        );
+        const presented: IAutoMovieMotionHumanActionPlan =
+          HumanWeaponHeld.carried(
+            context,
+            s,
+            StrikingBlade.plan(context, {
+              tool,
+              clock: AutoMovieMotionManner.time(
+                AutoMovieMotionClock.phrase({
+                  prepare: ready === undefined ? set : set / 2,
+                  attack: ready === undefined ? 0 : set / 2,
+                  hold: seconds,
+                  retract: 0,
+                }),
+                AutoMovieMotionManner.of(context, p.manner),
+              ),
+              path:
+                ready === undefined
+                  ? aimed
+                  : (
+                      progress: number,
+                      at: number,
+                    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
+                      const to: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+                        aimed(progress, at);
+                      return {
+                        point: Vector3.lerp(ready.point, to.point, progress),
+                        rotation: Quaternion.slerp(
+                          ready.rotation,
+                          to.rotation,
+                          progress,
+                        ),
+                      };
+                    },
+              back,
+              support,
+              turn,
+              advance: "none",
+              line,
+              stay: true,
+              stop: 1,
+            }),
+            // An aimed weapon keeps its line on the target from a moving support.
+            carriage === "aim" ? { target, pivot: eye, arms: TURN } : undefined,
+          );
         if (support === null) return presented;
         // Two hands on one weapon are laid in one course, the hands on it
         // excused from each other, so neither arm is fitted afresh at each
         // instant and both stay rigid on the weapon where both reach it.
-        const other: AutoMovieHumanSide = tool.side === "left" ? "right" : "left";
+        const other: AutoMovieHumanSide =
+          tool.side === "left" ? "right" : "left";
         const raised: number =
           (presented.events.find(
             (e: IAutoMovieMotionEvent): boolean => e.name === "ready",
@@ -314,15 +325,16 @@ export namespace HumanWeaponPresent {
           ): IAutoMovieMotionHumanStrikingHeld.ITool => grip.tool(points),
         );
         try {
-          const { bladed, pose, tool, back }: HumanWeaponPose.IPosed = HumanWeaponPose.of(
-            ahead,
-            grip.posture,
-            ahead.start,
-            s,
-            // A weighed grip reads no base: a seated rearward target is
-            // refused here and so asks nothing of the grip.
-            false,
-          );
+          const { bladed, pose, tool, back }: HumanWeaponPose.IPosed =
+            HumanWeaponPose.of(
+              ahead,
+              grip.posture,
+              ahead.start,
+              s,
+              // A weighed grip reads no base: a seated rearward target is
+              // refused here and so asks nothing of the grip.
+              false,
+            );
           return [
             {
               posture: bladed,
@@ -536,15 +548,12 @@ export namespace HumanWeaponPresent {
             attitude: { kind: "velocity" },
           });
         }
-        const shooting: IAutoMovieMotionHumanActionPlan = HumanWeaponHeld.carried(
-          context,
-          s,
-          {
+        const shooting: IAutoMovieMotionHumanActionPlan =
+          HumanWeaponHeld.carried(context, s, {
             ...shot,
             ...(drives.length === 0 ? {} : { drives }),
             ...(launches.length === 0 ? {} : { launches }),
-          },
-        );
+          });
         if (s.support === null) return shooting;
         // Two hands on one weapon ride the shot in one course, the hands on
         // it excused from each other, so neither arm is refitted at each

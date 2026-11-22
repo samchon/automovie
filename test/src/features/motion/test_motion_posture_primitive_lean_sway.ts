@@ -9,9 +9,9 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanLean,
+  AutoMovieMotionHumanStance,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -43,11 +43,8 @@ export function test_motion_posture_primitive_lean_sway(): void {
       posture: IAutoMovieMotionHumanPosture,
       bone: AutoMovieHumanoidBone,
     ): IAutoMovieVector3 => bones(posture).get(bone)!.worldPosition;
-    const standing: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      { x: 0, y: 0, z: 0 },
-      0,
-    );
+    const standing: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
     const hips: IAutoMovieVector3 = at(standing, "hips");
     // 3. A sway over planted feet.
     const asked: number[] = [];
@@ -111,12 +108,26 @@ export function test_motion_posture_primitive_lean_sway(): void {
           roll: 0,
         }),
         shift: (): IAutoMovieVector3 => ({ x: 0, y: 0, z: 0.05 }),
-      }).write(stand.posture(body, { x: 0, y: 0, z: 0 }, 90), 0.5);
+      }).write(
+        AutoMovieMotionHumanStance.stand.posture(
+          body,
+          { x: 0, y: 0, z: 0 },
+          90,
+        ),
+        0.5,
+      );
     all.check(
       `${name}: a sway's shift is in the performer's frame`,
       Math.abs(
         at(turnedSway, "hips").x -
-          at(stand.posture(body, { x: 0, y: 0, z: 0 }, 90), "hips").x -
+          at(
+            AutoMovieMotionHumanStance.stand.posture(
+              body,
+              { x: 0, y: 0, z: 0 },
+              90,
+            ),
+            "hips",
+          ).x -
           0.05,
       ) <= 1e-6,
     );

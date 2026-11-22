@@ -7,12 +7,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGrapple,
   HUMAN_LEXICON,
   HumanChain,
   HumanHand,
   HumanPerformance,
   HumanRefusal,
-  lungeGrab,
 } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -63,7 +63,9 @@ export function test_human_motion_lunge_grab(): void {
         body.measure.upperArm +
         body.measure.forearm +
         body.measure.hand +
-        (lungeGrab.LONGEST * body.measure.hipHeight) / 2;
+        (AutoMovieMotionHumanGrapple.lungeGrab.LONGEST *
+          body.measure.hipHeight) /
+          2;
       const film: HumanPerformance = perform(body, victim, apart);
       const grab: IAutoMovieScheduleEntry = film.schedule.entries.find(
         (e: IAutoMovieScheduleEntry): boolean => e.intent?.anchor === "lunge",
@@ -132,8 +134,8 @@ function perform(
       },
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .registered("lungeGrab", { partner: "v" }, "lunge")
-      .with(HumanChain.subject("v").stand({ seconds: 4, sway: 0 })).node,
+      .with(HumanChain.subject("v").stand({ hold: 4, sway: 0 })).node,
   });
 }

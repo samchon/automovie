@@ -84,14 +84,14 @@ export namespace HumanMountedWhip {
           figure.whip;
         if (whip === undefined) return;
         const axis: string = `figures.${i}.whip`;
-        if (figure.supports?.[`${whip.side}Hand`] === undefined)
+        if (figure.supports?.[`${whip.hand}Hand`] === undefined)
           refuse(
             axis,
             whip,
-            `the ${whip.side} hand strikes from a rein, and figure ${i} holds none`,
+            `the ${whip.hand} hand strikes from a rein, and figure ${i} holds none`,
           );
         const from: number = clock.arrivals[i]!;
-        const to: number = from + figure.seconds;
+        const to: number = from + figure.hold;
         const instants: number[] = cue(whip.cue)
           .map((c: Cue): number => c.seconds - start)
           .filter((t: number): boolean => t >= from && t <= to)
@@ -110,7 +110,7 @@ export namespace HumanMountedWhip {
               at,
               `the stroke at ${at.toFixed(3)} s overlaps the one before`,
             );
-          out.push({ side: whip.side, at });
+          out.push({ side: whip.hand, at });
         }
       },
     );

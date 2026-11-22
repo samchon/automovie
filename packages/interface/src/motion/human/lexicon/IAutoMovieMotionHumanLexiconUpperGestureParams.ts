@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanGesture } from "../everyday/IAutoMovieMotionHumanGesture";
 import type { IAutoMovieMotionHumanHeadTilt } from "../everyday/IAutoMovieMotionHumanHeadTilt";
+import type { IAutoMovieMotionHumanGesture } from "../next/IAutoMovieMotionHumanGesture";
 
 /**
  * Open parameters of the upperGesture lexicon family, keyed by each runtime export name.

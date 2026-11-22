@@ -12,9 +12,9 @@ import type {
 import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTouch,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -51,7 +51,8 @@ export function test_motion_contact_partner_touch(): void {
     retract: 1,
   });
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const posture: IAutoMovieMotionHumanPosture = stand.posture(body, origin, 0);
+  const posture: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, origin, 0);
   const shoulder: IAutoMovieVector3 = body.rest.get("rightUpperArm")!;
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const start: number = clock.at("strokeStart");

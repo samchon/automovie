@@ -73,7 +73,7 @@ export function test_motion_contact_two_hand_grasp(): void {
           handle: "handle",
           use: { tip: "lip", line: "square" },
         }),
-        receiver: HumanChain.subject("b").stand({ seconds: 0.3 }),
+        receiver: HumanChain.subject("b").stand({ hold: 0.3 }),
       },
       { prop: "mug", handle: "body" },
     ).node,

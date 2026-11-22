@@ -33,8 +33,8 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * short step under the centreline guard, both hands forward on the midline.
  * All return to the entry and have no partner or contact target.
  *
- * @evidence contracts/development/common.md#meaningful-documentation count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. seconds: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. seconds: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/common.md#meaningful-documentation count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. hold: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/design.md#principled-representation count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. hold: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.martialArt, params); sport/martialArt.ts (martialArt.plan, context); sport/martialArt.ts (martialArt.plan); executable/cases/martialArtCases.ts (martialArtCases).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -55,7 +55,7 @@ export namespace IAutoMovieMotionHumanMartialArt {
     count?: number;
 
     /** Seconds the stance is held, at least 0; 1 when absent. */
-    seconds?: number;
+    hold?: number;
 
     /** Leading foot of a linked stance phrase or reset. Left when absent. */
     lead?: "left" | "right";

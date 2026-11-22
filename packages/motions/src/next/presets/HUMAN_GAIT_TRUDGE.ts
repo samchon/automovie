@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanNext } from "@automovie/interface";
+import type { IAutoMovieMotionHumanGait } from "@automovie/interface";
 
 /**
  * The trudge preset: the `slow` walk (about 0.82 m/s at the reference hip)
@@ -13,9 +13,8 @@ import type { IAutoMovieMotionHumanNext } from "@automovie/interface";
  * @evidence contracts/development/design.md#minimal-and-owned-surface Re-exported as `AutoMovieMotionHumanGait.TRUDGE`; the trudge row reads it.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the row and the preset share one value instead of two copies.
  */
-export const HUMAN_GAIT_TRUDGE: IAutoMovieMotionHumanNext.IAutoMovieMotionHumanGait.IStridePreset =
-  {
-    pace: "slow",
-    stride: 0.8,
-    armSwing: 0.4,
-  };
+export const HUMAN_GAIT_TRUDGE: IAutoMovieMotionHumanGait.IStridePreset = {
+  pace: "slow",
+  stride: 0.8,
+  armSwing: 0.4,
+};

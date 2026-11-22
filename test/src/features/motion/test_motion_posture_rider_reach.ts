@@ -13,13 +13,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFoot,
   HumanFrame,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanRide,
   HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -98,7 +98,7 @@ export function test_motion_posture_rider_reach(): void {
   const perform = (left: string): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "pedals",
-      laws: [HumanRide.ride],
+      laws: [AutoMovieMotionHumanMount.rideHorse.ride],
       props: [HumanObject.prop("bicycle", bicycle, placed(0), placed, part)],
       performers: [
         {
@@ -113,7 +113,7 @@ export function test_motion_posture_rider_reach(): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .sit({ seat, seconds: 0.5 })
+        .sit({ seat, hold: 0.5 })
         .registered("ride", {
           on: "bicycle",
           seconds: WAIT + cycling.duration,

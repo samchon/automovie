@@ -13,13 +13,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanColliders,
   HumanGrip,
   HumanHand,
   HumanPerformance,
   HumanVerdicts,
-  rest,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -58,7 +58,7 @@ export function test_motion_contact_digit_clearance(): void {
           ],
           composition: HumanChain.subject("a").rest({
             right: place,
-            seconds: 1,
+            hold: 1,
           }).node,
         });
       const bones = performance.bones("a", performance.duration - 0.05);
@@ -156,7 +156,7 @@ function checkRestClasp(complaints: string[]): void {
           composition: HumanChain.subject("a").rest({
             left: place,
             right: place,
-            seconds: 1.5,
+            hold: 1.5,
           }).node,
         });
       const t: number = performance.duration - 0.05;
@@ -164,10 +164,14 @@ function checkRestClasp(complaints: string[]): void {
         performance.bones("a", t);
       const goals: Partial<
         Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal>
-      > = rest.goals(body, performance.posture("a", t), {
-        left: place,
-        right: place,
-      });
+      > = AutoMovieMotionHumanStance.rest.goals(
+        body,
+        performance.posture("a", t),
+        {
+          left: place,
+          right: place,
+        },
+      );
       // The outward surface of the left hand meets the inward surface of
       // the right. Triangle inequality allows one 15 mm error per hand.
       const behind: boolean = place === "claspedBehind";

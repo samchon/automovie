@@ -138,8 +138,8 @@ export namespace workout {
     const p: IAutoMovieMotionHumanWorkout.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
     const kind: IAutoMovieMotionHumanWorkoutKind = KINDS[p.kind];
-    const reps: number = p.reps ?? kind.reps;
-    HumanBound.whole("reps", reps);
+    const reps: number = p.count ?? kind.count;
+    HumanBound.whole("count", reps);
     if (p.hold !== undefined) HumanBound.least("hold", p.hold, 0, "s");
     const stay: boolean = p.stay === true;
     const floor: workoutFloorStance.IEntry = workoutFloorStance.of(
@@ -153,7 +153,7 @@ export namespace workout {
     const restoresStance: boolean = entered !== null && !stay;
     const standPlan: IAutoMovieMotionHumanActionPlan = stand.plan({
       ...context,
-      params: restoresStance ? { seconds: 1, sway: 0 } : { seconds: 1 },
+      params: restoresStance ? { hold: 1, sway: 0 } : { hold: 1 },
     });
     const standing: IAutoMovieMotionHumanPosture = standPlan.posture(0);
     // The opening standing reference can inherit a low root. A floor rise

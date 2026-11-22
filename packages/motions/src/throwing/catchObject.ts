@@ -169,7 +169,7 @@ export namespace catchObject {
       "ball",
     ).radius;
     const neutral: IAutoMovieMotionHumanPosture = stand
-      .plan({ ...context, params: { seconds: 1 } })
+      .plan({ ...context, params: { hold: 1 } })
       .posture(0);
     const frame: IAutoMovieMotionHumanFrame = {
       origin: { ...neutral.root, y: 0 },
@@ -215,8 +215,8 @@ export namespace catchObject {
     )
       throw new HumanRefusal({
         kind: "reach",
-        axis: "from",
-        value: context.params.from,
+        axis: "partner",
+        value: context.params.partner,
         reason: `the object passes ${Vector3.length(Vector3.subtract(meet, shoulders)).toFixed(2)} m from the shoulders, beyond the arms`,
         fix: "stand on the throw's path, or aim the throw at the catcher",
       });
@@ -230,8 +230,8 @@ export namespace catchObject {
     if (contact - 0.1 < 0)
       throw new HumanRefusal({
         kind: "base",
-        axis: "from",
-        value: context.params.from,
+        axis: "partner",
+        value: context.params.partner,
         reason: `the catch starts ${(-contact + 0.1).toFixed(2)} s too late to prepare`,
         fix: "start the catch at least 0.1 s before the object arrives: with the throw, or cut from the thrower's own throw at its release",
       });
@@ -295,7 +295,7 @@ export namespace catchObject {
     const sides: AutoMovieHumanSide[] =
       (context.params.hands ?? "two") === "two"
         ? ["left", "right"]
-        : [context.params.side ?? "right"];
+        : [context.params.hand ?? "right"];
     const pocket: IAutoMovieVector3 | undefined =
       context.params.glove === undefined
         ? undefined

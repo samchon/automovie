@@ -14,11 +14,11 @@ import type {
 import {
   AutoMovieMotionHumanBend,
   AutoMovieMotionHumanDrinkingArm,
+  AutoMovieMotionHumanHandToBody,
   AutoMovieMotionHumanTouchDrink,
   HumanChain,
   HumanObject,
   HumanTrunk,
-  handToFace,
 } from "@automovie/motions";
 
 import { motionComplaints } from "./motionComplaints";
@@ -100,7 +100,7 @@ export namespace motionHandToFaceDrink {
                 handle: "body",
                 use: { tip: "lip", line: "square", at: "mouth" },
               })
-              .handToFace({ task: "drink", prop: "glass" }),
+              .handToFace({ kind: "drink", prop: "glass" }),
             [
               HumanObject.prop(
                 "glass",
@@ -126,7 +126,7 @@ export namespace motionHandToFaceDrink {
                 use: { tip: "lip", line: "square", at: "mouth" },
               })
               .handToFace({
-                task: "drink",
+                kind: "drink",
                 prop: "glass",
                 grasp: { handle: "body", line: "square" },
               }),
@@ -242,7 +242,7 @@ export namespace motionHandToFaceDrink {
       "right",
     );
     const effector: IAutoMovieMotionHumanHandToFaceRows.IRow["effector"] =
-      handToFace.ROWS.drink.effector;
+      AutoMovieMotionHumanHandToBody.handToFace.ROWS.drink.effector;
     const found: IAutoMovieMotionHumanTouchUpright.IFacing =
       AutoMovieMotionHumanTouchDrink.drinking(
         s.body,

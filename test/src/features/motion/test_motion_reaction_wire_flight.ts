@@ -5,10 +5,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanFall,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  wireFlight,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -57,21 +57,26 @@ export function test_motion_reaction_wire_flight(): void {
             proficiency: { level: "trained" },
           },
         ],
-        laws: [wireFlight],
+        laws: [AutoMovieMotionHumanFall.wireFlight],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.4, sway: 0 })
-          .registered(wireFlight.name, params)
-          .stand({ seconds: 0.4, sway: 0 }).node,
+          .stand({ hold: 0.4, sway: 0 })
+          .registered(AutoMovieMotionHumanFall.wireFlight.name, params)
+          .stand({ hold: 0.4, sway: 0 }).node,
       });
     for (const shape of ["superman", "hover", "seated", "stride"] as const) {
       const start: IAutoMovieVector3 = play({
         to: { x: 0, y: 0, z: 1 },
-        seconds: 1,
+        duration: 1,
       }).posture("a", 0).root;
       const via: IAutoMovieVector3 = { x: 0, y: start.y + 1.5, z: 2 };
       const to: IAutoMovieVector3 = { x: 1, y: start.y, z: 5 };
       const seconds: number = 2.4;
-      const film: HumanPerformance = play({ to, via: [via], seconds, shape });
+      const film: HumanPerformance = play({
+        to,
+        via: [via],
+        duration: seconds,
+        shape,
+      });
       const flight = film.segments("a")[1]!;
       const points: IAutoMovieVector3[] = [start, via, to];
       const legs: number[] = [distance(start, via), distance(via, to)];
@@ -140,7 +145,7 @@ export function test_motion_reaction_wire_flight(): void {
     }
     const rest: IAutoMovieVector3 = play({
       to: { x: 0, y: 1, z: 1 },
-      seconds: 1,
+      duration: 1,
     }).posture("a", 0).root;
     for (const [axis, params] of [
       ["seconds", { to: { x: 0, y: 1, z: 1 }, seconds: 0 }],

@@ -112,14 +112,14 @@ export function test_motion_exercise_stage_prop_rigid_linked(): void {
     };
     // The beat and its recovery on the carrier, the flinch on the partner.
     const composition: IAutoMovieChain = HumanChain.subject("carrier")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .pickUp({ prop: "prop", handle: "grip", hand: "right", lift: 0 })
       .registered(
         HumanStageProp.name,
         { beat: profile.beat, prop: "prop", mark: profile.mark },
         "display",
       )
-      .stand({ seconds: 0.6, sway: 0 })
+      .stand({ hold: 0.6, sway: 0 })
       .with(
         HumanChain.subject("partner")
           .act("flinch", {}, "display.response")

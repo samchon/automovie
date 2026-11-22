@@ -108,7 +108,7 @@ export function test_motion_exercise_gridiron_play(): void {
             "pass",
           )
           // The film runs on while the pass's result plays out.
-          .stand({ seconds: 2.5, sway: 0 }).node,
+          .stand({ hold: 2.5, sway: 0 }).node,
       );
     }
     if (stations.receiver !== undefined) {

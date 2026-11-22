@@ -17,11 +17,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanRide,
   HumanChain,
   HumanFoot,
   HumanObject,
   HumanPerformance,
-  HumanSurface,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -159,7 +159,7 @@ function escalatorRide(
     seed: "escalator ride",
     performers: [performer],
     props,
-    laws: [HumanSurface.supportStep],
+    laws: [AutoMovieMotionHumanRide.HumanSurface.supportStep],
     composition: HumanChain.subject("a").registered("supportStep", {
       to: onto,
       onto: "step",
@@ -174,7 +174,10 @@ function escalatorRide(
     seed: "escalator ride",
     performers: [performer],
     props,
-    laws: [HumanSurface.supportStep, HumanSurface.boardRide],
+    laws: [
+      AutoMovieMotionHumanRide.HumanSurface.supportStep,
+      AutoMovieMotionHumanRide.HumanSurface.boardRide,
+    ],
     composition: HumanChain.subject("a")
       .registered("supportStep", {
         to: onto,
@@ -376,7 +379,7 @@ function escalatorClimb(
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("a").stand({ seconds: 0.1 }).node,
+    composition: HumanChain.subject("a").stand({ hold: 0.1 }).node,
   });
   const toes: number = Math.max(
     ...SIDES.map((side: AutoMovieHumanSide): number => {
@@ -507,7 +510,7 @@ function walkwayRide(
       ],
       composition: HumanChain.subject("a")
         .walk({ to: { x: 0, y: 0, z: 0.6 }, on: { prop: "band" } })
-        .stand({ seconds: 1.5, on: { prop: "band" } })
+        .stand({ hold: 1.5, on: { prop: "band" } })
         .walk({
           to: { x: 0, y: 0, z: 0.1 + shift },
           face: 180,
@@ -647,7 +650,7 @@ function centre(body: IAutoMovieMotionHumanBody): number {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("a").stand({ seconds: 0.1 }).node,
+    composition: HumanChain.subject("a").stand({ hold: 0.1 }).node,
   });
   let sum: number = 0;
   for (const side of SIDES) {

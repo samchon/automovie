@@ -111,7 +111,7 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
     ): IAutoMovieMotionHumanActionPlan => {
       const p: IAutoMovieMotionHumanLieTogether = context.params;
       const body: IAutoMovieMotionHumanBody = context.body;
-      HumanBound.above("seconds", p.seconds, 0, "s");
+      HumanBound.above("hold", p.hold, 0, "s");
       if (p.partner === context.subject)
         throw new HumanRefusal({
           kind: "parameter",
@@ -287,7 +287,7 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
       const settle: number = AutoMovieMotionHumanTiming.transport(
         Vector3.length(travel),
       );
-      const duration: number = settle + p.seconds;
+      const duration: number = settle + p.hold;
       // The arm on the side the body lies on folds up before the face.
       const lower: AutoMovieHumanSide =
         HumanTrunk.region(body, entry, "shoulderLeft").point.y <=
@@ -329,11 +329,7 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
         };
       };
       const settled: IAutoMovieMotionHumanPosture = folded(
-        necked(
-          lieTogetherCurl.apply(shifted(entry, travel), bent, 1),
-          neck,
-          1,
-        ),
+        necked(lieTogetherCurl.apply(shifted(entry, travel), bent, 1), neck, 1),
         1,
       );
       const origin: IAutoMovieMotionHumanCarryHumanPosture.IFrame = frame(

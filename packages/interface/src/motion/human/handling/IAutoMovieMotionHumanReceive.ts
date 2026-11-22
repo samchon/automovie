@@ -1,5 +1,5 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
-import type { IAutoMovieMotionHumanHandover } from "./IAutoMovieMotionHumanHandover";
+import type { IAutoMovieMotionHumanHandover } from "../next/IAutoMovieMotionHumanHandover";
 
 /**
  * Taking a prop a giver holds out: the receiver's half of a handover.
@@ -46,7 +46,7 @@ export namespace IAutoMovieMotionHumanReceive {
     prop: string;
 
     /** The giver's subject id. */
-    from: string;
+    partner: string;
 
     /** The prop's grip affordance taken. */
     handle: string;

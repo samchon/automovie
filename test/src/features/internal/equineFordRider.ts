@@ -18,14 +18,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFloatBeside,
   HumanFrame,
-  HumanLeadHorse,
-  HumanMounted,
   HumanObject,
   HumanPerformance,
-  HumanRide,
 } from "@automovie/motions";
 
 import { equineFordScene } from "./equineFordScene";
@@ -300,7 +298,7 @@ export namespace equineFordRider {
   /** The sit and the settling ride before the mounted figures. */
   const settle = (staged: IMount): IAutoMovieMotionHumanChain =>
     HumanChain.subject("rider")
-      .sit({ seat: staged.seat, seconds: SAT })
+      .sit({ seat: staged.seat, hold: SAT })
       .registered("ride", {
         on: "horse",
         seconds: SETTLE,
@@ -369,7 +367,12 @@ export namespace equineFordRider {
     return new HumanPerformance({
       seed: "equine-ford-rider",
       props: [staged.prop],
-      laws: [HumanRide.ride, HumanMounted, HumanLeadHorse, HumanFloatBeside],
+      laws: [
+        AutoMovieMotionHumanMount.rideHorse.ride,
+        AutoMovieMotionHumanMount.mounted,
+        AutoMovieMotionHumanMount.leadHorse,
+        HumanFloatBeside,
+      ],
       performers: [
         {
           subject: "rider",

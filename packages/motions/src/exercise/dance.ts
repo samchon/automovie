@@ -115,7 +115,7 @@ export namespace dance {
     const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
       body.measure;
     const bpm: number = p.bpm ?? BPM;
-    const beats: number = p.beats ?? 8;
+    const beats: number = p.count ?? 8;
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     // The beats: the locked track's instants from the start, at their mean

@@ -282,7 +282,7 @@ export function test_motion_posture_entry_state(): void {
         start()
           .pickUp({ prop: "glass", handle: "body", hand: "right" })
           .registered("witness")
-          .putDown({ prop: "glass", at: table })
+          .putDown({ prop: "glass", to: table })
           .registered("witness"),
       );
     } catch (error) {
@@ -331,21 +331,21 @@ function checkFloorBoundary(): void {
   for (const [label, chain, watched, ratio] of [
     [
       "knees to supine",
-      actor.crawl({ cycles: 1 }).lieDown({ position: "supine", hold: 0.5 }),
+      actor.crawl({ count: 1 }).lieDown({ kind: "supine", hold: 0.5 }),
       ["hips"],
       0.15,
     ],
     [
       "bear to pike",
       actor
-        .crawl({ kind: "bear", cycles: 1 })
-        .crawl({ kind: "inchworm", cycles: 1 }),
+        .crawl({ kind: "bear", count: 1 })
+        .crawl({ kind: "inchworm", count: 1 }),
       ["leftFoot", "rightFoot"],
       0.1,
     ],
     [
       "continued crawl",
-      actor.crawl({ cycles: 1 }).crawl({ cycles: 1 }),
+      actor.crawl({ count: 1 }).crawl({ count: 1 }),
       ["hips"],
       0.15,
     ],
@@ -386,9 +386,7 @@ function checkFloorBoundary(): void {
   }
   let refusal: unknown;
   try {
-    perform(
-      actor.lieDown({ position: "supine", hold: 0.5 }).crawl({ cycles: 1 }),
-    );
+    perform(actor.lieDown({ kind: "supine", hold: 0.5 }).crawl({ count: 1 }));
   } catch (error) {
     refusal = error;
   }

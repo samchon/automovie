@@ -26,5 +26,5 @@ export interface IAutoMovieMotionHumanSwipeTouchscreen {
   hand?: AutoMovieHumanSide;
 
   /** Positive nominal seconds of contact with distinct clock endpoints. Defaults to the measured mean swipe duration. */
-  seconds?: number;
+  duration?: number;
 }

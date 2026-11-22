@@ -9,11 +9,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSwim,
   HumanChain,
   HumanFrame,
   HumanObject,
   HumanPerformance,
-  aquatic,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -67,7 +67,7 @@ export function test_motion_exercise_aquatic_craft(): void {
   );
   const sculler: HumanPerformance = new HumanPerformance({
     seed: "aquatic-craft-scull",
-    laws: [aquatic],
+    laws: [AutoMovieMotionHumanSwim.aquatic],
     performers: [
       {
         subject: "crew",
@@ -79,8 +79,8 @@ export function test_motion_exercise_aquatic_craft(): void {
     ],
     props: [HumanObject.prop("hull", boat, initial, track.motion, track.point)],
     composition: HumanChain.subject("crew")
-      .stand({ seconds: 0.3, on: { prop: "hull" } })
-      .sit({ seat, seconds: 0.5 })
+      .stand({ hold: 0.3, on: { prop: "hull" } })
+      .sit({ seat, hold: 0.5 })
       .registered("aquatic", { kind: "doubleScull", support: "hull" }).node,
   });
   const scull: motionHumanLaw.IFilm = motionHumanLaw.film(sculler);
@@ -164,7 +164,7 @@ export function test_motion_exercise_aquatic_craft(): void {
     };
     const sailor: HumanPerformance = new HumanPerformance({
       seed: "aquatic-craft-sail",
-      laws: [aquatic],
+      laws: [AutoMovieMotionHumanSwim.aquatic],
       performers: [
         {
           subject: "crew",

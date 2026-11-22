@@ -11,10 +11,10 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanPrehension,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  pickUp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -44,12 +44,14 @@ export function test_motion_handling_pickup_playback(): void {
   };
   const foreign: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPickUp.IParams> =
     {
-      ...pickUp,
+      ...AutoMovieMotionHumanPrehension.pickUp,
       name: "ordinaryPickUp",
-      family: pickUp.name,
+      family: AutoMovieMotionHumanPrehension.pickUp.name,
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
-      ): IAutoMovieMotionHumanActionPlan => ({ ...pickUp.plan(context) }),
+      ): IAutoMovieMotionHumanActionPlan => ({
+        ...AutoMovieMotionHumanPrehension.pickUp.plan(context),
+      }),
     };
 
   /** Use identical staging and seed for the built-in and external laws. */

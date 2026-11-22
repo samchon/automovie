@@ -12,9 +12,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
   HumanChain,
   HumanFoot,
-  HumanGymnastics,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
@@ -86,7 +86,7 @@ export function test_motion_exercise_high_jump_approach(): void {
     cut?: string,
   ): HumanPerformance => {
     const chain: ReturnType<typeof HumanChain.subject> = HumanChain.subject("a")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .run(run);
     const node: IAutoMovieComposition =
       cut === undefined
@@ -97,7 +97,7 @@ export function test_motion_exercise_high_jump_approach(): void {
             .node;
     return new HumanPerformance({
       seed: "high-jump-approach",
-      laws: [HumanGymnastics.fosburyFlop],
+      laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.fosburyFlop],
       performers: [
         {
           subject: "a",

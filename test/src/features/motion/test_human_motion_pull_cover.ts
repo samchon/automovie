@@ -226,7 +226,7 @@ function bed(
     seed: "pull cover lain",
     performers: [performer],
     composition: HumanChain.subject("a").lieDown({
-      position: "supine",
+      kind: "supine",
       hold: HOLD,
     }).node,
   });
@@ -272,8 +272,8 @@ function bed(
     soft: domain,
   };
   const start: IAutoMovieMotionHumanChain = lying
-    ? HumanChain.subject("a").lieDown({ position: "supine", hold: HOLD })
-    : HumanChain.subject("a").stand({ seconds: 0.2, sway: 0 });
+    ? HumanChain.subject("a").lieDown({ kind: "supine", hold: HOLD })
+    : HumanChain.subject("a").stand({ hold: 0.2, sway: 0 });
   return new HumanPerformance({
     seed: "pull cover",
     performers: [performer],

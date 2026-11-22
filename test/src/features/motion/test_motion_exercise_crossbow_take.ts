@@ -146,7 +146,7 @@ export function test_motion_exercise_crossbow_take(): void {
             },
             "cue",
           )
-          .stand({ seconds: 0.6, sway: 0 }).node,
+          .stand({ hold: 0.6, sway: 0 }).node,
       });
       const cue: number = film.instant({ of: "cue", event: "strokeStart" });
       const from: number = film.instant({ of: "support", event: "end" });

@@ -15,12 +15,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanThrowCatch,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  catchObject,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -71,7 +71,8 @@ export function test_motion_contact_worn_pocket(): void {
       y: body.measure.chestHeight,
       z:
         distance -
-        catchObject.REACH * (body.measure.upperArm + body.measure.forearm),
+        AutoMovieMotionHumanThrowCatch.catchObject.REACH *
+          (body.measure.upperArm + body.measure.forearm),
     };
     const perform = (
       side: AutoMovieHumanSide,
@@ -83,17 +84,17 @@ export function test_motion_contact_worn_pocket(): void {
           HumanChain.subject("a").act(
             "throwObject",
             {
-              at: { kind: "point", at, frame: "world" },
+              target: { kind: "point", at, frame: "world" },
               style: "toss",
               prop: "ball",
             },
             "throw",
           ).node,
           HumanChain.subject("b").catchObject({
-            from: "throw",
+            partner: "throw",
             ball: "ball",
             hands: "one",
-            side,
+            hand: side,
             ...(gloved ? { glove: "glove" } : {}),
           }).node,
         ],

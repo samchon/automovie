@@ -8,9 +8,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditTangle,
+  AutoMovieMotionHumanFall,
+  AutoMovieMotionHumanGait,
+  AutoMovieMotionHumanMilitaryDrill,
+  AutoMovieMotionHumanStance,
   HumanChain,
-  HumanDrill,
-  HumanFloorFall,
   HumanFoot,
   HumanPerformance,
   HumanSignature,
@@ -18,8 +20,6 @@ import {
   HumanVerdicts,
   poseBones,
   resolveHumanPosture,
-  stand,
-  walkLegClearance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -88,14 +88,14 @@ export function test_motion_dynamics_gait_ground_lock(): void {
       performers: [...film.performers],
       laws: [
         HumanSportGym.calfRaise,
-        HumanDrill.squats,
-        HumanFloorFall.goalkeeperDiveLeft,
+        AutoMovieMotionHumanMilitaryDrill.HumanDrill.squats,
+        AutoMovieMotionHumanFall.HumanFloorFall.goalkeeperDiveLeft,
       ],
       composition: (squat
         ? chain
             .registered("calfRaise", { reps: 1 })
             .registered("squats", { reps: 1 })
-        : chain.stand({ seconds: 0.3 }).registered("goalkeeperDiveLeft", {})
+        : chain.stand({ hold: 0.3 }).registered("goalkeeperDiveLeft", {})
       ).node,
     });
     const phase = work.segments("a")[1]!;
@@ -168,11 +168,8 @@ export function test_motion_dynamics_gait_ground_lock(): void {
 }
 
 function checkLegClearance(body: IAutoMovieMotionHumanBody): void {
-  const quiet: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const quiet: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const right: IAutoMovieVector3 = poseBones(
     body,
     resolveHumanPosture(body, quiet),
@@ -200,12 +197,17 @@ function checkLegClearance(body: IAutoMovieMotionHumanBody): void {
         audited = Math.max(audited, pair.depth);
     return { left: leg("left"), right: leg("right"), audited };
   };
-  const prepared: ReturnType<typeof walkLegClearance.prepare> =
-    walkLegClearance.prepare(body);
+  const prepared: ReturnType<
+    typeof AutoMovieMotionHumanGait.walkLegClearance.prepare
+  > = AutoMovieMotionHumanGait.walkLegClearance.prepare(body);
   const quietLegs = legs(quiet);
   TestValidator.equals(
     "the quiet stance reads none",
-    walkLegClearance.excess(prepared, quietLegs.left, quietLegs.right),
+    AutoMovieMotionHumanGait.walkLegClearance.excess(
+      prepared,
+      quietLegs.left,
+      quietLegs.right,
+    ),
     0,
   );
   let binding: number = 0;
@@ -227,7 +229,7 @@ function checkLegClearance(body: IAutoMovieMotionHumanBody): void {
       },
     };
     const read = legs(crossed);
-    const excess: number = walkLegClearance.excess(
+    const excess: number = AutoMovieMotionHumanGait.walkLegClearance.excess(
       prepared,
       read.left,
       read.right,

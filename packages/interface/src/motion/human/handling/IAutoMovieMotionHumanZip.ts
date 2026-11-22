@@ -30,8 +30,8 @@ export interface IAutoMovieMotionHumanZip {
   travel: number;
 
   /** Positive stroke duration at unit tempo, seconds. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
-  seconds: number;
+  duration: number;
 
   /** Hand pulling the tab. Defaults to the right. */
-  side?: AutoMovieHumanSide;
+  hand?: AutoMovieHumanSide;
 }

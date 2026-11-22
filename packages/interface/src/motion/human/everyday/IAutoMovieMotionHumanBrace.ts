@@ -33,8 +33,8 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
  * The force comes from `toward` (a person, prop or point the force comes
  * from) or from straight ahead when absent.
  *
- * @evidence contracts/development/common.md#meaningful-documentation toward: Where the force comes from; straight ahead when absent. kind: What is braced for; `impact` when absent. seconds: How long the brace lasts, seconds; 1.5 when absent.
- * @evidence contracts/development/design.md#principled-representation toward: Where the force comes from; straight ahead when absent. kind: What is braced for; `impact` when absent. seconds: How long the brace lasts, seconds; 1.5 when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation target: Where the force comes from; straight ahead when absent. kind: What is braced for; `impact` when absent. hold: How long the brace lasts, seconds; 1.5 when absent.
+ * @evidence contracts/development/design.md#principled-representation target: Where the force comes from; straight ahead when absent. kind: What is braced for; `impact` when absent. hold: How long the brace lasts, seconds; 1.5 when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.brace, params); everyday/brace.ts (brace.plan, context); everyday/brace.ts (brace.plan).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -59,12 +59,12 @@ export namespace IAutoMovieMotionHumanBrace {
     balance?: IAutoMovieMotionHumanBalance;
 
     /** Where the force comes from; straight ahead when absent. */
-    toward?: IAutoMovieMotionTarget;
+    target?: IAutoMovieMotionTarget;
 
     /** What is braced for; `impact` when absent. */
     kind?: "impact" | "push" | "catchBody";
 
     /** How long the brace lasts, seconds; 1.5 when absent. */
-    seconds?: number;
+    hold?: number;
   }
 }

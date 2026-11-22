@@ -89,7 +89,7 @@ export function test_human_motion_swim_immersed(): void {
 
   const floating: HumanPerformance = stage({
     water: { surface, density },
-    seconds,
+    duration: seconds,
   });
   const floatPose: IAutoMoviePose = floating.pose("swimmer", 0);
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -127,7 +127,7 @@ export function test_human_motion_swim_immersed(): void {
     (0.5 * density * resolveHydrodynamicForce.DRAG * area) / body.profile.mass;
   const gliding: HumanPerformance = stage({
     water: { surface, density },
-    seconds,
+    duration: seconds,
     speed,
   });
   // Use distinct times in nonmonotonic order and check each against the
@@ -147,13 +147,13 @@ export function test_human_motion_swim_immersed(): void {
   const strokeSeconds: number = 1.35;
   const stroke: HumanPerformance = stage({
     water: { surface, density },
-    seconds: strokeSeconds,
+    duration: strokeSeconds,
     stroke: "breaststroke",
   });
   const slower: HumanPerformance = stage(
     {
       water: { surface, density },
-      seconds: 2 * strokeSeconds,
+      duration: 2 * strokeSeconds,
       stroke: "breaststroke",
     },
     "slower-stroke",
@@ -203,7 +203,7 @@ export function test_human_motion_swim_immersed(): void {
   try {
     stage({
       water: { surface, density },
-      seconds,
+      duration: seconds,
       speed,
       stroke: "breaststroke",
     });
@@ -221,7 +221,7 @@ export function test_human_motion_swim_immersed(): void {
   try {
     stage({
       water: { surface, density: body.profile.mass / (2 * totalVolume) },
-      seconds,
+      duration: seconds,
     });
   } catch (error) {
     failure = error;

@@ -104,8 +104,9 @@ function checkMount(
           proficiency: { level: "trained" },
         },
       ],
-      composition: then(HumanChain.subject("a").sit({ seat: target, seconds }))
-        .node,
+      composition: then(
+        HumanChain.subject("a").sit({ seat: target, hold: seconds }),
+      ).node,
     });
   const { footrests: _rests, ...bare } = seat;
   const targets: readonly IAutoMovieMotionHumanSeated.ISeat[] =
@@ -286,7 +287,7 @@ function checkMount(
   check(
     "sit cut by stand at commit",
     (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-      chain.until({ event: "commit" }).stand({ seconds: 1 }),
+      chain.until({ event: "commit" }).stand({ hold: 1 }),
     "standing",
   );
 
@@ -307,7 +308,7 @@ function checkMount(
       chain
         .rise(seat.astride ? { to: "left" } : {})
         .until({ share: 0.05 })
-        .sit({ seat, seconds: 0.5 }),
+        .sit({ seat, hold: 0.5 }),
     "seated",
   );
 
@@ -337,7 +338,7 @@ function checkMount(
     [
       "sit cut by stand at 0.5",
       (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-        chain.until({ share: 0.5 }).stand({ seconds: 1 }),
+        chain.until({ share: 0.5 }).stand({ hold: 1 }),
     ],
   ];
   for (const [what, then] of forbidden) {

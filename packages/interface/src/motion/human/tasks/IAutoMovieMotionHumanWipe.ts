@@ -26,8 +26,8 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
  * a held cloth as a prop, and the task sequences (dishwashing, laundry, bed
  * making) that chain this with the grasp, affordance and bend laws.
  *
- * @evidence contracts/development/common.md#meaningful-documentation hand: The hand; `right` when absent. cycles: How many circles; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation hand: The hand; `right` when absent. cycles: How many circles; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/common.md#meaningful-documentation hand: The hand; `right` when absent. count: How many circles; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/design.md#principled-representation hand: The hand; `right` when absent. count: How many circles; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.wipe, params); tasks/wipe.ts (wipe.plan, context); executable/cases/householdCases.ts (householdCases).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, AutoMovieHumanSide, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -57,7 +57,7 @@ export namespace IAutoMovieMotionHumanWipe {
     hand?: AutoMovieHumanSide;
 
     /** How many circles, a whole number of at least 1; 3 when absent. */
-    cycles?: number;
+    count?: number;
 
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;

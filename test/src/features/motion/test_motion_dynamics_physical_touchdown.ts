@@ -13,12 +13,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanAirborneShape,
+  AutoMovieMotionHumanJump,
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanFoot,
   HumanPerformance,
   HumanRefusal,
-  stand,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -67,7 +67,7 @@ export function test_motion_dynamics_physical_touchdown(): void {
           },
         ],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
+          .stand({ hold: 0.3 })
           .jump(
             {
               to: { x: 0, y: 0, z: 1 },
@@ -84,7 +84,8 @@ export function test_motion_dynamics_physical_touchdown(): void {
               layers: {
                 a: [
                   {
-                    layer: HumanAirborneShape.layer("pike"),
+                    layer:
+                      AutoMovieMotionHumanJump.HumanAirborneShape.layer("pike"),
                     from: { of: "leap", event: "takeoff" },
                     to: { of: "leap", event: "touchdown" },
                     fade: 0.05,
@@ -158,7 +159,9 @@ export function test_motion_dynamics_physical_touchdown(): void {
       };
       const flat: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         { x: 0, y: 1, z: 0 },
-        side === "left" ? stand.TOE_OUT : -stand.TOE_OUT,
+        side === "left"
+          ? AutoMovieMotionHumanStance.stand.TOE_OUT
+          : -AutoMovieMotionHumanStance.stand.TOE_OUT,
       );
       const soles: ReturnType<typeof HumanFoot.sockets>[] = bones.map(
         (frame): ReturnType<typeof HumanFoot.sockets> =>
@@ -251,7 +254,7 @@ export function test_motion_dynamics_physical_touchdown(): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3 })
+        .stand({ hold: 0.3 })
         .jump({
           to: { x: 0, y: 0, z: 0.15 },
           apex: 0.05,

@@ -4,7 +4,7 @@
     "approach": {},
     "athletics": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -26,7 +26,7 @@
     },
     "baseball": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -85,7 +85,7 @@
     },
     "crawl": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -114,7 +114,7 @@
             "x-unit": "beats/min"
           }
         },
-        "beats": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -127,7 +127,7 @@
     "dress": {},
     "exercise": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -159,7 +159,7 @@
     "guard": {},
     "gymnastics": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -171,7 +171,7 @@
     "handOver": {},
     "handshake": {
       "properties": {
-        "pumps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -182,7 +182,7 @@
     },
     "handToFace": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -236,14 +236,14 @@
     "footStrike": {},
     "chiSau": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
             "x-unit": ""
           }
         },
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -278,7 +278,7 @@
     },
     "look": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -296,7 +296,7 @@
             "x-unit": ""
           }
         },
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -313,7 +313,7 @@
     "putDown": {},
     "racket": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -326,7 +326,7 @@
     "release": {},
     "rest": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -341,7 +341,7 @@
     "shift": {},
     "sit": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -353,7 +353,7 @@
     "stagger": {},
     "stand": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -383,7 +383,7 @@
     "stepOver": {},
     "stretch": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -395,7 +395,7 @@
     "support": {},
     "swim": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -409,7 +409,7 @@
     "typeText": {},
     "useTool": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -451,7 +451,7 @@
     },
     "wipe": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -479,7 +479,7 @@
     "wardrobe": {},
     "grapple": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -497,7 +497,7 @@
     "holdHandles": {},
     "leadHorse": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -522,7 +522,7 @@
             "x-unit": "s"
           }
         },
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -583,7 +583,7 @@
             "x-unit": "s"
           }
         },
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -597,7 +597,7 @@
     "cueStroke": {},
     "curlDelivery": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -662,7 +662,7 @@
     "volleyballDig": {},
     "bowViolin": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -675,7 +675,7 @@
     "button": {},
     "coverFace": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -754,7 +754,7 @@
     },
     "crossAnkleOverKnee": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -775,7 +775,7 @@
             "x-unit": "hip heights"
           }
         },
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -823,7 +823,7 @@
             "x-unit": "degrees"
           }
         },
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "minimum": 0.6,
@@ -854,7 +854,7 @@
             "x-unit": "s"
           }
         },
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -913,7 +913,7 @@
     },
     "seatedHeelBounce": {
       "properties": {
-        "beats": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -931,7 +931,7 @@
     },
     "shiftStandingWeight": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -960,7 +960,7 @@
     "stageDeflect": {},
     "swimImmersed": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -1006,7 +1006,7 @@
             "x-unit": "width"
           }
         },
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -1020,7 +1020,7 @@
     "tuckHair": {},
     "wipeTears": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -1077,7 +1077,7 @@
     },
     "alber": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -1088,7 +1088,7 @@
     },
     "applyCream": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -1107,7 +1107,7 @@
     },
     "applyLipstick": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -1126,7 +1126,7 @@
     },
     "arabesque": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1145,7 +1145,7 @@
     "armAtSide": {},
     "armCircles": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1164,7 +1164,7 @@
     "armPhrase": {},
     "armsCrossed": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -1176,7 +1176,7 @@
     "ashTap": {},
     "aSkip": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1187,7 +1187,7 @@
     },
     "babyFreeze": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1241,7 +1241,7 @@
     },
     "backSquat": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1259,7 +1259,7 @@
     },
     "backstroke": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1308,7 +1308,7 @@
             "x-unit": "beats/min"
           }
         },
-        "beats": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1319,7 +1319,7 @@
     },
     "barSwing": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1349,7 +1349,7 @@
     },
     "battingStance": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -1360,7 +1360,7 @@
     },
     "bearCrawl": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1378,7 +1378,7 @@
             "x-unit": "kg"
           }
         },
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -1391,7 +1391,7 @@
     "beckonHand": {},
     "benchPress": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1409,7 +1409,7 @@
     },
     "bentOverRow": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1427,7 +1427,7 @@
     },
     "bicycleCrunch": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1447,7 +1447,7 @@
     "bind": {},
     "birdDog": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1465,7 +1465,7 @@
     },
     "blownKiss": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -1485,7 +1485,7 @@
     "blownKissSend": {},
     "blowNose": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -1518,7 +1518,7 @@
             "x-unit": "s"
           }
         },
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -1543,7 +1543,7 @@
             "x-unit": "beats/min"
           }
         },
-        "beats": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1589,7 +1589,7 @@
             "x-unit": "beats/min"
           }
         },
-        "beats": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1602,7 +1602,7 @@
     "braceForImpact": {},
     "breaststroke": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1613,7 +1613,7 @@
     },
     "bSkip": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1631,7 +1631,7 @@
     },
     "bunt": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -1642,7 +1642,7 @@
     },
     "burpee": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1660,7 +1660,7 @@
     },
     "buttKicks": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1678,7 +1678,7 @@
     },
     "calfRaise": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1696,7 +1696,7 @@
     },
     "calfStretch": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1751,7 +1751,7 @@
     },
     "cartwheelLeft": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -1762,7 +1762,7 @@
     },
     "cartwheelRight": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -1773,7 +1773,7 @@
     },
     "catcherCrouch": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -1786,7 +1786,7 @@
     "chase": {},
     "checkPhone": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -1806,7 +1806,7 @@
     "checkSwing": {},
     "checkWatch": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -1828,7 +1828,7 @@
     "cheerHands": {},
     "chestStretch": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1846,7 +1846,7 @@
     },
     "chestTrap": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1866,7 +1866,7 @@
     "chinOnFist": {},
     "chinUp": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1886,7 +1886,7 @@
     "clapHands": {},
     "closedHold": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -1928,7 +1928,7 @@
     },
     "cobra": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -2078,7 +2078,7 @@
     },
     "crunch": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -2096,7 +2096,7 @@
     },
     "curl": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -2126,7 +2126,7 @@
     },
     "cycling": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -2178,7 +2178,7 @@
     "dash": {},
     "deadBug": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -2196,7 +2196,7 @@
     },
     "deadHang": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -2214,7 +2214,7 @@
     },
     "deadlift": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -2232,7 +2232,7 @@
     },
     "declinePushUp": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -2252,7 +2252,7 @@
     "dial": {},
     "dip": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -2315,7 +2315,7 @@
     },
     "downwardDog": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -2375,7 +2375,7 @@
     "eatWith": {},
     "enGarde": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -2387,7 +2387,7 @@
     "escort": {},
     "faceBite": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -2406,7 +2406,7 @@
     },
     "faceBrushTeeth": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -2425,7 +2425,7 @@
     },
     "faceComb": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -2444,7 +2444,7 @@
     },
     "faceDrink": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -2463,7 +2463,7 @@
     },
     "faceEat": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -2482,7 +2482,7 @@
     },
     "facepalm": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -2501,7 +2501,7 @@
     },
     "facePhone": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -2521,7 +2521,7 @@
     "facePinchNose": {},
     "faceRead": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -2540,7 +2540,7 @@
     },
     "faceSip": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -2559,7 +2559,7 @@
     },
     "faceWashFace": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -2578,7 +2578,7 @@
     },
     "faceWipeMouth": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -2632,7 +2632,7 @@
     "feint": {},
     "fieldGrounder": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -2678,7 +2678,7 @@
     "flickOff": {},
     "floating": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -2806,7 +2806,7 @@
     "fret": {},
     "frontCrawl": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -2819,7 +2819,7 @@
     "frontKick": {},
     "frontRaise": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -2848,7 +2848,7 @@
     },
     "frontSquat": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -2866,7 +2866,7 @@
     },
     "frontStance": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3265,7 +3265,7 @@
     "gloveCatch": {},
     "gluteBridge": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3285,7 +3285,7 @@
     "goalkeeperDiveRight": {},
     "gobletSquat": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3303,7 +3303,7 @@
     },
     "golfAddress": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -3326,7 +3326,7 @@
     },
     "goodMorning": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3387,7 +3387,7 @@
     "hammerStrokes": {},
     "hammerTurn": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3409,7 +3409,7 @@
     "handOnHip": {},
     "handsBehindHead": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -3420,7 +3420,7 @@
     },
     "handsClasped": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -3432,7 +3432,7 @@
     "handsClaspedBehind": {},
     "handsInPockets": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -3443,7 +3443,7 @@
     },
     "handsOnHips": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -3455,7 +3455,7 @@
     "handspringVault": {},
     "handstand": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -3487,7 +3487,7 @@
     "haul": {},
     "header": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3507,7 +3507,7 @@
     "headScratch": {},
     "highKnees": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3518,7 +3518,7 @@
     },
     "highReady": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -3530,7 +3530,7 @@
     "hipFlexorStretch": {},
     "hipThrust": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3558,7 +3558,7 @@
             "x-unit": ""
           }
         },
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -3569,7 +3569,7 @@
     },
     "hurdlerStretch": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3601,7 +3601,7 @@
     },
     "hush": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -3620,7 +3620,7 @@
     },
     "inchworm": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3631,7 +3631,7 @@
     },
     "inclinePushUp": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3654,7 +3654,7 @@
     "judoGrip": {},
     "jumpingJacks": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3665,7 +3665,7 @@
     },
     "jumpRope": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3690,7 +3690,7 @@
             "x-unit": ""
           }
         },
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -3701,7 +3701,7 @@
     },
     "kettlebellSwing": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3723,7 +3723,7 @@
     "kneelSit": {},
     "kneeRaise": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3777,7 +3777,7 @@
     },
     "lateralRaise": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3835,7 +3835,7 @@
     },
     "legSwings": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3854,7 +3854,7 @@
     "lieStill": {},
     "lightCigarette": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -3886,7 +3886,7 @@
     },
     "lowBlock": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3905,7 +3905,7 @@
     "lowFive": {},
     "lowReady": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -3928,7 +3928,7 @@
     },
     "lunges": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3939,7 +3939,7 @@
     },
     "lungeTwist": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3957,7 +3957,7 @@
     },
     "lyingLegRaise": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -3989,7 +3989,7 @@
     },
     "mountainClimber": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4019,7 +4019,7 @@
     "neckRoll": {},
     "neckStretch": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -4030,7 +4030,7 @@
     },
     "ochs": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -4059,7 +4059,7 @@
     },
     "openDoor": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0.6,
@@ -4070,7 +4070,7 @@
     },
     "overheadPress": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4119,7 +4119,7 @@
     "palmUp": {},
     "paradeRest": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -4143,7 +4143,7 @@
     "patOn": {},
     "pflug": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -4155,7 +4155,7 @@
     "phoneToEar": {},
     "photograph": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -4174,7 +4174,7 @@
     },
     "pikePushUp": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4194,7 +4194,7 @@
     "pitch": {},
     "plank": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4213,7 +4213,7 @@
     "play": {},
     "pnfHamstring": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4233,7 +4233,7 @@
     "poke": {},
     "powerClean": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4251,7 +4251,7 @@
     },
     "presentFirearm": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -4289,7 +4289,7 @@
     },
     "pullUp": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4321,7 +4321,7 @@
     "pushPass": {},
     "pushUp": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4351,7 +4351,7 @@
     },
     "quadStretch": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -4408,7 +4408,7 @@
     },
     "readyPosition": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -4424,7 +4424,7 @@
     "reloadFirearm": {},
     "restBehindHead": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -4435,7 +4435,7 @@
     },
     "restChinRest": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -4446,7 +4446,7 @@
     },
     "restClaspedBehind": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -4457,7 +4457,7 @@
     },
     "restClaspedFront": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -4468,7 +4468,7 @@
     },
     "restCrossed": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -4479,7 +4479,7 @@
     },
     "restElbowSupport": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -4490,7 +4490,7 @@
     },
     "restHip": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -4501,7 +4501,7 @@
     },
     "restPocket": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -4513,7 +4513,7 @@
     "restrain": {},
     "restSide": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -4525,7 +4525,7 @@
     "retreat": {},
     "ride": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -4563,7 +4563,7 @@
     },
     "risingBlock": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4582,7 +4582,7 @@
     "roll": {},
     "romanianDeadlift": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4601,7 +4601,7 @@
     "roundKick": {},
     "roundOffLeft": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -4612,7 +4612,7 @@
     },
     "roundOffRight": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -4623,7 +4623,7 @@
     },
     "rowing": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4641,7 +4641,7 @@
     },
     "rubEyes": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -4662,7 +4662,7 @@
     "rubPalms": {},
     "russianTwist": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4694,7 +4694,7 @@
     "salute": {},
     "saw": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4709,7 +4709,7 @@
     "scratchOn": {},
     "screw": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4721,7 +4721,7 @@
     "scrub": {},
     "seatedFold": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4740,7 +4740,7 @@
     "selfFistPump": {},
     "selfie": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -4783,7 +4783,7 @@
     "shoulderPat": {},
     "shoulderStretch": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -4796,7 +4796,7 @@
     "shoved": {},
     "shrug": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4814,7 +4814,7 @@
     },
     "sidePlank": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4832,7 +4832,7 @@
     },
     "sideStretch": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -4846,7 +4846,7 @@
     "sitSideways": {},
     "sitUp": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4893,7 +4893,7 @@
     "smoke": {},
     "snatch": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -4924,7 +4924,7 @@
     },
     "sniff": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -4988,7 +4988,7 @@
     },
     "spin": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5006,7 +5006,7 @@
     },
     "splitSquat": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5024,7 +5024,7 @@
     },
     "splitStep": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -5036,7 +5036,7 @@
     "sprint": {},
     "sprintStart": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -5047,7 +5047,7 @@
     },
     "squats": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5093,7 +5093,7 @@
             "x-unit": "beats/min"
           }
         },
-        "beats": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5104,7 +5104,7 @@
     },
     "stepUp": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5135,7 +5135,7 @@
     },
     "stir": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5155,7 +5155,7 @@
             "x-unit": "beats/min"
           }
         },
-        "beats": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5173,7 +5173,7 @@
     },
     "streetRock": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5189,7 +5189,6 @@
         }
       }
     },
-    "strides": {},
     "strokeDown": {},
     "stroll": {
       "properties": {
@@ -5210,7 +5209,7 @@
     "stumble": {},
     "sunSalutation": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5228,7 +5227,7 @@
     },
     "superman": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5277,7 +5276,7 @@
             "x-unit": "beats/min"
           }
         },
-        "beats": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5300,7 +5299,7 @@
     },
     "swordGuard": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -5341,7 +5340,7 @@
             "x-unit": ""
           }
         },
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -5352,7 +5351,7 @@
     },
     "takeAim": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -5386,7 +5385,7 @@
     "teethBrushing": {},
     "thighTrap": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5404,7 +5403,7 @@
     },
     "thinking": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -5488,7 +5487,7 @@
     },
     "toastSip": {
       "properties": {
-        "seconds": {
+        "hold": {
           "alternatives": [
             {
               "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
@@ -5508,7 +5507,7 @@
     "toeTouch": {},
     "toolHammer": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5519,7 +5518,7 @@
     },
     "toolSaw": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5530,7 +5529,7 @@
     },
     "toolScrewdriver": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5541,7 +5540,7 @@
     },
     "toolStir": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5574,7 +5573,7 @@
     "traverse": {},
     "treadWater": {
       "properties": {
-        "cycles": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5585,7 +5584,7 @@
     },
     "treePose": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -5596,7 +5595,7 @@
     },
     "triangle": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5614,7 +5613,7 @@
     },
     "tricepsExtension": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5632,7 +5631,7 @@
     },
     "tricepsStretch": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5680,7 +5679,7 @@
     "underarmPitch": {},
     "underarmTurn": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5754,7 +5753,7 @@
     },
     "vomTag": {
       "properties": {
-        "seconds": {
+        "duration": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -5765,7 +5764,7 @@
     },
     "wallSit": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5783,7 +5782,7 @@
     },
     "warriorOne": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5801,7 +5800,7 @@
     },
     "warriorTwo": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5821,7 +5820,7 @@
     "whisper": {},
     "widePushUp": {
       "properties": {
-        "reps": {
+        "count": {
           "numeric": {
             "type": "integer",
             "minimum": 1,
@@ -5948,7 +5947,7 @@
     "shootCrossbow": {},
     "shoulderArms": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -5959,7 +5958,7 @@
     },
     "castAbout": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -5970,7 +5969,7 @@
     },
     "recover": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -5981,7 +5980,7 @@
     },
     "presentMusket": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -5992,7 +5991,7 @@
     },
     "presentBow": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,
@@ -6003,7 +6002,7 @@
     },
     "presentCrossbow": {
       "properties": {
-        "seconds": {
+        "hold": {
           "numeric": {
             "type": "number",
             "minimum": 0,

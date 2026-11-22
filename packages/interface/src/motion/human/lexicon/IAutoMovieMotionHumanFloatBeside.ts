@@ -33,7 +33,7 @@ export interface IAutoMovieMotionHumanFloatBeside {
   blocked?: AutoMovieHumanSide[];
 
   /** Seconds the action lasts, the slide-off included, more than `transition`. */
-  seconds: number;
+  duration: number;
 
   /** Seconds the slide off the saddle into the float takes, positive. */
   transition: number;

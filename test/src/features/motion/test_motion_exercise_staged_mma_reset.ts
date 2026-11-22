@@ -11,13 +11,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGrapple,
+  AutoMovieMotionHumanKickboxing,
   HumanChain,
   HumanColliders,
   HumanCoupled,
   HumanPerformance,
   HumanSignature,
-  KickboxingRing,
-  grapple,
 } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -150,8 +150,8 @@ function scene(
   const pair = HumanChain.mutual(
     HumanCoupled.grappling,
     {
-      initiator: initiator.stand({ seconds: 0.3, sway: 0 }),
-      receiver: receiver.stand({ seconds: 0.3, sway: 0 }),
+      initiator: initiator.stand({ hold: 0.3, sway: 0 }),
+      receiver: receiver.stand({ hold: 0.3, sway: 0 }),
     },
     setup,
     "clinch",
@@ -162,7 +162,7 @@ function scene(
   const played = (along: number): HumanPerformance =>
     new HumanPerformance({
       seed: "mma-clinch",
-      laws: [grapple],
+      laws: [AutoMovieMotionHumanGrapple.grapple],
       performers: [
         {
           subject: "a",
@@ -186,14 +186,18 @@ function scene(
           {
             kind: "parallel",
             parts: [
-              initiator.stand({ seconds: 0.4, sway: 0 }, "nextA").node,
-              receiver.stand({ seconds: 0.4, sway: 0 }, "nextB").node,
+              initiator.stand({ hold: 0.4, sway: 0 }, "nextA").node,
+              receiver.stand({ hold: 0.4, sway: 0 }, "nextB").node,
             ],
           },
         ],
       },
     });
-  const first: number = grapple.spacing("mmaReset", body, body);
+  const first: number = AutoMovieMotionHumanGrapple.grapple.spacing(
+    "mmaReset",
+    body,
+    body,
+  );
   const trial: HumanPerformance = played(first);
   const film: HumanPerformance = played(
     spacing(trial, body, first, 0, trial.duration),
@@ -261,7 +265,7 @@ function scene(
       `${label}: ${reader.subject} stays inside the mat`,
       samples.every((seconds: number): boolean =>
         (["leftFoot", "rightFoot"] as const).every((bone): boolean =>
-          KickboxingRing.inside(
+          AutoMovieMotionHumanKickboxing.KickboxingRing.inside(
             MAT,
             HumanSignature.joint(reader, seconds, bone),
           ),

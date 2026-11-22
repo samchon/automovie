@@ -6,12 +6,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSittingVolley,
   HUMAN_LEXICON,
   HumanChain,
   HumanHand,
   HumanPerformance,
   HumanSignature,
-  HumanSittingVolley,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,7 +41,7 @@ export function test_motion_exercise_sitting_volley(): void {
   const sitting: ReturnType<typeof HumanChain.subject> = HumanChain.subject(
     "receiver",
   )
-    .stand({ seconds: 0.3 })
+    .stand({ hold: 0.3 })
     .registered("sitCrossLegged");
   const performer: ConstructorParameters<
     typeof HumanPerformance
@@ -76,7 +76,10 @@ export function test_motion_exercise_sitting_volley(): void {
   const take: HumanPerformance = new HumanPerformance({
     seed: "court-receive",
     performers: [performer],
-    laws: [...HUMAN_LEXICON.pose!, HumanSittingVolley],
+    laws: [
+      ...HUMAN_LEXICON.pose!,
+      AutoMovieMotionHumanSittingVolley.sittingVolley,
+    ],
     composition: sitting.registered("sittingVolley", {
       hand: "left",
       lateral,

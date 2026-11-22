@@ -18,6 +18,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanHeld,
+  AutoMovieMotionHumanStance,
   HumanBallPlay,
   HumanChain,
   HumanHand,
@@ -25,7 +26,6 @@ import {
   HumanPerformance,
   HumanPrecisionSport,
   PrecisionStrokeForms,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -133,32 +133,33 @@ export function test_motion_exercise_tennis_point(): void {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("a").stand({ seconds: 0.2, sway: 0 }).node,
+    composition: HumanChain.subject("a").stand({ hold: 0.2, sway: 0 }).node,
   }).bones("a", 0);
   const hung: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
     90,
   );
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.grasped(
-    body,
-    "right",
-    "racket",
-    {
-      position: Vector3.subtract(
-        HumanHand.frame(body, quiet, "right", "grip").point,
-        Quaternion.rotateVector(
-          hung,
-          racket.affordance("grip").frame.translation,
+  const held: IAutoMovieMotionHumanHeld.IHeld =
+    AutoMovieMotionHumanHeld.grasped(
+      body,
+      "right",
+      "racket",
+      {
+        position: Vector3.subtract(
+          HumanHand.frame(body, quiet, "right", "grip").point,
+          Quaternion.rotateVector(
+            hung,
+            racket.affordance("grip").frame.translation,
+          ),
         ),
-      ),
-      rotation: hung,
-    },
-    racket.affordances ?? [],
-    {
-      point: quiet.get("rightHand")!.worldPosition,
-      rotation: quiet.get("rightHand")!.worldRotation,
-    },
-  );
+        rotation: hung,
+      },
+      racket.affordances ?? [],
+      {
+        point: quiet.get("rightHand")!.worldPosition,
+        rotation: quiet.get("rightHand")!.worldRotation,
+      },
+    );
   const place = (point: IAutoMovieVector3, yaw: number): IAutoMovieVector3 =>
     PrecisionStrokeForms.address({
       body,
@@ -192,12 +193,12 @@ export function test_motion_exercise_tennis_point(): void {
   const holding = (
     player: Player,
   ): IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> => ({
-    ...stand,
+    ...AutoMovieMotionHumanStance.stand,
     name: `tennisHold-${player}`,
     plan: (
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
     ): IAutoMovieMotionHumanActionPlan => ({
-      ...stand.plan(context),
+      ...AutoMovieMotionHumanStance.stand.plan(context),
       holds: [
         { side: "right", prop: `racket-${player}`, from: 0 },
         ...(player === "a"
@@ -214,7 +215,7 @@ export function test_motion_exercise_tennis_point(): void {
         .ballSport(
           {
             kind: "handballThrow",
-            side: "left",
+            hand: "left",
             prop: "ball",
             at: toss,
             flightSeconds: tossSeconds,
@@ -223,7 +224,7 @@ export function test_motion_exercise_tennis_point(): void {
         )
         // The toss ends into a moment's stand, which the serve then cuts.
         .until({ event: "relax" })
-        .stand({ seconds: 0.05, sway: 0 }),
+        .stand({ hold: 0.05, sway: 0 }),
       b: HumanChain.subject("b").registered(`tennisHold-b`, {
         seconds: 0.3,
         sway: 0,
@@ -272,11 +273,11 @@ export function test_motion_exercise_tennis_point(): void {
       const run: IAutoMovieMotionHumanChain = HumanChain.subject(shot.hitter)
         .run({ to: shot.station.at, pace: "run", face: shot.station.yaw })
         .sync({ of: `shot${index - 2}`, event: "end" })
-        .stand({ seconds: 0.05, sway: 0 });
+        .stand({ hold: 0.05, sway: 0 });
       const struck: IAutoMovieMotionHumanChain = stroke(run).sync(answer);
       branches.push(
         (index === shots.length - 1
-          ? struck.stand({ seconds: 2.5, sway: 0 })
+          ? struck.stand({ hold: 2.5, sway: 0 })
           : struck
         ).node,
       );
@@ -300,7 +301,7 @@ export function test_motion_exercise_tennis_point(): void {
             },
           ],
           composition: HumanChain.subject(player).stand({
-            seconds: 0.2,
+            hold: 0.2,
             sway: 0,
           }).node,
         }).bones(player, 0),
@@ -339,8 +340,7 @@ export function test_motion_exercise_tennis_point(): void {
             proficiency: { level: "trained" },
           },
         ],
-        composition: HumanChain.subject("a").stand({ seconds: 0.2, sway: 0 })
-          .node,
+        composition: HumanChain.subject("a").stand({ hold: 0.2, sway: 0 }).node,
       }).bones("a", 0),
       "left",
       "grip",
@@ -385,8 +385,8 @@ export function test_motion_exercise_tennis_point(): void {
         ),
       ],
       composition: AutoMovieComposition.parallel(
-        (later.a ? chains.a : chains.a.stand({ seconds: 2.5, sway: 0 })).node,
-        (later.b ? chains.b : chains.b.stand({ seconds: 2.5, sway: 0 })).node,
+        (later.a ? chains.a : chains.a.stand({ hold: 2.5, sway: 0 })).node,
+        (later.b ? chains.b : chains.b.stand({ hold: 2.5, sway: 0 })).node,
         ...branches,
       ),
     });

@@ -127,13 +127,13 @@ export namespace cartwheel {
     const body: IAutoMovieMotionHumanBody = context.body;
     const duration: number = HumanBound.above(
       "seconds",
-      context.params.seconds ?? SECONDS,
+      context.params.duration ?? SECONDS,
       0,
       "s",
     );
     const sign: number = context.params.to === "right" ? 1 : -1;
     const standing: IAutoMovieMotionHumanPosture = stand
-      .plan({ ...context, params: { seconds: 1 } })
+      .plan({ ...context, params: { hold: 1 } })
       .posture(0);
     const ease: (x: number) => number = (x: number): number =>
       minimumJerk.share(x);

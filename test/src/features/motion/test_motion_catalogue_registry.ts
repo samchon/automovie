@@ -79,7 +79,7 @@ export function test_motion_catalogue_registry(): void {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject("performer").stand({ seconds: 1 }).node,
+      composition: HumanChain.subject("performer").stand({ hold: 1 }).node,
     });
   TestValidator.equals(
     "all public rows coexist with the base vocabulary",

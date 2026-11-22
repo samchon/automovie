@@ -117,7 +117,9 @@ export namespace punch {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function hand(params: IAutoMovieMotionHumanPunch.IParams): "lead" | "rear" {
+  export function hand(
+    params: IAutoMovieMotionHumanPunch.IParams,
+  ): "lead" | "rear" {
     return params.hand ?? (params.technique === "uppercut" ? "rear" : "lead");
   }
 
@@ -181,7 +183,8 @@ export namespace punch {
     ) {
       const elapsed: number =
         from.share * from.plan.duration - from.plan.contact;
-      const same: boolean = hand(from.params as IAutoMovieMotionHumanPunch.IParams) === which;
+      const same: boolean =
+        hand(from.params as IAutoMovieMotionHumanPunch.IParams) === which;
       delivery = Math.max(
         0.12,
         StrikingSkill.interval(context.skill, same) - Math.max(0, elapsed),
@@ -244,9 +247,19 @@ export namespace punch {
     // girth to the elbow's.
     const limb: "leftArm" | "rightArm" =
       side === "left" ? "leftArm" : "rightArm";
-    const course: StrikingWeapon.Course = (at: number, _channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2], projection?: Parameters<StrikingWeapon.Course>[3]): IAutoMovieMotionHumanPosture =>
-      geometry().posture(Math.min(duration, Math.max(0, at - context.start)), resolution, projection?.());
-    const frames: ReturnType<typeof StrikingWeapon.frames> = StrikingWeapon.frames(context.body, limb);
+    const course: StrikingWeapon.Course = (
+      at: number,
+      _channels?: Parameters<StrikingWeapon.Course>[1],
+      resolution?: Parameters<StrikingWeapon.Course>[2],
+      projection?: Parameters<StrikingWeapon.Course>[3],
+    ): IAutoMovieMotionHumanPosture =>
+      geometry().posture(
+        Math.min(duration, Math.max(0, at - context.start)),
+        resolution,
+        projection?.(),
+      );
+    const frames: ReturnType<typeof StrikingWeapon.frames> =
+      StrikingWeapon.frames(context.body, limb);
     const chain: StrikingWeapon.IChain = {
       ids: ["upperArm", "forearm", "fist"],
       limb,
@@ -264,8 +277,20 @@ export namespace punch {
           frames,
         ),
       read: StrikingWeaponTable.reader(
-        (seconds: number, near: Parameters<typeof StrikingWeapon.arm>[4], kept: NonNullable<Parameters<typeof StrikingWeapon.arm>[5]>): IAutoMovieVector3[] =>
-          StrikingWeapon.arm(context.body, course, side, seconds, near, kept, frames),
+        (
+          seconds: number,
+          near: Parameters<typeof StrikingWeapon.arm>[4],
+          kept: NonNullable<Parameters<typeof StrikingWeapon.arm>[5]>,
+        ): IAutoMovieVector3[] =>
+          StrikingWeapon.arm(
+            context.body,
+            course,
+            side,
+            seconds,
+            near,
+            kept,
+            frames,
+          ),
       ),
       on: (): object => geometry(),
     };
@@ -297,8 +322,22 @@ export namespace punch {
     // from the struck body. Only the intent varies here: the arm's miss is
     // the seeded scatter the tracker already adds (`StrikingQuality.offset`),
     // so it is not counted a second time.
+    // The punch's aim skill is the manner's consistency for this spread only.
+    const manner: IAutoMovieMotionHumanPunch.IManner | undefined = p.manner;
     const source: IAutoMovieMotionHumanVariation.ISource | undefined =
-      AutoMovieMotionHumanVariation.of(context, p.manner);
+      AutoMovieMotionHumanVariation.of(
+        context,
+        manner === undefined
+          ? undefined
+          : {
+              ...(manner.variation === undefined
+                ? {}
+                : { variation: manner.variation }),
+              ...(manner.aimSkill === undefined
+                ? {}
+                : { consistency: manner.aimSkill }),
+            },
+      );
     let tangent: IAutoMovieHumanoidSurfaces.ITangent | undefined;
     const aimed = (): IAutoMovieHumanoidSurfaces.ITangent | undefined => {
       if (
@@ -331,7 +370,13 @@ export namespace punch {
         );
       building = true;
       try {
-        built = punchGeometry.build(context, timing, fixed, aimed(), (launched ??= punchLaunch(context, timing)));
+        built = punchGeometry.build(
+          context,
+          timing,
+          fixed,
+          aimed(),
+          (launched ??= punchLaunch(context, timing)),
+        );
       } finally {
         building = false;
       }
@@ -343,11 +388,17 @@ export namespace punch {
       get contacts(): IAutoMovieMotionHumanContactWindow[] {
         return geometry().contacts;
       },
-      record: (): IAutoMovieMotionHumanStrikingRecord.IRecord => geometry().record,
+      record: (): IAutoMovieMotionHumanStrikingRecord.IRecord =>
+        geometry().record,
       ...(p.feint === undefined
         ? { contact: delivery }
         : { feigned: delivery }),
-      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return carried(geometry().posture(t, source, projection), t);
       },

@@ -99,7 +99,7 @@ export const sitOnLap: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSitOn
       };
       const params: IAutoMovieMotionHumanSit.IParams = {
         seat,
-        ...(p.seconds === undefined ? {} : { seconds: p.seconds }),
+        ...(p.hold === undefined ? {} : { hold: p.hold }),
         ...(p.manner === undefined ? {} : { manner: p.manner }),
       };
       const plan: IAutoMovieMotionHumanActionPlan = sit.plan({

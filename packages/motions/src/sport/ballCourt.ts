@@ -190,7 +190,7 @@ export function ballCourt(
   const dribble: boolean = kind === "dribbleRelease";
   const one: boolean = dribble || kind === "handballThrow";
   const hands: readonly AutoMovieHumanSide[] = one
-    ? [params.side ?? "right"]
+    ? [params.hand ?? "right"]
     : ["left", "right"];
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
     AutoMovieMotionClock.phrase({

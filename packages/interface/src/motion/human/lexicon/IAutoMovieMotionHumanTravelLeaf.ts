@@ -21,8 +21,8 @@
  * a `reach` refusal on `handle` naming the largest swing followed. First
  * pass: the closure is the one at the instant the hand arrives.
  *
- * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`. Exclusive minimum: 0.6. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. side: The hand; the right when absent.
- * @evidence contracts/development/design.md#principled-representation seconds: Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`. Exclusive minimum: 0.6. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. side: The hand; the right when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation duration: Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`. Exclusive minimum: 0.6. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. hand: The hand; the right when absent.
+ * @evidence contracts/development/design.md#principled-representation duration: Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`. Exclusive minimum: 0.6. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. hand: The hand; the right when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanTravelLeaf.ts (HumanTravelLeaf.openDoor, context); lexicon/HumanTravelLeaf.ts (HumanTravelLeaf.openDoor).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanTravelLeaf.openDoor.
  */
@@ -30,8 +30,8 @@ export namespace IAutoMovieMotionHumanTravelLeaf {
   /**
    * Parameters of opening a door.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`. Exclusive minimum: 0.6. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. side: The hand; the right when absent.
-   * @evidence contracts/development/design.md#principled-representation seconds: Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`. Exclusive minimum: 0.6. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. side: The hand; the right when absent.
+   * @evidence contracts/development/common.md#meaningful-documentation duration: Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`. Exclusive minimum: 0.6. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. hand: The hand; the right when absent.
+   * @evidence contracts/development/design.md#principled-representation duration: Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`. Exclusive minimum: 0.6. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. hand: The hand; the right when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanTravelLeaf.ts (HumanTravelLeaf.openDoor, context); lexicon/HumanTravelLeaf.ts (HumanTravelLeaf.openDoor).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanTravelLeaf.openDoor.
    */
@@ -43,9 +43,9 @@ export namespace IAutoMovieMotionHumanTravelLeaf {
     handle: string;
 
     /** Seconds the hand holds the handle, from the start of the reach; more than the reach's 0.6 s (`HumanTravelLeaf.TAKE`). */
-    seconds: number;
+    duration: number;
 
     /** The hand; the right when absent. */
-    side?: "left" | "right";
+    hand?: "left" | "right";
   }
 }

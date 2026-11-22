@@ -87,7 +87,7 @@ export function test_human_motion_stair_disc(): void {
     const standing: HumanPerformance = new HumanPerformance({
       seed: "stair-disc-standing",
       performers: [performer],
-      composition: HumanChain.subject("a").stand({ seconds: 0.25 }).node,
+      composition: HumanChain.subject("a").stand({ hold: 0.25 }).node,
     });
     const entered = standing.bones("a", 0);
     const start: number = -Math.max(
@@ -111,13 +111,20 @@ export function test_human_motion_stair_disc(): void {
       assertTakeClean(`${fit} step onto a turning disc`, take);
       const climb: IAutoMovieMotionHumanSegment = take.segments("a")[0]!;
       const span: number = climb.end - climb.start;
-      const toes: (part: IAutoMovieMotionHumanContactWindow["part"], seconds: number) => IAutoMovieVector3 = (part: IAutoMovieMotionHumanContactWindow["part"], seconds: number): IAutoMovieVector3 =>
+      const toes: (
+        part: IAutoMovieMotionHumanContactWindow["part"],
+        seconds: number,
+      ) => IAutoMovieVector3 = (
+        part: IAutoMovieMotionHumanContactWindow["part"],
+        seconds: number,
+      ): IAutoMovieVector3 =>
         take
           .bones("a", seconds)
           .get(part === "leftFoot" ? "leftToes" : "rightToes")!.worldPosition;
       for (const window of climb.plan.contacts.filter(
         (w: IAutoMovieMotionHumanContactWindow): boolean =>
-          (w.part === "leftFoot" || w.part === "rightFoot") && w.kind === "plant",
+          (w.part === "leftFoot" || w.part === "rightFoot") &&
+          w.kind === "plant",
       )) {
         const part: IAutoMovieMotionHumanContactWindow["part"] = window.part;
         const from: number = climb.start + window.from * span;
@@ -133,7 +140,13 @@ export function test_human_motion_stair_disc(): void {
           );
         } else {
           // In the disc's frame: undo its turn about the centre.
-          const local: (q: IAutoMovieVector3, seconds: number) => IAutoMovieVector3 = (q: IAutoMovieVector3, seconds: number): IAutoMovieVector3 => {
+          const local: (
+            q: IAutoMovieVector3,
+            seconds: number,
+          ) => IAutoMovieVector3 = (
+            q: IAutoMovieVector3,
+            seconds: number,
+          ): IAutoMovieVector3 => {
             const r: number = (-RATE * seconds * Math.PI) / 180;
             const dx: number = q.x - CENTRE.x;
             const dz: number = q.z - CENTRE.z;

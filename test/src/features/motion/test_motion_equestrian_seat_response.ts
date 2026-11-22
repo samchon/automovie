@@ -398,18 +398,18 @@ export function test_motion_equestrian_seat_response(): void {
   const begun: number = rigid.segments[rigid.segments.length - 1]!.start;
   const lose: number = WAIT + buck - begun;
   const shaken: mountedHorseScene.IScene = stage(horse, body, course, 1, [
-    { seat: "entered", transfer: 0.3, seconds: lose - 0.3, supports: HOLD },
+    { seat: "entered", transfer: 0.3, hold: lose - 0.3, supports: HOLD },
     {
       seat: "entered",
       transfer: 0.3,
-      seconds: 1.2,
+      hold: 1.2,
       supports: {
         rightFoot: "rightStirrup",
         leftHand: "leftRein",
         rightHand: "rightRein",
       },
     },
-    { seat: "entered", transfer: 0.6, seconds: 1, supports: HOLD },
+    { seat: "entered", transfer: 0.6, hold: 1, supports: HOLD },
   ]);
   const shook: IAutoMovieMotionHumanSegment =
     shaken.segments[shaken.segments.length - 1]!;
@@ -482,7 +482,7 @@ function stage(
     {
       seat: "entered",
       transfer: 0.3,
-      seconds: course.duration + WAIT - 4,
+      hold: course.duration + WAIT - 4,
       supports: HOLD,
     },
   ],

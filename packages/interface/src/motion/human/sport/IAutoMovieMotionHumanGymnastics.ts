@@ -27,8 +27,8 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * the vault (`vault`). Not drafted: bars and rings, which need swings about
  * a bar support.
  *
- * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds held inverted; 2 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation seconds: Seconds held inverted; 2 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/common.md#meaningful-documentation hold: Seconds held inverted; 2 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/design.md#principled-representation hold: Seconds held inverted; 2 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.gymnastics, params); sport/gymnastics.ts (gymnastics.plan, context); sport/gymnastics.ts (gymnastics.plan).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -43,7 +43,7 @@ export namespace IAutoMovieMotionHumanGymnastics {
    */
   export interface IParams {
     /** Seconds held inverted, at least 0; 2 when absent. */
-    seconds?: number;
+    hold?: number;
 
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;

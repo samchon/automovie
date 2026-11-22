@@ -63,7 +63,7 @@ export function test_human_motion_partner_tie(): void {
       ],
       // The partner is placed first, so the touch reads where the partner stands.
       composition: HumanChain.subject("b")
-        .stand({ seconds: 6 })
+        .stand({ hold: 6 })
         .with(
           composeHumanStraightenPartnerTie(
             HumanChain.subject("a"),

@@ -85,7 +85,7 @@ export function test_motion_exercise_ball_pass_custody(): void {
       "pass",
     );
   const contest: IAutoMovieMotionHumanChain = HumanChain.subject("defender")
-    .stand({ seconds: 2, sway: 0 })
+    .stand({ hold: 2, sway: 0 })
     .ballSport({ kind: "highHandContest" });
   const take = (intercept: number): HumanPerformance =>
     new HumanPerformance({

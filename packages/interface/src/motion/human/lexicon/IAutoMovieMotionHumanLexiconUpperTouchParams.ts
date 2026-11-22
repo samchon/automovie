@@ -1,5 +1,5 @@
+import type { IAutoMovieMotionHumanTouch } from "../next/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanSelfAction } from "../touch/IAutoMovieMotionHumanSelfAction";
-import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
 import type { AutoMovieMotionHumanTuckHairParams } from "./AutoMovieMotionHumanTuckHairParams";
 
 /**

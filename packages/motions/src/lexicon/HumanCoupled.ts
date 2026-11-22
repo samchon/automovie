@@ -63,7 +63,7 @@ export namespace HumanCoupled {
    * The performance registers the `grapple` law for both roles.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Both actors receive the same scene settings and the other actor's subject.
- *
+   *
    * Timing is the authored scene's clock (`IAutoMovieMotionHumanGrapple`); no timing of its own.
    */
   export const grappling: IAutoMovieMotionHumanMutual<
@@ -100,7 +100,7 @@ export namespace HumanCoupled {
     ): IAutoMovieMotionHumanMutual.IAct => {
       const shared: object = {
         ...(params?.carry === undefined ? {} : { carry: params.carry }),
-        ...(params?.seconds === undefined ? {} : { seconds: params.seconds }),
+        ...(params?.hold === undefined ? {} : { seconds: params.hold }),
         ...(params?.mass === undefined ? {} : { mass: params.mass }),
       };
       return role === "bearer"
@@ -125,7 +125,7 @@ export namespace HumanCoupled {
    * helped person rises through sitting and squatting to standing with
    * that hand gripping the helper's palm, which bears on the helper while
    * the hand holds and lets go once the feet bear alone.
- *
+   *
    * The helped person rises through sitting and squatting to standing; no timing of its own, the support planner's `support.SECONDS`, 1 s a stance (provisional).
    */
   export const helpUp: IAutoMovieMotionHumanMutual<
@@ -157,7 +157,7 @@ export namespace HumanCoupled {
       };
       const seconds: number = supportAssist.step();
       const paramsOf: IAutoMovieMotionHumanSupport.IParams = {
-        assist: { role, partner, side },
+        assist: { role, partner, hand: side },
         stances: [
           {
             contacts:
@@ -211,7 +211,7 @@ export namespace HumanCoupled {
       cast: Readonly<Record<"helper" | "second" | "helped", string>>,
     ): IAutoMovieMotionHumanMutual.IAct => {
       const seconds: object =
-        params?.seconds === undefined ? {} : { seconds: params.seconds };
+        params?.duration === undefined ? {} : { seconds: params.duration };
       return role === "helped"
         ? {
             name: "borne",

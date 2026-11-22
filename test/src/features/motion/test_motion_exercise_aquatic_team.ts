@@ -11,11 +11,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSwim,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  aquatic,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -51,7 +51,7 @@ export function test_motion_exercise_aquatic_team(): void {
   ): HumanPerformance =>
     new HumanPerformance({
       seed: "aquatic-team",
-      laws: [aquatic],
+      laws: [AutoMovieMotionHumanSwim.aquatic],
       performers: ["athlete", ...companions].map(
         (
           subject: string,

@@ -48,7 +48,7 @@ export function test_motion_posture_channel_seam(): void {
     });
   const walking = plan(
     chain()
-      .stand({ seconds: 1 })
+      .stand({ hold: 1 })
       .until({ share: 0.5 })
       .walk({ to: { x: 0, y: 0, z: 3 } })
       .stand(),

@@ -50,7 +50,7 @@ export namespace HumanStageFight {
   export const slap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["slap"]
   > = HumanActionRow.of("slap", touch, {
-    with: "palm",
+    effector: "palm",
     kind: "tap",
     count: 1,
     tangent: "across",
@@ -60,7 +60,7 @@ export namespace HumanStageFight {
   export const stageSlap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["stageSlap"]
   > = HumanActionRow.of("stageSlap", touch, {
-    with: "palm",
+    effector: "palm",
     kind: "tap",
     count: 1,
     tangent: "across",
@@ -71,7 +71,7 @@ export namespace HumanStageFight {
   export const backhand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["backhand"]
   > = HumanActionRow.of("backhand", touch, {
-    with: "handBack",
+    effector: "handBack",
     kind: "tap",
     count: 1,
     tangent: "across",
@@ -81,7 +81,7 @@ export namespace HumanStageFight {
   export const shove: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["shove"]
   > = HumanActionRow.of("shove", touch, {
-    with: "palm",
+    effector: "palm",
     kind: "press",
     count: 1,
   });
@@ -90,7 +90,7 @@ export namespace HumanStageFight {
   export const grab: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["grab"]
   > = HumanActionRow.of("grab", touch, {
-    with: "palm",
+    effector: "palm",
     kind: "squeeze",
     count: 1,
   });
@@ -99,7 +99,7 @@ export namespace HumanStageFight {
   export const poke: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["poke"]
   > = HumanActionRow.of("poke", touch, {
-    with: "fingertips",
+    effector: "fingertips",
     kind: "tap",
   });
 
@@ -133,7 +133,7 @@ export namespace HumanStageFight {
   export const choke: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["choke"]
   > = HumanActionRow.of("choke", touch, {
-    with: "palm",
+    effector: "palm",
     kind: "squeeze",
     count: 1,
     hold: 2,
@@ -148,7 +148,7 @@ export namespace HumanStageFight {
   export const hairPull: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["hairPull"]
   > = HumanActionRow.of("hairPull", touch, {
-    with: "palm",
+    effector: "palm",
     kind: "squeeze",
     count: 1,
     hold: 1.5,
@@ -158,7 +158,7 @@ export namespace HumanStageFight {
   export const struggle: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["struggle"]
   > = HumanActionRow.of("struggle", touch, {
-    with: "palm",
+    effector: "palm",
     kind: "squeeze",
     count: 1,
     hold: 1.5,
@@ -168,7 +168,7 @@ export namespace HumanStageFight {
   export const diveForCover: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["diveForCover"]
   > = HumanActionRow.of("diveForCover", lieDown, {
-    position: "prone",
+    kind: "prone",
     hold: 3,
   });
 

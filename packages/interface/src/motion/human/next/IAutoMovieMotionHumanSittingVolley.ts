@@ -1,5 +1,3 @@
-import type { IAutoMovieMotionHumanSittingVolley as ILegacySittingVolley } from "../lexicon/IAutoMovieMotionHumanSittingVolley";
-
 /**
  * Sitting volleyball, a rally played from the floor.
  *
@@ -13,7 +11,7 @@ export interface IAutoMovieMotionHumanSittingVolley<Chain> {
   /**
    * One seated floor shift and forearm receive for sitting volleyball, entered from an established floor seat with the athlete facing the incoming play.
    *
-   * @param params The `seconds`, `lateral`, `hand` and `target` of `ILegacySittingVolley`.
+   * @param params The `seconds`, `lateral`, `hand` and `target` of `IAutoMovieMotionHumanSittingVolley`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    *
@@ -34,14 +32,29 @@ export interface IAutoMovieMotionHumanSittingVolley<Chain> {
 /**
  * The parameter types of the SittingVolley methods.
  */
+export namespace IAutoMovieMotionHumanSittingVolley {}
+
 export namespace IAutoMovieMotionHumanSittingVolley {
   /**
-   * The parameters of `sittingVolley`: `IAutoMovieMotionHumanSittingVolley` (`lexicon/IAutoMovieMotionHumanSittingVolley`), the type its law takes.
+   * One seated floor shift and forearm receive for sitting volleyball, entered
+   * from an established floor seat with the athlete facing the incoming play.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanSittingVolley` (`lexicon/IAutoMovieMotionHumanSittingVolley`): the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSittingVolley` (`lexicon/IAutoMovieMotionHumanSittingVolley`) owns the shape; the alias serves `sittingVolley` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the travel, timing, target and supporting arm for the low receive.
+   * @evidence contracts/development/design.md#principled-representation A planted palm and a court-supported pelvis give way to an independent forearm reach target on the same film clock.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanSittingVolley consumes this record for one floor movement and receive, while the scene supplies ball travel.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The shift is expressed in metres relative to the entry heading and the receive is supplied by a world location, so no actor or court is fixed.
    */
-  export type ISittingVolley = ILegacySittingVolley;
+  export interface ISittingVolley {
+    /** Seconds for the floor shift and receive; the palm plants at 0.25 of it, releases at 0.55 and the receive lands at 0.8 (`HumanSittingVolley` shares, provisional). No natural value is defined: choose it for the beat (provisional, missing). */
+    duration: number;
+
+    /** Signed floor displacement in metres toward the left of entry heading. */
+    lateral: number;
+
+    /** Floor palm used to assist the shift. */
+    hand: "left" | "right";
+
+    /** World location of the intended forearm-platform midpoint, in metres. */
+    target: { x: number; y: number; z: number };
+  }
 }

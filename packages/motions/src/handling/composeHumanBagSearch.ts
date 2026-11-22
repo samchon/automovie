@@ -49,9 +49,9 @@ export namespace composeHumanBagSearch {
     return chain
       .act("touch", {
         target: { kind: "prop", subject: bag, point: "inside" },
-        side: hand,
+        hand: hand,
         kind: "rub",
-        with: "fingertips",
+        effector: "fingertips",
         count: RUMMAGE,
       })
       .act("pickUp", { prop: item, handle, hand, lift: depth });

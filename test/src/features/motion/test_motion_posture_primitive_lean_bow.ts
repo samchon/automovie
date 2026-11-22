@@ -9,10 +9,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanLean,
+  AutoMovieMotionHumanStance,
   HumanBalance,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -54,11 +54,8 @@ export function test_motion_posture_primitive_lean_bow(): void {
       posture: IAutoMovieMotionHumanPosture,
       bone: AutoMovieHumanoidBone,
     ): IAutoMovieVector3 => bones(posture).get(bone)!.worldPosition;
-    const standing: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      { x: 0, y: 0, z: 0 },
-      0,
-    );
+    const standing: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
     const hips: IAutoMovieVector3 = at(standing, "hips");
     // 4. A bow.
     const bow = (

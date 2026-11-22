@@ -1,5 +1,5 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
-import type { IAutoMovieMotionHumanDance } from "../exercise/IAutoMovieMotionHumanDance";
+import type { IAutoMovieMotionHumanDance } from "../next/IAutoMovieMotionHumanDance";
 
 /**
  * Conducting with a held baton: its tip beats the standard figure of the
@@ -50,6 +50,6 @@ export namespace IAutoMovieMotionHumanConduct {
     lock?: IAutoMovieMotionHumanDance.IParams["lock"];
 
     /** The baton hand; the one holding the baton at entry when absent. */
-    side?: AutoMovieHumanSide;
+    hand?: AutoMovieHumanSide;
   }
 }

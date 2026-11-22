@@ -1,5 +1,9 @@
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
-import { HumanChain, HumanPerformance, cartwheel } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanAcrobatics,
+  HumanChain,
+  HumanPerformance,
+} from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -25,7 +29,7 @@ export function test_motion_exercise_cartwheel(): void {
       const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
       const film: HumanPerformance = new HumanPerformance({
         seed: "cartwheel",
-        laws: [cartwheel],
+        laws: [AutoMovieMotionHumanAcrobatics.cartwheel],
         performers: [
           {
             subject: "a",
@@ -36,7 +40,7 @@ export function test_motion_exercise_cartwheel(): void {
           },
         ],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3, sway: 0 })
+          .stand({ hold: 0.3, sway: 0 })
           .registered("cartwheel", { to }).node,
       });
       assertTakeClean(`${name} cartwheel to the ${to}`, film);

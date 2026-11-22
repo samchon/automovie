@@ -23,8 +23,8 @@ import type { IAutoMovieMotionHumanCarriedLift } from "./IAutoMovieMotionHumanCa
  * the carried body does not sag or cling, and its weight does not lean the
  * carrier.
  *
- * @evidence contracts/development/common.md#meaningful-documentation on: The carrier's bone the body goes with; the upper chest when absent. seconds: Seconds carried. turn: The carried body's heading from the carrier's, degrees about +Y.
- * @evidence contracts/development/design.md#principled-representation on: The carrier's bone the body goes with; the upper chest when absent. seconds: Seconds carried. turn: The carried body's heading from the carrier's, degrees about +Y.
+ * @evidence contracts/development/common.md#meaningful-documentation on: The carrier's bone the body goes with; the upper chest when absent. hold: Seconds carried. turn: The carried body's heading from the carrier's, degrees about +Y.
+ * @evidence contracts/development/design.md#principled-representation on: The carrier's bone the body goes with; the upper chest when absent. hold: Seconds carried. turn: The carried body's heading from the carrier's, degrees about +Y.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarried.ts (HumanCarried.carried, context); lexicon/HumanCarriedBearing.ts (HumanCarriedBearing.plan.first, c); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.kind, carry); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.kind, rows); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.couple, carry); lexicon/HumanCarriedLean.ts (HumanCarriedLean.layer, carry).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMovieMotionHumanCarriedDrag.Name, AutoMovieHumanoidRegion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -32,20 +32,20 @@ export namespace IAutoMovieMotionHumanCarried {
   /**
    * Parameters of being carried.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation on: The carrier's bone the body goes with; the upper chest when absent. seconds: Seconds carried.
-   * @evidence contracts/development/design.md#principled-representation on: The carrier's bone the body goes with; the upper chest when absent. seconds: Seconds carried.
+   * @evidence contracts/development/common.md#meaningful-documentation on: The carrier's bone the body goes with; the upper chest when absent. hold: Seconds carried.
+   * @evidence contracts/development/design.md#principled-representation on: The carrier's bone the body goes with; the upper chest when absent. hold: Seconds carried.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarried.ts (HumanCarried.carried, context); lexicon/HumanCarried.ts (HumanCarried.carried).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The carrier's subject id. */
-    by: string;
+    partner: string;
 
     /** The carrier's bone the body goes with; the upper chest when absent. */
     on?: AutoMovieHumanoidBone;
 
     /** Seconds carried. */
-    seconds: number;
+    hold: number;
   }
 
   /**
@@ -154,20 +154,20 @@ export namespace IAutoMovieMotionHumanCarried {
   /**
    * Parameters of being carried in a named carry.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation by: The carrier's subject id; absent, the body takes the carry's posture where it stands, resting on nothing. carry: The carry; `piggyback` when absent. seconds: Seconds carried, more than none; 2 when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-   * @evidence contracts/development/design.md#principled-representation by: The carrier's subject id; absent, the body takes the carry's posture where it stands, resting on nothing. carry: The carry; `piggyback` when absent. seconds: Seconds carried, more than none; 2 when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+   * @evidence contracts/development/common.md#meaningful-documentation partner: The carrier's subject id; absent, the body takes the carry's posture where it stands, resting on nothing. carry: The carry; `piggyback` when absent. hold: Seconds carried, more than none; 2 when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+   * @evidence contracts/development/design.md#principled-representation partner: The carrier's subject id; absent, the body takes the carry's posture where it stands, resting on nothing. carry: The carry; `piggyback` when absent. hold: Seconds carried, more than none; 2 when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarried.ts (HumanCarried.borne, context); lexicon/HumanCarriedBorne.ts (HumanCarriedBorne.plan, context); lexicon/HumanCarried.ts (HumanCarried.borne).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanCarried.Carry identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IBorne extends IAutoMovieMotionHumanCarriedLift.IParams {
     /** The carrier's subject id; absent, the body takes the carry's posture where it stands, resting on nothing. */
-    by?: string;
+    partner?: string;
 
     /** The carry; `piggyback` when absent. */
     carry?: IAutoMovieMotionHumanCarried.Carry;
 
     /** Seconds carried, more than none; 2 when absent. */
-    seconds?: number;
+    hold?: number;
 
     /** Kilograms the carried person carries besides their body (a pack, gear), at least 0, which the carrier bears too; none when absent. */
     mass?: number;
@@ -198,6 +198,6 @@ export namespace IAutoMovieMotionHumanCarried {
     beside?: string;
 
     /** Seconds held, more than none; 2 when absent. */
-    seconds?: number;
+    hold?: number;
   }
 }

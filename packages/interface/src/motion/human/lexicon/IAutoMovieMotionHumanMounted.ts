@@ -69,7 +69,7 @@ export namespace IAutoMovieMotionHumanMounted {
   /**
    * One seat figure: how the performer reaches it from the previous figure, how long it is held and what each named body part bears on.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation seat: The seat kind. transfer: Seconds from the previous figure, more than none. seconds: Seconds held, none or more. supports: The carrier contacts each body part bears on. handRide: Whether the held reins are pushed along the neck once a stride.
+   * @evidence contracts/development/common.md#meaningful-documentation seat: The seat kind. transfer: Seconds from the previous figure, more than none. hold: Seconds held, none or more. supports: The carrier contacts each body part bears on. handRide: Whether the held reins are pushed along the neck once a stride.
    * @evidence contracts/development/design.md#principled-representation Seconds on the action's own clock and contact ids of the carrier.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `HumanMounted`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Supports a seat kind does not read are refused by the law, not ignored.
@@ -82,7 +82,7 @@ export namespace IAutoMovieMotionHumanMounted {
     transfer: number;
 
     /** Seconds the figure is held after its transfer; none or more. */
-    seconds: number;
+    hold: number;
 
     /** What each body part bears on, by the carrier's contact ids; nothing when absent. */
     supports?: ISupports;
@@ -97,14 +97,14 @@ export namespace IAutoMovieMotionHumanMounted {
   /**
    * A figure's whip strokes, timed by a cue track of the performance.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation side: The striking hand. cue: The cue track whose instants, film seconds, are the strokes' contacts.
+   * @evidence contracts/development/common.md#meaningful-documentation hand: The striking hand. cue: The cue track whose instants, film seconds, are the strokes' contacts.
    * @evidence contracts/development/design.md#principled-representation A hand side and a cue track id, so the strokes follow the author's stride cue.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `HumanMounted`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The striking hand must hold a rein in the figure, which the law checks.
    */
   export interface IWhip {
     /** The striking hand. */
-    side: AutoMovieHumanSide;
+    hand: AutoMovieHumanSide;
 
     /** The cue track whose instants inside the figure's hold are the strokes' contacts, film seconds. */
     cue: string;
@@ -175,7 +175,7 @@ export namespace IAutoMovieMotionHumanMounted {
   /**
    * A rider's aid: a movement of the hands, legs, seat or voice the carrier answers, made `latency` seconds before each instant of the cue track `cue`, the carrier's transitions, and released once the carrier has answered.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation kind: The aid. side: The hand or leg that gives it, both when absent. cue: The cue track of the transitions it cues, film seconds. latency: Seconds from the aid's onset to the transition, more than none.
+   * @evidence contracts/development/common.md#meaningful-documentation kind: The aid. hand: The hand or leg that gives it, both when absent. cue: The cue track of the transitions it cues, film seconds. latency: Seconds from the aid's onset to the transition, more than none.
    * @evidence contracts/development/design.md#principled-representation A closed aid vocabulary, a side, a cue track and a latency in seconds.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `HumanMounted`'s aids.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The transitions are the carrier's own published instants; the latency is the author's.

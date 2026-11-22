@@ -52,7 +52,7 @@ export function test_motion_equestrian_bank_seat(): void {
       {
         seat: "descent",
         transfer: 0.8,
-        seconds: 1.5,
+        hold: 1.5,
         supports: { ...feet, leftHand: "leftRein", rightHand: "rightRein" },
       },
     ],
@@ -60,13 +60,13 @@ export function test_motion_equestrian_bank_seat(): void {
       {
         seat: "ascent",
         transfer: 0.8,
-        seconds: 1.5,
+        hold: 1.5,
         supports: { ...feet, leftHand: "mane", rightHand: "rightRein" },
       },
       {
         seat: "entered",
         transfer: 0.8,
-        seconds: 0.2,
+        hold: 0.2,
         supports: { ...feet, leftHand: "mane", rightHand: "rightRein" },
       },
     ],
@@ -187,7 +187,7 @@ export function test_motion_equestrian_bank_seat(): void {
       {
         seat: "twoPoint",
         transfer: 0.8,
-        seconds: 0.5,
+        hold: 0.5,
         supports: { ...feet, leftHand: "leftRein", rightHand: "rightRein" },
       },
       ...figures.descent,

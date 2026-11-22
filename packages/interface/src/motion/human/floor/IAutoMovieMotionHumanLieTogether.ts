@@ -20,7 +20,7 @@ export interface IAutoMovieMotionHumanLieTogether {
   way: IAutoMovieMotionHumanLieTogether.Way;
 
   /** How long they lie together, seconds; positive. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
-  seconds: number;
+  hold: number;
 
   /** The bed or sofa surface both lie on; the floor when absent. */
   on?: IAutoMovieMotionHumanTurnOver.IOn;

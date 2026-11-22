@@ -63,7 +63,14 @@ export namespace look {
   /** Cancel table: a look holds no contact beyond the stand, so it can be cut anywhere. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
-    walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
+    walk: [
+      {
+        window: [0, 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
+    ],
     look: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
@@ -94,8 +101,11 @@ export namespace look {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLook.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const recruit: IAutoMovieMotionHumanGaze.Recruit = context.params.with ?? "auto";
-    const at: (seconds: number) => IAutoMovieVector3 = (seconds: number): IAutoMovieVector3 =>
+    const recruit: IAutoMovieMotionHumanGaze.Recruit =
+      context.params.recruit ?? "auto";
+    const at: (seconds: number) => IAutoMovieVector3 = (
+      seconds: number,
+    ): IAutoMovieVector3 =>
       context.aim(context.params.target, context.start + seconds).point;
     const first: { yaw: number; pitch: number } = HumanGaze.direction(
       context.body,
@@ -132,17 +142,19 @@ export namespace look {
     );
     const trunk: number = HumanGaze.turn(parts.trunk);
     const settled: number = delay + Math.max(eyes, head, trunk);
-    const duration: number = context.params.seconds ?? settled + 0.6;
-    HumanBound.above("seconds", duration, 0, "s");
+    const duration: number = context.params.duration ?? settled + 0.6;
+    HumanBound.above("duration", duration, 0, "s");
 
     // The body under the look: the carrier's when the look is an overlay,
     // otherwise the stand law's.
     const base: IAutoMovieMotionHumanActionPlan =
       context.carrier === undefined
-        ? stand.plan({ ...context, params: { seconds: duration } })
+        ? stand.plan({ ...context, params: { hold: duration } })
         : AutoMovieMotionHumanBase.under(context, duration);
-    const weight: (seconds: number, span: number) => number = (seconds: number, span: number): number =>
-      minimumJerk.share((seconds - delay) / span);
+    const weight: (seconds: number, span: number) => number = (
+      seconds: number,
+      span: number,
+    ): number => minimumJerk.share((seconds - delay) / span);
     // The target's direction from a posture, on the side the look chose
     // when it began: a target straight behind, whose yaw crosses from +180
     // to -180 as the body sways, keeps the turn on that side.
@@ -155,8 +167,12 @@ export namespace look {
       seconds: number,
       read?: ReturnType<typeof prepareHumanPoseResolution>,
     ): IAutoMovieMotionHumanGaze.IDirectionResult => {
-      const now: IAutoMovieMotionHumanGaze.IDirectionResult = HumanGaze.direction(context.body, posture, at(seconds), read);
-      return { ...now, yaw: now.yaw + 360 * Math.round((first.yaw - now.yaw) / 360) };
+      const now: IAutoMovieMotionHumanGaze.IDirectionResult =
+        HumanGaze.direction(context.body, posture, at(seconds), read);
+      return {
+        ...now,
+        yaw: now.yaw + 360 * Math.round((first.yaw - now.yaw) / 360),
+      };
     };
     return {
       duration,
@@ -176,11 +192,20 @@ export namespace look {
                 ? (["head"] as const)
                 : (["trunk", "head"] as const),
           }),
-      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
-        const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
-        const standing: IAutoMovieMotionHumanPosture = base.posture(seconds, undefined, read, projection);
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
+        const read: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(resolution);
+        const standing: IAutoMovieMotionHumanPosture = base.posture(
+          seconds,
+          undefined,
+          read,
+          projection,
+        );
         const aimed: IAutoMovieMotionHumanPosture = HumanGaze.aim(
           context.body,
           standing,
@@ -198,7 +223,13 @@ export namespace look {
         // across the thighs: they are let out as a swinging arm is, no
         // nearer the body than in the quiet stance (`HumanArmClearance.swung`).
         return context.carrier === undefined && parts.trunk !== 0
-          ? HumanArmClearance.swung(context.body, aimed, ["left", "right"], read, projection)
+          ? HumanArmClearance.swung(
+              context.body,
+              aimed,
+              ["left", "right"],
+              read,
+              projection,
+            )
           : aimed;
       },
     };

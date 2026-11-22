@@ -69,7 +69,7 @@ export namespace playWindInstrument {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPlayWindInstrument.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params } = context;
-    const side = params.side ?? "right";
+    const side = params.hand ?? "right";
     const tool = StrikingHeld.of(context, side, params.prop, {
       tip: "mouthpiece",
     });
@@ -113,8 +113,8 @@ export namespace playWindInstrument {
       "s",
     );
     const seconds = HumanBound.above(
-      "seconds",
-      params.seconds ?? PLAY_SECONDS,
+      "hold",
+      params.hold ?? PLAY_SECONDS,
       0,
       "s",
     );

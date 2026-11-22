@@ -377,13 +377,13 @@ function vesselFilm(
   const chain: IAutoMovieMotionHumanChain =
     action === "use"
       ? picked.handToFace({
-          task: "drink",
+          kind: "drink",
           prop: "vessel",
           grasp: { handle, line: "square" },
         })
       : action === "carry"
         ? picked.walk({ to: { x: 0, y: 0, z: 1 } })
-        : picked.stand({ seconds: 0.5, sway: 0 });
+        : picked.stand({ hold: 0.5, sway: 0 });
   return motionHumanLaw.perform(seed, [{ subject: ACTOR, body }], chain, [
     placement,
   ]);

@@ -23,7 +23,7 @@ export function test_motion_contact_hand_skin_contact(): void {
   const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
     "digits",
     [{ subject: "a", body }],
-    HumanChain.subject("a").rest({ right: "hip", seconds: 1 }),
+    HumanChain.subject("a").rest({ right: "hip", hold: 1 }),
   );
   const failures: string[] = motionHumanLaw.audit(
     film,

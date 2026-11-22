@@ -22,7 +22,7 @@ export namespace IAutoMovieMotionHumanPlayWindInstrument {
     prop: string;
 
     /** Holding hand. The right hand when absent. */
-    side?: AutoMovieHumanSide;
+    hand?: AutoMovieHumanSide;
 
     /** Seconds spent at the entry pose before lifting. Zero when absent. */
     delay?: number;
@@ -31,7 +31,7 @@ export namespace IAutoMovieMotionHumanPlayWindInstrument {
     prepare?: number;
 
     /** Seconds to keep the mouthpiece at the lips. One second when absent. */
-    seconds?: number;
+    hold?: number;
 
     /** Seconds spent lowering to the entry pose. Uses the lift duration when absent. */
     retract?: number;

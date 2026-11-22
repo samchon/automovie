@@ -101,7 +101,7 @@ export function test_human_motion_swipe_touchscreen(): void {
       seconds,
     };
     const chain = Chain.subject("a")
-      .stand({ seconds: 0.6, sway: 0 })
+      .stand({ hold: 0.6, sway: 0 })
       .swipeTouchscreen(intent);
     return new HumanPerformance({
       seed: "kiosk swipe",

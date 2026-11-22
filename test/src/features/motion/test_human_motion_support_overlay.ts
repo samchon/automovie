@@ -77,7 +77,7 @@ export function test_human_motion_support_overlay(): void {
     braced.over(
       (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
         upper
-          .gesture({ kind: "wave", side })
+          .gesture({ kind: "wave", hand: side })
           .sync({ of: "braced", event: "bear1" }),
     );
 
@@ -143,12 +143,12 @@ export function test_human_motion_support_overlay(): void {
         standSeconds === undefined
           ? onBrace("right")
           : HumanChain.subject("person")
-              .stand({ seconds: standSeconds }, "before")
+              .stand({ hold: standSeconds }, "before")
               .over(
                 (
                   upper: IAutoMovieMotionHumanChain,
                 ): IAutoMovieMotionHumanChain =>
-                  upper.gesture({ kind: "stopPalm", side: "right", hold: 1 }),
+                  upper.gesture({ kind: "stopPalm", hand: "right", hold: 1 }),
               )
               .support(bracedContacts, "after")
               .sync({ of: "before", event: "start", offset: 0.25 }),

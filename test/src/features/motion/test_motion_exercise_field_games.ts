@@ -9,6 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanThrowCatch,
   HumanChain,
   HumanFoot,
   HumanObject,
@@ -16,7 +17,6 @@ import {
   HumanRefusal,
   HumanSignature,
   HumanSportThrow,
-  stickBall,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -165,7 +165,7 @@ function hockey(body: IAutoMovieMotionHumanBody): void {
       performers: [
         { subject: "player", body, at, yaw, proficiency: { level: "trained" } },
       ],
-      laws: [stickBall],
+      laws: [AutoMovieMotionHumanThrowCatch.stickBall],
       props: [
         HumanObject.prop("puck", puck, { at: puckPosition, yaw: 0 }),
         HumanObject.prop("stick", stick, stickFrame),

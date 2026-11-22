@@ -76,7 +76,12 @@ export function prepareSkateboardPhrase(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISkateboardPhraseParams>,
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params }: typeof context = context;
-  const duration: number = HumanBound.above("seconds", params.seconds, 0, "s");
+  const duration: number = HumanBound.above(
+    "duration",
+    params.duration,
+    0,
+    "s",
+  );
   const lead: AutoMovieHumanSide = params.lead;
   const other: AutoMovieHumanSide = lead === "left" ? "right" : "left";
   const leadFoot: IAutoMovieMotionHumanContactWindow["part"] =

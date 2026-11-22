@@ -57,10 +57,19 @@ export function test_motion_contact_window_trunk_parts(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const film: HumanPerformance = new HumanPerformance({
     seed: "trunk-parts",
-    performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } }],
-    composition: HumanChain.subject("a").stand({ seconds: 1, sway: 0 }).node,
+    performers: [
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("a").stand({ hold: 1, sway: 0 }).node,
   });
-  const bound: number = AutoMovieMotionHumanAuditStatics.SHARE * body.measure.stature;
+  const bound: number =
+    AutoMovieMotionHumanAuditStatics.SHARE * body.measure.stature;
   const cases: readonly ICase[] = [
     { part: "head", region: "crown", balanced: true },
     { part: "head", balanced: false },
@@ -78,13 +87,26 @@ export function test_motion_contact_window_trunk_parts(): void {
     };
     const motion: IAutoMovieMotionHumanAuditMotion = {
       duration: 1,
-      bones: (subject: string, seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+      bones: (
+        subject: string,
+        seconds: number,
+      ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
         film.bones(subject, Math.min(seconds, 0.5)),
       segments: (): readonly IAutoMovieMotionHumanAuditMotion.ISpan[] => [
-        { name: "rest", start: 0, entryTime: 0, end: 1, plan: { duration: 1, contacts: [window] } },
+        {
+          name: "rest",
+          start: 0,
+          entryTime: 0,
+          end: 1,
+          plan: { duration: 1, contacts: [window] },
+        },
       ],
     };
-    const value: number = AutoMovieMotionHumanAuditStatics.measure(motion, "a", body).value;
+    const value: number = AutoMovieMotionHumanAuditStatics.measure(
+      motion,
+      "a",
+      body,
+    ).value;
     TestValidator.predicate(
       `a ${c.part} window on ${c.region ?? "its default region"} ${c.balanced ? "holds" : "does not hold"} the still body (${(value * 1000).toFixed(0)} mm)`,
       c.balanced ? value <= bound : value > bound,

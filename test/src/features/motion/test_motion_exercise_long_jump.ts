@@ -11,9 +11,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
   HumanChain,
   HumanFoot,
-  HumanGymnastics,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
@@ -241,7 +241,7 @@ function stage(
 ): HumanPerformance {
   const start: ReturnType<typeof HumanChain.subject> = HumanChain.subject(
     "a",
-  ).stand({ seconds: 0.3, sway: 0 });
+  ).stand({ hold: 0.3, sway: 0 });
   const running: ReturnType<typeof HumanChain.subject> = start.run({
     to: { x: 0, y: 0, z: 30 },
     pace: "sprint",
@@ -258,7 +258,7 @@ function stage(
             .node;
   return new HumanPerformance({
     seed: "long-jump",
-    laws: [HumanGymnastics.longJump],
+    laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.longJump],
     performers: [
       {
         subject: "a",

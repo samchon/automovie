@@ -2,9 +2,9 @@ import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditTangle,
+  AutoMovieMotionHumanTouch,
   AutoMovieMotionHumanTouchEffector,
   HumanVerdicts,
-  touch,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -64,7 +64,7 @@ export function test_motion_posture_held_surface_upper(): void {
         body,
         bones,
         "left",
-        touch.EFFECTORS.fingertips,
+        AutoMovieMotionHumanTouch.touch.EFFECTORS.fingertips,
       );
       const gap = Vector3.distance(fingertips, mouth);
       if (gap > 0.015)

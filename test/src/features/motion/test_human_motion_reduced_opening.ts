@@ -9,6 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGait,
   HumanChain,
   HumanColliders,
   HumanFoot,
@@ -16,7 +17,6 @@ import {
   HumanObstacle,
   HumanPerformance,
   HumanRefusal,
-  HumanTravelDoor,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -285,10 +285,10 @@ function stage(
   mode?: IAutoMovieMotionHumanTravelDoor.IParams["mode"],
 ): HumanPerformance {
   const standing: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
-    seconds: 0.25,
+    hold: 0.25,
   });
   const entry: IAutoMovieMotionHumanChain =
-    mode === "crawl" ? standing.lieDown({ position: "prone" }) : standing;
+    mode === "crawl" ? standing.lieDown({ kind: "prone" }) : standing;
   const passage: IAutoMovieMotionHumanChain = entry.registered("passThrough", {
     through: "wall",
     aperture: "passage",
@@ -298,7 +298,7 @@ function stage(
     mode === "crawl" ? passage.getUp() : passage;
   return new HumanPerformance({
     seed: "reduced-opening",
-    laws: [HumanTravelDoor.passThrough],
+    laws: [AutoMovieMotionHumanGait.HumanTravelDoor.passThrough],
     obstacles: [
       HumanObstacle.wall(
         "wall",
@@ -326,8 +326,7 @@ function stage(
         proficiency: { level: "trained" },
       },
     ],
-    composition: exit
-      .walk({ to: { x: 0, y: 0, z: 4.6 } })
-      .stand({ seconds: 0.25 }).node,
+    composition: exit.walk({ to: { x: 0, y: 0, z: 4.6 } }).stand({ hold: 0.25 })
+      .node,
   });
 }

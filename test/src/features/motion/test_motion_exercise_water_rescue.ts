@@ -11,13 +11,13 @@ import type {
 } from "@automovie/interface";
 import {
   AquaticDistress,
+  AutoMovieMotionHumanSwim,
   HumanChain,
   HumanFoot,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  aquatic,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -74,7 +74,7 @@ export function test_motion_exercise_water_rescue(): void {
 function distress(body: IAutoMovieMotionHumanBody): void {
   const film: HumanPerformance = new HumanPerformance({
     seed: "distress",
-    laws: [aquatic],
+    laws: [AutoMovieMotionHumanSwim.aquatic],
     performers: [swimmer(body, "victim", { x: 0, y: WATER - 1.4, z: 3 }, 0)],
     composition: HumanChain.subject("victim").registered("aquatic", {
       kind: "distress",
@@ -123,7 +123,7 @@ function rescue(body: IAutoMovieMotionHumanBody): void {
   const take = (from: IAutoMovieVector3, seconds: number): HumanPerformance =>
     new HumanPerformance({
       seed: "rescue",
-      laws: [aquatic],
+      laws: [AutoMovieMotionHumanSwim.aquatic],
       performers: [
         swimmer(body, "victim", { x: 0, y: WATER - 1.4, z: 3 }, 0),
         swimmer(body, "rescuer", from, 180),
@@ -227,7 +227,7 @@ function exit(body: IAutoMovieMotionHumanBody): void {
   const take = (water: number): HumanPerformance =>
     new HumanPerformance({
       seed: "edge-exit",
-      laws: [aquatic],
+      laws: [AutoMovieMotionHumanSwim.aquatic],
       props: [edge],
       performers: [
         swimmer(body, "swimmer", { x: 0, y: water - 1.35, z: 0.4 }, 180),
@@ -316,7 +316,7 @@ function liftOut(body: IAutoMovieMotionHumanBody): void {
   const take = (water: number): HumanPerformance =>
     new HumanPerformance({
       seed: "lift-out",
-      laws: [aquatic],
+      laws: [AutoMovieMotionHumanSwim.aquatic],
       props: [edge],
       performers: [
         swimmer(body, "victim", { x: 0, y: water - 1.35, z: 0.4 }, 180),

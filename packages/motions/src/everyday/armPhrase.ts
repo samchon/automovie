@@ -116,7 +116,7 @@ export namespace armPhrase {
     const p: IAutoMovieMotionHumanArmPhrase.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
     const sides: readonly AutoMovieHumanSide[] =
-      p.side === "both" ? ["left", "right"] : [p.side ?? "right"];
+      p.hand === "both" ? ["left", "right"] : [p.hand ?? "right"];
     const surface: IAutoMovieMotionHumanHand.Surface = p.surface ?? "palm";
     const shape: IAutoMovieMotionHumanHand.Shape = p.shape ?? "flat";
     const hold: IAutoMovieMotionHumanPosture = context.entry.posture;
@@ -357,7 +357,7 @@ export namespace armPhrase {
       Math.max(...arms.map((a: IArm): number => a.retract)),
     );
     const beat: number = AutoMovieMotionHumanTiming.seconds("beat");
-    const cycles: number = p.cycles ?? 2;
+    const cycles: number = p.count ?? 2;
     const path: number = Vector3.length(arms[0]!.from);
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
       prepare: mods.tempo * prepared,

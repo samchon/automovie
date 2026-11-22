@@ -98,7 +98,7 @@ export function test_human_motion_blade_skill(): void {
           HumanObject.prop("pell", pell, place),
         ],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
+          .stand({ hold: 0.3 })
           .pickUp({
             prop: "sword",
             handle: "grip",

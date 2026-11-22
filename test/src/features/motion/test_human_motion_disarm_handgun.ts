@@ -157,9 +157,9 @@ function perform(
   const partner: IAutoMovieMotionHumanChain = arm
     ? HumanChain.subject("a")
         .pickUp({ prop: "weapon", handle: "grip", hand: "right" })
-        .stand({ seconds: 0.4, sway: 0 })
+        .stand({ hold: 0.4, sway: 0 })
         .registered("disarmed", { partner: "d", of: "take" })
-    : HumanChain.subject("a").stand({ seconds: 3, sway: 0 });
+    : HumanChain.subject("a").stand({ hold: 3, sway: 0 });
   return new HumanPerformance({
     seed: "disarm-" + kind,
     laws: Object.values(HUMAN_LEXICON).flat(),
@@ -181,7 +181,7 @@ function perform(
       },
     ],
     composition: HumanChain.subject("d")
-      .stand({ seconds: 2.5, sway: 0 })
+      .stand({ hold: 2.5, sway: 0 })
       .registered("disarm", { partner: "a", prop: "weapon", kind }, "take")
       .with(partner).node,
   });

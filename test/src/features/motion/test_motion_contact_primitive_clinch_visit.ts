@@ -38,7 +38,7 @@ export function test_motion_contact_primitive_clinch_visit(): void {
         grip: "collarSleeve",
         under: { fulcrum: "sternum", on: "sternum" },
       })
-      .with(HumanChain.subject("b").stand({ seconds: 4, sway: 0 })),
+      .with(HumanChain.subject("b").stand({ hold: 4, sway: 0 })),
   );
   const segment: IAutoMovieMotionHumanSegment =
     film.performance.segments("a")[0]!;

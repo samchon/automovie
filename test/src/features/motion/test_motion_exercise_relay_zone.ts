@@ -10,13 +10,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanHandover,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPartner,
   HumanPerformance,
   HumanRefusal,
-  relayPass,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -106,7 +106,8 @@ export function test_motion_exercise_relay_zone(): void {
   };
   TestValidator.predicate(
     "the incoming hand carries the baton until the pass",
-    drift("in", 0.1, AT - relayPass.REACH) <= 0.001,
+    drift("in", 0.1, AT - AutoMovieMotionHumanHandover.relayPass.REACH) <=
+      0.001,
   );
   TestValidator.predicate(
     "the outgoing hand carries the same baton after it",

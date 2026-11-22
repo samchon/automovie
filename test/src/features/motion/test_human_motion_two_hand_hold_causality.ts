@@ -110,7 +110,7 @@ export function test_human_motion_two_hand_hold_causality(): void {
         .stand()
         .pickUp({ prop: "off", handle: "grip", hand: "left", lift: 0 })
         .pickUp({ prop: "edge", handle: "grip", hand: "right", lift: 0 })
-        .stand({ seconds: 1 }, "rest")
+        .stand({ hold: 1 }, "rest")
         .registered("parry", {
           blade: "off",
           hand: "left",
@@ -138,11 +138,11 @@ export function test_human_motion_two_hand_hold_causality(): void {
           handle: "body",
           use: { tip: "lip", line: "square", at: "mouth" },
         })
-        .stand({ seconds: 4 })
+        .stand({ hold: 4 })
         .over(
           (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
             upper.handToFace({
-              task: "drink",
+              kind: "drink",
               prop: "glass",
               grasp: { handle: "body", line: "square" },
             }),

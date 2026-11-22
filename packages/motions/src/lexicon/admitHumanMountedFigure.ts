@@ -42,7 +42,7 @@ export function admitHumanMountedFigure(
 ): void {
   const figure: IAutoMovieMotionHumanMounted.IFigure = figures[index]!;
   HumanBound.above(`figures.${index}.transfer`, figure.transfer, 0, "s");
-  HumanBound.least(`figures.${index}.seconds`, figure.seconds, 0, "s");
+  HumanBound.least(`figures.${index}.seconds`, figure.hold, 0, "s");
   const [required, optional]: readonly [
     readonly HumanMountedSeats.Part[],
     readonly HumanMountedSeats.Part[],

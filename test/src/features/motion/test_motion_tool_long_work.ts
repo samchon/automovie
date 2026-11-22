@@ -231,7 +231,7 @@ function take(
     ],
     props,
     composition: HumanChain.subject("worker")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .pickUp({ prop: "tool", handle: "shaft", hand: "right" })
       .registered(stage.row, {
         prop: "tool",

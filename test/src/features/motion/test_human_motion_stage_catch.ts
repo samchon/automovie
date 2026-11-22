@@ -25,13 +25,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
   HumanVerdicts,
   compileHumanPerformanceContinuation,
   stageCatch,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -81,7 +81,8 @@ export function test_human_motion_stage_catch(): void {
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const heldPoint: number = 0.6 * arm;
   const still: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const initialRoot: IAutoMovieVector3 = stand.posture(body, still, 180).root;
+  const initialRoot: IAutoMovieVector3 =
+    AutoMovieMotionHumanStance.stand.posture(body, still, 180).root;
   const rotation: IAutoMovieQuaternion = Quaternion.identity();
   const ball: IAutoMovieMotionHumanProp = {
     subject: launch.prop,
@@ -100,7 +101,7 @@ export function test_human_motion_stage_catch(): void {
   };
   const release: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
     {
-      ...stand,
+      ...AutoMovieMotionHumanStance.stand,
       name: "releaseFoamBall",
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
@@ -110,7 +111,7 @@ export function test_human_motion_stage_catch(): void {
             ? { ...launch, seconds: launch.seconds + flightTime / 2 }
             : launch;
         return {
-          ...stand.plan(context),
+          ...AutoMovieMotionHumanStance.stand.plan(context),
           launch: {
             point: published.point,
             target: expected,
@@ -281,11 +282,11 @@ export function test_human_motion_stage_catch(): void {
   const source: IAutoMovieMotionHumanPerformance.IInput = input(false);
   source.composition = AutoMovieComposition.sequence(
     source.composition,
-    HumanChain.subject("catcher").stand({ seconds: 2, sway: 0 }),
+    HumanChain.subject("catcher").stand({ hold: 2, sway: 0 }),
   );
   const saved: number = launch.seconds + flightTime / 2;
   const variant: IAutoMovieComposition = HumanChain.subject("catcher").stand({
-    seconds: 2,
+    hold: 2,
     sway: 0.04,
   }).node;
   const {

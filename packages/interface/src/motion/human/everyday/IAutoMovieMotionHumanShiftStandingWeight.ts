@@ -11,7 +11,7 @@ export interface IAutoMovieMotionHumanShiftStandingWeight {
   by: number;
 
   /** Positive shift duration in seconds. Default 0.8 s. */
-  seconds?: number;
+  duration?: number;
 
   /** Nonnegative time to hold the shifted pose in seconds. Default 0 s. */
   hold?: number;

@@ -3,10 +3,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -33,7 +33,10 @@ export function test_motion_contact_partner_observation(): void {
   const at = (body: IAutoMovieMotionHumanBody): IAutoMovieVector3 =>
     poseBones(
       body,
-      resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
+      resolveHumanPosture(
+        body,
+        AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
+      ),
     ).get("rightUpperArm")!.worldPosition;
   const sa: IAutoMovieVector3 = at(a);
   const sb: IAutoMovieVector3 = at(b);
@@ -49,7 +52,7 @@ export function test_motion_contact_partner_observation(): void {
       },
     ],
     HumanChain.pair(HumanChain.subject("a"), HumanChain.subject("b")).handshake(
-      { pumps: 2 },
+      { count: 2 },
     ).node,
   );
   const closed: number = motionHumanLaw.event(film, "gripClosed");

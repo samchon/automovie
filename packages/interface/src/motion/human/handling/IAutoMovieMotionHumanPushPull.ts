@@ -71,7 +71,7 @@ export namespace IAutoMovieMotionHumanPushPull {
     moves?: boolean;
 
     /** Seconds the hands press a load that does not move; required then, and read only then. The author sets it: no natural duration is defined (provisional: no study of a held push). */
-    seconds?: number;
+    duration?: number;
   }
 
   /**

@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanHandToFace } from "../daily/IAutoMovieMotionHumanHandToFace";
-import type { IAutoMovieMotionHumanGesture } from "../everyday/IAutoMovieMotionHumanGesture";
-import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
+import type { IAutoMovieMotionHumanGesture } from "../next/IAutoMovieMotionHumanGesture";
+import type { IAutoMovieMotionHumanTouch } from "../next/IAutoMovieMotionHumanTouch";
 
 /**
  * Open parameters of the emblem lexicon family, keyed by each runtime export name.
@@ -14,11 +14,11 @@ export interface IAutoMovieMotionHumanLexiconEmblemParams {
   /** The military hand salute (US Army TC 3-21.5): the forefinger's end at the right brow, the hand in line with the forearm, the upper arm level. */
   salute: Omit<
     IAutoMovieMotionHumanTouch.IParams,
-    "target" | "with" | "kind" | "side" | "elbow"
+    "target" | "effector" | "kind" | "hand" | "elbow"
   >;
 
   /** Hush: the forefinger upright across the lips, its middle on them and the palm turned to the other side, so the thumb's side of the finger meets the mouth and the wrist stays near straight (provisional: the hold, the fifth of a hand the tip stands above the lips, and the twentieth of a hand, the finger's half thickness, its axis stands off them). */
-  hush: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+  hush: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind">;
 
   /** Palms together ahead of the chest, as a prayer or a greeting (wai, gassho): the gesture's held meeting of the two palms. */
   palmsTogether: Omit<IAutoMovieMotionHumanGesture.IParams, "kind">;
@@ -26,20 +26,20 @@ export interface IAutoMovieMotionHumanLexiconEmblemParams {
   /** A hand on the heart: the right palm on the left chest. */
   handOnHeart: Omit<
     IAutoMovieMotionHumanTouch.IParams,
-    "target" | "with" | "kind" | "side"
+    "target" | "effector" | "kind" | "hand"
   >;
 
   /** The blown kiss's send, performed after `blownKiss`: the open hand, palm up, swept forward from the lips and held a moment at the shoulder's height, 0.818 of the stature, the forearm and the hand's length, 0.146 and 0.108 of it, ahead of the performer (Drillis and Contini's segment proportions, as Winter's Biomechanics and Motor Control of Human Movement tabulates them), in the performer's own statures so it fits every body. */
   blownKissSend: Omit<
     IAutoMovieMotionHumanTouch.IParams,
-    "target" | "with" | "kind" | "hold"
+    "target" | "effector" | "kind" | "hold"
   >;
 
   /** A blown kiss: the fingertips to the lips, then away (provisional: the outward throw is the retraction). The hand leans half way between upright and level, the fingers pointing up and back at the mouth with the palm toward the chin, so the forearm comes from below. */
-  blownKiss: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+  blownKiss: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind">;
 
   /** A facepalm: the palm over the face, the head bowed into it (15 degrees, provisional). */
-  facepalm: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+  facepalm: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind">;
 
   /** Both hands raised in surrender. */
   handsUp: Omit<IAutoMovieMotionHumanGesture.IParams, "kind">;
@@ -101,12 +101,12 @@ export interface IAutoMovieMotionHumanLexiconEmblemParams {
   /** A hand over the mouth, as at a gasp or a yawn. */
   coverMouth: Omit<
     IAutoMovieMotionHumanTouch.IParams,
-    "target" | "with" | "kind" | "side"
+    "target" | "effector" | "kind" | "hand"
   >;
 
   /** Both hands over the ears. */
   coverEars: Omit<
     IAutoMovieMotionHumanTouch.IParams,
-    "target" | "other" | "with" | "kind" | "side"
+    "target" | "other" | "effector" | "kind" | "hand"
   >;
 }

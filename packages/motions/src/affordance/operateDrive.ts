@@ -131,7 +131,7 @@ export namespace operateDrive {
     if (base === null)
       throw new HumanRefusal({
         kind: "parameter",
-        axis: "mechanism",
+        axis: "kind",
         value: articulation,
         reason: `the current state of "${at.subject}" does not determine a valid travel of "${articulation}"`,
         fix: "give one valid input per coupled degree of freedom in the prop's current state",
@@ -248,7 +248,7 @@ export namespace operateDrive {
     if (part?.line !== undefined) return part.line;
     throw new HumanRefusal({
       kind: "affordance",
-      axis: "mechanism",
+      axis: "kind",
       value: "hinge",
       reason:
         "a hinged leaf names no hinge point and its handle rides no hinge articulation of a prop",

@@ -8,9 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanDance,
   HumanChain,
   HumanPerformance,
-  composeHumanSlowDanceSway,
   headRest,
   shiftStandingWeight,
 } from "@automovie/motions";
@@ -94,8 +94,8 @@ export function test_human_motion_cheek_to_cheek(): void {
         },
       ],
       // The swaying partner is placed first, so the resting head reads it.
-      composition: composeHumanSlowDanceSway(
-        HumanChain.subject("b").stand({ seconds: 1 }),
+      composition: AutoMovieMotionHumanDance.slowDanceSway(
+        HumanChain.subject("b").stand({ hold: 1 }),
         {
           by: SWAY,
           beat: BEAT,

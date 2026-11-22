@@ -115,8 +115,8 @@ export function test_archetype_catalogue_tools_personal_motion(): void {
       .handToFace({
         prop: "brush",
         point: "face",
-        side: "right",
-        task: "brushTeeth",
+        hand: "right",
+        kind: "brushTeeth",
       }),
     [
       HumanObject.prop("brush", brush, {

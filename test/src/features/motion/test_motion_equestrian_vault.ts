@@ -26,20 +26,20 @@ const FIGURES: IAutoMovieMotionHumanMounted.IFigure[] = [
   {
     seat: "entered",
     transfer: 0.6,
-    seconds: 0.6,
+    hold: 0.6,
     supports: { leftHand: "leftHandle", rightHand: "rightHandle" },
   },
-  { seat: "basic", transfer: 0.8, seconds: 1.5 },
+  { seat: "basic", transfer: 0.8, hold: 1.5 },
   {
     seat: "entered",
     transfer: 0.8,
-    seconds: 0.4,
+    hold: 0.4,
     supports: { leftHand: "leftHandle", rightHand: "rightHandle" },
   },
   {
     seat: "bench",
     transfer: 1,
-    seconds: 1.5,
+    hold: 1.5,
     supports: {
       leftKnee: "pad",
       rightKnee: "pad",
@@ -50,7 +50,7 @@ const FIGURES: IAutoMovieMotionHumanMounted.IFigure[] = [
   {
     seat: "entered",
     transfer: 1,
-    seconds: 0.5,
+    hold: 0.5,
     supports: { leftHand: "leftHandle", rightHand: "rightHandle" },
   },
 ];
@@ -93,7 +93,7 @@ export function test_motion_equestrian_vault(): void {
     take.start + take.plan.events[i]!.share * length;
   const begin = (i: number): number =>
     i === 0 ? take.start : arrive(i) - FIGURES[i]!.transfer;
-  const held = (i: number): number => arrive(i) + FIGURES[i]!.seconds / 2;
+  const held = (i: number): number => arrive(i) + FIGURES[i]!.hold / 2;
 
   // 1. The carrier moves.
   if (
@@ -113,7 +113,7 @@ export function test_motion_equestrian_vault(): void {
   const first: IAutoMovieVector3 = seatAt(held(0));
   for (const i of [0, 1, 2, 4])
     for (const share of [0.1, 0.5, 0.9]) {
-      const at: number = arrive(i) + FIGURES[i]!.seconds * share;
+      const at: number = arrive(i) + FIGURES[i]!.hold * share;
       const seat: IAutoMovieVector3 = seatAt(at);
       if (
         Math.abs(seat.y) > CONTACT ||
@@ -135,7 +135,7 @@ export function test_motion_equestrian_vault(): void {
         );
       const grasp: IAutoMovieVector3 = wrist(arrive(i));
       for (const share of [0, 0.5, 1]) {
-        const at: number = arrive(i) + FIGURES[i]!.seconds * share;
+        const at: number = arrive(i) + FIGURES[i]!.hold * share;
         if (
           Vector3.length(wrist(at)) > 0.7 * m.hand ||
           Vector3.distance(wrist(at), grasp) > CONTACT
@@ -220,7 +220,7 @@ export function test_motion_equestrian_vault(): void {
         ),
     );
   for (const share of [0.1, 0.5, 0.9]) {
-    const at: number = arrive(3) + FIGURES[3]!.seconds * share;
+    const at: number = arrive(3) + FIGURES[3]!.hold * share;
     for (const knee of kneel(at))
       if (
         Math.abs(knee.y) > CONTACT ||

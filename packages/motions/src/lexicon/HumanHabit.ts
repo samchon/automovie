@@ -23,7 +23,7 @@ export namespace HumanHabit {
   export const smoke: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["smoke"]
   > = HumanActionRow.of("smoke", handToFace, {
-    task: {
+    kind: {
       region: "mouth",
       effector: {
         surface: "indexTip",
@@ -40,7 +40,7 @@ export namespace HumanHabit {
       head: 0,
       at: "atLips",
     },
-    seconds: { between: [1.6, 2.1] },
+    hold: { between: [1.6, 2.1] },
   });
 
   /** The walk under a screen read while walking (`handToFace({ task: "read" })` over it): the normal walk slowed by a third (a manner pace of 2/3), the reduction Lamberg and Muratori 2012 report for texting walkers, inside the 20 to 40 per cent band #3338 states (provisional until the paper's table is read). The composition gives where to; a person walking while reading or texting. */
@@ -67,7 +67,7 @@ export namespace HumanHabit {
     point: "screen",
     grasp: { handle: "grip", line: "across" },
     other: "support",
-    task: {
+    kind: {
       region: "noseBridge",
       other: "noseBridge",
       effector: {
@@ -90,14 +90,14 @@ export namespace HumanHabit {
   export const checkPhone: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["checkPhone"]
   > = HumanActionRow.of("checkPhone", handToFace, {
-    task: "read",
+    kind: "read",
   });
 
   /** A look at a wristwatch: the left wrist raised before the eyes at the reading distance (`handToFaceSheet.READING`), its back turned to them and the forearm across the body, the head bowed 20 degrees to it (provisional), held a second and a half (provisional). */
   export const checkWatch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["checkWatch"]
   > = HumanActionRow.of("checkWatch", handToFace, {
-    task: {
+    kind: {
       region: null,
       effector: {
         surface: "wrist",
@@ -112,14 +112,14 @@ export namespace HumanHabit {
       head: 20,
       at: "atWatch",
     },
-    side: "left",
+    hand: "left",
   });
 
   /** Lipstick or balm drawn across the lips. Two strokes of 0.5 s and 0.2 s on the lips, about 1.2 s after the reach (`AutoMovieMotionHumanTouchForm.FORMS`, provisional); grooming. */
   export const applyLipstick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["applyLipstick"]
   > = HumanActionRow.of("applyLipstick", handToFace, {
-    task: {
+    kind: {
       region: "mouth",
       effector: {
         surface: "grip",
@@ -152,7 +152,7 @@ export namespace HumanHabit {
   export const rubEyes: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["rubEyes"]
   > = HumanActionRow.of("rubEyes", handToFace, {
-    task: {
+    kind: {
       region: "noseBridge",
       effector: { surface: "indexTip", shape: "flat" },
       kind: "rub",
@@ -169,7 +169,7 @@ export namespace HumanHabit {
     IAutoMovieMotionHumanLexiconParams["habit"]["scratchNape"]
   > = HumanActionRow.of("scratchNape", touch, {
     target: { kind: "self", region: "nape" },
-    with: "fingertips",
+    effector: "fingertips",
     kind: "scratch",
   });
 
@@ -177,7 +177,7 @@ export namespace HumanHabit {
   export const blowNose: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["blowNose"]
   > = HumanActionRow.of("blowNose", handToFace, {
-    task: {
+    kind: {
       region: "nose",
       effector: { surface: "palm", shape: "flat" },
       kind: "hold",
@@ -193,7 +193,7 @@ export namespace HumanHabit {
   export const applyCream: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["applyCream"]
   > = HumanActionRow.of("applyCream", handToFace, {
-    task: "washFace",
+    kind: "washFace",
     count: 2,
   });
 
@@ -209,7 +209,7 @@ export namespace HumanHabit {
   export const sniff: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["sniff"]
   > = HumanActionRow.of("sniff", handToFace, {
-    task: {
+    kind: {
       region: "nose",
       effector: {
         surface: "grip",
@@ -232,16 +232,16 @@ export namespace HumanHabit {
     IAutoMovieMotionHumanLexiconParams["habit"]["flickHair"]
   > = HumanActionRow.of("flickHair", touch.stroked(touch.FLICK), {
     target: { kind: "self", region: "templeRight" },
-    with: "handBack",
+    effector: "handBack",
     kind: "stroke",
-    side: "right",
+    hand: "right",
   });
 
   /** A selfie: a phone held out before the eyes at the reading distance, the elbow-bent convention of about 30 cm (#3346), the head level, held a second and a half (provisional). */
   export const selfie: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["selfie"]
   > = HumanActionRow.of("selfie", handToFace, {
-    task: {
+    kind: {
       region: null,
       effector: {
         surface: "grip",
@@ -263,7 +263,7 @@ export namespace HumanHabit {
   export const lightCigarette: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["lightCigarette"]
   > = HumanActionRow.of("lightCigarette", handToFace, {
-    task: {
+    kind: {
       region: "mouth",
       effector: {
         surface: "grip",

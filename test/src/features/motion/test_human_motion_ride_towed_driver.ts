@@ -25,12 +25,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFoot,
   HumanHand,
   HumanObject,
   HumanPerformance,
-  HumanRide,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -251,7 +251,7 @@ export function test_human_motion_ride_towed_driver(): void {
     try {
       performance = new HumanPerformance({
         seed: "towed-driver",
-        laws: [HumanRide.ride],
+        laws: [AutoMovieMotionHumanMount.rideHorse.ride],
         props: [
           HumanObject.prop(
             "cart",
@@ -271,8 +271,8 @@ export function test_human_motion_ride_towed_driver(): void {
           },
         ],
         composition: HumanChain.subject("driver")
-          .stand({ seconds: 0.3, on: { prop: "cart" } })
-          .sit({ seat: drivingSeat, seconds: 0.5 })
+          .stand({ hold: 0.3, on: { prop: "cart" } })
+          .sit({ seat: drivingSeat, hold: 0.5 })
           .registered("ride", {
             on: "cart",
             seconds: ride.duration,

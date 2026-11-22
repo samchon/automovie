@@ -1,8 +1,8 @@
-import type { IAutoMovieMotionHumanDress } from "../dressing/IAutoMovieMotionHumanDress";
 import type { IAutoMovieMotionHumanTipHat } from "../dressing/IAutoMovieMotionHumanTipHat";
 import type { IAutoMovieMotionHumanWardrobe } from "../dressing/IAutoMovieMotionHumanWardrobe";
 import type { IAutoMovieMotionHumanButton } from "../handling/IAutoMovieMotionHumanButton";
 import type { IAutoMovieMotionHumanZip } from "../handling/IAutoMovieMotionHumanZip";
+import type { IAutoMovieMotionHumanDress } from "../next/IAutoMovieMotionHumanDress";
 
 /**
  * Open parameters of the upperDress lexicon family, keyed by each runtime export name.

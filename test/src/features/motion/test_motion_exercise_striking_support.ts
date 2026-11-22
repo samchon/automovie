@@ -56,7 +56,7 @@ export function test_motion_exercise_striking_support(): void {
     const pivot: ITake = take(
       body,
       HumanChain.subject("actor")
-        .guard({ seconds: 0.8, stance, style: "boxing" })
+        .guard({ duration: 0.8, stance, style: "boxing" })
         .step({ direction: "forward", turn, guard: "boxing" }),
     );
     const ball: IAutoMovieVector3 = pivot.sole(0, lead, "ball");
@@ -83,7 +83,7 @@ export function test_motion_exercise_striking_support(): void {
     const exchange: ITake = take(
       body,
       HumanChain.subject("actor")
-        .guard({ seconds: 0.8, stance, style: "kickboxing" })
+        .guard({ duration: 0.8, stance, style: "kickboxing" })
         .step({ direction: "forward", lead: rear, guard: "kickboxing" }),
     );
     TestValidator.predicate(

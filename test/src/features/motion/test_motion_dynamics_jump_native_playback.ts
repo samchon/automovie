@@ -47,7 +47,7 @@ export function test_motion_dynamics_jump_native_playback(): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3, sway: 0 })
+        .stand({ hold: 0.3, sway: 0 })
         .jump({
           to: { x: 0.2, y: 0, z: 1 },
           apex: 0.5,

@@ -81,7 +81,7 @@ function diningCut(
   ];
   const edge: number = sign * 0.06;
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
-    .sit({ seat: s.seat, seconds: 1 })
+    .sit({ seat: s.seat, hold: 1 })
     .pickUp({ prop: "fork", handle: "grip", hand: other, lift: 0.05 })
     .pickUp({ prop: "knife", handle: "grip", hand: side, lift: 0.05 })
     .registered("write", {
@@ -214,7 +214,7 @@ function diningCut(
               : p,
         ),
         HumanChain.subject("actor")
-          .sit({ seat: s.seat, seconds: 1 })
+          .sit({ seat: s.seat, hold: 1 })
           .pickUp({ prop: "knife", handle: "grip", hand: side, lift: 0.05 })
           .registered("write", {
             tool: "knife",

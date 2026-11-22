@@ -18,12 +18,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanFoot,
   HumanPerformance,
   HumanRefusal,
   poseBones,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -170,7 +170,11 @@ export function test_human_motion_fractional_landing(): void {
         close(beforeBones.get(foot)!.worldPosition, contact.worldPosition),
       );
       const footYaw: number =
-        landed + ((side === "left" ? 1 : -1) * stand.TOE_OUT * Math.PI) / 180;
+        landed +
+        ((side === "left" ? 1 : -1) *
+          AutoMovieMotionHumanStance.stand.TOE_OUT *
+          Math.PI) /
+          180;
       const plantedSole: ReturnType<typeof HumanFoot.sockets> =
         HumanFoot.sockets(body, plantBones, side);
       const airborneSole: ReturnType<typeof HumanFoot.sockets> =
@@ -277,7 +281,7 @@ function perform(
     ],
     ...(platform === undefined ? {} : { props: [platform] }),
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .jump(
         {
           to,

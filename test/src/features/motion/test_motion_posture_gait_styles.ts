@@ -184,7 +184,7 @@ function trial(
   seed: string,
 ): ITrial {
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
-    seconds: 0.3,
+    hold: 0.3,
   });
   const to = { x: 0, y: 0, z: distance };
   const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({

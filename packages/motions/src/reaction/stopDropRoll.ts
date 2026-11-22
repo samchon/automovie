@@ -82,7 +82,7 @@ export namespace stopDropRoll {
     const params: IAutoMovieMotionHumanCollapse.IParams = {
       direction: "forward",
       tone: "protective",
-      seconds: 0,
+      hold: 0,
     };
     const drop: IAutoMovieMotionHumanActionPlan = collapse.plan({
       ...context,

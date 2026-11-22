@@ -169,7 +169,7 @@ function checkCheekNormals(): void {
     const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
       "cheek",
       [{ subject: "a", body }],
-      HumanChain.subject("a").stand({ seconds: 0.5 }),
+      HumanChain.subject("a").stand({ hold: 0.5 }),
     );
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       film.bones("a", 0.25);

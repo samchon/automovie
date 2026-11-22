@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanNext } from "@automovie/interface";
+import type { IAutoMovieMotionHumanGait } from "@automovie/interface";
 
 /**
  * The stroll preset: the `slow` walk (about 0.82 m/s at the reference hip) on
@@ -12,9 +12,8 @@ import type { IAutoMovieMotionHumanNext } from "@automovie/interface";
  * @evidence contracts/development/design.md#minimal-and-owned-surface Re-exported as `AutoMovieMotionHumanGait.STROLL`; the stroll row reads it.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the row and the preset share one value instead of two copies.
  */
-export const HUMAN_GAIT_STROLL: IAutoMovieMotionHumanNext.IAutoMovieMotionHumanGait.IStridePreset =
-  {
-    pace: "slow",
-    stride: 0.9,
-    armSwing: 0.8,
-  };
+export const HUMAN_GAIT_STROLL: IAutoMovieMotionHumanGait.IStridePreset = {
+  pace: "slow",
+  stride: 0.9,
+  armSwing: 0.8,
+};

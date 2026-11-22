@@ -56,7 +56,7 @@ export namespace IAutoMovieMotionHumanWireFlight {
     via?: IAutoMovieVector3[];
 
     /** How long the flight takes, seconds; positive. The root keeps one minimum-jerk profile, so its speed peaks at 1.875 times the mean, the path length over this, and starts and ends at rest. A 10 m flight in 4 s averages 2.5 m/s and peaks at 4.7 m/s. */
-    seconds: number;
+    duration: number;
 
     /** The body's shape in the air; `hover` when absent. `limp` is a lifted body whose limbs hang under gravity. */
     shape?: Shape;
@@ -106,6 +106,6 @@ export namespace IAutoMovieMotionHumanWireFlight {
     deceleration?: number;
 
     /** How long the wire takes to lower the body to the floor, seconds; 1 when absent. */
-    seconds?: number;
+    duration?: number;
   }
 }

@@ -12,11 +12,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -30,12 +30,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 const HOLD: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
   {
-    ...stand,
+    ...AutoMovieMotionHumanStance.stand,
     name: "playFixtureHold",
     plan: (
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
     ): IAutoMovieMotionHumanActionPlan => ({
-      ...stand.plan(context),
+      ...AutoMovieMotionHumanStance.stand.plan(context),
       holds: [{ side: "right", prop: "ball", from: 0 }],
     }),
   };
@@ -116,8 +116,7 @@ export function test_motion_exercise_campaign_plays(): void {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject("a").stand({ seconds: 0.2, sway: 0 })
-        .node,
+      composition: HumanChain.subject("a").stand({ hold: 0.2, sway: 0 }).node,
     }).bones("a", 0),
     "right",
     "grip",
@@ -134,7 +133,7 @@ export function test_motion_exercise_campaign_plays(): void {
             chain
               .run({ to: { x: 0, y: 0, z: 3 }, pace: "jog" })
               .jump({ to: { x: 0, y: 0, z: 3.6 } })
-              .stand({ seconds: 0.5, sway: 0 }).node,
+              .stand({ hold: 0.5, sway: 0 }).node,
         },
       ],
       launches: 0,
@@ -155,10 +154,10 @@ export function test_motion_exercise_campaign_plays(): void {
                 upper.throwObject({
                   prop: "ball",
                   angle: 55,
-                  at: { kind: "point", frame: "world", at: ring },
+                  target: { kind: "point", frame: "world", at: ring },
                 }),
               )
-              .stand({ seconds: 1, sway: 0 }).node,
+              .stand({ hold: 1, sway: 0 }).node,
         },
       ],
       launches: 1,
@@ -178,14 +177,14 @@ export function test_motion_exercise_campaign_plays(): void {
               .over((upper) =>
                 upper.throwObject({
                   prop: "ball",
-                  at: {
+                  target: {
                     kind: "point",
                     frame: "world",
                     at: { x: 0, y: 0, z: 8 },
                   },
                 }),
               )
-              .stand({ seconds: 1, sway: 0 }).node,
+              .stand({ hold: 1, sway: 0 }).node,
         },
       ],
       launches: 1,
@@ -201,7 +200,7 @@ export function test_motion_exercise_campaign_plays(): void {
             chain
               .jump({ to: { x: 0, y: 0, z: 0 } })
               .over((upper) => upper.gesture({ kind: "cheer" }))
-              .stand({ seconds: 0.5, sway: 0 }).node,
+              .stand({ hold: 0.5, sway: 0 }).node,
         },
       ],
       launches: 0,
@@ -221,14 +220,14 @@ export function test_motion_exercise_campaign_plays(): void {
               .over((upper) =>
                 upper.throwObject({
                   prop: "ball",
-                  at: {
+                  target: {
                     kind: "point",
                     frame: "world",
                     at: { x: 0.9, y: 1.4, z: 9 },
                   },
                 }),
               )
-              .stand({ seconds: 1, sway: 0 }).node,
+              .stand({ hold: 1, sway: 0 }).node,
         },
       ],
       launches: 1,
@@ -246,7 +245,7 @@ export function test_motion_exercise_campaign_plays(): void {
             chain
               .kickBall({
                 ball: "ball",
-                toward: {
+                target: {
                   kind: "point",
                   frame: "world",
                   at: { x: 0, y: 0, z: 2 },
@@ -254,7 +253,7 @@ export function test_motion_exercise_campaign_plays(): void {
                 speed: 1.5,
                 lift: 0,
               })
-              .stand({ seconds: 1.5, sway: 0 }).node,
+              .stand({ hold: 1.5, sway: 0 }).node,
         },
       ],
       launches: 1,
@@ -274,7 +273,7 @@ export function test_motion_exercise_campaign_plays(): void {
                 { kind: "setShot", prop: "ball", at: ring, flightSeconds: 1 },
                 "shot",
               )
-              .stand({ seconds: 1, sway: 0 }).node,
+              .stand({ hold: 1, sway: 0 }).node,
         },
         {
           subject: "b",
@@ -284,7 +283,7 @@ export function test_motion_exercise_campaign_plays(): void {
             chain
               .ballSport({ kind: "highHandContest" })
               .sync({ of: "shot" })
-              .stand({ seconds: 1, sway: 0 }).node,
+              .stand({ hold: 1, sway: 0 }).node,
         },
       ],
       launches: 1,

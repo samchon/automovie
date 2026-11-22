@@ -1,5 +1,5 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
-import type { IAutoMovieMotionHumanDance } from "./IAutoMovieMotionHumanDance";
+import type { IAutoMovieMotionHumanDance } from "../next/IAutoMovieMotionHumanDance";
 
 /**
  * Social group dances on one shared beat (#4010), each member dancing the

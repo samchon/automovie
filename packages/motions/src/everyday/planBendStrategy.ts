@@ -68,11 +68,11 @@ export function planBendStrategy(
   alignTrunk: boolean = false,
 ): IAutoMovieMotionHumanActionPlan {
   const body: IAutoMovieMotionHumanBody = context.body;
-  const side: AutoMovieHumanSide = context.params.side ?? "right";
+  const side: AutoMovieHumanSide = context.params.hand ?? "right";
   const hold: number = context.params.hold ?? bend.HOLD;
   HumanBound.least("hold", hold, 0, "s");
   const probe: IAutoMovieMotionHumanActionPlan = stand.plan(
-    { ...context, params: { seconds: 1 } },
+    { ...context, params: { hold: 1 } },
     side,
   );
   const upright: IAutoMovieMotionHumanPosture = probe.posture(0);
@@ -89,8 +89,8 @@ export function planBendStrategy(
     ? (Math.atan2(hips.x - local.x, armBase.y - hips.y) * 180) / Math.PI
     : 0;
   const region: IAutoMovieHumanoidSurfaces.IFrame | undefined =
-    context.params.toward.kind === "self"
-      ? body.surfaces.regions[context.params.toward.region]
+    context.params.target.kind === "self"
+      ? body.surfaces.regions[context.params.target.region]
       : undefined;
   const floorContact: boolean =
     region === undefined &&
@@ -153,7 +153,7 @@ export function planBendStrategy(
   // The body stands under the bend, its sway signed in the bending side's
   // frame, so a left bend mirrors a right one (`stand.plan`).
   const standing: IAutoMovieMotionHumanActionPlan = stand.plan(
-    { ...context, params: { seconds: 2 * down } },
+    { ...context, params: { hold: 2 * down } },
     side,
   );
   const atContact: IAutoMovieMotionHumanPosture = standing.posture(down);

@@ -20,7 +20,7 @@ export interface IAutoMovieMotionHumanEmbraceFromBehind {
   shoulder?: AutoMovieHumanSide;
 
   /** How long the embrace is held, seconds; positive. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
-  seconds: number;
+  hold: number;
 
   /** How the embrace is taken and let go. */
   manner?: IAutoMovieMotionManner;

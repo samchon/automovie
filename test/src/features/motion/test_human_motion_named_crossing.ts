@@ -8,6 +8,7 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanCrossing,
   HumanChain,
   HumanColliders,
   HumanFoot,
@@ -15,7 +16,6 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanTraversal,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -91,7 +91,7 @@ export function test_human_motion_named_crossing(): void {
     return new HumanPerformance({
       seed: "named-crossing:" + p.kind,
       props: gap ? props.slice(2) : [props[p.kind === "vault" ? 1 : 0]!],
-      laws: [HumanTraversal.crossObstacle],
+      laws: [AutoMovieMotionHumanCrossing.HumanTraversal.crossObstacle],
       performers: [
         {
           subject: "a",
@@ -106,7 +106,7 @@ export function test_human_motion_named_crossing(): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.28, sway: 0, ...runway })
+        .stand({ hold: 0.28, sway: 0, ...runway })
         .walk({
           to: { x: 0, y: gap ? deckHeight : 0, z: approach },
           face: gap ? 0 : 180,

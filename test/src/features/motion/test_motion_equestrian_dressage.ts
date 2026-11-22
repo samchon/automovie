@@ -11,12 +11,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFoot,
   HumanFrame,
   HumanObject,
   HumanPerformance,
-  HumanRide,
   HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -95,7 +95,7 @@ export function test_motion_equestrian_dressage(): void {
     seed: "equine-dressage",
     cues: { trot: strides },
     props: [HumanObject.prop("horse", horse, place(0), place, part)],
-    laws: [HumanRide.ride],
+    laws: [AutoMovieMotionHumanMount.rideHorse.ride],
     performers: [
       {
         subject: "rider",
@@ -109,7 +109,7 @@ export function test_motion_equestrian_dressage(): void {
       },
     ],
     composition: HumanChain.subject("rider")
-      .sit({ seat, seconds: 0.5 })
+      .sit({ seat, hold: 0.5 })
       .registered("ride", {
         on: "horse",
         seconds: WAIT + ride.duration - 0.5,

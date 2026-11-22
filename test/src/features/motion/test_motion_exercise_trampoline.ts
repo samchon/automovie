@@ -10,12 +10,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
   HumanChain,
-  HumanGymnastics,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  trampolineBounce,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -84,10 +83,11 @@ export function test_motion_exercise_trampoline(): void {
         let deepest: number = 0;
         for (let t: number = from; t <= from + 0.5; t += 1 / 240)
           deepest = Math.min(deepest, feet(t));
-        const expected: number = trampolineBounce.deflection(
-          body.profile.mass,
-          height,
-        );
+        const expected: number =
+          AutoMovieMotionHumanAcrobatics.trampoline.deflection(
+            body.profile.mass,
+            height,
+          );
         TestValidator.predicate(
           `${name} ${shape} contact ${k} deflects the bed ${(-deepest * 1000).toFixed(0)} mm for ${(expected * 1000).toFixed(0)} mm`,
           Math.abs(-deepest - expected) <= 0.01,
@@ -128,7 +128,7 @@ function take(
 ): HumanPerformance {
   return new HumanPerformance({
     seed: "trampoline",
-    laws: [HumanGymnastics.trampoline],
+    laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.trampoline],
     performers: [
       {
         subject: "a",

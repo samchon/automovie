@@ -19,11 +19,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanPerformance,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -99,7 +99,10 @@ async function handshake(
   ): IAutoMovieVector3 =>
     poseBones(
       body,
-      resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
+      resolveHumanPosture(
+        body,
+        AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
+      ),
     ).get("rightUpperArm")!.worldPosition;
   const sa: IAutoMovieVector3 = shoulder(a);
   const sb: IAutoMovieVector3 = shoulder(b);
@@ -113,7 +116,7 @@ async function handshake(
       HumanChain.subject("a"),
       HumanChain.subject("b"),
     ).handshake({
-      pumps: 2,
+      count: 2,
     }).node,
   });
   const closed: number = event(take, "a", "gripClosed");
@@ -223,7 +226,7 @@ async function together(
     x: number,
   ): IAutoMovieComposition =>
     HumanChain.subject(subject)
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .jump({ to: { x, y: 0, z: 0.3 }, apex: 0.5 }).node;
   const take: HumanPerformance = new HumanPerformance({
     seed: "simulated-pair-flight",

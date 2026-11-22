@@ -28,11 +28,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSwim,
   HumanChain,
   HumanFrame,
   HumanObject,
   HumanPerformance,
-  aquatic,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -259,7 +259,7 @@ function crew(
   );
   const performance: HumanPerformance = new HumanPerformance({
     seed: "canonical-transport-crew",
-    laws: [aquatic],
+    laws: [AutoMovieMotionHumanSwim.aquatic],
     performers: [
       {
         subject: "crew",
@@ -271,8 +271,8 @@ function crew(
     ],
     props: [HumanObject.prop("hull", boat, initial, track.motion, track.point)],
     composition: HumanChain.subject("crew")
-      .stand({ seconds: 0.3, on: { prop: "hull" } })
-      .sit({ seat, seconds: 0.5 })
+      .stand({ hold: 0.3, on: { prop: "hull" } })
+      .sit({ seat, hold: 0.5 })
       .registered("aquatic", { kind: "doubleScull", support: "hull" }).node,
   });
   const film: motionHumanLaw.IFilm = motionHumanLaw.film(performance);

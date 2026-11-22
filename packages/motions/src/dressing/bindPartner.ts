@@ -86,7 +86,7 @@ export const bindPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBi
             subject: context.params.partner,
             region: context.params.region,
           },
-          side,
+          hand: side,
           facing: { fingers: "down", palm: "in" },
           held: context.params.prop,
           ...(context.params.point === undefined

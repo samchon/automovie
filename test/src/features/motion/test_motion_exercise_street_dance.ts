@@ -11,8 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanDance,
   HumanChain,
-  HumanDanceStyles,
   HumanFoot,
   HumanPerformance,
 } from "@automovie/motions";
@@ -53,7 +53,7 @@ export function test_motion_exercise_street_dance(): void {
     // 1. Moonwalk.
     const moon: HumanPerformance = take(
       body,
-      { groove: "moonwalk", bpm: BPM, beats: 4, vary: 0 },
+      { groove: "moonwalk", bpm: BPM, count: 4, vary: 0 },
       "moon",
     );
     const walk: IAutoMovieMotionHumanSegment = moon.segments("a")[1]!;
@@ -92,7 +92,7 @@ export function test_motion_exercise_street_dance(): void {
     // 2. Rock hits.
     const rock: HumanPerformance = take(
       body,
-      { groove: "rock", bpm: BPM, beats: 4, hits: [2, 6, 10, 14] },
+      { groove: "rock", bpm: BPM, count: 4, hits: [2, 6, 10, 14] },
       "rock",
     );
     const groove: IAutoMovieMotionHumanSegment = rock.segments("a")[1]!;
@@ -121,12 +121,12 @@ export function test_motion_exercise_street_dance(): void {
   const vary: number = 0.03;
   const one: IAutoMovieMotionHumanSegment = take(
     body,
-    { groove: "rock", bpm: BPM, beats: 4, vary },
+    { groove: "rock", bpm: BPM, count: 4, vary },
     "one",
   ).segments("a")[1]!;
   const two: IAutoMovieMotionHumanSegment = take(
     body,
-    { groove: "rock", bpm: BPM, beats: 4, vary },
+    { groove: "rock", bpm: BPM, count: 4, vary },
     "two",
   ).segments("a")[1]!;
   const a: number = at(one, "beat1") - period;
@@ -145,7 +145,7 @@ function take(
 ): HumanPerformance {
   return new HumanPerformance({
     seed,
-    laws: [HumanDanceStyles.streetGroove],
+    laws: [AutoMovieMotionHumanDance.HumanDanceStyles.streetGroove],
     performers: [
       {
         subject: "a",
@@ -156,7 +156,7 @@ function take(
       },
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .registered("streetGroove", params).node,
   });
 }

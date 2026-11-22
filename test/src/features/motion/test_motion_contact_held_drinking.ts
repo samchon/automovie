@@ -55,7 +55,7 @@ export function test_motion_contact_held_drinking(): void {
         use: { tip: "lip", line: "square", at: "mouth" },
       })
       .handToFace({
-        task: "drink",
+        kind: "drink",
         prop: "glass",
         grasp: { handle: "body", line: "square" },
       }),

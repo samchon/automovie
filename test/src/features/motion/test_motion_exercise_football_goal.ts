@@ -85,7 +85,7 @@ export function test_motion_exercise_football_goal(): void {
       HumanChain.subject("striker")
         .registered("kickRight", { ball: "ball", speed: 20, lift: 5 }, "shot")
         // The film runs on while the shot's result plays out.
-        .stand({ seconds: 2, sway: 0 }).node,
+        .stand({ hold: 2, sway: 0 }).node,
     ];
     const performers: IAutoMovieMotionHumanPerformance.IInput["performers"] = [
       {

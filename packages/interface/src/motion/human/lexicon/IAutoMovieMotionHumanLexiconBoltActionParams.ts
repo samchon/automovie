@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanOperate } from "../affordance/IAutoMovieMotionHumanOperate";
+import type { IAutoMovieMotionHumanOperate } from "../next/IAutoMovieMotionHumanOperate";
 import type { IAutoMovieMotionHumanRelease } from "../throwing/IAutoMovieMotionHumanRelease";
 
 /**

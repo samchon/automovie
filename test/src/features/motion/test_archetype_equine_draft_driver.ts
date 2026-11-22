@@ -28,13 +28,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFoot,
   HumanFrame,
   HumanHand,
   HumanObject,
   HumanPerformance,
-  HumanRide,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -158,7 +158,7 @@ export function test_archetype_equine_draft_driver(): void {
     vehiclePart,
     {
       on: "carriage",
-      seconds: WAIT + team.duration,
+      duration: WAIT + team.duration,
       seat: "box",
       hands: { left: "leftLineGrip", right: "rightLineGrip" },
     },
@@ -241,7 +241,7 @@ export function test_archetype_equine_draft_driver(): void {
     horsePart,
     {
       on: "horse",
-      seconds: WAIT + team.duration,
+      duration: WAIT + team.duration,
       seat: "seat",
       feet: { left: "leftStirrup", right: "rightStirrup" },
       hands: { left: "leftRein", right: "rightRein" },
@@ -288,7 +288,7 @@ export function test_archetype_equine_draft_driver(): void {
   try {
     charioteer = new HumanPerformance({
       seed: "team-charioteer",
-      laws: [HumanRide.ride],
+      laws: [AutoMovieMotionHumanMount.rideHorse.ride],
       props: [
         HumanObject.prop(
           "chariot",
@@ -318,7 +318,7 @@ export function test_archetype_equine_draft_driver(): void {
         },
       ],
       composition: HumanChain.subject("charioteer").stand({
-        seconds: WAIT + pair.duration,
+        hold: WAIT + pair.duration,
         on: { prop: "chariot" },
       }).node,
     });
@@ -378,7 +378,7 @@ export function test_archetype_equine_draft_driver(): void {
     try {
       return new HumanPerformance({
         seed: `team-${subject}`,
-        laws: [HumanRide.ride],
+        laws: [AutoMovieMotionHumanMount.rideHorse.ride],
         props: [
           HumanObject.prop(ride.on, model, placement(0), placement, part),
         ],
@@ -395,7 +395,7 @@ export function test_archetype_equine_draft_driver(): void {
           },
         ],
         composition: HumanChain.subject(subject)
-          .sit({ seat, seconds: 0.5 })
+          .sit({ seat, hold: 0.5 })
           .registered("ride", ride).node,
       });
     } catch (error) {

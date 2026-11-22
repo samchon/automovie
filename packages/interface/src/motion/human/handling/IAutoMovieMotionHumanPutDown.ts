@@ -56,7 +56,7 @@ export namespace IAutoMovieMotionHumanPutDown {
     prop: string;
 
     /** Where the prop's origin goes, world metres; required unless `on` or `onto` is given. */
-    at?: IAutoMovieVector3;
+    to?: IAutoMovieVector3;
 
     /** The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent. */
     on?: {

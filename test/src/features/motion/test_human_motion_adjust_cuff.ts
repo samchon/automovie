@@ -8,12 +8,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanTouch,
   AutoMovieMotionHumanTouchEffector,
   AutoMovieMotionHumanTouchForm,
   HumanChain,
   HumanPerformance,
   composeHumanAdjustCuff,
-  touch,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -78,7 +78,7 @@ export function test_human_motion_adjust_cuff(): void {
         bones,
         hand,
         AutoMovieMotionHumanTouchForm.curled(
-          touch.EFFECTORS.fingertips,
+          AutoMovieMotionHumanTouch.touch.EFFECTORS.fingertips,
           "squeeze",
         ),
       );

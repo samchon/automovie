@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanHorrorCreature,
   HumanChain,
-  HumanHorrorGait,
   HumanPerformance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -63,9 +63,9 @@ export function test_motion_gait_horror(): void {
           },
         ],
         laws: [
-          HumanHorrorGait.shamble,
-          HumanHorrorGait.lurch,
-          HumanHorrorGait.stalk,
+          AutoMovieMotionHumanHorrorCreature.HumanHorrorGait.shamble,
+          AutoMovieMotionHumanHorrorCreature.HumanHorrorGait.lurch,
+          AutoMovieMotionHumanHorrorCreature.HumanHorrorGait.stalk,
         ],
         composition: chain.node,
       });
@@ -160,7 +160,7 @@ export function test_motion_gait_horror(): void {
       yaw: 0,
       proficiency: { level: "trained" as const },
     })),
-    laws: [HumanHorrorGait.shamble],
+    laws: [AutoMovieMotionHumanHorrorCreature.HumanHorrorGait.shamble],
     composition: {
       kind: "parallel",
       parts: subjects.map(

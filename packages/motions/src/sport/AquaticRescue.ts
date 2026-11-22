@@ -71,6 +71,24 @@ interface ITow {
   seconds: number;
 }
 
+/** The rescuer's hold in the world, read once where the hold is taken. */
+interface IHoldWorld {
+  /** The wrist on the victim's sternum, world metres. */
+  wrist: IAutoMovieVector3;
+
+  /** The hand's world rotation, its palm into the sternum. */
+  rotation: IAutoMovieQuaternion;
+
+  /** The palm's point in the hand's frame, the contact the goal lays. */
+  contact: IAutoMovieVector3;
+
+  /** The victim's colliders where the hold is taken, placed in the world. */
+  rests: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+
+  /** The world point the elbow bends toward. */
+  bend: IAutoMovieVector3;
+}
+
 /**
  * A water rescue as the American Red Cross Lifeguarding manual describes it:
  * the rescuer swims to the victim, takes a cross-chest hold from behind and
@@ -116,7 +134,7 @@ export namespace AquaticRescue {
           })
         : behind;
     const approach: number = Math.max(0, gap - STANDOFF);
-    const limit: number = params.seconds ?? Infinity;
+    const limit: number = params.duration ?? Infinity;
     if (approach / SWIM > limit)
       throw new HumanRefusal({
         kind: "reach",
@@ -249,19 +267,25 @@ export namespace AquaticRescue {
         const shaped: IAutoMovieMotionHumanPosture = bodyAt(seconds);
         return seconds < arrive
           ? shaped
-          : { ...shaped, limbs: { ...shaped.limbs, leftArm: grip() } };
+          : {
+              ...shaped,
+              limbs: { ...shaped.limbs, leftArm: grip(shaped, seconds) },
+            };
       },
     };
 
     // The hold rides the rescuer's own chest: the victim's displayed
-    // sternum is read once, where the hold is taken, and kept in the
-    // rescuer's chest frame, so the hand goes with the pair through the tow
-    // without reading the victim at a later second. The upper arm of the
+    // sternum and body are read once, where the hold is taken, and kept in
+    // the rescuer's chest frame, so the hand goes with the pair through the
+    // tow without reading the victim at a later second. During the reach the
+    // rescuer still closes in from the standoff while the victim stays where
+    // it was in the world, so each frame of the reach puts the hold in that
+    // frame's chest; from the hold on, in the hold's. The upper arm of the
     // side-lying rescuer drapes over the victim's shoulder, the elbow back
     // toward the rescuer.
-    let held: IAutoMovieHumanLimbGoal | undefined;
-    const grip: () => IAutoMovieHumanLimbGoal = (): IAutoMovieHumanLimbGoal => {
-      if (held !== undefined) return held;
+    let world: IHoldWorld | undefined;
+    const holdWorld = (): IHoldWorld => {
+      if (world !== undefined) return world;
       const sternum: IAutoMovieHumanoidSurfaces.IFrame =
         victim.body.surfaces.regions.sternum;
       const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
@@ -286,62 +310,74 @@ export namespace AquaticRescue {
         normal: Vector3.scale(placed.normal, -1),
         forward: across,
       });
-      const wrist: IAutoMovieVector3 = Vector3.subtract(
-        chest,
-        Quaternion.rotateVector(rotation, palm.point),
+      world = {
+        wrist: Vector3.subtract(
+          chest,
+          Quaternion.rotateVector(rotation, palm.point),
+        ),
+        rotation,
+        contact: palm.point,
+        rests: HumanColliders.placed(
+          victim.body,
+          victim.bones(start + hold, HumanColliders.bones(victim.body)),
+        ),
+        bend: Vector3.add(
+          Vector3.subtract(chest, Vector3.scale(tow.toward, 0.25)),
+          {
+            x: 0,
+            y: 0.1,
+            z: 0,
+          },
+        ),
+      };
+      return world;
+    };
+    // The hold in the rescuer's chest frame `own`.
+    const inFrame = (own: IAutoMovieResolvedBone): IAutoMovieHumanLimbGoal => {
+      const w: IHoldWorld = holdWorld();
+      const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+        own.worldRotation,
       );
-      const own: IAutoMovieResolvedBone = chestAt(bodyAt(hold)).get("chest")!;
       const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
         point: IAutoMovieVector3,
       ): IAutoMovieVector3 =>
         Quaternion.rotateVector(
-          Quaternion.inverse(own.worldRotation),
+          inverse,
           Vector3.subtract(point, own.worldPosition),
         );
-      held = {
+      return {
         on: "chest",
-        point: local(wrist),
-        rotation: Quaternion.multiply(
-          Quaternion.inverse(own.worldRotation),
-          rotation,
-        ),
-        contact: palm.point,
+        point: local(w.wrist),
+        rotation: Quaternion.multiply(inverse, w.rotation),
+        contact: w.contact,
         // The victim's body, as it was where the hold was taken, rides the
         // rescuer's chest with the hand: the arm keeps clear of it on its way
         // and lays the hand on it.
         clearanceOn: {
           clear: [],
-          rests: HumanColliders.placed(
-            victim.body,
-            victim.bones(start + hold, HumanColliders.bones(victim.body)),
-          ).map(
+          rests: w.rests.map(
             (
               segment: IAutoMovieMotionHumanColliders.IPlaced,
             ): IAutoMovieMotionHumanColliders.IPlaced => ({
               ...segment,
               pose: {
                 position: local(segment.pose.position),
-                rotation: Quaternion.multiply(
-                  Quaternion.inverse(own.worldRotation),
-                  segment.pose.rotation,
-                ),
+                rotation: Quaternion.multiply(inverse, segment.pose.rotation),
               },
             }),
           ),
         },
-        bend: local(
-          Vector3.add(
-            Vector3.subtract(chest, Vector3.scale(tow.toward, 0.25)),
-            {
-              x: 0,
-              y: 0.1,
-              z: 0,
-            },
-          ),
-        ),
+        bend: local(w.bend),
       };
-      return held;
     };
+    let held: IAutoMovieHumanLimbGoal | undefined;
+    const grip = (
+      shaped: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieHumanLimbGoal =>
+      seconds < hold
+        ? inFrame(chestAt(shaped).get("chest")!)
+        : (held ??= inFrame(chestAt(bodyAt(hold)).get("chest")!));
     const chestAt: ReturnType<typeof AquaticPosture.markers> =
       AquaticPosture.markers(body, ["chest"]);
     // The near arm reaches from its last crawl stroke to the victim's

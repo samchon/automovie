@@ -13,13 +13,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanPrecisionSport,
   HumanSportThrow,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -90,7 +90,7 @@ export function test_motion_exercise_ball_incoming_stroke(): void {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("batter").stand({ seconds: 0.2, sway: 0 })
+    composition: HumanChain.subject("batter").stand({ hold: 0.2, sway: 0 })
       .node,
   });
   const hand: IAutoMovieVector3 = HumanHand.frame(
@@ -130,12 +130,12 @@ export function test_motion_exercise_ball_incoming_stroke(): void {
     name: string,
     prop: string,
   ): IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> => ({
-    ...stand,
+    ...AutoMovieMotionHumanStance.stand,
     name,
     plan: (
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
     ): IAutoMovieMotionHumanActionPlan => ({
-      ...stand.plan(context),
+      ...AutoMovieMotionHumanStance.stand.plan(context),
       holds: [{ side: "right", prop, from: 0 }],
     }),
   });
@@ -156,7 +156,7 @@ export function test_motion_exercise_ball_incoming_stroke(): void {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("pitcher").stand({ seconds: 0.2, sway: 0 })
+    composition: HumanChain.subject("pitcher").stand({ hold: 0.2, sway: 0 })
       .node,
   });
   const palm: IAutoMovieVector3 = HumanHand.frame(
@@ -208,7 +208,7 @@ export function test_motion_exercise_ball_incoming_stroke(): void {
             },
             "pitch",
           )
-          .stand({ seconds: take.follow, sway: 0 }).node,
+          .stand({ hold: take.follow, sway: 0 }).node,
         take.batter,
       ),
     });

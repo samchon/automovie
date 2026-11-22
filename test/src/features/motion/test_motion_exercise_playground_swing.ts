@@ -9,11 +9,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanRide,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanSurface,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -97,7 +97,7 @@ function swingFilm(
     props: [HumanObject.prop("seat", model, placed)],
     composition: HumanChain.subject("a").sit({
       seat: HumanObject.seat(model, placed),
-      seconds: 1.2,
+      hold: 1.2,
     }).node,
   }).duration;
   const seatAt = (seconds: number): IAutoMovieRigidTransform =>
@@ -113,9 +113,12 @@ function swingFilm(
       ),
       HumanObject.prop("seat", model, placed, seatAt),
     ],
-    laws: [HumanSurface.swingPump, HumanSurface.swingLeap],
+    laws: [
+      AutoMovieMotionHumanRide.HumanSurface.swingPump,
+      AutoMovieMotionHumanRide.HumanSurface.swingLeap,
+    ],
     composition: HumanChain.subject("a")
-      .sit({ seat: HumanObject.seat(model, placed), seconds: 1.2 })
+      .sit({ seat: HumanObject.seat(model, placed), hold: 1.2 })
       .registered("swingPump", {
         on: "seat",
         seat: "seat",
@@ -139,7 +142,11 @@ function swing(key: playgroundTake.BodyKey, failures: string[]): void {
   const hang: number = hanging(frame);
   // A small body's arms hold the chains at a shallower lean.
   const lean: number = key === "f-small" ? 10 : 20;
-  const increment: number = HumanSurface.pumpIncrement(body, hang, lean);
+  const increment: number = AutoMovieMotionHumanRide.HumanSurface.pumpIncrement(
+    body,
+    hang,
+    lean,
+  );
   if (!(increment > 0 && increment < 10))
     failures.push(
       `${key}: pumping adds ${increment.toFixed(3)} degrees a half swing`,

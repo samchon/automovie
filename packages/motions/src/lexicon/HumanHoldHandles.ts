@@ -67,7 +67,7 @@ export const HumanHoldHandles: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
         on,
         left = "leftHandle",
         right = "rightHandle",
-        seconds,
+        duration: seconds,
         transition,
       } = context.params;
       if (
@@ -114,7 +114,7 @@ export const HumanHoldHandles: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
         AutoMovieMotionHumanBase.under(context, seconds);
       const first: IAutoMovieRigidTransform = support.frame(context.start);
       const { gripsAt, closures }: HumanRideHands.IHands = HumanRideHands.of(
-        { ...context, params: { on, seconds, hands: ids } },
+        { ...context, params: { on, duration: seconds, hands: ids } },
         on,
         support,
         base.posture(0),

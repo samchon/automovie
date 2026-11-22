@@ -15,11 +15,11 @@ import {
   AutoMovieMotionHumanDrinkingArm,
   AutoMovieMotionHumanDrinkingSwivel,
   AutoMovieMotionHumanGoal,
+  AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTarget,
   AutoMovieMotionHumanTargetGrid,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -133,11 +133,8 @@ export function test_motion_catalogue_range_query(): void {
 /** Check constrained and unconstrained elbow targets against the shoulder/wrist reach circle. */
 function checkElbowCircle(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const posture: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const posture: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,
     resolveHumanPosture(body, { ...posture, limbs: {} }),

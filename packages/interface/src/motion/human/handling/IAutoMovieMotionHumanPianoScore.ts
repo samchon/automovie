@@ -42,7 +42,7 @@ export namespace IAutoMovieMotionHumanPianoScore {
     key: string;
 
     /** Hand taking this note. Opposite hands can play overlapping notes on different keys. */
-    side: AutoMovieHumanSide;
+    hand: AutoMovieHumanSide;
 
     /** Digit meeting the key. */
     digit: IAutoMovieMotionHumanManipulate.Finger;

@@ -51,7 +51,7 @@ export function test_human_motion_tuck_hair(): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3 })
+        .stand({ hold: 0.3 })
         .registered("tuckHair", { side }).node,
     });
     const segment: IAutoMovieMotionHumanSegment = performance

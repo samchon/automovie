@@ -5,7 +5,7 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 import {
-  HumanAirborneShape,
+  AutoMovieMotionHumanJump,
   HumanChain,
   HumanPerformance,
 } from "@automovie/motions";
@@ -39,7 +39,7 @@ export function test_motion_dynamics_pike_transition(): void {
       },
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .jump(
         {
           to: { x: 0, y: 0, z: 1 },
@@ -51,7 +51,7 @@ export function test_motion_dynamics_pike_transition(): void {
     layers: {
       a: [
         {
-          layer: HumanAirborneShape.layer("pike"),
+          layer: AutoMovieMotionHumanJump.HumanAirborneShape.layer("pike"),
           from: { of: "leap", event: "takeoff" },
           to: { of: "leap", event: "touchdown" },
           fade: 0.05,

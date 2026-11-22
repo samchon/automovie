@@ -49,7 +49,7 @@ export function test_human_motion_curtsy(): void {
       cut?: "dip",
     ): IAutoMovieMotionHumanPerformance => {
       const chain = Chain.subject("a")
-        .stand({ seconds: 0.6, sway: 0 })
+        .stand({ hold: 0.6, sway: 0 })
         .curtsy(depth === undefined ? { side } : { side, depth });
       return new HumanPerformance({
         seed: "curtsy",

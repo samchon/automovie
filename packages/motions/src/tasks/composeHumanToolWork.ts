@@ -132,7 +132,7 @@ export namespace composeHumanToolWork {
         prop: work.prop,
         on: work.on,
         ...(work.hand === undefined ? {} : { hand: work.hand }),
-        ...(work.cycles === undefined ? {} : { cycles: work.cycles }),
+        ...(work.cycles === undefined ? {} : { count: work.cycles }),
       });
   }
 

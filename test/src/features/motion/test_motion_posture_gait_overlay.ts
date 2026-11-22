@@ -168,9 +168,7 @@ export function test_motion_posture_gait_overlay(): void {
   const walk = HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: 2 } });
   const plain = stage(walk);
   const read = stage(
-    walk.over((u) =>
-      u.handToFace({ task: "read", side: "right", seconds: 0.5 }),
-    ),
+    walk.over((u) => u.handToFace({ kind: "read", hand: "right", hold: 0.5 })),
   );
   const overlay = read.overlays("a")[0]!;
   const atEvent = (name: string) =>
@@ -235,18 +233,18 @@ export function test_motion_posture_gait_overlay(): void {
     depth: 0.45,
   };
   const phone = walk.over((u) =>
-    u.handToFace({ task: "phone", side: "right" }),
+    u.handToFace({ kind: "phone", hand: "right" }),
   );
   for (const [chain, names] of [
     [
-      phone.over((u) => u.handToFace({ task: "drink", side: "right" })),
+      phone.over((u) => u.handToFace({ kind: "drink", hand: "right" })),
       ["rightArm", "handToFace"],
     ],
     [walk.over((u) => u.sit({ seat })), ["sit", "handToFace"]],
     [
       HumanChain.subject("a")
         .sit({ seat })
-        .over((u) => u.handToFace({ task: "phone" })),
+        .over((u) => u.handToFace({ kind: "phone" })),
       ["sit"],
     ],
   ] as const) {
@@ -267,7 +265,7 @@ export function test_motion_posture_gait_overlay(): void {
   TestValidator.equals(
     "two distinct arm tasks are scheduled",
     stage(
-      phone.over((u) => u.handToFace({ task: "drink", side: "left" })),
+      phone.over((u) => u.handToFace({ kind: "drink", hand: "left" })),
     ).overlays("a").length,
     2,
   );

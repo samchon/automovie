@@ -16,10 +16,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanInstrument,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  bowViolin,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -51,8 +51,12 @@ export function test_human_motion_bow_violin(): void {
     proficiency: { level: "trained" },
   };
   const Chain: ReturnType<
-    typeof HumanChain.extend<{ bowViolin: typeof bowViolin }>
-  > = HumanChain.extend({ bowViolin });
+    typeof HumanChain.extend<{
+      bowViolin: typeof AutoMovieMotionHumanInstrument.bowViolin;
+    }>
+  > = HumanChain.extend({
+    bowViolin: AutoMovieMotionHumanInstrument.bowViolin,
+  });
   // Take the bow by its declared grip. The following stroke fits its own
   // target on the string using the held bow's actual attachment.
   const pick = (): ReturnType<typeof Chain.subject> =>
@@ -123,14 +127,14 @@ export function test_human_motion_bow_violin(): void {
 
   const film: HumanPerformance = new HumanPerformance({
     seed: "bow",
-    laws: [bowViolin],
+    laws: [AutoMovieMotionHumanInstrument.bowViolin],
     performers: [performer],
     props: [bowProp, violinProp],
     composition: pick().bowViolin({
       violin: "violin",
       bow: "bow",
       string: "string1",
-      seconds: 1,
+      duration: 1,
     }).node,
   });
   const segment: IAutoMovieMotionHumanSegment = film.segments("player")[1]!;

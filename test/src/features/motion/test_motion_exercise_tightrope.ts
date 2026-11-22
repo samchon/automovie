@@ -10,13 +10,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
+  AutoMovieMotionHumanWorkout,
   HumanChain,
   HumanFoot,
-  HumanGymnastics,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  lineWalk,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -113,7 +113,9 @@ export function test_motion_exercise_tightrope(): void {
       `${name} walks the wire (${(across * 1000).toFixed(0)} mm across, ${(high * 1000).toFixed(0)} mm off the sag), over it (${(sway * 1000).toFixed(0)} mm), pole in hand (${(slip * 1000).toFixed(0)} mm)`,
       across <= 0.05 &&
         high <= 0.01 &&
-        sway <= lineWalk.SWAY * body.measure.stature + 0.001 &&
+        sway <=
+          AutoMovieMotionHumanWorkout.lineWalk.SWAY * body.measure.stature +
+            0.001 &&
         held &&
         slip <= 0.12,
     );
@@ -142,7 +144,7 @@ function take(body: IAutoMovieMotionHumanBody, sag: number): HumanPerformance {
   const start: number = -SPAN / 2 + 0.5;
   return new HumanPerformance({
     seed: "tightrope",
-    laws: [HumanGymnastics.lineWalk],
+    laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.lineWalk],
     performers: [
       {
         subject: "a",

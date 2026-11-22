@@ -81,12 +81,12 @@ function plan(
 ): IAutoMovieMotionHumanActionPlan {
   const {
     by,
-    seconds = 0.8,
+    duration: seconds = 0.8,
     hold = 0,
     returnSeconds,
   }: IAutoMovieMotionHumanShiftStandingWeight = context.params;
   HumanBound.above("by", Math.abs(by), 0, "m");
-  HumanBound.above("seconds", seconds, 0, "s");
+  HumanBound.above("duration", seconds, 0, "s");
   HumanBound.least("hold", hold, 0, "s");
   if (returnSeconds !== undefined)
     HumanBound.above("returnSeconds", returnSeconds, 0, "s");

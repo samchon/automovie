@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
-import { HumanPerception, touch } from "@automovie/motions";
+import { AutoMovieMotionHumanTouch, HumanPerception } from "@automovie/motions";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -30,19 +30,19 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
     a: IAutoMovieMotionHumanBody,
     b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
-    const side: string | undefined = pick("side");
+    const hand: string | undefined = pick("hand");
     const tangent: string | undefined = pick("tangent");
     return S.duo(a, b, 0.55, [
       S.chain().act("touch", {
         target: S.person(
           "b",
-          side === "left" ? "shoulderRight" : "shoulderLeft",
+          hand === "left" ? "shoulderRight" : "shoulderLeft",
         ),
         ...(tangent === undefined ? {} : { kind: "stroke", tangent }),
-        ...S.set(pick, "kind", "with"),
-        ...(side === undefined ? {} : { side }),
+        ...S.set(pick, "kind", "effector"),
+        ...(hand === undefined ? {} : { hand }),
       }),
-      S.chain("b").act("stand", { seconds: 8, sway: 0 }),
+      S.chain("b").act("stand", { hold: 8, sway: 0 }),
     ]);
   },
   handToFace: (
@@ -52,8 +52,8 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
     S.solo(
       a,
       S.chain().act("handToFace", {
-        task: pick("task") ?? "drink",
-        ...S.set(pick, "side"),
+        kind: pick("kind") ?? "drink",
+        ...S.set(pick, "hand"),
       }),
     ),
   kiss: (
@@ -66,8 +66,7 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
     // the left row was not the right row's mirror, and the two heads
     // stood the cheeks' distance apart (measured 0.1231 m).
     const region: string =
-      pick("region") ??
-      (pick("side") === "left" ? "cheekRight" : "cheekLeft");
+      pick("region") ?? (pick("side") === "left" ? "cheekRight" : "cheekLeft");
     const kiss: object = { partner: "b", region, ...S.set(pick, "side") };
     const hand: "left" | "right" | undefined =
       region === "handBackLeft"
@@ -78,7 +77,7 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
     if (hand === undefined)
       return S.duo(a, b, 0.45, [
         S.chain().act("kiss", kiss),
-        S.chain("b").act("stand", { seconds: 6, sway: 0 }),
+        S.chain("b").act("stand", { hold: 6, sway: 0 }),
       ]);
     // A hand kiss is given to a presented hand: the partner holds the hand
     // out, palm down, and the kisser bows to it (the baciamano), so b lays
@@ -88,31 +87,38 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
     // bow of the head and not a stoop (provisional), and the kisser stands that far again of
     // her own arm from the hand, where her bow meets it; b faces a, so b's
     // left lies toward -x.
-    const held: number = touch.REACH * (b.measure.upperArm + b.measure.forearm);
-    const gap: number = held + touch.REACH * (a.measure.upperArm + a.measure.forearm);
-    const across: number = (hand === "left" ? -1 : 1) * b.measure.shoulderHalfWidth;
+    const held: number =
+      AutoMovieMotionHumanTouch.touch.REACH *
+      (b.measure.upperArm + b.measure.forearm);
+    const gap: number =
+      held +
+      AutoMovieMotionHumanTouch.touch.REACH *
+        (a.measure.upperArm + a.measure.forearm);
+    const across: number =
+      (hand === "left" ? -1 : 1) * b.measure.shoulderHalfWidth;
     return S.duo(a, b, gap, [
       S.chain("b").act(
         "touch",
         {
-          target: S.point(
-            across,
-            a.measure.neckHeight,
-            gap - held,
-            { x: 0, y: 1, z: 0 },
-          ),
+          target: S.point(across, a.measure.neckHeight, gap - held, {
+            x: 0,
+            y: 1,
+            z: 0,
+          }),
           kind: "hold",
-          with: "palm",
-          side: hand,
+          effector: "palm",
+          hand: hand,
           hold: 6,
         },
         "presented",
       ),
       // The kisser sees the hand a reaction time after it is held out
       // (`HumanPerception.REACTION`, the delay a partner's region is read at).
-      S.chain()
-        .act("kiss", kiss)
-        .sync({ of: "presented", event: "ready", offset: HumanPerception.REACTION }),
+      S.chain().act("kiss", kiss).sync({
+        of: "presented",
+        event: "ready",
+        offset: HumanPerception.REACTION,
+      }),
     ]);
   },
   highFive: (
@@ -120,7 +126,7 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
     a: IAutoMovieMotionHumanBody,
     b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
-    const params: object = S.set(pick, "kind", "side");
+    const params: object = S.set(pick, "kind", "hand");
     return S.duo(a, b, 0.7, [
       S.chain().act("highFive", { partner: "b", ...params }),
       S.chain("b").act("highFive", { partner: "a", ...params }),
@@ -134,7 +140,7 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
       a,
       S.chain().act("selfAction", {
         kind: pick("kind") ?? "stretch",
-        ...S.set(pick, "side"),
+        ...S.set(pick, "hand"),
       }),
     ),
 };

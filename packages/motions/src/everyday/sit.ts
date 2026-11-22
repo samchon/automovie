@@ -1,7 +1,4 @@
-import {
-  minimumJerk,
-} from "@automovie/engine";
-import { HumanPhysics } from "../law/HumanPhysics";
+import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -19,7 +16,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
@@ -29,8 +25,10 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountOn } from "../lexicon/HumanMountOn";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareSitBalance } from "./prepareSitBalance";
 import { prepareSitLowering } from "./prepareSitLowering";
 import { prepareSitWorkingFeet } from "./prepareSitWorkingFeet";
@@ -99,10 +97,20 @@ export namespace sit {
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: [0, "commit"], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: [0, "commit"],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
     rise: [
-      { window: ["seatContact", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["seatContact", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
     shift: [{ window: ["seated", 1], kind: "inertialize", entry: 0 }],
   };
@@ -162,7 +170,8 @@ export namespace sit {
     // boat's or a stage's as well as the ground.
     const under: number = seated.floor(body, context.entry);
     seated.check(body, seat, under);
-    const back: NonNullable<IAutoMovieMotionHumanSit.IParams["back"]> = context.params.back ?? "upright";
+    const back: NonNullable<IAutoMovieMotionHumanSit.IParams["back"]> =
+      context.params.back ?? "upright";
     if (back === "lean" && seat.back === undefined)
       throw new HumanRefusal({
         kind: "affordance",
@@ -178,12 +187,21 @@ export namespace sit {
         kind: "base",
         axis: "seat",
         value: turn,
-        feasible: { kind: "range", minimum: -FACING, maximum: FACING, unit: "degrees" },
+        feasible: {
+          kind: "range",
+          minimum: -FACING,
+          maximum: FACING,
+          unit: "degrees",
+        },
         reason: `stands ${turn.toFixed(1)} degrees off the seat's heading; turn to within ${FACING} degrees of facing away from the seat first`,
         fix: `turn to within ${FACING} degrees of facing away from the seat first, or turn the seat`,
       });
     if (seated.high(body, seat, under) || seat.astride === true)
-      return sitCarried(context, seat, HumanMountOn.plan(context, seat, sitPlace.BACKS[back], turn));
+      return sitCarried(
+        context,
+        seat,
+        HumanMountOn.plan(context, seat, sitPlace.BACKS[back], turn),
+      );
     // The feet stand on that floor.
     const entered: Record<AutoMovieHumanSide, IAutoMovieVector3> = stand.feet(
       body,
@@ -198,7 +216,8 @@ export namespace sit {
     };
     const adjusted: ReturnType<typeof prepareSitWorkingFeet> =
       prepareSitWorkingFeet(context, entered, goal, final.pitch, relaxed);
-    const feet: Record<AutoMovieHumanSide, IAutoMovieVector3> = adjusted?.feet ?? entered;
+    const feet: Record<AutoMovieHumanSide, IAutoMovieVector3> =
+      adjusted?.feet ?? entered;
     sitPlace.reach(body, seat, goal, feet, final.pitch);
 
     const r: number = seated.ratio(body, seat, under);
@@ -208,15 +227,18 @@ export namespace sit {
     const peak: number = seatedCourse.flexion(r);
     const contact: number = CONTACT * descent;
     const across: number = ACROSS * descent;
-    const hold: number = context.params.seconds ?? 1;
-    HumanBound.least("seconds", hold, 0, "s");
+    const hold: number = context.params.hold ?? 1;
+    HumanBound.least("hold", hold, 0, "s");
     const duration: number = descent + hold;
     const yaw0: number = context.entry.posture.yaw;
-    const start: IAutoMovieVector3 = seated.socket(body, adjusted?.entry ?? context.entry.posture);
+    const start: IAutoMovieVector3 = seated.socket(
+      body,
+      adjusted?.entry ?? context.entry.posture,
+    );
 
     // Crossed at the ankles: once seated the left foot lifts and is set down ahead of the right ankle and across it, by shares of the feet's own spacing at rest (provisional).
     const crossed: boolean = context.params.legs === "crossed";
-    if (crossed) HumanBound.least("seconds", hold, CROSS, "s");
+    if (crossed) HumanBound.least("hold", hold, CROSS, "s");
     const apart: number = Math.abs(
       body.rest.get("leftFoot")!.x - body.rest.get("rightFoot")!.x,
     );
@@ -243,14 +265,19 @@ export namespace sit {
       const share: number = crossed
         ? minimumJerk.share((t - descent) / CROSS)
         : 0;
-      const limbs: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(body, root, yaw, {
-        left: {
-          x: feet.left.x + (crossing.x - feet.left.x) * share,
-          y: feet.left.y + CROSSED.lift * apart * Math.sin(Math.PI * share),
-          z: feet.left.z + (crossing.z - feet.left.z) * share,
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(
+        body,
+        root,
+        yaw,
+        {
+          left: {
+            x: feet.left.x + (crossing.x - feet.left.x) * share,
+            y: feet.left.y + CROSSED.lift * apart * Math.sin(Math.PI * share),
+            z: feet.left.z + (crossing.z - feet.left.z) * share,
+          },
+          right: feet.right,
         },
-        right: feet.right,
-      });
+      );
       return share > 0 && share < 1
         ? { ...limbs, leftLeg: { ...limbs.leftLeg!, planted: false } }
         : limbs;
@@ -323,8 +350,11 @@ export namespace sit {
     // the planted lower body is the delivered seat key for the entire hold.
     const settled = (t: number): boolean =>
       t >= descent && (!crossed || (t - descent) / CROSS >= 1);
-    const seatedKey: IAutoMovieMotionHumanPosture | undefined =
-      settled(duration) ? lowered(duration, 1) : undefined;
+    const seatedKey: IAutoMovieMotionHumanPosture | undefined = settled(
+      duration,
+    )
+      ? lowered(duration, 1)
+      : undefined;
     const lowering: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
@@ -343,8 +373,10 @@ export namespace sit {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return sitHands(
           body,
-          seatedKey !== undefined && settled(t) &&
-          resolution !== undefined && prepareHumanPoseResolution.isNativeSource(resolution)
+          seatedKey !== undefined &&
+            settled(t) &&
+            resolution !== undefined &&
+            prepareHumanPoseResolution.isNativeSource(resolution)
             ? structuredClone(seatedKey)
             : lowered(t, travel(t), resolution),
           (side: "left" | "right"): number => hand(side, t),
@@ -377,8 +409,12 @@ export namespace sit {
         goal: (
           posture: IAutoMovieMotionHumanPosture,
           _seconds: number,
-          resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-          projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+          resolution?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[2],
+          projection?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[3],
         ): IAutoMovieHumanLimbGoal =>
           rest === undefined
             ? seated.hands(body, posture, side, resolution, projection)[
@@ -410,18 +446,39 @@ export namespace sit {
       return minimumJerk.share((t - s.start) / (s.ready - s.start));
     }
 
-    const { clock, window, travel }: ReturnType<typeof prepareSitBalance> = prepareSitBalance({
-      context, start, goal, yaw0, across, contact, descent, duration,
-      prefix: adjusted?.prefix.duration ?? 0, shares: SHARES, lowered,
-    });
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: lowering,
-      clock,
-      primitives: [arm("left"), arm("right")],
-      contact: "seatContact",
-    });
-    const planned: IAutoMovieMotionHumanActionPlan = { ...composed, base: lowering.base, ...HumanPhysics.declared(context.params, window) };
+    const { clock, window, travel }: ReturnType<typeof prepareSitBalance> =
+      prepareSitBalance({
+        context,
+        start,
+        goal,
+        yaw0,
+        across,
+        contact,
+        descent,
+        duration,
+        prefix: adjusted?.prefix.duration ?? 0,
+        shares: SHARES,
+        lowered,
+      });
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: lowering,
+        clock,
+        primitives: [arm("left"), arm("right")],
+        contact: "seatContact",
+      });
+    const planned: IAutoMovieMotionHumanActionPlan = {
+      ...composed,
+      base: lowering.base,
+      ...HumanPhysics.declared(context.params, window),
+    };
     // A seat on a prop that may move carries the sit with it (`sitCarried`).
-    return sitCarried(context, seat, adjusted === undefined ? planned : prepareSitWorkingFeet.prepend(adjusted.prefix, planned));
+    return sitCarried(
+      context,
+      seat,
+      adjusted === undefined
+        ? planned
+        : prepareSitWorkingFeet.prepend(adjusted.prefix, planned),
+    );
   }
 }

@@ -7,7 +7,11 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance, jump } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanJump,
+  HumanChain,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -39,7 +43,7 @@ export function test_motion_dynamics_flight_resolution_ownership(): void {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("a").stand({ seconds: 0.3, sway: 0 }).node,
+    composition: HumanChain.subject("a").stand({ hold: 0.3, sway: 0 }).node,
   });
   const entry: IAutoMovieMotionHumanSegment = standing.segments("a")[0]!;
   const plan: (
@@ -47,7 +51,7 @@ export function test_motion_dynamics_flight_resolution_ownership(): void {
   ) => IAutoMovieMotionHumanActionPlan = (
     rotation?: IAutoMovieMotionHumanJump.IParams["rotation"],
   ): IAutoMovieMotionHumanActionPlan =>
-    jump.plan({
+    AutoMovieMotionHumanJump.jump.plan({
       ...entry.context,
       params: {
         to: { x: 0, y: 0, z: 1 },

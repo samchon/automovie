@@ -40,8 +40,8 @@ export function test_motion_contact_hold_on_step(): void {
   const params: IAutoMovieMotionHumanCarry.IParams = {
     to: { x: 0, y: 0, z: 2.5 },
     load: 0.15,
-    how: "oneHand",
-    side: "left",
+    kind: "oneHand",
+    hand: "left",
     manner: AutoMovieMotionManner.PRESETS.weary,
   };
   const actor: IAutoMovieMotionHumanChain = HumanChain.subject("a");

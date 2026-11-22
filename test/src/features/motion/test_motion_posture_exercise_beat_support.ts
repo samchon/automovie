@@ -42,13 +42,13 @@ export function test_motion_posture_exercise_beat_support(): void {
       ],
       composition: chain.node,
     });
-  const chain = () => HumanChain.subject("dancer").stand({ seconds: 0.3 });
+  const chain = () => HumanChain.subject("dancer").stand({ hold: 0.3 });
   const period = 0.5,
     beats = 6;
   const dance = perform(
     chain()
       .registered("boxStep", { bpm: 60 / period, beats })
-      .stand({ seconds: 0.3 }),
+      .stand({ hold: 0.3 }),
   );
   const start = dance.segments("dancer")[1]!.start;
   const ankle = (
@@ -87,7 +87,7 @@ export function test_motion_posture_exercise_beat_support(): void {
     const stretch = perform(
       chain().stretch({
         kind: "neckSide",
-        ...(seconds === undefined ? {} : { seconds }),
+        ...(seconds === undefined ? {} : { hold: seconds }),
       }),
     );
     const segment = stretch.segments("dancer")[1]!;

@@ -69,7 +69,7 @@ export function test_motion_exercise_run_entry_speed(): void {
   // 1. A run cut at a left footfall into a second run.
   const plain: HumanPerformance = film(
     HumanChain.subject("a")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .run({ to: { x: 0, y: 0, z: 30 }, pace: "run" }).node,
   );
   const first: IAutoMovieMotionHumanSegment = plain.segments("a")[1]!;
@@ -82,7 +82,7 @@ export function test_motion_exercise_run_entry_speed(): void {
     throw new Error("The run has no left footfall after 2 s");
   const recut: HumanPerformance = film(
     HumanChain.subject("a")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .run({ to: { x: 0, y: 0, z: 30 }, pace: "run" })
       .until({ event: cut })
       .run({ to: { x: 0, y: 0, z: 40 }, pace: "run" }).node,

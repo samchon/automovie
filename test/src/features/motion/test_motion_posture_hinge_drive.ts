@@ -16,11 +16,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  operate,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -87,7 +87,7 @@ export function test_motion_posture_hinge_drive(): void {
     HumanChain.subject(who).operate(
       {
         hand: who === "a" ? "right" : "left",
-        mechanism: {
+        kind: {
           kind: "slider",
           at: { kind: "prop", subject: "chest", point: handle.id },
           travel: 0.1,
@@ -225,7 +225,7 @@ function checkKnobWriters(): void {
     HumanChain.subject(who).operate(
       {
         hand: who === "a" ? "right" : "left",
-        mechanism: {
+        kind: {
           kind: "knob",
           at: { kind: "prop", subject: "mechanism", point },
           turn: amount,
@@ -355,14 +355,14 @@ function checkDoorStroke(): void {
     ],
     composition: HumanChain.subject("operator")
       .operate({
-        mechanism: {
+        kind: {
           kind: "hinge",
           at: { kind: "prop", subject: "door", point: "pull" },
           hinge: { kind: "prop", subject: "door", point: "hinge" },
           swing,
         },
       })
-      .stand({ seconds: 1 }).node,
+      .stand({ hold: 1 }).node,
   });
   const stroke = performance.segments("operator")[0]!;
   const drives = stroke.plan.drives!;
@@ -417,7 +417,7 @@ function checkDoorStroke(): void {
   );
   const place = { point: { x: 1, y: 1, z: 0 }, normal: { x: 0, y: 0, z: 1 } };
   const at = { kind: "point", frame: "world", at: origin } as const;
-  const lid = operate.state(
+  const lid = AutoMovieMotionHumanOperate.operate.state(
     { kind: "hinge", at, swing: 90 },
     place,
     { point: origin, axis: { x: 1, y: 0, z: 0 } },
@@ -427,7 +427,7 @@ function checkDoorStroke(): void {
     "horizontal lid rotates through a quarter circle",
     nclose(lid.point.x, 1) && nclose(lid.point.y, 0) && nclose(lid.point.z, 1),
   );
-  const upright = operate.state(
+  const upright = AutoMovieMotionHumanOperate.operate.state(
     { kind: "hinge", at, swing: 90 },
     place,
     { point: origin },
@@ -441,7 +441,7 @@ function checkDoorStroke(): void {
   );
   const travel = 0.01;
   for (const progress of [0, 0.5, 1]) {
-    const button = operate.state(
+    const button = AutoMovieMotionHumanOperate.operate.state(
       { kind: "button", at, travel },
       place,
       undefined,

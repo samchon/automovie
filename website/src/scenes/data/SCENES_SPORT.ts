@@ -16,76 +16,81 @@ const WARM_UP: SceneBuild.Composition = scene("warm-up", [
   person("jo", "m1", -2.4, 0, 0, [
     { name: "run", params: { to: to(-2.4, 4), pace: "jog" } },
     { name: "run", params: { to: to(-2.4, 0.5), pace: "jog" } },
-    { name: "buttKicks", params: { reps: 4 } },
+    { name: "buttKicks", params: { count: 4 } },
     {
       name: "exercise",
-      params: { kind: "highKnees", reps: 4, tempo: [0.6, 0, 0.6] },
+      params: { kind: "highKnees", count: 4, tempo: [0.6, 0, 0.6] },
     },
   ]),
   person("kim", "f1", -0.8, 1.5, 180, [
     {
       name: "exercise",
-      params: { kind: "squat", reps: 3, depth: "parallel", tempo: [1, 0, 0.8] },
+      params: {
+        kind: "squat",
+        count: 3,
+        depth: "parallel",
+        tempo: [1, 0, 0.8],
+      },
     },
     {
       name: "exercise",
-      params: { kind: "lunge", side: "left", reps: 2, tempo: [1, 0, 0.8] },
+      params: { kind: "lunge", side: "left", count: 2, tempo: [1, 0, 0.8] },
     },
     {
       name: "exercise",
-      params: { kind: "lunge", side: "right", reps: 2, tempo: [1, 0, 0.8] },
+      params: { kind: "lunge", side: "right", count: 2, tempo: [1, 0, 0.8] },
     },
   ]),
   person("lou", "m2", 0.8, 1.5, 180, [
     {
       name: "exercise",
-      params: { kind: "jumpingJack", reps: 4, tempo: [0.5, 0, 0.5] },
+      params: { kind: "jumpingJack", count: 4, tempo: [0.5, 0, 0.5] },
     },
-    { name: "stand", params: { seconds: 0.4 } },
+    { name: "stand", params: { hold: 0.4 } },
     { name: "jump", params: { to: to(0.8, 1.1) } },
     {
       name: "exercise",
-      params: { kind: "highKnees", reps: 3, tempo: [0.6, 0, 0.6] },
+      params: { kind: "highKnees", count: 3, tempo: [0.6, 0, 0.6] },
     },
     {
       name: "exercise",
-      params: { kind: "jumpingJack", reps: 3, tempo: [0.5, 0, 0.5] },
+      params: { kind: "jumpingJack", count: 3, tempo: [0.5, 0, 0.5] },
     },
   ]),
   person("mo", "f2", 2.4, 1.5, 180, [
     {
       name: "stretch",
-      params: { kind: "quadriceps", side: "left", seconds: 1.5 },
+      params: { kind: "quadriceps", side: "left", hold: 1.5 },
     },
     {
       name: "stretch",
-      params: { kind: "overheadSide", side: "right", seconds: 1.5 },
+      params: { kind: "overheadSide", side: "right", hold: 1.5 },
     },
     {
       name: "exercise",
-      params: { kind: "highKnees", reps: 4, tempo: [0.6, 0, 0.6] },
+      params: { kind: "highKnees", count: 4, tempo: [0.6, 0, 0.6] },
     },
   ]),
 ]);
 
 const DANCE_CIRCLE: SceneBuild.Composition = scene("dance-circle", [
   person("ny", "f1", 0, 0, 0, [
-    { name: "dance", params: { kind: "bounce", bpm: 112, beats: 6 } },
-    { name: "dance", params: { kind: "stepTouch", bpm: 112, beats: 6 } },
-    { name: "dance", params: { kind: "sway", bpm: 112, beats: 6 } },
-    { name: "dance", params: { kind: "boxStep", bpm: 112, beats: 6 } },
+    { name: "dance", params: { kind: "bounce", bpm: 112, count: 6 } },
+    { name: "dance", params: { kind: "stepTouch", bpm: 112, count: 6 } },
+    { name: "dance", params: { kind: "sway", bpm: 112, count: 6 } },
+    { name: "dance", params: { kind: "boxStep", bpm: 112, count: 6 } },
   ]),
   person("ol", "m1", 1.04, 1.8, 240, [
-    { name: "dance", params: { kind: "sway", bpm: 112, beats: 6 } },
-    { name: "dance", params: { kind: "bounce", bpm: 112, beats: 6 } },
-    { name: "dance", params: { kind: "stepTouch", bpm: 112, beats: 6 } },
-    { name: "dance", params: { kind: "boxStep", bpm: 112, beats: 6 } },
+    { name: "dance", params: { kind: "sway", bpm: 112, count: 6 } },
+    { name: "dance", params: { kind: "bounce", bpm: 112, count: 6 } },
+    { name: "dance", params: { kind: "stepTouch", bpm: 112, count: 6 } },
+    { name: "dance", params: { kind: "boxStep", bpm: 112, count: 6 } },
   ]),
   person("pia", "f2", -1.04, 1.8, 120, [
-    { name: "dance", params: { kind: "stepTouch", bpm: 112, beats: 6 } },
-    { name: "dance", params: { kind: "sway", bpm: 112, beats: 6 } },
-    { name: "dance", params: { kind: "bounce", bpm: 112, beats: 6 } },
-    { name: "dance", params: { kind: "boxStep", bpm: 112, beats: 6 } },
+    { name: "dance", params: { kind: "stepTouch", bpm: 112, count: 6 } },
+    { name: "dance", params: { kind: "sway", bpm: 112, count: 6 } },
+    { name: "dance", params: { kind: "bounce", bpm: 112, count: 6 } },
+    { name: "dance", params: { kind: "boxStep", bpm: 112, count: 6 } },
   ]),
 ]);
 
@@ -104,46 +109,46 @@ const COURT: SceneBuild.Composition = scene("court", [
     { name: "ballSport", params: { kind: "set" } },
   ]),
   person("sol", "m1", 0.8, 0, 0, [
-    { name: "baseball", params: { kind: "catcherCrouch", seconds: 2 } },
-    { name: "baseball", params: { kind: "groundBall", seconds: 1.8 } },
-    { name: "baseball", params: { kind: "catcherCrouch", seconds: 2 } },
-    { name: "baseball", params: { kind: "groundBall", seconds: 1.8 } },
+    { name: "baseball", params: { kind: "catcherCrouch", hold: 2 } },
+    { name: "baseball", params: { kind: "groundBall", hold: 1.8 } },
+    { name: "baseball", params: { kind: "catcherCrouch", hold: 2 } },
+    { name: "baseball", params: { kind: "groundBall", hold: 1.8 } },
   ]),
   person("tam", "f2", 2.3, 0, 0, [
-    { name: "racket", params: { kind: "readyPosition", seconds: 1.35 } },
-    { name: "racket", params: { kind: "splitStep", seconds: 1.35 } },
-    { name: "racket", params: { kind: "readyPosition", seconds: 1.35 } },
-    { name: "racket", params: { kind: "splitStep", seconds: 1.35 } },
-    { name: "athletics", params: { seconds: 2 } },
+    { name: "racket", params: { kind: "readyPosition", hold: 1.35 } },
+    { name: "racket", params: { kind: "splitStep", hold: 1.35 } },
+    { name: "racket", params: { kind: "readyPosition", hold: 1.35 } },
+    { name: "racket", params: { kind: "splitStep", hold: 1.35 } },
+    { name: "athletics", params: { hold: 2 } },
   ]),
 ]);
 
 const GYMNASTICS: SceneBuild.Composition = scene("gymnastics-floor", [
   person("uma", "f1", -1, 0, 0, [
-    { name: "gymnastics", params: { seconds: 1.5 } },
+    { name: "gymnastics", params: { hold: 1.5 } },
     { name: "cartwheelRight", params: {} },
-    { name: "stand", params: { seconds: 0.3 } },
+    { name: "stand", params: { hold: 0.3 } },
     { name: "forwardRoll", params: {} },
     { name: "kneel", params: { kind: "both", hold: 0.5 } },
   ]),
   person("vic", "m1", 1, 0, 0, [
     { name: "forwardRoll", params: {} },
     { name: "backwardRoll", params: {} },
-    { name: "gymnastics", params: { seconds: 1 } },
-    { name: "crawl", params: { cycles: 2 } },
+    { name: "gymnastics", params: { hold: 1 } },
+    { name: "crawl", params: { count: 2 } },
   ]),
 ]);
 
 const POOL: SceneBuild.Composition = scene("pool", [
   person("wil", "m2", -0.8, 0, 0, [
-    { name: "swim", params: { kind: "frontCrawl", cycles: 6 } },
-    { name: "swim", params: { kind: "treadWater", cycles: 1 } },
-    { name: "swim", params: { kind: "backstroke", cycles: 4 } },
+    { name: "swim", params: { kind: "frontCrawl", count: 6 } },
+    { name: "swim", params: { kind: "treadWater", count: 1 } },
+    { name: "swim", params: { kind: "backstroke", count: 4 } },
   ]),
   person("xia", "f2", 0.8, 0, 0, [
-    { name: "swim", params: { kind: "treadWater", cycles: 2 } },
-    { name: "swim", params: { kind: "breaststroke", cycles: 5 } },
-    { name: "swim", params: { kind: "frontCrawl", cycles: 4 } },
+    { name: "swim", params: { kind: "treadWater", count: 2 } },
+    { name: "swim", params: { kind: "breaststroke", count: 5 } },
+    { name: "swim", params: { kind: "frontCrawl", count: 4 } },
   ]),
 ]);
 

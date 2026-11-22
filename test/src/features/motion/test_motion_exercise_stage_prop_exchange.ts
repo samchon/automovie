@@ -264,7 +264,7 @@ function shaft(
       },
       "circle",
     )
-    .stand({ seconds: 0.6, sway: 0 });
+    .stand({ hold: 0.6, sway: 0 });
   const film: HumanPerformance = perform(body, [prop], carrier, [
     "eight",
     "circle",
@@ -328,7 +328,7 @@ function shield(
       { beat: "rim", prop: "shield", hand: "left", mark: "rim" },
       "rim",
     )
-    .stand({ seconds: 0.6, sway: 0 });
+    .stand({ hold: 0.6, sway: 0 });
   const film: HumanPerformance = perform(
     body,
     [shieldProp, swordProp],

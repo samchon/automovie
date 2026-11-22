@@ -7,7 +7,11 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance, thrown } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanFall,
+  HumanChain,
+  HumanPerformance,
+} from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
@@ -50,7 +54,7 @@ export function test_motion_reaction_thrown_wall(): void {
     try {
       const film: HumanPerformance = new HumanPerformance({
         seed: "thrown-wall",
-        laws: [thrown],
+        laws: [AutoMovieMotionHumanFall.thrown],
         props: [wall()],
         performers: [
           {
@@ -62,8 +66,8 @@ export function test_motion_reaction_thrown_wall(): void {
           },
         ],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3, sway: 0 })
-          .registered(thrown.name, {
+          .stand({ hold: 0.3, sway: 0 })
+          .registered(AutoMovieMotionHumanFall.thrown.name, {
             rig: "blast",
             from: { kind: "point", at: { x: 0, y: 1, z: 2 }, frame: "world" },
             distance: 3,

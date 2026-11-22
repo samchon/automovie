@@ -150,13 +150,13 @@ function scene(
   const edge: number = knees - b.measure.thigh / 2 + a.measure.thigh - 0.05;
   const partner: IAutoMovieComposition = (
     sitting
-      ? HumanChain.subject("b").sit({ seat: chair, seconds: 0.5 })
-      : HumanChain.subject("b").stand({ seconds: 3 })
+      ? HumanChain.subject("b").sit({ seat: chair, hold: 0.5 })
+      : HumanChain.subject("b").stand({ hold: 3 })
   ).node;
   // The sitter waits, facing away, while the partner sits.
   const sitter: IAutoMovieComposition = HumanChain.subject("a")
-    .stand({ seconds: 3 })
-    .registered(sitOnLap.name, { partner: "b", seconds: 0.5 }).node;
+    .stand({ hold: 3 })
+    .registered(sitOnLap.name, { partner: "b", hold: 0.5 }).node;
 
   const off: IAutoMovieComposition = HumanChain.subject("a").rise({}).node;
   return {

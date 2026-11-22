@@ -51,8 +51,7 @@ export function test_motion_posture_sit_keeps_hold(): void {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("a").sit({ seat: chair, seconds: 0.5 })
-      .node,
+    composition: HumanChain.subject("a").sit({ seat: chair, hold: 0.5 }).node,
   });
   try {
     assertTakeClean("a plain sit", plain);
@@ -83,7 +82,7 @@ export function test_motion_posture_sit_keeps_hold(): void {
     ],
     composition: HumanChain.subject("a")
       .pickUp({ prop: "glass", handle: "body", hand: "right" })
-      .sit({ seat: chair, seconds: 0.5 })
+      .sit({ seat: chair, hold: 0.5 })
       .rise().node,
   });
   const rose: IAutoMovieMotionHumanSegment | undefined = film

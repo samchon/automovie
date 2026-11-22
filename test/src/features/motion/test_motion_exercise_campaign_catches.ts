@@ -17,12 +17,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   stageCatch,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,12 +36,12 @@ const holding = (
   name: string,
   holds: readonly IHold[],
 ): IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> => ({
-  ...stand,
+  ...AutoMovieMotionHumanStance.stand,
   name,
   plan: (
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
   ): IAutoMovieMotionHumanActionPlan => ({
-    ...stand.plan(context),
+    ...AutoMovieMotionHumanStance.stand.plan(context),
     holds: holds.map((hold: IHold) => ({ ...hold, from: 0 })),
   }),
 });
@@ -90,7 +90,7 @@ export function test_motion_exercise_campaign_catches(): void {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("thrower").stand({ seconds: 0.2, sway: 0 })
+    composition: HumanChain.subject("thrower").stand({ hold: 0.2, sway: 0 })
       .node,
   });
   const hand: IAutoMovieVector3 = HumanHand.frame(
@@ -140,11 +140,11 @@ export function test_motion_exercise_campaign_catches(): void {
             .throwObject(
               {
                 prop: "ball",
-                at: { kind: "point", frame: "world", at: aim },
+                target: { kind: "point", frame: "world", at: aim },
               },
               "throw",
             )
-            .stand({ seconds: 1.5, sway: 0 }).node,
+            .stand({ hold: 1.5, sway: 0 }).node,
           catcher.node,
         ),
       });
@@ -218,7 +218,7 @@ export function test_motion_exercise_campaign_catches(): void {
       },
     ],
     HumanChain.subject("receiver")
-      .stand({ seconds: 0.2, sway: 0 })
+      .stand({ hold: 0.2, sway: 0 })
       .registered("stageCatch", {
         from: "throw",
         ball: "ball",
@@ -259,7 +259,7 @@ export function test_motion_exercise_campaign_catches(): void {
     ],
     // The catch is laid over the held sit, so the player catches seated.
     HumanChain.subject("seated")
-      .sit({ seat: { at: seat, yaw: 180 }, seconds: 3 })
+      .sit({ seat: { at: seat, yaw: 180 }, hold: 3 })
       .over((upper) =>
         upper
           .registered("stageCatch", {

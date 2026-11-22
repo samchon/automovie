@@ -17,7 +17,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanBicycleEffort,
+  AutoMovieMotionHumanRide,
   HumanChain,
   HumanFoot,
   HumanFrame,
@@ -109,11 +109,13 @@ function take(key: BodyKey, failures: string[]): void {
     origin,
   );
   const chain: IAutoMovieMotionHumanChain.IExtension<{
-    bicycleEffort: typeof HumanBicycleEffort;
-  }> = HumanChain.extend({ bicycleEffort: HumanBicycleEffort });
+    bicycleEffort: typeof AutoMovieMotionHumanRide.bicycleEffort;
+  }> = HumanChain.extend({
+    bicycleEffort: AutoMovieMotionHumanRide.bicycleEffort,
+  });
   const sit: ReturnType<typeof chain.subject> = chain.subject("cyclist").sit({
     seat: saddle,
-    seconds: 0.5,
+    hold: 0.5,
   });
   const performer: ConstructorParameters<
     typeof HumanPerformance
@@ -153,14 +155,14 @@ function take(key: BodyKey, failures: string[]): void {
   const performance: HumanPerformance = new HumanPerformance({
     seed: "road-cycling",
     performers: [performer],
-    laws: [HumanBicycleEffort],
+    laws: [AutoMovieMotionHumanRide.bicycleEffort],
     props: [prop],
     composition: sit.bicycleEffort({
       on: "bicycle",
       seat: "saddle",
       feet: { left: "leftPedal", right: "rightPedal" },
       hands: { left: "leftGrip", right: "rightGrip" },
-      seconds: ride.duration,
+      duration: ride.duration,
       seatOff,
       up: route.when(standsAt),
       lower: route.when(lowersAt),

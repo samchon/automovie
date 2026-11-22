@@ -12,7 +12,11 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance, stand } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanStance,
+  HumanChain,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -72,12 +76,12 @@ export function test_human_motion_prop_hit_sync(): void {
   };
   const publish: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
     {
-      ...stand,
+      ...AutoMovieMotionHumanStance.stand,
       name: "stageFoamLaunch",
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
       ): IAutoMovieMotionHumanActionPlan => ({
-        ...stand.plan(context),
+        ...AutoMovieMotionHumanStance.stand.plan(context),
         launches: [launch],
       }),
     };

@@ -2,13 +2,15 @@ import type { IAutoMovieMotionHumanBend } from "../everyday/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHumanCrouch";
 import type { IAutoMovieMotionHumanKneel } from "../everyday/IAutoMovieMotionHumanKneel";
 import type { IAutoMovieMotionHumanBallet } from "../exercise/IAutoMovieMotionHumanBallet";
-import type { IAutoMovieMotionHumanDance } from "../exercise/IAutoMovieMotionHumanDance";
 import type { IAutoMovieMotionHumanExercise } from "../exercise/IAutoMovieMotionHumanExercise";
 import type { IAutoMovieMotionHumanGroupDance } from "../exercise/IAutoMovieMotionHumanGroupDance";
 import type { IAutoMovieMotionHumanStreetDance } from "../exercise/IAutoMovieMotionHumanStreetDance";
 import type { IAutoMovieMotionHumanStretch } from "../exercise/IAutoMovieMotionHumanStretch";
 import type { IAutoMovieMotionHumanTapDance } from "../exercise/IAutoMovieMotionHumanTapDance";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
+import type { IAutoMovieMotionHumanDance } from "../next/IAutoMovieMotionHumanDance";
+import type { IAutoMovieMotionHumanSittingVolley } from "../next/IAutoMovieMotionHumanSittingVolley";
+import type { IAutoMovieMotionHumanSwim } from "../next/IAutoMovieMotionHumanSwim";
 import type { IAutoMovieMotionHumanAquatic } from "../sport/IAutoMovieMotionHumanAquatic";
 import type { IAutoMovieMotionHumanAthletics } from "../sport/IAutoMovieMotionHumanAthletics";
 import type { IAutoMovieMotionHumanBallSport } from "../sport/IAutoMovieMotionHumanBallSport";
@@ -17,11 +19,9 @@ import type { IAutoMovieMotionHumanGymnastics } from "../sport/IAutoMovieMotionH
 import type { IAutoMovieMotionHumanMartialArt } from "../sport/IAutoMovieMotionHumanMartialArt";
 import type { IAutoMovieMotionHumanRacket } from "../sport/IAutoMovieMotionHumanRacket";
 import type { IAutoMovieMotionHumanStickBall } from "../sport/IAutoMovieMotionHumanStickBall";
-import type { IAutoMovieMotionHumanSwim } from "../sport/IAutoMovieMotionHumanSwim";
 import type { IAutoMovieMotionHumanSwimImmersed } from "../sport/IAutoMovieMotionHumanSwimImmersed";
 import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHumanStep";
 import type { IAutoMovieMotionHumanLexiconSurfaceParams } from "./IAutoMovieMotionHumanLexiconSurfaceParams";
-import type { IAutoMovieMotionHumanSittingVolley } from "./IAutoMovieMotionHumanSittingVolley";
 
 /**
  * Open parameters of the sport lexicon family, keyed by each runtime export name.
@@ -39,7 +39,7 @@ export interface IAutoMovieMotionHumanLexiconSportParams extends IAutoMovieMotio
   stickBall: IAutoMovieMotionHumanStickBall.IParams;
 
   /** Move into a floor-seated volleyball receive. */
-  HumanSittingVolley: IAutoMovieMotionHumanSittingVolley;
+  HumanSittingVolley: IAutoMovieMotionHumanSittingVolley.ISittingVolley;
 
   /** Walking-free lunges in place. */
   lunges: Omit<IAutoMovieMotionHumanExercise.IParams, "kind">;
@@ -132,10 +132,10 @@ export interface IAutoMovieMotionHumanLexiconSportParams extends IAutoMovieMotio
   hipFlexorStretch: Omit<IAutoMovieMotionHumanKneel.IParams, "kind" | "hold">;
 
   /** The corpse pose of yoga: lying on the back, ten seconds (provisional). */
-  corpsePose: Omit<IAutoMovieMotionHumanLieDown.IParams, "position" | "hold">;
+  corpsePose: Omit<IAutoMovieMotionHumanLieDown.IParams, "kind" | "hold">;
 
   /** A standing hamstring stretch: a bend down to the right foot, held twenty seconds (provisional). */
-  toeTouch: Omit<IAutoMovieMotionHumanBend.IParams, "toward" | "hold">;
+  toeTouch: Omit<IAutoMovieMotionHumanBend.IParams, "target" | "hold">;
 
   /** Treading water. */
   treadWater: Omit<IAutoMovieMotionHumanSwim.IParams, "kind">;

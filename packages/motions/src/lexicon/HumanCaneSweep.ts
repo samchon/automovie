@@ -92,8 +92,8 @@ export const HumanCaneSweep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
     ): IAutoMovieMotionHumanActionPlan => {
       const p: IAutoMovieMotionHumanCaneSweep = context.params;
       const body: IAutoMovieMotionHumanBody = context.body;
-      HumanBound.above("seconds", p.seconds, 0, "s");
-      const side: AutoMovieHumanSide = p.side ?? "right";
+      HumanBound.above("duration", p.duration, 0, "s");
+      const side: AutoMovieHumanSide = p.hand ?? "right";
       const carrier: IAutoMovieMotionHumanActionContext["carrier"] =
         context.carrier;
       if (carrier === undefined)
@@ -130,13 +130,13 @@ export const HumanCaneSweep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
 
       // The walk's landings, from its planted legs, while the hand holds the
       // cane pose: after the reach to it and before the return from it.
-      const ready: number = Math.min(REACH, p.seconds / 2);
-      const relax: number = Math.max(p.seconds / 2, p.seconds - RETURN);
+      const ready: number = Math.min(REACH, p.duration / 2);
+      const relax: number = Math.max(p.duration / 2, p.duration - RETURN);
       const touches: ITouch[] = [];
-      const steps: number = Math.ceil(p.seconds * RATE);
+      const steps: number = Math.ceil(p.duration * RATE);
       let before: Record<AutoMovieHumanSide, boolean> | undefined;
       for (let k: number = 0; k <= steps; ++k) {
-        const t: number = (k / steps) * p.seconds;
+        const t: number = (k / steps) * p.duration;
         if (t < ready || t > relax) continue;
         const posture: IAutoMovieMotionHumanPosture = carrier.posture(t);
         const now: Record<AutoMovieHumanSide, boolean> = {
@@ -152,8 +152,8 @@ export const HumanCaneSweep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
       if (touches.length === 0)
         throw new HumanRefusal({
           kind: "base",
-          axis: "seconds",
-          value: p.seconds,
+          axis: "duration",
+          value: p.duration,
           reason: "the walk lands no foot within the sweep",
           fix: "sweep over a walk of at least one step",
         });
@@ -223,7 +223,7 @@ export const HumanCaneSweep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
         };
       };
 
-      const duration: number = p.seconds;
+      const duration: number = p.duration;
       const limb: courseArmGoal.Limb = side === "left" ? "leftArm" : "rightArm";
       const channels: readonly AutoMovieMotionHumanChannel[] = [
         limb,

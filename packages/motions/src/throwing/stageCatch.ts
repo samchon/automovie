@@ -39,7 +39,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
   plan: (
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IStageParams>,
   ): IAutoMovieMotionHumanCatchObject.IPlan => {
-    const { ball, from }: IAutoMovieMotionHumanCatchObject.IStageParams =
+    const { ball, partner: from }: IAutoMovieMotionHumanCatchObject.IStageParams =
       context.params;
     const source: IAutoMovieMotionHumanPlacedAction = context.action(from);
     const launches: readonly IAutoMovieMotionPropLaunch[] =
@@ -50,7 +50,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
     if (launches.length !== 1 || launch === undefined)
       throw new HumanRefusal({
         kind: "participant",
-        axis: "from",
+        axis: "partner",
         value: from,
         reason: `the anchored action must publish one launch of ${ball}`,
         fix: "name the action that releases the ball in from",
@@ -96,7 +96,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
       if (approach?.launch !== launch)
         throw new HumanRefusal({
           kind: "reach",
-          axis: "from",
+          axis: "partner",
           value: from,
           reason: "the anchored launch must own the prop at interception",
           fix: "place the catch before another grip or launch takes the prop",
@@ -135,7 +135,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
     )
       throw new HumanRefusal({
         kind: "reach",
-        axis: "from",
+        axis: "partner",
         value: from,
         reason:
           "the source action must release the ball before the interception",
@@ -151,7 +151,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
     )
       throw new HumanRefusal({
         kind: "reach",
-        axis: "from",
+        axis: "partner",
         value: from,
         reason: "the anchored launch must own the prop at interception",
         fix: "place the catch before another grip or launch takes the prop",
@@ -188,7 +188,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
 
     const hands: readonly AutoMovieHumanSide[] =
       context.params.hands === "one"
-        ? [context.params.side ?? "right"]
+        ? [context.params.hand ?? "right"]
         : ["left", "right"];
     // The catching hands are this plan's own: name them, so over a
     // carrier the overlay keeps posing a hand that holds the ball instead

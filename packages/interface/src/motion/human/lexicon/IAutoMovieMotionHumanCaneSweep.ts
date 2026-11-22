@@ -17,13 +17,13 @@ export interface IAutoMovieMotionHumanCaneSweep {
   prop: string;
 
   /** The cane hand; the right when absent. */
-  side?: AutoMovieHumanSide;
+  hand?: AutoMovieHumanSide;
 
   /** The technique; the two-point touch when absent. */
   technique?: IAutoMovieMotionHumanCaneSweep.Technique;
 
   /** How long the sweep is performed over the walk, seconds; positive. The arm takes 0.5 s to reach the cane pose and leaves it 0.3 s before the span ends (`HumanCaneSweep` constants, provisional). */
-  seconds: number;
+  duration: number;
 }
 
 /**

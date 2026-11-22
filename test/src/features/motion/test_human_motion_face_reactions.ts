@@ -93,7 +93,7 @@ export function test_human_motion_face_reactions(): void {
     for (const side of ["right", "left"] as const) {
       const idle: AutoMovieHumanSide = side === "right" ? "left" : "right";
       const wipe: motionHumanLaw.IFilm = film(
-        chain.subject("a").wipeTears({ side }).node,
+        chain.subject("a").wipeTears({ hand: side }).node,
       );
       const arrival: number = motionHumanLaw.event(wipe, "atCheek");
       const end: number = motionHumanLaw.event(wipe, "taskEnd");
@@ -118,7 +118,7 @@ export function test_human_motion_face_reactions(): void {
     }
 
     const cover: motionHumanLaw.IFilm = film(
-      chain.subject("a").coverFace({ seconds: 0.8 }).node,
+      chain.subject("a").coverFace({ hold: 0.8 }).node,
     );
     const arrival: number = motionHumanLaw.event(cover, "atFace");
     const held: number = motionHumanLaw.event(cover, "taskEnd");
@@ -149,9 +149,7 @@ export function test_human_motion_face_reactions(): void {
     if (name === "m-average") {
       let refused: unknown;
       try {
-        film(
-          chain.subject("a").coverFace({ seconds: { between: [1, 0] } }).node,
-        );
+        film(chain.subject("a").coverFace({ hold: { between: [1, 0] } }).node);
       } catch (error: unknown) {
         refused = error;
       }

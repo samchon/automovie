@@ -1,4 +1,10 @@
-import { HUMAN_ACTIONS, jump, sit, stand, walk } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanGait,
+  AutoMovieMotionHumanJump,
+  AutoMovieMotionHumanSeat,
+  AutoMovieMotionHumanStance,
+  HUMAN_ACTIONS,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import LEDGER from "../internal/MOTION_HUMAN_LEDGER.json";
@@ -29,7 +35,9 @@ export function test_motion_root_runtime_dispatch(): void {
   );
   TestValidator.predicate(
     "the registered stance, travel, seat and flight are the public implementations",
-    HUMAN_ACTIONS.stand === stand && HUMAN_ACTIONS.walk === walk &&
-      HUMAN_ACTIONS.sit === sit && HUMAN_ACTIONS.jump === jump,
+    HUMAN_ACTIONS.stand === AutoMovieMotionHumanStance.stand &&
+      HUMAN_ACTIONS.walk === AutoMovieMotionHumanGait.walk &&
+      HUMAN_ACTIONS.sit === AutoMovieMotionHumanSeat.sit &&
+      HUMAN_ACTIONS.jump === AutoMovieMotionHumanJump.jump,
   );
 }

@@ -167,8 +167,8 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
           handle: "body",
           use: { tip: "lip", line: "square", at: "mouth" },
         })
-        .handToFace({ task: "drink", prop: "glass" })
-        .stand({ seconds: 0.5 }),
+        .handToFace({ kind: "drink", prop: "glass" })
+        .stand({ hold: 0.5 }),
     );
     const lift: IAutoMovieMotionHumanSegment = drunk.segments("a")[0]!;
     const drink: IAutoMovieMotionHumanSegment = drunk.segments("a")[1]!;

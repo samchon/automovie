@@ -88,9 +88,9 @@ export const HumanBoard: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBoa
 /** Admit, solve the key and sample. */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanBoard = context.params;
-  const flight: number = params.seconds ?? 0.6;
+  const flight: number = params.duration ?? 0.6;
   const height: number = params.height ?? 0.3;
-  HumanBound.above("seconds", flight, 0, "s");
+  HumanBound.above("duration", flight, 0, "s");
   HumanBound.least("height", height, 0, "m");
   const support: IAutoMovieMotionHumanPropReader = context.prop(params.on);
   const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(

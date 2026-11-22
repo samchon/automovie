@@ -152,6 +152,6 @@ export namespace IAutoMovieMotionHumanWeaponPresent {
     extended?: boolean;
 
     /** Seconds the carriage is held once reached, at least 0, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent. */
-    seconds?: number;
+    hold?: number;
   }
 }

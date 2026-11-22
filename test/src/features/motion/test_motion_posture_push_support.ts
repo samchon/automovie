@@ -184,7 +184,7 @@ export function test_motion_posture_push_support(): void {
           prop: "crate",
           way,
           moves: false,
-          seconds: 2,
+          duration: 2,
           load: "heavy",
         });
         if (!(built instanceof HumanPerformance)) {
@@ -348,7 +348,10 @@ function readHaul(
     body,
     0,
   );
-  const fist = (seconds: number, side: AutoMovieHumanSide): IAutoMovieVector3 => {
+  const fist = (
+    seconds: number,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieVector3 => {
     const socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripLeft"] =
       body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
     return resolveAutoMovieHumanoidSurfaces.place(
@@ -481,10 +484,10 @@ function freeSpeed(
 
 /** Inputs for the measured stagings. */
 interface IStaging {
-      way: IAutoMovieMotionHumanPushPull.Way;
-      label: string;
-      height: number;
-      ahead: number;
-    }
+  way: IAutoMovieMotionHumanPushPull.Way;
+  label: string;
+  height: number;
+  ahead: number;
+}
 /** Handle-height landmarks for the support fixture. */
-type Height = 'hip' | 'elbow';
+type Height = "hip" | "elbow";

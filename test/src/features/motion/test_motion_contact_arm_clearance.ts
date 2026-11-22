@@ -12,11 +12,11 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanArmClearance,
   HumanColliders,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -46,7 +46,11 @@ export function test_motion_contact_arm_clearance(): void {
         partner,
         resolveHumanPosture(
           partner,
-          stand.posture(partner, { x: 0, y: 0, z: 0.4 }, 180),
+          AutoMovieMotionHumanStance.stand.posture(
+            partner,
+            { x: 0, y: 0, z: 0.4 },
+            180,
+          ),
         ),
       ),
     );
@@ -55,11 +59,8 @@ export function test_motion_contact_arm_clearance(): void {
     ["m-large", "right"],
   ] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const posture: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      { x: 0, y: 0, z: 0 },
-      0,
-    );
+    const posture: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
     const pose: IAutoMoviePose = resolveHumanPosture(body, posture);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,

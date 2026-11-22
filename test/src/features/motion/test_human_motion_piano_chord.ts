@@ -12,11 +12,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanInstrument,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  pianoScore,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";
@@ -49,7 +49,7 @@ export function test_human_motion_piano_chord(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const left = {
     key: "key35",
-    side: "left",
+    hand: "left",
     digit: "index",
     from: 0.5,
     at: 0.7,
@@ -58,7 +58,7 @@ export function test_human_motion_piano_chord(): void {
   } as const satisfies IAutoMovieMotionHumanPianoScore.INote;
   const index = {
     key: "key45",
-    side: "right",
+    hand: "right",
     digit: "index",
     from: 0.75,
     at: 0.95,
@@ -109,9 +109,9 @@ export function test_human_motion_piano_chord(): void {
           yaw: 0,
         }),
       ],
-      laws: [pianoScore],
+      laws: [AutoMovieMotionHumanInstrument.pianoScore],
       composition: HumanChain.subject("pianist")
-        .sit({ seat, seconds: 1 })
+        .sit({ seat, hold: 1 })
         .registered("pianoScore", { prop: "upright", notes }, "phrase").node,
     });
   const performance: HumanPerformance = perform([left, index, middle]);
@@ -180,10 +180,11 @@ export function test_human_motion_piano_chord(): void {
     release: 1.9,
     to: 2,
   } as const satisfies IAutoMovieMotionHumanPianoScore.INote;
-  const transferred: IAutoMovieMotionHumanActionPlan = pianoScore.plan({
-    ...segment.context,
-    params: { prop: "upright", notes: [left, index, middle, transfer] },
-  });
+  const transferred: IAutoMovieMotionHumanActionPlan =
+    AutoMovieMotionHumanInstrument.pianoScore.plan({
+      ...segment.context,
+      params: { prop: "upright", notes: [left, index, middle, transfer] },
+    });
   const transferPosture: IAutoMovieMotionHumanPosture = transferred.posture(
     transfer.at,
   );
@@ -248,7 +249,7 @@ export function test_human_motion_piano_chord(): void {
     ],
   ] as const) {
     try {
-      pianoScore.plan({
+      AutoMovieMotionHumanInstrument.pianoScore.plan({
         ...segment.context,
         params: { prop: "upright", notes },
       });

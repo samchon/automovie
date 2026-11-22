@@ -19,11 +19,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditMotion,
+  AutoMovieMotionHumanTouch,
   AutoMovieMotionHumanTouchEffector,
   AutoMovieMotionHumanTouchForm,
   HumanChain,
   HumanColliders,
-  touch,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -128,7 +128,7 @@ export function motionHumanLawTouch(
             kind: "parallel",
             parts: [
               HumanChain.subject("b").stand(
-                still ? { seconds: 8, sway: 0 } : { seconds: 8 },
+                still ? { hold: 8, sway: 0 } : { hold: 8 },
               ).node,
               a.node,
             ],
@@ -205,7 +205,7 @@ function expectations(
   // The effector as the law reads it: curled as the kind curls the fingers.
   const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
     AutoMovieMotionHumanTouchForm.curled(
-      touch.EFFECTORS[params.with ?? "palm"],
+      AutoMovieMotionHumanTouch.touch.EFFECTORS[params.effector ?? "palm"],
       kind,
     );
   const hand: number = body.measure.hand;

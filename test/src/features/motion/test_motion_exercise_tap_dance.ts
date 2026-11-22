@@ -8,8 +8,8 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanDance,
   HumanChain,
-  HumanDanceStyles,
   HumanFoot,
   HumanPerformance,
 } from "@automovie/motions";
@@ -90,7 +90,7 @@ function take(
 ): HumanPerformance {
   return new HumanPerformance({
     seed: "tap",
-    laws: [HumanDanceStyles.tap],
+    laws: [AutoMovieMotionHumanDance.HumanDanceStyles.tap],
     performers: [
       {
         subject: "a",
@@ -101,7 +101,7 @@ function take(
       },
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .registered("tap", { step, bpm: BPM, repeats: 2 }).node,
   });
 }

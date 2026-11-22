@@ -148,8 +148,8 @@ function sumo(
       HumanChain.mutual(
         HumanCoupled.grappling,
         {
-          initiator: HumanChain.subject("a").stand({ seconds: 0.3, sway: 0 }),
-          receiver: HumanChain.subject("b").stand({ seconds: 0.3, sway: 0 }),
+          initiator: HumanChain.subject("a").stand({ hold: 0.3, sway: 0 }),
+          receiver: HumanChain.subject("b").stand({ hold: 0.3, sway: 0 }),
         },
         { kind: bout.kind },
       ),

@@ -11,8 +11,8 @@ import type { IAutoMovieMotionHumanSword } from "./IAutoMovieMotionHumanSword";
  * every body and every blade. The action ends in the guard: what follows is
  * entered from it.
  *
- * @evidence contracts/development/common.md#meaningful-documentation guard: The guard; `middle` when absent. seconds: Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation guard: The guard; `middle` when absent. seconds: Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/common.md#meaningful-documentation guard: The guard; `middle` when absent. duration: Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/design.md#principled-representation guard: The guard; `middle` when absent. duration: Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSwordGuard.ts (HumanSwordGuard.guard, context); lexicon/HumanSwordGuard.ts (HumanSwordGuard.GUARDS); lexicon/HumanSwordGuard.ts (HumanSwordGuard.guard).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanSwordGuard.guard.
  */
@@ -37,8 +37,8 @@ export namespace IAutoMovieMotionHumanSwordGuard {
   /**
    * Parameters of a guard.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation guard: The guard; `middle` when absent. seconds: Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-   * @evidence contracts/development/design.md#principled-representation guard: The guard; `middle` when absent. seconds: Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+   * @evidence contracts/development/common.md#meaningful-documentation guard: The guard; `middle` when absent. duration: Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+   * @evidence contracts/development/design.md#principled-representation guard: The guard; `middle` when absent. duration: Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSwordGuard.ts (HumanSwordGuard.guard, context); lexicon/HumanSwordGuard.ts (HumanSwordGuard.guard).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSwordGuard.Guard identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
@@ -47,6 +47,6 @@ export namespace IAutoMovieMotionHumanSwordGuard {
     guard?: IAutoMovieMotionHumanSwordGuard.Guard;
 
     /** Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. */
-    seconds?: number;
+    duration?: number;
   }
 }

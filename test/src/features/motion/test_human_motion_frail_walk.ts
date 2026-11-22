@@ -11,8 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGait,
   HumanChain,
-  HumanFrailWalk,
   HumanPerformance,
   HumanRefusal,
   seated,
@@ -64,14 +64,17 @@ export function test_human_motion_frail_walk(): void {
     // draw the same strides and differ only by their laws.
     const ordinary: HumanPerformance = perform(
       body,
-      HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: DISTANCE } }, STRIDES),
+      HumanChain.subject("a").walk(
+        { to: { x: 0, y: 0, z: DISTANCE } },
+        STRIDES,
+      ),
     );
     const films: HumanPerformance[] = GRADES.map(
       (severity: number): HumanPerformance =>
         perform(
           body,
           HumanChain.subject("a").registered(
-            HumanFrailWalk.frailWalk.name,
+            AutoMovieMotionHumanGait.HumanFrailWalk.frailWalk.name,
             {
               to: { x: 0, y: 0, z: DISTANCE },
               severity,
@@ -85,21 +88,27 @@ export function test_human_motion_frail_walk(): void {
     );
     TestValidator.predicate(
       `${fit}: severity 0 walks as the ordinary walk`,
-      Math.abs(walked(films[0]!).plan.duration - walked(ordinary).plan.duration) <=
-        SAME,
+      Math.abs(
+        walked(films[0]!).plan.duration - walked(ordinary).plan.duration,
+      ) <= SAME,
     );
     const times: number[] = films.map(
       (film: HumanPerformance): number => walked(film).plan.duration,
     );
     const steps: number[] = films.map(
       (film: HumanPerformance): number =>
-        walked(film).plan.events.filter((event: IAutoMovieMotionEvent): boolean =>
-          event.name.includes("HeelStrike"),
+        walked(film).plan.events.filter(
+          (event: IAutoMovieMotionEvent): boolean =>
+            event.name.includes("HeelStrike"),
         ).length,
     );
     const leans: number[] = films.map((film: HumanPerformance): number => {
-      const chest: IAutoMovieResolvedBone = film.bones("a", film.duration / 2).get("chest")!;
-      const hips: IAutoMovieResolvedBone = film.bones("a", film.duration / 2).get("hips")!;
+      const chest: IAutoMovieResolvedBone = film
+        .bones("a", film.duration / 2)
+        .get("chest")!;
+      const hips: IAutoMovieResolvedBone = film
+        .bones("a", film.duration / 2)
+        .get("hips")!;
       return Math.atan2(
         chest.worldPosition.z - hips.worldPosition.z,
         chest.worldPosition.y - hips.worldPosition.y,
@@ -151,11 +160,14 @@ export function test_human_motion_frail_walk(): void {
       (severity: number): HumanPerformance =>
         perform(
           body,
-          HumanChain.subject("a").registered(HumanFrailWalk.frailWalk.name, {
-            to: { x: 0, y: 0, z: 0 },
-            face: 180,
-            severity,
-          }),
+          HumanChain.subject("a").registered(
+            AutoMovieMotionHumanGait.HumanFrailWalk.frailWalk.name,
+            {
+              to: { x: 0, y: 0, z: 0 },
+              face: 180,
+              severity,
+            },
+          ),
         ),
     );
     turns.forEach((film: HumanPerformance, i: number): void =>
@@ -163,23 +175,26 @@ export function test_human_motion_frail_walk(): void {
     );
     const turnSteps: number[] = turns.map(
       (film: HumanPerformance): number =>
-        walked(film).plan.events.filter((event: IAutoMovieMotionEvent): boolean =>
-          event.name.includes("HeelStrike"),
+        walked(film).plan.events.filter(
+          (event: IAutoMovieMotionEvent): boolean =>
+            event.name.includes("HeelStrike"),
         ).length,
     );
     TestValidator.predicate(
       `${fit}: a frail half turn takes more steps (${turnSteps.join(", ")})`,
       turnSteps[0]! < turnSteps[1]!,
     );
-    const lead: number = Array.from({ length: 13 }, (_v: unknown, k: number): number => {
-      const film: HumanPerformance = turns[1]!;
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = film.bones(
-        "a",
-        (film.duration * k) / 12,
-      );
-      const apart: number = heading(bones.get("head")!) - heading(bones.get("hips")!);
-      return Math.abs((((apart % 360) + 540) % 360) - 180);
-    }).reduce((a: number, b: number): number => Math.max(a, b));
+    const lead: number = Array.from(
+      { length: 13 },
+      (_v: unknown, k: number): number => {
+        const film: HumanPerformance = turns[1]!;
+        const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          film.bones("a", (film.duration * k) / 12);
+        const apart: number =
+          heading(bones.get("head")!) - heading(bones.get("hips")!);
+        return Math.abs((((apart % 360) + 540) % 360) - 180);
+      },
+    ).reduce((a: number, b: number): number => Math.max(a, b));
     TestValidator.predicate(
       `${fit}: the frail half turn is en bloc, the head within ${EN_BLOC} degrees of the pelvis (${lead.toFixed(1)})`,
       lead <= EN_BLOC,
@@ -194,9 +209,13 @@ export function test_human_motion_frail_walk(): void {
         .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === name)!;
       const bearing: number = span.plan.contacts.filter(
         (w: IAutoMovieMotionHumanContactWindow): boolean =>
-          (w.part === "leftHand" || w.part === "rightHand") && (w.kind === "bear" || w.kind === "plant"),
+          (w.part === "leftHand" || w.part === "rightHand") &&
+          (w.kind === "bear" || w.kind === "plant"),
       ).length;
-      TestValidator.predicate(`${fit}: the frail walker ${name}s with both hands on the armrests`, bearing >= 2);
+      TestValidator.predicate(
+        `${fit}: the frail walker ${name}s with both hands on the armrests`,
+        bearing >= 2,
+      );
     }
     TestValidator.predicate(
       `${fit}: a severity past 1 is refused`,
@@ -204,10 +223,13 @@ export function test_human_motion_frail_walk(): void {
         try {
           perform(
             body,
-            HumanChain.subject("a").registered(HumanFrailWalk.frailWalk.name, {
-              to: { x: 0, y: 0, z: DISTANCE },
-              severity: 1.5,
-            }),
+            HumanChain.subject("a").registered(
+              AutoMovieMotionHumanGait.HumanFrailWalk.frailWalk.name,
+              {
+                to: { x: 0, y: 0, z: DISTANCE },
+                severity: 1.5,
+              },
+            ),
           ).bones("a", 1);
           return false;
         } catch (error: unknown) {
@@ -234,7 +256,7 @@ function perform(
         proficiency: { level: "trained" },
       },
     ],
-    laws: [HumanFrailWalk.frailWalk],
+    laws: [AutoMovieMotionHumanGait.HumanFrailWalk.frailWalk],
     composition: chain.node,
   });
 }
@@ -244,7 +266,8 @@ function armchair(body: IAutoMovieMotionHumanBody): HumanPerformance {
   const front: number = 2;
   const height: number = seated.popliteal(body);
   // Armrests 0.2 m above the seat at the sitter's sides, 0.25 m back from the front edge (provisional armchair).
-  const half: number = body.measure.hipHalfWidth + body.measure.thighRadius + 0.05;
+  const half: number =
+    body.measure.hipHalfWidth + body.measure.thighRadius + 0.05;
   const seat: IAutoMovieMotionHumanSeated.ISeat = {
     at: { x: 0, y: height, z: front },
     yaw: 180,
@@ -259,8 +282,12 @@ function armchair(body: IAutoMovieMotionHumanBody): HumanPerformance {
   return perform(
     body,
     HumanChain.subject("a")
-      .registered(HumanFrailWalk.frailWalk.name, { to: { x: 0, y: 0, z: front - 0.15 }, face: 180, severity: 1 })
-      .sit({ seat, seconds: 1 })
+      .registered(AutoMovieMotionHumanGait.HumanFrailWalk.frailWalk.name, {
+        to: { x: 0, y: 0, z: front - 0.15 },
+        face: 180,
+        severity: 1,
+      })
+      .sit({ seat, hold: 1 })
       .rise(),
   );
 }
@@ -272,6 +299,9 @@ function walked(film: HumanPerformance): IAutoMovieMotionHumanSegment {
 
 /** A displayed bone's heading about +Y, degrees. */
 function heading(bone: IAutoMovieResolvedBone): number {
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(bone.worldRotation, { x: 0, y: 0, z: 1 });
+  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+    bone.worldRotation,
+    { x: 0, y: 0, z: 1 },
+  );
   return (Math.atan2(forward.x, forward.z) * 180) / Math.PI;
 }

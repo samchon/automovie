@@ -20,13 +20,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSwim,
   HumanChain,
   HumanFoot,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  aquatic,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -90,7 +90,7 @@ export function test_motion_exercise_native_paddling(): void {
     };
     const chain = HumanChain.subject(actor.subject);
     const entry = chain
-      .stand({ seconds: 0.2, on: { prop: "boat" } })
+      .stand({ hold: 0.2, on: { prop: "boat" } })
       .kneel({ knee: "right", kind: "one", hold: 0.15, rise: false });
     const before: HumanPerformance | undefined = canoe
       ? new HumanPerformance({
@@ -158,7 +158,7 @@ export function test_motion_exercise_native_paddling(): void {
     const take = (tool: IAutoMovieMotionHumanObject.IModel): HumanPerformance =>
       new HumanPerformance({
         seed: "native-paddle",
-        laws: [aquatic],
+        laws: [AutoMovieMotionHumanSwim.aquatic],
         performers: [actor],
         props: [
           HumanObject.prop("boat", boat, first, boatAt),

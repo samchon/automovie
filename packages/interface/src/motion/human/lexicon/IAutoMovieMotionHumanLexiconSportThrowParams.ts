@@ -1,6 +1,6 @@
-import type { IAutoMovieMotionHumanJump } from "../actions/IAutoMovieMotionHumanJump";
 import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanRun";
 import type { IAutoMovieMotionHumanKickBall } from "../ballStrike/IAutoMovieMotionHumanKickBall";
+import type { IAutoMovieMotionHumanJump } from "../next/IAutoMovieMotionHumanJump";
 import type { IAutoMovieMotionHumanBowlingSlide } from "../sport/IAutoMovieMotionHumanBowlingSlide";
 import type { IAutoMovieMotionHumanCartwheel } from "../sport/IAutoMovieMotionHumanCartwheel";
 import type { IAutoMovieMotionHumanSalto } from "../sport/IAutoMovieMotionHumanSalto";

@@ -191,7 +191,7 @@ export namespace putDown {
       );
       return {
         point: Vector3.subtract(
-          context.params.at!,
+          context.params.to!,
           Quaternion.rotateVector(r, offset.position),
         ),
         rotation: r,
@@ -212,10 +212,10 @@ export namespace putDown {
       context,
       context.entry.pose,
     );
-    if (wearing === undefined && context.params.at === undefined)
+    if (wearing === undefined && context.params.to === undefined)
       throw new HumanRefusal({
         kind: "parameter",
-        axis: "at",
+        axis: "to",
         value: "absent",
         feasible: { kind: "alternatives", values: ["at", "on", "onto"] },
         reason:
@@ -235,7 +235,7 @@ export namespace putDown {
               r: IAutoMovieQuaternion,
             ): IAutoMovieVector3 =>
               Vector3.subtract(
-                context.params.at!,
+                context.params.to!,
                 Quaternion.rotateVector(r, offset.position),
               );
             // An authored resting attitude with no authored heading rests

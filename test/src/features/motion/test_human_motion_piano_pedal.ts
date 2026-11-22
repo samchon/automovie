@@ -13,11 +13,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanInstrument,
   HumanChain,
   HumanFoot,
   HumanObject,
   HumanPerformance,
-  pianoPedal,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -85,9 +85,9 @@ export function test_human_motion_piano_pedal(): void {
         yaw: 0,
       }),
     ],
-    laws: [pianoPedal],
+    laws: [AutoMovieMotionHumanInstrument.pianoPedal],
     composition: HumanChain.subject("pianist")
-      .sit({ seat, seconds: 1 })
+      .sit({ seat, hold: 1 })
       .registered("pianoPedal", params, "damper").node,
   });
 

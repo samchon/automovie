@@ -108,8 +108,8 @@ export namespace disarm {
     const grab: IAutoMovieMotionHumanTouch.IParams = {
       target: { kind: "person", subject: params.partner, region: wrist },
       other,
-      side,
-      with: "palm",
+      hand: side,
+      effector: "palm",
       kind: "squeeze",
       count: 1,
       hold: lever + AFTER,

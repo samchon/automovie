@@ -16,7 +16,7 @@ export interface IAutoMovieMotionHumanSitOnLap {
   partner: string;
 
   /** Seconds to stay seated on the lap after settling; the sit's own when absent. */
-  seconds?: number;
+  hold?: number;
 
   /** How the sitter sits down. */
   manner?: IAutoMovieMotionManner;

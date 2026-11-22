@@ -86,16 +86,16 @@ export namespace collapse {
       return knockdown.plan({
         ...context,
         params: {
-          ...(context.params.from === undefined
+          ...(context.params.target === undefined
             ? {}
-            : { from: context.params.from }),
-          ...(context.params.seconds === undefined
+            : { target: context.params.target }),
+          ...(context.params.hold === undefined
             ? {}
-            : { seconds: context.params.seconds }),
+            : { hold: context.params.hold }),
         },
       });
     const sag: number = context.params.sag ?? 0;
-    const lie: number = context.params.seconds ?? 1;
+    const lie: number = context.params.hold ?? 1;
     for (const [axis, value] of [
       ["sag", sag],
       ["seconds", lie],
@@ -150,7 +150,7 @@ export namespace collapse {
     const away: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
       ReactionSource.at(
         context,
-        context.params.from,
+        context.params.target,
         context.start - StrikingTarget.LOOK,
         entry,
         AutoMovieMotionHumanTarget.DEFAULTS.ahead,

@@ -22,15 +22,15 @@ import { handToFace } from "./handToFace";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing planner and canonical cheek regions with fixed bare-hand contact.
  */
 export const coverFace: IAutoMovieMotionHumanActionLaw<
-  Pick<IAutoMovieMotionHumanHandToFace.IParams, "seconds" | "manner">
+  Pick<IAutoMovieMotionHumanHandToFace.IParams, "hold" | "manner">
 > = HumanActionRow.of("coverFace", handToFace, {
-  side: "right",
+  hand: "right",
   count: 1,
   prop: undefined,
   point: undefined,
   grasp: undefined,
   other: undefined,
-  task: {
+  kind: {
     region: "cheekRight",
     other: "cheekLeft",
     effector: { surface: "palm", shape: "flat" },

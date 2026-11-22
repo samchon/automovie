@@ -9,9 +9,9 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanStance,
   HumanRefusal,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -35,11 +35,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_contact_arm_group_refusal(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const rest: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const rest: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const refusal: HumanRefusal = new HumanRefusal({
     kind: "reach",
     axis: "target",

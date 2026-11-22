@@ -15,7 +15,11 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance, HumanSurface } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanRide,
+  HumanChain,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";
@@ -113,7 +117,7 @@ function take(key: BodyKey, failures: string[]): void {
         },
       ],
       props: [board],
-      laws: [HumanSurface.boardRide],
+      laws: [AutoMovieMotionHumanRide.HumanSurface.boardRide],
       composition: HumanChain.subject("a")
         .support({
           stances: [
@@ -134,9 +138,9 @@ function take(key: BodyKey, failures: string[]): void {
             },
           ],
         })
-        .registered(HumanSurface.boardRide.name, {
+        .registered(AutoMovieMotionHumanRide.HumanSurface.boardRide.name, {
           on: "board",
-          seconds: 2.2,
+          duration: 2.2,
         } satisfies IAutoMovieMotionHumanSurface.IBoardRideParams).node,
     }),
   );
@@ -145,7 +149,7 @@ function take(key: BodyKey, failures: string[]): void {
     .segments("a")
     .find(
       (segment: IAutoMovieMotionHumanSegment): boolean =>
-        segment.name === HumanSurface.boardRide.name,
+        segment.name === AutoMovieMotionHumanRide.HumanSurface.boardRide.name,
     )!;
   TestValidator.predicate(
     "both feet stay planted in the board's own frame",

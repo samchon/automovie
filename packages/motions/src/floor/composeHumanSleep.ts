@@ -3,18 +3,19 @@ import type {
   IAutoMovieMotionHumanTurnOver,
 } from "@automovie/interface";
 
-import { HumanArmConnect } from "../posture/HumanArmConnect";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmConnect } from "../posture/HumanArmConnect";
 import { turnOver } from "./turnOver";
 
 /** The share of time in bed spent in each lying position, Skarpsno et al. 2017 (BMJ Open 7:e015618): side 54.1 %, back 37.5 %, front 7.3 %; the side split evenly. */
-const PREVALENCE: Readonly<Record<IAutoMovieMotionHumanTurnOver.Position, number>> = {
+const PREVALENCE: Readonly<
+  Record<IAutoMovieMotionHumanTurnOver.Position, number>
+> = {
   lateralLeft: 0.541 / 2,
   lateralRight: 0.541 / 2,
   supine: 0.375,
   prone: 0.073,
 };
-
 
 /**
  * Sleep with seeded position changes (#3987): over a long lie, the lying
@@ -50,19 +51,30 @@ export function composeHumanSleep(
       fix: "give a positive whole count",
     });
   // Each turn takes up to two quarter turns of a second each.
-  const free: number = params.seconds - 2 * params.changes;
+  const free: number = params.duration - 2 * params.changes;
   if (!(free > 0))
     throw new HumanRefusal({
       kind: "parameter",
-      axis: "seconds",
-      value: params.seconds,
-      feasible: { kind: "range", minimum: 2 * params.changes, maximum: null, unit: "s" },
-      reason: `${params.changes} changes leave no stillness in ${params.seconds} s`,
+      axis: "duration",
+      value: params.duration,
+      feasible: {
+        kind: "range",
+        minimum: 2 * params.changes,
+        maximum: null,
+        unit: "s",
+      },
+      reason: `${params.changes} changes leave no stillness in ${params.duration} s`,
       fix: "sleep longer or change position fewer times",
     });
   const next: () => number = HumanArmConnect.generator(params.seed);
-  const weights: number[] = Array.from({ length: params.changes + 1 }, (): number => 0.5 + next());
-  const total: number = weights.reduce((a: number, b: number): number => a + b, 0);
+  const weights: number[] = Array.from(
+    { length: params.changes + 1 },
+    (): number => 0.5 + next(),
+  );
+  const total: number = weights.reduce(
+    (a: number, b: number): number => a + b,
+    0,
+  );
   let current: IAutoMovieMotionHumanTurnOver.Position | undefined;
   let out: IAutoMovieMotionHumanChain = chain;
   for (let i: number = 0; i < params.changes; ++i) {
@@ -85,9 +97,12 @@ function draw(
 ): IAutoMovieMotionHumanTurnOver.Position {
   const options: IAutoMovieMotionHumanTurnOver.Position[] = (
     Object.keys(PREVALENCE) as IAutoMovieMotionHumanTurnOver.Position[]
-  ).filter((p: IAutoMovieMotionHumanTurnOver.Position): boolean => p !== current);
+  ).filter(
+    (p: IAutoMovieMotionHumanTurnOver.Position): boolean => p !== current,
+  );
   const sum: number = options.reduce(
-    (a: number, p: IAutoMovieMotionHumanTurnOver.Position): number => a + PREVALENCE[p],
+    (a: number, p: IAutoMovieMotionHumanTurnOver.Position): number =>
+      a + PREVALENCE[p],
     0,
   );
   let left: number = u * sum;
@@ -105,7 +120,7 @@ export namespace composeHumanSleep {
   /** A sleep's length, its position changes and their seed. */
   export interface IParams {
     /** The whole sleep, seconds. */
-    seconds: number;
+    duration: number;
 
     /** How many times the sleeper changes position. */
     changes: number;

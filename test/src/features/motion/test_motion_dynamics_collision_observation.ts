@@ -1,9 +1,9 @@
 import { segmentSegmentDistance } from "@automovie/engine";
 import {
+  AutoMovieMotionHumanStance,
   HumanColliders,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,7 +26,11 @@ import { vclose } from "../internal/vclose";
  */
 export function test_motion_dynamics_collision_observation(): void {
   const body = motionHumanBody("m-average");
-  const posture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const posture = AutoMovieMotionHumanStance.stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const standing = poseBones(body, resolveHumanPosture(body, posture));
   const crown = {
     ...standing.get("head")!.worldPosition,

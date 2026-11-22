@@ -15,6 +15,7 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanStance } from "./motionHumanStance";
 
@@ -146,14 +147,20 @@ export function motionPickUpLowered(
       .at(-1)!;
     const closed: number = instant(segment, "gripClosed");
     const lifted: number = instant(segment, "lifted");
-    const grasp: ReturnType<typeof performance.bones> = performance.bones("a", closed);
+    const grasp: ReturnType<typeof performance.bones> = performance.bones(
+      "a",
+      closed,
+    );
     const reach: number = Vector3.distance(
-      grasp.get("rightHand")!.worldPosition, grasp.get("rightUpperArm")!.worldPosition,
+      grasp.get("rightHand")!.worldPosition,
+      grasp.get("rightUpperArm")!.worldPosition,
     );
     if (subject === "tote") {
       const low: number = grasp.get("hips")!.worldPosition.y;
       if (!(low < hips.y - 0.01))
-        complaints.push(`${name}: ${label}: at gripClosed the hips stand ${mm(low)} mm high, lower than standing (${mm(hips.y)} mm) expected`);
+        complaints.push(
+          `${name}: ${label}: at gripClosed the hips stand ${mm(low)} mm high, lower than standing (${mm(hips.y)} mm) expected`,
+        );
     }
     if (!(reach <= arm + 0.001))
       complaints.push(
@@ -174,7 +181,9 @@ export function motionPickUpLowered(
           ["rightUpperArm", shoulder],
         ]
       : [];
-    const terminal: ReturnType<typeof performance.bones> | undefined = straight ? performance.bones("a", end) : undefined;
+    const terminal: ReturnType<typeof performance.bones> | undefined = straight
+      ? performance.bones("a", end)
+      : undefined;
     for (const [bone, was] of kept) {
       const off: number = Vector3.length(
         Vector3.subtract(terminal!.get(bone)!.worldPosition, was),
@@ -226,20 +235,20 @@ export function motionPickUpLowered(
   const chain: IAutoMovieMotionHumanChain = straight
     ? HumanChain.subject("a").pickUp({ prop: "tote", handle: "handle" })
     : HumanChain.subject("a")
-        .bend({ toward: { kind: "prop", subject: "tote", point: "handle" } })
+        .bend({ target: { kind: "prop", subject: "tote", point: "handle" } })
         .until({ event: "deepest" })
         .pickUp({ prop: "tote", handle: "handle" });
-    try {
-      const performance: IAutoMovieMotionHumanPerformance = perform(
-        HumanObject.prop("tote", tote, { at: floor, yaw: 0 }),
-        chain,
-      );
-      picked(label, performance, "tote", 0, false, straight);
-    } catch (error) {
-      complaints.push(
-        `${name}: ${label}: expected to plan, got ${(error as Error).message}`,
-      );
-    }
+  try {
+    const performance: IAutoMovieMotionHumanPerformance = perform(
+      HumanObject.prop("tote", tote, { at: floor, yaw: 0 }),
+      chain,
+    );
+    picked(label, performance, "tote", 0, false, straight);
+  } catch (error) {
+    complaints.push(
+      `${name}: ${label}: expected to plan, got ${(error as Error).message}`,
+    );
+  }
 
   // The larger reach is the limiting refusal witness for the far counter.
   if (name !== "m-average") return;

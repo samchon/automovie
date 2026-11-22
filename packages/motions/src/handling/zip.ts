@@ -118,8 +118,8 @@ function plan(
   if (
     !Number.isFinite(p.travel) ||
     p.travel === 0 ||
-    !Number.isFinite(p.seconds) ||
-    p.seconds <= 0
+    !Number.isFinite(p.duration) ||
+    p.duration <= 0
   )
     throw refusal(
       p.pouch,
@@ -157,7 +157,7 @@ function plan(
   const first: IAutoMovieMotionHumanOperateDrive.IPlace = tab.place(0);
   const last: IAutoMovieMotionHumanOperateDrive.IPlace = tab.place(1);
 
-  const side: AutoMovieHumanSide = p.side ?? "right";
+  const side: AutoMovieHumanSide = p.hand ?? "right";
   const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
   const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
   const bones: ReturnType<typeof poseBones> = poseBones(
@@ -180,7 +180,7 @@ function plan(
     tempo * AutoMovieMotionHumanTiming.transport(motion);
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: transport,
-    attack: tempo * p.seconds,
+    attack: tempo * p.duration,
     retract: transport,
   });
 

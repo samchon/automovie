@@ -16,5 +16,5 @@ export interface IAutoMovieMotionHumanCrossAnkleOverKnee {
   side?: AutoMovieHumanSide;
 
   /** Seconds resting across the other knee before returning. Defaults to 1. Minimum 0. */
-  seconds?: number;
+  hold?: number;
 }

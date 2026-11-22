@@ -113,7 +113,7 @@ export function test_motion_posture_paired_event(): void {
       },
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .registered("marker")
       .registered("marker")
       .sync({ of: "music", event: "beat", index: 2, align: "mark" }).node,
@@ -189,10 +189,10 @@ function checkCueRecipients(): void {
       cues: { score: cues },
       composition: AutoMovieComposition.parallel(
         HumanChain.subject("leader")
-          .stand({ seconds: 1 })
+          .stand({ hold: 1 })
           .sync({ of: "score", event: "second" }).node,
         HumanChain.subject("follower")
-          .stand({ seconds: 1 })
+          .stand({ hold: 1 })
           .sync({
             of: "score",
             event: "first",
@@ -252,7 +252,7 @@ function checkHandoff(
       proficiency: { level: "trained" as const },
     })),
     composition: AutoMovieComposition.parallel(
-      HumanChain.subject("giver").stand({ seconds: 3 }).node,
+      HumanChain.subject("giver").stand({ hold: 3 }).node,
       HumanChain.subject("receiver")
         .registered("takeRibbon")
         .walk({ to: { x: 0.5, y: 0, z: 2 } }).node,

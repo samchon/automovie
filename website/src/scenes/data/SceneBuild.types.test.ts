@@ -4,7 +4,7 @@ import { SceneBuild } from "./SceneBuild";
 export function checkSceneActionInputs(): void {
   SceneBuild.act("stand");
   SceneBuild.act("typeText", { keyboard: "keyboard", text: "hello" });
-  SceneBuild.act("gloveCatch", { from: "pitcher", ball: "baseball" });
+  SceneBuild.act("gloveCatch", { partner: "pitcher", ball: "baseball" });
   SceneBuild.act("sit", { seat: SceneBuild.seat("chair") });
   SceneBuild.act("getIn", {
     seat: SceneBuild.seat("car", "driverSeat"),

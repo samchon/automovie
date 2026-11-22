@@ -144,7 +144,7 @@ export function test_human_motion_two_weapon(): void {
           hand: "right",
           use: { tip: "point", line: "oblique" },
         })
-        .stand({ seconds: 1.2, sway: 0 })
+        .stand({ hold: 1.2, sway: 0 })
         .registered(
           HumanBlade.cut.name,
           {

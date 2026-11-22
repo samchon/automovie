@@ -16,10 +16,10 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -78,13 +78,13 @@ export function test_human_motion_prop_fracture_staging(): void {
   });
   const release: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
     {
-      ...stand,
+      ...AutoMovieMotionHumanStance.stand,
       name: "releaseFoamToken",
       plan(
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
       ): IAutoMovieMotionHumanActionPlan {
         return {
-          ...stand.plan(context),
+          ...AutoMovieMotionHumanStance.stand.plan(context),
           launches: [
             {
               prop: "foam-token",

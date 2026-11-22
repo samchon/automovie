@@ -39,8 +39,8 @@ import type { IAutoMovieMotionHumanGait } from "../next/IAutoMovieMotionHumanGai
  * trolley or a suitcase, the cart as a moving support (A2), changing hands
  * (`shiftLoad`) and the frozen hand offset of a held prop.
  *
- * @evidence contracts/development/common.md#meaningful-documentation to: The floor point walked to, world metres. side: The loaded side for `oneHand` and `hip`; `right` when absent. load: The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. Inclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation to: The floor point walked to, world metres. side: The loaded side for `oneHand` and `hip`; `right` when absent. load: The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. Inclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/common.md#meaningful-documentation to: The floor point walked to, world metres. hand: The loaded side for `oneHand` and `hip`; `right` when absent. load: The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. Inclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/design.md#principled-representation to: The floor point walked to, world metres. hand: The loaded side for `oneHand` and `hip`; `right` when absent. load: The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. Inclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: carrying/carry.ts (carry.place, how); carrying/carry.ts (carry.place, return); carrying/carry.ts (carry.plan, context); chain/HumanChainTravel.ts (HumanChainTravel.carry, params); carrying/carry.ts (carry.tilt); carrying/carry.ts (carry.plan).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieHumanSide, IAutoMovieMotionHumanGait.WalkPace and IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -58,10 +58,10 @@ export namespace IAutoMovieMotionHumanCarry {
     to: IAutoMovieVector3;
 
     /** How the load is held. */
-    how: IAutoMovieMotionHumanCarry.How;
+    kind: IAutoMovieMotionHumanCarry.How;
 
     /** The loaded side for `oneHand` and `hip`; `right` when absent. */
-    side?: AutoMovieHumanSide;
+    hand?: AutoMovieHumanSide;
 
     /** The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. */
     load?: number;

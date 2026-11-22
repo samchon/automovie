@@ -20,5 +20,5 @@ export interface IAutoMovieMotionHumanBowViolinParams {
   direction?: "down" | "up";
 
   /** Time on the string, in seconds. Defaults to one second. */
-  seconds?: number;
+  duration?: number;
 }

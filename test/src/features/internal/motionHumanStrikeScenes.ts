@@ -107,13 +107,13 @@ export namespace motionHumanStrikeScenes {
           kind: "parallel",
           parts: [
             HumanChain.subject("a")
-              .act("guard", { seconds: 1.5 })
+              .act("guard", { duration: 1.5 })
               .act("punch", { technique: "straight", ...face("b", "face") })
               .node,
             HumanChain.subject("b")
-              .act("guard", { seconds: 1 })
+              .act("guard", { duration: 1 })
               .act("step", { direction: "back" })
-              .act("guard", { seconds: 2 }).node,
+              .act("guard", { duration: 2 }).node,
           ],
         },
       );

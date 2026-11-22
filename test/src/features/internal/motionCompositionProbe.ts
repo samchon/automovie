@@ -193,8 +193,12 @@ export namespace motionCompositionProbe {
       knock: {
         gap: 3,
         composition: (): IAutoMovieMotionHumanChain["node"] =>
-          start().touch({ target: panel, kind: "tap", with: "fist", count: 3 })
-            .node,
+          start().touch({
+            target: panel,
+            kind: "tap",
+            effector: "fist",
+            count: 3,
+          }).node,
       },
       turnInPlace: {
         gap: 3,
@@ -204,21 +208,20 @@ export namespace motionCompositionProbe {
       seatedDrink: {
         gap: 3,
         composition: (): IAutoMovieMotionHumanChain["node"] =>
-          start()
-            .sit({ seat: chair, seconds: 0.5 })
-            .handToFace({ task: "drink" }).node,
+          start().sit({ seat: chair, hold: 0.5 }).handToFace({ kind: "drink" })
+            .node,
       },
       seatedWave: {
         gap: 3,
         composition: (): IAutoMovieMotionHumanChain["node"] =>
-          start().sit({ seat: chair, seconds: 0.5 }).gesture({ kind: "wave" })
+          start().sit({ seat: chair, hold: 0.5 }).gesture({ kind: "wave" })
             .node,
       },
       seatedTouch: {
         gap: 3,
         composition: (): IAutoMovieMotionHumanChain["node"] =>
           start()
-            .sit({ seat: chair, seconds: 0.5 })
+            .sit({ seat: chair, hold: 0.5 })
             .touch({ target: { kind: "self", region: "sternum" }, kind: "pat" })
             .node,
       },
@@ -236,14 +239,14 @@ export namespace motionCompositionProbe {
             .touch({ target: chestOfB, kind: "press" }, "push")
             .with(
               start("b")
-                .stand({ seconds: 6 })
+                .stand({ hold: 6 })
                 .until({ of: "push", event: "ready" })
                 // A push she steps out of: the stumble's 0.5 m/s, about
                 // the largest backward lean young adults recover from by
                 // stepping (`HumanPose.stumble`); 1 m/s pushed backward is
                 // past what four recovery steps catch on her.
                 .stagger({
-                  from: { kind: "person", subject: "a", region: "sternum" },
+                  target: { kind: "person", subject: "a", region: "sternum" },
                   speed: 0.5,
                 }),
             ).node,

@@ -66,7 +66,7 @@ export namespace composeHumanBathing {
     return chain
       .act("stepOver", { obstacle: tub, onto: { prop: tub, point: floor } })
       .act("walk", { to: at, facing: { yaw: face }, on: { prop: tub } })
-      .act("lieDown", { position: "sitLong", hold: SOAK });
+      .act("lieDown", { kind: "sitLong", hold: SOAK });
   }
 
   /**
@@ -120,12 +120,12 @@ export namespace composeHumanBathing {
     ): Chain =>
       current.act("touch", {
         target: { kind: "self", region },
-        side,
+        hand: side,
         kind: "rub",
         count: SCRUBS,
       });
     const opened: Chain = chain.act("operate", {
-      mechanism: { kind: "knob", at: tap, turn: TAP_TURN },
+      kind: { kind: "knob", at: tap, turn: TAP_TURN },
     });
     const scalp: Chain = opened.act("touch", {
       target: { kind: "self", region: "crown" },
@@ -139,7 +139,7 @@ export namespace composeHumanBathing {
       "forearmRight",
     );
     return washed.act("operate", {
-      mechanism: { kind: "knob", at: tap, turn: -TAP_TURN },
+      kind: { kind: "knob", at: tap, turn: -TAP_TURN },
     });
   }
 

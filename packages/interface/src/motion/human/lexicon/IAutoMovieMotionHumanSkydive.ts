@@ -41,7 +41,7 @@ export namespace IAutoMovieMotionHumanSkydive {
     side: "left" | "right";
 
     /** Seconds the toggle is held down. No natural value is defined: choose it for the beat (provisional, missing). */
-    seconds: number;
+    hold: number;
   }
 
   /**

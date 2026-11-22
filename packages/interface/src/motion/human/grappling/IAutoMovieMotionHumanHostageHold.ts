@@ -50,7 +50,7 @@ export namespace IAutoMovieMotionHumanHostageHold {
     back?: number;
 
     /** How long the hold lasts, seconds; 3 when absent (authored). */
-    seconds?: number;
+    duration?: number;
   }
 
   /**

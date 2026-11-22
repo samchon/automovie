@@ -49,7 +49,7 @@ export function simulatedShoveTake(
       },
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: simulatedShoveTake.STRUCK, sway: 0 })
+      .stand({ hold: simulatedShoveTake.STRUCK, sway: 0 })
       .perturb({ outcome }).node,
   });
 }

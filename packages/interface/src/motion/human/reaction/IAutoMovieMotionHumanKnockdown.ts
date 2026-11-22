@@ -26,8 +26,8 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * readings; detailed falls derived from the Euphoria behaviours belong to
  * tier 2 of #3201.
  *
- * @evidence contracts/development/common.md#meaningful-documentation from: Where the blow came from; a place ahead of the performer when absent. seconds: How long the body lies after landing, seconds; 1 when absent.
- * @evidence contracts/development/design.md#principled-representation from: Where the blow came from; a place ahead of the performer when absent. seconds: How long the body lies after landing, seconds; 1 when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation target: Where the blow came from; a place ahead of the performer when absent. hold: How long the body lies after landing, seconds; 1 when absent.
+ * @evidence contracts/development/design.md#principled-representation target: Where the blow came from; a place ahead of the performer when absent. hold: How long the body lies after landing, seconds; 1 when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.knockdown, params); reaction/knockdown.ts (knockdown.plan, context).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -42,9 +42,9 @@ export namespace IAutoMovieMotionHumanKnockdown {
    */
   export interface IParams {
     /** Where the blow came from; a place ahead of the performer when absent. */
-    from?: IAutoMovieMotionTarget;
+    target?: IAutoMovieMotionTarget;
 
     /** How long the body lies after landing, seconds; 1 when absent. The seat lands at 0.45 s and the back rests by 1.1 s after the start, so the action lasts 1.1 s plus this. 0 ends the action on the lie; a longer lie fits a stunned or unconscious body. */
-    seconds?: number;
+    hold?: number;
   }
 }

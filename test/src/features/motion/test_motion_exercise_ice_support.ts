@@ -10,11 +10,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanRide,
   HumanChain,
   HumanFoot,
   HumanPerformance,
   HumanRefusal,
-  HumanSurface,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -74,17 +74,17 @@ function take(key: BodyKey, failures: string[]): void {
     new HumanPerformance({
       seed: "ice-support",
       performers: [performer(body)],
-      laws: [HumanSurface.skate],
+      laws: [AutoMovieMotionHumanRide.HumanSurface.skate],
       composition: HumanChain.subject("skater").registered("skate", skate).node,
     });
-  const entry: HumanPerformance = performed({ seconds: 2, speed: 1 });
+  const entry: HumanPerformance = performed({ duration: 2, speed: 1 });
   const groundHeight: number = 0.01;
   const skatePivots: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
     left: pivot("left", "rightEdge"),
     right: pivot("right", "rightEdge"),
   };
   const skate: IAutoMovieMotionHumanSurface.ISkateParams = {
-    seconds: 3,
+    duration: 3,
     speed: 1.8,
     turn: 38,
     stop: true,
@@ -143,8 +143,8 @@ function take(key: BodyKey, failures: string[]): void {
       (window: IAutoMovieMotionHumanContactWindow): boolean =>
         window.part === part &&
         window.kind === "bear" &&
-        window.from <= at / skate.seconds &&
-        at / skate.seconds <= window.to,
+        window.from <= at / skate.duration &&
+        at / skate.duration <= window.to,
     );
   check(
     "the contact clock distinguishes flying from gliding blades",
@@ -205,9 +205,9 @@ function take(key: BodyKey, failures: string[]): void {
   const slide: HumanPerformance = new HumanPerformance({
     seed: "curling",
     performers: [performer(body)],
-    laws: [HumanSurface.curlDelivery],
+    laws: [AutoMovieMotionHumanRide.HumanSurface.curlDelivery],
     composition: HumanChain.subject("skater").registered("curlDelivery", {
-      seconds: 2,
+      duration: 2,
       speed: 1.2,
       stop: true,
       lead: "left",

@@ -191,7 +191,7 @@ export function test_archetype_catalogue_home_supports_practicals(): void {
       },
     ],
     composition: HumanChain.subject("porter").stand({
-      seconds: 1,
+      hold: 1,
       sway: 0,
     }).node,
     props: [

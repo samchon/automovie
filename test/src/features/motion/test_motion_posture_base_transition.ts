@@ -28,26 +28,26 @@ export function test_motion_posture_base_transition(): void {
       name,
       "supine rotation",
       HumanChain.subject("a")
-        .lieDown({ position: "supine", hold: 0.3 })
+        .lieDown({ kind: "supine", hold: 0.3 })
         .getUp({ pattern: "rotation" }),
     );
   motionFloorRise(
     all,
     "f-small",
     "supine symmetric",
-    HumanChain.subject("a").lieDown({ position: "supine", hold: 0.3 }).getUp(),
+    HumanChain.subject("a").lieDown({ kind: "supine", hold: 0.3 }).getUp(),
   );
   motionFloorRise(
     all,
     "m-large",
     "prone",
-    HumanChain.subject("a").lieDown({ position: "prone", hold: 0.3 }).getUp(),
+    HumanChain.subject("a").lieDown({ kind: "prone", hold: 0.3 }).getUp(),
   );
   motionFloorRise(
     all,
     "f-small",
     "hands and knees",
-    HumanChain.subject("a").crawl({ cycles: 1 }).getUp(),
+    HumanChain.subject("a").crawl({ count: 1 }).getUp(),
   );
   const body: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   try {
@@ -55,9 +55,9 @@ export function test_motion_posture_base_transition(): void {
       "get-up",
       [{ subject: "a", body }],
       HumanChain.subject("a")
-        .knockdown({ seconds: 0.5 })
+        .knockdown({ hold: 0.5 })
         .getUp()
-        .crawl({ cycles: 1 }),
+        .crawl({ count: 1 }),
     );
   } catch (error) {
     all.check(
@@ -70,7 +70,7 @@ export function test_motion_posture_base_transition(): void {
     motionHumanLaw.perform(
       "get-up",
       [{ subject: "a", body }],
-      HumanChain.subject("a").stand({ seconds: 0.3 }).getUp(),
+      HumanChain.subject("a").stand({ hold: 0.3 }).getUp(),
     );
   } catch (error) {
     refusal = error;

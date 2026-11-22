@@ -164,7 +164,7 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
       const {
         on,
         rims,
-        side,
+        hand: side,
         approach,
         push,
         recovery,
@@ -217,7 +217,7 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
       const { postureWithFrame, ...base }: WorkingSeatRidePlan.IPlan =
         HumanRide.ride.plan({
           ...context,
-          params: { on, seconds: duration },
+          params: { on, duration: duration },
         });
       const active: readonly AutoMovieHumanSide[] =
         side === undefined ? SIDES : [side];

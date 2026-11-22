@@ -21,8 +21,8 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * the runners at `at`); the runners do not adjust their speed to meet, and
  * the fingers do not close on the baton.
  *
- * @evidence contracts/development/common.md#meaningful-documentation baton: The baton's subject id, worn on the incoming runner's passing hand; mimed when absent. side: The passing hand of both runners; `right` when absent. zone: The takeover zone's entry and exit lines, world metres; the pass at `at` must fall between them (TR24.19); unchecked when absent.
- * @evidence contracts/development/design.md#principled-representation baton: The baton's subject id, worn on the incoming runner's passing hand; mimed when absent. side: The passing hand of both runners; `right` when absent. zone: The takeover zone's entry and exit lines, world metres; the pass at `at` must fall between them (TR24.19); unchecked when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation baton: The baton's subject id, worn on the incoming runner's passing hand; mimed when absent. hand: The passing hand of both runners; `right` when absent. zone: The takeover zone's entry and exit lines, world metres; the pass at `at` must fall between them (TR24.19); unchecked when absent.
+ * @evidence contracts/development/design.md#principled-representation baton: The baton's subject id, worn on the incoming runner's passing hand; mimed when absent. hand: The passing hand of both runners; `right` when absent. zone: The takeover zone's entry and exit lines, world metres; the pass at `at` must fall between them (TR24.19); unchecked when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/relayPass.ts (relayPass.plan, context); handling/relayPass.ts (relayPass.plan).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -52,7 +52,7 @@ export namespace IAutoMovieMotionHumanRelayPass {
     end?: string;
 
     /** The passing hand of both runners; `right` when absent. */
-    side?: AutoMovieHumanSide;
+    hand?: AutoMovieHumanSide;
 
     /** The takeover zone the baton must pass in; unchecked when absent. */
     zone?: IAutoMovieMotionHumanRelayPass.IZone;

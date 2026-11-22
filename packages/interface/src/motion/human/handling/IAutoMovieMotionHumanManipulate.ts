@@ -37,8 +37,8 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * rest to lift, as `typeText` does. The body holds the posture it is entered
  * in. Events `press1` to `pressN`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation digit: The digit that presses it; the fingering chooses when absent. side: The hand; the act's `side` when absent, the right when both hands play. at: Seconds from the act's start to the press; every contact gives it or none does.
- * @evidence contracts/development/design.md#principled-representation digit: The digit that presses it; the fingering chooses when absent. side: The hand; the act's `side` when absent, the right when both hands play. at: Seconds from the act's start to the press; every contact gives it or none does.
+ * @evidence contracts/development/common.md#meaningful-documentation digit: The digit that presses it; the fingering chooses when absent. hand: The hand; the act's `side` when absent, the right when both hands play. at: Seconds from the act's start to the press; every contact gives it or none does.
+ * @evidence contracts/development/design.md#principled-representation digit: The digit that presses it; the fingering chooses when absent. hand: The hand; the act's `side` when absent, the right when both hands play. at: Seconds from the act's start to the press; every contact gives it or none does.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/manipulate.ts (CHART, [keys, side, finger]); handling/manipulate.ts (CHART, return); handling/manipulateFingering.ts (manipulateFingering, return); handling/manipulate.ts (manipulate.plan, context); handling/manipulate.ts (manipulate.sequence, context); handling/manipulate.ts (interval, context).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -62,8 +62,8 @@ export namespace IAutoMovieMotionHumanManipulate {
   /**
    * One contact of the sequence.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation digit: The digit that presses it; the fingering chooses when absent. side: The hand; the act's `side` when absent, the right when both hands play. at: Seconds from the act's start to the press; every contact gives it or none does.
-   * @evidence contracts/development/design.md#principled-representation digit: The digit that presses it; the fingering chooses when absent. side: The hand; the act's `side` when absent, the right when both hands play. at: Seconds from the act's start to the press; every contact gives it or none does.
+   * @evidence contracts/development/common.md#meaningful-documentation digit: The digit that presses it; the fingering chooses when absent. hand: The hand; the act's `side` when absent, the right when both hands play. at: Seconds from the act's start to the press; every contact gives it or none does.
+   * @evidence contracts/development/design.md#principled-representation digit: The digit that presses it; the fingering chooses when absent. hand: The hand; the act's `side` when absent, the right when both hands play. at: Seconds from the act's start to the press; every contact gives it or none does.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/manipulate.ts (manipulate.sequence.given, c).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanManipulate.Finger, AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
@@ -75,7 +75,7 @@ export namespace IAutoMovieMotionHumanManipulate {
     digit?: IAutoMovieMotionHumanManipulate.Finger;
 
     /** The hand; the act's `side` when absent, the right when both hands play. */
-    side?: AutoMovieHumanSide;
+    hand?: AutoMovieHumanSide;
 
     /** Seconds from the act's start to the press; every contact gives it or none does. */
     at?: number;
@@ -103,7 +103,7 @@ export namespace IAutoMovieMotionHumanManipulate {
     text?: string;
 
     /** The hand when contacts do not name one, or both. */
-    side?: AutoMovieHumanSide | "both";
+    hand?: AutoMovieHumanSide | "both";
 
     /** The digit of every contact that names none, so the fingering does not choose: a thumb texting, a forefinger dialling. */
     digit?: IAutoMovieMotionHumanManipulate.Finger;

@@ -93,7 +93,7 @@ export function test_motion_exercise_handball_goal(): void {
           "throw",
         )
         // The film runs on while the throw's result plays out.
-        .stand({ seconds: 2, sway: 0 }).node,
+        .stand({ hold: 2, sway: 0 }).node,
     ];
     if (keeper !== undefined) {
       performers.push({

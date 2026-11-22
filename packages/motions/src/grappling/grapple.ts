@@ -191,8 +191,8 @@ export namespace grapple {
         fix: "name the other actor in the staged scene",
       });
 
-    const duration: number = p.seconds ?? grappleStances.seconds(p.kind);
-    HumanBound.above("seconds", duration, 0, "s");
+    const duration: number = p.duration ?? grappleStances.seconds(p.kind);
+    HumanBound.above("duration", duration, 0, "s");
 
     const keys: ReturnType<typeof grappleStances.keys> = grappleStances.keys(
       p,

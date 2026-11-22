@@ -72,7 +72,7 @@ export namespace WorkoutDance {
         { part: "rightHand", kind: "plant" },
       ],
       enter: 1.5,
-      reps: 1,
+      count: 1,
       route: (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [

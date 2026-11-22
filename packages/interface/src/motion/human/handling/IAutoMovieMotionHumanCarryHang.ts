@@ -11,8 +11,8 @@
  * the hands: the law grips them through its whole length and leaves them
  * held after.
  *
- * @evidence contracts/development/common.md#meaningful-documentation left: The prop the left hand holds; that arm is left to the walk when absent. right: The prop the right hand holds; that arm is left to the walk when absent. seconds: Seconds the carry lasts; 3 when absent.
- * @evidence contracts/development/design.md#principled-representation left: The prop the left hand holds; that arm is left to the walk when absent. right: The prop the right hand holds; that arm is left to the walk when absent. seconds: Seconds the carry lasts; 3 when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation left: The prop the left hand holds; that arm is left to the walk when absent. right: The prop the right hand holds; that arm is left to the walk when absent. duration: Seconds the carry lasts; 3 when absent.
+ * @evidence contracts/development/design.md#principled-representation left: The prop the left hand holds; that arm is left to the walk when absent. right: The prop the right hand holds; that arm is left to the walk when absent. duration: Seconds the carry lasts; 3 when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/carryHang.ts (carryHang.plan, context); handling/carryHang.ts (carryHang.plan).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in carryHang.plan.
  */
@@ -33,6 +33,6 @@ export namespace IAutoMovieMotionHumanCarryHang {
     right?: string;
 
     /** Seconds the carry lasts; 3 when absent. */
-    seconds?: number;
+    duration?: number;
   }
 }

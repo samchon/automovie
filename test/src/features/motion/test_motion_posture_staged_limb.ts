@@ -7,6 +7,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanStance,
   HumanBodyFit,
   HumanChain,
   HumanHand,
@@ -16,7 +17,6 @@ import {
   StrikingStroke,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -142,7 +142,11 @@ export function test_motion_posture_staged_limb(): void {
   const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
   for (const name of ["m-average"] as const) {
     const body = motionHumanBody(name);
-    const standing = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const standing = AutoMovieMotionHumanStance.stand.posture(
+      body,
+      { x: 0, y: 0, z: 0 },
+      0,
+    );
     const bones = poseBones(body, resolveHumanPosture(body, standing));
 
     // The crouch's full squat at its lowest, by its joint angles.

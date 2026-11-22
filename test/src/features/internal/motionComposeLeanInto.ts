@@ -15,11 +15,11 @@ import {
   AutoMovieMotionHumanBend,
   AutoMovieMotionHumanLeanInto,
   AutoMovieMotionHumanReach,
+  AutoMovieMotionHumanStance,
   HumanBalance,
   HumanRefusal,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
@@ -102,237 +102,226 @@ export function motionComposeLeanInto(
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const bones = (posture: IAutoMovieMotionHumanPosture): Bones =>
       poseBones(body, resolveHumanPosture(body, posture));
-    const standing: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      { x: 0, y: 0, z: 0 },
-      0,
-    );
+    const standing: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
     const upright: Bones = bones(standing);
     const opposite: AutoMovieHumanSide = moving === "left" ? "right" : "left";
-    for (const [side, share] of [[moving, 0.8], [opposite, 0.95]] as const) {
-        const cell: string = `${name}: the ${side} hand kept within ${share} of its arm`;
-        const length: number =
-          gap(
-            upright.get(`${side}UpperArm`)!.worldPosition,
-            upright.get(`${side}LowerArm`)!.worldPosition,
-          ) +
-          gap(
-            upright.get(`${side}LowerArm`)!.worldPosition,
-            upright.get(`${side}Hand`)!.worldPosition,
-          );
-        let goal: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-        const refusals: [number, number][] = [];
-        const lean: IAutoMovieMotionHumanLeanInto.ILean =
-          AutoMovieMotionHumanLeanInto.solve({
-            body,
-            standing,
-            balance: true,
-            side,
-            share,
-            wrist: (): IAutoMovieVector3 => goal,
-            refuse: (beyond: number, limit: number): string => {
-              refusals.push([beyond, limit]);
-              return "the work is out of reach";
-            },
-          });
-        const shoulder = (pitch: number): IAutoMovieVector3 =>
-          bones(lean.tip(standing, pitch)).get(`${side}UpperArm`)!
-            .worldPosition;
-
-        // 1. The tipped posture.
-        for (const pitch of [10, 25, 40, 45] as const) {
-          const tipped: IAutoMovieMotionHumanPosture = lean.tip(
-            standing,
-            pitch,
-          );
-          const hips: IAutoMovieVector3 =
-            bones(tipped).get("hips")!.worldPosition;
-          const was: IAutoMovieVector3 = upright.get("hips")!.worldPosition;
-          const margin: number = HumanBalance.margin(body, tipped);
-          all.check(
-            `${cell}: a tip of ${pitch} adds its pitch, moves the hips ${mm(was.z - hips.z)} mm straight back and keeps a margin of ${mm(margin)} mm`,
-            tipped.pitch === pitch &&
-              was.z - hips.z >= 0 &&
-              Math.abs(hips.x - was.x) <= 1e-9 &&
-              Math.abs(hips.y - was.y) <= 1e-9 &&
-              margin > 0,
-          );
-        }
-
-        // 2. The least pitch.
-        goal = ahead(shoulder(0), 0.5 * share * length);
-        all.check(
-          `${cell}: a goal within the share needs no lean, got ${lean.pitch(standing, 0)}`,
-          lean.pitch(standing, 0) === 0,
+    for (const [side, share] of [
+      [moving, 0.8],
+      [opposite, 0.95],
+    ] as const) {
+      const cell: string = `${name}: the ${side} hand kept within ${share} of its arm`;
+      const length: number =
+        gap(
+          upright.get(`${side}UpperArm`)!.worldPosition,
+          upright.get(`${side}LowerArm`)!.worldPosition,
+        ) +
+        gap(
+          upright.get(`${side}LowerArm`)!.worldPosition,
+          upright.get(`${side}Hand`)!.worldPosition,
         );
-        let last: number = 0;
-        for (const chosen of [10, 25, 40] as const) {
-          goal = ahead(shoulder(chosen), share * length);
-          const pitch: number = lean.pitch(standing, 0);
-          const within: number = gap(shoulder(pitch), goal) - share * length;
-          const beyond: number =
-            gap(shoulder(pitch - 0.05), goal) - share * length;
-          all.check(
-            `${cell}: a goal placed at ${chosen} degrees is leaned to by ${pitch.toFixed(3)}, the wrist ${mm(within)} mm beyond the share there and ${mm(beyond)} mm at 0.05 degrees less`,
-            Math.abs(pitch - chosen) <= 0.05 &&
-              within <= 1e-6 &&
-              beyond > 0 &&
-              pitch > last,
-          );
-          last = pitch;
-        }
-
-        // 3. The refusal.
-        goal = ahead(
-          shoulder(AutoMovieMotionHumanReach.LEAN_LIMIT),
-          share * length + 0.1,
-        );
-        let message: string = "";
-        try {
-          lean.pitch(standing, 0);
-        } catch (error) {
-          // A refusal states its reason as a field; its message adds the
-          // axis, the feasible range and the fix around it.
-          message =
-            error instanceof HumanRefusal && error.kind === "reach"
-              ? error.reason
-              : (error as Error).message;
-        }
-        all.check(
-          `${cell}: a goal 100 mm beyond the share at the limit is refused, message "${message}" with ${JSON.stringify(refusals)}`,
-          message === "the work is out of reach" &&
-            refusals.length === 1 &&
-            Math.abs(refusals[0]![0] - 0.1) <= 0.001 &&
-            refusals[0]![1] === AutoMovieMotionHumanReach.LEAN_LIMIT,
-        );
-
-        // The tighter reach share owns the tested moving path.
-        if (share !== 0.8) continue;
-        const near: IAutoMovieVector3 = ahead(
-          shoulder(0),
-          0.5 * share * length,
-        );
-        const far: IAutoMovieVector3 = ahead(shoulder(25), share * length);
-        const stroke: IAutoMovieMotionHumanLeanInto.ILean =
-          AutoMovieMotionHumanLeanInto.solve({
-            body,
-            standing,
-            balance: true,
-            side,
-            share,
-            wrist: (
-              _posture: IAutoMovieMotionHumanPosture,
-              progress: number,
-            ): IAutoMovieVector3 => ({
-              x: near.x + (far.x - near.x) * progress,
-              y: near.y + (far.y - near.y) * progress,
-              z: near.z + (far.z - near.z) * progress,
-            }),
-            refuse: (): string => "the work is out of reach",
-          });
-        const phrase: IAutoMovieMotionHumanPrimitive = stroke.primitive(clock);
-        all.equals(
-          `${cell}: the lean claims the root and the trunk over the whole clock`,
-          [phrase.channels, phrase.from, phrase.to],
-          [["root", "trunk"], 0, clock.duration],
-        );
-        let before: number = 0;
-        for (let k: number = 0; k <= 10; k++) {
-          const seconds: number = k * 0.125;
-          const written: IAutoMovieMotionHumanPosture = phrase.write(
-            standing,
-            seconds,
-          );
-          const pose: Bones = bones(written);
-          const at: string = `${cell}: the lean at ${seconds} s`;
-          const slip: number = Math.max(
-            gap(
-              pose.get("leftFoot")!.worldPosition,
-              upright.get("leftFoot")!.worldPosition,
-            ),
-            gap(
-              pose.get("rightFoot")!.worldPosition,
-              upright.get("rightFoot")!.worldPosition,
-            ),
-          );
-          const margin: number = HumanBalance.margin(body, written);
-          all.check(
-            `${at} keeps both feet, off by ${mm(slip)} mm, and a margin of ${mm(margin)} mm`,
-            slip <= 0.001 && margin > 0,
-          );
-          if (seconds === 0 || seconds === 1.25)
-            all.check(
-              `${at} stands as before, pitched ${written.pitch}`,
-              written.pitch === 0 && gap(written.root, standing.root) <= 1e-6,
-            );
-          else if (seconds <= 0.375)
-            all.check(
-              `${at} does not lean for the near goal, pitched ${written.pitch}`,
-              written.pitch === 0,
-            );
-          else if (seconds <= 0.875)
-            all.check(
-              `${at} leans no less than before, pitched ${written.pitch.toFixed(3)} after ${before.toFixed(3)}`,
-              written.pitch >= before - 1e-9 && written.pitch <= 25.05,
-            );
-          if (seconds === 0.875 || seconds === 1)
-            all.check(
-              `${at} leans to the far goal's 25 degrees, pitched ${written.pitch.toFixed(3)}`,
-              Math.abs(written.pitch - 25) <= 0.05,
-            );
-          before = written.pitch;
-        }
-
-        // 5. The arm held on its goal through the lean and the return.
-        const reaching = (
-          posture: IAutoMovieMotionHumanPosture,
-        ): IAutoMovieHumanLimbGoal => ({
-          point: far,
-          bend: AutoMovieMotionHumanBend.hang(body, posture, side),
+      let goal: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+      const refusals: [number, number][] = [];
+      const lean: IAutoMovieMotionHumanLeanInto.ILean =
+        AutoMovieMotionHumanLeanInto.solve({
+          body,
+          standing,
+          balance: true,
+          side,
+          share,
+          wrist: (): IAutoMovieVector3 => goal,
+          refuse: (beyond: number, limit: number): string => {
+            refusals.push([beyond, limit]);
+            return "the work is out of reach";
+          },
         });
-        const weighed: IAutoMovieMotionHumanLeanInto.ILean =
-          AutoMovieMotionHumanLeanInto.solve({
-            body,
-            standing,
-            balance: true,
-            side,
-            share,
-            wrist: (): IAutoMovieVector3 => far,
-            arm: reaching,
-            refuse: (): string => "the work is out of reach",
-          });
-        const into: IAutoMovieMotionHumanPrimitive = weighed.primitive(clock);
-        const armed = (seconds: number): IAutoMovieMotionHumanPosture => {
-          const written: IAutoMovieMotionHumanPosture = into.write(
-            standing,
-            seconds,
-          );
-          return {
-            ...written,
-            limbs: { ...written.limbs, [`${side}Arm`]: reaching(written) },
-          };
-        };
-        const centre = (seconds: number): IAutoMovieVector3 =>
-          HumanBalance.support(body, armed(seconds)).centre;
-        const still: IAutoMovieVector3 = centre(0);
-        let worst: { margin: number; at: number } = { margin: Infinity, at: 0 };
-        let drift: { by: number; at: number } = { by: 0, at: 0 };
-        for (let k: number = 0; k <= Math.floor(clock.duration * 24); k++) {
-          const seconds: number = k / 24;
-          const margin: number = HumanBalance.extrapolated(
-            body,
-            armed,
-            seconds,
-          );
-          if (margin < worst.margin) worst = { margin, at: seconds };
-          const now: IAutoMovieVector3 = centre(seconds);
-          const by: number = Math.hypot(now.x - still.x, now.z - still.z);
-          if (by > drift.by) drift = { by, at: seconds };
-        }
+      const shoulder = (pitch: number): IAutoMovieVector3 =>
+        bones(lean.tip(standing, pitch)).get(`${side}UpperArm`)!.worldPosition;
+
+      // 1. The tipped posture.
+      for (const pitch of [10, 25, 40, 45] as const) {
+        const tipped: IAutoMovieMotionHumanPosture = lean.tip(standing, pitch);
+        const hips: IAutoMovieVector3 =
+          bones(tipped).get("hips")!.worldPosition;
+        const was: IAutoMovieVector3 = upright.get("hips")!.worldPosition;
+        const margin: number = HumanBalance.margin(body, tipped);
         all.check(
-          `${cell}: with the arm on its goal the lean to 25 degrees and back keeps the extrapolated centre ${mm(worst.margin)} mm inside the base at ${worst.at.toFixed(3)} s, the least, and the centre within ${mm(drift.by)} mm of where it stood at ${drift.at.toFixed(3)} s (limit 10.00)`,
-          worst.margin > 0 && drift.by <= 0.01,
+          `${cell}: a tip of ${pitch} adds its pitch, moves the hips ${mm(was.z - hips.z)} mm straight back and keeps a margin of ${mm(margin)} mm`,
+          tipped.pitch === pitch &&
+            was.z - hips.z >= 0 &&
+            Math.abs(hips.x - was.x) <= 1e-9 &&
+            Math.abs(hips.y - was.y) <= 1e-9 &&
+            margin > 0,
         );
       }
+
+      // 2. The least pitch.
+      goal = ahead(shoulder(0), 0.5 * share * length);
+      all.check(
+        `${cell}: a goal within the share needs no lean, got ${lean.pitch(standing, 0)}`,
+        lean.pitch(standing, 0) === 0,
+      );
+      let last: number = 0;
+      for (const chosen of [10, 25, 40] as const) {
+        goal = ahead(shoulder(chosen), share * length);
+        const pitch: number = lean.pitch(standing, 0);
+        const within: number = gap(shoulder(pitch), goal) - share * length;
+        const beyond: number =
+          gap(shoulder(pitch - 0.05), goal) - share * length;
+        all.check(
+          `${cell}: a goal placed at ${chosen} degrees is leaned to by ${pitch.toFixed(3)}, the wrist ${mm(within)} mm beyond the share there and ${mm(beyond)} mm at 0.05 degrees less`,
+          Math.abs(pitch - chosen) <= 0.05 &&
+            within <= 1e-6 &&
+            beyond > 0 &&
+            pitch > last,
+        );
+        last = pitch;
+      }
+
+      // 3. The refusal.
+      goal = ahead(
+        shoulder(AutoMovieMotionHumanReach.LEAN_LIMIT),
+        share * length + 0.1,
+      );
+      let message: string = "";
+      try {
+        lean.pitch(standing, 0);
+      } catch (error) {
+        // A refusal states its reason as a field; its message adds the
+        // axis, the feasible range and the fix around it.
+        message =
+          error instanceof HumanRefusal && error.kind === "reach"
+            ? error.reason
+            : (error as Error).message;
+      }
+      all.check(
+        `${cell}: a goal 100 mm beyond the share at the limit is refused, message "${message}" with ${JSON.stringify(refusals)}`,
+        message === "the work is out of reach" &&
+          refusals.length === 1 &&
+          Math.abs(refusals[0]![0] - 0.1) <= 0.001 &&
+          refusals[0]![1] === AutoMovieMotionHumanReach.LEAN_LIMIT,
+      );
+
+      // The tighter reach share owns the tested moving path.
+      if (share !== 0.8) continue;
+      const near: IAutoMovieVector3 = ahead(shoulder(0), 0.5 * share * length);
+      const far: IAutoMovieVector3 = ahead(shoulder(25), share * length);
+      const stroke: IAutoMovieMotionHumanLeanInto.ILean =
+        AutoMovieMotionHumanLeanInto.solve({
+          body,
+          standing,
+          balance: true,
+          side,
+          share,
+          wrist: (
+            _posture: IAutoMovieMotionHumanPosture,
+            progress: number,
+          ): IAutoMovieVector3 => ({
+            x: near.x + (far.x - near.x) * progress,
+            y: near.y + (far.y - near.y) * progress,
+            z: near.z + (far.z - near.z) * progress,
+          }),
+          refuse: (): string => "the work is out of reach",
+        });
+      const phrase: IAutoMovieMotionHumanPrimitive = stroke.primitive(clock);
+      all.equals(
+        `${cell}: the lean claims the root and the trunk over the whole clock`,
+        [phrase.channels, phrase.from, phrase.to],
+        [["root", "trunk"], 0, clock.duration],
+      );
+      let before: number = 0;
+      for (let k: number = 0; k <= 10; k++) {
+        const seconds: number = k * 0.125;
+        const written: IAutoMovieMotionHumanPosture = phrase.write(
+          standing,
+          seconds,
+        );
+        const pose: Bones = bones(written);
+        const at: string = `${cell}: the lean at ${seconds} s`;
+        const slip: number = Math.max(
+          gap(
+            pose.get("leftFoot")!.worldPosition,
+            upright.get("leftFoot")!.worldPosition,
+          ),
+          gap(
+            pose.get("rightFoot")!.worldPosition,
+            upright.get("rightFoot")!.worldPosition,
+          ),
+        );
+        const margin: number = HumanBalance.margin(body, written);
+        all.check(
+          `${at} keeps both feet, off by ${mm(slip)} mm, and a margin of ${mm(margin)} mm`,
+          slip <= 0.001 && margin > 0,
+        );
+        if (seconds === 0 || seconds === 1.25)
+          all.check(
+            `${at} stands as before, pitched ${written.pitch}`,
+            written.pitch === 0 && gap(written.root, standing.root) <= 1e-6,
+          );
+        else if (seconds <= 0.375)
+          all.check(
+            `${at} does not lean for the near goal, pitched ${written.pitch}`,
+            written.pitch === 0,
+          );
+        else if (seconds <= 0.875)
+          all.check(
+            `${at} leans no less than before, pitched ${written.pitch.toFixed(3)} after ${before.toFixed(3)}`,
+            written.pitch >= before - 1e-9 && written.pitch <= 25.05,
+          );
+        if (seconds === 0.875 || seconds === 1)
+          all.check(
+            `${at} leans to the far goal's 25 degrees, pitched ${written.pitch.toFixed(3)}`,
+            Math.abs(written.pitch - 25) <= 0.05,
+          );
+        before = written.pitch;
+      }
+
+      // 5. The arm held on its goal through the lean and the return.
+      const reaching = (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieHumanLimbGoal => ({
+        point: far,
+        bend: AutoMovieMotionHumanBend.hang(body, posture, side),
+      });
+      const weighed: IAutoMovieMotionHumanLeanInto.ILean =
+        AutoMovieMotionHumanLeanInto.solve({
+          body,
+          standing,
+          balance: true,
+          side,
+          share,
+          wrist: (): IAutoMovieVector3 => far,
+          arm: reaching,
+          refuse: (): string => "the work is out of reach",
+        });
+      const into: IAutoMovieMotionHumanPrimitive = weighed.primitive(clock);
+      const armed = (seconds: number): IAutoMovieMotionHumanPosture => {
+        const written: IAutoMovieMotionHumanPosture = into.write(
+          standing,
+          seconds,
+        );
+        return {
+          ...written,
+          limbs: { ...written.limbs, [`${side}Arm`]: reaching(written) },
+        };
+      };
+      const centre = (seconds: number): IAutoMovieVector3 =>
+        HumanBalance.support(body, armed(seconds)).centre;
+      const still: IAutoMovieVector3 = centre(0);
+      let worst: { margin: number; at: number } = { margin: Infinity, at: 0 };
+      let drift: { by: number; at: number } = { by: 0, at: 0 };
+      for (let k: number = 0; k <= Math.floor(clock.duration * 24); k++) {
+        const seconds: number = k / 24;
+        const margin: number = HumanBalance.extrapolated(body, armed, seconds);
+        if (margin < worst.margin) worst = { margin, at: seconds };
+        const now: IAutoMovieVector3 = centre(seconds);
+        const by: number = Math.hypot(now.x - still.x, now.z - still.z);
+        if (by > drift.by) drift = { by, at: seconds };
+      }
+      all.check(
+        `${cell}: with the arm on its goal the lean to 25 degrees and back keeps the extrapolated centre ${mm(worst.margin)} mm inside the base at ${worst.at.toFixed(3)} s, the least, and the centre within ${mm(drift.by)} mm of where it stood at ${drift.at.toFixed(3)} s (limit 10.00)`,
+        worst.margin > 0 && drift.by <= 0.01,
+      );
+    }
   }
 }

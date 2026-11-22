@@ -20,7 +20,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HUMANOID_GAITS,
+  AutoMovieMotionHumanGait,
   HumanChain,
   HumanPerformance,
   createHumanBody,
@@ -39,8 +39,8 @@ export function compileEnvironmentExample(
   const body: IAutoMovieHumanCanonicalBody.IBody = environmentExampleBody();
   const rig: IAutoMovieSkeleton = body.skeleton;
   const walk: IAutoMovieGait = {
-    ...HUMANOID_GAITS.walk,
-    limbs: [...HUMANOID_GAITS.walk.limbs],
+    ...AutoMovieMotionHumanGait.HUMANOID_GAITS.walk,
+    limbs: [...AutoMovieMotionHumanGait.HUMANOID_GAITS.walk.limbs],
   };
   let restPose: IAutoMoviePose = { skeleton: rig.id, root: null, joints: [] };
   if (
@@ -61,8 +61,7 @@ export function compileEnvironmentExample(
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject(subject).stand({ seconds: 1, sway: 0 })
-        .node,
+      composition: HumanChain.subject(subject).stand({ hold: 1, sway: 0 }).node,
     });
     restPose = { ...stand.pose(subject, 0), root: null };
     // The schematic gait supplies arm swing. Carry the standing pose's

@@ -118,7 +118,7 @@ export function test_motion_equipment_contact_height(): void {
     const film = stage(
         model,
         p,
-        actor.stand({ seconds: 0.3 }).registered(law.name, params),
+        actor.stand({ hold: 0.3 }).registered(law.name, params),
         [law],
       ),
       span = film.segments("a")[1]!;
@@ -370,7 +370,7 @@ export function test_motion_equipment_contact_height(): void {
   const control = stage(
     tap,
     tp,
-    actor.stand({ seconds: 0.3 }).registered("operate", {
+    actor.stand({ hold: 0.3 }).registered("operate", {
       mechanism: {
         kind: "knob",
         at: { kind: "prop", subject: "fixture", point: "lever" },

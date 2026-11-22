@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
+import type { IAutoMovieMotionHumanTouch } from "../next/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanSword } from "./IAutoMovieMotionHumanSword";
 
 /**
@@ -31,6 +31,6 @@ export interface IAutoMovieMotionHumanLexiconWeaponMeleeParams {
   /** A reload: the support hand's palm pressed once to the magazine well the composition names. */
   reload: Omit<
     IAutoMovieMotionHumanTouch.IParams,
-    "with" | "kind" | "count" | "side"
+    "effector" | "kind" | "count" | "hand"
   >;
 }

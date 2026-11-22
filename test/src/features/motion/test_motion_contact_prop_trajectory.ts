@@ -105,7 +105,7 @@ export function test_motion_contact_prop_trajectory(): void {
         ],
         composition: HumanChain.subject("a")
           .pickUp({ prop: "mug", handle: "handle" })
-          .stand({ seconds: 3 })
+          .stand({ hold: 3 })
           .over((u) => u.release({ hand: "right" }))
           .with(
             HumanChain.subject("walker").walk({ to: { x: 1.4, y: 0, z: 2 } }),
@@ -195,7 +195,7 @@ export function test_motion_contact_prop_trajectory(): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 1 })
+        .stand({ hold: 1 })
         .over((u) => u.release({ hand: "left" })).node,
     });
   } catch (error) {

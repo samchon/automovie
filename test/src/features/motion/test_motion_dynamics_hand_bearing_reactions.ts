@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  HumanCarried,
+  AutoMovieMotionHumanCarryPerson,
   HumanCarriedCoupling,
   HumanCarriedCouplingLoad,
   HumanLoad,
@@ -45,7 +45,7 @@ export function test_motion_dynamics_hand_bearing_reactions(): void {
   const base = HumanCarriedCoupling.couple(
     small,
     small,
-    HumanCarried.CARRIES.cradle,
+    AutoMovieMotionHumanCarryPerson.carryPerson.CARRIES.cradle,
     "cradle",
   );
   const load = HumanCarriedCouplingLoad.load(small, base);
@@ -67,7 +67,7 @@ export function test_motion_dynamics_hand_bearing_reactions(): void {
       HumanCarriedCoupling.couple(
         small,
         small,
-        HumanCarried.CARRIES.cradle,
+        AutoMovieMotionHumanCarryPerson.carryPerson.CARRIES.cradle,
         "cradle",
         capacity - base.mass + 1,
       );

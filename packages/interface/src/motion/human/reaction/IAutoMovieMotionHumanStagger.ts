@@ -89,8 +89,8 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * The push is read where its source is as the plan begins, the causal read
  * a reaction makes (`ReactionSource`).
  *
- * @evidence contracts/development/common.md#meaningful-documentation from: Where the blow comes from: the body is pushed away from it; a place ahead of the performer when absent.
- * @evidence contracts/development/design.md#principled-representation from: Where the blow comes from: the body is pushed away from it; a place ahead of the performer when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation target: Where the blow comes target: the body is pushed away from it; a place ahead of the performer when absent.
+ * @evidence contracts/development/design.md#principled-representation target: Where the blow comes target: the body is pushed away from it; a place ahead of the performer when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.stagger, params); reaction/stagger.ts (stagger.plan, context); reaction/stagger.ts (stagger.plan).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -105,7 +105,7 @@ export namespace IAutoMovieMotionHumanStagger {
    */
   export interface IParams {
     /** Where the blow comes from: the body is pushed away from it; a place ahead of the performer when absent. */
-    from?: IAutoMovieMotionTarget;
+    target?: IAutoMovieMotionTarget;
 
     /** The centre of mass's speed after the blow, m/s. Up to four recovery steps catch it (each about 0.18 to 0.24 s, 0.38 to 0.59 stature long); a faster push is refused as a fall, naming the fastest push the body catches, and a fall is a `knockdown`. The step count and times are the body's dynamics and follow this speed alone. */
     speed: number;

@@ -6,7 +6,11 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance, collapse } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanFall,
+  HumanChain,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -102,10 +106,10 @@ export function test_motion_reaction_collapse_directions(): void {
               proficiency: { level: "trained" },
             },
           ],
-          laws: [collapse],
+          laws: [AutoMovieMotionHumanFall.collapse],
           composition: HumanChain.subject("a")
-            .stand({ seconds: 0.3, sway: 0 })
-            .registered(collapse.name, {
+            .stand({ hold: 0.3, sway: 0 })
+            .registered(AutoMovieMotionHumanFall.collapse.name, {
               direction: one.direction,
               tone: one.tone,
               from,

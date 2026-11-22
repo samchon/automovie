@@ -41,7 +41,7 @@ export interface IAutoMovieMotionManner {
    * the duration's are measured, the size's provisional). It changes nothing
    * at `variation` 0. The performer's own timing skill when absent.
    */
-  proficiency?: number;
+  consistency?: number;
 
   /** The share of the offset bound a seeded draw takes, in [0, 1], so one performance differs from the next in duration and size; 0 when absent: every performance is the same. */
   variation?: number;

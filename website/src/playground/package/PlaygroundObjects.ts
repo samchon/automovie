@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieTransform,
 } from "@automovie/interface";
-import { HumanAidWalk, HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanGait, HumanObject } from "@automovie/motions";
 import * as motions from "@automovie/motions";
 
 import { SceneArchetype } from "../../scenes/package/SceneArchetype";
@@ -122,7 +122,10 @@ export namespace PlaygroundObjects {
           placed,
           aid === undefined
             ? travel?.placement
-            : HumanAidWalk.track(HumanObject.frame(placed), aid),
+            : AutoMovieMotionHumanGait.aidWalk.track(
+                HumanObject.frame(placed),
+                aid,
+              ),
           travel?.contact,
           travel?.tracks,
         );

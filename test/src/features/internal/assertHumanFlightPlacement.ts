@@ -9,13 +9,8 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-} from "@automovie/motions";
+import { HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
-
-
 
 import { motionHumanFrame } from "./motionHumanFrame";
 import { nclose } from "./nclose";
@@ -60,31 +55,32 @@ export function assertHumanFlightPlacement(
   canonical: IAutoMovieMotionHumanBody,
   findings: string[],
 ): void {
-  const there: IAutoMovieMotionHumanPerformance =
-    new HumanPerformance({
-      seed: "flight",
-      flight: "physical",
-      performers: [
+  const there: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+    seed: "flight",
+    flight: "physical",
+    performers: [
+      {
+        subject: "a",
+        body: { ...canonical },
+        at: { x: 3, y: 0, z: -2 },
+        yaw: 90,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("a")
+      .stand({ hold: 0.3 })
+      .jump(
         {
-          subject: "a",
-          body: { ...canonical },
-          at: { x: 3, y: 0, z: -2 },
-          yaw: 90,
-          proficiency: { level: "trained" },
+          to: { x: 4, y: 0, z: -2 },
+          apex: 0.5,
+          rotation: { somersault: 1 },
         },
-      ],
-      composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3 })
-        .jump(
-          {
-            to: { x: 4, y: 0, z: -2 },
-            apex: 0.5,
-            rotation: { somersault: 1 },
-          },
-          "leap",
-        ).node,
-    });
-  const span: (film: IAutoMovieMotionHumanPerformance) => readonly [number, number] = (
+        "leap",
+      ).node,
+  });
+  const span: (
+    film: IAutoMovieMotionHumanPerformance,
+  ) => readonly [number, number] = (
     film: IAutoMovieMotionHumanPerformance,
   ): readonly [number, number] => {
     const segment: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
@@ -116,7 +112,10 @@ export function assertHumanFlightPlacement(
     "placed turn has finite positive observed flight",
     Number.isFinite(from) && Number.isFinite(to) && to - from > 2e-6,
   );
-  const root: (film: IAutoMovieMotionHumanPerformance, t: number) => IAutoMovieQuaternion = (
+  const root: (
+    film: IAutoMovieMotionHumanPerformance,
+    t: number,
+  ) => IAutoMovieQuaternion = (
     film: IAutoMovieMotionHumanPerformance,
     t: number,
   ): IAutoMovieQuaternion => film.pose("a", t).root!.rotation;
@@ -187,8 +186,11 @@ export function assertHumanFlightPlacement(
   const spans: readonly (readonly [number, number])[] = [origin, placed];
   const films: readonly IAutoMovieMotionHumanPerformance[] = [here, there];
   for (let k: number = 0; k <= samples; k++) {
-    const times: number[] = spans.map(([open, close]: readonly [number, number]): number =>
-      k === samples ? close - boundary : open + ((close - open - boundary) * k) / samples,
+    const times: number[] = spans.map(
+      ([open, close]: readonly [number, number]): number =>
+        k === samples
+          ? close - boundary
+          : open + ((close - open - boundary) * k) / samples,
     );
     compare(times[0]!, times[1]!);
     for (const [index, film] of films.entries()) {

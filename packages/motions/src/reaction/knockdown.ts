@@ -26,9 +26,9 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
 import { createHumanPostureCurve } from "../posture/createHumanPostureCurve";
-import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { KnockdownFloor } from "./KnockdownFloor";
 import { ReactionFeet } from "./ReactionFeet";
@@ -127,7 +127,9 @@ export namespace knockdown {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged body/rig/profile establish only static selection equivalence. Each actual posture and current-call FK/ROM source reaches the native owner normally, with original dependency/provenance checks and no fitted result reuse.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the native reader and its bounded body/profile metadata until its plan or interval releases it. Invocation FK/ROM loans, posed maps and scalar heights are never retained in that reader or returned data.
    */
-  export function prepareRest(body: IAutoMovieMotionHumanBody): ReturnType<typeof KnockdownFloor.prepareRest> {
+  export function prepareRest(
+    body: IAutoMovieMotionHumanBody,
+  ): ReturnType<typeof KnockdownFloor.prepareRest> {
     return KnockdownFloor.prepareRest(body);
   }
 
@@ -150,25 +152,26 @@ export namespace knockdown {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnockdown.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const lie: number = context.params.seconds ?? 1;
+    const lie: number = context.params.hold ?? 1;
     if (!(lie >= 0)) throw new Error("A knockdown lies a non-negative time");
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      DOWN + lie,
-      [
-        { name: "rolling", seconds: ROLLING * SEATED },
-        { name: "seated", seconds: SEATED },
-        { name: "stroke", seconds: SEATED },
-        { name: "down", seconds: DOWN },
-        { name: "relax", seconds: DOWN },
-      ],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(DOWN + lie, [
+      { name: "rolling", seconds: ROLLING * SEATED },
+      { name: "seated", seconds: SEATED },
+      { name: "stroke", seconds: SEATED },
+      { name: "down", seconds: DOWN },
+      { name: "relax", seconds: DOWN },
+    ]);
     const duration: number = clock.duration;
     const sit: (seconds: number) => number = AutoMovieMotionClock.prepare(
-      clock, AutoMovieMotionClock.START, "seated",
+      clock,
+      AutoMovieMotionClock.START,
+      "seated",
     ).progress;
     const back: (seconds: number) => number = AutoMovieMotionClock.prepare(
-      clock, "rolling", "down",
+      clock,
+      "rolling",
+      "down",
     ).progress;
 
     // The angles this body needs to rest on the floor, and where its ankles
@@ -185,17 +188,25 @@ export namespace knockdown {
       seconds: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
       projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-    ): KnockdownFloor.IMeasure => measure(
-      KnockdownFloor.fold(fitted, sit(seconds), back(seconds)),
-      resolution,
-      projection,
-    );
-    const [standing, seated]: readonly [KnockdownFloor.IMeasure, KnockdownFloor.IMeasure] =
-      ((): readonly [KnockdownFloor.IMeasure, KnockdownFloor.IMeasure] => {
-        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-        const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
-        return [at(0, resolution, projection), at(SEATED, resolution, projection)];
-      })();
+    ): KnockdownFloor.IMeasure =>
+      measure(
+        KnockdownFloor.fold(fitted, sit(seconds), back(seconds)),
+        resolution,
+        projection,
+      );
+    const [standing, seated]: readonly [
+      KnockdownFloor.IMeasure,
+      KnockdownFloor.IMeasure,
+    ] = ((): readonly [KnockdownFloor.IMeasure, KnockdownFloor.IMeasure] => {
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
+      const projection: ReturnType<typeof prepareHumanPostureProjection> =
+        prepareHumanPostureProjection(body);
+      return [
+        at(0, resolution, projection),
+        at(SEATED, resolution, projection),
+      ];
+    })();
 
     // The heading that faces the blow, so the back falls away from it.
     let cached: number | undefined;
@@ -204,7 +215,7 @@ export namespace knockdown {
       const away: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
         ReactionSource.at(
           context,
-          context.params.from,
+          context.params.target,
           context.start - StrikingTarget.LOOK,
           entry,
           AutoMovieMotionHumanTarget.DEFAULTS.ahead,
@@ -216,113 +227,132 @@ export namespace knockdown {
       return cached;
     };
 
-    const flat: (yaw: number, forward: number) => IAutoMovieVector3 = (yaw: number, forward: number): IAutoMovieVector3 =>
+    const flat: (yaw: number, forward: number) => IAutoMovieVector3 = (
+      yaw: number,
+      forward: number,
+    ): IAutoMovieVector3 =>
       HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw },
         { x: 0, y: 0, z: forward },
       );
-    const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: {
-        ...AutoMovieMotionHumanBase.still(
-          duration,
-          {
-            root: entry.root,
-            yaw: entry.yaw,
-            pitch: 0,
-            roll: 0,
-            joints: {},
-            limbs: {},
-          },
-          [
-            // The feet stay planted where they stood until the seat lands.
-            ...ReactionFeet.plants(SEATED / duration),
+    const plan: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: {
+          ...AutoMovieMotionHumanBase.still(
+            duration,
             {
-              part: "seat",
-              kind: "seat",
-              from: SEATED / duration,
-              to: DOWN / duration,
-              support: { kind: "ground" },
+              root: entry.root,
+              yaw: entry.yaw,
+              pitch: 0,
+              roll: 0,
+              joints: {},
+              limbs: {},
             },
-            {
-              part: "back",
-              kind: "lie",
-              from: DOWN / duration,
-              to: 1,
-              support: { kind: "ground" },
-            },
-          ],
-        ),
-        settle: (): void => {
-          cached = undefined;
-        },
-      },
-      clock,
-      primitives: [
-        // The pelvis goes back and down behind the feet until the seat
-        // lands, the body turning to face the blow; then the seat stays and
-        // the heels slide out as the back rolls down. The height rests the
-        // pose of each second on the floor.
-        {
-          channels: ["root"],
-          reads: ["root"],
-          from: 0,
-          to: duration,
-          write: (
-            posture: IAutoMovieMotionHumanPosture,
-            seconds: number,
-            _before?: IAutoMovieMotionHumanPrimitive.Reader,
-            resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-            projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-          ): IAutoMovieMotionHumanPosture => {
-            const turn: number = angle(heading() - entry.yaw);
-            const now: KnockdownFloor.IMeasure = at(seconds, resolution, projection);
-            const landed: boolean = seconds >= SEATED;
-            const world: IAutoMovieVector3 = Vector3.add(
-              Vector3.subtract(
-                flat(entry.yaw, standing.ankle),
-                flat(
-                  entry.yaw + turn * sit(seconds),
-                  (landed ? seated : now).ankle,
-                ),
-              ),
-              flat(entry.yaw + turn, landed ? seated.hips - now.hips : 0),
-            );
-            return AutoMovieMotionHumanRoot.place(posture, {
-              point: {
-                ...HumanFrame.local(
-                  { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
-                  world,
-                ),
-                y: now.floor - entry.root.y,
+            [
+              // The feet stay planted where they stood until the seat lands.
+              ...ReactionFeet.plants(SEATED / duration),
+              {
+                part: "seat",
+                kind: "seat",
+                from: SEATED / duration,
+                to: DOWN / duration,
+                support: { kind: "ground" },
               },
-              yaw: turn * sit(seconds),
-            });
+              {
+                part: "back",
+                kind: "lie",
+                from: DOWN / duration,
+                to: 1,
+                support: { kind: "ground" },
+              },
+            ],
+          ),
+          settle: (): void => {
+            cached = undefined;
           },
         },
-        AutoMovieMotionHumanLean.tilt({
-          from: 0,
-          to: duration,
-          angles: (seconds: number): IAutoMovieMotionHumanLean.IAngles => ({
-            pitch: KnockdownFloor.fold(fitted, sit(seconds), back(seconds)).pitch,
-            roll: 0,
+        clock,
+        primitives: [
+          // The pelvis goes back and down behind the feet until the seat
+          // lands, the body turning to face the blow; then the seat stays and
+          // the heels slide out as the back rolls down. The height rests the
+          // pose of each second on the floor.
+          {
+            channels: ["root"],
+            reads: ["root"],
+            from: 0,
+            to: duration,
+            write: (
+              posture: IAutoMovieMotionHumanPosture,
+              seconds: number,
+              _before?: IAutoMovieMotionHumanPrimitive.Reader,
+              resolution?: Parameters<
+                IAutoMovieMotionHumanActionPlan["posture"]
+              >[2],
+              projection?: Parameters<
+                IAutoMovieMotionHumanActionPlan["posture"]
+              >[3],
+            ): IAutoMovieMotionHumanPosture => {
+              const turn: number = angle(heading() - entry.yaw);
+              const now: KnockdownFloor.IMeasure = at(
+                seconds,
+                resolution,
+                projection,
+              );
+              const landed: boolean = seconds >= SEATED;
+              const world: IAutoMovieVector3 = Vector3.add(
+                Vector3.subtract(
+                  flat(entry.yaw, standing.ankle),
+                  flat(
+                    entry.yaw + turn * sit(seconds),
+                    (landed ? seated : now).ankle,
+                  ),
+                ),
+                flat(entry.yaw + turn, landed ? seated.hips - now.hips : 0),
+              );
+              return AutoMovieMotionHumanRoot.place(posture, {
+                point: {
+                  ...HumanFrame.local(
+                    { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
+                    world,
+                  ),
+                  y: now.floor - entry.root.y,
+                },
+                yaw: turn * sit(seconds),
+              });
+            },
+          },
+          AutoMovieMotionHumanLean.tilt({
+            from: 0,
+            to: duration,
+            angles: (seconds: number): IAutoMovieMotionHumanLean.IAngles => ({
+              pitch: KnockdownFloor.fold(fitted, sit(seconds), back(seconds))
+                .pitch,
+              roll: 0,
+            }),
           }),
-        }),
-        AutoMovieMotionHumanJoints.add({
-          channels: ["head", "leftLeg", "rightLeg", "leftArm", "rightArm"],
-          from: 0,
-          to: duration,
-          delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles =>
-            KnockdownFloor.fold(fitted, sit(seconds), back(seconds)).joints,
-        }),
-      ],
-    });
+          AutoMovieMotionHumanJoints.add({
+            channels: ["head", "leftLeg", "rightLeg", "leftArm", "rightArm"],
+            from: 0,
+            to: duration,
+            delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles =>
+              KnockdownFloor.fold(fitted, sit(seconds), back(seconds)).joints,
+          }),
+        ],
+      });
     // The fold has reached its grounded endpoint at "down"; an authored
     // lying hold extends only the film clock after that event.
-    const defaultSource: boolean = context.params.from === undefined;
+    const defaultSource: boolean = context.params.target === undefined;
     // The fold turns and pitches the body about its root; the feet stay
     // flat where they stood until the seat lands, so no heel skates.
     const out: IAutoMovieMotionHumanActionPlan = {
-      ...ReactionFeet.hold(plan, context.entry, body, SEATED, 0.5 * body.measure.hipHeight),
+      ...ReactionFeet.hold(
+        plan,
+        context.entry,
+        body,
+        SEATED,
+        0.5 * body.measure.hipHeight,
+      ),
       ...(defaultSource && duration > DOWN
         ? { still: [DOWN, duration] as const }
         : {}),

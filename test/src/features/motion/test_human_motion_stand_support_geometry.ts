@@ -110,7 +110,7 @@ export function test_human_motion_stand_support_geometry(): void {
     const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
       "standing support geometry",
       [{ subject, body, yaw, at: { x: 1, y: floor, z: -2 } }],
-      HumanChain.subject(subject).stand({ seconds: 1, sway: 0 }),
+      HumanChain.subject(subject).stand({ hold: 1, sway: 0 }),
     );
     const settled: number = motionHumanLaw.event(film, "settled", subject);
     const times: number[] = [
@@ -209,7 +209,7 @@ export function test_human_motion_stand_support_geometry(): void {
     ],
     laws: [shiftStandingWeight],
     composition: HumanChain.subject("standing")
-      .stand({ seconds: 0.6, sway: 0 })
+      .stand({ hold: 0.6, sway: 0 })
       .registered("shiftStandingWeight", { by: -0.08, seconds: 0.8, hold: 0.6 })
       .node,
   });

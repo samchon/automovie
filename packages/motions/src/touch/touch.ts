@@ -224,7 +224,10 @@ export namespace touch {
     // The part of the hand that touches; the hand is the author's, or the
     // one whose arm reaches the region with the least strain (`touchSide`).
     const touching: IAutoMovieMotionHumanTouchEffector.IEffector =
-      AutoMovieMotionHumanTouchForm.curled(EFFECTORS[p.with ?? "palm"], kind);
+      AutoMovieMotionHumanTouchForm.curled(
+        EFFECTORS[p.effector ?? "palm"],
+        kind,
+      );
     const first: AutoMovieHumanSide = touchSide.of(context, touching);
     const resting = AutoMovieMotionHumanTouchContacts.sided(
       p.rests,
@@ -239,7 +242,7 @@ export namespace touch {
         ? touching
         : HumanHeld.effector(
             context,
-            { effector: EFFECTORS[p.with ?? "palm"] },
+            { effector: EFFECTORS[p.effector ?? "palm"] },
             first,
             p.prop,
             p.point,
@@ -355,7 +358,7 @@ export namespace touch {
       body,
       first,
       requested,
-      p.with === "fingertips" && p.prop === undefined,
+      p.effector === "fingertips" && p.prop === undefined,
       fit,
     );
     const stance: IAutoMovieMotionHumanTouchStance.IStance = adjusted.stance;

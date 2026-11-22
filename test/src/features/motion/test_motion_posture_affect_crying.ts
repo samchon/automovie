@@ -19,7 +19,7 @@ import type {
 import {
   AutoMovieMotionHumanTouchEffector,
   HUMAN_EVERYDAY_LAWS,
-  HumanAffect,
+  AutoMovieMotionHumanExpression,
   HumanChain,
   HumanHand,
   HumanObject,
@@ -31,6 +31,8 @@ import { TestValidator } from "@nestia/e2e";
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { throwsError } from "../internal/throwsError";
+
+const { HumanAffect } = AutoMovieMotionHumanExpression;
 
 /** The nominal interval between sob inspirations at intensity 1, seconds, and its documented ±30 % seeded variation. */
 const SOB: readonly [number, number, number] = [0.5, 0.7, 1.3];
@@ -130,7 +132,7 @@ export function test_motion_posture_affect_crying(): void {
         body,
         HumanChain.extend(HUMAN_EVERYDAY_LAWS)
           .subject("a")
-          .coverFace({ seconds: 3 }),
+          .coverFace({ hold: 3 }),
         [],
         sob,
       );
@@ -196,12 +198,7 @@ export function test_motion_posture_affect_crying(): void {
     yaw: 0,
   });
   const seated = (sob: boolean): HumanPerformance =>
-    solo(
-      body,
-      HumanChain.subject("a").sit({ seat, seconds: 4 }),
-      [placed],
-      sob,
-    );
+    solo(body, HumanChain.subject("a").sit({ seat, hold: 4 }), [placed], sob);
   const sitting: HumanPerformance = seated(false);
   const sitSob: HumanPerformance = seated(true);
   TestValidator.predicate(
@@ -234,8 +231,8 @@ export function test_motion_posture_affect_crying(): void {
       composition: HumanChain.mutual(
         hug,
         {
-          one: HumanChain.subject("a").stand({ seconds: 0.3 }),
-          other: HumanChain.subject("b").stand({ seconds: 0.3 }),
+          one: HumanChain.subject("a").stand({ hold: 0.3 }),
+          other: HumanChain.subject("b").stand({ hold: 0.3 }),
         },
         { hold: 2 },
       ).node,
@@ -349,7 +346,7 @@ function crying(at: number): IAutoMovieMotionHumanLayer {
   const display: IAutoMovieMotionHumanAffect.IDisplay = {
     kind: "sob",
     at,
-    seconds: 4,
+    duration: 4,
   };
   return HumanAffect.layer([display]);
 }

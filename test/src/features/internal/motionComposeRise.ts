@@ -11,10 +11,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanRise,
+  AutoMovieMotionHumanStance,
   HumanFoot,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
@@ -72,11 +72,12 @@ export function motionComposeRise(
     const bones = (posture: IAutoMovieMotionHumanPosture): Bones =>
       poseBones(body, resolveHumanPosture(body, posture));
     for (const yaw of [0, 90] as const) {
-      const standing: IAutoMovieMotionHumanPosture = stand.posture(
-        body,
-        { x: 0.2, y: 0, z: -0.1 },
-        yaw,
-      );
+      const standing: IAutoMovieMotionHumanPosture =
+        AutoMovieMotionHumanStance.stand.posture(
+          body,
+          { x: 0.2, y: 0, z: -0.1 },
+          yaw,
+        );
       const flat: Bones = bones(standing);
       const along = (v: IAutoMovieVector3): number => (yaw === 90 ? v.x : v.z);
       const across = (v: IAutoMovieVector3): number => (yaw === 90 ? v.z : v.x);

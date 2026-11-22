@@ -11,8 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanRescue,
   HumanChain,
-  HumanEdgeRescue,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
@@ -105,9 +105,9 @@ export function test_human_motion_edge_rescue(): void {
         },
       ],
       props: [platform],
-      laws: [HumanEdgeRescue.edgeRescue],
+      laws: [AutoMovieMotionHumanRescue.edgeRescue.edgeRescue],
       composition: HumanChain.mutual(
-        HumanEdgeRescue.rescue,
+        AutoMovieMotionHumanRescue.edgeRescue.rescue,
         { rescuer: HumanChain.subject("r"), faller: HumanChain.subject("f") },
         { ledge: "platform", edge: "platformEdge", ...scene },
       ).node,

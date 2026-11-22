@@ -57,7 +57,7 @@ export function test_motion_exercise_sprint_blocks(): void {
     // the body-scaled setting puts the right foot's sole, the rear plate as
     // far behind as that setting puts the left one, within the block's band.
     const free: HumanPerformance = perform(body, undefined, 0, {
-      seconds: 0.4,
+      hold: 0.4,
       front: "right",
     });
     const freeSet: number = when(free.segments("a")[1]!, "set") + 1e-3;
@@ -83,7 +83,7 @@ export function test_motion_exercise_sprint_blocks(): void {
     last = { body, block, at: blockAt };
     const width: number = block.affordance("front").width!;
     const start: HumanPerformance = perform(body, last, 0, {
-      seconds: 0.4,
+      hold: 0.4,
       drive: 0.3,
     });
     assertTakeClean("sprint blocks", start);
@@ -162,7 +162,7 @@ export function test_motion_exercise_sprint_blocks(): void {
   ): HumanRefusal | undefined => {
     try {
       perform(last!.body, last, yaw, {
-        seconds: 0.4,
+        hold: 0.4,
         ...(front === undefined ? {} : { front }),
       });
     } catch (error) {
@@ -219,7 +219,7 @@ function perform(
         ? []
         : [HumanObject.prop("blocks", placed.block, { at: placed.at, yaw })],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3, sway: 0 })
+      .stand({ hold: 0.3, sway: 0 })
       .registered(
         "sprintStart",
         placed === undefined ? params : { ...params, on: "blocks" },

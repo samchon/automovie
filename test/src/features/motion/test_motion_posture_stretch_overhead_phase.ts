@@ -36,7 +36,7 @@ export function test_motion_posture_stretch_overhead_phase(): void {
       ],
       composition: HumanChain.subject("a").act("stretch", {
         kind: "overheadSide",
-        seconds: 0.57,
+        hold: 0.57,
       }).node,
     });
     const plan = film.segments("a")[0]!.plan;

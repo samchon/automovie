@@ -6,12 +6,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanTouch,
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
   HumanSocial,
-  touch,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -68,8 +68,8 @@ export function test_motion_contact_two_hand_meeting(): void {
       composition: HumanChain.mutual(
         HumanSocial.bump,
         {
-          one: HumanChain.subject("a").stand({ seconds: 0.3 }),
-          other: HumanChain.subject("b").stand({ seconds: 0.3 }),
+          one: HumanChain.subject("a").stand({ hold: 0.3 }),
+          other: HumanChain.subject("b").stand({ hold: 0.3 }),
         },
         { window },
       ).node,
@@ -106,7 +106,7 @@ export function test_motion_contact_two_hand_meeting(): void {
       bodies[who],
       performance.bones(who, seconds),
       "right",
-      touch.EFFECTORS.fist,
+      AutoMovieMotionHumanTouch.touch.EFFECTORS.fist,
     );
   for (const seconds of [2, 2.5, 3]) {
     const apart: number = gap(fist("a", seconds), fist("b", seconds));

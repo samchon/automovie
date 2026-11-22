@@ -17,13 +17,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanFoot,
   HumanFrame,
   hipJoints,
   humanRig,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -189,7 +189,7 @@ export function test_motion_posture_posture_frame_math(): void {
   // 4. Sockets on the displayed stance.
   const pose: IAutoMoviePose = resolveHumanPosture(
     body,
-    stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
   );
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,
@@ -357,11 +357,8 @@ function checkResolver(complaints: motionComplaints.IGatherer): void {
   );
 
   // 3. Lower.
-  const quiet: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const quiet: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const free: IAutoMovieMotionHumanPosture = { ...quiet, limbs: {} };
   complaints.check(
     "a posture with no planted leg is kept",

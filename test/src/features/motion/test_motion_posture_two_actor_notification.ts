@@ -98,7 +98,7 @@ export function test_motion_posture_two_actor_notification(): void {
     thrown instanceof Error ? thrown.message : String(thrown);
   const waving = (index: number): IAutoMovieMotionHumanChain =>
     HumanChain.subject("a")
-      .stand({ seconds: 4 })
+      .stand({ hold: 4 })
       .gesture({ kind: "wave" })
       .sync({ of: "dialogue", event: "accent", index, align: "strokeStart" });
 
@@ -147,7 +147,7 @@ export function test_motion_posture_two_actor_notification(): void {
   const cut: IAutoMovieMotionHumanSegment = perform(
     { a: body },
     HumanChain.subject("a")
-      .stand({ seconds: 5 })
+      .stand({ hold: 5 })
       .until({ of: "music", event: "beat", index: 4 })
       .gesture({ kind: "nod" }),
   ).segments("a")[0]!;
@@ -164,7 +164,7 @@ export function test_motion_posture_two_actor_notification(): void {
         .gesture({ kind: "wave" }, "greeting")
         .with(
           HumanChain.subject("b")
-            .stand({ seconds: 6 })
+            .stand({ hold: 6 })
             .gesture({ kind: "nod" })
             .sync({
               of: "greeting",
@@ -233,7 +233,7 @@ export function test_motion_posture_two_actor_notification(): void {
       { a: body },
       HumanChain.subject("a")
         .gesture({ kind: "wave", count: 4 })
-        .stand({ seconds: 1 })
+        .stand({ hold: 1 })
         .sync({ of: "music", event: "beat", index: 2 }),
     ),
   );
@@ -245,7 +245,7 @@ export function test_motion_posture_two_actor_notification(): void {
     perform(
       { a: body },
       HumanChain.subject("a")
-        .stand({ seconds: 4 })
+        .stand({ hold: 4 })
         .gesture({ kind: "nod" })
         .sync({ of: "dialogue", event: "accent", align: "apex" }),
     ),
@@ -305,4 +305,6 @@ export function test_motion_posture_two_actor_notification(): void {
 type CueTrackName = "dialogue" | "music";
 
 /** Cue sequences supplied under their authored track names. */
-type CueTracks = Readonly<Record<CueTrackName, readonly IAutoMovieScheduleCue[]>>;
+type CueTracks = Readonly<
+  Record<CueTrackName, readonly IAutoMovieScheduleCue[]>
+>;

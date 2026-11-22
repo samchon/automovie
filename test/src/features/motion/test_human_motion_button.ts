@@ -80,7 +80,7 @@ export function test_human_motion_button(): void {
     travel: TRAVEL,
     radius: RADIUS,
     thickness: PANEL,
-    seconds: 0.45,
+    duration: 0.45,
   };
   const run = (model: AutoMovieArchetype<Site, never>): HumanPerformance =>
     new HumanPerformance({

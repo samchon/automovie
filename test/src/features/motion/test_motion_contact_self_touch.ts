@@ -27,7 +27,7 @@ export function test_motion_contact_self_touch(): void {
     HumanChain.subject("a").touch({
       target: { kind: "self", region: "forehead" },
       kind: "press",
-      with: "palm",
+      effector: "palm",
     }),
   );
   const ready: number = motionHumanLaw.event(film, "ready");
@@ -58,9 +58,9 @@ export function test_motion_contact_self_touch(): void {
         [{ subject: "a", body }],
         HumanChain.subject("a").touch({
           target: { kind: "self", region },
-          side: "left",
+          hand: "left",
           kind: "press",
-          with: "palm",
+          effector: "palm",
         }),
       );
       const t: number = motionHumanLaw.event(lateral, "ready");

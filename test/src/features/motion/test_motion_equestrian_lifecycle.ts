@@ -11,15 +11,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFoot,
   HumanFrame,
   HumanHand,
-  HumanLeadHorse,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanRide,
   HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -203,7 +202,7 @@ function build(
     },
   ];
   const chain = HumanChain.subject("rider")
-    .sit({ seat: saddle, seconds: 0.5 })
+    .sit({ seat: saddle, hold: 0.5 })
     .registered("ride", {
       on: "horse",
       seconds: MOUNT_WAIT + mounted.duration,
@@ -216,7 +215,10 @@ function build(
   const rehearsal: HumanPerformance = new HumanPerformance({
     seed: "equine-lifecycle",
     performers: actors,
-    laws: [HumanRide.ride, HumanLeadHorse],
+    laws: [
+      AutoMovieMotionHumanMount.rideHorse.ride,
+      AutoMovieMotionHumanMount.leadHorse,
+    ],
     props: [HumanObject.prop("horse", horse, place(0), place, part)],
     composition: chain.node,
   });
@@ -256,7 +258,10 @@ function build(
   const film: HumanPerformance = new HumanPerformance({
     seed: "equine-lifecycle",
     performers: actors,
-    laws: [HumanRide.ride, HumanLeadHorse],
+    laws: [
+      AutoMovieMotionHumanMount.rideHorse.ride,
+      AutoMovieMotionHumanMount.leadHorse,
+    ],
     props: [HumanObject.prop("horse", horse, place(0), place, part)],
     composition: chain.over((handler) =>
       handler.registered("leadHorse", {

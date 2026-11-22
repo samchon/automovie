@@ -22,6 +22,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanCarrierCustody,
   HumanChain,
   HumanHand,
@@ -34,7 +35,6 @@ import {
   poseBones,
   putDownAperture,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -185,9 +185,9 @@ export function test_human_motion_blade_carrier_draw(): void {
         ],
         composition: chain.node,
       });
-    const pose: IAutoMovieMotionHumanStand.IParams = { seconds: 0.3, sway: 0 };
+    const pose: IAutoMovieMotionHumanStand.IParams = { hold: 0.3, sway: 0 };
     const hold: IAutoMovieMotionHumanStand.IParams = {
-      seconds: HOLD,
+      hold: HOLD,
       sway: 0,
     };
     const walk: IAutoMovieMotionHumanWalkParams = {
@@ -592,12 +592,12 @@ function longsword(): void {
       },
     ],
     composition: HumanSheath.draw(
-      HumanChain.subject("fencer").stand({ seconds: 0.3, sway: 0 }),
+      HumanChain.subject("fencer").stand({ hold: 0.3, sway: 0 }),
       staged.sheath,
       "right",
       "draw",
       { handle: "throat", turn: OPEN },
-    ).stand({ seconds: HOLD, sway: 0 }).node,
+    ).stand({ hold: HOLD, sway: 0 }).node,
   });
   const draw: IAutoMovieMotionHumanSegment = film
     .segments("fencer")
@@ -689,7 +689,7 @@ function stage(
   const length: number = carrier.affordance("mouth").frame.translation.y;
   const neutral: IAutoMoviePose = resolveHumanPosture(
     body,
-    stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
   );
   const hips: IAutoMovieRigidTransform = HumanPropFrame.bone(
     poseBones(body, neutral).get("hips")!,

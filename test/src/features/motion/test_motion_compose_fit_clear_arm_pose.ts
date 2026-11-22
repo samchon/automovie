@@ -8,18 +8,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanRefusal,
   fitClearArmPose,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** One arm goal asked of the fit. */
-type Goals = Partial<Record<`${AutoMovieHumanSide}Arm`, IAutoMovieHumanLimbGoal>>;
+type Goals = Partial<
+  Record<`${AutoMovieHumanSide}Arm`, IAutoMovieHumanLimbGoal>
+>;
 
 /**
  * The one-instant clear-pose fit answers with the arm planner's own verdict:
@@ -45,11 +47,8 @@ type Goals = Partial<Record<`${AutoMovieHumanSide}Arm`, IAutoMovieHumanLimbGoal>
  */
 export function test_motion_compose_fit_clear_arm_pose(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const stance: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const stance: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const entry: IAutoMoviePose = resolveHumanPosture(body, stance);
   const bones: ReturnType<typeof poseBones> = poseBones(body, entry);
   const reach: number = body.measure.upperArm + body.measure.forearm;

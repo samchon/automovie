@@ -10,13 +10,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSwim,
   HumanChain,
   HumanEmblem,
   HumanHandToFaceRows,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  aquatic,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -57,7 +57,7 @@ export function test_motion_exercise_fin_swim(): void {
     const swim = (length: number): HumanPerformance =>
       stage(
         body,
-        { kind: "finSwim", water: WATER, depth: 2, seconds: 5, prop: "fin" },
+        { kind: "finSwim", water: WATER, depth: 2, duration: 5, prop: "fin" },
         [fin("fin", "leftFoot", length)],
       );
     const small: HumanPerformance = swim(0.3);
@@ -96,7 +96,7 @@ export function test_motion_exercise_fin_swim(): void {
     const signals: HumanPerformance = new HumanPerformance({
       seed: "fin-signals",
       laws: [
-        aquatic,
+        AutoMovieMotionHumanSwim.aquatic,
         HumanHandToFaceRows.facePinchNose,
         HumanEmblem.okSign,
         HumanEmblem.thumbsUp,
@@ -196,7 +196,7 @@ export function test_motion_exercise_fin_swim(): void {
     );
     const surface: HumanPerformance = stage(
       body,
-      { kind: "snorkel", water: WATER, seconds: 4, prop: "fin" },
+      { kind: "snorkel", water: WATER, duration: 4, prop: "fin" },
       [fin("fin", "leftFoot", 0.35), snorkel],
     );
     const top = (seconds: number): number => {
@@ -225,7 +225,7 @@ function stage(
   const diver: IAutoMovieMotionHumanPerformer = diverAt(body);
   return new HumanPerformance({
     seed: `fin-${params.kind}`,
-    laws: [aquatic],
+    laws: [AutoMovieMotionHumanSwim.aquatic],
     performers: [diver],
     props: [...props],
     composition: HumanChain.subject("diver").registered("aquatic", params).node,

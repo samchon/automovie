@@ -77,25 +77,25 @@ export function test_motion_equestrian_twopoint_race(): void {
 
   // A first pass finds when the rider is seated; the figures are then timed to the gate and the stop.
   const probe: mountedHorseScene.IScene = stage(horse, body, course, [
-    { seat: "entered", transfer: 0.3, seconds: 0.2, supports: HOLD },
+    { seat: "entered", transfer: 0.3, hold: 0.2, supports: HOLD },
   ]);
   const begun: number = probe.segments[probe.segments.length - 1]!.start;
   const gate: number = WAIT - begun - 0.3;
   const figures: IAutoMovieMotionHumanMounted.IFigure[] = [
-    { seat: "entered", transfer: 0.3, seconds: gate, supports: HOLD },
+    { seat: "entered", transfer: 0.3, hold: gate, supports: HOLD },
     {
       seat: "crouch",
       transfer: 0.6,
-      seconds: slowing - WAIT - 0.6,
+      hold: slowing - WAIT - 0.6,
       supports: HOLD,
     },
     {
       seat: "standing",
       transfer: 0.6,
-      seconds: stopped - slowing - 0.6,
+      hold: stopped - slowing - 0.6,
       supports: HOLD,
     },
-    { seat: "entered", transfer: 0.8, seconds: 0.5, supports: HOLD },
+    { seat: "entered", transfer: 0.8, hold: 0.5, supports: HOLD },
   ];
   const scene: mountedHorseScene.IScene = stage(horse, body, course, figures);
   const take: IAutoMovieMotionHumanSegment = scene.segments.find(
@@ -157,7 +157,7 @@ export function test_motion_equestrian_twopoint_race(): void {
   for (let i: number = 0; i < figures.length; ++i)
     for (const at of [
       (begin(i) + arrive(i)) / 2,
-      arrive(i) + figures[i]!.seconds / 2,
+      arrive(i) + figures[i]!.hold / 2,
     ])
       for (const side of ["left", "right"] as const) {
         const foot: IAutoMovieVector3 = ball(side, at);

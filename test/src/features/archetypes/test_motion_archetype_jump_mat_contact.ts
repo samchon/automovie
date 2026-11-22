@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
-  HumanGymnastics,
+  AutoMovieMotionHumanAcrobatics,
   HumanObject,
   HumanPerformance,
   HumanSignature,
@@ -76,14 +76,14 @@ export function test_motion_archetype_jump_mat_contact(): void {
     try {
       const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "flop",
-        laws: [HumanGymnastics.fosburyFlop],
+        laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.fosburyFlop],
         performers: [performer],
         props: [
           HumanObject.prop("bar", high, { at: { x: 0, y: 0, z: 1.6 }, yaw: 0 }),
           HumanObject.prop("mat", mat, { at: { x: 0, y: 0, z: 4 }, yaw: 0 }),
         ],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
+          .stand({ hold: 0.3 })
           .registered("fosburyFlop", {
             to: { x: 0, y: top, z: 2.5 },
             on: "mat",

@@ -92,7 +92,7 @@ export function test_motion_exercise_rugby_play(): void {
           "lineout",
         )
         // The film runs on while the throw travels.
-        .stand({ seconds: 2, sway: 0 }).node,
+        .stand({ hold: 2, sway: 0 }).node,
     ];
     const receive = (
       subject: string,
@@ -130,7 +130,7 @@ export function test_motion_exercise_rugby_play(): void {
                 anchor,
               )
               // The film runs on while the pass travels.
-              .stand({ seconds: 2, sway: 0 })
+              .stand({ hold: 2, sway: 0 })
         ).node,
       );
     };
@@ -148,7 +148,7 @@ export function test_motion_exercise_rugby_play(): void {
         proficiency: { level: "trained" },
       });
       parts.push(
-        HumanChain.subject("defender").stand({ seconds: 6, sway: 0 }).node,
+        HumanChain.subject("defender").stand({ hold: 6, sway: 0 }).node,
       );
     }
     return new HumanPerformance({

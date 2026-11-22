@@ -5,11 +5,11 @@ import type {
   IAutoMovieMotionHumanObject,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSupport,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanSupportFrame,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -62,14 +62,14 @@ export function test_motion_posture_seat_support_admission(): void {
         yaw: 0,
       },
     ],
-    composition: HumanChain.subject("a").stand({ seconds: 1 }).node,
+    composition: HumanChain.subject("a").stand({ hold: 1 }).node,
   });
   const context = standing.segments("a")[0]!.context;
-  HumanSupportFrame.board(context, "slow", limit);
-  HumanSupportFrame.board(context, "limit", limit);
+  AutoMovieMotionHumanSupport.frame.board(context, "slow", limit);
+  AutoMovieMotionHumanSupport.frame.board(context, "limit", limit);
   let refusal: unknown;
   try {
-    HumanSupportFrame.board(context, "fast", limit);
+    AutoMovieMotionHumanSupport.frame.board(context, "fast", limit);
   } catch (error) {
     refusal = error;
   }

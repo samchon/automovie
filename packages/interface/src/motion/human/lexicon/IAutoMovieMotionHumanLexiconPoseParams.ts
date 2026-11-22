@@ -26,16 +26,13 @@ export interface IAutoMovieMotionHumanLexiconPoseParams {
   kneelSit: Omit<IAutoMovieMotionHumanKneel.IParams, "kind" | "hold" | "rise">;
 
   /** Sit down on the floor with the legs ahead and stay three seconds (provisional). */
-  sitOnFloor: Omit<IAutoMovieMotionHumanLieDown.IParams, "position" | "hold">;
+  sitOnFloor: Omit<IAutoMovieMotionHumanLieDown.IParams, "kind" | "hold">;
 
   /** Sit down on the floor cross-legged and stay three seconds (provisional). */
-  sitCrossLegged: Omit<
-    IAutoMovieMotionHumanLieDown.IParams,
-    "position" | "hold"
-  >;
+  sitCrossLegged: Omit<IAutoMovieMotionHumanLieDown.IParams, "kind" | "hold">;
 
   /** Sit down on the floor with both legs folded to the right, leaning on the left hand, and stay three seconds (provisional). */
-  sitSideways: Omit<IAutoMovieMotionHumanLieDown.IParams, "position" | "hold">;
+  sitSideways: Omit<IAutoMovieMotionHumanLieDown.IParams, "kind" | "hold">;
 
   /** Squat fully, heels up, and hold three seconds (provisional), as people sit low without a seat. */
   squatSit: Omit<

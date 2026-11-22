@@ -48,7 +48,7 @@ export function archetypePlaced(
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject("a").stand({ seconds: 1 }).node,
+      composition: HumanChain.subject("a").stand({ hold: 1 }).node,
     });
   } catch (error) {
     return [

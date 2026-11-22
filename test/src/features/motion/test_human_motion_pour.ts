@@ -12,11 +12,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  pour,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -89,7 +89,7 @@ export function test_human_motion_pour(): void {
   ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "pour",
-      laws: [pour],
+      laws: [AutoMovieMotionHumanOperate.pour],
       performers: [
         {
           subject: "a",
@@ -109,7 +109,7 @@ export function test_human_motion_pour(): void {
       ],
       composition: HumanChain.subject("a")
         .pickUp({ prop: "glass", handle: "body", hand: "right" })
-        .registered(pour.name, authored).node,
+        .registered(AutoMovieMotionHumanOperate.pour.name, authored).node,
     });
 
   const film: IAutoMovieMotionHumanPerformance = performance(params);
@@ -203,11 +203,8 @@ export function test_human_motion_pour(): void {
       discharged,
       params.capacityMl - params.targetMl,
     );
-    const actual: IAutoMovieMotionHumanPour.ILiquid = pour.liquid(
-      params,
-      segment.plan,
-      seconds,
-    );
+    const actual: IAutoMovieMotionHumanPour.ILiquid =
+      AutoMovieMotionHumanOperate.pour.liquid(params, segment.plan, seconds);
     TestValidator.predicate(
       `liquid is apportioned and conserved at ${seconds}s`,
       Math.abs(actual.sourceMl - (params.sourceMl - discharged)) <= 1e-8 &&
@@ -236,7 +233,7 @@ export function test_human_motion_pour(): void {
     for (const declared of [true, undefined]) {
       let refusal: unknown;
       try {
-        pour.plan({
+        AutoMovieMotionHumanOperate.pour.plan({
           ...segment.context,
           params,
           prop: (id: string): IAutoMovieMotionHumanPropReader => {

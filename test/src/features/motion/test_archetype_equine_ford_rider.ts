@@ -56,19 +56,19 @@ export function test_archetype_equine_ford_rider(): void {
       {
         seat: "entered",
         transfer: 0.4,
-        seconds: float - settled - 0.4,
+        hold: float - settled - 0.4,
         supports: equineFordRider.WADING,
       },
       {
         seat: "entered",
         transfer: TRANSFER,
-        seconds: land - float - TRANSFER,
+        hold: land - float - TRANSFER,
         supports: equineFordRider.SWIMMING,
       },
       {
         seat: "entered",
         transfer: TRANSFER,
-        seconds: halt - land - TRANSFER,
+        hold: halt - land - TRANSFER,
         supports: equineFordRider.WADING,
       },
     ]),

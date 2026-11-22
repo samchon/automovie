@@ -24,7 +24,7 @@ export interface IAutoMovieMotionHumanHoldHandles {
   right?: string;
 
   /** Seconds the action lasts, acquiring and releasing included, more than twice `transition`. */
-  seconds: number;
+  duration: number;
 
   /** Seconds the hands take to reach the handles, and again to let them go, positive. */
   transition: number;

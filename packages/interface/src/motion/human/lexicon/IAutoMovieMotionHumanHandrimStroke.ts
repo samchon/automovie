@@ -16,7 +16,7 @@ export interface IAutoMovieMotionHumanHandrimStroke {
   rims: { left: string; right: string };
 
   /** Active hand when the other remains at rest. Both push when omitted. */
-  side?: "left" | "right";
+  hand?: "left" | "right";
 
   /** Seconds from the seated entry to the catch. Positive and finite. */
   approach: number;

@@ -7,7 +7,7 @@ import type {
 import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanRoot,
-  stand,
+  AutoMovieMotionHumanStance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,11 +28,8 @@ import { vclose } from "../internal/vclose";
  */
 export function test_motion_dynamics_primitive_root_excursion(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const base: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 2, y: 0, z: 3 },
-    90,
-  );
+  const base: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 2, y: 0, z: 3 }, 90);
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(2, [
     { name: "peak", seconds: 1 },
   ]);

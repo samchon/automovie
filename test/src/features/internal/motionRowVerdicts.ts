@@ -55,7 +55,7 @@ export function motionRowVerdicts(
       },
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3 })
+      .stand({ hold: 0.3 })
       .registered(row, {}).node,
   });
   const rate: number = 24;

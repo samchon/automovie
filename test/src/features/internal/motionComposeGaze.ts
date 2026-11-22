@@ -12,10 +12,10 @@ import type {
 import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanGaze,
+  AutoMovieMotionHumanStance,
   HumanGaze,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
@@ -95,11 +95,8 @@ export function motionComposeGaze(
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const bones = (posture: IAutoMovieMotionHumanPosture): Bones =>
       poseBones(body, resolveHumanPosture(body, posture));
-    const standing: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      { x: 0, y: 0, z: 0 },
-      0,
-    );
+    const standing: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
     const upright: Bones = bones(standing);
     const facing = (
       pose: Bones,

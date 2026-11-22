@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
-  HumanGymnastics,
+  AutoMovieMotionHumanAcrobatics,
   HumanObject,
   HumanPerformance,
   HumanSignature,
@@ -54,7 +54,7 @@ export function test_motion_archetype_vault_tip_contact(): void {
     try {
       film = new HumanPerformance({
         seed: "pole",
-        laws: [HumanGymnastics.vaultOnPole],
+        laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.vaultOnPole],
         performers: [
           {
             subject: "a",
@@ -72,9 +72,9 @@ export function test_motion_archetype_vault_tip_contact(): void {
           HumanObject.prop("mat", mat, { at: { x: 0, y: 0, z: 20 }, yaw: 0 }),
         ],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
+          .stand({ hold: 0.3 })
           .pickUp({ prop: "pole", handle: "shaft", hand: "right", lift: 0.05 })
-          .stand({ seconds: 0.3 })
+          .stand({ hold: 0.3 })
           .run({ to: { x: 0, y: 0, z: 10 }, pace: "sprint" })
           .until({ event: "leftHeelStrike3" })
           .registered("vaultOnPole", { pole: "pole" }).node,

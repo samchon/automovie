@@ -10,10 +10,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanConversation,
+  AutoMovieMotionHumanConversation,
+  AutoMovieMotionHumanStance,
   HumanGaze,
   HumanSkill,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -52,13 +52,13 @@ export function test_motion_group_conversation_gaze(): void {
   );
   const eyes: number = 1.6;
   const requests = (id: string): IAutoMovieMotionHumanGaze.ILayer[] =>
-    HumanConversation.groupGaze(
-      id,
+    AutoMovieMotionHumanConversation.groupGaze({
+      subject: id,
       participants,
       turns,
-      random.stream(id),
+      random: random.stream(id),
       eyes,
-    );
+    });
 
   const faces = (
     track: readonly IAutoMovieMotionHumanGaze.ILayer[],
@@ -113,18 +113,28 @@ export function test_motion_group_conversation_gaze(): void {
   // The first three draws for this seed exceed the one-second listener cutoff.
   const held: IAutoMovieRandom = createAutoMovieRandom("000000000000000a");
   const sustained: IAutoMovieMotionHumanGaze.ILayer[] =
-    HumanConversation.groupGaze("c", participants, turns, held, eyes);
+    AutoMovieMotionHumanConversation.groupGaze({
+      subject: "c",
+      participants,
+      turns,
+      random: held,
+      eyes,
+    });
   TestValidator.predicate(
     "three of four film seconds target a face",
-    nclose(HumanConversation.share(sustained, 1, 5), 0.75),
+    nclose(
+      AutoMovieMotionHumanConversation.share({
+        requests: sustained,
+        from: 1,
+        to: 5,
+      }),
+      0.75,
+    ),
   );
   const layer: IAutoMovieMotionHumanLayer = HumanGaze.layer(sustained);
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const standing: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const standing: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const context: IAutoMovieMotionHumanLayer.IContext = {
     subject: "c",
     body,
@@ -161,13 +171,14 @@ export function test_motion_group_conversation_gaze(): void {
     requests("c"),
     listener,
   );
-  const dyad: IAutoMovieMotionHumanGaze.ILayer[] = HumanConversation.gaze(
-    "a",
-    "b",
-    turns,
-    held,
-    eyes,
-  );
+  const dyad: IAutoMovieMotionHumanGaze.ILayer[] =
+    AutoMovieMotionHumanConversation.gaze({
+      subject: "a",
+      partner: "b",
+      turns,
+      random: held,
+      eyes,
+    });
   TestValidator.equals("a dyad keeps one partner throughout", faces(dyad), [
     "b",
     "b",
@@ -185,7 +196,13 @@ export function test_motion_group_conversation_gaze(): void {
     requests("absent");
   });
   TestValidator.error("a duplicate participant is refused", (): void => {
-    HumanConversation.groupGaze("a", ["a", "b", "a"], turns, random, eyes);
+    AutoMovieMotionHumanConversation.groupGaze({
+      subject: "a",
+      participants: ["a", "b", "a"],
+      turns,
+      random,
+      eyes,
+    });
   });
   const invalid: readonly IAutoMovieMotionHumanConversation.IGroupTurn[] = [
     { speaker: "a", addressee: "absent", from: 3, to: 4 },
@@ -195,12 +212,12 @@ export function test_motion_group_conversation_gaze(): void {
   ];
   for (const turn of invalid)
     TestValidator.error(`refuses ${JSON.stringify(turn)}`, (): void => {
-      HumanConversation.groupGaze(
-        "c",
+      AutoMovieMotionHumanConversation.groupGaze({
+        subject: "c",
         participants,
-        [turns[0]!, turn],
+        turns: [turns[0]!, turn],
         random,
         eyes,
-      );
+      });
     });
 }

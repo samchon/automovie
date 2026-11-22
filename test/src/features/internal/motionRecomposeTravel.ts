@@ -1,7 +1,6 @@
 import { createLadder } from "@automovie/archetypes";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieResolvedBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -9,6 +8,7 @@ import type {
   IAutoMovieMotionHumanSignature,
   IAutoMovieMotionHumanVerdicts,
   IAutoMovieMotionManner,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -193,7 +193,7 @@ export function motionRecomposeTravel(
                 kind: "parallel",
                 parts: [
                   chain.node,
-                  HumanChain.subject("b").stand({ seconds: 12, sway: 0 }).node,
+                  HumanChain.subject("b").stand({ hold: 12, sway: 0 }).node,
                 ],
               }
             : chain.node,
@@ -245,7 +245,7 @@ export function motionRecomposeTravel(
       m === undefined ? {} : { manner: m };
     const ACTS: Record<Law, IAct> = {
       stand: {
-        chain: () => a().stand({ seconds: 3 }),
+        chain: () => a().stand({ hold: 3 }),
         props: () => [],
         duo: false,
       },
@@ -273,8 +273,8 @@ export function motionRecomposeTravel(
         chain: (m) =>
           a().carry({
             to: { x: 0, y: 0, z: 2.5 },
-            how: "oneHand",
-            side: "left",
+            kind: "oneHand",
+            hand: "left",
             load: 0.15,
             ...manner(m),
           }),
@@ -302,7 +302,7 @@ export function motionRecomposeTravel(
         duo: false,
       },
       crawl: {
-        chain: (m) => a().crawl({ cycles: 2, ...manner(m) }),
+        chain: (m) => a().crawl({ count: 2, ...manner(m) }),
         props: () => [],
         duo: false,
       },
@@ -340,7 +340,7 @@ export function motionRecomposeTravel(
 
     // 1. An overlay on one arm.
     const wave = (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-      u.gesture({ kind: "wave", side: "right" });
+      u.gesture({ kind: "wave", hand: "right" });
     if (group === "overlay") {
       for (const [cell, law] of (
         [
@@ -591,30 +591,45 @@ export function motionRecomposeTravel(
         }
 
         // 4 and 10. Both controls reproduce the same complete neutral walk.
-        const controls: ReadonlyArray<readonly [string, IAutoMovieMotionHumanPerformance | undefined]> = [
+        const controls: ReadonlyArray<
+          readonly [string, IAutoMovieMotionHumanPerformance | undefined]
+        > = [
           ["same seed", walked(6)],
           ["empty manner", walked(6, {})],
         ] as const;
         for (const [label, comparison] of controls)
-          if (comparison !== undefined && comparison.duration !== plain.duration)
+          if (
+            comparison !== undefined &&
+            comparison.duration !== plain.duration
+          )
             findings.push(
               `${name}: ${label} walk lasts ${comparison.duration} s against ${plain.duration} s`,
             );
         const differences: Set<string> = new Set<string>();
         for (let t: number = 0; t <= plain.duration; t += 0.1) {
-          const expected: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = plain.bones("a", t);
+          const expected: ReturnType<
+            IAutoMovieMotionHumanPerformance["bones"]
+          > = plain.bones("a", t);
           for (const [label, comparison] of controls) {
             if (comparison === undefined || differences.has(label)) continue;
             const actual: typeof expected = comparison.bones("a", t);
-            const different: [AutoMovieHumanoidBone, IAutoMovieResolvedBone] | undefined = [...expected].find(([joint, bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean => {
-              const position: IAutoMovieVector3 | undefined = actual.get(joint)?.worldPosition;
-              return (
-                position === undefined ||
-                position.x !== bone.worldPosition.x ||
-                position.y !== bone.worldPosition.y ||
-                position.z !== bone.worldPosition.z
-              );
-            });
+            const different:
+              | [AutoMovieHumanoidBone, IAutoMovieResolvedBone]
+              | undefined = [...expected].find(
+              ([joint, bone]: [
+                AutoMovieHumanoidBone,
+                IAutoMovieResolvedBone,
+              ]): boolean => {
+                const position: IAutoMovieVector3 | undefined =
+                  actual.get(joint)?.worldPosition;
+                return (
+                  position === undefined ||
+                  position.x !== bone.worldPosition.x ||
+                  position.y !== bone.worldPosition.y ||
+                  position.z !== bone.worldPosition.z
+                );
+              },
+            );
             if (different !== undefined || actual.size !== expected.size) {
               differences.add(label);
               findings.push(
@@ -691,12 +706,21 @@ export function motionRecomposeTravel(
           facing: Math.abs(((heading - toward + 540) % 360) - 180),
         };
       };
-      const plainApproach: IAutoMovieMotionHumanPerformance | undefined = play("approach", "to the partner");
-      const wearyApproach: IAutoMovieMotionHumanPerformance | undefined = play("approach", "weary to the partner", weary);
+      const plainApproach: IAutoMovieMotionHumanPerformance | undefined = play(
+        "approach",
+        "to the partner",
+      );
+      const wearyApproach: IAutoMovieMotionHumanPerformance | undefined = play(
+        "approach",
+        "weary to the partner",
+        weary,
+      );
       const neutralDuration: number = length(plainApproach);
       const wearyDuration: number = length(wearyApproach);
       if (!(wearyDuration > neutralDuration))
-        findings.push(`${name}: weary approach lasts ${wearyDuration} s against neutral ${neutralDuration} s, longer expected`);
+        findings.push(
+          `${name}: weary approach lasts ${wearyDuration} s against neutral ${neutralDuration} s, longer expected`,
+        );
       const free: ReturnType<typeof gap> = gap(plainApproach);
       const slow: ReturnType<typeof gap> = gap(wearyApproach);
       if (!(Math.abs(slow.gap - free.gap) <= 0.02))
@@ -762,7 +786,8 @@ export function motionRecomposeTravel(
           findings.push(
             `${name}: a 0.4 m walk strikes ${strikes} times, at least two steps expected (#3211)`,
           );
-        const bones: ReturnType<typeof HumanSignature.bones> = HumanSignature.bones(reader, short.duration);
+        const bones: ReturnType<typeof HumanSignature.bones> =
+          HumanSignature.bones(reader, short.duration);
         const left: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
         const right: IAutoMovieVector3 = bones.get("rightFoot")!.worldPosition;
         const off: number = Math.hypot(
@@ -783,7 +808,7 @@ export function motionRecomposeTravel(
         try {
           perform(
             a()
-              .carry({ to: { x: 0, y: 0, z: 2.5 }, how, load: 0.15 })
+              .carry({ to: { x: 0, y: 0, z: 2.5 }, kind: how, load: 0.15 })
               .over(wave),
           );
         } catch (error) {

@@ -140,7 +140,7 @@ function ceremony(
     ],
     // The receiver is placed first, so the presenter reads where they stand.
     composition: HumanChain.subject("b")
-      .stand({ seconds: 4 })
+      .stand({ hold: 4 })
       .walk({ to: { x: 0, y: 0, z: 0.6 }, face: 120 })
       .with(
         HumanChain.extend({ dressPartner })

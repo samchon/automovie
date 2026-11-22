@@ -58,7 +58,7 @@ export namespace IAutoMovieMotionHumanPerturb {
       | "thrown";
 
     /** The thrower's subject, for a `thrown` outcome (#3439). */
-    by?: string;
+    partner?: string;
 
     /** The thrower's region the body turns over, for a `thrown` outcome (#3439). */
     fulcrum?: AutoMovieHumanoidRegion;

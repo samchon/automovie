@@ -95,7 +95,7 @@ function verifyStepCuts(): void {
         ],
       ] as const) {
         const chain = HumanChain.subject("actor")
-          .guard({ seconds: 0.8, stance, style: "boxing" })
+          .guard({ duration: 0.8, stance, style: "boxing" })
           .step({ ...departing, guard: "boxing" });
         const before = take(body, chain);
         const after = take(
@@ -198,13 +198,13 @@ function verifyRecipientCuts(): void {
       const bearing = lead === "left" ? "right" : "left";
       const stance = lead === "left" ? "orthodox" : "southpaw";
       const before = HumanChain.subject("actor")
-        .guard({ seconds: 0.8, stance, style: "boxing" })
+        .guard({ duration: 0.8, stance, style: "boxing" })
         .step({ direction: "forward", guard: "boxing" });
       const cut = 0.3;
       const approach = take(body, before);
       const start = before.until({ share: cut });
       const attacker = HumanChain.subject("opponent")
-        .guard({ seconds: 1.0, style: "boxing" })
+        .guard({ duration: 1.0, style: "boxing" })
         .punch(
           {
             technique: "straight",
@@ -213,7 +213,7 @@ function verifyRecipientCuts(): void {
           "opponent-strike",
         );
       for (const [kind, act, other] of [
-        ["guard", start.guard({ seconds: 0.8, style: "boxing" })],
+        ["guard", start.guard({ duration: 0.8, style: "boxing" })],
         ["punch", start.punch({ technique: "straight", at: { kind: "none" } })],
         [
           "kick using inherited support",
@@ -275,7 +275,7 @@ function verifyRecipientCuts(): void {
       TestValidator.error(
         "footwork refuses a cut into an undeclared action",
         () => {
-          take(body, start.stand({ seconds: 0.8 }));
+          take(body, start.stand({ hold: 0.8 }));
         },
       );
     }

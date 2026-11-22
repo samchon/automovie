@@ -92,7 +92,7 @@ export function prepareStand(
         );
 
   return (duration: number): IAutoMovieMotionHumanActionPlan => {
-    HumanBound.above("seconds", duration, 0, "s");
+    HumanBound.above("hold", duration, 0, "s");
     const settle: number = Math.min(stand.SETTLE, duration);
     const sx: IAutoMovieRandom = context.random("swayX");
     const sz: IAutoMovieRandom = context.random("swayZ");

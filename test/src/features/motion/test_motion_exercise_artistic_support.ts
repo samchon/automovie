@@ -8,11 +8,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSwim,
   HumanChain,
   HumanFoot,
   HumanPerformance,
   HumanRefusal,
-  aquatic,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -245,7 +245,7 @@ function stageArtistic(
     });
   return new HumanPerformance({
     seed: "artistic-group",
-    laws: [aquatic],
+    laws: [AutoMovieMotionHumanSwim.aquatic],
     performers: swimmers,
     composition: {
       kind: "parallel",

@@ -188,7 +188,7 @@ function umbrella(
     yaw: 0,
     // The partner steps off with the holder, side by side under it.
     chain: HumanChain.subject("partner")
-      .stand({ seconds: 0.5, sway: 0 })
+      .stand({ hold: 0.5, sway: 0 })
       .walk({ to: { x: -apart, y: 0, z: 2 } })
       .sync({ of: "share", event: "start" }),
   };
@@ -394,7 +394,7 @@ function scissors(
         ],
         ...(k === 2 ? { release: ["loose"] } : {}),
       });
-  chain = chain.stand({ seconds: 0.8, sway: 0 });
+  chain = chain.stand({ hold: 0.8, sway: 0 });
   const take: HumanPerformance = play(`${label} ${side}`, body, props, chain);
   const strokes: IAutoMovieMotionHumanSegment[] = named(take, "write");
   const face: IAutoMovieAffordance = sheet.affordances!.find(
@@ -520,7 +520,7 @@ function knife(
       drive: [{ articulation: "blade", to: 180 }],
       seconds: 0.25,
     })
-    .stand({ seconds: 0.6, sway: 0 })
+    .stand({ hold: 0.6, sway: 0 })
     .registered("workHeld", {
       prop: "knife",
       side,

@@ -57,7 +57,7 @@ export const HumanClasp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCla
 /** Admit and sample. */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanClasp = context.params;
-  HumanBound.above("seconds", params.seconds, 0, "s");
+  HumanBound.above("duration", params.duration, 0, "s");
   const sides: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
     (side: AutoMovieHumanSide): boolean => params[side] !== undefined,
   );
@@ -111,9 +111,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       hold.bone!,
       film,
     );
-
   };
-  const duration: number = params.seconds;
+  const duration: number = params.duration;
   const windows: IAutoMovieMotionHumanContactWindow[] = sides.map(
     (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => {
       const hold: IAutoMovieMotionHumanClasp.IHold = params[side]!;

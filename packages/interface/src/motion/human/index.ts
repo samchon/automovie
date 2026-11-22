@@ -37,4 +37,4 @@ export type * from "./tasks";
 export type * from "./terrain";
 export type * from "./throwing";
 export type * from "./touch";
-export type * as IAutoMovieMotionHumanNext from "./next";
+export type * from "./next";

@@ -80,7 +80,7 @@ function plan(
   context: IAutoMovieMotionHumanActionContext<Parameters>,
 ): IAutoMovieMotionHumanActionPlan {
   const { body, params } = context;
-  const { distance, seconds, from, to } = params;
+  const { distance, duration: seconds, from, to } = params;
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const leg: number = body.measure.thigh + body.measure.shank;
   const lead: AutoMovieHumanSide = params.hand === "left" ? "right" : "left";

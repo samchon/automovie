@@ -9,10 +9,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanRide,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanSurface,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -78,7 +78,7 @@ function seesaw(failures: string[]): void {
   const sit = (end: SeesawEnd): ReturnType<typeof HumanChain.subject> =>
     HumanChain.subject(end).sit({
       seat: HumanObject.seat(beam, placed, `${end}Seat`),
-      seconds: sitting,
+      hold: sitting,
     });
   const seated: number = new HumanPerformance({
     seed: "seesaw",
@@ -108,7 +108,7 @@ function seesaw(failures: string[]): void {
       ),
       HumanObject.prop("beam", beam, placed, beamAt),
     ],
-    laws: [HumanSurface.seesawRide],
+    laws: [AutoMovieMotionHumanRide.HumanSurface.seesawRide],
     composition: {
       kind: "parallel",
       parts: ends.map(

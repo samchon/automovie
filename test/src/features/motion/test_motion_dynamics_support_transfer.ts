@@ -9,10 +9,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanFoot,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -67,7 +67,10 @@ export function test_motion_dynamics_support_transfer(): void {
   const zero = { x: 0, y: 0, z: 0 };
   const base = poseBones(
     body,
-    resolveHumanPosture(body, stand.posture(body, zero, 0)),
+    resolveHumanPosture(
+      body,
+      AutoMovieMotionHumanStance.stand.posture(body, zero, 0),
+    ),
   );
   const first = body.massModel.segments.find((s) => s.bone === "hips")!;
   const second = body.massModel.segments.find(

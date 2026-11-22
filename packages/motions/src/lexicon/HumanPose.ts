@@ -50,7 +50,7 @@ export namespace HumanPose {
   export const sitOnFloor: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["sitOnFloor"]
   > = HumanActionRow.of("sitOnFloor", lieDown, {
-    position: "sitLong",
+    kind: "sitLong",
     hold: 3,
   });
 
@@ -58,7 +58,7 @@ export namespace HumanPose {
   export const sitCrossLegged: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["sitCrossLegged"]
   > = HumanActionRow.of("sitCrossLegged", lieDown, {
-    position: "sitCrossed",
+    kind: "sitCrossed",
     hold: 3,
   });
 
@@ -66,7 +66,7 @@ export namespace HumanPose {
   export const sitSideways: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["sitSideways"]
   > = HumanActionRow.of("sitSideways", lieDown, {
-    position: "sitSide",
+    kind: "sitSide",
     hold: 3,
   });
 

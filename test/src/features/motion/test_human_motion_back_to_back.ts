@@ -113,7 +113,7 @@ export function test_human_motion_back_to_back(): void {
       } catch (error: unknown) {
         return (
           error instanceof HumanRefusal &&
-          (error.axis === "seconds" || error.axis === "with")
+          (error.axis === "hold" || error.axis === "with")
         );
       }
     })(),
@@ -155,7 +155,7 @@ function scene(
       ],
       composition: HumanChain.subject("x").sit({
         seat: seat(body, 1, 0),
-        seconds: 0.5,
+        hold: 0.5,
       }).node,
     });
     return -back(alone, "x", body, alone.duration).z;
@@ -171,16 +171,15 @@ function scene(
     kind: "sequence",
     parts: [
       HumanChain.subject("a")
-        .sit({ seat: seat(a, -1, d), seconds: 0.5 })
-        .with(
-          HumanChain.subject("b").sit({ seat: seat(b, 1, d), seconds: 0.5 }),
-        ).node,
+        .sit({ seat: seat(a, -1, d), hold: 0.5 })
+        .with(HumanChain.subject("b").sit({ seat: seat(b, 1, d), hold: 0.5 }))
+        .node,
       HumanChain.subject("a")
-        .registered(backToBack.name, { partner: "b", seconds: HOLD }, "leanA")
+        .registered(backToBack.name, { partner: "b", hold: HOLD }, "leanA")
         .with(
           HumanChain.subject("b").registered(backToBack.name, {
             partner: "a",
-            seconds: second,
+            hold: second,
             with: "leanA",
           }),
         ).node,

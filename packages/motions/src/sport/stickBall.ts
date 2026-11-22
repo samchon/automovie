@@ -100,8 +100,8 @@ export namespace stickBall {
         fix: "name distinct stick and ball subjects",
       });
     const duration: number = HumanBound.above(
-      "seconds",
-      params.seconds ?? 0.75,
+      "duration",
+      params.duration ?? 0.75,
       0,
       "s",
     );
@@ -171,15 +171,15 @@ export namespace stickBall {
       FORWARD,
     );
     const target: IAutoMovieVector3 | undefined =
-      params.toward === undefined
+      params.target === undefined
         ? undefined
-        : context.aim(params.toward, filmSecond).point;
+        : context.aim(params.target, filmSecond).point;
     const delta: IAutoMovieVector3 =
       target === undefined
         ? forward
         : Vector3.subtract(target, ballShape.centre);
     const horizontal: IAutoMovieVector3 = { x: delta.x, y: 0, z: delta.z };
-    HumanBound.above("toward", Vector3.length(horizontal), 0, "m");
+    HumanBound.above("target", Vector3.length(horizontal), 0, "m");
     const line: IAutoMovieVector3 = Vector3.normalize(horizontal);
     const yaw: number = (Math.atan2(line.x, line.z) * 180) / Math.PI;
 

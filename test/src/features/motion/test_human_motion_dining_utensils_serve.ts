@@ -73,7 +73,7 @@ function diningServe(
     ),
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
-    .sit({ seat: s.seat, seconds: 1 })
+    .sit({ seat: s.seat, hold: 1 })
     .pickUp({ prop: "spoon", handle: "grip", hand: side, lift: 0.05 })
     .registered("write", {
       tool: "spoon",

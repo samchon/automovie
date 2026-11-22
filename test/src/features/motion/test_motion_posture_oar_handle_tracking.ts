@@ -23,13 +23,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFoot,
   HumanFrame,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanRide,
   HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -216,7 +216,7 @@ export function test_motion_posture_oar_handle_tracking(): void {
         try {
           performance = new HumanPerformance({
             seed: "rowing",
-            laws: [HumanRide.ride],
+            laws: [AutoMovieMotionHumanMount.rideHorse.ride],
             props: [HumanObject.prop("boat", boat, placed(0), placed, part)],
             performers: [
               {
@@ -228,8 +228,8 @@ export function test_motion_posture_oar_handle_tracking(): void {
               },
             ],
             composition: HumanChain.subject("a")
-              .stand({ seconds: 0.3, on: { prop: "boat" } })
-              .sit({ seat, seconds: 0.5 })
+              .stand({ hold: 0.3, on: { prop: "boat" } })
+              .sit({ seat, hold: 0.5 })
               .registered("ride", {
                 on: "boat",
                 seat: thwart,

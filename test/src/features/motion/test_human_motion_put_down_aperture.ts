@@ -15,13 +15,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
   poseBones,
   putDownAperture,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -57,7 +57,10 @@ export function test_human_motion_put_down_aperture(): void {
     plan: (
       context: IAutoMovieMotionHumanActionContext,
     ): IAutoMovieMotionHumanActionPlan => ({
-      ...stand.plan({ ...context, params: { seconds: 0.5, sway: 0 } }),
+      ...AutoMovieMotionHumanStance.stand.plan({
+        ...context,
+        params: { hold: 0.5, sway: 0 },
+      }),
       holds: [{ side: "right", prop: "parcel", from: 0 }],
     }),
   };
@@ -69,7 +72,10 @@ export function test_human_motion_put_down_aperture(): void {
     const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const hand: IAutoMovieResolvedBone = poseBones(
       body,
-      resolveHumanPosture(body, stand.posture(body, origin, 0)),
+      resolveHumanPosture(
+        body,
+        AutoMovieMotionHumanStance.stand.posture(body, origin, 0),
+      ),
     ).get("rightHand")!;
     const start: IAutoMovieVector3 = hand.worldPosition;
     const mouth: IAutoMovieVector3 = Vector3.add(start, {
@@ -133,7 +139,7 @@ export function test_human_motion_put_down_aperture(): void {
         Chain.subject("actor").registered("holdParcel");
       const placed: IAutoMovieMotionHumanChain =
         aperture === undefined
-          ? chain.putDown({ prop: "parcel", at: seat })
+          ? chain.putDown({ prop: "parcel", to: seat })
           : chain.putDownAperture({
               prop: "parcel",
               onto: { prop: "case", aperture, point: "seat" },
@@ -151,7 +157,7 @@ export function test_human_motion_put_down_aperture(): void {
         ],
         laws: [hold, putDownAperture],
         props: [receiver, parcel],
-        composition: placed.stand({ seconds: 10 }).node,
+        composition: placed.stand({ hold: 10 }).node,
       });
     };
     const film: HumanPerformance = stage("opening");

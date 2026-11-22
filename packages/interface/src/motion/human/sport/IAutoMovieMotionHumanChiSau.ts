@@ -13,7 +13,7 @@
  * circle's radius and the cycle's length are provisional staging values,
  * since no measurement of the drill was read.
  *
- * @evidence contracts/development/common.md#meaningful-documentation partner: The other performer. cycles: Roll cycles, 4 when absent. seconds: The drill's length, 4 cycles of the provisional cycle when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation partner: The other performer. count: Roll cycles, 4 when absent. duration: The drill's length, 4 cycles of the provisional cycle when absent.
  * @evidence contracts/development/design.md#principled-representation The partner's subject and two optional extents of the drill.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the chi sau law only.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact geometry is the law's, read from both partners' placed marks.
@@ -32,9 +32,9 @@ export namespace IAutoMovieMotionHumanChiSau {
     partner: string;
 
     /** Roll cycles, a whole number of at least 1; 4 when absent, each `chiSau.CYCLE` (1.2 s, provisional), so 4.8 s of rolling. */
-    cycles?: number;
+    count?: number;
 
     /** The drill's seconds, positive; the cycles at the provisional cycle length when absent. */
-    seconds?: number;
+    duration?: number;
   }
 }

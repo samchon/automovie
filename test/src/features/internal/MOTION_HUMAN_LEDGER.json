@@ -2513,25 +2513,25 @@
           "sweep": "reduced"
         },
         {
-          "row": "side=front",
+          "row": "from=front",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "side=left",
+          "row": "from=left",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "side=right",
+          "row": "from=right",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "side=behind",
+          "row": "from=behind",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
@@ -2572,7 +2572,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "with=auto",
+          "row": "recruit=auto",
           "tests": [],
           "audit": [
             "test_human_motion_law_sweep_posture_gaze"
@@ -2580,7 +2580,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "with=eyes",
+          "row": "recruit=eyes",
           "tests": [],
           "audit": [
             "test_human_motion_law_sweep_posture_gaze"
@@ -2588,7 +2588,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "with=head",
+          "row": "recruit=head",
           "tests": [],
           "audit": [
             "test_human_motion_law_sweep_posture_gaze"
@@ -2596,7 +2596,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "with=trunk",
+          "row": "recruit=trunk",
           "tests": [],
           "audit": [
             "test_human_motion_law_sweep_posture_gaze"
@@ -2900,7 +2900,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "side=left",
+          "row": "hand=left",
           "tests": [],
           "audit": [
             "test_human_motion_law_sweep_posture_gesture_direct"
@@ -2908,7 +2908,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "side=right",
+          "row": "hand=right",
           "tests": [],
           "audit": [
             "test_human_motion_law_sweep_posture_gesture_direct"
@@ -4147,7 +4147,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "side=left",
+          "row": "hand=left",
           "tests": [],
           "audit": [
             "test_human_motion_law_sweep_posture_bend"
@@ -4155,7 +4155,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "side=right",
+          "row": "hand=right",
           "tests": [],
           "audit": [
             "test_human_motion_law_sweep_posture_bend"
@@ -4499,13 +4499,13 @@
           "sweep": "reduced"
         },
         {
-          "row": "with=palm",
+          "row": "effector=palm",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "with=fingertips",
+          "row": "effector=fingertips",
           "tests": [],
           "audit": [
             "test_human_motion_law_touch_self_cover_ears",
@@ -4526,7 +4526,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "with=handBack",
+          "row": "effector=handBack",
           "tests": [],
           "audit": [
             "test_human_motion_law_touch_self_cover_ears",
@@ -4542,7 +4542,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "with=fist",
+          "row": "effector=fist",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
@@ -4570,13 +4570,13 @@
           "sweep": "reduced"
         },
         {
-          "row": "side=left",
+          "row": "hand=left",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "side=right",
+          "row": "hand=right",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
@@ -4622,7 +4622,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "task=drink",
+          "row": "kind=drink",
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_drink"
@@ -4630,7 +4630,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "task=sip",
+          "row": "kind=sip",
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_sip"
@@ -4638,7 +4638,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "task=eat",
+          "row": "kind=eat",
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_eat"
@@ -4646,7 +4646,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "task=bite",
+          "row": "kind=bite",
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_bite"
@@ -4654,7 +4654,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "task=phone",
+          "row": "kind=phone",
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_phone"
@@ -4662,7 +4662,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "task=read",
+          "row": "kind=read",
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_read"
@@ -4670,7 +4670,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "task=brushTeeth",
+          "row": "kind=brushTeeth",
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_brush_teeth"
@@ -4678,7 +4678,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "task=comb",
+          "row": "kind=comb",
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_comb"
@@ -4686,7 +4686,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "task=washFace",
+          "row": "kind=washFace",
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_wash_face"
@@ -4694,7 +4694,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "task=wipeMouth",
+          "row": "kind=wipeMouth",
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_wipe_mouth"
@@ -4702,13 +4702,13 @@
           "sweep": "reduced"
         },
         {
-          "row": "side=left",
+          "row": "hand=left",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "side=right",
+          "row": "hand=right",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
@@ -5041,13 +5041,13 @@
           "sweep": "reduced"
         },
         {
-          "row": "side=left",
+          "row": "hand=left",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "side=right",
+          "row": "hand=right",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
@@ -5089,25 +5089,25 @@
           "sweep": "reduced"
         },
         {
-          "row": "mechanism=button",
+          "row": "kind=button",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "mechanism=knob",
+          "row": "kind=knob",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "mechanism=slider",
+          "row": "kind=slider",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "mechanism=hinge",
+          "row": "kind=hinge",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
@@ -5162,7 +5162,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "position=supine",
+          "row": "kind=supine",
           "tests": [],
           "audit": [
             "test_human_motion_law_sweep_posture_lie_down"
@@ -5170,7 +5170,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "position=prone",
+          "row": "kind=prone",
           "tests": [],
           "audit": [
             "test_human_motion_law_sweep_posture_lie_down"
@@ -5178,7 +5178,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "position=lateralLeft",
+          "row": "kind=lateralLeft",
           "tests": [],
           "audit": [
             "test_human_motion_law_sweep_posture_lie_down"
@@ -5186,7 +5186,7 @@
           "sweep": "reduced"
         },
         {
-          "row": "position=lateralRight",
+          "row": "kind=lateralRight",
           "tests": [],
           "audit": [
             "test_human_motion_law_sweep_posture_lie_down"
@@ -5662,37 +5662,37 @@
           "sweep": "reduced"
         },
         {
-          "row": "how=oneHand",
+          "row": "kind=oneHand",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "how=twoHands",
+          "row": "kind=twoHands",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "how=hip",
+          "row": "kind=hip",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "how=push",
+          "row": "kind=push",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "side=left",
+          "row": "hand=left",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "side=right",
+          "row": "hand=right",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
@@ -5917,13 +5917,13 @@
           "sweep": "reduced"
         },
         {
-          "row": "side=left",
+          "row": "hand=left",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "side=right",
+          "row": "hand=right",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
@@ -5997,13 +5997,13 @@
           "sweep": "reduced"
         },
         {
-          "row": "side=left",
+          "row": "hand=left",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "side=right",
+          "row": "hand=right",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
@@ -6176,13 +6176,13 @@
           "sweep": "reduced"
         },
         {
-          "row": "intensity=mild",
+          "row": "depth=mild",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "intensity=moderate",
+          "row": "depth=moderate",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
@@ -6452,13 +6452,13 @@
           "sweep": "reduced"
         },
         {
-          "row": "side=left",
+          "row": "hand=left",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "side=right",
+          "row": "hand=right",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
@@ -6567,13 +6567,13 @@
           "sweep": "reduced"
         },
         {
-          "row": "side=left",
+          "row": "hand=left",
           "tests": [],
           "audit": [],
           "sweep": "reduced"
         },
         {
-          "row": "side=right",
+          "row": "hand=right",
           "tests": [],
           "audit": [],
           "sweep": "reduced"

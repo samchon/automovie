@@ -11,13 +11,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
   HumanFoot,
   HumanFrame,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanRide,
   HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -211,7 +211,7 @@ function mounted(
   const film: HumanPerformance = new HumanPerformance({
     seed: "equine-contact-seed",
     props: [HumanObject.prop("horse", horse, place(0), place, part)],
-    laws: [HumanRide.ride],
+    laws: [AutoMovieMotionHumanMount.rideHorse.ride],
     cues: {
       diagonal: diagonal.map((seconds: number) => ({
         name: "left fore + right hind",
@@ -231,7 +231,7 @@ function mounted(
       },
     ],
     composition: HumanChain.subject("rider")
-      .sit({ seat: saddle, seconds: 0.5 })
+      .sit({ seat: saddle, hold: 0.5 })
       .registered("ride", {
         on: "horse",
         seconds: WAIT + ride.duration,

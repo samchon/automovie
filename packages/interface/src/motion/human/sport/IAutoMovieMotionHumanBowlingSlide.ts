@@ -33,7 +33,7 @@ export namespace IAutoMovieMotionHumanBowlingSlide {
     to: number;
 
     /** Total action-local seconds, including the recovery plant. */
-    seconds: number;
+    duration: number;
 
     /** Delivery hand, `right` when absent. The other foot leads the glide. */
     hand?: AutoMovieHumanSide;

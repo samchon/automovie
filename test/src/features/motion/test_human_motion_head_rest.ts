@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -33,8 +33,17 @@ const DEEPER: number = 0.08;
 const GAP: number = 0.2;
 
 /** How far apart the two sit, metres between their hips: each one's hip joint half width and thigh radius, the seated hips' half breadth, and the gap. */
-function apart(a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody): number {
-  return a.measure.hipHalfWidth + a.measure.thighRadius + b.measure.hipHalfWidth + b.measure.thighRadius + GAP;
+function apart(
+  a: IAutoMovieMotionHumanBody,
+  b: IAutoMovieMotionHumanBody,
+): number {
+  return (
+    a.measure.hipHalfWidth +
+    a.measure.thighRadius +
+    b.measure.hipHalfWidth +
+    b.measure.thighRadius +
+    GAP
+  );
 }
 
 /** One bench pair: who rests on whom. */
@@ -141,7 +150,15 @@ function bench(
   b: IAutoMovieMotionHumanBody,
 ): HumanPerformance {
   const height: number = Math.min(seated.popliteal(a), seated.popliteal(b));
-  const seat: (x: number, body: IAutoMovieMotionHumanBody, back: number) => IAutoMovieMotionHumanSeated.ISeat = (x: number, body: IAutoMovieMotionHumanBody, back: number): IAutoMovieMotionHumanSeated.ISeat => ({
+  const seat: (
+    x: number,
+    body: IAutoMovieMotionHumanBody,
+    back: number,
+  ) => IAutoMovieMotionHumanSeated.ISeat = (
+    x: number,
+    body: IAutoMovieMotionHumanBody,
+    back: number,
+  ): IAutoMovieMotionHumanSeated.ISeat => ({
     at: { x, y: height, z: body.rest.get("leftFoot")!.z - 0.1 - back },
     yaw: 0,
     depth: 0.45,
@@ -150,8 +167,20 @@ function bench(
     seed: "head-rest",
     laws: [headRest],
     performers: [
-      { subject: "a", body: a, at: { x: -apart(a, b) / 2, y: 0, z: -DEEPER }, yaw: 0, proficiency: { level: "trained" } },
-      { subject: "b", body: b, at: { x: apart(a, b) / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+      {
+        subject: "a",
+        body: a,
+        at: { x: -apart(a, b) / 2, y: 0, z: -DEEPER },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+      {
+        subject: "b",
+        body: b,
+        at: { x: apart(a, b) / 2, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
     ],
     // The partner is placed first, so the resting head reads where the partner
     // sits. Once seated, the partner's right arm wraps around behind the
@@ -160,17 +189,21 @@ function bench(
     // where her lean would press into it. Her far shoulder lies 83 mm beyond
     // his arm at his seated lean's limit.
     composition: HumanChain.subject("b")
-      .sit({ seat: seat(apart(a, b) / 2, b, 0), seconds: 1.5 })
+      .sit({ seat: seat(apart(a, b) / 2, b, 0), hold: 1.5 })
       .touch({
         target: { kind: "person", subject: "a", region: "upperBack" },
-        side: "right",
+        hand: "right",
         kind: "hold",
         hold: REST + 2,
       })
       .with(
         HumanChain.subject("a")
-          .sit({ seat: seat(-apart(a, b) / 2, a, DEEPER), seconds: 1.5 })
-          .registered(headRest.name, { partner: "b", region: "shoulderRight", seconds: REST }),
+          .sit({ seat: seat(-apart(a, b) / 2, a, DEEPER), hold: 1.5 })
+          .registered(headRest.name, {
+            partner: "b",
+            region: "shoulderRight",
+            hold: REST,
+          }),
       ).node,
   });
 }
@@ -184,13 +217,25 @@ function standing(
     seed: "head-rest-standing",
     laws: [headRest],
     performers: [
-      { subject: "a", body: a, at: { x: -apart(a, b) / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
-      { subject: "b", body: b, at: { x: apart(a, b) / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+      {
+        subject: "a",
+        body: a,
+        at: { x: -apart(a, b) / 2, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+      {
+        subject: "b",
+        body: b,
+        at: { x: apart(a, b) / 2, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
     ],
     composition: HumanChain.subject("a").registered(headRest.name, {
       partner: "b",
       region: "shoulderRight",
-      seconds: REST,
+      hold: REST,
     }).node,
   });
 }

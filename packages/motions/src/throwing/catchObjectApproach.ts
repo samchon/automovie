@@ -55,20 +55,20 @@ export namespace catchObjectApproach {
     arm: number,
   ): catchObject.IInterception {
     const placed: IAutoMovieMotionHumanPlacedAction = context.action(
-      context.params.from,
+      context.params.partner,
     );
     const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined =
       throwObject.of(placed.plan);
     if (launch === undefined)
       throw new HumanRefusal({
         kind: "participant",
-        axis: "from",
-        value: context.params.from,
+        axis: "partner",
+        value: context.params.partner,
         feasible: {
           kind: "alternatives",
           values: ["the anchor of a throwObject action"],
         },
-        reason: `${context.params.from} is a ${placed.name}, not a throw`,
+        reason: `${context.params.partner} is a ${placed.name}, not a throw`,
         fix: "give the throw an anchor and name that anchor in from",
       });
     const ahead: number = HumanFrame.local(frame, launch.point).z - REACH * arm;
@@ -100,8 +100,8 @@ export namespace catchObjectApproach {
       if (!(vy * vy + 2 * g * fall >= 0) || !(vy > 0))
         throw new HumanRefusal({
           kind: "reach",
-          axis: "from",
-          value: context.params.from,
+          axis: "partner",
+          value: context.params.partner,
           reason: "the toss never rises to the chest to be caught",
           fix: "toss the object up, above the chest",
         });
@@ -115,8 +115,8 @@ export namespace catchObjectApproach {
     if (ahead <= 0 || !(closing > 0))
       throw new HumanRefusal({
         kind: "reach",
-        axis: "from",
-        value: context.params.from,
+        axis: "partner",
+        value: context.params.partner,
         reason:
           ahead <= 0
             ? "the throw starts within the reach"

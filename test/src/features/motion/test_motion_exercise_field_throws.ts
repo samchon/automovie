@@ -18,9 +18,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
   HumanChain,
   HumanFoot,
-  HumanGymnastics,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
@@ -205,12 +205,12 @@ function runUp(
   cut: string | undefined,
 ): HumanPerformance {
   const running: ReturnType<typeof HumanChain.subject> = HumanChain.subject("a")
-    .stand({ seconds: 0.3, sway: 0 })
+    .stand({ hold: 0.3, sway: 0 })
     .pickUp({ prop: "implement", handle: c.handle, hand: "right" })
     .run({ to: { x: 0, y: 0, z: 30 }, pace: "run" });
   return new HumanPerformance({
     seed: "javelin",
-    laws: [HumanGymnastics.fieldThrow],
+    laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.fieldThrow],
     performers: [
       {
         subject: "a",
@@ -294,7 +294,7 @@ function take(
     },
   );
   const node: IAutoMovieComposition = HumanChain.subject("a")
-    .stand({ seconds: 0.3, sway: 0 })
+    .stand({ hold: 0.3, sway: 0 })
     .pickUp({ prop: "implement", handle: c.handle, hand: "right" })
     .registered("fieldThrow", {
       event: c.event,
@@ -304,7 +304,7 @@ function take(
     }).node;
   return new HumanPerformance({
     seed: "field-throw",
-    laws: [HumanGymnastics.fieldThrow],
+    laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.fieldThrow],
     performers: [
       {
         subject: "a",

@@ -58,7 +58,7 @@ export namespace IAutoMovieMotionHumanRegrasp {
     prop: string;
 
     /** The hand that holds it. */
-    side: AutoMovieHumanSide;
+    hand: AutoMovieHumanSide;
 
     /** A twist's axis, or a roll's object: an affordance whose translation lies on the axis and whose `+X` is its direction; a roll reads its `radius`. */
     axis?: string;

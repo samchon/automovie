@@ -129,10 +129,8 @@ export function planVehicleHit(
 
   // The body as it stood, its legs' solved joints kept, every orientation
   // carried by the posture's turn about its hips.
-  const joints: IAutoMovieMotionHumanPosture["joints"] = GymnasticsFlight.frozen(
-    body,
-    entry,
-  ).joints;
+  const joints: IAutoMovieMotionHumanPosture["joints"] =
+    GymnasticsFlight.frozen(body, entry).joints;
   const q0: IAutoMovieQuaternion = resolveHumanPosture.heading(entry);
   const shaped: (
     hips: IAutoMovieVector3,
@@ -165,7 +163,10 @@ export function planVehicleHit(
     joints: shape,
     limbs: {},
   });
-  const stoodOffset: IAutoMovieVector3 = stuntFallPose.offset(body, bare(joints));
+  const stoodOffset: IAutoMovieVector3 = stuntFallPose.offset(
+    body,
+    bare(joints),
+  );
 
   // How far a shape turned so lies below its hips.
   const lowAt: (
@@ -349,7 +350,7 @@ export function planVehicleHit(
   const leave: number = separate - context.start;
   const land: number = leave + flight;
   const rest: number = land + slide;
-  const duration: number = rest + (p.seconds ?? 1);
+  const duration: number = rest + (p.hold ?? 1);
 
   const blend: (w: number) => IAutoMovieMotionHumanPosture["joints"] = (
     w: number,
@@ -394,7 +395,9 @@ export function planVehicleHit(
     // In the air the body turns onto its back by the landing; on the road it
     // slides to rest on it.
     const tau: number = Math.min(t, land) - leave;
-    const w: number = minimumJerk.share(flight > 0 ? Math.min(1, tau / flight) : 1);
+    const w: number = minimumJerk.share(
+      flight > 0 ? Math.min(1, tau / flight) : 1,
+    );
     const shape: IAutoMovieMotionHumanPosture["joints"] = blend(w);
     const turn: IAutoMovieQuaternion = Quaternion.slerp(qS, qLie, w);
     const offset: IAutoMovieVector3 = stuntFallPose.offset(body, bare(shape));
@@ -414,8 +417,7 @@ export function planVehicleHit(
       );
     }
     const sigma: number = t - land;
-    const slid: number =
-      slideSpeed * sigma - 0.5 * SLIDE * g * sigma * sigma;
+    const slid: number = slideSpeed * sigma - 0.5 * SLIDE * g * sigma * sigma;
     return shaped(
       { ...Vector3.add(landing, Vector3.scale(direction, slid)), y: lieHips },
       qLie,

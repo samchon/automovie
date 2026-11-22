@@ -10,44 +10,41 @@ import type { IAutoMovieMotionHumanHandToFace } from "../daily/IAutoMovieMotionH
  */
 export interface IAutoMovieMotionHumanLexiconUpperFaceParams {
   /** `handToFace` doing `drink`. */
-  faceDrink: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+  faceDrink: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind">;
 
   /** `handToFace` doing `sip`. */
-  faceSip: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+  faceSip: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind">;
 
   /** `handToFace` doing `eat`. */
-  faceEat: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+  faceEat: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind">;
 
   /** `handToFace` doing `bite`. */
-  faceBite: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+  faceBite: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind">;
 
   /** `handToFace` doing `phone`. */
-  facePhone: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+  facePhone: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind">;
 
   /** `handToFace` doing `read`. */
-  faceRead: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+  faceRead: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind">;
 
   /** `handToFace` doing `brushTeeth`. */
-  faceBrushTeeth: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+  faceBrushTeeth: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind">;
 
   /** `handToFace` doing `comb`. */
-  faceComb: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+  faceComb: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind">;
 
   /** `handToFace` doing `washFace`. */
-  faceWashFace: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+  faceWashFace: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind">;
 
   /** `handToFace` doing `wipeMouth`. */
-  faceWipeMouth: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+  faceWipeMouth: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind">;
 
   /** `handToFace` doing `pinchNose`. */
-  facePinchNose: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+  facePinchNose: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind">;
 
   /** Cover the face with both hands. */
-  coverFace: Pick<
-    IAutoMovieMotionHumanHandToFace.IParams,
-    "seconds" | "manner"
-  >;
+  coverFace: Pick<IAutoMovieMotionHumanHandToFace.IParams, "hold" | "manner">;
 
   /** Wipe one cheek with a hand or held tissue. */
-  wipeTears: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task" | "other">;
+  wipeTears: Omit<IAutoMovieMotionHumanHandToFace.IParams, "kind" | "other">;
 }

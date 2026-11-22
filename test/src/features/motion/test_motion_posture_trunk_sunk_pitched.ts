@@ -2,7 +2,10 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanTrunk, stand } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanStance,
+  AutoMovieMotionHumanTrunk,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -28,11 +31,12 @@ import { vclose } from "../internal/vclose";
  */
 export function test_motion_posture_trunk_sunk_pitched(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const level: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0.4, y: 0, z: -1.2 },
-    30,
-  );
+  const level: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(
+      body,
+      { x: 0.4, y: 0, z: -1.2 },
+      30,
+    );
   const pitched: IAutoMovieMotionHumanPosture = { ...level, pitch: 18 };
 
   const kept: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanTrunk.sunk(

@@ -221,7 +221,7 @@ export namespace placeRideFeet {
         ),
       ),
     );
-    const duration: number = context.params.seconds;
+    const duration: number = context.params.duration;
     const sampleCount: number = Math.max(1, Math.ceil((duration - from) * 24));
     for (let index: number = 0; index <= sampleCount; ++index) {
       const local: number = from + ((duration - from) * index) / sampleCount;

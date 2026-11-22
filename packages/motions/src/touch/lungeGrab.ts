@@ -138,8 +138,8 @@ export namespace lungeGrab {
         : {
             other: { kind: "person", subject: params.partner, region: other },
           }),
-      side,
-      with: "palm",
+      hand: side,
+      effector: "palm",
       kind: "squeeze",
       count: 1,
     };

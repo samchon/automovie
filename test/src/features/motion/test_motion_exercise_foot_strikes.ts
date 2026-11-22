@@ -57,21 +57,33 @@ interface IRow {
 const ROWS: readonly IRow[] = [
   { row: "sideKick", at: "abdomen", contact: "heel", arrival: "line" },
   { row: "backKick", at: "abdomen", contact: "heel", arrival: "line" },
-  { row: "hookKick", at: "jawRight", contact: "heel", arrival: "ownSide" },
-  { row: "crescentKick", at: "jawLeft", contact: "sole", arrival: "otherSide" },
-  { row: "axeKick", at: "shoulderLeft", contact: "heel", arrival: "down" },
+  { row: "hookKick", at: "chestRight", contact: "heel", arrival: "ownSide" },
+  {
+    row: "crescentKick",
+    at: "chestLeft",
+    contact: "sole",
+    arrival: "otherSide",
+  },
+  { row: "axeKick", at: "chestLeft", contact: "heel", arrival: "down" },
   { row: "stomp", at: "floor", contact: "sole", arrival: "down" },
   { row: "legSweep", at: "heelLeft", contact: "sole", arrival: "otherSide" },
   {
     row: "spinningHookKick",
-    at: "jawLeft",
+    at: "chestLeft",
     contact: "heel",
     arrival: "ownSide",
   },
   { row: "jumpingSideKick", at: "abdomen", contact: "heel", arrival: "line" },
 ];
 
-/** The partner's distance, a share of stature: a kicking range where the leg reaches the head. */
+/**
+ * The partner's distance, a share of stature: a kicking range where the leg
+ * reaches the chest. The head lies past the leg here even with the body
+ * tilted away and the support on its ball (the jaw stands about 0.94 m from
+ * the average body's kicking hip so raised, against a leg of about 0.85 m),
+ * where a strike lands short at the leg's full reach (scenario 7), so the
+ * rows that land on the partner aim at the chest.
+ */
 const DISTANCE: number = 0.5;
 
 /** The sweep's distance, a share of stature: close enough for the lead leg to reach the partner's lead heel. */
@@ -211,9 +223,9 @@ function perform(
   falls: boolean,
 ): HumanPerformance {
   const strike: IAutoMovieMotionHumanChainCore = HumanChain.subject("a")
-    .stand({ seconds: 0.5, sway: 0 })
+    .stand({ hold: 0.5, sway: 0 })
     .registered(row, { at }, "strike")
-    .stand({ seconds: 2, sway: 0 });
+    .stand({ hold: 2, sway: 0 });
   const partner: ReturnType<typeof HumanChain.subject> =
     HumanChain.subject("b");
   return new HumanPerformance({
@@ -245,7 +257,7 @@ function perform(
             )
             .sync({ of: "strike", align: "stroke" }),
         ).node
-      : strike.with(partner.stand({ seconds: 3, sway: 0 })).node,
+      : strike.with(partner.stand({ hold: 3, sway: 0 })).node,
   });
 }
 

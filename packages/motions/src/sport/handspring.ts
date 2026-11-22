@@ -167,7 +167,7 @@ export namespace handspring {
       GymnasticsFlight.model(body);
     const left: boolean = context.params.lead !== "right";
     const standing: IAutoMovieMotionHumanPosture = stand
-      .plan({ ...context, params: { seconds: 1 } })
+      .plan({ ...context, params: { hold: 1 } })
       .posture(0);
     const yaw: number = standing.yaw;
     const ease: (x: number) => number = (x: number): number =>

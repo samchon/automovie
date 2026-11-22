@@ -6,13 +6,13 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanReach,
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanHand,
   HumanPerformance,
   HumanSport,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -36,7 +36,11 @@ export function test_motion_contact_two_arm_coordination(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["f-small", "m-average", "m-large"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const rest = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const rest = AutoMovieMotionHumanStance.stand.posture(
+      body,
+      { x: 0, y: 0, z: 0 },
+      0,
+    );
     const resting = poseBones(body, resolveHumanPosture(body, rest));
     const shoulder0 = resting.get("leftUpperArm")!.worldPosition;
     const outside = Vector3.add(shoulder0, {
@@ -68,7 +72,7 @@ export function test_motion_contact_two_arm_coordination(): void {
           },
         ],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
+          .stand({ hold: 0.3 })
           .registered("taiChiPush", {}).node,
       });
       const span: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;

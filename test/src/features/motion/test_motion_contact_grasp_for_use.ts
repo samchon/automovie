@@ -14,6 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanHand,
   HumanObject,
@@ -21,7 +22,6 @@ import {
   HumanRefusal,
   StrikingHeld,
   seated,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -71,7 +71,10 @@ export function test_motion_contact_grasp_for_use(): void {
         StrikingHeld.of(context, "right", context.params.prop, points).held!
           .frame,
       );
-      return stand.plan({ ...context, params: { seconds: 0.1 } });
+      return AutoMovieMotionHumanStance.stand.plan({
+        ...context,
+        params: { hold: 0.1 },
+      });
     },
   };
   const pick = (tip: string, lift: number = 0.1): HumanPerformance =>
@@ -203,8 +206,8 @@ function checkSupportEntries(body: IAutoMovieMotionHumanBody): string[] {
   for (const branch of stages) {
     const entry: IAutoMovieMotionHumanChain =
       branch === "seated"
-        ? actor.sit({ seat: chair, seconds: 0.5 })
-        : actor.stand({ seconds: 0.3 });
+        ? actor.sit({ seat: chair, hold: 0.5 })
+        : actor.stand({ hold: 0.3 });
     const still = motionHumanLaw.perform(
       "pickup entry",
       [{ subject: "a", body }],

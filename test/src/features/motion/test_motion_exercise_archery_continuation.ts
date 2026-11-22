@@ -137,7 +137,7 @@ export function test_motion_exercise_archery_continuation(): void {
         props: [fixture, transferred, spare, track],
         laws: [law],
         composition: HumanChain.subject("actor")
-          .stand({ seconds: 0.8 })
+          .stand({ hold: 0.8 })
           .registered(
             law.name,
             {
@@ -150,7 +150,7 @@ export function test_motion_exercise_archery_continuation(): void {
             },
             "cue",
           )
-          .stand({ seconds: 1 }).node,
+          .stand({ hold: 1 }).node,
       });
     const film: HumanPerformance = take(transferred.subject);
     const at: number = film.instant({ of: "cue", event });

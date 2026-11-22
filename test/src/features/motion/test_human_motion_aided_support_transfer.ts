@@ -26,7 +26,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanAidWalk,
+  AutoMovieMotionHumanGait,
   HumanAssistedTransfer,
   HumanChain,
   HumanFoot,
@@ -179,10 +179,11 @@ function aid(
           { x: 0.095, z: 0.51, turn: 25, seconds: 1.05 },
         ],
   };
-  const motion: ReturnType<typeof HumanAidWalk.track> = HumanAidWalk.track(
-    HumanObject.frame({ at, yaw: 0 }),
-    params,
-  );
+  const motion: ReturnType<typeof AutoMovieMotionHumanGait.aidWalk.track> =
+    AutoMovieMotionHumanGait.aidWalk.track(
+      HumanObject.frame({ at, yaw: 0 }),
+      params,
+    );
   const film: HumanPerformance = new HumanPerformance({
     seed: "screen-aid",
     performers: [
@@ -195,9 +196,9 @@ function aid(
       },
     ],
     props: [HumanObject.prop(params.prop, model, { at, yaw: 0 }, motion)],
-    laws: [HumanAidWalk],
+    laws: [AutoMovieMotionHumanGait.aidWalk],
     composition: HumanChain.subject("actor").registered(
-      HumanAidWalk.name,
+      AutoMovieMotionHumanGait.aidWalk.name,
       params,
     ).node,
   });
@@ -355,10 +356,10 @@ function transfer(
     composition: HumanChain.mutual(
       HumanAssistedTransfer.mutual,
       {
-        helper: HumanChain.subject("helper").stand({ seconds: 0.25 }),
+        helper: HumanChain.subject("helper").stand({ hold: 0.25 }),
         helped: HumanChain.subject("recipient").sit({
           seat: HumanObject.seat(chair, chairAt, "seat"),
-          seconds: 0.25,
+          hold: 0.25,
         }),
       },
       {

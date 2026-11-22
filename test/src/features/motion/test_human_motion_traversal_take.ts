@@ -17,14 +17,14 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditContinuity,
+  AutoMovieMotionHumanCrossing,
+  AutoMovieMotionHumanGait,
   HumanChain,
   HumanColliders,
   HumanFoot,
   HumanObject,
   HumanObstacle,
   HumanPerformance,
-  HumanTravelDoor,
-  HumanTraversal,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -277,7 +277,10 @@ function take(
   return new HumanPerformance({
     seed: "traversal-take",
     props: [kerb, step],
-    laws: [HumanTraversal.crossObstacle, HumanTravelDoor.passThrough],
+    laws: [
+      AutoMovieMotionHumanCrossing.HumanTraversal.crossObstacle,
+      AutoMovieMotionHumanGait.HumanTravelDoor.passThrough,
+    ],
     obstacles: [
       HumanObstacle.wall(
         "wall",
@@ -306,7 +309,7 @@ function take(
       },
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.28, sway: 0 })
+      .stand({ hold: 0.28, sway: 0 })
       .walk({ to: { x: 0, y: 0, z: 0.42 }, face: 180, pace: "slow" })
       .registered("crossObstacle", { kind: "step", obstacle: "kerb" })
       .walk({ to: { x: 0, y: 0, z: -1.25 }, face: 180, pace: "slow" })
@@ -320,7 +323,7 @@ function take(
         mode: "duck",
       })
       .walk({ to: { x: 0, y: 0, z: -6.4 }, pace: "slow" })
-      .stand({ seconds: 0.3 }).node,
+      .stand({ hold: 0.3 }).node,
   });
 }
 

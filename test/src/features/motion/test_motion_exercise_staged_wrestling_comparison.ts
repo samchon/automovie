@@ -10,12 +10,12 @@ import type {
   IAutoMovieMotionHumanSignature,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGrapple,
   HumanChain,
   HumanColliders,
   HumanCoupled,
   HumanPerformance,
   HumanSignature,
-  grapple,
 } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -100,7 +100,7 @@ function observe(
   const partnerYaw: number = low ? 165 : 188;
   const film: HumanPerformance = new HumanPerformance({
     seed: "staged-wrestling-pose",
-    laws: [grapple],
+    laws: [AutoMovieMotionHumanGrapple.grapple],
     performers: [
       {
         subject: "a",
@@ -124,8 +124,8 @@ function observe(
     composition: HumanChain.mutual(
       HumanCoupled.grappling,
       {
-        initiator: HumanChain.subject("a").stand({ seconds: 0.3, sway: 0 }),
-        receiver: HumanChain.subject("b").stand({ seconds: 0.3, sway: 0 }),
+        initiator: HumanChain.subject("a").stand({ hold: 0.3, sway: 0 }),
+        receiver: HumanChain.subject("b").stand({ hold: 0.3, sway: 0 }),
       },
       { kind, outcome: "denied" },
     ).node,

@@ -93,9 +93,9 @@ export namespace groupDance {
         : p.kind === "circle"
           ? groupDanceCircle.course(context, beats, shared)
           : groupDanceConga.course(context, beats, repeats);
-    for (let k: number = 1; k <= beats.beats; k++)
+    for (let k: number = 1; k <= beats.count; k++)
       course.instants.push({ name: `beat${k}`, seconds: beats.at(k) });
-    course.instants.push({ name: "relax", seconds: beats.at(beats.beats) });
+    course.instants.push({ name: "relax", seconds: beats.at(beats.count) });
     return DanceFootwork.compose(
       context.body,
       context.entry.posture,

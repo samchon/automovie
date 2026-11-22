@@ -37,10 +37,10 @@ export interface IAutoMovieMotionHumanWrite {
   ];
 
   /** Seconds of the stroke before any performance tempo scaling. Approach and return have their own durations. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
-  seconds: number;
+  duration: number;
 
   /** Holding hand. If omitted, use the hand holding the tool at entry. */
-  side?: AutoMovieHumanSide;
+  hand?: AutoMovieHumanSide;
 
   /** The other hand's held tool kept on the surface through the stroke, as a fork pins what a knife saws. */
   steady?: IAutoMovieMotionHumanHeldWork.ISteady;

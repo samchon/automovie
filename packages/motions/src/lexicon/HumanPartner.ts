@@ -48,7 +48,7 @@ export namespace HumanPartner {
   export const danceFollow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["danceFollow"]
   > = HumanActionRow.of("danceFollow", approach, {
-    side: "right",
+    from: "right",
     at: 0.4,
     pace: "slow",
     track: "pace",
@@ -58,10 +58,10 @@ export namespace HumanPartner {
   export const danceHold: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["danceHold"]
   > = HumanActionRow.of("danceHold", touch, {
-    with: "palm",
+    effector: "palm",
     kind: "hold",
     hold: 1.5,
-    side: "left",
+    hand: "left",
   });
 
   /** Judo's grip (kumikata) for a throw: the right hand on the partner's left collar and the left on the right sleeve, held two seconds (provisional). The composition gives the partner. */
@@ -85,7 +85,7 @@ export namespace HumanPartner {
    * kinematics goes: the thrower's turning entry, the body carried over the
    * hip and its fall are set by the forces of the throw, the force-determined
    * follow-up's (#3439). Register `judoGrip` and `judoBroken` with it.
- *
+   *
    * The grip is held 2 s and the receiver held off balance 1 s (`judoGrip`, `judoBroken`, provisional); the throw's own timing is the force input's (#3439); a judo match or a demonstration.
    */
   export const judoThrow: IAutoMovieMotionHumanMutual<object, "tori" | "uke"> =

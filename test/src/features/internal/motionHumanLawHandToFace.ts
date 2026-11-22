@@ -13,10 +13,10 @@ import type {
 import {
   AutoMovieMotionHumanAuditDifference,
   AutoMovieMotionHumanAuditMotion,
+  AutoMovieMotionHumanHandToBody,
   AutoMovieMotionHumanTouchDrink,
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
-  handToFace,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -89,7 +89,8 @@ export function motionHumanLawHandToFace(
   extraCasts: readonly motionHumanBody.Name[] = [],
   reflect: boolean = true,
 ): string[] {
-  const row: IAutoMovieMotionHumanHandToFaceRows.IRow = handToFace.ROWS[task];
+  const row: IAutoMovieMotionHumanHandToFaceRows.IRow =
+    AutoMovieMotionHumanHandToBody.handToFace.ROWS[task];
   const name: motionHumanBody.Name = "m-average";
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const perform = (
@@ -99,7 +100,7 @@ export function motionHumanLawHandToFace(
     motionHumanLaw.perform(
       "hand-face",
       [{ subject: "a", body: who }],
-      HumanChain.subject("a").act("handToFace", { task, side }),
+      HumanChain.subject("a").act("handToFace", { kind: task, hand: side }),
     );
   const film: motionHumanLaw.IFilm = perform(body, "right");
   return [

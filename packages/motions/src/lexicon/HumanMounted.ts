@@ -307,12 +307,14 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     holding.length === 0
       ? undefined
       : HumanRideHands.of(
-          { ...context, params: { on, seconds: clock.duration, hands } },
+          { ...context, params: { on, duration: clock.duration, hands } },
           on,
           support,
           context.entry.posture,
           placed,
           figures[0]!.transfer,
+          // A hand that enters holding keeps the crossing its rein is displayed with.
+          { pose: context.entry.pose, holding: gripped },
         );
   return {
     duration: clock.duration,

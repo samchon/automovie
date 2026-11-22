@@ -19,8 +19,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGait,
   HumanChain,
-  HumanCrutchWalk,
   HumanFoot,
   HumanObject,
   HumanPerformance,
@@ -300,7 +300,11 @@ function walk(
         side === "left" ? params.left : params.right,
         models[side],
         placed,
-        HumanCrutchWalk.track(HumanObject.frame(placed), params, side),
+        AutoMovieMotionHumanGait.crutchWalk.track(
+          HumanObject.frame(placed),
+          params,
+          side,
+        ),
       );
     },
   );
@@ -316,9 +320,9 @@ function walk(
       },
     ],
     props,
-    laws: [HumanCrutchWalk],
+    laws: [AutoMovieMotionHumanGait.crutchWalk],
     composition: HumanChain.subject("a").registered(
-      HumanCrutchWalk.name,
+      AutoMovieMotionHumanGait.crutchWalk.name,
       params,
     ).node,
   });

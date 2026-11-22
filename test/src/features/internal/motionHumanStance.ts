@@ -4,7 +4,11 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanStance,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions";
 
 /**
  * The displayed bones of a body in the quiet stance every performer starts
@@ -25,6 +29,9 @@ export function motionHumanStance(
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   return poseBones(
     body,
-    resolveHumanPosture(body, stand.posture(body, at, yaw)),
+    resolveHumanPosture(
+      body,
+      AutoMovieMotionHumanStance.stand.posture(body, at, yaw),
+    ),
   );
 }

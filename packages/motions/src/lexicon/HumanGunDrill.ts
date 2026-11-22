@@ -49,7 +49,7 @@ export namespace HumanGunDrill {
   export const coverVent: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gunDrill"]["coverVent"]
   > = HumanActionRow.of("coverVent", touch, {
-    with: "fingertips",
+    effector: "fingertips",
     kind: "hold",
   });
 

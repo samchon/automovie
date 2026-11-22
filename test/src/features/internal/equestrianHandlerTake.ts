@@ -24,11 +24,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
-  HumanLeadHorse,
   HumanObject,
   HumanPerformance,
-  HumanTendHorse,
 } from "@automovie/motions";
 
 import { equineLeadOut } from "./equineLeadOut";
@@ -284,7 +283,7 @@ export namespace equestrianHandlerTake {
       if (scene === "brush")
         return handler
           .pickUp({ prop: "brush", handle: "grip", hand: "right" })
-          .stand({ seconds: 4 })
+          .stand({ hold: 4 })
           .over(
             (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
               hand.registered("tendHorse", {
@@ -298,7 +297,7 @@ export namespace equestrianHandlerTake {
                 tool: { prop: "brush", face: "face" },
               }),
           )
-          .putDown({ prop: "brush", hand: "right", at: shelf });
+          .putDown({ prop: "brush", hand: "right", to: shelf });
       if (scene === "headgear")
         return handler
           .pickUp({ prop: "halter", handle: "grip", hand: "right" })
@@ -307,7 +306,7 @@ export namespace equestrianHandlerTake {
             hand: "right",
             onto: { prop: "horse", point: "headgear", via: "seat" },
           })
-          .stand({ seconds: 1 });
+          .stand({ hold: 1 });
       if (scene === "saddle")
         return handler
           .pickUp({ prop: "saddle", handle: "grip", hand: "right" })
@@ -317,7 +316,7 @@ export namespace equestrianHandlerTake {
             hand: "right",
             onto: { prop: "horse", point: "saddle", via: "seat" },
           })
-          .stand({ seconds: 1 });
+          .stand({ hold: 1 });
       return handler.crouch({ depth: "full", hold: 4 }, "low").over(
         (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
           hand.registered("tendHorse", {
@@ -355,7 +354,10 @@ export namespace equestrianHandlerTake {
       return new HumanPerformance({
         seed: "equine-handler",
         performers: [performer],
-        laws: [HumanTendHorse, HumanLeadHorse],
+        laws: [
+          AutoMovieMotionHumanMount.tendHorse,
+          AutoMovieMotionHumanMount.leadHorse,
+        ],
         props: [
           HumanObject.prop("horse", model, place(0), place, part),
           HumanObject.prop("brush", BRUSH, { at: shelf, yaw: 0, fixed: false }),

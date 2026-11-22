@@ -18,7 +18,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_posture_shadow_strike_events(): void {
   for (const name of ["f-small", "m-average"] as const) {
-    const chain = HumanChain.subject("actor").guard({ seconds: 0.8 });
+    const chain = HumanChain.subject("actor").guard({ duration: 0.8 });
     const kicking: boolean = name === "f-small";
     const composition = kicking
       ? chain

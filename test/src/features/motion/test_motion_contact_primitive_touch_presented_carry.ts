@@ -30,7 +30,7 @@ export function test_motion_contact_primitive_touch_presented_carry(): void {
     [{ subject: "a", body }],
     HumanChain.subject("a").touch({
       target: { kind: "self", region: "forearmLeft" },
-      side: "right",
+      hand: "right",
       kind: "press",
     }),
   );

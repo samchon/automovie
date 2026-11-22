@@ -142,7 +142,7 @@ export namespace groupDanceCircle {
       clock: IAutoMovieMotionHumanDanceBeats,
     ): number => {
       const u: number = Math.max(0, (t - clock.at(1)) / (2 * clock.period));
-      const pairs: number = Math.min(Math.floor(clock.beats / 2), u);
+      const pairs: number = Math.min(Math.floor(clock.count / 2), u);
       return angle0 + sweep * pairs;
     };
     const place: (
@@ -168,7 +168,7 @@ export namespace groupDanceCircle {
         rotation: HumanFoot.rotation(yaw, 0),
       };
     };
-    const end: number = beats.at(beats.beats) + beats.period;
+    const end: number = beats.at(beats.count) + beats.period;
     const travel: number = TRAVEL * beats.period;
     const keys: Record<
       AutoMovieHumanSide,
@@ -193,7 +193,7 @@ export namespace groupDanceCircle {
         },
       ],
     };
-    for (let k: number = 1; k <= beats.beats; k++) {
+    for (let k: number = 1; k <= beats.count; k++) {
       const side: AutoMovieHumanSide = k % 2 === 1 ? "right" : "left";
       const pair: number = Math.ceil(k / 2);
       const list: IAutoMovieMotionHumanDanceFootKey[] = keys[side];
@@ -235,10 +235,7 @@ export namespace groupDanceCircle {
         surface: "palm",
         shape: "relaxed",
         point,
-        rotation: Quaternion.fromAxisAngle(
-          { x: 0, y: 1, z: 0 },
-          yaw,
-        ),
+        rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
         bend: { ...point, y: point.y - 0.3 },
       };
     };

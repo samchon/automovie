@@ -129,7 +129,7 @@ export function test_motion_contact_hand_to_prop(): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .sit({ seat, seconds: 0.2 })
+        .sit({ seat, hold: 0.2 })
         .pickUp({ prop: "fork", handle: "grip", hand: side })
         .registered("handToFace", {
           task: "eat",

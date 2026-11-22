@@ -13,10 +13,10 @@ import type {
 import {
   AutoMovieMotionHumanAuditBalance,
   AutoMovieMotionHumanAuditMotion,
+  AutoMovieMotionHumanSupport,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanSupportCarry,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -53,12 +53,12 @@ export function test_motion_posture_support_frame(): void {
       at: { x: 2 * seconds, y: 0.3, z: 1 },
       yaw: 90 * seconds,
     });
-  const carry = HumanSupportCarry.of(frame, 0, 1);
+  const carry = AutoMovieMotionHumanSupport.carry.of(frame, 0, 1);
   const localStep = { x: 0.2, y: 0.3, z: 2 };
   const deckBody = motionHumanBody("m-average");
   const kneePole = deckBody.rest.get("leftLowerLeg")!;
   const elbowPole = deckBody.rest.get("rightLowerArm")!;
-  const carried = HumanSupportCarry.posture(carry, {
+  const carried = AutoMovieMotionHumanSupport.carry.posture(carry, {
     root: { x: 0, y: 0.3, z: 1 },
     yaw: 10,
     pitch: 0,
@@ -84,10 +84,10 @@ export function test_motion_posture_support_frame(): void {
   TestValidator.predicate(
     "a released inert object takes the support frame at its event",
     vclose(
-      HumanSupportCarry.of(frame, 0, 1).point(pickup),
+      AutoMovieMotionHumanSupport.carry.of(frame, 0, 1).point(pickup),
       { x: 3, y: 1, z: 1 },
       1e-9,
-    ) && vclose(HumanSupportCarry.of(frame, 0, 0).point(pickup), pickup, 1e-9),
+    ) && vclose(AutoMovieMotionHumanSupport.carry.of(frame, 0, 0).point(pickup), pickup, 1e-9),
   );
   const findings: string[] = [];
   const cart: ReturnType<typeof createCart> = createCart({ kind: "cart" });
@@ -109,7 +109,7 @@ export function test_motion_posture_support_frame(): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .stand({ seconds: 0.5, on: { prop: "cart" } })
+        .stand({ hold: 0.5, on: { prop: "cart" } })
         .walk({
           to: { x: 0, y: 0.3, z: 3 + speed * 0.5 },
           on: { prop: "cart" },
@@ -208,12 +208,12 @@ export function test_motion_posture_support_frame(): void {
           },
         ],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3, sway: 0, on: { prop: "cart" } })
-          .sit({ seat, seconds: 0.2 })
-          .handToFace({ task: "drink", seconds: 0.3 })
-          .shift({ by: 0.01, seconds: 0.1 })
+          .stand({ hold: 0.3, sway: 0, on: { prop: "cart" } })
+          .sit({ seat, hold: 0.2 })
+          .handToFace({ kind: "drink", hold: 0.3 })
+          .shift({ by: 0.01, hold: 0.1 })
           .rise({})
-          .stand({ seconds: 0.3, sway: 0 }).node,
+          .stand({ hold: 0.3, sway: 0 }).node,
       });
     };
     const reference: IAutoMovieMotionHumanPerformance = perform(0);

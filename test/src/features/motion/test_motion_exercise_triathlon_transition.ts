@@ -18,16 +18,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanBikeGuide,
-  HumanBikeTransfer,
+  AutoMovieMotionHumanMount,
+  AutoMovieMotionHumanRide,
+  AutoMovieMotionHumanSwim,
   HumanChain,
   HumanFoot,
   HumanFrame,
   HumanHand,
   HumanObject,
   HumanPerformance,
-  HumanRide,
-  aquatic,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -420,7 +419,7 @@ function take(
   const prefix: ReturnType<typeof HumanChain.subject> = HumanChain.subject(
     "athlete",
   )
-    .swim({ kind: "frontCrawl", water: SURFACE, cycles: 1 })
+    .swim({ kind: "frontCrawl", water: SURFACE, count: 1 })
     .registered("aquatic", { kind: "waterExit", water: SURFACE })
     .run({ to: station, pace: "jog", face: seat.yaw })
     .pickUp({ prop: "helmet", handle: "hold", hand: "left" })
@@ -438,7 +437,12 @@ function take(
     });
   return new HumanPerformance({
     seed: `triathlon-${entry}`,
-    laws: [aquatic, HumanBikeGuide, HumanBikeTransfer, HumanRide.ride],
+    laws: [
+      AutoMovieMotionHumanSwim.aquatic,
+      AutoMovieMotionHumanRide.bikeGuide,
+      AutoMovieMotionHumanRide.bikeTransfer,
+      AutoMovieMotionHumanMount.rideHorse.ride,
+    ],
     performers: [performer],
     props: [prop, rack, helmet],
     composition:
@@ -464,7 +468,7 @@ function take(
                 seconds: plan.when(plan.length) - stop,
               })
               .pickUp({ prop: "helmet", handle: "hold", hand: "left" })
-              .putDown({ prop: "helmet", at: rest, yaw: 0, hand: "left" })
+              .putDown({ prop: "helmet", to: rest, yaw: 0, hand: "left" })
               .run({ to: { x: 4, y: 0, z: 1 }, pace: "jog" }).node,
   });
 }

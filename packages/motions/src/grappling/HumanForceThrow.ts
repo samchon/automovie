@@ -67,9 +67,14 @@ export namespace HumanForceThrow {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanForceResponse.IParams>,
     props: IAutoMovieMotionHumanForceThrow.IProps,
   ): IAutoMovieMotionHumanActionPlan {
-    const { model, direction, broken, frozen }: IAutoMovieMotionHumanForceThrow.IProps = props;
+    const {
+      model,
+      direction,
+      broken,
+      frozen,
+    }: IAutoMovieMotionHumanForceThrow.IProps = props;
     const body: IAutoMovieMotionHumanBody = context.body;
-    const by: string | undefined = context.params.by;
+    const by: string | undefined = context.params.partner;
     const fulcrum: AutoMovieHumanoidRegion | undefined = context.params.fulcrum;
     const thrower: IAutoMovieMotionHumanPerformerReader | undefined =
       by === undefined ? undefined : context.performer(by);
@@ -130,18 +135,19 @@ export namespace HumanForceThrow {
         ),
       0,
     );
-    const swing: IAutoMovieMotionHumanForceExchange.ISwing | null = HumanForceExchange.swing({
-      mass: model.mass,
-      inertia: about,
-      radius,
-      angle: start,
-      rate: (props.speed * Vector3.dot(direction, tangent)) / radius,
+    const swing: IAutoMovieMotionHumanForceExchange.ISwing | null =
+      HumanForceExchange.swing({
+        mass: model.mass,
+        inertia: about,
+        radius,
+        angle: start,
+        rate: (props.speed * Vector3.dot(direction, tangent)) / radius,
 
-      // A horizontal pull at the grips turns the body about the fulcrum by
-      // its force times the grips' height above it.
-      torque: props.force * (props.grip - point.y),
-      until: props.remaining,
-    });
+        // A horizontal pull at the grips turns the body about the fulcrum by
+        // its force times the grips' height above it.
+        torque: props.force * (props.grip - point.y),
+        until: props.remaining,
+      });
     if (swing === null)
       throw new HumanRefusal({
         kind: "parameter",
@@ -151,10 +157,14 @@ export namespace HumanForceThrow {
         reason: `the momentum the pull left does not carry the body over the thrower's ${fulcrum}: at the broken base (${broken.toFixed(3)} s) the centre stands ${(centre.y - point.y).toFixed(3)} m above the fulcrum and ${Vector3.dot(r, direction).toFixed(3)} m along the pull, ${((start * 180) / Math.PI).toFixed(1)} degrees from its vertical, turning at ${((props.speed * Vector3.dot(direction, tangent)) / radius).toFixed(3)} rad/s`,
         fix: "pull harder, or bring the fulcrum under the body's centre",
       });
-    const turnAt: (angle: number) => IAutoMovieQuaternion = (angle: number): IAutoMovieQuaternion =>
+    const turnAt: (angle: number) => IAutoMovieQuaternion = (
+      angle: number,
+    ): IAutoMovieQuaternion =>
       Quaternion.fromAxisAngle(axis, ((angle - start) * 180) / Math.PI);
     const release: number = broken + swing.release;
-    const state: { angle: number; rate: number } = swing.sample?.(swing.release) ?? {
+    const state: { angle: number; rate: number } = swing.sample?.(
+      swing.release,
+    ) ?? {
       angle: swing.angle(swing.release),
       rate: swing.rate(swing.release),
     };
@@ -173,7 +183,9 @@ export namespace HumanForceThrow {
     // The flight lasts at most until the centre itself reaches the floor.
     const fall: number =
       (velocity.y + Math.sqrt(velocity.y * velocity.y + 2 * g * from.y)) / g;
-    const path: (tau: number) => IAutoMovieVector3 = (tau: number): IAutoMovieVector3 => ({
+    const path: (tau: number) => IAutoMovieVector3 = (
+      tau: number,
+    ): IAutoMovieVector3 => ({
       x: from.x + velocity.x * tau,
       y: from.y + velocity.y * tau - (g * tau * tau) / 2,
       z: from.z + velocity.z * tau,
@@ -199,7 +211,10 @@ export namespace HumanForceThrow {
     const end: number = Math.max(fall, integrateMotionTrajectory.STEP);
     const fixed: integrateAirborneRotation.ICachedHistory | undefined =
       Number.isFinite(end)
-        ? integrateAirborneRotation.fixed(model, body.skeleton, local, { from: 0, to: end })
+        ? integrateAirborneRotation.fixed(model, body.skeleton, local, {
+            from: 0,
+            to: end,
+          })
         : undefined;
     let rigid: IAutoMovieIntegrateAirborneRotation.IInstant | undefined;
     if (fixed === undefined) {
@@ -214,7 +229,8 @@ export namespace HumanForceThrow {
     let flight: IAutoMovieIntegrateAirborneRotation.IFlight;
     try {
       flight = integrateAirborneRotation({
-        history: fixed ?? ((): IAutoMovieIntegrateAirborneRotation.IInstant => rigid!),
+        history:
+          fixed ?? ((): IAutoMovieIntegrateAirborneRotation.IInstant => rigid!),
         t0: 0,
         t1: end,
         q0: Quaternion.normalize(Quaternion.multiply(turned, heading)),
@@ -223,12 +239,11 @@ export namespace HumanForceThrow {
     } finally {
       fixed?.clear();
     }
-    const turnIn: (tau: number) => IAutoMovieQuaternion = (tau: number): IAutoMovieQuaternion =>
+    const turnIn: (tau: number) => IAutoMovieQuaternion = (
+      tau: number,
+    ): IAutoMovieQuaternion =>
       Quaternion.normalize(
-        Quaternion.multiply(
-          flight.orientation(tau),
-          inverse,
-        ),
+        Quaternion.multiply(flight.orientation(tau), inverse),
       );
 
     // The landing: the first step at which the lowest joint reaches the floor.
@@ -242,11 +257,7 @@ export namespace HumanForceThrow {
       const q: IAutoMovieQuaternion = turnIn(tau);
       let low: number = Number.POSITIVE_INFINITY;
       for (const offset of offsets)
-        low = Math.min(
-          low,
-          c.y +
-            Quaternion.rotateVectorY(q, offset),
-        );
+        low = Math.min(low, c.y + Quaternion.rotateVectorY(q, offset));
       return low;
     };
     let land: number = fall;
@@ -331,7 +342,10 @@ export namespace HumanForceThrow {
     }
     const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
       body.surfaces.regions[at];
-    return resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
+    return resolveAutoMovieHumanoidSurfaces.point(
+      frame,
+      bones.get(frame.bone)!,
+    );
   }
 
   /** A vector's component by index. */

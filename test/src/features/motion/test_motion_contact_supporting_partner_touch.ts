@@ -38,12 +38,12 @@ export function test_motion_contact_supporting_partner_touch(): void {
         { subject: "b", body, at: { x: 0, y: 0, z: 0.45 }, yaw: 0 },
       ],
       HumanChain.subject("b")
-        .stand(sway === undefined ? { seconds: 8 } : { seconds: 8, sway })
+        .stand(sway === undefined ? { hold: 8 } : { hold: 8, sway })
         .with(
           HumanChain.subject("a").touch({
             target: { kind: "person", subject: "b", region: "upperBack" },
             kind: "rub",
-            side,
+            hand: side,
           }),
         ),
     );

@@ -87,7 +87,7 @@ export function test_motion_posture_simple_prop_interaction(): void {
         composition: HumanChain.subject("a")
           .pickUp({ prop: "gun", handle: "grip" })
           .operate({
-            mechanism: {
+            kind: {
               kind: "insert",
               prop: "gun",
               tip: "muzzle",

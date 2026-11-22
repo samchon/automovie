@@ -8,11 +8,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanJacobian,
   createHumanBody,
   poseBones,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -55,11 +55,8 @@ export function test_motion_dynamics_clinical_jacobian(): void {
     },
     source.profile,
   );
-  const standing: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const standing: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const posture = (
     angles: readonly [number, number, number],
   ): IAutoMovieMotionHumanPosture => ({

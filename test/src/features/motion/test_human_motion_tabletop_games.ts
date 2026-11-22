@@ -118,7 +118,7 @@ function stage(): IStage {
 
 /** The actor seated, then the play. */
 function seated(stage: IStage): IAutoMovieMotionHumanChain {
-  return HumanChain.subject("actor").sit({ seat: stage.seat, seconds: 1 });
+  return HumanChain.subject("actor").sit({ seat: stage.seat, hold: 1 });
 }
 
 /** The take, with the shipped verdicts and the identity continuity checked. */

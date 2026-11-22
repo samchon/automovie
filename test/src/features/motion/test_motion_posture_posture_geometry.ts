@@ -92,7 +92,7 @@ export function test_motion_posture_posture_geometry(): void {
           },
         ],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
+          .stand({ hold: 0.3 })
           .registered(row).node,
       });
     } catch (error) {
@@ -320,7 +320,7 @@ function checkCrossedSeat(findings: string[]): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .sit({ seat: chair, legs: "crossed", seconds })
+        .sit({ seat: chair, legs: "crossed", hold: seconds })
         .rise().node,
     });
   try {
@@ -415,7 +415,7 @@ function checkSupportTransfer(findings: string[]): void {
     const brace = perform(
       actor.brace({
         kind,
-        toward: { kind: "point", at: { x: 0, y: 1.2, z: 2 }, frame: "world" },
+        target: { kind: "point", at: { x: 0, y: 1.2, z: 2 }, frame: "world" },
       }),
     );
     const verdict = HumanVerdicts.of(brace);
@@ -428,11 +428,11 @@ function checkSideReflection(findings: string[]): void {
   const body = motionHumanBody("m-average"),
     actor = HumanChain.subject("a");
   const actions = (side: AutoMovieHumanSide) => [
-    actor.gesture({ kind: "wave", side }),
+    actor.gesture({ kind: "wave", hand: side }),
     actor.kneel({ knee: side, hold: 0.5 }),
     actor.bend({
-      side,
-      toward: {
+      hand: side,
+      target: {
         kind: "point",
         frame: "world",
         at: {

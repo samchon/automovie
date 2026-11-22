@@ -30,9 +30,9 @@ export namespace HumanFirearm {
     IAutoMovieMotionHumanLexiconParams["firearm"]["reachHolster"]
   > = HumanActionRow.of("reachHolster", touch, {
     target: { kind: "self", region: "hipRight" },
-    with: "palm",
+    effector: "palm",
     kind: "hold",
-    side: "right",
+    hand: "right",
     hold: 0.3,
   });
 

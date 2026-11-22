@@ -109,8 +109,8 @@ export namespace HumanSwordGuard {
       ): IAutoMovieMotionHumanActionPlan => {
         const s: IAutoMovieMotionHumanSword.ISetup = HumanSword.setup(context);
         const set: number = 0.5 * StrikingSkill.recovery(context.skill);
-        const seconds: number = Math.max(set, context.params.seconds ?? 1);
-        HumanBound.least("seconds", context.params.seconds ?? 1, 0, "s");
+        const seconds: number = Math.max(set, context.params.duration ?? 1);
+        HumanBound.least("duration", context.params.duration ?? 1, 0, "s");
         const row: (typeof GUARDS)[IAutoMovieMotionHumanSwordGuard.Guard] =
           GUARDS[context.params.guard ?? "middle"];
         const pose: IAutoMovieMotionHumanStrikingHeld.IHandFrame =

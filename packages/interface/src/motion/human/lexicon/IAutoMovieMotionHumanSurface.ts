@@ -73,7 +73,7 @@ export namespace IAutoMovieMotionHumanSurface {
    */
   export interface IGlideParams {
     /** Duration in seconds, positive. No natural value is defined: choose it for the beat (provisional, missing). */
-    seconds: number;
+    duration: number;
 
     /** Travel speed in metres per second, positive. Approached from the entry speed. No natural value is defined: choose it for the beat (provisional, missing). */
     speed: number;
@@ -168,7 +168,7 @@ export namespace IAutoMovieMotionHumanSurface {
    */
   export interface ICurlDeliveryParams {
     /** Positive duration in seconds. */
-    seconds: number;
+    duration: number;
 
     /** Positive forward glide speed in metres per second. No natural value is defined: choose it for the beat (provisional, missing). */
     speed: number;
@@ -296,7 +296,7 @@ export namespace IAutoMovieMotionHumanSurface {
     on: string;
 
     /** Duration in seconds, positive. No natural value is defined: choose it for the beat (provisional, missing). */
-    seconds: number;
+    duration: number;
 
     /** The point of the same support each named hand grips while riding, by the support's point id. No grip when absent. */
     hands?: Partial<Record<AutoMovieHumanSide, string>>;
@@ -316,7 +316,7 @@ export namespace IAutoMovieMotionHumanSurface {
     on: string;
 
     /** Duration in seconds on the actor's clock. */
-    seconds: number;
+    duration: number;
 
     /** The foot that remains forward while the other foot pushes. */
     lead: AutoMovieHumanSide;
@@ -338,7 +338,7 @@ export namespace IAutoMovieMotionHumanSurface {
     on: string;
 
     /** Duration in seconds on the actor's clock. */
-    seconds: number;
+    duration: number;
 
     /** The foot that reaches the front stance first. */
     lead: AutoMovieHumanSide;

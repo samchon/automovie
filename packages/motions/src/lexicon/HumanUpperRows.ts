@@ -53,7 +53,7 @@ export namespace HumanUpperRows {
     mirror: true,
     offset: { out: 0.25, up: 0.55, forward: 0.15 },
     swing: { out: 0.1, up: 0, forward: 0 },
-    cycles: 3,
+    count: 3,
     facing: { fingers: "up", palm: "forward" },
   });
 
@@ -119,7 +119,7 @@ export namespace HumanUpperRows {
     surface: "palm",
     shape: "flat",
     swing: { out: 0.05, up: 0, forward: 0 },
-    cycles: 3,
+    count: 3,
   });
 
   /** A stroke: the palm draws down along the target. */
@@ -174,7 +174,7 @@ export namespace HumanUpperRows {
     surface: "palm",
     shape: "flat",
     swing: { out: 0.15, up: 0, forward: 0 },
-    cycles: 4,
+    count: 4,
   });
 
   /** Hammering: the fist that holds the hammer strikes down and back on the target, up and down. */
@@ -185,7 +185,7 @@ export namespace HumanUpperRows {
     surface: "grip",
     shape: "fist",
     swing: { out: 0, up: 0.15, forward: 0 },
-    cycles: 4,
+    count: 4,
   });
 
   /** Sawing: the fist that holds the saw draws forward and back over the target. */
@@ -196,7 +196,7 @@ export namespace HumanUpperRows {
     surface: "grip",
     shape: "fist",
     swing: { out: 0, up: 0, forward: 0.2 },
-    cycles: 4,
+    count: 4,
   });
 
   /** Stirring: the fist that holds the spoon circles out and in over the pot. */
@@ -207,7 +207,7 @@ export namespace HumanUpperRows {
     surface: "grip",
     shape: "fist",
     swing: { out: 0.05, up: 0, forward: 0.05 },
-    cycles: 4,
+    count: 4,
   });
 
   /** Putting on a hat: the hand that holds it visits the crown and stays a beat. */
@@ -253,7 +253,7 @@ export namespace HumanUpperRows {
     surface: "indexTip",
     shape: "relaxed",
     swing: { out: 0, up: 0, forward: 0.03 },
-    cycles: 4,
+    count: 4,
   });
 
   /** A hand to the cheek: the palm visits the cheek and stays a beat. */
@@ -312,7 +312,7 @@ export namespace HumanUpperRows {
     surface: "grip",
     shape: "fist",
     swing: { out: 0.04, up: 0, forward: 0 },
-    cycles: 6,
+    count: 6,
   });
 
   /** Combing: the hand that holds the comb draws it back over the crown. */
@@ -331,11 +331,11 @@ export namespace HumanUpperRows {
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["clapHands"]
   > = HumanActionRow.of("clapHands", armPhrase, {
     phrase: "oscillate",
-    side: "both",
+    hand: "both",
     target: { kind: "self", region: "sternum" },
     offset: { out: 0, up: 0, forward: 0.35 },
     swing: { out: 0.08, up: 0, forward: 0 },
-    cycles: 3,
+    count: 3,
     facing: { fingers: "up", palm: "in" },
   });
 
@@ -344,11 +344,11 @@ export namespace HumanUpperRows {
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["rubPalms"]
   > = HumanActionRow.of("rubPalms", armPhrase, {
     phrase: "oscillate",
-    side: "both",
+    hand: "both",
     target: { kind: "self", region: "sternum" },
     offset: { out: 0, up: -0.1, forward: 0.3 },
     swing: { out: 0, up: 0.04, forward: 0 },
-    cycles: 4,
+    count: 4,
     facing: { fingers: "up", palm: "in" },
   });
 
@@ -357,7 +357,7 @@ export namespace HumanUpperRows {
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["handsTogetherFront"]
   > = HumanActionRow.of("handsTogetherFront", armPhrase, {
     phrase: "visit",
-    side: "both",
+    hand: "both",
     target: { kind: "self", region: "abdomen" },
     offset: { out: 0, up: 0, forward: 0.15 },
     facing: { fingers: "forward", palm: "in" },
@@ -369,7 +369,7 @@ export namespace HumanUpperRows {
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["cheerHands"]
   > = HumanActionRow.of("cheerHands", armPhrase, {
     phrase: "visit",
-    side: "both",
+    hand: "both",
     target: { kind: "self", region: "crown" },
     offset: { out: 0.3, up: 0.25, forward: 0.05 },
     facing: { fingers: "up", palm: "forward" },
@@ -385,7 +385,7 @@ export namespace HumanUpperRows {
     mirror: true,
     offset: { out: 0, up: -0.2, forward: 0.5 },
     swing: { out: 0, up: 0, forward: 0.08 },
-    cycles: 3,
+    count: 3,
     facing: { fingers: "forward", palm: "up" },
   });
 
@@ -394,7 +394,7 @@ export namespace HumanUpperRows {
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["foldArms"]
   > = HumanActionRow.of("foldArms", armPhrase, {
     phrase: "visit",
-    side: "both",
+    hand: "both",
     target: { kind: "self", region: "solarPlexus" },
     offset: { out: -0.25, up: 0.05, forward: 0.12 },
     shape: "relaxed",
@@ -407,7 +407,7 @@ export namespace HumanUpperRows {
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["handsClaspedBehind"]
   > = HumanActionRow.of("handsClaspedBehind", armPhrase, {
     phrase: "visit",
-    side: "both",
+    hand: "both",
     target: { kind: "self", region: "lowerBack" },
     offset: { out: 0, up: -0.05, forward: -0.08 },
     facing: { fingers: "down", palm: "in" },
@@ -435,7 +435,7 @@ export namespace HumanUpperRows {
     surface: "palm",
     shape: "flat",
     swing: { out: 0, up: 0.05, forward: 0 },
-    cycles: 3,
+    count: 3,
   });
 
   /** A squeeze: the hand closes on the target and holds. */
@@ -489,6 +489,6 @@ export namespace HumanUpperRows {
     surface: "indexTip",
     shape: "relaxed",
     swing: { out: 0, up: 0.02, forward: 0 },
-    cycles: 5,
+    count: 5,
   });
 }

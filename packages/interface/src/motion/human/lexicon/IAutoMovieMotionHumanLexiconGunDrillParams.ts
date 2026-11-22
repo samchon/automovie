@@ -1,8 +1,8 @@
 import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
-import type { IAutoMovieMotionHumanOperate } from "../affordance/IAutoMovieMotionHumanOperate";
 import type { IAutoMovieMotionHumanHandoverAction } from "../handling/IAutoMovieMotionHumanHandoverAction";
 import type { IAutoMovieMotionHumanPutDown } from "../handling/IAutoMovieMotionHumanPutDown";
-import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
+import type { IAutoMovieMotionHumanOperate } from "../next/IAutoMovieMotionHumanOperate";
+import type { IAutoMovieMotionHumanTouch } from "../next/IAutoMovieMotionHumanTouch";
 
 /**
  * Open parameters of the gunDrill lexicon family, keyed by each runtime export name: a field gun crew's duties of #3489.
@@ -14,7 +14,7 @@ import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanT
  */
 export interface IAutoMovieMotionHumanLexiconGunDrillParams {
   /** Cover the vent with the fingertips. */
-  coverVent: Omit<IAutoMovieMotionHumanTouch.IParams, "with" | "kind">;
+  coverVent: Omit<IAutoMovieMotionHumanTouch.IParams, "effector" | "kind">;
 
   /** Sponge the bore. */
   spongeBore: IAutoMovieMotionHumanOperate.IParams;

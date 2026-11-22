@@ -57,12 +57,13 @@ export function prepareSupportHelperGrip(
   const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
     assist.partner,
   );
-  const region: AutoMovieHumanoidRegion = assist.side === "left" ? "palmLeft" : "palmRight";
+  const region: AutoMovieHumanoidRegion =
+    assist.hand === "left" ? "palmLeft" : "palmRight";
   const own: IAutoMovieHumanoidSurfaces.IFrame =
     context.body.surfaces.regions[region];
   const other: IAutoMovieHumanoidSurfaces.IFrame =
     partner.body.surfaces.regions[region];
-  const limb: AutoMovieHumanLimb = `${assist.side}Arm`;
+  const limb: AutoMovieHumanLimb = `${assist.hand}Arm`;
   const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set([other.bone]);
   const from: number = grip.from * duration;
   const to: number = grip.to * duration;

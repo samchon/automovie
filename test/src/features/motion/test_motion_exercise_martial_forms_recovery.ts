@@ -182,7 +182,7 @@ function observe(
     composition: HumanChain.subject("form").martialArt({
       kind: form,
       lead,
-      seconds: HOLD,
+      hold: HOLD,
     }).node,
   });
   const track: IAutoMovieScheduleEntry = film.schedule.entries[0]!;

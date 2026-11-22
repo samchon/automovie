@@ -103,15 +103,15 @@ export function createPrecisionSportStroke<P extends Stroke>(
         "ball",
       );
       const toward: IAutoMovieVector3 = Vector3.subtract(
-        context.aim(params.toward, seconds).point,
+        context.aim(params.target, seconds).point,
         ball.centre,
       );
       const horizontal: IAutoMovieVector3 = { ...toward, y: 0 };
       if (!(Vector3.length(horizontal) > 0))
         throw new HumanRefusal({
           kind: "parameter",
-          axis: "toward",
-          value: params.toward,
+          axis: "target",
+          value: params.target,
           reason: "the shot needs a horizontal direction away from the ball",
           fix: "give a target with a distinct horizontal position",
         });

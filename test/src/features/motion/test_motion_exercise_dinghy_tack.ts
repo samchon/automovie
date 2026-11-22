@@ -11,12 +11,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSwim,
   HumanChain,
   HumanFoot,
   HumanHand,
   HumanObject,
   HumanPerformance,
-  aquatic,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -113,7 +113,7 @@ export function test_motion_exercise_dinghy_tack(): void {
     ];
     const film: HumanPerformance = new HumanPerformance({
       seed: `dinghy-${kind}`,
-      laws: [aquatic],
+      laws: [AutoMovieMotionHumanSwim.aquatic],
       props: [HumanObject.prop("dinghy", dinghy, origin, motion)],
       performers,
       composition: {

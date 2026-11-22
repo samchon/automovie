@@ -57,7 +57,7 @@ export function test_motion_posture_floor_travel(): void {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject("a").crawl({ kind: "knees", cycles: 1 })
+      composition: HumanChain.subject("a").crawl({ kind: "knees", count: 1 })
         .node,
     });
   for (const [written, named] of [
@@ -126,7 +126,7 @@ function checkFloorPhases(findings: string[]): void {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject("a").crawl({ kind, cycles: 1 }).node,
+      composition: HumanChain.subject("a").crawl({ kind, count: 1 }).node,
     });
     const segment = p.segments("a")[0]!;
     const reader = HumanSignature.of(p, "a", body, 0);

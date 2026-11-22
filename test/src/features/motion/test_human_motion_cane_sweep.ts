@@ -13,7 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanCaneSweep,
+  AutoMovieMotionHumanGait,
   HumanChain,
   HumanHand,
   HumanObject,
@@ -210,14 +210,14 @@ function sweep(
 ): HumanPerformance {
   const params: IAutoMovieMotionHumanCaneSweep = {
     prop: "cane",
-    side: "right",
+    hand: "right",
     technique,
-    seconds: SWEEP,
+    duration: SWEEP,
   };
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("a")
     .pickUp({ prop: "cane", handle: "grip", hand: "right" })
     .walk({ to: { x: 0, y: 0, z: CORRIDOR } })
-    .over((u) => u.registered(HumanCaneSweep.name, params));
+    .over((u) => u.registered(AutoMovieMotionHumanGait.caneSweep.name, params));
   return new HumanPerformance({
     seed: "cane sweep",
     performers: [
@@ -235,7 +235,7 @@ function sweep(
         rotation: Quaternion.identity(),
       }),
     ],
-    laws: [HumanCaneSweep],
+    laws: [AutoMovieMotionHumanGait.caneSweep],
     composition: chain.node,
   });
 }

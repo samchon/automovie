@@ -39,7 +39,7 @@ export function test_human_motion_lowered_gesture(): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const start: IAutoMovieMotionHumanChain = HumanChain.subject("counter");
     const entry: IAutoMovieMotionHumanChain =
-      kind === "sitBack" ? start.stand({ seconds: 1 }) : start;
+      kind === "sitBack" ? start.stand({ hold: 1 }) : start;
     const event: "lowest" | "settled" = kind === "full" ? "lowest" : "settled";
     const carrier: IAutoMovieMotionHumanChain =
       kind === "full"
@@ -56,7 +56,7 @@ export function test_human_motion_lowered_gesture(): void {
               upper
                 .gesture({
                   kind: kind === "full" ? "wave" : "stopPalm",
-                  side: "right",
+                  hand: "right",
                   count: 1,
                 })
                 .sync({ of: "low", event }),
@@ -70,8 +70,8 @@ export function test_human_motion_lowered_gesture(): void {
                     at: { x: 1, y: 0.5, z: 1 },
                     frame: "world",
                   },
-                  with: "head",
-                  seconds: 2,
+                  recruit: "head",
+                  duration: 2,
                 })
                 .sync({ of: "low", event }),
           ),

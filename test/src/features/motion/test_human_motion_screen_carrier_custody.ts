@@ -17,6 +17,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanCarrierCustody,
   HumanChain,
   HumanHand,
@@ -26,7 +27,6 @@ import {
   poseBones,
   putDownAperture,
   resolveHumanPosture,
-  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -135,7 +135,7 @@ export function test_human_motion_screen_carrier_custody(): void {
       to: { x: 0.25, y: 0, z: 0.35 },
       face: 40,
     };
-    const pose: IAutoMovieMotionHumanStand.IParams = { seconds: 0.5, sway: 0 };
+    const pose: IAutoMovieMotionHumanStand.IParams = { hold: 0.5, sway: 0 };
 
     /** Resolve each variation through the public performance constructor. */
     const scene: (
@@ -385,7 +385,7 @@ function fixture(
   if (worn) {
     const neutral: IAutoMoviePose = resolveHumanPosture(
       body,
-      stand.posture(body, ZERO, 0),
+      AutoMovieMotionHumanStance.stand.posture(body, ZERO, 0),
     );
     const hips: IAutoMovieRigidTransform = HumanPropFrame.bone(
       poseBones(body, neutral).get("hips")!,

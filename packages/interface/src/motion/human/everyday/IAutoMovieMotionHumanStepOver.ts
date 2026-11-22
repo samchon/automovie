@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanCrossing } from "../lexicon/IAutoMovieMotionHumanCrossing";
+import type { IAutoMovieMotionHumanCrossing } from "../next/IAutoMovieMotionHumanCrossing";
 
 /**
  * Stepping over a low obstacle placed in the scene, a kerb or a hurdle

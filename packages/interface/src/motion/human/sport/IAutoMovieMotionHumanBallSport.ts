@@ -49,7 +49,7 @@ export namespace IAutoMovieMotionHumanBallSport {
     kind: IAutoMovieMotionHumanBallSport.Kind;
 
     /** Dribbling or throwing hand; `right` when absent. */
-    side?: "left" | "right";
+    hand?: "left" | "right";
 
     /** Dribble bounces, a whole number of at least 1; 4 when absent, at 2 bounces a second (`ballSport.BOUNCES`, provisional): a 2 s dribble. */
     count?: number;

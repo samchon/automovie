@@ -1,6 +1,6 @@
-import type { IAutoMovieMotionHumanGesture } from "../everyday/IAutoMovieMotionHumanGesture";
-import type { IAutoMovieMotionHumanDance } from "../exercise/IAutoMovieMotionHumanDance";
 import type { IAutoMovieMotionHumanExercise } from "../exercise/IAutoMovieMotionHumanExercise";
+import type { IAutoMovieMotionHumanDance } from "../next/IAutoMovieMotionHumanDance";
+import type { IAutoMovieMotionHumanGesture } from "../next/IAutoMovieMotionHumanGesture";
 import type { IAutoMovieMotionHumanGuard } from "../striking/IAutoMovieMotionHumanGuard";
 import type { IAutoMovieMotionHumanKick } from "../striking/IAutoMovieMotionHumanKick";
 import type { IAutoMovieMotionHumanPunch } from "../striking/IAutoMovieMotionHumanPunch";

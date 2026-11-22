@@ -214,7 +214,7 @@ function perform(
       )
       .with(
         HumanChain.subject("v")
-          .stand({ seconds: 2, sway: 0 })
+          .stand({ hold: 2, sway: 0 })
           .registered("heldHostage", { partner: "h" }),
       ).node,
   });

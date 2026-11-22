@@ -88,11 +88,11 @@ function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrowPottery.IParams>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanThrowPottery.IParams = context.params;
-  if (!(Number.isFinite(p.seconds) && p.seconds > 0))
+  if (!(Number.isFinite(p.duration) && p.duration > 0))
     throw new HumanRefusal({
       kind: "parameter",
-      axis: "seconds",
-      value: p.seconds,
+      axis: "duration",
+      value: p.duration,
       feasible: {
         kind: "range",
         minimum: 0,
@@ -210,7 +210,7 @@ function plan(
     );
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: transport,
-    attack: tempo * p.seconds,
+    attack: tempo * p.duration,
     retract: transport,
   });
   const ready: number = clock.at("strokeStart");

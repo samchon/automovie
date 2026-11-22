@@ -34,7 +34,7 @@ A prop's affordance ids are also its named points, so `{ kind: "prop", subject: 
 A hand keeps what it picked up until an action puts it down or hands it over. An action that works with the held object names it, and the object's own point meets the target instead of the bare hand:
 
 ```ts
-chain.pickUp({ prop: "glass", handle: "body" }).handToFace({ task: "drink", prop: "glass" });
+chain.pickUp({ prop: "glass", handle: "body" }).handToFace({ kind: "drink", prop: "glass" });
 ```
 
 Any other use of a holding hand is refused, naming the free hand.

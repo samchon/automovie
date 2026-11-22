@@ -80,14 +80,13 @@ export function test_motion_catalogue_public_verdict(): void {
           proficiency: { level: "trained" },
         },
       ],
-      composition: chain.with(HumanChain.subject("b").stand({ seconds: 1 }))
-        .node,
+      composition: chain.with(HumanChain.subject("b").stand({ hold: 1 })).node,
     });
 
   // 1. A sound scene.
   const sound: IAutoMovieMotionHumanPerformance = perform(
     3,
-    HumanChain.subject("a").stand({ seconds: 2 }),
+    HumanChain.subject("a").stand({ hold: 2 }),
   );
   const clean: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(sound);
   TestValidator.predicate(
@@ -102,7 +101,7 @@ export function test_motion_catalogue_public_verdict(): void {
 
   // 2. Two bodies on one floor point.
   const merged: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
-    perform(0, HumanChain.subject("a").stand({ seconds: 1 })),
+    perform(0, HumanChain.subject("a").stand({ hold: 1 })),
   );
   const partner: IAutoMovieMotionHumanVerdicts.IFinding | undefined =
     merged.findings.find(

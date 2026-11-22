@@ -73,7 +73,12 @@ export namespace HumanSurfaceGlide {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISnowGlideParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params }: typeof context = context;
-    const seconds: number = HumanBound.above("seconds", params.seconds, 0, "s");
+    const seconds: number = HumanBound.above(
+      "duration",
+      params.duration,
+      0,
+      "s",
+    );
     const speed: number = HumanBound.above("speed", params.speed, 0, "m/s");
     const turn: number = HumanBound.within(
       "turn",

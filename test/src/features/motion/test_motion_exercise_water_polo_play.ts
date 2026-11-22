@@ -14,12 +14,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSwim,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  aquatic,
   scoreWaterPoloGoal,
   stageCatch,
 } from "@automovie/motions";
@@ -295,14 +295,13 @@ function stage(
       : HumanChain.subject("shooter")
           .registered("aquatic", polo("defend"))
           .over((u: ReturnType<typeof HumanChain.subject>) =>
-            u
-              .registered("stageCatch", {
-                from: "pass",
-                ball: "ball",
-                hands: "one",
-                side,
-                intercept: pass,
-              }),
+            u.registered("stageCatch", {
+              from: "pass",
+              ball: "ball",
+              hands: "one",
+              side,
+              intercept: pass,
+            }),
           )
           .registered(
             "aquatic",
@@ -329,7 +328,7 @@ function stage(
           );
   return new HumanPerformance({
     seed: `water-polo-${outcome}`,
-    laws: [aquatic, stageCatch],
+    laws: [AutoMovieMotionHumanSwim.aquatic, stageCatch],
     performers: [...performers],
     props: [...props],
     composition: {

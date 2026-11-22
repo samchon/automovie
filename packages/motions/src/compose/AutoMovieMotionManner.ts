@@ -83,7 +83,7 @@ export namespace AutoMovieMotionManner {
     if (manner === undefined) return NEUTRAL;
     const intensity: number = manner.intensity ?? 1;
     const pace: number = manner.pace ?? 1;
-    const proficiency: number = manner.proficiency ?? 1;
+    const proficiency: number = manner.consistency ?? 1;
     const variation: number = manner.variation ?? 0;
     HumanBound.within("manner.intensity", intensity, 0, 1, "", "minimum");
     HumanBound.above("manner.pace", pace, 0);
@@ -143,7 +143,7 @@ export namespace AutoMovieMotionManner {
       manner === undefined
         ? NEUTRAL
         : resolve(
-            { proficiency: context.skill.axes.timing, ...manner },
+            { consistency: context.skill.axes.timing, ...manner },
             context.random("manner"),
           );
 

@@ -95,7 +95,7 @@ export function test_human_motion_tip_hat(): void {
         props: [prop],
         laws: [tipHat],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
+          .stand({ hold: 0.3 })
           .registered("tipHat", { prop: "hat" })
           .walk({ to: { x: 0, y: 0, z: 1 } }).node,
       });

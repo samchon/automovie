@@ -154,7 +154,7 @@ function offsetOn(
     "carriage-rest",
     body,
     [],
-    HumanChain.subject("actor").stand({ seconds: 0.2, sway: 0 }),
+    HumanChain.subject("actor").stand({ hold: 0.2, sway: 0 }),
   );
   const b: IAutoMovieResolvedBone = still.bones("actor", 0.1).get(bone)!;
   return HumanPropFrame.relative(HumanPropFrame.bone(b), world(b));
@@ -203,7 +203,7 @@ function arrival(
     // takes it.
     .operate({
       hand: "left",
-      mechanism: {
+      kind: {
         kind: "slider",
         at: { kind: "prop", subject: "case", point: "telescope" },
         travel: telescope.travel!,
@@ -421,8 +421,8 @@ function shoulders(
 ): void {
   const rider: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
-    .stand({ seconds: 0.3 })
-    .registered("bearing", { carry: "shoulders", seconds: 3 });
+    .stand({ hold: 0.3 })
+    .registered("bearing", { carry: "shoulders", hold: 3 });
   const take: HumanPerformance = play(`${label} shoulders`, body, [], chain, [
     {
       subject: "rider",
@@ -430,8 +430,12 @@ function shoulders(
       at: { x: 0, y: 0, z: -0.35 },
       yaw: 0,
       chain: HumanChain.subject("rider")
-        .stand({ seconds: 0.3 })
-        .registered("borne", { by: "actor", carry: "shoulders", seconds: 3 }),
+        .stand({ hold: 0.3 })
+        .registered("borne", {
+          partner: "actor",
+          carry: "shoulders",
+          hold: 3,
+        }),
     },
   ]);
   const borne: IAutoMovieMotionHumanSegment = named(take, "borne", "rider")[0]!;
@@ -527,7 +531,7 @@ function changeHands(
         [],
         HumanChain.subject("actor")
           .stand()
-          .carry({ to: { x: 0, y: 0, z: 2 }, how: "oneHand", load: 0.4 }),
+          .carry({ to: { x: 0, y: 0, z: 2 }, kind: "oneHand", load: 0.4 }),
         Object.values(HUMAN_LEXICON).flat(),
       ),
     );
