@@ -23,8 +23,11 @@ import type { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
 
-/** The limbs placed at the anchor course (`readHumanSegmentLeaf.anchors`); the legs keep their own fits. */
+/** The arms, placed at the anchor course (`readHumanSegmentLeaf.anchors`) where the plan's own course does not place them. */
 const ARMS: readonly AutoMovieHumanLimb[] = ["leftArm", "rightArm"];
+
+/** The legs, continued from the anchor course (`readHumanSegmentLeaf.anchors`): never placed at it, since a planted foot is held by its own fit. */
+const LEGS: readonly AutoMovieHumanLimb[] = ["leftLeg", "rightLeg"];
 
 /**
  * Read the action before its entering offset, including current holds and
@@ -127,7 +130,16 @@ export function readHumanSegmentLeaf(
       ARMS.some(
         (limb: AutoMovieHumanLimb): boolean =>
           written.limbs[limb] !== undefined && course?.get(limb) === undefined,
-      ));
+      ) ||
+      // A leg fitted at this second (not kept over a legs-still window)
+      // continues the anchors' fit of it, so a knee keeps the side its
+      // chain chose instead of leaving for whichever closed-form root a
+      // cold fit scores best.
+      (!still(segment.plan, localSeconds) &&
+        LEGS.some(
+          (limb: AutoMovieHumanLimb): boolean =>
+            written.limbs[limb] !== undefined,
+        )));
   const anchors: HumanSegmentPose.IFits | undefined = anchoring
     ? readHumanSegmentLeaf.anchors(person, segment, t, prepared)
     : undefined;
@@ -141,10 +153,7 @@ export function readHumanSegmentLeaf(
               // Legs kept over a legs-still window keep their own fit there.
               .filter(
                 ([limb]: [AutoMovieHumanLimb, IAutoMovieSwivelSeed]): boolean =>
-                  !limb.endsWith("Leg") ||
-                  segment.plan.legsStill === undefined ||
-                  localSeconds < segment.plan.legsStill[0] ||
-                  localSeconds > segment.plan.legsStill[1],
+                  !limb.endsWith("Leg") || !still(segment.plan, localSeconds),
               )
               .map(
                 ([limb, seed]: [AutoMovieHumanLimb, IAutoMovieSwivelSeed]): [
@@ -178,6 +187,18 @@ export function readHumanSegmentLeaf(
     pose: overlaid.pose,
     seeds: overlaid.seeds,
   };
+}
+
+/** Whether a plan second lies inside the plan's legs-still window (`IAutoMovieMotionHumanActionPlan.legsStill`), where the legs keep one fit. */
+function still(
+  plan: IAutoMovieMotionHumanActionPlan,
+  seconds: number,
+): boolean {
+  return (
+    plan.legsStill !== undefined &&
+    seconds >= plan.legsStill[0] &&
+    seconds <= plan.legsStill[1]
+  );
 }
 
 /** Records produced by one pre-transition leaf evaluation. */
@@ -235,9 +256,10 @@ export namespace readHumanSegmentLeaf {
   const ANCHORING: WeakSet<IAutoMovieMotionHumanSegment> = new WeakSet();
 
   /**
-   * The anchor course of a displayed second's arm fits: each fit's swivel
-   * and branch, prescribed (`IAutoMovieSwivelNear.prescribed`), as
-   * `courseLimbSwivels` gives the plan's own arms. Anchors lie on a fixed
+   * The anchor course of a displayed second's limb fits: each fit's swivel
+   * and branch, prescribed (`IAutoMovieSwivelNear.prescribed`) for an arm,
+   * as `courseLimbSwivels` gives the plan's own arms, and continued for a
+   * leg (`HumanSegmentPoseSeeds.nearby`). Anchors lie on a fixed
    * grid of the plan's clock, `1 / AutoMovieMotionHumanArmPlanned.LEAST`
    * seconds apart: the least waypoint spacing of a planned arm, between
    * which a goal at a daily reach's peak speed travels at most that plan's
@@ -263,7 +285,7 @@ export namespace readHumanSegmentLeaf {
    * @evidence contracts/development/common.md#meaningful-documentation States the grid and its source, the chained anchor reads, the interpolation, the fallback and when nothing is given.
    * @evidence contracts/development/implementation.md#principled-implementation The swivel is the one free coordinate of an arm on its goal (Tolani §3.2.4); interpolating it between anchor fits chained from the action's start keeps the branch and the elbow continuous across anchors, and the anchors are fixed seconds of the action read under the placed state, so a second's pose never depends on the order seconds are read in.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two bracketing anchors, each one kept-map lookup or the chain's missing reads, then one pass over their fit names.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goals stay the displayed ones; only the swivel and branch come from the anchors, and the legs keep their own fits.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goals stay the displayed ones; only the swivel and branch come from the anchors, prescribed for an arm and only continued for a leg, whose planted foot its own fit holds.
    * @evidence contracts/development/implementation.md#efficient-algorithms One read per anchor, overlay count and placed state; every other read is a closed-form placement.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The anchors' fits are kept by the segment for every second between them.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most one seed map per anchor and overlay count of the action, released by `HumanSegment.placed` and `HumanSegment.forget`.
@@ -378,7 +400,7 @@ export namespace readHumanSegmentLeaf {
       }
       const arms: Map<string, IAutoMovieSwivelSeed | null> = new Map();
       for (const [name, seed] of reading.seeds)
-        if (name.endsWith("Arm")) arms.set(name, seed);
+        if (name.endsWith("Arm") || name.endsWith("Leg")) arms.set(name, seed);
       (segment.anchors ??= new Map()).set(key(i), arms);
       kept = arms;
     }

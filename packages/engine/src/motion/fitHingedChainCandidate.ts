@@ -118,7 +118,10 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * candidate's error is measured for the value, and a choice whose measured
  * bucket differs from the one it was ranked by is searched again with every
  * error measured. A continued fit tries the closed-form candidates lying by
- * its seed before refining it (`hingedSwivelNear`), and a cold fit whose
+ * its seed before refining it (`hingedSwivelNear`), on a limb with an
+ * immobile end axis the root of that axis nearest its seed, so a knee keeps
+ * the side its seed chose (Tolani, Goswami and Badler 2000, section 3.2.4,
+ * the feasible swivel nearest the desired one), and a cold fit whose
  * rotation's certified miss exceeds the tolerance at every swivel skips the
  * pole start that could not be accepted.
  *
@@ -498,6 +501,34 @@ export function fitHingedChainCandidate(
     Math.abs(Vector3.dot(Vector3.normalize(lowerBasis.twist), along)) > 1 - 1e-9;
   let ended: IEnd | undefined;
 
+  // The swivels of a branch at which the requested rotation reads the end
+  // joint's immobile axis neutral (`immobileAxisSwivels`): the closed-form
+  // candidates of a cold fit and the start of a continued one.
+  const immobileRoots = (posed: ReturnType<typeof hingedArmSwivel.pose>): number[] | null => {
+    const end: IEnd = (ended ??= endOf(props, prepared, rig));
+    return immobileAxisSwivels({
+      basis: end.basis,
+      frame: end.frame,
+      constraint: end.constraint,
+      rotation: (swivel: number): IAutoMovieQuaternion => {
+        const at: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> = posed(swivel);
+        return Quaternion.normalize(Quaternion.multiply(
+          end.restInverse,
+          Quaternion.multiply(
+            Quaternion.inverse(Quaternion.multiply(
+              Quaternion.multiply(
+                Quaternion.multiply(prepared.upper.worldRotation, at.upper),
+                prepared.lowerRotation,
+              ),
+              at.lower,
+            )),
+            rotation!,
+          ),
+        ));
+      },
+    });
+  };
+
   // A branch's arcs of swivels the end joint's box refuses, kept `INSIDE`
   // the box (`distalEndSwivelArcs`): read once a branch by the closed-form
   // candidate, the continued fit's start and the shown test alike. Null
@@ -666,6 +697,33 @@ export function fitHingedChainCandidate(
             },
           }
         : {}),
+      // On a limb whose mid segment takes no distal twist and whose end joint
+      // has an immobile axis (an ankle), the requested rotation holds only at
+      // that axis's roots, at most two swivels a branch in closed form
+      // (`immobileAxisSwivels`, Tolani, Goswami and Badler 2000, section
+      // 3.2.3: an end-joint limit is a sinusoid of the swivel). A continued
+      // fit starts from the root nearest its seed, so a knee keeps the side
+      // the seed chose instead of leaving for whichever root scores best.
+      ...(props.near !== undefined && rotation !== undefined &&
+        lowerBasis.twistPlacement !== "distal" && strain === undefined
+        ? {
+            nearest: (posed: ReturnType<typeof hingedArmSwivel.pose>, swivel: number): number | null => {
+              const roots: number[] | null = immobileRoots(posed);
+              if (roots === null || roots.length === 0) return null;
+              let best: number | null = null;
+              let apart: number = Infinity;
+              for (const root of roots) {
+                const turn: number = root - swivel;
+                const distance: number = Math.abs(turn - 360 * Math.round(turn / 360));
+                if (distance < apart) {
+                  apart = distance;
+                  best = root;
+                }
+              }
+              return best;
+            },
+          }
+        : {}),
       ...(strain === undefined ? {} : { tie: ROM_TOLERANCE }),
       // With no hint side, reference or obstruction, every actual term is
       // non-negative in the original arithmetic: ROM excess, rotation angle
@@ -812,30 +870,7 @@ export function fitHingedChainCandidate(
                       },
                     }
                   : {
-                      closed: (posed: ReturnType<typeof hingedArmSwivel.pose>): number[] | null => {
-                        const end: IEnd = (ended ??= endOf(props, prepared, rig));
-                        return immobileAxisSwivels({
-                          basis: end.basis,
-                          frame: end.frame,
-                          constraint: end.constraint,
-                          rotation: (swivel: number): IAutoMovieQuaternion => {
-                            const at: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> = posed(swivel);
-                            return Quaternion.normalize(Quaternion.multiply(
-                              end.restInverse,
-                              Quaternion.multiply(
-                                Quaternion.inverse(Quaternion.multiply(
-                                  Quaternion.multiply(
-                                    Quaternion.multiply(prepared.upper.worldRotation, at.upper),
-                                    prepared.lowerRotation,
-                                  ),
-                                  at.lower,
-                                )),
-                                rotation!,
-                              ),
-                            ));
-                          },
-                        });
-                      },
+                      closed: immobileRoots,
                     }),
               }),
       excluded: (
