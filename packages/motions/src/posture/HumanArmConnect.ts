@@ -166,7 +166,7 @@ export namespace HumanArmConnect {
     };
     let a: ITree = from;
     let b: ITree = to;
-    for (let i: number = 0; i < ((globalThis as { G1_ITER?: number }).G1_ITER ?? ITERATIONS); ++i) {
+    for (let i: number = 0; i < ITERATIONS; ++i) {
       const target: number[] = i === 0 ? [...query.goal] : query.sample(random);
       if (extend(a, target) !== "trapped") {
         const made: number[] = a.nodes[a.nodes.length - 1]!;

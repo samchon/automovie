@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+﻿import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanGymnasticsWheel,
   IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
@@ -241,7 +242,7 @@ export namespace roundOff {
     // The bearing hands and feet laid where they came down, the hands in the
     // T-shape the round-off is coached and measured in (Farana et al. 2014):
     // the first turned across the run, the second along it.
-    const frame: Parameters<typeof HumanFrame.point>[0] = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: 0, y: 0, z: 0 },
       yaw: standing.yaw,
     };
@@ -267,4 +268,12 @@ export namespace roundOff {
         {
           from: 0,
           to: duration,
-          sample: (seco
+          sample: (seconds: number): IAutoMovieMotionHumanPlayback.ISample => ({
+            posture: result.posture(seconds),
+          }),
+        },
+      ],
+    });
+    return result;
+  }
+}
