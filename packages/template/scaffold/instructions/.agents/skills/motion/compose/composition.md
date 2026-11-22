@@ -2,6 +2,8 @@
 
 Read the installed [package API](../../automovie/SKILL.md#reading-a-package) first. Compose each beat as a kinematic performance using its actions, parameters and operators.
 
+The vocabulary groups its actions in family namespaces of `@automovie/motions`, named `AutoMovieMotionHuman<Family>` after the base or activity they serve, such as Gait, Stance, Seat, Touch or Strike. Find the beat's action in its family. Read the family's interface `IAutoMovieMotionHuman<Family>` in `@automovie/interface` for the model its methods share, then the method's JSDoc for its parameters. Take a fixed variant from the family's UPPER_CASE presets in the same namespace. Do not copy the vocabulary's tables, values or defaults into the production.
+
 ## Actions
 
 ### Action axes

@@ -27,10 +27,6 @@ import type { IAutoMovieMotionHumanGaze } from "../next/IAutoMovieMotionHumanGaz
  * a share of them), not a chain, so it has no `Chain` parameter and the
  * runtime namespace holds plain functions.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the glance model, its sources and what each method returns.
- * @evidence contracts/development/design.md#principled-representation One method per reader of the Conversation behaviour, each taking one named parameter type and returning a named result type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The gaze, group gaze and share readers and nothing the Gaze family owns.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method reads the turns it is given; the layer request type is the Gaze family's own.
  */
 export interface IAutoMovieMotionHumanConversation {
   /**

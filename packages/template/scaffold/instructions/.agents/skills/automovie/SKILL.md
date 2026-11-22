@@ -29,4 +29,6 @@ The skills use package roles from the table. [Entity work](../development/entiti
 
 Read the installed README for entry points. Read the public types and JSDoc under `node_modules` for units, limits, refusals and what each value and default performs.
 
+For `@automovie/motions`, read the family namespace that holds the action, `AutoMovieMotionHuman<Family>`, with its interface `IAutoMovieMotionHuman<Family>` in `@automovie/interface`.
+
 Use the installed function or primitive that performs the work. Send reusable gaps to the package owner.

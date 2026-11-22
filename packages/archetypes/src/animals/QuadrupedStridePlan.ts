@@ -205,6 +205,39 @@ export namespace QuadrupedStridePlan {
     );
     const strideOf = (index: number): IStride =>
       strides[Math.max(0, Math.min(strides.length - 1, index))]!;
+    const secondsAtPhase = (phase: number): number => {
+      let low: number = 0;
+      let high: number = STEPS;
+      while (high - low > 1) {
+        const middle: number = (low + high) >> 1;
+        if (phases[middle]! <= phase) low = middle;
+        else high = middle;
+      }
+      return clock.filmAt(
+        clock.start +
+          (low + (phase - phases[low]!) / (phases[high]! - phases[low]!)) *
+            step,
+      );
+    };
+    // Each change of gait or lead turns the landing pattern by a shift chosen at its stride start, so no swing is stretched or squeezed past the steady spans of the two gaits (`gaitChangeShift`); the shift holds until the next change.
+    const shifts: number[] = [0];
+    for (let n: number = 1; n < strides.length; n++)
+      shifts.push(
+        shifts[n - 1]! +
+          gaitChangeShift(
+            species,
+            strides[n - 1]!,
+            strides[n]!,
+            clock.timing(
+              strides[n - 1]!.gait,
+              secondsAtPhase(Math.min(n, phases[STEPS]!)),
+            ),
+            clock.timing(
+              strides[n]!.gait,
+              secondsAtPhase(Math.min(n, phases[STEPS]!)),
+            ),
+          ),
+      );
     const landing = (
       limb: AutoMovieArchetypeQuadrupedBody.Limb,
       index: number,
@@ -213,6 +246,7 @@ export namespace QuadrupedStridePlan {
       return (
         overrides.get(`${limb}:${index}`) ??
         index +
+          shifts[Math.max(0, Math.min(shifts.length - 1, index))]! +
           (stride.reinBack
             ? EquineFootwork.reinBackPhase(limb)
             : AutoMovieArchetypeQuadrupedGait.phase(species, stride, limb))
@@ -239,20 +273,7 @@ export namespace QuadrupedStridePlan {
         const i: number = Math.min(STEPS - 1, Math.floor(at));
         return phases[i]! + (phases[i + 1]! - phases[i]!) * (at - i);
       },
-      secondsAt: (phase: number): number => {
-        let low: number = 0;
-        let high: number = STEPS;
-        while (high - low > 1) {
-          const middle: number = (low + high) >> 1;
-          if (phases[middle]! <= phase) low = middle;
-          else high = middle;
-        }
-        return clock.filmAt(
-          clock.start +
-            (low + (phase - phases[low]!) / (phases[high]! - phases[low]!)) *
-              step,
-        );
-      },
+      secondsAt: secondsAtPhase,
       landing,
       latest: (
         limb: AutoMovieArchetypeQuadrupedBody.Limb,
@@ -265,6 +286,64 @@ export namespace QuadrupedStridePlan {
       },
     };
   }
+  /**
+   * The turn of the landing pattern at a change of gait or lead: the shift, in strides, added to every landing from the new stride on.
+   *
+   * A hoof that landed in the stride before lands next at one stride plus the new pattern's phase less the old one's, plus the shift. Its swing in between runs from the old stance's duty to that landing; a steady gait swings for one less its own duty, so the swing may take any span between the two gaits' steady spans of that hoof, and no longer or shorter. Each hoof allows an interval of shifts; the shift nearest zero in the intersection of the four is taken, so a change whose natural pattern already fits is left as it is. Where the four intervals do not meet (the patterns cannot all fit), the middle of the gap between the tightest lower and upper bounds spreads the excess evenly.
+   *
+   * The description of a gait by each foot's duty factor and the phase of its landing in the stride is Hildebrand's (M. Hildebrand, "Symmetrical gaits of horses", Science 150(3697):701-708, 1965; "Analysis of asymmetrical gaits", Journal of Mammalogy 58(2):131-156, 1977). A change of gait is a change of those phases and duties, and a foot's swing is the stride less its duty, so the swing across a change is bounded by the two gaits' own values.
+   *
+   * @param species The ride's species and table.
+   * @param was The stride before the change.
+   * @param will The stride after it.
+   * @param before The old gait's timing at the change.
+   * @param after The new gait's timing at the change.
+   * @returns The shift in strides; zero when nothing changes or a rein-back is involved.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the shift, its unit and the bound it keeps.
+   * @evidence contracts/development/implementation.md#principled-implementation Each hoof's swing is one stride plus the landing phases' difference less the old duty, bounded by the two gaits' steady swing spans one less their duties; the shift is the value nearest zero in the four hooves' intervals.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One interval per hoof, one intersection and one clamp.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tuned bound: the span limits are the two gaits' own duty factors at the change.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per change.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieArchetypeQuadrupedGait.phase` and the clock's timing.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  function gaitChangeShift(
+    species: createQuadruped.ISpecies,
+    was: IStride,
+    will: IStride,
+    before: AutoMovieArchetypeQuadrupedGait.ITiming,
+    after: AutoMovieArchetypeQuadrupedGait.ITiming,
+  ): number {
+    if (was.reinBack || will.reinBack) return 0;
+    if (
+      was.gait === will.gait &&
+      (was.lead === will.lead ||
+        !AutoMovieArchetypeQuadrupedGait.LEADED.includes(will.gait))
+    )
+      return 0;
+    let low: number = -Infinity;
+    let high: number = Infinity;
+    for (const limb of LIMBS) {
+      const hind: boolean = limb.endsWith("Hind");
+      const dutyWas: number = hind
+        ? (before.hindDuty ?? before.duty)
+        : before.duty;
+      const dutyWill: number = hind
+        ? (after.hindDuty ?? after.duty)
+        : after.duty;
+      const natural: number =
+        1 +
+        AutoMovieArchetypeQuadrupedGait.phase(species, will, limb) -
+        AutoMovieArchetypeQuadrupedGait.phase(species, was, limb) -
+        dutyWas;
+      low = Math.max(low, Math.min(1 - dutyWas, 1 - dutyWill) - natural);
+      high = Math.min(high, Math.max(1 - dutyWas, 1 - dutyWill) - natural);
+    }
+    if (low <= 0 && 0 <= high) return 0;
+    return low <= high ? (low > 0 ? low : high) : (low + high) / 2;
+  }
+
   /**
    * The ride's stride events: every hoof landing, `<limb>On`, and each change of gait or lead, `gait:<from>-<to>` and `lead:<from>-<to>`, at the stride start where it takes effect.
    *

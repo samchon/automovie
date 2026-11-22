@@ -25,6 +25,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
 import { HumanColliders } from "../posture/HumanColliders";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { HumanBoardHandover } from "./HumanBoardHandover";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 import { hangMountedLeg } from "./hangMountedLeg";
@@ -58,7 +59,7 @@ const PARTNER: ReadonlySet<AutoMovieHumanoidBone> =
 const LET_GO: number = 1;
 
 /**
- * Board a moving carrier's seat (`IAutoMovieMotionHumanBoard`): in the seat contact's moving frame the root travels from where it takes off to its seated place on the seat by a minimum-jerk share, so it leaves and lands with the seat's own velocity, rising `height` over the straight way on a parabola of the share; the shape blends from the entry into an upright astride seat with the legs hanging (`hangMountedLeg`), a held hand keeping its hold until `LET_GO` of the flight. Register `HumanBoard` to use it.
+ * Board a moving carrier's seat (`IAutoMovieMotionHumanBoard`): in the seat contact's moving frame the root travels from where it takes off to its seated place on the seat by a minimum-jerk share, so it leaves and lands with the seat's own velocity, rising `height` over the straight way on a parabola of the share; the shape blends from the entry into an upright astride seat with the legs hanging (`hangMountedLeg`), a held hand keeping its hold until `LET_GO` of the flight. A hand holding a partner's thigh that the flight carries behind the partner's back hands the hold over: the other hand takes the partner's thigh on its own side before the first lets go, as its shoulder comes behind the partner's back, so a hand holds the partner throughout (`HumanBoardHandover`). Register `HumanBoard` to use it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the path, its velocities at both ends, the shape and the hold.
  * @evidence contracts/development/design.md#principled-representation One law; the flight as a share in the seat's moving frame.
@@ -257,6 +258,28 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           boarding,
           (t: number) => held(context.start + t)!,
         ) ?? 0);
+  // A hold on a partner the hand would carry behind the partner's back is
+  // handed over to the other hand, which takes the partner's thigh on its
+  // own side before the first lets go (`HumanBoardHandover`).
+  const handover: HumanBoardHandover.IHandover | undefined =
+    hand?.partner === undefined
+      ? undefined
+      : HumanBoardHandover.plan(
+          context.body,
+          hand,
+          context.performer(hand.partner),
+          flight,
+          context.start,
+          boarding,
+          carrier,
+        );
+  const lets: number =
+    handover === undefined ? release : Math.min(release, handover.lets);
+  // The other hand closes no sooner than a hand's grasp after the take-off.
+  const takes: number | undefined =
+    handover === undefined
+      ? undefined
+      : Math.min(lets, Math.max(handover.takes, Math.min(GRASP, lets)));
   const holdWindow: IAutoMovieMotionHumanContactWindow[] =
     hand === undefined
       ? []
@@ -265,12 +288,27 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
             part: `${hand.side}Hand`,
             kind: "grip",
             from: 0,
-            to: release / duration,
+            to: lets / duration,
             support:
               hand.contact !== undefined
                 ? { kind: "prop", subject: params.on }
                 : { kind: "person", subject: hand.partner!, bone: hand.bone! },
           },
+          ...(handover === undefined || takes === undefined
+            ? []
+            : [
+                {
+                  part: `${handover.side}Hand` as const,
+                  kind: "grip" as const,
+                  from: takes / duration,
+                  to: (LET_GO * flight) / duration,
+                  support: {
+                    kind: "person" as const,
+                    subject: hand.partner!,
+                    bone: handover.bone,
+                  },
+                },
+              ]),
         ];
   const goals: IAutoMovieMotionHumanActionPlan = {
     duration,
@@ -300,10 +338,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       const t: number = Math.max(0, Math.min(duration, time));
       const world: IAutoMovieMotionHumanPosture = boarding(t);
       const point: IAutoMovieVector3 | undefined = held(
-        context.start + Math.min(t, release),
+        context.start + Math.min(t, lets),
       );
       if (point === undefined || hand === undefined) return world;
-      const reached: IAutoMovieMotionHumanPosture = HumanUnseatPose.reach(
+      let reached: IAutoMovieMotionHumanPosture = HumanUnseatPose.reach(
         world,
         hand.side,
         point,
@@ -314,14 +352,40 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
         hand.partner,
       );
+      const rests = (
+        until: number,
+      ): ReturnType<ReturnType<typeof HumanColliders.preparePlaced>> =>
+        HumanColliders.preparePlaced(
+          partner.body,
+          PARTNER,
+        )(partner.bones(context.start + Math.min(t, until), PARTNER));
       reached.limbs = {
         ...reached.limbs,
         [`${hand.side}Arm`]: {
           ...reached.limbs[`${hand.side}Arm`]!,
-          rests: HumanColliders.preparePlaced(
-            partner.body,
-            PARTNER,
-          )(partner.bones(context.start + Math.min(t, release), PARTNER)),
+          rests: rests(lets),
+        },
+      };
+      // The other hand holds the partner's thigh on its side from the
+      // hand-over to the landing.
+      if (handover === undefined || takes === undefined || t < takes)
+        return reached;
+      const landing: number = LET_GO * flight;
+      reached = HumanUnseatPose.reach(
+        reached,
+        handover.side,
+        HumanMountedFrame.partnerHold(
+          partner,
+          handover.bone,
+          context.start + Math.min(t, landing),
+        ),
+        1,
+      );
+      reached.limbs = {
+        ...reached.limbs,
+        [`${handover.side}Arm`]: {
+          ...reached.limbs[`${handover.side}Arm`]!,
+          rests: rests(landing),
         },
       };
       return reached;
@@ -349,16 +413,16 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     });
   const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
     start: 0,
-    ready: Math.max(Math.min(GRASP, release), grasped),
-    relax: Math.max(release, grasped),
+    ready: Math.max(Math.min(GRASP, lets), grasped),
+    relax: Math.max(lets, grasped),
     end: duration,
   };
   return HumanMountedFrame.coursed(
     goals,
     carrier,
     context.start,
-    (local: IAutoMovieMotionHumanActionPlan) =>
-      courseArmGoal({
+    (local: IAutoMovieMotionHumanActionPlan) => {
+      const first: IAutoMovieMotionHumanActionPlan = courseArmGoal({
         body: context.body,
         // The grip holds from the instant the hand reaches its hold.
         plan: {
@@ -375,6 +439,26 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         side: hand.side,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand.side),
         span,
-      }),
+      });
+      // The other hand's course: from its rest to the hand-over, its hold to
+      // the landing, and back in the settle.
+      return handover === undefined || takes === undefined
+        ? first
+        : courseArmGoal({
+            body: context.body,
+            plan: first,
+            side: handover.side,
+            rest: AutoMovieMotionHumanArm.angles(
+              context.entry.pose,
+              handover.side,
+            ),
+            span: {
+              start: 0,
+              ready: takes,
+              relax: LET_GO * flight,
+              end: duration,
+            },
+          });
+    },
   );
 }

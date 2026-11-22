@@ -29,10 +29,6 @@ export interface IAutoMovieMotionPropMount {
    * Absent, the prop keeps the offset it had from the socket where the
    * mount began.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the seated frame, the hand's approach and the default.
-   * @evidence contracts/development/design.md#principled-representation A rigid offset on the planned attachment, the child's frame in its parent socket's, as a parented node in a scene graph.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface putDown sets it; HumanPerformanceGrips carries it and HumanPerformanceHold seats the prop by it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The socket stays the other prop's own affordance; no tolerance is widened.
    */
   offset?: IAutoMovieRigidTransform;
 }

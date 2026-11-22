@@ -182,7 +182,8 @@ export namespace readHumanSegmentLegs {
    * The channels a chain frame demands of the plan: a leg fit reads the
    * root, the trunk and the legs' own goals and joints alone
    * (`HumanSegmentLegs`), so a plan that honours the demand evaluates no arm,
-   * head or hand writer for a frame.
+   * head or hand writer for a frame: the required-bones evaluation of engine
+   * animation graphs (Unreal Engine `FBoneContainer`).
    */
   const LEGGED: readonly AutoMovieMotionHumanChannel[] = [
     "root",

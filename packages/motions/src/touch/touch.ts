@@ -1,3 +1,4 @@
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -53,6 +54,7 @@ import { touchLayouts } from "./touchLayouts";
 import { touchPresented } from "./touchPresented";
 import { touchReach } from "./touchReach";
 import { touchRegion } from "./touchRegion";
+import { touchFaces } from "./touchFaces";
 import { touchSide } from "./touchSide";
 import { touchStance } from "./touchStance";
 
@@ -317,6 +319,16 @@ export namespace touch {
           leading.axis,
           p.elbow,
         );
+    // Two hands on regions off to one side face them (`touchFaces`).
+    const faces: IAutoMovieVector3 | undefined =
+      p.other === undefined
+        ? undefined
+        : touchFaces(
+            bones,
+            entry,
+            placed(p.target, false)(entry, 0).point,
+            placed(p.other, false)(entry, 0).point,
+          );
     const fit = (
       hand: IAutoMovieMotionHumanTouchEffector.IEffector,
     ): AutoMovieTouchFit => {
@@ -347,6 +359,7 @@ export namespace touch {
             arm,
             refuse: (beyond: number, limit: number): string =>
               `The touched region is ${(beyond * 1000).toFixed(0)} mm beyond the ${first} arm at a lean of ${limit} degrees`,
+            ...(faces === undefined ? {} : { faces }),
           },
           grounded && p.target.kind !== "self",
         ),
@@ -465,12 +478,40 @@ export namespace touch {
         true,
         context.tempo,
       );
+    // The first hand's region without its site, where a ruled or drawn site
+    // is laid off from.
+    const unsited: ReturnType<typeof touchRegion.reader> = touchRegion.reader(
+      context,
+      bones,
+      first,
+      p.target,
+      undefined,
+    );
     for (const [side, target] of hands) {
-      const disc: number | undefined = touchRegion.disc(
+      const radius: number | undefined = touchRegion.disc(
         context,
         target,
         side === first ? p.site : undefined,
       );
+      // A ruled or drawn site already lies off the region's point by up to
+      // its radius; the hand lands about the site only in the room that
+      // radius has left, so the touch stays within it of the region
+      // (`IAutoMovieMotionHumanTouchSite`: the radius the place is chosen
+      // within), the offset read once at the entry.
+      const disc: number | undefined =
+        side !== first ||
+        radius === undefined ||
+        p.site === undefined ||
+        !("within" in p.site || "draw" in p.site)
+          ? radius
+          : Math.max(
+              0,
+              radius -
+                Vector3.distance(
+                  region(target)(entry, 0).point,
+                  unsited(target, leaning)(entry, 0).point,
+                ),
+            );
       const support: IAutoMovieMotionHumanContactWindow.Support | undefined =
         target.kind === "person"
           ? { kind: "person", subject: target.subject, region: target.region }

@@ -69,13 +69,7 @@ export namespace AutoMovieMotionHumanBendStrain {
   ) => number {
     const prepared: AutoMovieMotionHumanBendChain.IChain["prepared"] =
       chain.prepared;
-    const upperRange: IAutoMovieJointConstraint | null =
-      prepared.upperDomain.constraint;
-    const halves: [number | null, number | null, number | null] = [
-      half(upperRange?.flexion ?? null),
-      half(upperRange?.abduction ?? null),
-      half(upperRange?.twist ?? null),
-    ];
+    const halves: IHalves = halvesOf(prepared.upperDomain.constraint);
     const forearm: number | null = half(
       prepared.lowerDomain.constraint?.twist ?? null,
     );
@@ -165,13 +159,7 @@ export namespace AutoMovieMotionHumanBendStrain {
     neutral: AutoMovieMotionHumanBendSearch.IAngles | null,
   ): ((u: AutoMovieMotionHumanBendSearch.IAngles) => number) | null {
     if (rotation === undefined) return null;
-    const upperRange: IAutoMovieJointConstraint | null =
-      chain.prepared.upperDomain.constraint;
-    const halves: [number | null, number | null, number | null] = [
-      half(upperRange?.flexion ?? null),
-      half(upperRange?.abduction ?? null),
-      half(upperRange?.twist ?? null),
-    ];
+    const halves: IHalves = halvesOf(chain.prepared.upperDomain.constraint);
     return (u: AutoMovieMotionHumanBendSearch.IAngles): number =>
       Math.min(
         neutral === null
@@ -184,7 +172,40 @@ export namespace AutoMovieMotionHumanBendStrain {
   }
 
   /** The strain from which a place counts as leaving the hand's turn unmade; every made place strains less. */
-  const UNMADE: number = 1e6;
+  export const UNMADE: number = 1e6;
+
+  /**
+   * Half the width of each shoulder axis's range, degrees, in the order
+   * flexion, abduction, twist; null for an axis that does not move.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit, the order and the null case.
+   * @evidence contracts/development/design.md#principled-representation The three denominators the shoulder's share divides by.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A fixed triple read by `of`, `least` and the swivel-interval bound.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A fixed axis is null, never a zero that would divide.
+   */
+  export type IHalves = readonly [number | null, number | null, number | null];
+
+  /**
+   * The shoulder's half ranges the strain divides by.
+   *
+   * @param range The upper arm's range of motion, or null.
+   * @returns Each axis's half width, degrees, or null.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and the null case.
+   * @evidence contracts/development/implementation.md#principled-implementation Half of `max - min` per axis, the normalisation of Kee and Karwowski's joint-range discomfort.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three readings of one helper.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An empty or inverted interval is a fixed axis.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one formula `of`, `least` and the swivel-interval bound divide by, so their shares are the same numbers.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function halvesOf(range: IAutoMovieJointConstraint | null): IHalves {
+    return [
+      half(range?.flexion ?? null),
+      half(range?.abduction ?? null),
+      half(range?.twist ?? null),
+    ];
+  }
 
   /**
    * The share of a range kept free at each end when a hand's turn is judged
@@ -205,8 +226,22 @@ export namespace AutoMovieMotionHumanBendStrain {
       : (range.max - range.min) / 2;
   }
 
-  /** Original squared share of a clinical range; a fixed axis contributes nothing. */
-  function share(value: number, of: number | null): number {
+  /**
+   * The squared share of a clinical range a departure takes, the term the strain sums; a fixed axis contributes nothing.
+   *
+   * @param value The departure from the hanging arm's angle, degrees.
+   * @param of The axis's half range, degrees, or null for a fixed axis.
+   * @returns The unitless square.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, their units and the fixed-axis case.
+   * @evidence contracts/development/implementation.md#principled-implementation `(value / of)^2`, Kee and Karwowski's normalised discomfort term.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A fixed axis adds nothing rather than dividing by zero.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one term `of`, `least` and the swivel-interval bound sum.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function share(value: number, of: number | null): number {
     return of === null ? 0 : (value / of) ** 2;
   }
 

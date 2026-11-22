@@ -1,4 +1,6 @@
+import { hingedArmSwivel } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
@@ -10,7 +12,10 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMoviePose,
+  IAutoMovieSwivelNear,
+  IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -223,7 +228,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @evidence contracts/development/implementation.md#principled-implementation The arms' whole action is first laid as an animation system lays it (`AutoMovieMotionHumanArmCourse`: a minimum-jerk effector course with a closed-form via-point, the rig's analytic fit at every instant continued from the last) and kept when the trajectory model's own reading admits it (`HumanArmTrajectory.admitted`); otherwise it seeds one trajectory optimisation (TrajOpt). Either is read off the very postures it is written on, so the plan is a constant of the action.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the common laid course, then try independent paths for a pair with separate sites when the course fails on collision. One coupled certificate precedes the original fallback optimiser.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Goals are read at every waypoint and the full coupled site, sweep, ROM and speed checks admit any new candidate. A warm solution, linked grip, perceived target or unresolved trial retains the original coupled solve.
-   * @evidence contracts/development/implementation.md#efficient-algorithms An admitted first course needs no optimiser. A collision on independent sites can add at most two single-arm plans and one coupled grid certificate. The coupled optimiser's waypoints are cut only on fallback. Postures, removed-arm bases, perceived goals and endpoint fits are computed once per exact instant within their own plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms An admitted first course needs no optimiser. A collision on independent sites can add at most two single-arm plans and one coupled grid certificate. The coupled optimiser's waypoints are cut only on fallback. Postures, removed-arm bases, perceived goals and endpoint fits are computed once per exact instant within their own plan; a base within a frame and a half of the base resolved last continues its limbs' fits from that base's seeds (frame-to-frame IK coherence) instead of sweeping each swivel cold.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Same body, cached raw posture/goal and endpoint second prove fit equivalence within this synchronous plan. The retry borrows completed base and goal seconds and the original group pace. Other candidate samples do not call the supplied posture or goal reader.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This synchronous plan owns raw/base/site maps, at most two endpoint angle records per arm and one exact FK preparation until return/throw. Only completed fits publish; no global result/time cache is added. Returned trajectories use their existing playback factory and solved-waypoint data, retaining none of these maps/getters or preparation callbacks.
    */
@@ -277,6 +282,14 @@ export namespace AutoMovieMotionHumanArmPlanned {
       number,
       { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose }
     > = new Map();
+    // The instant resolved last and its limbs' seeds: an instant within a
+    // frame of it continues those fits instead of sweeping every swivel
+    // again, the frame-to-frame coherence an animation system's IK keeps
+    // (Aristidou et al. 2018, "Inverse kinematics techniques in computer
+    // graphics: a survey", Comput. Graph. Forum 37:35, section 7; the
+    // feasible swivel nearest the previous one, Tolani, Goswami and Badler
+    // 2000, section 3.2.4). An instant farther from it is solved cold.
+    let latest: ILatest | undefined;
     const at = (
       t: number,
     ): { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } => {
@@ -290,18 +303,22 @@ export namespace AutoMovieMotionHumanArmPlanned {
           resolution,
           projection,
         );
-        found = {
-          posture,
-          pose: resolveHumanPosture.seeded(
+        const near: IAutoMovieMotionHumanResolveHumanPosture.INear =
+          latest !== undefined && Math.abs(t - latest.seconds) <= CONTINUED
+            ? continuing(latest.seeds)
+            : {};
+        const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
+          resolveHumanPosture.seeded(
             body,
             without(posture),
             undefined,
-            undefined,
+            near,
             resolution,
             undefined,
             projection,
-          ).pose,
-        };
+          );
+        found = { posture, pose: solved.pose };
+        latest = { seconds: t, seeds: solved.seeds };
         read.set(t, found);
       }
       return found;
@@ -784,6 +801,32 @@ export namespace AutoMovieMotionHumanArmPlanned {
 
 /** The spacing of the trajectory's waypoints, seconds at most: the frame grid (`AutoMovieMotionHumanArmCourse.STEP`). */
 const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
+
+/** How far from the instant resolved last an instant's base continues its fits, seconds: a frame of the grid and a half, so the next frame does and a refinement's far instant does not. */
+const CONTINUED: number = 1.5 * STEP;
+
+/** The instant whose base was resolved last and the seed each of its limbs' fits chose. */
+interface ILatest {
+  /** Its second. */
+  seconds: number;
+
+  /** Each fitted limb's seed there. */
+  seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"];
+}
+
+/** Each limb's fit a frame away continued from its seed, refined to the cold sweep's own resolution; a limb with no seed is solved cold. */
+function continuing(
+  seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"],
+): IAutoMovieMotionHumanResolveHumanPosture.INear {
+  const out: Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>> = {};
+  for (const [limb, seed] of Object.entries(seeds) as [
+    AutoMovieHumanLimb,
+    IAutoMovieSwivelSeed | null | undefined,
+  ][])
+    if (seed !== null && seed !== undefined)
+      out[limb] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
+  return out;
+}
 
 /** The intervals a reach or a return is first cut into at most, by its arc: TrajOpt plans an arm's whole path on eleven timesteps, ten intervals (Schulman et al. 2013, section VI); the solve adds knots where the played trajectory's frame-grid reading asks (`HumanArmTrajectoryAdmission`). */
 const TRANSPORT: number = 10;

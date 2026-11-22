@@ -28,13 +28,15 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  *   step by the step. Inside, a quartered interval is quartered again only
  *   for a joint whose four displacements depart from a constant-jerk path
  *   (their third difference, the residual of the same quadratic predictor)
- *   by at least half the limit, and, below the first quartering, by more
+ *   by at least the limit, and, below the first quartering, by more
  *   than a sixteenth of that joint's departure over the enclosing interval:
- *   a Richardson test, since a smooth path's departure falls 256-fold a
- *   quartering and a step's not at all, so a fast smooth turn (a somersault,
+ *   a Richardson test (Richardson 1911, Phil Trans R Soc A 210:307: an
+ *   order-p error falls by the refinement ratio to the p-th power, and the
+ *   ratio fails where the path is not smooth), since a smooth path's
+ *   departure falls 256-fold a quartering and a step's not at all, so a fast smooth turn (a somersault,
  *   a swing) is not chased. The parts entered are those where such a joint
  *   departs from the line through its other three displacements by at least
- *   half the limit and half the largest such departure; a step departs there
+ *   the limit and half the largest such departure; a step departs there
  *   by its whole size.
  * - `reversal`: a joint that goes out and straight back within two
  *   intervals of `1 / REVERSAL` seconds, read as the shorter of the two
@@ -259,11 +261,11 @@ export namespace AutoMovieMotionHumanAuditContinuity {
    * four displacements lie on a constant-jerk path up to its fourth
    * derivative times the part's length to the fourth, which falls 256-fold a
    * quartering; a step leaves at least its size in their third difference. A
-   * joint is followed while that departure reaches half of `limit` and, below
+   * joint is followed while that departure reaches `limit` and, below
    * the first quartering, has not fallen to a sixteenth of its departure over
    * the enclosing interval (the Richardson test that tells a step from a fast
    * smooth path). Every part where a followed joint departs from the line
-   * through its other three displacements by at least half of `limit`, and by
+   * through its other three displacements by at least `limit`, and by
    * at least half the largest such departure of the four, is quartered again;
    * an interval where no joint is followed holds no jump of that size.
    *
@@ -380,14 +382,14 @@ const quarter = (
     // with, zero on a cubic path. A smooth path's falls with the fourth power
     // of the interval, 256-fold a quartering, and a step of `s` in any part
     // leaves at least `s`. A joint is followed while its departure reaches
-    // half the limit and, below the first level, has not fallen like a smooth
+    // the limit and, below the first level, has not fallen like a smooth
     // path's from the enclosing interval's (the Richardson test).
     const jerk: number = Math.hypot(
       dx[3]! - 3 * dx[2]! + 3 * dx[1]! - dx[0]!,
       dy[3]! - 3 * dy[2]! + 3 * dy[1]! - dy[0]!,
       dz[3]! - 3 * dz[2]! + 3 * dz[1]! - dz[0]!,
     );
-    if (jerk < limit / 2) continue;
+    if (jerk < limit) continue;
     if (parent !== undefined && RICHARDSON * jerk <= parent.get(bone)!)
       continue;
     stepping.set(bone, jerk);
@@ -409,7 +411,7 @@ const quarter = (
   if (stepping.size === 0) return worst;
   const largest: number = Math.max(...departures);
   for (let k: number = 0; k < 4; k++) {
-    if (departures[k]! < limit / 2 || departures[k]! < largest / 2) continue;
+    if (departures[k]! < limit || departures[k]! < largest / 2) continue;
     const found: IAutoMovieMotionHumanAuditMeasure = quarter(
       motion,
       subject,

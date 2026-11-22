@@ -36,7 +36,7 @@ const WAIT: number = 6;
  * Two people on or around one ridden horse (#3951): a swing-up onto the pillion of a double saddle and the passenger's waist hold, a limp body carried across the saddle, ponying a second horse by its lead, and a leg-up.
  *
  * Scenarios:
- * 1. Swing-up at a walk: the passenger takes the rider's waist standing, then the right hand grips the rider's left thigh from the take-off until the landing and the pillion seat window opens at the landing, so the support passes from the ground through the rider to the horse with no gap; after the landing the passenger's seat region lies within 10 mm of the pillion's surface.
+ * 1. Swing-up at a walk: the passenger takes the rider's waist standing, then the right hand grips the rider's left thigh from the take-off, and the left hand takes the rider's left thigh before the right lets go as the passenger comes behind the rider, until the landing, and the pillion seat window opens at the landing, so the support passes from the ground through the rider (by either hand) to the horse with no gap; after the landing the passenger's seat region lies within 10 mm of the pillion's surface.
  * 2. Pillion hold: both of the passenger's wrists stay within 0.7 hand lengths of the rider's hip joints, and the passenger's chest stays behind the rider's along the saddle by more than the rider's chest depth.
  * 3. Limp carry: the body's hips rest within a chest depth above the saddle and its head hangs below the seat on the authored side.
  * 4. Ponying: the rider's right wrist stays within 0.7 hand lengths of the led horse's lead while both horses go, the led horse on its own slower clock.
@@ -141,18 +141,33 @@ export function test_motion_mount_equestrian_double(): void {
   assertTakeClean("a swing-up onto the pillion", swung.film);
   const board: IAutoMovieMotionHumanSegment = take(swung, "passenger", 2);
   const span: number = board.end - board.start;
-  const grip: IAutoMovieMotionHumanContactWindow | undefined =
-    board.plan.contacts.find((c) => c.part === "rightHand");
+  // Some hand holds the rider from the take-off until the seat bears the
+  // passenger. A passenger swung up behind a rider keeps hold by taking the
+  // rider's waist with the other hand before the first lets go of the thigh
+  // it took off by (the first hand would otherwise pass behind the rider's
+  // back), so the support passes through either hand with no gap.
+  const grips: IAutoMovieMotionHumanContactWindow[] = board.plan.contacts
+    .filter(
+      (c: IAutoMovieMotionHumanContactWindow): boolean =>
+        (c.part === "leftHand" || c.part === "rightHand") &&
+        c.kind === "grip" &&
+        c.support.kind === "person" &&
+        c.support.subject === "rider",
+    )
+    .sort(
+      (
+        a: IAutoMovieMotionHumanContactWindow,
+        b: IAutoMovieMotionHumanContactWindow,
+      ): number => a.from - b.from,
+    );
   const sat: IAutoMovieMotionHumanContactWindow | undefined =
     board.plan.contacts.find((c) => c.part === "seat");
-  if (
-    grip === undefined ||
-    sat === undefined ||
-    grip.from > 1e-9 ||
-    grip.to < sat.from - 1e-9
-  )
+  let held: number = grips.length === 0 || grips[0]!.from > 1e-9 ? -1 : 0;
+  for (const g of grips)
+    if (held >= 0 && g.from <= held + 1e-9) held = Math.max(held, g.to);
+  if (sat === undefined || held < sat.from - 1e-9)
     findings.push(
-      `swing-up: the hold ${JSON.stringify(grip)} and the seat ${JSON.stringify(sat)} leave a gap in support`,
+      `swing-up: the holds ${JSON.stringify(grips)} and the seat ${JSON.stringify(sat)} leave a gap in support`,
     );
   const landed: number = board.start + (sat?.from ?? 1) * span;
   const passenger = HumanSignature.of(swung.film, "passenger", body, 0);

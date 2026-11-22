@@ -41,7 +41,9 @@ import { AutoMovieMotionHumanRise } from "./AutoMovieMotionHumanRise";
  * wrist, shared by the lumbar and thoracic spine within their twist ranges,
  * as a person turns the chest toward a hand reaching across the body. The
  * lean, solved again on the turned trunk, refuses a region still out of
- * reach at its limit.
+ * reach at its limit. Two hands' regions off to one side (`faces`) are
+ * turned toward from the start, the trunk facing their middle from the
+ * pelvis, so both arms reach from that side and neither crosses the body.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two movements, their order, why the rise comes first, what bounds each and who refuses.
  * @evidence contracts/development/design.md#principled-representation A girdle angle, a heel angle and a lean solved once from the wrist's place on the posture, the body's three ways of closing a reach without a step.
@@ -148,14 +150,23 @@ export namespace AutoMovieMotionHumanTouchStance {
     // the left as the spine's twist is, within the two bones' whole range.
     const toward = (posture: IAutoMovieMotionHumanPosture): number => {
       const wrist: IAutoMovieVector3 = props.wrist(posture, 0);
-      const from: IAutoMovieVector3 = checkReach(
+      return angleTo(
         posture,
+        checkReach(posture, wrist, prepareHumanPoseResolution()).root,
         wrist,
-        prepareHumanPoseResolution(),
-      ).root;
+      );
+    };
+
+    // The heading's angle to the line from a point to another across the
+    // floor, within the two bones' whole range.
+    const angleTo = (
+      posture: IAutoMovieMotionHumanPosture,
+      from: IAutoMovieVector3,
+      point: IAutoMovieVector3,
+    ): number => {
       const yaw: number = (posture.yaw * Math.PI) / 180;
-      const dx: number = wrist.x - from.x;
-      const dz: number = wrist.z - from.z;
+      const dx: number = point.x - from.x;
+      const dz: number = point.z - from.z;
       const left: number = dx * Math.cos(yaw) - dz * Math.sin(yaw);
       const ahead: number = dx * Math.sin(yaw) + dz * Math.cos(yaw);
       const angle: number = (Math.atan2(left, ahead) * 180) / Math.PI;
@@ -226,16 +237,23 @@ export namespace AutoMovieMotionHumanTouchStance {
         refuse: props.refuse,
       });
 
-    // The forward lean first; a wrist it leaves out of reach to the side is
-    // turned toward by the trunk, by the heading's angle to the line from
-    // the shoulder to the wrist (`turn`), and the lean is solved again on the
-    // turned trunk, which refuses what is still out of reach.
-    let turn: number = 0;
-    let lean: IAutoMovieMotionHumanLeanInto.ILean = leanOn(upright);
+    // Two hands' regions off to one side are faced first (`faces`): the trunk
+    // turns toward their middle from the pelvis, so both arms reach from that
+    // side. Otherwise the forward lean first; a wrist it leaves out of reach
+    // to the side is turned toward by the trunk, by the heading's angle to
+    // the line from the shoulder to the wrist (`turn`), and the lean is
+    // solved again on the turned trunk, which refuses what is still out of
+    // reach.
+    let turn: number =
+      props.faces === undefined ? 0 : angleTo(upright, upright.root, props.faces);
+    let lean: IAutoMovieMotionHumanLeanInto.ILean = leanOn(
+      twisted(upright, turn),
+    );
     let arrival: number;
     try {
-      arrival = lean.pitch(upright, 0);
+      arrival = lean.pitch(twisted(upright, turn), 0);
     } catch (error) {
+      if (props.faces !== undefined) throw error;
       turn = toward(upright);
       if (
         turn === 0 ||

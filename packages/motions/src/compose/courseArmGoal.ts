@@ -109,8 +109,10 @@ export function courseArmGoal(
   // writes the planned trajectory there, not tracking a live goal) reads no
   // goal, and the base deletes it: the base asks the law for every channel
   // but those arms, so a law that honours the demand skips their goals
-  // (`IAutoMovieMotionHumanActionPlan.posture`'s `channels`). One list per set
-  // of such arms, so the reads of a second share one posture.
+  // (`IAutoMovieMotionHumanActionPlan.posture`'s `channels`): demand-driven
+  // evaluation of only the required parts, as an engine's animation graph
+  // evaluates only its required bones (Unreal Engine `FBoneContainer`). One
+  // list per set of such arms, so the reads of a second share one posture.
   const demands: Map<string, readonly AutoMovieMotionHumanChannel[]> =
     new Map();
   const demand = (

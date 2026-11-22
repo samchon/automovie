@@ -211,7 +211,9 @@ export namespace HumanPerformancePlace {
     // Nothing is placed while the entry state is read, as while a plan is
     // made, so its reads share the placed people's displayed poses by second
     // (`HumanSegment.planning`): a pose its samples, anchors or a held prop's
-    // hand read again is read once.
+    // hand read again is read once, as an animation graph evaluates a pose
+    // once per update and lets every reader share it (Unreal Engine
+    // `FAnimNode_SaveCachedPose`).
     const entry: ReturnType<typeof HumanSegment.entry> =
       kept === undefined
         ? HumanSegment.planning(

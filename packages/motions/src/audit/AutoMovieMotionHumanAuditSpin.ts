@@ -31,7 +31,9 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  *   half's excess over half its interval's turn, which a smooth turn's
  *   angular acceleration makes fall fourfold a halving while a snap keeps
  *   about half its size, is below half of `limit` and has fallen at least
- *   twofold since the level above (a Richardson test), so a fast smooth spin
+ *   twofold since the level above (a Richardson test: Richardson 1911, Phil
+ *   Trans R Soc A 210:307, an order-p error falls 2^p-fold a halving and a
+ *   non-smooth path breaks that ratio), so a fast smooth spin
  *   costs two poses, not ten.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the defect the joint centres cannot show, both readings with their units and when an interval is resolved.

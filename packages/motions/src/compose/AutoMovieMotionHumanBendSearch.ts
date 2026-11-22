@@ -277,6 +277,8 @@ export namespace AutoMovieMotionHumanBendSearch {
           neutral,
           strained,
           near,
+          undefined,
+          true,
         ) ?? "the arm chain is degenerate"
       );
     };
@@ -406,6 +408,7 @@ export namespace AutoMovieMotionHumanBendSearch {
       );
       if (distance > chain.span)
         return `the wrist is ${distance.toFixed(3)} m from the shoulder and the arm is ${chain.span.toFixed(3)} m long`;
+      const ranking: (candidate: ICandidate) => IScore = rank(chain);
       return (
         AutoMovieMotionHumanBendSweep(
           chain,
@@ -414,9 +417,10 @@ export namespace AutoMovieMotionHumanBendSearch {
           goal.point,
           goal.rotation,
           neutral,
-          rank(chain),
+          ranking,
           undefined,
           trial,
+          ranking === strained,
         )?.candidate ?? "the arm chain is degenerate"
       );
     };

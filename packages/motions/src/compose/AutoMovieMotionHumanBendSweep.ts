@@ -27,6 +27,7 @@ import type {
 import { HumanArmOvershoot } from "../posture/HumanArmOvershoot";
 import type { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
+import { AutoMovieMotionHumanBendBound } from "./AutoMovieMotionHumanBendBound";
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 
@@ -44,6 +45,8 @@ import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain
  * @param neutral The hanging arm's shoulder angles; null leaves the shoulder's strain at 0.
  * @param score The ranking of a candidate.
  * @param near The seed of a nearby solve to refine instead of sweeping (`IAutoMovieSwivelNear`).
+ * @param repeat The ordinary search's repeat trial, when its owner lends one (`AutoMovieMotionHumanBendRepeat`).
+ * @param byStrain Whether `score` is `AutoMovieMotionHumanBendSearch.strained`, whose deviation is the strain: a cold sweep without a trial is then decided by branch and bound on the strain's certified swivel-interval bound (`AutoMovieMotionHumanBendBound`).
  * @returns The chosen candidate with its true overshoot and its seed, or null for a degenerate chain.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is swept, what each place is read for, the inputs, the two modes and the null case.
@@ -51,6 +54,7 @@ import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The fixed bases and ranges, one candidate reader, one engine sweep.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rig without the lower arm's axes is null, never a guessed place; the returned candidate is read again at the solved rotations, so its overshoot is the true one.
  * @evidence contracts/development/implementation.md#efficient-algorithms The bases and ranges are admitted once a sweep, the lower joint's overshoot once a branch's shared lower rotation, and the clearance prepared once a sweep over the chain's placed shapes. With a hand rotation a candidate's strain is read at most once and only on demand, its shoulder's share standing as a certified lower bound (`AutoMovieMotionHumanBendStrain.least`), so a ranking that defers it (`AutoMovieMotionHumanBendSearch.strained`) reads the hand's split and decomposition only for comparisons the overshoot and the bound leave open.
+ * A cold sweep under the strain's own ranking passes the engine the strain's certified bound over each bracket of swivels (`AutoMovieMotionHumanBendBound`), and the engine's branch and bound (`hingedSwivelBounded`, Land and Doig 1960) scores only the steps whose bound does not already exceed a legal place's exact strain, with the full sweep's choice.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `AutoMovieMotionHumanBendStrain` and `HumanArmOvershoot` with every search of the arm.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Readers and candidate closures end with the call; only the chosen candidate and its seed escape.
  */
@@ -64,6 +68,7 @@ export function AutoMovieMotionHumanBendSweep(
   score: (candidate: ICandidate) => IScore,
   near?: IAutoMovieSwivelNear,
   repeat?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
+  byStrain: boolean = false,
 ): { candidate: ICandidate; seed: IAutoMovieSwivelSeed } | null {
   const prepared: AutoMovieMotionHumanBendChain.IChain["prepared"] =
     chain.prepared;
@@ -227,6 +232,19 @@ export function AutoMovieMotionHumanBendSweep(
           least: least(u),
         };
   };
+  // The strain's certified bound over a bracket of swivels, for a cold sweep
+  // ranked by the strain itself; a trial's witness reads the full sweep's
+  // first score, so a search with one keeps the full sweep.
+  const bound: ReturnType<typeof AutoMovieMotionHumanBendBound.prepare> | undefined =
+    byStrain && near === undefined && trial === undefined && neutral !== null
+      ? AutoMovieMotionHumanBendBound.prepare({
+          basis: upperBasis,
+          frame: HUMANOID_REST_FRAME[upperBone],
+          range: upperRange,
+          neutral,
+          capped: rotation !== undefined,
+        })
+      : undefined;
   const solve = () =>
     hingedArmArticulation({
       upper: prepared.upper,
@@ -261,6 +279,7 @@ export function AutoMovieMotionHumanBendSweep(
       // A solve continued from a nearby one refines that one's swivel on
       // its branch, with no sweep (`IAutoMovieSwivelNear`).
       ...(near === undefined ? {} : { near }),
+      ...(bound === undefined ? {} : { bound }),
     });
   const complete = () => {
     const solved: ReturnType<typeof hingedArmArticulation> = solve();

@@ -27,11 +27,13 @@ const performance = new HumanPerformance({
   performers: [
     { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
   ],
-  composition: HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: 4 } }).stand({ seconds: 2 }).node,
+  composition: HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: 4 } }).stand({ hold: 2 }).node,
 });
 
 const pose = performance.pose("a", 1.5);
 ```
+
+The actions are grouped in family namespaces of the package root, named `AutoMovieMotionHuman<Family>`: Gait, Stance, Seat, Touch, Gesture, Strike and the others. A family holds its actions, the presets that fix their parameters in UPPER_CASE, and the helpers that serve them. The family's interface `IAutoMovieMotionHuman<Family>` in `@automovie/interface` states what its methods share; read it and the JSDoc of an action for its parameters, units and defaults.
 
 Positions are world metres on the floor, `yaw` is degrees about +Y with 0 facing +Z, and `proficiency` changes timing, path and balance without widening any joint's range.
 
@@ -46,7 +48,7 @@ To see that pose, draw `prepared` as a polygon man; the [Human README](../human/
 | Perform one action after another | `chain.sit({ seat }).rise()` |
 | Name the action as data | `chain.act("sit", { seat })`, typed by the name |
 | Interrupt the last action | `chain.walk({ to }).until({ share: 0.5 }).stand()` |
-| Do two things at once with one body | `chain.walk({ to }).over((u) => u.handToFace({ task: "read" }))` |
+| Do two things at once with one body | `chain.walk({ to }).over((u) => u.handToFace({ kind: "read" }))` |
 | Run two people at once | `a.with(b)` |
 | Join people in a mutual action | `HumanChain.mutual(HumanMutual.highFive, { one: a, other: b })`, or `HumanChain.pair(a, b).handshake()` |
 | Sit on an object, or take it | `chain.sit({ seat: HumanObject.seat(chair, placement) })`, `chain.pickUp({ prop: "glass", handle: "body" })` |
@@ -93,19 +95,19 @@ new HumanPerformance({
 
 A prop's affordance ids are also its named points, so `{ kind: "prop", subject: "glass", point: "lip" }` is a target. An affordance the object lacks is refused with the ones it has.
 
-A hand keeps what it picked up until an action puts it down or hands it over. An action that works with the held object names it, and the object's own point then meets the target instead of the bare hand: `chain.pickUp({ prop: "glass", handle: "body" }).handToFace({ task: "drink", prop: "glass" })`. Any other use of a holding hand is refused, naming the free hand.
+A hand keeps what it picked up until an action puts it down or hands it over. An action that works with the held object names it, and the object's own point then meets the target instead of the bare hand: `chain.pickUp({ prop: "glass", handle: "body" }).handToFace({ kind: "drink", prop: "glass" })`. Any other use of a holding hand is refused, naming the free hand.
 
 A seat too low to sit down on from standing is refused with the least height that fits. A seat higher than the feet reach the floor from is not refused: the body gets onto it, and the feet take its rests or hang. `HumanObject.seat` reads those rests from the object, a stool's bar, a bicycle's pedals, a horse's stirrups, together with whether the seat is sat astride and the side it is mounted from, so a saddle is sat as a saddle without any of it written by hand.
 
 ## Mutual actions
 
-A mutual action defines the roles and the action each role performs. `HumanChain.mutual` starts those actions together after the cast's entry chains. The meeting laws in `HumanMutual` include `handshake`, `highFive` and `handOver`. They solve a shared meeting. The package also exports `hug` and `shoulderClasp`, whose role-local touches each plan their own arrival and dwell. A production can define an `IHumanMutual` over its registered actions.
+A mutual action defines the roles and the action each role performs. `HumanChain.mutual` starts those actions together after the cast's entry chains. The meeting laws in `HumanMutual` include `handshake`, `highFive` and `handOver`. They solve a shared meeting. `AutoMovieMotionHumanTouch` also holds `hug` and `shoulderClasp`, whose role-local touches each plan their own arrival and dwell. A production can define an `IHumanMutual` over its registered actions.
 
 ```ts
 const toast: IHumanMutual<object, "host" | "guest"> = {
   name: "toast",
   roles: ["host", "guest"],
-  act: (role, params, cast) => ({ name: "raiseGlass", params: { toward: cast[role === "host" ? "guest" : "host"] } }),
+  act: (role, params, cast) => ({ name: "raiseGlass", params: { target: cast[role === "host" ? "guest" : "host"] } }),
 };
 HumanChain.mutual(toast, { host: a, guest: b }, {}, "toast"); // anchored toast.host and toast.guest
 ```
@@ -122,7 +124,7 @@ new HumanPerformance({
   layers: {
     a: [
       AutoMovieMotionHumanExpression.breath(), // the whole film
-      { layer: HumanGaze.layer([...]), from: 2, to: { of: "dialogue", event: "lineEnd" } },
+      { layer: AutoMovieMotionHumanGaze.HumanGaze.layer([...]), from: 2, to: { of: "dialogue", event: "lineEnd" } },
       // Built from the window's seconds: she sighs when his wave ends.
       { from: { of: "bye", event: "end" }, layer: (w) => AutoMovieMotionHumanExpression.affect({ displays: [{ kind: "sigh", at: w.from }] }) },
     ],
@@ -139,20 +141,21 @@ An action the vocabulary lacks is registered with it. Take the first of these th
 **A row** is a shipped action under a name of its own with some parameters fixed. It writes no motion: the action it is a row of plans it, so it is fitted, refused and checked as that action is, cuts like it and is carried over a walk where that action can be.
 
 ```ts
-import { HumanActionRow, HumanChain, HumanPerformance, handToFace, touch } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanHandToBody,
+  AutoMovieMotionHumanTouch,
+  HumanActionRow,
+  HumanChain,
+  HumanPerformance,
+} from "@automovie/motions";
 
-// A touch with its target, effector, kind, hand and elbow fixed.
-const salute = HumanActionRow.of("salute", touch, {
-  target: { kind: "self", region: "templeRight" },
-  with: "forefinger", // the hand continues the forearm, palm down
-  kind: "hold",
-  side: "right",
-  elbow: "level", // the upper arm horizontal
-});
+// A touch with its target, effector, kind, hand and elbow fixed. The values are the
+// family's preset, the same constant the lexicon's own `salute` row reads.
+const salute = HumanActionRow.of("salute", AutoMovieMotionHumanTouch.touch, AutoMovieMotionHumanTouch.EMBLEM_SALUTE);
 
 // An entry a table lacks, given as the table's own row type.
-const shave = HumanActionRow.of("shave", handToFace, {
-  task: { region: "jawRight", effector, kind: "rub", count: 3, hold: 0.2, tangent: "up", head: 0, at: "atJaw" },
+const shave = HumanActionRow.of("shave", AutoMovieMotionHumanHandToBody.handToFace, {
+  kind: { region: "jawRight", effector: "palm", kind: "rub", count: 3, hold: 0.2, tangent: "up", head: 0, at: "atJaw" },
 });
 
 const Chain = HumanChain.extend({ salute, shave });
@@ -172,40 +175,13 @@ A registered name never replaces a vocabulary name, and registering changes no o
 
 ## Lexicon
 
-Named rows over the shipped actions, ready to register. Each family reads one or more namespaces, `HUMAN_LEXICON` lists every family's rows as data. A row leaves open only what the scene decides: a target, a partner, a destination.
+Named rows over the shipped actions, ready to register. A row namespace is a member of its family namespace, such as `AutoMovieMotionHumanGesture.HumanEmblem` and `AutoMovieMotionHumanStageFight.HumanStageFight`. A row leaves open only what the scene decides: a target, a partner, a destination. Where a row fixes parameters, it reads them from a preset of the family, such as `AutoMovieMotionHumanTouch.EMBLEM_SALUTE`, so the value is stated once.
 
-| Family | Namespaces |
-| --- | --- |
-| `emblem` | `HumanEmblem` |
-| `habit` | `HumanHabit` |
-| `stance` | `HumanStance` |
-| `pose` | `HumanPose` |
-| `gait` | `HumanGait`, `HumanTravelDoor`, `HumanTravelCar`, `HumanTravelLeaf` |
-| `pursuit` | `HumanPursuit` |
-| `social` | `HumanSocial`, `HumanPartner` |
-| `stageFight` | `HumanStageFight` |
-| `drill` | `HumanDrill` |
-| `blade` | `HumanBlade` |
-| `firearm` | `HumanFirearm` |
-| `labour` | `HumanLabour` |
-| `ride` | `HumanRide` |
-| `carried` | `HumanCarried` |
-| `sport` | `HumanSport` |
-| `sportGym` | `HumanSportGym` |
-| `sportCarry` | `HumanSportCarry` |
-| `sportSwing` | `HumanSportSwing` |
-| `sportThrow` | `HumanSportThrow` |
-| `sportWorkout` | `HumanSportWorkout` |
-| `gymnastics` | `HumanGymnastics` |
-| `floorRoll` | `HumanFloorRoll` |
-| `floorFall` | `HumanFloorFall` |
-| `sword` | `HumanSword`, `HumanSwordGuard`, `HumanSwordParry`, `HumanSwordThrust` |
-| `weaponFirearm` | `HumanWeaponFirearm` |
-| `weaponMelee` | `HumanWeaponMelee` |
+`HUMAN_LEXICON` lists every family's rows as data, by the family keys of `HUMAN_LEXICON_FAMILIES`, which names the row namespaces each family reads. Pass a family's list or all of them to a performance's `laws`.
 
 ```ts
-const { salute } = HumanEmblem;
-const { slap } = HumanStageFight;
+const { salute } = AutoMovieMotionHumanGesture.HumanEmblem;
+const { slap } = AutoMovieMotionHumanStageFight.HumanStageFight;
 const Chain = HumanChain.extend({ salute, slap });
 new HumanPerformance({
   seed,
@@ -214,7 +190,6 @@ new HumanPerformance({
   composition: Chain.subject("a").salute().slap({ target: { kind: "person", subject: "b", region: "jawLeft" } }).node,
 });
 ```
-
 ## Refusals
 
 A composition the vocabulary cannot perform throws a `HumanRefusal` when the performance is built. It names the performer, the action and its occurrence, the axis at fault, the value given, what the axis accepts and one sentence saying what to change, as fields and in its message:
@@ -262,8 +237,8 @@ const lean = HumanSignature.trunk(reader, 1.5) - HumanSignature.trunk(reader, 0)
 | `HumanVerdicts`, `HumanSignature` | The physical bounds of a performance, and the kinematic readings a unit test asserts. |
 | `createHumanBody` | Derives a person's body from a canonical skeleton and contact profile. |
 | `HUMAN_ACTIONS` | The table of action laws by name. |
-| `HUMAN_LEXICON` | The lexicon's rows by family. |
+| `HUMAN_LEXICON`, `HUMAN_LEXICON_FAMILIES` | The lexicon's rows by family, and the row namespaces each family reads. |
 | `HUMAN_GRAMMAR` | The composition grammar as data: the axes an action is decided on and the operators that join actions. |
-| `HUMANOID_GAITS`, `HUMANOID_PROFILE` | The humanoid gait tables for the engine's gait motion. |
+| `AutoMovieMotionHuman<Family>` | One namespace per family of actions, with its presets and helpers; `AutoMovieMotionHumanGait.HUMANOID_GAITS` and `HUMANOID_PROFILE` are the humanoid gait tables for the engine's gait motion. |
 
 Props, additive layers such as breathing and gaze, and the kickboxing rules are exported from the package root. Each action's JSDoc names its source in the motor-control, gait or sports literature and marks the values that are provisional.

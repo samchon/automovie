@@ -145,6 +145,9 @@ export namespace IAutoMovieMotionHumanTouchStance {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      */
     refuse: (beyond: number, limit: number) => string;
+
+    /** A world point, metres, the trunk turns toward before it rises and leans: the middle of two hands' regions lying off to one side of the shoulders, so both arms reach from the side they lie on; no turn asked when absent. */
+    faces?: IAutoMovieVector3;
   }
 
   /**

@@ -6,13 +6,13 @@ Use the first applicable route below. User-chosen generated or traced motion fol
 
 ### Composing again
 
-Check the closest action's parameters and the [operators](../compose/composition.md#operators). Try another target, effector, object, manner or seed, or compose actions with an overlay or mutual join.
+Check the closest action's parameters, the presets of its family namespace `AutoMovieMotionHuman<Family>` and the [operators](../compose/composition.md#operators). Try another preset, target, effector, object, manner or seed, or compose actions with an overlay or mutual join.
 
 Send an installed action that fails under documented use to its [package owner](../compose/refusals.md#when-no-repair-holds).
 
 ### Registering a row
 
-Register a missing table row as the README specifies. Its owning action keeps the open parameters and operators.
+Confirm that no preset of the family namespace already fixes those parameters, and that no row of the lexicon (`HUMAN_LEXICON`) already names the action. Then name the row with `HumanActionRow.of`, passing the family's action and the parameters the row fixes, and register it with the chain and the performance as the README's Extend section shows. Its owning action keeps the open parameters and operators.
 
 ### Registering a law
 
