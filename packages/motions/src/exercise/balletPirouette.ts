@@ -31,7 +31,8 @@ import { balletPositions } from "./balletPositions";
  * then turns about the supporting ball, one beat a turn, on minimum-jerk
  * progress: away from the supporting leg en dehors, toward it en dedans.
  * The working foot closes back into fourth behind as the supporting heel
- * lowers into plié, and the legs straighten over the next beat.
+ * lowers into plié, and the legs straighten over the next beat, as far as
+ * both reach their feet in fourth.
  *
  * The supporting foot pivots about its ball throughout, so it does not
  * slide; the retiré foot turns with the body (Laws, Physics and the Art of
@@ -168,6 +169,37 @@ export namespace balletPirouette {
       y: standing.y - depth * share,
       z: standing.z + (middle.z - entered.z) * share,
     });
+    // The legs straighten out of the closing plié only as far as both reach
+    // their feet in fourth, which stand further apart than the entry's: each
+    // hip joint over the plié's place at the end's heading stands no higher
+    // over its ankle than the leg reaches at a planted knee's least flexion
+    // (`resolveHumanPosture.KNEE`).
+    const reach: number = Math.sqrt(
+      body.measure.thigh ** 2 +
+        body.measure.shank ** 2 +
+        2 *
+          body.measure.thigh *
+          body.measure.shank *
+          Math.cos((resolveHumanPosture.KNEE * Math.PI) / 180),
+    );
+    const top: number = Math.min(
+      standing.y,
+      ...(["left", "right"] as const).map((side: AutoMovieHumanSide): number => {
+        const offset: IAutoMovieVector3 = HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw: yaw(end) },
+          Vector3.subtract(
+            body.rest.get(side === "left" ? "leftUpperLeg" : "rightUpperLeg")!,
+            body.rest.get("hips")!,
+          ),
+        );
+        const ankle: IAutoMovieVector3 = fourth[side].ankle;
+        const across: number = Math.hypot(
+          plie(1).x + offset.x - ankle.x,
+          plie(1).z + offset.z - ankle.z,
+        );
+        return ankle.y + Math.sqrt(Math.max(0, reach * reach - across * across)) - offset.y;
+      }),
+    );
     const hips: (t: number) => IAutoMovieVector3 = (
       t: number,
     ): IAutoMovieVector3 => {
@@ -178,7 +210,8 @@ export namespace balletPirouette {
       const up: number = minimumJerk.share(
         clamp((t - landed) / (end - landed)),
       );
-      return { ...plie(1), y: standing.y - depth * (1 - up) };
+      const low: number = standing.y - depth;
+      return { ...plie(1), y: low + (Math.max(low, top) - low) * up };
     };
 
     // The retiré is a configuration of the working leg, not a foot pose:
