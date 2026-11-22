@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionClock,
@@ -32,6 +33,9 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { StrikingBody } from "../striking/StrikingBody";
 import { headRestAim } from "./headRestAim";
 import { kissBody } from "./kissBody";
+
+/** How far the hand on the partner's side slides down its thigh toward the knee, metres (provisional: about a hand's length). */
+const SLIDE: number = 0.12;
 
 /** The miss under which the head rests on the region, metres (provisional: a skin contact). */
 const NEAR: number = 0.01;
@@ -93,6 +97,8 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
         );
       const at: IAutoMovieVector3 = surface.point;
       const own: AutoMovieHumanoidRegion = p.own ?? side(context, at);
+      // The side of the body the partner's region lies on.
+      const near: "left" | "right" = side(context, at) === "templeLeft" ? "left" : "right";
       const stance: IAutoMovieMotionHumanRise.Stance = {
         left: {
           ankle: context.entry.feet.left.ankle,
@@ -167,6 +173,33 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
               seconds: number,
             ): IAutoMovieMotionHumanPosture =>
               kissBody(body, posture, stance, aimed(seconds), share(seconds), seated),
+          },
+          // The arm on the partner's side slides its hand down the thigh
+          // toward the knee as the body leans, carrying that upper arm forward
+          // of the partner's instead of into it.
+          {
+            channels: [near === "left" ? "leftArm" : "rightArm"],
+            from: 0,
+            to: duration,
+            write: (
+              posture: IAutoMovieMotionHumanPosture,
+              seconds: number,
+            ): IAutoMovieMotionHumanPosture => {
+              const limb: "leftArm" | "rightArm" = near === "left" ? "leftArm" : "rightArm";
+              const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[limb];
+              if (goal === undefined) return posture;
+              const ahead: IAutoMovieVector3 = Vector3.scale(
+                Quaternion.rotateVector(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, entry.yaw), { x: 0, y: 0, z: 1 }),
+                SLIDE * share(seconds),
+              );
+              return {
+                ...posture,
+                limbs: {
+                  ...posture.limbs,
+                  [limb]: { ...goal, point: Vector3.add(goal.point, ahead), bend: Vector3.add(goal.bend, ahead) },
+                },
+              };
+            },
           },
           {
             channels: ["head"],

@@ -18,12 +18,13 @@ const RIBBON: string =
   "a neck ribbon hanging about 0.4 to 0.5 m from the nape to the disc's ring (provisional)";
 
 /**
- * A ribbon medal: a disc on a neck ribbon, presented by the ribbon's top
+ * A ribbon medal: a disc on a neck ribbon, presented by the ribbon above the disc
  * and worn with the disc on the breastbone.
  *
  * It hangs from the origin, the ribbon's top, down `-Y`, the disc's face
- * toward `+Z`. `hold` is where a hand takes the ribbon's top; `wear` is the
- * disc's back, facing `-Z`, the point laid on the wearer's chest.
+ * toward `+Z`. `hold` is where fingers take the ribbon just above the disc,
+ * as a medal is pinned; `wear` is the disc's back, facing `-Z`, the point
+ * laid on the wearer's chest.
  *
  * @param params Any dimension the author fixes inside its band, and an optional scene id.
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
@@ -69,7 +70,11 @@ export function createMedal(
   builder.affordance({
     id: "hold",
     kind: "handle",
-    frame: ArchetypeFrame.facing(Vector3.create(0, -0.02, 0), Vector3.create(0, 0, 1), Vector3.create(0, 1, 0)),
+    frame: ArchetypeFrame.facing(
+      Vector3.create(0, -d.ribbon - 0.02, thick / 2),
+      Vector3.create(0, 0, 1),
+      Vector3.create(0, 1, 0),
+    ),
     extent: null,
     grip: "lateral",
     aperture: 0.002,

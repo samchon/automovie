@@ -32,7 +32,7 @@ const CONTACT: number = 0.01;
 const TOOLBOX: number = 0.4;
 
 /** How far ahead of the kneeling knee the nail lies, metres (provisional: within the kneeling arm's reach). */
-const KNEEL_WORK: number = 0.35;
+const KNEEL_WORK: number = 0.42;
 
 /** How far behind the stance the kneeling knee comes down, metres (provisional: a short step back). */
 const KNEE_BACK: number = 0.25;
