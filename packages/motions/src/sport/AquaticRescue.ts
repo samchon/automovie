@@ -5,6 +5,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionPlan,
@@ -29,8 +30,8 @@ const TOW: number = 0.6;
 /** Seconds to take the cross-chest hold once alongside: provisional. */
 const GRIP: number = 0.6;
 
-/** The rescuer's chest behind the victim's back during the tow, metres: provisional. */
-const BEHIND: number = 0.35;
+/** The rescuer's pelvis behind the victim's during the tow, metres: provisional, the rescuer's chest just behind the victim's back. */
+const BEHIND: number = 0.8;
 
 /** The victim stops this far short of the edge, metres: a reach for the deck. */
 const SHORT: number = 0.5;
@@ -118,7 +119,8 @@ export namespace AquaticRescue {
         ExerciseKey.from(
           body,
           { pitch: 80, neck: -20 },
-          { hip: 5, knee: 10, raise: 20, elbow: 20 },
+          // The recovering arm swings wide of the head.
+          { hip: 5, knee: 10, raise: 40, elbow: 20 },
           { shoulder: 100 + 70 * stroke },
           { shoulder: 100 - 70 * stroke },
         ),
@@ -167,23 +169,31 @@ export namespace AquaticRescue {
         }),
       );
       if (t < arrive) return placed;
-      // The legs scissor under the side-lying rescuer.
-      const swing: number = Math.sin((2 * Math.PI * (t - arrive)) / KICK);
-      const legs: IAutoMovieMotionHumanPosture["joints"] = ExerciseKey.from(
-        body,
-        {},
-        {},
-        { hip: 20 + 25 * swing, knee: 30 + 20 * swing },
-        { hip: 20 - 25 * swing, knee: 30 - 20 * swing },
-      ).joints;
+      // The legs scissor under the side-lying rescuer, the kick growing in
+      // as the turn onto the side is taken, so the legs move on from the
+      // crawl's without a jump.
+      const k: number = minimumJerk.share(Math.min(1, (t - arrive) / GRIP));
+      const swing: number = k * Math.sin((2 * Math.PI * (t - arrive)) / KICK);
+      const kicked: (
+        bone: AutoMovieHumanoidBone,
+        degrees: number,
+      ) => readonly [number, number, number] = (
+        bone: AutoMovieHumanoidBone,
+        degrees: number,
+      ): readonly [number, number, number] => {
+        const [x, y, z]: readonly [number, number, number] = placed.joints[
+          bone
+        ] ?? [0, 0, 0];
+        return [x + degrees, y, z];
+      };
       return {
         ...placed,
         joints: {
           ...placed.joints,
-          leftUpperLeg: legs.leftUpperLeg,
-          rightUpperLeg: legs.rightUpperLeg,
-          leftLowerLeg: legs.leftLowerLeg,
-          rightLowerLeg: legs.rightLowerLeg,
+          leftUpperLeg: kicked("leftUpperLeg", 25 * swing),
+          rightUpperLeg: kicked("rightUpperLeg", -25 * swing),
+          leftLowerLeg: kicked("leftLowerLeg", 20 * swing),
+          rightLowerLeg: kicked("rightLowerLeg", -20 * swing),
         },
       };
     };
@@ -220,9 +230,7 @@ export namespace AquaticRescue {
         sternum,
         victim.bones(start + hold, new Set([sternum.bone])).get(sternum.bone)!,
       ).point;
-      const own: IAutoMovieResolvedBone = chestAt(bodyAt(hold)).get(
-        "upperChest",
-      )!;
+      const own: IAutoMovieResolvedBone = chestAt(bodyAt(hold)).get("chest")!;
       const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
         point: IAutoMovieVector3,
       ): IAutoMovieVector3 =>
@@ -231,7 +239,7 @@ export namespace AquaticRescue {
           Vector3.subtract(point, own.worldPosition),
         );
       held = {
-        on: "upperChest",
+        on: "chest",
         point: local(chest),
         bend: local(
           Vector3.add(
@@ -247,7 +255,7 @@ export namespace AquaticRescue {
       return held;
     };
     const chestAt: ReturnType<typeof AquaticPosture.markers> =
-      AquaticPosture.markers(body, ["upperChest"]);
+      AquaticPosture.markers(body, ["chest"]);
     // The near arm reaches from its last crawl stroke to the victim's
     // sternum as one admitted course and holds it through the tow
     // (`courseArmGoal`); the victim never reads the rescuer.

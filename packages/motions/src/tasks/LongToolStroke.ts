@@ -190,6 +190,9 @@ export namespace LongToolStroke {
         };
       }
     }
+    // Every stroke is a case above; a stroke outside the union reaches here.
+    const unknown: never = props.stroke;
+    throw new Error(`no long-tool stroke ${String(unknown)}`);
   }
 
   /** A swung stroke: the line turned in one plane from the top to the contact and back. */
