@@ -19,8 +19,8 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
  *
  * A rigid floor manifold supports the limb when its normal, taken from the
  * limb's collider toward the floor, points down by more than 60 degrees
- * (`y < -0.5`, the cosine of that cone). Each of its points that ended the
- * step pressing (separation not positive) is a sample carrying the pair's
+ * (`y < -0.5`, the cosine of that cone). Each of its points the step found
+ * pressing (separation not positive where the contact was found) is a sample carrying the pair's
  * combined friction as the step used it (`manifold.friction`), and a point
  * that received a positive normal impulse marks the limb loaded. A
  * compliant receipt counts only while its latest sample at or before

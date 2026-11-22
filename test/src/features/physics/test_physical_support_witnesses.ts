@@ -26,12 +26,12 @@ const BOX_FRICTION: number = 0.9;
  *
  * Scenarios:
  * 1. Both collider creation orders admit contacts on the floor's top face and refuse contacts on its underside.
- * 2. A box whose one end a kinematic lifter pushes up ends the step with lifted and pressing points in one floor manifold; only the pressing points are admitted.
+ * 2. A box a kinematic lifter turns during the step keeps every floor point the step found pressing as a witness, read where the contact was found, even at the end the lifter raises.
  * 3. Every sample carries the pair's combined friction, the mean of 0.9 and 0.3, never the 0.7 floor the receipt path assumes.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Steps a real solver world with a box on a floor and asserts `collectPhysicalSupports` against that step's floor manifold through 1x TestValidator.equals over every finding. A collector that admitted an underside contact, a lifted point or another friction, or dropped a pressing point, adds a finding.
- * @evidence contracts/development/testing.md#independent-expectations The admitted points are the step's floor manifold points whose end-of-step separation is not positive when the normal from the box points down, the support definition itself; the friction 0.6 is the mean combine rule `AutoMovieXpbdCollider` documents. The fixture checks confirm a manifold exists and, in scenario 2, that it holds a lifted point, so the case is not vacuous.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers the top and the underside of the floor in both creation orders and a manifold mixing lifted and pressing points; compliant receipt support belongs to `test_physical_support_receipts`.
+ * @evidence contracts/development/testing.md#behavioral-verification Steps a real solver world with a box on a floor and asserts `collectPhysicalSupports` against that step's floor manifold through 1x TestValidator.equals over every finding. A collector that admitted an underside contact or another friction, or dropped a point the step found pressing, adds a finding.
+ * @evidence contracts/development/testing.md#independent-expectations The admitted points are the step's floor manifold points that pressed where the step found them (the world reports each point's separation there, before any correction) when the normal from the box points down, the support definition itself; the friction 0.6 is the mean combine rule `AutoMovieXpbdCollider` documents. The fixture check confirms a pressing manifold exists, so the case is not vacuous.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers the top and the underside of the floor in both creation orders and a manifold whose box a second contact turns within the step; compliant receipt support belongs to `test_physical_support_receipts`.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_support_witnesses`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins.
  */
@@ -92,8 +92,8 @@ export async function test_physical_support_witnesses(): Promise<void> {
     world.timestep = 1 / 960;
     world.contactFrequency = 240;
     const rigid: AutoMovieXpbdBody = world.createBody(true, {
-      // The lifted box starts 10 mm into the floor: the four passes leave its
-      // -x end still pressing while the lifter raises its +x end clear.
+      // The lifted box starts 10 mm into the floor, so the floor and the lifter
+      // both act on it in the same step.
       position: { x: 0, y: underside ? -1.099 : lifted ? 0.09 : 0.099, z: 0 },
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     });
@@ -196,14 +196,6 @@ export async function test_physical_support_witnesses(): Promise<void> {
           },
         )}`,
       );
-    if (
-      lifted &&
-      !manifold?.points.some(
-        (point: AutoMovieXpbdWorld.IManifoldPoint): boolean =>
-          point.separation > 0,
-      )
-    )
-      findings.push(`${label}: the fixture did not lift a manifold point`);
     const expected: string[] = [
       ...new Set(pressing.map((point: V): string => JSON.stringify(point))),
     ].sort((a: string, b: string): number => a.localeCompare(b));
@@ -217,7 +209,7 @@ export async function test_physical_support_witnesses(): Promise<void> {
       .sort((a: string, b: string): number => a.localeCompare(b));
     if (JSON.stringify(expected) !== JSON.stringify(observed))
       findings.push(
-        `${label}: non-supporting or lifted witnesses admitted ${JSON.stringify({ expected, observed })}`,
+        `${label}: non-supporting witnesses admitted or pressing ones dropped ${JSON.stringify({ expected, observed })}`,
       );
     const combined: number = (BOX_FRICTION + FLOOR_FRICTION) / 2;
     for (const support of actual)
