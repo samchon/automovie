@@ -231,7 +231,7 @@ export namespace readHumanSegmentLeaf {
     return found;
   }
 
-  /** The segments whose anchor second is being read: that read fits cold. */
+  /** The segments whose anchors are being read: a read nested in one takes no anchors. */
   const ANCHORING: WeakSet<IAutoMovieMotionHumanSegment> = new WeakSet();
 
   /**
@@ -241,14 +241,16 @@ export namespace readHumanSegmentLeaf {
    * grid of the plan's clock, `1 / AutoMovieMotionHumanArmPlanned.LEAST`
    * seconds apart: the least waypoint spacing of a planned arm, between
    * which a goal at a daily reach's peak speed travels at most that plan's
-   * spacing. Each anchor is read once with every fit cold and kept by the
-   * segment; that read is never shown. A second between two anchors takes
+   * spacing. Each anchor is read once, the first cold and each later one
+   * continuing the one before it (`anchor`), and kept by the segment; that
+   * read is never shown. A second between two anchors takes
    * each fit's shortest-turn interpolation of their swivels where both give
    * it on one branch, and otherwise the nearer anchor's seed (the other's
    * where only it gives the fit); an anchor second takes its own seeds. The
    * closed form places each arm at that swivel on its displayed goal and
-   * falls back to refining from it only where the placement misses the goal
-   * or leaves the range of motion (Tolani, Goswami and Badler 2000, §3.2.4:
+   * falls back to refining from it only where the placement misses the goal,
+   * leaves the range of motion or meets what the arm keeps clear of
+   * (Tolani, Goswami and Badler 2000, §3.2.4:
    * the swivel is the one free parameter of an arm on its goal). None while
    * an anchor is read.
    *
@@ -258,11 +260,11 @@ export namespace readHumanSegmentLeaf {
    * @param prepared The read's preparation.
    * @returns The arm fits' seeds by name, or none.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the grid and its source, the cold anchor read, the interpolation, the fallback and when nothing is given.
-   * @evidence contracts/development/implementation.md#principled-implementation The swivel is the one free coordinate of an arm on its goal (Tolani §3.2.4); interpolating it between cold anchor fits keeps the branch and the elbow continuous across anchors, and the anchors are fixed seconds of the action read cold under the placed state, so a second's pose never depends on the order seconds are read in.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two bracketing anchors, each one kept-map lookup or one cold read, then one pass over their fit names.
+   * @evidence contracts/development/common.md#meaningful-documentation States the grid and its source, the chained anchor reads, the interpolation, the fallback and when nothing is given.
+   * @evidence contracts/development/implementation.md#principled-implementation The swivel is the one free coordinate of an arm on its goal (Tolani §3.2.4); interpolating it between anchor fits chained from the action's start keeps the branch and the elbow continuous across anchors, and the anchors are fixed seconds of the action read under the placed state, so a second's pose never depends on the order seconds are read in.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two bracketing anchors, each one kept-map lookup or the chain's missing reads, then one pass over their fit names.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goals stay the displayed ones; only the swivel and branch come from the anchors, and the legs keep their own fits.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One cold read per anchor, overlay count and placed state; every other read is a closed-form placement.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One read per anchor, overlay count and placed state; every other read is a closed-form placement.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The anchors' fits are kept by the segment for every second between them.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most one seed map per anchor and overlay count of the action, released by `HumanSegment.placed` and `HumanSegment.forget`.
    */
@@ -329,7 +331,17 @@ export namespace readHumanSegmentLeaf {
     return segment.start + Math.min(segment.plan.duration, index * spacing);
   }
 
-  /** An anchor's arm fits: kept by the segment, or read cold once and kept, under the person's overlay count, since a read under fewer overlays (`HumanSegmentShown.laid`) shows other fits. */
+  /**
+   * An anchor's arm fits, kept by the segment under the person's overlay
+   * count, since a read under fewer overlays (`HumanSegmentShown.laid`)
+   * shows other fits. The anchors are chained from the action's start: the
+   * first is read cold, and each later one continues the one before it
+   * (each fit refined from that anchor's seed of it, keeping its branch and
+   * swivel where they stay legal), the warm start from the previous swivel
+   * a display holds a limb's branch by. A missing anchor reads every
+   * missing one below it first, once each, so an anchor's fits depend on
+   * the action alone, never on which second was read first.
+   */
   function anchor(
     person: IAutoMovieMotionHumanSegment.IPerson,
     segment: IAutoMovieMotionHumanSegment,
@@ -337,31 +349,41 @@ export namespace readHumanSegmentLeaf {
     spacing: number,
     prepared: prepareHumanSegmentPose.IPrepared,
   ): IAutoMovieMotionHumanSegment.IAnchorFits {
-    const key: string = `${person.overlays.length}:${index}`;
-    const kept: IAutoMovieMotionHumanSegment.IAnchorFits | undefined =
-      segment.anchors?.get(key);
-    if (kept !== undefined) return kept;
-    ANCHORING.add(segment);
-    let reading: IReading;
-    try {
-      reading = readHumanSegmentLeaf(
-        person,
-        segment,
-        second(segment, index, spacing),
-        undefined,
-        undefined,
-        prepared,
-      );
-    } finally {
-      ANCHORING.delete(segment);
+    const key = (i: number): string => `${person.overlays.length}:${i}`;
+    const found: IAutoMovieMotionHumanSegment.IAnchorFits | undefined =
+      segment.anchors?.get(key(index));
+    if (found !== undefined) return found;
+    let first: number = index;
+    while (first > 0 && segment.anchors?.has(key(first - 1)) !== true) --first;
+    let kept: IAutoMovieMotionHumanSegment.IAnchorFits | undefined =
+      first === 0 ? undefined : segment.anchors!.get(key(first - 1));
+    for (let i: number = first; i <= index; ++i) {
+      const previous: IAutoMovieMotionHumanSegment.IAnchorFits | undefined =
+        kept;
+      ANCHORING.add(segment);
+      let reading: IReading;
+      try {
+        reading = readHumanSegmentLeaf(
+          person,
+          segment,
+          second(segment, i, spacing),
+          previous === undefined
+            ? undefined
+            : { seeds: previous, tolerance: hingedArmSwivel.RESOLUTION },
+          undefined,
+          prepared,
+        );
+      } finally {
+        ANCHORING.delete(segment);
+      }
+      const arms: Map<string, IAutoMovieSwivelSeed | null> = new Map();
+      for (const [name, seed] of reading.seeds)
+        if (name.endsWith("Arm")) arms.set(name, seed);
+      (segment.anchors ??= new Map()).set(key(i), arms);
+      kept = arms;
     }
-    const arms: Map<string, IAutoMovieSwivelSeed | null> = new Map();
-    for (const [name, seed] of reading.seeds)
-      if (name.endsWith("Arm")) arms.set(name, seed);
-    (segment.anchors ??= new Map()).set(key, arms);
-    return arms;
+    return kept!;
   }
-
   /** The composed posture and the fits produced on this read. */
   export interface IReading {
     /** Authored posture with the overlay contacts. */

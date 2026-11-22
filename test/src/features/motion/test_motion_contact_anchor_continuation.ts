@@ -62,13 +62,14 @@ const STEP: number = 0.005;
  * Scenarios, on the small woman and the large man:
  * 1. A hand goal ahead of the chest moves forward and up by the farthest a
  *    daily reach moves between two anchors. Each end is fitted cold, as
- *    the two anchors are; each goal between them is fitted cold and placed
- *    at the shortest-turn interpolation of the ends' swivels, prescribed.
- *    The placement keeps the cold fit's branch, stands as placed (the
- *    closed form reached the goal within the range of motion, so its seed
- *    is the prescribed swivel: a legal fit), puts the hand where the cold
- *    fit does, and its swivel lies within the ends' own swivel span of the
- *    cold swivel.
+ *    two anchors on one branch; each goal between them is fitted cold and
+ *    placed at the shortest-turn interpolation of the ends' swivels,
+ *    prescribed. The placement keeps the cold fit's branch, stands as
+ *    placed (the closed form reached the goal within the range of motion
+ *    and clear of the trunk, so its seed is the prescribed swivel: a legal
+ *    fit), puts the hand where the cold fit does, and its swivel, lying
+ *    between the ends' swivels, is no farther from the cold swivel than the
+ *    farther end's is.
  * 2. A walk with a held sheet read in the right hand over it, every 1/120 s
  *    of half a second of the raised hand, off the anchor grid:
  *    - the verdicts' bone read and playback's pose read of a frame are the
@@ -77,8 +78,9 @@ const STEP: number = 0.005;
  *    - the elbow and wrist move about the shoulder by at most the audit's
  *      5 mm between neighbouring frames, across every anchor boundary;
  *    - against the same display with every anchor emptied (each fit cold),
- *      read every twentieth of a second, the wrist is on the same goal within a tenth of a millimetre and the
- *      elbow on the same side of the shoulder-wrist axis (the same branch);
+ *      read every twentieth of a second, the wrist is on the same goal
+ *      within a tenth of a millimetre and the elbow on the same side of the
+ *      shoulder-wrist axis (the same branch);
  *    - the walk keeps the anchors' overlay leaf arm fits.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bodies, the goal motion, the frames, each pinned property and the source of each tolerance.
@@ -179,8 +181,10 @@ function fits(name: string, body: IAutoMovieMotionHumanBody): void {
       apart(body, cold.pose, placed.pose, "rightHand") <= HAND,
     );
     TestValidator.predicate(
-      `${name} at ${share} of the span: the swivel lies within the anchors' span of the cold swivel (${c ? turn(c.swivel, swivel).toFixed(4) : "none"} of ${span.toFixed(4)} degrees)`,
-      !!c && turn(c.swivel, swivel) <= span + 2 * hingedArmSwivel.RESOLUTION,
+      `${name} at ${share} of the span: the swivel is no farther from the cold swivel than the farther anchor (${c ? turn(c.swivel, swivel).toFixed(4) : "none"} of ${c ? Math.max(turn(c.swivel, a!.swivel), turn(c.swivel, b!.swivel)).toFixed(4) : "none"} degrees, anchors ${span.toFixed(4)} apart)`,
+      !!c &&
+        turn(c.swivel, swivel) <=
+          Math.max(turn(c.swivel, a!.swivel), turn(c.swivel, b!.swivel)) + 1e-9,
     );
   }
 }

@@ -107,8 +107,10 @@ export namespace courseLimbSwivels {
    * there, so the course never drifts from it; between two knots of one
    * branch the swivel is interpolated, the interval split at its middle
    * where placing the limbs at the interpolated swivel puts an end joint
-   * farther than the solver's tolerance from the middle's own fit, or where
-   * the branch changes, down to the frame grid. The goals stay the displayed
+   * farther than the solver's tolerance from the middle's own fit, where
+   * that placement does not stand in closed form (a limb falls back to a
+   * refine, or an arm pair that meets to its coupled solve), or where the
+   * branch changes, down to the frame grid. The goals stay the displayed
    * ones; only the branch and swivel come from the course, so no read
    * searches and no branch hops.
    *
@@ -118,7 +120,7 @@ export namespace courseLimbSwivels {
    * @evidence contracts/development/common.md#meaningful-documentation States what is coursed, how it is read and judged, and why the goals stay.
    * @evidence contracts/development/implementation.md#principled-implementation The swivel is the one free coordinate of a two-bone limb on its goal; coursing it keeps the branch coherent while the closed form keeps the goal exact.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Root knots in order, a recursive judgement, a descending read.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every knot is a full resolve; interpolation is admitted against the solver's tolerance.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every knot is a full resolve; interpolation is admitted against the solver's tolerance and only where the display's closed form places it as given.
    * @evidence contracts/development/implementation.md#efficient-algorithms Knots only where the swivel path bends away from its interpolation.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Knots and judgements are kept.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the reader and the knots.
@@ -216,9 +218,8 @@ export namespace courseLimbSwivels {
     const placed = (
       seconds: number,
       seeds: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>,
-    ): ReturnType<typeof poseBones> =>
-      poseBones(
-        body,
+    ): IPlacement => {
+      const resolved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
         resolveHumanPosture.seeded(
           body,
           goals(seconds),
@@ -226,9 +227,32 @@ export namespace courseLimbSwivels {
           near(seeds, true),
           undefined,
           ends,
-        ).pose,
-        undefined,
-        ends,
+        );
+      return {
+        bones: poseBones(body, resolved.pose, undefined, ends),
+        seeds: resolved.seeds,
+      };
+    };
+
+    // Whether every limb stands where it was prescribed: the closed form
+    // places a limb at its prescribed swivel and branch and reports exactly
+    // that seed, so another seed means the placement fell back (out of reach
+    // or range, through what the limb keeps clear of, or an arm pair whose
+    // coupled solve took over because the placed arms meet).
+    const stands = (
+      prescribed: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>,
+      placement: IPlacement,
+    ): boolean =>
+      [...prescribed].every(
+        ([limb, seed]: [AutoMovieHumanLimb, IAutoMovieSwivelSeed]): boolean => {
+          const got: IAutoMovieSwivelSeed | null | undefined =
+            placement.seeds[limb];
+          return (
+            !!got &&
+            got.branch === seed.branch &&
+            Math.abs(got.swivel - seed.swivel) <= 1e-9
+          );
+        },
       );
     const times: readonly number[] = [
       ...new Set<number>([
@@ -261,19 +285,26 @@ export namespace courseLimbSwivels {
           b.seeds.get(limb)?.branch !== seed.branch,
       );
       if (!split) {
-        const interpolated: ReturnType<typeof poseBones> = placed(
-          middle,
-          between(middle, a, b),
-        );
-        const own: ReturnType<typeof poseBones> = placed(middle, knot.seeds);
+        const swivels: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =
+          between(middle, a, b);
+        const interpolated: IPlacement = placed(middle, swivels);
+        const own: IPlacement = placed(middle, knot.seeds);
         for (const bone of ends)
           if (
             Vector3.distance(
-              interpolated.get(bone)!.worldPosition,
-              own.get(bone)!.worldPosition,
+              interpolated.bones.get(bone)!.worldPosition,
+              own.bones.get(bone)!.worldPosition,
             ) > tolerance
           )
             split = true;
+
+        // An interpolation the display could not place in closed form, a
+        // coupled arm pair's above all, is split too where the middle's own
+        // fit stands there, so the fallback's own solve lands on a knot once
+        // rather than at every displayed second. Where not even the own fit
+        // stands (a goal out of reach or range), a knot would not help.
+        if (!stands(swivels, interpolated) && stands(knot.seeds, own))
+          split = true;
       }
       piece.halves = split
         ? [
@@ -320,6 +351,23 @@ export namespace courseLimbSwivels {
 
     /** Each fitted limb's seed. */
     seeds: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>;
+  }
+
+  /**
+   * The limbs placed at given swivels at one second, as the course's
+   * judgement reads them.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the members.
+   * @evidence contracts/development/design.md#principled-representation The bones where the swivels show and the seeds the resolver reported for the placement.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read only by `swivels`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The resolver's own records; no pose is kept.
+   */
+  export interface IPlacement {
+    /** The judged bones: each limb's mid and end joints and the point past its end. */
+    bones: ReturnType<typeof poseBones>;
+
+    /** Each fitted limb's seed as the resolver reported it. */
+    seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"];
   }
 
   /**

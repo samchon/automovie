@@ -100,8 +100,10 @@ export namespace fitSeededChainToTarget {
      * only: the fit continues that seed (a later contact re-aim pass
      * continuing the previous pass's answer for a target millimetres away).
      * A prescribed seed (`IAutoMovieSwivelNear.prescribed`) is placed in
-     * closed form; this call's prescribed `near` wins over the source's, so
-     * a re-aim pass keeps the swivel the pass before it settled on.
+     * closed form where that placement reaches the target within range and
+     * clear of the obstruction, and refined from otherwise; this call's
+     * prescribed `near` wins over the source's, so a re-aim pass keeps the
+     * swivel the pass before it settled on.
      * An optional `incumbent` (ignored with `near`) is a seed the caller holds
      * for this swept fit: it only starts the bounded sweep's stop
      * (`IAutoMovieFitChainToTargetProps.incumbent`), so the answer is the
@@ -279,8 +281,10 @@ function preparedWorkspace(
           const placed: ReturnType<typeof fitHingedChainAt> = fitHingedChainAt(
             { ...workspace.props, target }, prescribed.swivel, prescribed.branch);
           // The closed form stands only where it reaches the target within the
-          // range of motion; elsewhere the fit continues from the course's seed.
-          if (placed !== null && placed.shortfall <= 0 && !placed.clamped)
+          // range of motion and keeps clear of the request's obstruction, the
+          // one probe that confirms the swivel; elsewhere the fit continues
+          // from the course's seed.
+          if (placed !== null && placed.shortfall <= 0 && !placed.clamped && placed.blocked <= 0)
             return { pose: placed.pose, seed: placed.seed };
           const continued: IAutoMovieSwivelNear = {
             swivel: prescribed.swivel,
