@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -14,6 +14,7 @@ import type {
   IAutoMovieMotionHumanRise,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionManner,
+  IAutoMovieResolveCenterOfMass,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -35,8 +36,8 @@ import { kissBody } from "./kissBody";
 /** The miss under which the head rests on the region, metres (provisional: a skin contact). */
 const NEAR: number = 0.01;
 
-/** The share of the body's weight a resting head lays on the partner (provisional: half the head and neck's 8.1 % of body mass, Winter 2009, Biomechanics and Motor Control of Human Movement, table 4.1). */
-const LOAD: number = 0.081 / 2;
+/** The part of the head and neck's weight a resting head lays on the partner (provisional: the other half is held by the neck's own muscles). */
+const RESTING: number = 0.5;
 
 /**
  * Rest the head on a partner (#4012). The resting head's own region, the
@@ -49,8 +50,9 @@ const LOAD: number = 0.081 / 2;
  * (`HumanPerception.HELD`, as `touchHold.felt` reads a partner under the
  * hand), so the head follows the partner's shoulder as the partner
  * breathes or turns. The head goes down in the free transport time of its
- * travel, rests the authored span on a loaded `head` window on the
- * partner's region, and comes up in the same time. A region the lean, the
+ * travel, rests the authored span on a `head` window on the partner's
+ * region loaded with half the weight of the head and neck segments in the
+ * body's own mass model, and comes up in the same time. A region the lean, the
  * neck and the side bend cannot bring the head to within `NEAR` is refused
  * with the miss and the angles, so a much shorter partner's shoulder is out
  * of reach standing.
@@ -195,7 +197,7 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
             part: "head",
             kind: "bear",
             region: own,
-            load: LOAD,
+            load: load(body),
             from: clock.at("ready") / duration,
             to: clock.at("relax") / duration,
             support: { kind: "person", subject: p.partner, region: p.region },
@@ -204,6 +206,15 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
       };
     },
   };
+
+/** The share of the body's weight a resting head lays on the partner: `RESTING` of the head and neck segments' share of the body's own mass model. */
+function load(body: IAutoMovieMotionHumanActionContext["body"]): number {
+  const model: IAutoMovieResolveCenterOfMass.IModel = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+  const head: number = model.segments
+    .filter((s: IAutoMovieResolveCenterOfMass.ISegment): boolean => s.bone === "head" || s.bone === "neck")
+    .reduce((sum: number, s: IAutoMovieResolveCenterOfMass.ISegment): number => sum + s.mass, 0);
+  return (RESTING * head) / model.mass;
+}
 
 /** The aim at each second: the plan's solution corrected onto the partner's region where it is felt, a held limb's feedback delay before. */
 function following(

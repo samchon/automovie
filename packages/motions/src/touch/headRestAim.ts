@@ -43,7 +43,7 @@ export namespace headRestAim {
   /** The most the neck and the head bend to a side together, degrees (provisional: about the cervical lateral flexion of a healthy adult, 40 to 45 degrees). */
   export const TILT: number = 40;
 
-  /** The most a seated trunk leans to a side, degrees (provisional: the thoracolumbar lateral flexion of a healthy adult, about 25 degrees, Norkin and White, Measurement of Joint Motion); standing, the planted hips bound it to the kiss's `ROLL`. */
+  /** The most a seated trunk leans to a side, degrees: the normal thoracolumbar lateral flexion range, 25 degrees (Physiopedia, Range of Motion Normative Values, https://www.physio-pedia.com/Range_of_Motion_Normative_Values), since a seated trunk bends at the spine over the pelvis the seat holds; standing, the planted hips bound it to the kiss's `ROLL`. */
   export const SEATED: number = 25;
 
   /** The damping of the least-squares step, metres per degree (provisional: a tenth of the head's typical 10 mm per degree). */

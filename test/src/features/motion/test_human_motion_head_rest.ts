@@ -26,8 +26,10 @@ const NEAR: number = 0.01;
 /** How long the head rests, seconds. */
 const REST: number = 3;
 
-/** How far apart the two sit on the bench, metres between their hips. */
-const APART: number = 0.42;
+/** How far apart two people sit side by side touching, metres between their hips: each one's hip joint half width and thigh radius, the seated hips' half breadth. */
+function apart(a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody): number {
+  return a.measure.hipHalfWidth + a.measure.thighRadius + b.measure.hipHalfWidth + b.measure.thighRadius;
+}
 
 /** One bench pair: who rests on whom. */
 interface IPair {
@@ -143,15 +145,15 @@ function bench(
     seed: "head-rest",
     laws: [headRest],
     performers: [
-      { subject: "a", body: a, at: { x: -APART / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
-      { subject: "b", body: b, at: { x: APART / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+      { subject: "a", body: a, at: { x: -apart(a, b) / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+      { subject: "b", body: b, at: { x: apart(a, b) / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
     ],
     composition: HumanChain.subject("a")
-      .sit({ seat: seat(-APART / 2, a), seconds: 0.4 })
+      .sit({ seat: seat(-apart(a, b) / 2, a), seconds: 0.4 })
       .registered(headRest.name, { partner: "b", region: "shoulderRight", seconds: REST })
       .with(
         HumanChain.subject("b")
-          .sit({ seat: seat(APART / 2, b), seconds: 1.2 })
+          .sit({ seat: seat(apart(a, b) / 2, b), seconds: 1.2 })
           .touch({ target: { kind: "person", subject: "a", region: "shoulderLeft" }, side: "right", kind: "hold", hold: REST - 0.6 }),
       ).node,
   });
@@ -166,8 +168,8 @@ function standing(
     seed: "head-rest-standing",
     laws: [headRest],
     performers: [
-      { subject: "a", body: a, at: { x: -APART / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
-      { subject: "b", body: b, at: { x: APART / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+      { subject: "a", body: a, at: { x: -apart(a, b) / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+      { subject: "b", body: b, at: { x: apart(a, b) / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
     ],
     composition: HumanChain.subject("a").registered(headRest.name, {
       partner: "b",
