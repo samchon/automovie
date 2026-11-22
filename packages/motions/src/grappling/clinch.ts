@@ -1,5 +1,6 @@
 import {
   Vector3,
+  physicalShapeNearest,
   resolveAutoMovieCenterOfMass,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
@@ -19,6 +20,7 @@ import type {
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionManner,
+  IAutoMoviePhysicalShapeNearest,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -33,6 +35,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
+import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
 
 /**
@@ -219,6 +222,7 @@ export namespace clinch {
       context.params.hand ?? "right",
     );
     const bones: ReturnType<typeof poseBones> = poseBones(body, context.entry.pose, undefined, new Set<AutoMovieHumanoidBone>(["leftHand", "rightHand"]));
+    const placeColliders = HumanColliders.preparePlaced(partner.body, requested);
     const arm = (side: AutoMovieHumanSide) =>
       AutoMovieMotionHumanArm.visit({
         body,
@@ -250,11 +254,17 @@ export namespace clinch {
             table[side].region,
             table[side].across,
           );
-          // The palm lies on the partner's region itself, its skin point and
-          // normal: the grip places are the partner's own regions. The
-          // nearest point of the partner's collider lies inside the skin
-          // (a neck collider by 35 mm), so a palm laid there grips inside it.
-          return AutoMovieMotionHumanTarget.hand(body, posture, side, at, {
+          const bearing: AutoMovieHumanoidBone = partner.body.surfaces.regions[table[side].region].bone;
+          let closest: IAutoMoviePhysicalShapeNearest.IResult | undefined;
+          for (const segment of placeColliders(partnerBones)) {
+            if (segment.bone !== bearing) continue;
+            for (const shape of segment.shapes) {
+              const witness = physicalShapeNearest(segment.pose, shape, at.point, at.point);
+              if (Vector3.dot(witness.normal, at.normal) > 0 && (closest === undefined || witness.distance < closest.distance))
+                closest = witness;
+            }
+          }
+          return AutoMovieMotionHumanTarget.hand(body, posture, side, closest ?? at, {
             surface: "palm",
             shape: "relaxed",
             ...(grip === "plum" ? {} : { bend: "forward" as const }),

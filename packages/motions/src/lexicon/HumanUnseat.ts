@@ -1,14 +1,12 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieHumanEffectorPointLimit,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBase,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanUnseat,
@@ -17,7 +15,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditLimits } from "../audit/AutoMovieMotionHumanAuditLimits";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmReach } from "../compose/AutoMovieMotionHumanArmReach";
 import { courseArmGoal } from "../compose/courseArmGoal";
@@ -319,34 +316,11 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   // The palm bears on the floor at the hand's place, palm down. The goal's
   // point is the wrist's, so it stands the palm's offset off that place,
   // turned with the hand: the palm, not the wrist, is on the floor.
-  const palmFrame: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+  const palm: IAutoMovieVector3 = HumanHand.offset(
     context.body,
     side,
     "palm",
-  );
-  const palm: IAutoMovieVector3 = palmFrame.point;
-  // On the lie the palm lies flat as the hold's outcome, so the hand keeps
-  // it as hard task limits: the palm and a point a hand's length along it
-  // toward the fingers, each within the floor's bound
-  // (`AutoMovieMotionHumanAuditLimits.floor`) of where the asked attitude
-  // puts them. A planned hold treats a bare attitude as an objective it may
-  // trade away, and a palm turned off flat sends the fingers through the
-  // floor; a pinned hold is tracked by the limb fit, which meets it there.
-  const flat: IAutoMovieHumanEffectorPointLimit[] = [
-    palm,
-    Vector3.add(
-      palm,
-      Vector3.scale(
-        Vector3.normalize(palmFrame.forward),
-        context.body.measure.hand,
-      ),
-    ),
-  ].map(
-    (contact: IAutoMovieVector3): IAutoMovieHumanEffectorPointLimit => ({
-      contact,
-      bound: AutoMovieMotionHumanAuditLimits.floor,
-    }),
-  );
+  ).point;
   const onFloor = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => ({
     ...posture.limbs[`${side}Arm`]!.point,
     y: 0,
@@ -440,7 +414,6 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           ),
           contact: palm,
           rotation,
-          ...(t >= land ? { limits: flat } : {}),
           planted: t >= touch,
         },
       };

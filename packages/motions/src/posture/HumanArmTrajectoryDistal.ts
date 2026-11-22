@@ -6,7 +6,7 @@ import type { IAutoMovieMotionHumanArmGeometry, IAutoMovieQuaternion } from "@au
  * and wrist axes, writing their clinical coordinates into the trial arm.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the rotation frame, the mutable trial coordinates and the native clinical domains.
- * @evidence contracts/development/implementation.md#principled-implementation The native distal twist projection divides the requested world rotation between the actual forearm and wrist, continuing the trial's own twist in its basin (Tolani, Goswami and Badler 2000), so the projection is continuous in the trial's coordinates.
+ * @evidence contracts/development/implementation.md#principled-implementation The native distal twist projection divides the requested world rotation between the actual forearm and wrist.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One native projection writes the four returned angular coordinates.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the rig's neutral for absent wrist axes and retains the caller's independent actual FK check.
  * @evidence contracts/development/implementation.md#efficient-algorithms One projection per oriented candidate.
@@ -32,10 +32,6 @@ export function HumanArmTrajectoryDistal(
     effectorFrame: HUMANOID_REST_FRAME[setup.bones.hand],
     rotation: hand,
     skeleton: setup.body.skeleton,
-    // The trial's own forearm twist is continued: the projection keeps its
-    // basin, so it moves continuously with the trial rather than jumping
-    // between the twist range's ends where the hand's rotation is beyond it.
-    reference: c[5]!,
   });
   // A null clinical axis contributes the rest rotation in
   // jointToQuaternionOnBasis. The arm chart stores clinical degrees,

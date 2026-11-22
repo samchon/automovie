@@ -116,15 +116,16 @@ export namespace AutoMovieMotionManner {
   /**
    * The modifiers of an action's manner, drawn from the action's own seeded
    * channel and with the performer's timing skill where the manner states no
-   * proficiency, and slowed by the action's own time scale
-   * (`IHumanActionContext.tempo`) with or without a manner.
+   * proficiency, and with its moving spans slowed by the action's own time
+   * scale (`IHumanActionContext.tempo`) with or without a manner; its holds
+   * keep their seconds.
    *
    * @param context The action's skill, draw streams and time scale.
    * @param manner The manner; neutral when absent.
    * @returns The modifiers.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States where the draws and the default proficiency come from.
-   * @evidence contracts/development/implementation.md#principled-implementation A performer's own timing skill is the proficiency a manner means when it states none, and the action's `manner` channel keeps the variation apart from the law's other draws, so adding a manner does not move them.
+   * @evidence contracts/development/implementation.md#principled-implementation A performer's own timing skill is the proficiency a manner means when it states none, and the action's `manner` channel keeps the variation apart from the law's other draws, so adding a manner does not move them. A replan's time scale lengthens what its speed bound limits, the motion, and not a hold, which is a duration.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One conditional and one call.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: a stated proficiency overrides the performer's, and the ranges are checked by `resolve`.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `resolve`; every law resolves its manner here.
@@ -147,11 +148,11 @@ export namespace AutoMovieMotionManner {
           );
 
     // The action's own time scale, where it is replanned to take the time
-    // its motion needs, slows its tempo and its holds alike.
+    // its motion needs, slows its moving spans only: a hold is a duration,
+    // not a speed-limited phase, so its seconds (an authored hold's
+    // included) stay as the manner gives them.
     const scale: number = context.tempo ?? 1;
-    return scale === 1
-      ? own
-      : { ...own, tempo: own.tempo * scale, hold: own.hold * scale };
+    return scale === 1 ? own : { ...own, tempo: own.tempo * scale };
   }
 
   /**

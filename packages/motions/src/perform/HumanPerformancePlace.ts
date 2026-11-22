@@ -450,7 +450,25 @@ export namespace HumanPerformancePlace {
         start,
       ),
       action: (anchor: string): IAutoMovieMotionHumanPlacedAction => {
-        const placed = self.anchors.get(anchor);
+        // An anchored action a later part of an open group holds is placed
+        // first, through the resolver's demand on its performer
+        // (`IAutoMovieScheduleContext.demand`), as a read of a person is.
+        let placed = self.anchors.get(anchor);
+        let owner: string | undefined;
+        if (placed === undefined && self.demand !== undefined)
+          for (const subject of self.intended.keys())
+            if (
+              self.intended
+                .get(subject)!
+                .some((i: IAutoMovieIntent): boolean => i.anchor === anchor)
+            )
+              owner = subject;
+        while (
+          placed === undefined &&
+          owner !== undefined &&
+          self.demand?.(owner) === "placed"
+        )
+          placed = self.anchors.get(anchor);
         if (placed === undefined)
           throw new HumanRefusal({
             kind: "participant",

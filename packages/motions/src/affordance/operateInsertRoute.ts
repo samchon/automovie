@@ -1,3 +1,4 @@
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -16,10 +17,12 @@ import { operateLongInsert } from "./operateLongInsert";
 /**
  * Route an operation: an insertion's depth resolved from its socket when
  * not given (`IAutoMovieAffordance.depth`), and planned by
- * `operateLongInsert` when it goes deeper than the holding hand's grip lies
- * behind the working point, less the half breadth the hand keeps off the
- * mouth, since the hand would otherwise have to enter the bore. Any other
- * operation passes through unchanged.
+ * `operateLongInsert` when the holding hand grips the tool on its working
+ * line (within its half breadth, as a staff is held) and the insertion goes
+ * deeper than that grip lies behind the working point, less the half
+ * breadth the hand keeps off the mouth, since the hand would otherwise have
+ * to enter the bore. A grip off the line (a pistol's) never meets the bore.
+ * Any other operation passes through unchanged.
  *
  * @param context The operation's context.
  * @param constants The operation's reach share, stroke pace and aimed width.
@@ -27,7 +30,7 @@ import { operateLongInsert } from "./operateLongInsert";
  * @throws {HumanRefusal} When an insertion names no depth and its socket declares none.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the depth's source, the threshold and its reason.
- * @evidence contracts/development/implementation.md#principled-implementation The threshold is where the hand would meet the muzzle's face: the grip's distance behind the working point less the hand's half breadth.
+ * @evidence contracts/development/implementation.md#principled-implementation The threshold is where the hand would meet the muzzle's face: the grip's distance behind the working point less the hand's half breadth, for a grip whose distance from the working line is within that half breadth; a grip farther off the line passes beside the bore.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the depth, read the grip, branch.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A depth neither given nor declared is refused, never assumed.
  * @evidence contracts/development/implementation.md#efficient-algorithms One affordance scan and one held-tool read.
@@ -74,10 +77,19 @@ export function operateInsertRoute(
     resolved,
     side,
   );
-  if (
-    depth <=
-    tool.length - (operateLongInsert.BREADTH * context.body.measure.hand) / 2
-  )
+  // The hand meets the mouth only where it holds the tool on its working
+  // line, as a staff is held: a grip that lies off the line by more than
+  // the hand's half breadth (a pistol's, under its barrel) stays beside the
+  // bore at any depth, so only a grip on the line can be met by it.
+  const half: number =
+    (operateLongInsert.BREADTH * context.body.measure.hand) / 2;
+  const across: number = Vector3.length(
+    Vector3.subtract(
+      tool.tip,
+      Vector3.scale(tool.axis, Vector3.dot(tool.tip, tool.axis)),
+    ),
+  );
+  if (across > half || depth <= tool.length - half)
     return { context: routed };
   return {
     context: routed,
