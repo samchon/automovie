@@ -183,10 +183,24 @@ export function test_motion_exercise_archery_take(): void {
           HumanPropFrame.bone(film.bones("a", t).get(`${side}Hand`)!),
           film.prop(prop, t),
         );
+      // The arrow in the frame of the bow's nock as the string poses it: the
+      // nock rides the string, so a nocked arrow is drawn back with it.
       const onBow: (t: number) => IAutoMovieRigidTransform = (
         t: number,
-      ): IAutoMovieRigidTransform =>
-        HumanPropFrame.relative(film.prop("bow", t), film.prop("arrow", t));
+      ): IAutoMovieRigidTransform => {
+        const nock: IAutoMovieAffordance = props[1]!.articulate!(
+          film.state("bow", t),
+        ).affordances.find(
+          (a: IAutoMovieAffordance): boolean => a.id === "nock",
+        )!;
+        return HumanPropFrame.relative(
+          HumanPropFrame.compose(film.prop("bow", t), {
+            position: nock.frame.translation,
+            rotation: nock.frame.rotation,
+          }),
+          film.prop("arrow", t),
+        );
+      };
       const rigid: (
         read: (t: number) => IAutoMovieRigidTransform,
         from: number,
