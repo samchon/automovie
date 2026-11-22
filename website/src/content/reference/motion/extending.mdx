@@ -21,10 +21,10 @@ An installed action that fails under documented use is a package defect. The age
 Before writing a row, check the lexicon. It holds named rows over the shipped actions, ready to register, in families such as `emblem`, `habit`, `stance`, `gait`, `social`, `stageFight`, `labour`, `ride`, `sport` and `sword`. `HUMAN_LEXICON` lists every family's rows as data, and `HUMAN_LEXICON_SCHEMAS` gives each row's parameters as a JSON schema:
 
 ```ts
-import { AutoMovieMotionHumanBlade, HumanChain, HumanEmblem, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanGesture, AutoMovieMotionHumanStageFight, HumanChain, HumanPerformance } from "@automovie/motions";
 
-const { salute } = HumanEmblem;
-const { slap } = AutoMovieMotionHumanBlade.stageBladeFootwork;
+const { salute } = AutoMovieMotionHumanGesture.HumanEmblem;
+const { slap } = AutoMovieMotionHumanStageFight.HumanStageFight;
 const Chain = HumanChain.extend({ salute, slap });
 
 new HumanPerformance({

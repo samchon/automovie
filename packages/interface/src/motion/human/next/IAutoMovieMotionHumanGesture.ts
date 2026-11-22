@@ -11,7 +11,6 @@ import type { IAutoMovieMotionHumanHandShape } from "../posture/IAutoMovieMotion
  * Gestures of the hands and arms: emblems, beats and pointing, as arm phrases.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
  * @evidence contracts/development/design.md#principled-representation One method per law of the Gesture family, each taking the law's own parameter type.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The Gesture laws and nothing the other families own.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
@@ -81,6 +80,234 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `armPhrase` takes the type its law reads.
    */
   export type IArmPhrase = IAutoMovieMotionHumanArmPhrase.IParams;
+
+  /**
+   * The `gesture` parameters a preset fixes: `kind`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `gesture` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IGestureKindPreset = Pick<IGesture, "kind">;
+
+  /**
+   * The `gesture` parameters a preset fixes: `kind`, `shape`, `turn`, `aim`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `gesture` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IGestureKindShapeTurnAimPreset = Pick<
+    IGesture,
+    "kind" | "shape" | "turn" | "aim"
+  >;
+
+  /**
+   * The `gesture` parameters a preset fixes: `kind`, `shape`, `aim`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `gesture` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IGestureKindShapeAimPreset = Pick<
+    IGesture,
+    "kind" | "shape" | "aim"
+  >;
+
+  /**
+   * The `gesture` parameters a preset fixes: `kind`, `shape`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `gesture` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IGestureKindShapePreset = Pick<IGesture, "kind" | "shape">;
+
+  /**
+   * The `armPhrase` parameters a preset fixes: `phrase`, `target`, `mirror`, `offset`, `swing`, `count`, `facing`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `armPhrase` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IArmPhrasePhraseTargetMirrorOffsetSwingCountFacingPreset = Pick<
+    IArmPhrase,
+    "phrase" | "target" | "mirror" | "offset" | "swing" | "count" | "facing"
+  >;
+
+  /**
+   * The `armPhrase` parameters a preset fixes: `phrase`, `target`, `mirror`, `offset`, `facing`, `hold`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `armPhrase` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IArmPhrasePhraseTargetMirrorOffsetFacingHoldPreset = Pick<
+    IArmPhrase,
+    "phrase" | "target" | "mirror" | "offset" | "facing" | "hold"
+  >;
+
+  /**
+   * The `armPhrase` parameters a preset fixes: `phrase`, `surface`, `shape`, `hold`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `armPhrase` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IArmPhrasePhraseSurfaceShapeHoldPreset = Pick<
+    IArmPhrase,
+    "phrase" | "surface" | "shape" | "hold"
+  >;
+
+  /**
+   * The `armPhrase` parameters a preset fixes: `phrase`, `surface`, `shape`, `swing`, `count`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `armPhrase` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IArmPhrasePhraseSurfaceShapeSwingCountPreset = Pick<
+    IArmPhrase,
+    "phrase" | "surface" | "shape" | "swing" | "count"
+  >;
+
+  /**
+   * The `armPhrase` parameters a preset fixes: `phrase`, `surface`, `shape`, `from`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `armPhrase` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IArmPhrasePhraseSurfaceShapeFromPreset = Pick<
+    IArmPhrase,
+    "phrase" | "surface" | "shape" | "from"
+  >;
+
+  /**
+   * The `armPhrase` parameters a preset fixes: `phrase`, `target`, `mirror`, `surface`, `shape`, `hold`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `armPhrase` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IArmPhrasePhraseTargetMirrorSurfaceShapeHoldPreset = Pick<
+    IArmPhrase,
+    "phrase" | "target" | "mirror" | "surface" | "shape" | "hold"
+  >;
+
+  /**
+   * The `armPhrase` parameters a preset fixes: `phrase`, `target`, `surface`, `shape`, `hold`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `armPhrase` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IArmPhrasePhraseTargetSurfaceShapeHoldPreset = Pick<
+    IArmPhrase,
+    "phrase" | "target" | "surface" | "shape" | "hold"
+  >;
+
+  /**
+   * The `armPhrase` parameters a preset fixes: `phrase`, `target`, `surface`, `shape`, `from`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `armPhrase` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IArmPhrasePhraseTargetSurfaceShapeFromPreset = Pick<
+    IArmPhrase,
+    "phrase" | "target" | "surface" | "shape" | "from"
+  >;
+
+  /**
+   * The `armPhrase` parameters a preset fixes: `phrase`, `target`, `surface`, `shape`, `swing`, `count`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `armPhrase` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IArmPhrasePhraseTargetSurfaceShapeSwingCountPreset = Pick<
+    IArmPhrase,
+    "phrase" | "target" | "surface" | "shape" | "swing" | "count"
+  >;
+
+  /**
+   * The `armPhrase` parameters a preset fixes: `phrase`, `hand`, `target`, `offset`, `swing`, `count`, `facing`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `armPhrase` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IArmPhrasePhraseHandTargetOffsetSwingCountFacingPreset = Pick<
+    IArmPhrase,
+    "phrase" | "hand" | "target" | "offset" | "swing" | "count" | "facing"
+  >;
+
+  /**
+   * The `armPhrase` parameters a preset fixes: `phrase`, `hand`, `target`, `offset`, `facing`, `hold`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `armPhrase` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IArmPhrasePhraseHandTargetOffsetFacingHoldPreset = Pick<
+    IArmPhrase,
+    "phrase" | "hand" | "target" | "offset" | "facing" | "hold"
+  >;
+
+  /**
+   * The `armPhrase` parameters a preset fixes: `phrase`, `hand`, `target`, `offset`, `shape`, `facing`, `hold`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `armPhrase` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IArmPhrasePhraseHandTargetOffsetShapeFacingHoldPreset = Pick<
+    IArmPhrase,
+    "phrase" | "hand" | "target" | "offset" | "shape" | "facing" | "hold"
+  >;
+
+  /**
+   * The `armPhrase` parameters a preset fixes: `phrase`, `target`, `mirror`, `offset`, `shape`, `facing`, `hold`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `armPhrase` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IArmPhrasePhraseTargetMirrorOffsetShapeFacingHoldPreset = Pick<
+    IArmPhrase,
+    "phrase" | "target" | "mirror" | "offset" | "shape" | "facing" | "hold"
+  >;
+
+  /**
+   * The `armPhrase` parameters a preset fixes: `phrase`, `target`, `surface`, `shape`, `point`, `hold`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `armPhrase` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IArmPhrasePhraseTargetSurfaceShapePointHoldPreset = Pick<
+    IArmPhrase,
+    "phrase" | "target" | "surface" | "shape" | "point" | "hold"
+  >;
 }
 
 /**
@@ -119,9 +346,6 @@ export namespace IAutoMovieMotionHumanGesture {
  * since a cut stroke loses the gesture's meaning.
  *
  * @evidence contracts/development/common.md#meaningful-documentation hand: The hand of a one-hand gesture; `right` when absent. region: The face region a `touchFace` reaches; `forehead` when absent. count: Stroke repetitions (waves, nods, claps); the gesture's own count when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation hand: The hand of a one-hand gesture; `right` when absent. region: The face region a `touchFace` reaches; `forehead` when absent. count: Stroke repetitions (waves, nods, claps); the gesture's own count when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.gesture, params); everyday/gesture.ts (gesture.plan, context); everyday/gestureHands.ts (gestureHands.hand, p); everyday/gesture.ts (gesture.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanGestureStroke.Kind, AutoMovieHumanSide, IAutoMovieMotionTarget, IAutoMovieMotionHumanGestureStroke.FaceRegion, IAutoMovieMotionHumanEffort.IEffort, IAutoMovieMotionHumanHandShape.Emblem identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanGesture {
   /**

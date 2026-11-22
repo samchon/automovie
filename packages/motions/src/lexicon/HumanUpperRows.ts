@@ -5,6 +5,45 @@ import type {
 
 import { armPhrase } from "../everyday/armPhrase";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_GESTURE_PHRASE_ARM_AT_SIDE } from "../next/presets/HUMAN_GESTURE_PHRASE_ARM_AT_SIDE";
+import { HUMAN_GESTURE_PHRASE_BECKON_HAND } from "../next/presets/HUMAN_GESTURE_PHRASE_BECKON_HAND";
+import { HUMAN_GESTURE_PHRASE_CHEEK_IN_HAND } from "../next/presets/HUMAN_GESTURE_PHRASE_CHEEK_IN_HAND";
+import { HUMAN_GESTURE_PHRASE_CHEER_HANDS } from "../next/presets/HUMAN_GESTURE_PHRASE_CHEER_HANDS";
+import { HUMAN_GESTURE_PHRASE_CHIN_ON_FIST } from "../next/presets/HUMAN_GESTURE_PHRASE_CHIN_ON_FIST";
+import { HUMAN_GESTURE_PHRASE_CLAP_HANDS } from "../next/presets/HUMAN_GESTURE_PHRASE_CLAP_HANDS";
+import { HUMAN_GESTURE_PHRASE_DRINK_FROM } from "../next/presets/HUMAN_GESTURE_PHRASE_DRINK_FROM";
+import { HUMAN_GESTURE_PHRASE_EAT_WITH } from "../next/presets/HUMAN_GESTURE_PHRASE_EAT_WITH";
+import { HUMAN_GESTURE_PHRASE_FOLD_ARMS } from "../next/presets/HUMAN_GESTURE_PHRASE_FOLD_ARMS";
+import { HUMAN_GESTURE_PHRASE_GLASSES_UP } from "../next/presets/HUMAN_GESTURE_PHRASE_GLASSES_UP";
+import { HUMAN_GESTURE_PHRASE_HAIR_COMBING } from "../next/presets/HUMAN_GESTURE_PHRASE_HAIR_COMBING";
+import { HUMAN_GESTURE_PHRASE_HAMMER_STROKES } from "../next/presets/HUMAN_GESTURE_PHRASE_HAMMER_STROKES";
+import { HUMAN_GESTURE_PHRASE_HANDS_CLASPED_BEHIND } from "../next/presets/HUMAN_GESTURE_PHRASE_HANDS_CLASPED_BEHIND";
+import { HUMAN_GESTURE_PHRASE_HANDS_TOGETHER_FRONT } from "../next/presets/HUMAN_GESTURE_PHRASE_HANDS_TOGETHER_FRONT";
+import { HUMAN_GESTURE_PHRASE_HAND_BEHIND_HEAD } from "../next/presets/HUMAN_GESTURE_PHRASE_HAND_BEHIND_HEAD";
+import { HUMAN_GESTURE_PHRASE_HAND_IN_POCKET } from "../next/presets/HUMAN_GESTURE_PHRASE_HAND_IN_POCKET";
+import { HUMAN_GESTURE_PHRASE_HAND_ON_HIP } from "../next/presets/HUMAN_GESTURE_PHRASE_HAND_ON_HIP";
+import { HUMAN_GESTURE_PHRASE_HAT_ON_HEAD } from "../next/presets/HUMAN_GESTURE_PHRASE_HAT_ON_HEAD";
+import { HUMAN_GESTURE_PHRASE_HEAD_SCRATCH } from "../next/presets/HUMAN_GESTURE_PHRASE_HEAD_SCRATCH";
+import { HUMAN_GESTURE_PHRASE_HOLD_ON } from "../next/presets/HUMAN_GESTURE_PHRASE_HOLD_ON";
+import { HUMAN_GESTURE_PHRASE_PALM_UP } from "../next/presets/HUMAN_GESTURE_PHRASE_PALM_UP";
+import { HUMAN_GESTURE_PHRASE_PAT_ON } from "../next/presets/HUMAN_GESTURE_PHRASE_PAT_ON";
+import { HUMAN_GESTURE_PHRASE_PHONE_TO_EAR } from "../next/presets/HUMAN_GESTURE_PHRASE_PHONE_TO_EAR";
+import { HUMAN_GESTURE_PHRASE_POINT_AT } from "../next/presets/HUMAN_GESTURE_PHRASE_POINT_AT";
+import { HUMAN_GESTURE_PHRASE_PRESS_ON } from "../next/presets/HUMAN_GESTURE_PHRASE_PRESS_ON";
+import { HUMAN_GESTURE_PHRASE_RAISE_HAND_HIGH } from "../next/presets/HUMAN_GESTURE_PHRASE_RAISE_HAND_HIGH";
+import { HUMAN_GESTURE_PHRASE_RUB_ON } from "../next/presets/HUMAN_GESTURE_PHRASE_RUB_ON";
+import { HUMAN_GESTURE_PHRASE_RUB_PALMS } from "../next/presets/HUMAN_GESTURE_PHRASE_RUB_PALMS";
+import { HUMAN_GESTURE_PHRASE_SAW_STROKES } from "../next/presets/HUMAN_GESTURE_PHRASE_SAW_STROKES";
+import { HUMAN_GESTURE_PHRASE_SCRATCH_ON } from "../next/presets/HUMAN_GESTURE_PHRASE_SCRATCH_ON";
+import { HUMAN_GESTURE_PHRASE_SQUEEZE_ON } from "../next/presets/HUMAN_GESTURE_PHRASE_SQUEEZE_ON";
+import { HUMAN_GESTURE_PHRASE_STIR_STROKES } from "../next/presets/HUMAN_GESTURE_PHRASE_STIR_STROKES";
+import { HUMAN_GESTURE_PHRASE_STOP_HAND } from "../next/presets/HUMAN_GESTURE_PHRASE_STOP_HAND";
+import { HUMAN_GESTURE_PHRASE_STROKE_DOWN } from "../next/presets/HUMAN_GESTURE_PHRASE_STROKE_DOWN";
+import { HUMAN_GESTURE_PHRASE_TAP_ON } from "../next/presets/HUMAN_GESTURE_PHRASE_TAP_ON";
+import { HUMAN_GESTURE_PHRASE_TEETH_BRUSHING } from "../next/presets/HUMAN_GESTURE_PHRASE_TEETH_BRUSHING";
+import { HUMAN_GESTURE_PHRASE_WAVE_HAND } from "../next/presets/HUMAN_GESTURE_PHRASE_WAVE_HAND";
+import { HUMAN_GESTURE_PHRASE_WIPE_ACROSS } from "../next/presets/HUMAN_GESTURE_PHRASE_WIPE_ACROSS";
+import { HUMAN_GESTURE_PHRASE_WIPE_MOUTH_ACROSS } from "../next/presets/HUMAN_GESTURE_PHRASE_WIPE_MOUTH_ACROSS";
 
 /**
  * The upper-body acts re-expressed as rows over the arm's phrases (#3361):
@@ -47,448 +86,303 @@ export namespace HumanUpperRows {
   /** A wave: the open hand oscillates out and in, raised beside the head, palm forward. */
   export const waveHand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["waveHand"]
-  > = HumanActionRow.of("waveHand", armPhrase, {
-    phrase: "oscillate",
-    target: { kind: "self", region: "shoulderRight" },
-    mirror: true,
-    offset: { out: 0.25, up: 0.55, forward: 0.15 },
-    swing: { out: 0.1, up: 0, forward: 0 },
-    count: 3,
-    facing: { fingers: "up", palm: "forward" },
-  });
+  > = HumanActionRow.of("waveHand", armPhrase, HUMAN_GESTURE_PHRASE_WAVE_HAND);
 
   /** A raised hand: the open hand visits a place above the shoulder, palm forward, and holds it. */
   export const raiseHandHigh: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["raiseHandHigh"]
-  > = HumanActionRow.of("raiseHandHigh", armPhrase, {
-    phrase: "visit",
-    target: { kind: "self", region: "shoulderRight" },
-    mirror: true,
-    offset: { out: 0.1, up: 0.9, forward: 0.1 },
-    facing: { fingers: "up", palm: "forward" },
-    hold: "long",
-  });
+  > = HumanActionRow.of(
+    "raiseHandHigh",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_RAISE_HAND_HIGH,
+  );
 
   /** A stop sign: the open hand held out ahead at shoulder height, palm forward. */
   export const stopHand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["stopHand"]
-  > = HumanActionRow.of("stopHand", armPhrase, {
-    phrase: "visit",
-    target: { kind: "self", region: "shoulderRight" },
-    mirror: true,
-    offset: { out: 0, up: 0, forward: 0.8 },
-    facing: { fingers: "up", palm: "forward" },
-    hold: "long",
-  });
+  > = HumanActionRow.of("stopHand", armPhrase, HUMAN_GESTURE_PHRASE_STOP_HAND);
 
   /** A point: the forefinger's tip visits a place on the target's line, the hand pointing. */
   export const pointAt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["pointAt"]
-  > = HumanActionRow.of("pointAt", armPhrase, {
-    phrase: "visit",
-    surface: "indexTip",
-    shape: "point",
-    hold: "beat",
-  });
+  > = HumanActionRow.of("pointAt", armPhrase, HUMAN_GESTURE_PHRASE_POINT_AT);
 
   /** A tap: the fingertips visit the target with no hold. */
   export const tapOn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["tapOn"]
-  > = HumanActionRow.of("tapOn", armPhrase, {
-    phrase: "visit",
-    surface: "indexTip",
-    shape: "flat",
-    hold: "none",
-  });
+  > = HumanActionRow.of("tapOn", armPhrase, HUMAN_GESTURE_PHRASE_TAP_ON);
 
   /** A press: the palm visits the target and holds. */
   export const pressOn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["pressOn"]
-  > = HumanActionRow.of("pressOn", armPhrase, {
-    phrase: "visit",
-    surface: "palm",
-    shape: "flat",
-    hold: "long",
-  });
+  > = HumanActionRow.of("pressOn", armPhrase, HUMAN_GESTURE_PHRASE_PRESS_ON);
 
   /** A rub: the palm oscillates across the target. */
   export const rubOn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["rubOn"]
-  > = HumanActionRow.of("rubOn", armPhrase, {
-    phrase: "oscillate",
-    surface: "palm",
-    shape: "flat",
-    swing: { out: 0.05, up: 0, forward: 0 },
-    count: 3,
-  });
+  > = HumanActionRow.of("rubOn", armPhrase, HUMAN_GESTURE_PHRASE_RUB_ON);
 
   /** A stroke: the palm draws down along the target. */
   export const strokeDown: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["strokeDown"]
-  > = HumanActionRow.of("strokeDown", armPhrase, {
-    phrase: "stroke",
-    surface: "palm",
-    shape: "flat",
-    from: { out: 0, up: 0.1, forward: 0 },
-  });
+  > = HumanActionRow.of(
+    "strokeDown",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_STROKE_DOWN,
+  );
 
   /** Hand on the hip: the palm visits the near hip and stays. */
   export const handOnHip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["handOnHip"]
-  > = HumanActionRow.of("handOnHip", armPhrase, {
-    phrase: "visit",
-    target: { kind: "self", region: "hipRight" },
-    mirror: true,
-    surface: "palm",
-    shape: "flat",
-    hold: "long",
-  });
+  > = HumanActionRow.of(
+    "handOnHip",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_HAND_ON_HIP,
+  );
 
   /** Chin in hand: the fist visits the chin and stays. */
   export const chinOnFist: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["chinOnFist"]
-  > = HumanActionRow.of("chinOnFist", armPhrase, {
-    phrase: "visit",
-    target: { kind: "self", region: "chin" },
-    surface: "fist",
-    shape: "fist",
-    hold: "long",
-  });
+  > = HumanActionRow.of(
+    "chinOnFist",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_CHIN_ON_FIST,
+  );
 
   /** Wiping the mouth: the back of the hand draws across the lips. */
   export const wipeMouthAcross: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["wipeMouthAcross"]
-  > = HumanActionRow.of("wipeMouthAcross", armPhrase, {
-    phrase: "stroke",
-    target: { kind: "self", region: "mouth" },
-    surface: "handBack",
-    shape: "relaxed",
-    from: { out: 0.08, up: 0, forward: 0 },
-  });
+  > = HumanActionRow.of(
+    "wipeMouthAcross",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_WIPE_MOUTH_ACROSS,
+  );
 
   /** Wiping a surface: the flat palm oscillates across the target. */
   export const wipeAcross: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["wipeAcross"]
-  > = HumanActionRow.of("wipeAcross", armPhrase, {
-    phrase: "oscillate",
-    surface: "palm",
-    shape: "flat",
-    swing: { out: 0.15, up: 0, forward: 0 },
-    count: 4,
-  });
+  > = HumanActionRow.of(
+    "wipeAcross",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_WIPE_ACROSS,
+  );
 
   /** Hammering: the fist that holds the hammer strikes down and back on the target, up and down. */
   export const hammerStrokes: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["hammerStrokes"]
-  > = HumanActionRow.of("hammerStrokes", armPhrase, {
-    phrase: "oscillate",
-    surface: "grip",
-    shape: "fist",
-    swing: { out: 0, up: 0.15, forward: 0 },
-    count: 4,
-  });
+  > = HumanActionRow.of(
+    "hammerStrokes",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_HAMMER_STROKES,
+  );
 
   /** Sawing: the fist that holds the saw draws forward and back over the target. */
   export const sawStrokes: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["sawStrokes"]
-  > = HumanActionRow.of("sawStrokes", armPhrase, {
-    phrase: "oscillate",
-    surface: "grip",
-    shape: "fist",
-    swing: { out: 0, up: 0, forward: 0.2 },
-    count: 4,
-  });
+  > = HumanActionRow.of(
+    "sawStrokes",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_SAW_STROKES,
+  );
 
   /** Stirring: the fist that holds the spoon circles out and in over the pot. */
   export const stirStrokes: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["stirStrokes"]
-  > = HumanActionRow.of("stirStrokes", armPhrase, {
-    phrase: "oscillate",
-    surface: "grip",
-    shape: "fist",
-    swing: { out: 0.05, up: 0, forward: 0.05 },
-    count: 4,
-  });
+  > = HumanActionRow.of(
+    "stirStrokes",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_STIR_STROKES,
+  );
 
   /** Putting on a hat: the hand that holds it visits the crown and stays a beat. */
   export const hatOnHead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["hatOnHead"]
-  > = HumanActionRow.of("hatOnHead", armPhrase, {
-    phrase: "visit",
-    target: { kind: "self", region: "crown" },
-    surface: "grip",
-    shape: "fist",
-    hold: "beat",
-  });
+  > = HumanActionRow.of(
+    "hatOnHead",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_HAT_ON_HEAD,
+  );
 
   /** Palms up: the open hand held out ahead at waist height, palm up. */
   export const palmUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["palmUp"]
-  > = HumanActionRow.of("palmUp", armPhrase, {
-    phrase: "visit",
-    target: { kind: "self", region: "hipRight" },
-    mirror: true,
-    offset: { out: 0, up: 0.1, forward: 0.4 },
-    facing: { fingers: "forward", palm: "up" },
-    hold: "beat",
-  });
+  > = HumanActionRow.of("palmUp", armPhrase, HUMAN_GESTURE_PHRASE_PALM_UP);
 
   /** Pushing up one's glasses: the forefinger's tip visits the bridge of the nose. */
   export const glassesUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["glassesUp"]
-  > = HumanActionRow.of("glassesUp", armPhrase, {
-    phrase: "visit",
-    target: { kind: "self", region: "noseBridge" },
-    surface: "indexTip",
-    shape: "point",
-    hold: "none",
-  });
+  > = HumanActionRow.of(
+    "glassesUp",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_GLASSES_UP,
+  );
 
   /** Scratching the head: the forefinger's tip oscillates on the crown. */
   export const headScratch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["headScratch"]
-  > = HumanActionRow.of("headScratch", armPhrase, {
-    phrase: "oscillate",
-    target: { kind: "self", region: "crown" },
-    surface: "indexTip",
-    shape: "relaxed",
-    swing: { out: 0, up: 0, forward: 0.03 },
-    count: 4,
-  });
+  > = HumanActionRow.of(
+    "headScratch",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_HEAD_SCRATCH,
+  );
 
   /** A hand to the cheek: the palm visits the cheek and stays a beat. */
   export const cheekInHand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["cheekInHand"]
-  > = HumanActionRow.of("cheekInHand", armPhrase, {
-    phrase: "visit",
-    target: { kind: "self", region: "cheekRight" },
-    mirror: true,
-    surface: "palm",
-    shape: "relaxed",
-    hold: "long",
-  });
+  > = HumanActionRow.of(
+    "cheekInHand",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_CHEEK_IN_HAND,
+  );
 
   /** A hand in the pocket: the fingertips visit the front pocket and stay. */
   export const handInPocket: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["handInPocket"]
-  > = HumanActionRow.of("handInPocket", armPhrase, {
-    phrase: "visit",
-    target: { kind: "self", region: "pocketFrontRight" },
-    mirror: true,
-    surface: "indexTip",
-    shape: "relaxed",
-    hold: "long",
-  });
+  > = HumanActionRow.of(
+    "handInPocket",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_HAND_IN_POCKET,
+  );
 
   /** A hand behind the head: the palm visits the back of the head and stays. */
   export const handBehindHead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["handBehindHead"]
-  > = HumanActionRow.of("handBehindHead", armPhrase, {
-    phrase: "visit",
-    target: { kind: "self", region: "headBack" },
-    surface: "palm",
-    shape: "relaxed",
-    hold: "long",
-  });
+  > = HumanActionRow.of(
+    "handBehindHead",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_HAND_BEHIND_HEAD,
+  );
 
   /** A phone to the ear: the hand that holds it visits the ear and stays. */
   export const phoneToEar: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["phoneToEar"]
-  > = HumanActionRow.of("phoneToEar", armPhrase, {
-    phrase: "visit",
-    target: { kind: "self", region: "earRight" },
-    mirror: true,
-    surface: "grip",
-    shape: "fist",
-    hold: "long",
-  });
+  > = HumanActionRow.of(
+    "phoneToEar",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_PHONE_TO_EAR,
+  );
 
   /** Brushing the teeth: the hand that holds the brush oscillates before the mouth. */
   export const teethBrushing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["teethBrushing"]
-  > = HumanActionRow.of("teethBrushing", armPhrase, {
-    phrase: "oscillate",
-    target: { kind: "self", region: "mouth" },
-    surface: "grip",
-    shape: "fist",
-    swing: { out: 0.04, up: 0, forward: 0 },
-    count: 6,
-  });
+  > = HumanActionRow.of(
+    "teethBrushing",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_TEETH_BRUSHING,
+  );
 
   /** Combing: the hand that holds the comb draws it back over the crown. */
   export const hairCombing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["hairCombing"]
-  > = HumanActionRow.of("hairCombing", armPhrase, {
-    phrase: "stroke",
-    target: { kind: "self", region: "crown" },
-    surface: "grip",
-    shape: "fist",
-    from: { out: 0, up: 0, forward: 0.1 },
-  });
+  > = HumanActionRow.of(
+    "hairCombing",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_HAIR_COMBING,
+  );
 
   /** Clapping: both palms meet ahead of the chest and part, out and in. */
   export const clapHands: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["clapHands"]
-  > = HumanActionRow.of("clapHands", armPhrase, {
-    phrase: "oscillate",
-    hand: "both",
-    target: { kind: "self", region: "sternum" },
-    offset: { out: 0, up: 0, forward: 0.35 },
-    swing: { out: 0.08, up: 0, forward: 0 },
-    count: 3,
-    facing: { fingers: "up", palm: "in" },
-  });
+  > = HumanActionRow.of(
+    "clapHands",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_CLAP_HANDS,
+  );
 
   /** Rubbing the hands: both palms together ahead of the chest, sliding up and down. */
   export const rubPalms: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["rubPalms"]
-  > = HumanActionRow.of("rubPalms", armPhrase, {
-    phrase: "oscillate",
-    hand: "both",
-    target: { kind: "self", region: "sternum" },
-    offset: { out: 0, up: -0.1, forward: 0.3 },
-    swing: { out: 0, up: 0.04, forward: 0 },
-    count: 4,
-    facing: { fingers: "up", palm: "in" },
-  });
+  > = HumanActionRow.of("rubPalms", armPhrase, HUMAN_GESTURE_PHRASE_RUB_PALMS);
 
   /** Hands clasped in front: both palms meet before the abdomen and stay. */
   export const handsTogetherFront: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["handsTogetherFront"]
-  > = HumanActionRow.of("handsTogetherFront", armPhrase, {
-    phrase: "visit",
-    hand: "both",
-    target: { kind: "self", region: "abdomen" },
-    offset: { out: 0, up: 0, forward: 0.15 },
-    facing: { fingers: "forward", palm: "in" },
-    hold: "long",
-  });
+  > = HumanActionRow.of(
+    "handsTogetherFront",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_HANDS_TOGETHER_FRONT,
+  );
 
   /** A cheer: both open hands visit places above and beside the head, palms forward, for a beat. */
   export const cheerHands: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["cheerHands"]
-  > = HumanActionRow.of("cheerHands", armPhrase, {
-    phrase: "visit",
-    hand: "both",
-    target: { kind: "self", region: "crown" },
-    offset: { out: 0.3, up: 0.25, forward: 0.05 },
-    facing: { fingers: "up", palm: "forward" },
-    hold: "beat",
-  });
+  > = HumanActionRow.of(
+    "cheerHands",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_CHEER_HANDS,
+  );
 
   /** A beckon: the open hand held out ahead, palm up, draws in toward the chest and out again. */
   export const beckonHand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["beckonHand"]
-  > = HumanActionRow.of("beckonHand", armPhrase, {
-    phrase: "oscillate",
-    target: { kind: "self", region: "shoulderRight" },
-    mirror: true,
-    offset: { out: 0, up: -0.2, forward: 0.5 },
-    swing: { out: 0, up: 0, forward: 0.08 },
-    count: 3,
-    facing: { fingers: "forward", palm: "up" },
-  });
+  > = HumanActionRow.of(
+    "beckonHand",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_BECKON_HAND,
+  );
 
   /** Folding the arms: each hand visits the far arm before the chest, the forearms folded, and stays (the phrase that reaches `HumanStance.armsCrossed`, which holds the rest itself). */
   export const foldArms: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["foldArms"]
-  > = HumanActionRow.of("foldArms", armPhrase, {
-    phrase: "visit",
-    hand: "both",
-    target: { kind: "self", region: "solarPlexus" },
-    offset: { out: -0.25, up: 0.05, forward: 0.12 },
-    shape: "relaxed",
-    facing: { fingers: "in", palm: "back" },
-    hold: "long",
-  });
+  > = HumanActionRow.of("foldArms", armPhrase, HUMAN_GESTURE_PHRASE_FOLD_ARMS);
 
   /** Hands clasped behind: both palms meet behind the lower back and stay. */
   export const handsClaspedBehind: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["handsClaspedBehind"]
-  > = HumanActionRow.of("handsClaspedBehind", armPhrase, {
-    phrase: "visit",
-    hand: "both",
-    target: { kind: "self", region: "lowerBack" },
-    offset: { out: 0, up: -0.05, forward: -0.08 },
-    facing: { fingers: "down", palm: "in" },
-    hold: "long",
-  });
+  > = HumanActionRow.of(
+    "handsClaspedBehind",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_HANDS_CLASPED_BEHIND,
+  );
 
   /** An arm at rest at the side: the relaxed hand visits a place beside the thigh, palm in, and stays. */
   export const armAtSide: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["armAtSide"]
-  > = HumanActionRow.of("armAtSide", armPhrase, {
-    phrase: "visit",
-    target: { kind: "self", region: "hipRight" },
-    mirror: true,
-    offset: { out: 0.12, up: -0.1, forward: 0 },
-    shape: "relaxed",
-    facing: { fingers: "down", palm: "in" },
-    hold: "long",
-  });
+  > = HumanActionRow.of(
+    "armAtSide",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_ARM_AT_SIDE,
+  );
 
   /** A pat: the flat palm bounces on the target, up and down. */
   export const patOn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["patOn"]
-  > = HumanActionRow.of("patOn", armPhrase, {
-    phrase: "oscillate",
-    surface: "palm",
-    shape: "flat",
-    swing: { out: 0, up: 0.05, forward: 0 },
-    count: 3,
-  });
+  > = HumanActionRow.of("patOn", armPhrase, HUMAN_GESTURE_PHRASE_PAT_ON);
 
   /** A squeeze: the hand closes on the target and holds. */
   export const squeezeOn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["squeezeOn"]
-  > = HumanActionRow.of("squeezeOn", armPhrase, {
-    phrase: "visit",
-    surface: "grip",
-    shape: "fist",
-    hold: "long",
-  });
+  > = HumanActionRow.of(
+    "squeezeOn",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_SQUEEZE_ON,
+  );
 
   /** A hold: the relaxed palm rests on the target and stays. */
   export const holdOn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["holdOn"]
-  > = HumanActionRow.of("holdOn", armPhrase, {
-    phrase: "visit",
-    surface: "palm",
-    shape: "relaxed",
-    hold: "long",
-  });
+  > = HumanActionRow.of("holdOn", armPhrase, HUMAN_GESTURE_PHRASE_HOLD_ON);
 
   /** Drinking: the hand that holds a vessel brings its lip to the mouth and holds it there; the vessel is named as `held`. */
   export const drinkFrom: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["drinkFrom"]
-  > = HumanActionRow.of("drinkFrom", armPhrase, {
-    phrase: "visit",
-    target: { kind: "self", region: "mouth" },
-    surface: "grip",
-    shape: "fist",
-    point: "lip",
-    hold: "long",
-  });
+  > = HumanActionRow.of(
+    "drinkFrom",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_DRINK_FROM,
+  );
 
   /** Eating: the hand that holds a utensil brings the point it names (a fork's `face`) to the mouth for a beat; the utensil is named as `held`. */
   export const eatWith: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["eatWith"]
-  > = HumanActionRow.of("eatWith", armPhrase, {
-    phrase: "visit",
-    target: { kind: "self", region: "mouth" },
-    surface: "grip",
-    shape: "fist",
-    hold: "beat",
-  });
+  > = HumanActionRow.of("eatWith", armPhrase, HUMAN_GESTURE_PHRASE_EAT_WITH);
 
   /** A scratch: the fingertips oscillate in short strokes on the target. */
   export const scratchOn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["scratchOn"]
-  > = HumanActionRow.of("scratchOn", armPhrase, {
-    phrase: "oscillate",
-    surface: "indexTip",
-    shape: "relaxed",
-    swing: { out: 0, up: 0.02, forward: 0 },
-    count: 5,
-  });
+  > = HumanActionRow.of(
+    "scratchOn",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_SCRATCH_ON,
+  );
 }

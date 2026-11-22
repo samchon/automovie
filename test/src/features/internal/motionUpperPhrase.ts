@@ -10,12 +10,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGesture,
   HumanChain,
   HumanPerformance,
-  HumanUpperRows,
 } from "@automovie/motions";
 
 import { motionHandleShapes } from "./motionHandleShapes";
+
+const { HumanUpperRows } = AutoMovieMotionHumanGesture;
 
 /**
  * The cast the upper-body phrase specs share (#3361): the rows of
