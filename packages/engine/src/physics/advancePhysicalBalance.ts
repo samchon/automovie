@@ -193,6 +193,15 @@ export function advancePhysicalBalance(input: {
         offset: { ...state.offsets[bone]! },
         rootOffset: { ...state.rootOffset },
       });
+      // Every reference to the old stance is latched again at the landing:
+      // each standing foot's support point, rotation and joint references,
+      // as it stands now. A stale one pulls the legs back toward the stance
+      // the body left (Feng et al. 2013, Section II-E). The landed foot's own
+      // seat is latched when its stance begins.
+      for (const limb of input.policy.pattern.limbs) {
+        const seat = state.seating?.[limb.bone];
+        if (limb.bone !== bone && seat) seat.anchor = latch(limb);
+      }
       resolveSwing("landed");
       state.outsideSince = undefined;
       state.swing = undefined;
@@ -244,31 +253,7 @@ export function advancePhysicalBalance(input: {
       // The foot's footprint is latched where it actually stands when its
       // stance begins, at the first step or on landing: the target of its
       // planted-foot servo and orientation hold (`trackPhysicalRoot`).
-      anchor: {
-        point: actual(limb.bone),
-        rotation: { ...input.segments.get(limb.bone)!.rotation() },
-        // Each stance joint's relative rotation then: the reference its yaw
-        // PD holds through the stance.
-        joints: Object.fromEntries(
-          input.profile.joints
-            .filter((joint): boolean => limb.chain.includes(joint.child))
-            .map((joint): [string, IAutoMovieQuaternion] => [
-              joint.id,
-              Quaternion.multiply(
-                Quaternion.inverse(
-                  Quaternion.multiply(
-                    input.segments.get(joint.parent)!.rotation(),
-                    joint.parentFrame.rotation,
-                  ),
-                ),
-                Quaternion.multiply(
-                  input.segments.get(joint.child)!.rotation(),
-                  joint.childFrame.rotation,
-                ),
-              ),
-            ]),
-        ),
-      },
+      anchor: latch(limb),
     });
     // The sole's own relief is latched when its stance begins, so a curved
     // sole is not read as lifted; an edge lifting raises the spread past it.
@@ -479,10 +464,36 @@ export function advancePhysicalBalance(input: {
           square > 0 ? Vector3.dot(offset, direction) / square : 0,
         ),
       );
+      // The predicted capture point is aimed at the new footprint's middle,
+      // its sole vertices' mean, not at the limb's endpoint (a footed limb's
+      // ankle), so it lands inside the foot rather than at its heel (Pratt et
+      // al., M2V2, Section VII-C2).
+      const footprint: IAutoMovieVector3[] = physicalSupportFootprint(
+        input.profile,
+        input.segments,
+        input.policy.pattern.limbs.find(
+          (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
+            limb.bone === state.swing!.bone,
+        )!,
+        input.floor,
+      );
+      const endpoint: IAutoMovieVector3 = actual(state.swing.bone);
+      const inset: IAutoMovieVector3 =
+        footprint.length > 0
+          ? {
+              x:
+                footprint.reduce((sum, p) => sum + p.x, 0) / footprint.length -
+                endpoint.x,
+              y: 0,
+              z:
+                footprint.reduce((sum, p) => sum + p.z, 0) / footprint.length -
+                endpoint.z,
+            }
+          : { x: 0, y: 0, z: 0 };
       let travel: IAutoMovieVector3 = {
-        x: landing.x + aside.x - from.x,
+        x: landing.x + aside.x - inset.x - from.x,
         y: 0,
-        z: landing.z + aside.z - from.z,
+        z: landing.z + aside.z - inset.z - from.z,
       };
       const length: number = Math.hypot(travel.x, travel.z);
       if (length > input.policy.maximumStep)
@@ -672,6 +683,41 @@ export function advancePhysicalBalance(input: {
           limb.bone === bone,
       )!.localPoint,
     );
+  }
+
+  /**
+   * A stance foot's references as it actually stands: its support point and
+   * rotation, and each stance joint's relative rotation, the reference its
+   * yaw PD holds through the stance.
+   */
+  function latch(
+    limb: (typeof input.policy.pattern.limbs)[number],
+  ): NonNullable<
+    NonNullable<IAutoMoviePhysicalRecoveryState["seating"]>[string]["anchor"]
+  > {
+    return {
+      point: actual(limb.bone),
+      rotation: { ...input.segments.get(limb.bone)!.rotation() },
+      joints: Object.fromEntries(
+        input.profile.joints
+          .filter((joint): boolean => limb.chain.includes(joint.child))
+          .map((joint): [string, IAutoMovieQuaternion] => [
+            joint.id,
+            Quaternion.multiply(
+              Quaternion.inverse(
+                Quaternion.multiply(
+                  input.segments.get(joint.parent)!.rotation(),
+                  joint.parentFrame.rotation,
+                ),
+              ),
+              Quaternion.multiply(
+                input.segments.get(joint.child)!.rotation(),
+                joint.childFrame.rotation,
+              ),
+            ),
+          ]),
+      ),
+    };
   }
 
   /** Read the actual endpoint without changing a native body's bone-origin frame. */

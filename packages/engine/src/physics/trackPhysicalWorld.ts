@@ -373,6 +373,7 @@ export function trackPhysicalWorld(
       rootIntent,
       target: effort,
       rootShift: assessment?.rootShift,
+      landed: !!assessment?.state.landings?.length,
       planted: plantedPoses(body, authoredGoals, assessment?.state),
       seating: assessment?.state.seating,
       ankleCaps,
@@ -548,7 +549,7 @@ export function trackPhysicalWorld(
         | Partial<Record<"x" | "y" | "z", { up: number; down: number }>>
         | undefined = ankleCaps.get(joint.id);
       const driven: IAutoMoviePhysicalJoint =
-        capped || stanceChain
+        capped || stanceChain || dynamics.has(joint.id)
           ? {
               ...joint,
               axes: joint.axes.map((axis) => {

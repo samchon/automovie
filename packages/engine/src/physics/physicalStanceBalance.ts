@@ -160,6 +160,8 @@ export namespace physicalStanceBalance {
     planted: Readonly<Record<string, IAutoMovieRigidTransform>>;
     /** The authored pose's centre of mass, world metres. */
     center: IAutoMovieVector3;
+    /** Whether a recovery step has landed, so the stance stands on a new polygon. */
+    landed?: boolean;
     /** Its velocity, world metres per second. */
     velocity: IAutoMovieVector3;
     /** The torso's servo moment and any swing hip's reaction, world N m. */
@@ -287,14 +289,17 @@ export namespace physicalStanceBalance {
       y: floor,
       z: center.z + velocity.z / omega,
     };
-    const reference: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
-      planted,
-      {
-        x: input.center.x + input.velocity.x / omega,
-        y: floor,
-        z: input.center.z + input.velocity.z / omega,
-      },
-    );
+    // After a landed step the reference is the new polygon's centroid: the
+    // authored stance no longer describes where the body stands, and a
+    // reference left at the old one pulls it back (Pratt et al., M2V2,
+    // Section VII-E1, "stop in double support").
+    const reference: IAutoMovieVector3 = input.landed
+      ? centroid(planted, floor)
+      : AutoMoviePhysicalBalance.nearest(planted, {
+          x: input.center.x + input.velocity.x / omega,
+          y: floor,
+          z: input.center.z + input.velocity.z / omega,
+        });
     // A slow integral of the centre-of-pressure error trims the command before
     // it is kept on the polygon (Stephens 2011, Eq. 5.31; `integrate`).
     const command: IAutoMovieVector3 = Vector3.add(
@@ -718,6 +723,31 @@ export namespace physicalStanceBalance {
     );
     return inside && hull.length >= 3 ? hull : [{ ...mean }];
   }
+}
+
+/** A convex polygon's area centroid on the floor; its vertices' mean when it has no area. */
+function centroid(
+  polygon: readonly IAutoMovieVector3[],
+  floor: number,
+): IAutoMovieVector3 {
+  let area: number = 0;
+  let x: number = 0;
+  let z: number = 0;
+  polygon.forEach((a: IAutoMovieVector3, i: number): void => {
+    const b: IAutoMovieVector3 = polygon[(i + 1) % polygon.length]!;
+    const cross: number = a.x * b.z - b.x * a.z;
+    area += cross;
+    x += (a.x + b.x) * cross;
+    z += (a.z + b.z) * cross;
+  });
+  if (Math.abs(area) > 1e-12)
+    return { x: x / (3 * area), y: floor, z: z / (3 * area) };
+  const n: number = Math.max(1, polygon.length);
+  return {
+    x: polygon.reduce((sum, p) => sum + p.x, 0) / n,
+    y: floor,
+    z: polygon.reduce((sum, p) => sum + p.z, 0) / n,
+  };
 }
 
 /** The floor's friction coefficient (`bindPhysicalWorld`). */

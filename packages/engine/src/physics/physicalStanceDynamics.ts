@@ -381,6 +381,8 @@ export namespace physicalStanceDynamics {
     };
     /** Articulated degrees of freedom outside the stance legs, hanging from the base (`IBranches`); absent keeps them in the rigid base. */
     branches?: IBranches;
+    /** The torso orientation task: the base's desired world angular acceleration, radians per second squared, and its soft rows' weight. */
+    orientation?: { acceleration: IAutoMovieVector3; weight: number };
     /** The previous solve's point forces, by leg and point, which the change penalty holds the new ones near. */
     previous?: readonly (readonly IAutoMovieVector3[])[];
   }
@@ -850,6 +852,26 @@ export namespace physicalStanceDynamics {
         upper: row.target,
       });
     });
+    // The torso orientation task on the base's angular acceleration, soft
+    // through its own slack, all three axes: the heading among them (Feng et
+    // al. 2013, Section III-B, Table I). The contact, friction and torque
+    // rows bound it, so it never asks the floor for a moment it cannot bear.
+    const slackOrientation: number = slackPosture + posture.length;
+    const orientation: number[] = input.orientation
+      ? [
+          input.orientation.acceleration.x,
+          input.orientation.acceleration.y,
+          input.orientation.acceleration.z,
+        ]
+      : [];
+    orientation.forEach((target: number, a: number): void => {
+      rows.push({
+        indices: [3 + a, slackOrientation + a],
+        weights: [1, -1],
+        lower: target,
+        upper: target,
+      });
+    });
     const result = solveAutoMovieQuadraticProgram({
       diagonal: [
         ...new Array<number>(6).fill(1e-6),
@@ -858,11 +880,14 @@ export namespace physicalStanceDynamics {
         ...new Array<number>(6 * held).fill(1e6),
         ...[1, 1, 1, 1, 1, 1].map((): number => 1e2 / (weight * weight)),
         ...posture.map((): number => input.branches!.weight),
+        ...orientation.map((): number => input.orientation!.weight),
       ],
       linear: [
         ...new Array<number>(size).fill(0),
         ...forceLinear,
-        ...new Array<number>(6 * held + 6 + posture.length).fill(0),
+        ...new Array<number>(
+          6 * held + 6 + posture.length + orientation.length,
+        ).fill(0),
       ],
       rows,
     });

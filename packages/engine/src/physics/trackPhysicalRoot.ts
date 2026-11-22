@@ -21,6 +21,7 @@ import { distributePhysicalSupportWrench } from "./distributePhysicalSupportWren
 import { physicalJointInertia } from "./physicalJointInertia";
 import { physicalNativeVector } from "./physicalNativeVector";
 import { physicalStanceBalance } from "./physicalStanceBalance";
+import { physicalStanceBranches } from "./physicalStanceBranches";
 import { physicalStanceDynamics } from "./physicalStanceDynamics";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
@@ -46,6 +47,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
     target,
     rootShift,
     center: authored,
+    landed,
     planted,
     seating,
     ankleCaps,
@@ -97,7 +99,9 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
       );
   }
   let rootTorque: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  if (rootDynamic && body.rootTorque && rootStrength > 0) {
+  // Without internal actuation the root is held by an external servo; with
+  // it, the stance solve's orientation rows hold the torso instead.
+  if (rootDynamic && !actuation && body.rootTorque && rootStrength > 0) {
     const axes: IAutoMoviePhysicalJointAxis[] = (["x", "y", "z"] as const).map(
       (axis: "x" | "y" | "z"): IAutoMoviePhysicalJointAxis => ({
         axis,
@@ -117,10 +121,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
         dt,
         rootStrength,
       ).torque,
-      // Under internal actuation the supports carry the weight through the
-      // centre of mass (`pendulum`), which already counters its moment about
-      // the root; only the servo remains for them.
-      actuation ? { x: 0, y: 0, z: 0 } : Vector3.scale(gravity, rootStrength),
+      Vector3.scale(gravity, rootStrength),
     );
     const limit: number = body.rootTorque.maximumTorque * rootStrength;
     rootTorque = {
@@ -146,10 +147,9 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
     );
     // Internal actuation balances by the centre of pressure, not by holding
     // the pelvis (`physicalStanceBalance`). The supports carry the pendulum's
-    // force and the torso's servo moment plus any swing hip's reaction:
-    // SIMBICON turns the torso by the stance hips alone, tau_A = -tau_torso -
-    // tau_B (Yin, Loken and van de Panne 2007, Section 3.2), which the J^T
-    // realization below gives each stance hip and carries down to the floor.
+    // force and any swing hip's reaction (Yin, Loken and van de Panne 2007,
+    // Section 3.2); the torso's orientation is a task of the stance solve
+    // below, bounded by the same contact rows.
     const segments: ReadonlyMap<string, RigidBody> = bound.segments.get(
       body.id,
     )!;
@@ -192,11 +192,13 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
             feet,
             planted,
             center: authored,
+            ...(landed ? { landed } : {}),
             velocity: rootIntent.velocity,
-            torque: Vector3.add(
-              rootTorque,
-              swingHip(body, segments, recoveryBone, actuation),
-            ),
+            // The torso is held by the stance solve's orientation rows, not by
+            // a servo moment outside it: a moment the contact rows do not
+            // bound asks the floor for more than the centre of pressure's
+            // room (Feng et al. 2013, Section III-B).
+            torque: swingHip(body, segments, recoveryBone, actuation),
             origin,
             strength: rootStrength,
             ...(integral
@@ -352,47 +354,27 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
           ],
         };
       });
-    const composite = (): physicalStanceDynamics.IBody => {
-      const parts: physicalStanceDynamics.IBody[] = body.profile.segments
-        .filter((segment) => !members.has(segment.bone))
-        .map((segment) => rigidBody(segments.get(segment.bone)!));
-      const mass: number = parts.reduce(
-        (sum: number, part) => sum + part.mass,
-        0,
-      );
-      const center: IAutoMovieVector3 = Vector3.scale(
-        parts.reduce(
-          (sum: IAutoMovieVector3, part): IAutoMovieVector3 =>
-            Vector3.add(sum, Vector3.scale(part.center, part.mass)),
-          { x: 0, y: 0, z: 0 },
-        ),
-        1 / mass,
-      );
-      const inertia: number[] = new Array<number>(9).fill(0);
-      for (const part of parts) {
-        const r: IAutoMovieVector3 = Vector3.subtract(part.center, center);
-        const v: number[] = [r.x, r.y, r.z];
-        const rr: number = Vector3.dot(r, r);
-        for (let a: number = 0; a < 3; a++)
-          for (let b: number = 0; b < 3; b++)
-            inertia[3 * a + b]! +=
-              part.inertia[3 * a + b]! +
-              part.mass * ((a === b ? rr : 0) - v[a]! * v[b]!);
-      }
-      return {
-        mass,
-        center,
-        inertia,
-        velocity: physicalNativeVector(base.linvel()),
-        angular: physicalNativeVector(base.angvel()),
-      };
-    };
     // A bearing ankle's roll and pitch axes: those not near the vertical.
     const level = (
       joint: IAutoMoviePhysicalJoint,
       axis: IAutoMoviePhysicalJointAxis,
     ): boolean => Math.abs(worldAxis(joint, axis).y) <= Math.SQRT1_2;
     if (stance && body.balance && planted && legs.length > 0) {
+      // The spine and arms enter the solve as degrees of freedom hanging from
+      // the base (`physicalStanceBranches`), no longer as a rigid lump.
+      const tree: physicalStanceBranches.IResult = physicalStanceBranches({
+        profile: body.profile,
+        segments,
+        members,
+        root: body.profile.segments.find(
+          (segment): boolean =>
+            !body.profile.joints.some(
+              (joint): boolean => joint.child === segment.bone,
+            ),
+        )!.bone,
+        targets: planted,
+        gravity: field,
+      });
       const store: Map<string, IStanceFrame> = frames.get(bound) ?? new Map();
       frames.set(bound, store);
       let frame: IStanceFrame | undefined = store.get(body.id);
@@ -542,12 +524,24 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
           };
         });
         const solution = physicalStanceDynamics.stance({
-          base: composite(),
+          base: tree.base,
+          ...(tree.branches.size > 0 ? { branches: tree.branches } : {}),
           legs: problem.map((entry) => entry.leg),
           gravity: field,
           stiffness: 10,
           damping: 2 * Math.sqrt(10),
           task: { force: stance.force, moment: stance.torque, origin },
+          orientation: {
+            acceleration: orient(
+              base.rotation(),
+              rootIntent.pose.rotation,
+              Vector3.subtract(
+                physicalNativeVector(base.angvel()),
+                rootIntent.angularVelocity,
+              ),
+            ),
+            weight: 1,
+          },
           ...(frame?.solution
             ? {
                 previous: problem.map((entry) => {
@@ -578,7 +572,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
       }
       const solution = frame.solution;
       if (solution) {
-        const now: physicalStanceDynamics.IBody = composite();
+        const now: physicalStanceDynamics.IBody = tree.base;
         const baseMotion = {
           ...now,
           acceleration: {
@@ -636,6 +630,32 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
           });
           solved.add(entry.bone);
         });
+        // Every substep the branches' torques are refreshed from the solution.
+        if (solution.branches && tree.joints.length > 0) {
+          const torque: number[] = tree.refresh({
+            base: solution.base,
+            acceleration: solution.branches.acceleration,
+          });
+          let at: number = 0;
+          for (const joint of tree.joints) {
+            const local: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+            const rate: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+            for (const axis of joint.axes) {
+              local[axis] = torque[at] ?? 0;
+              rate[axis] = (solution.branches.acceleration[at] ?? 0) * dt;
+              at++;
+            }
+            if (![local.x, local.y, local.z].every(Number.isFinite)) continue;
+            actuation.set(
+              joint.id,
+              Vector3.add(
+                actuation.get(joint.id) ?? { x: 0, y: 0, z: 0 },
+                local,
+              ),
+            );
+            dynamics?.set(joint.id, rate);
+          }
+        }
         tracked = solvedForces;
         points = solvedForces.map((force) => ({
           bone: force.bone,
@@ -926,6 +946,7 @@ export namespace trackPhysicalRoot {
       Partial<Record<"x" | "y" | "z", { up: number; down: number }>>
     >;
     /** The authored pose's centre of mass, world metres, moved with any landed step; internal actuation balances it. */ center?: IAutoMovieVector3;
+    /** Whether a recovery step has landed, so the stance stands on a new polygon. */ landed?: boolean;
     /** The centre-of-pressure integral's persisted state, advanced in place (`physicalStanceBalance.integrate`). */ integral?: physicalStanceBalance.IIntegral;
     /** Whether an external push lands on the body this control frame. */ pushed?: boolean;
     /** Declared gravity-compensation moment about the root. */ gravity: IAutoMovieVector3;
@@ -1005,3 +1026,43 @@ interface IStanceFrame {
 
 /** The joint solves of the frames in progress, by binding and body. */
 const frames: WeakMap<Bound, Map<string, IStanceFrame>> = new WeakMap();
+
+/**
+ * The torso's desired world angular acceleration, critically damped toward
+ * its intended orientation: -omega_n^2 e - 2 omega_n (w - w_ref), with e the
+ * rotation from the intended orientation to the actual one as an axis times
+ * its angle (Feng et al. 2013, Section III-B).
+ */
+function orient(
+  actual: IAutoMovieQuaternion,
+  intended: IAutoMovieQuaternion,
+  spin: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  const q: IAutoMovieQuaternion = Quaternion.multiply(
+    actual,
+    Quaternion.inverse(intended),
+  );
+  const sign: number = q.w < 0 ? -1 : 1;
+  const sine: number = Math.hypot(q.x, q.y, q.z);
+  const angle: number = 2 * Math.atan2(sine, Math.abs(q.w));
+  const scale: number = sine > 1e-12 ? (sign * angle) / sine : 2 * sign;
+  const error: IAutoMovieVector3 = {
+    x: q.x * scale,
+    y: q.y * scale,
+    z: q.z * scale,
+  };
+  return Vector3.add(
+    Vector3.scale(error, -TORSO_FREQUENCY * TORSO_FREQUENCY),
+    Vector3.scale(spin, -2 * TORSO_FREQUENCY),
+  );
+}
+
+/**
+ * The torso orientation task's natural frequency, radians per second. The
+ * push lands at the whole-body centre of mass, below the trunk's, so the
+ * trunk takes an angular impulse J dh and peaks at omega_0 / (e omega_n):
+ * holding the four-support fixture's in-place-bound push (J 11.4 N s, dh
+ * 0.28 m, I 0.13 kg m^2) to 5 degrees asks about 50, within the omega_n T
+ * <= 0.5 that a task row solved at 120 Hz allows (derived).
+ */
+const TORSO_FREQUENCY: number = 50;
