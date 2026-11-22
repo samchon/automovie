@@ -11,7 +11,7 @@ import { AutoMovieLoftCapRead } from "./AutoMovieLoftCapRead";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
-import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
+import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
@@ -81,16 +81,7 @@ export namespace AutoMovieLoftPoint {
         )[0];
         for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
       }
-      // Reliefs move the base point along their axes.
-      for (const relief of chain.reliefs ?? []) {
-        const d: number = AutoMovieLoftRelief.height(relief, s, t)[0];
-        if (d === 0) continue;
-        const e: [number, number, number] = AutoMovieLoftRelief.direction(
-          relief,
-          t,
-        )[0];
-        for (let k: number = 0; k < 3; k++) q[k]! += d * e[k]!;
-      }
+      AutoMovieLoftReliefCompose.point(q, chain.reliefs ?? [], s, t);
       if (source !== null && !q.every(Number.isFinite))
         throw new Error("The actual native point has no finite world value.");
       return q;
@@ -182,18 +173,7 @@ export namespace AutoMovieLoftPoint {
           dt[k]! += h[2] * n[k]!;
         }
       }
-      for (const relief of chain.reliefs ?? []) {
-        const h: [number, number, number] = AutoMovieLoftRelief.height(
-          relief,
-          s,
-          t,
-        );
-        const [e, e1] = AutoMovieLoftRelief.direction(relief, t);
-        for (let k: number = 0; k < 3; k++) {
-          p[k]! += h[0] * e[k]!;
-          dt[k]! += h[2] * e[k]! + h[0] * e1[k]!;
-        }
-      }
+      AutoMovieLoftReliefCompose.phase({ p, t: dt }, chain.reliefs ?? [], s, t);
       if (![...p, ...dt].every(Number.isFinite))
         throw new Error("The actual phase-only world reading is nonfinite.");
       return { p, t: dt };
@@ -317,16 +297,7 @@ export namespace AutoMovieLoftPoint {
         const h: number = AutoMovieSplineCurve.evaluate(lifted, N, t)[0];
         for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
       }
-      // Reliefs move the base point along their axes.
-      for (const relief of chain.reliefs ?? []) {
-        const d: number = AutoMovieLoftRelief.height(relief, s, t)[0];
-        if (d === 0) continue;
-        const e: [number, number, number] = AutoMovieLoftRelief.direction(
-          relief,
-          t,
-        )[0];
-        for (let k: number = 0; k < 3; k++) q[k]! += d * e[k]!;
-      }
+      AutoMovieLoftReliefCompose.point(q, chain.reliefs ?? [], s, t);
       return q;
     };
   }

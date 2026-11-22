@@ -24,6 +24,9 @@ export namespace IAutoMovieConstructionSplitSeam {
 
     /** Its unit tangent, toward the seam's second end. */
     tangent: AutoMovieVector3Tuple;
+
+    /** Curvature vector in inverse millimetres, the second derivative in seam arclength. */
+    bend: AutoMovieVector3Tuple;
   }
 
   /**
@@ -120,5 +123,8 @@ export namespace IAutoMovieConstructionSplitSeam {
 
     /** Host end direction used with the chord to establish the straight seam's plane; a collapsed chord or unusable plane yields a refusal string. */
     normal: AutoMovieVector3Tuple;
+
+    /** Optional plane direction in world coordinates, projected square to the chord and oriented by the end normal. */
+    heading?: AutoMovieVector3Tuple;
   };
 }

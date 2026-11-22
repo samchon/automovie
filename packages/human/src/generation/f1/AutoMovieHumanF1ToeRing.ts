@@ -1,8 +1,7 @@
-import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
-
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
 /**
  * f1's toe.ring tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -22,11 +21,7 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  */
 export const AutoMovieHumanF1ToeRing: IAutoMovieHumanConicLoft.IFamily = {
   name: "toe.ring",
-  centres: [
-    AutoMovieHumanF1Joints.ringtoe1,
-    AutoMovieHumanF1Joints.ringtoe2,
-    AutoMovieHumanF1Joints.ringtoeEnd,
-  ],
+  centres: [AutoMovieHumanF1Joints.ringtoe1, AutoMovieHumanF1Joints.ringtoe2, AutoMovieHumanF1Joints.ringtoeEnd],
   halves: [5],
   up: AutoMovieHumanF1Placement.direction("toe.ring.up"),
   layout: AutoMovieHumanConicSection.limb(1),
@@ -75,5 +70,9 @@ export const AutoMovieHumanF1ToeRing: IAutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
-  tips: [null, { from: 38, tip: 41.13 }],
+  // The cap closes with one taper for the whole section, not each extreme's own (`own`), as the little toe's: the top's own taper over
+  // the cap is 0.92 of its extent (2.90 to 1.12 mm over the last span) against 0.02 to 0.21 for the other three, a cone. The wall's last
+  // span is steeper there than the skin, whose top stands 1.40 to 1.60 mm over the course from 34.8 to 39.3 mm
+  // (`FamilyConicScan.ts tips`), level against the wall's 0.24 mm a millimetre.
+  tips: [null, {from: 38, tip: 41.13}],
 };

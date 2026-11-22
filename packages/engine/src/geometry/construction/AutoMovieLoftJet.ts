@@ -14,7 +14,7 @@ import { AutoMovieLoftCapRead } from "./AutoMovieLoftCapRead";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
-import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
+import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
@@ -114,27 +114,8 @@ export namespace AutoMovieLoftJet {
     // Hermite of its values, quintic where it carries curvatures, as in AutoMovieLoftChain.ring.
     if (station.lift !== undefined) lift(jet, station.lift, n, t);
 
-    // Reliefs move points along their axes: `P += h e`, with `e` fixed or
-    // turning with the phase alone, so `e_s = 0` and the product rule gives
-    // `h_t e + h e'` and `h_tt e + 2 h_t e' + h e''` in phase.
-    for (const relief of chain.reliefs ?? []) {
-      const h: number[] = AutoMovieLoftRelief.jet(relief, s, t);
-      if (h.every((x: number): boolean => x === 0)) continue;
-      const [e, e1, e2]: [
-        AutoMovieVector3Tuple,
-        AutoMovieVector3Tuple,
-        AutoMovieVector3Tuple,
-      ] = AutoMovieLoftRelief.direction(relief, t);
-      jet.p = sum(jet.p, scale(e, h[0]!));
-      jet.s = sum(jet.s, scale(e, h[1]!));
-      jet.t = sum(sum(jet.t, scale(e, h[2]!)), scale(e1, h[0]!));
-      jet.ss = sum(jet.ss, scale(e, h[3]!));
-      jet.st = sum(sum(jet.st, scale(e, h[4]!)), scale(e1, h[1]!));
-      jet.tt = sum(
-        sum(sum(jet.tt, scale(e, h[5]!)), scale(e1, 2 * h[2]!)),
-        scale(e2, h[0]!),
-      );
-    }
+    // Original native readers and chains add the same reliefs after lift.
+    AutoMovieLoftReliefCompose.jet(jet, chain.reliefs ?? [], s, t);
     if (
       !Object.values(jet).every((row: AutoMovieVector3Tuple): boolean =>
         row.every(Number.isFinite),

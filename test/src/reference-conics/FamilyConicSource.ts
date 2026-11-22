@@ -1,3 +1,4 @@
+import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { AutoMovieMeshExtract as M } from "@automovie/engine";
 import type {
   IAutoMovieLoftSectionFrame,
@@ -8,8 +9,6 @@ import type {
 } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-
-import type { FamilyConicSection as C } from "./FamilyConicSection";
 
 /**
  * The fixed f1 reference as the offline fit observes it: the native body and
@@ -160,6 +159,13 @@ export namespace FamilyConicSource {
             area(b) > area(a) ? b : a,
           );
     return { loop: outer, around: round.length, pieces: section.loops.length };
+  }
+
+  /** Every chain of a mesh's cut by a frame's plane in the frame's chart, closed or open, in the order the cut gives them: a plane through an opening of the mesh has open chains only. */
+  export function chains(mesh: IAutoMovieMillimeterMesh, frame: IAutoMovieLoftSectionFrame): { points: C.P[]; closed: boolean }[] {
+    const n: V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
+    const section: IAutoMovieMeshSectionCut = M.outline(mesh, { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!;
+    return section.loops.map((loop: IAutoMovieMeshSectionChain): { points: C.P[]; closed: boolean } => ({ points: [...loop.points], closed: loop.closed }));
   }
 
   /** Every closed loop of a mesh's cut by a frame's plane, counter-clockwise in the frame's chart, whether or not it winds round the origin. */

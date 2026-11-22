@@ -1,3 +1,4 @@
+import { AutoMovieHumanConicLoft } from "./AutoMovieHumanConicLoft";
 import { AutoMovieViewJointedCourse } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -5,8 +6,6 @@ import type {
   IAutoMovieHumanConicPose,
   IAutoMovieViewJointedCourse,
 } from "@automovie/interface";
-
-import { AutoMovieHumanConicLoft } from "./AutoMovieHumanConicLoft";
 
 /**
  * A conic family carried to a pose: what a change of its course's joint angles asks of the family besides moving its centres.
@@ -33,11 +32,9 @@ import { AutoMovieHumanConicLoft } from "./AutoMovieHumanConicLoft";
  * At the reference pose all three are exact no-ops: the halves, the stations and the arrays that hold them are the family's own.
  */
 export namespace AutoMovieHumanConicPose {
+
   /** Twists under this many radians are none: far above the rounding of an angle between unit vectors (1e-16), far below any joint's motion. */
   const NO_TWIST: number = 1e-12;
-
-  /** Knots of the roll along one run besides its ends: the natural cubic through five points of a line departs from it only near the run's ends. */
-  const ROLL_KNOTS: number = 3;
 
   /**
    * A turn's set-back as a share of its half arclength, by its angle: the engine's own preparation of a made corner of that angle with a
@@ -200,82 +197,53 @@ export namespace AutoMovieHumanConicPose {
    *
    * On run `k` the angle is read at the run's middle: from the posed course's own chart `u`, carried from `up` by the turns alone, toward
    * `v`, to the reference course's own `u` there, carried likewise, as `carried` maps it into the pose. Each angle is taken on the branch nearest the run
-   * before it. The roll's knots stand at each run's ends and `ROLL_KNOTS` points between, on the line from the angle of the run before
-   * (the first run: its own) to the run's own, so it holds across every turn. Absent when no run's angle reaches `NO_TWIST`.
+   * before it, and an angle under `NO_TWIST` is none. The roll's knots stand at each run's two ends, with the angle of the run before
+   * (the first run: its own) at its start and its own at its end, so the roll holds across every turn; it is the local eased law
+   * (`AutoMovieHumanConicLoft.IRoll.eases`), each knot's ease the half length of the turn beside it, none at the course's two ends,
+   * and where a run is shorter than its two eases together they share it in proportion. A run whose two angles are equal therefore
+   * holds that angle exactly: one natural cubic through every knot stood 1e-9 rad off zero on the thigh of a leg whose foot alone
+   * had turned, and a root whose planes must agree to 64 machine epsilons refused it. Absent when no run's angle reaches `NO_TWIST`.
    *
    * @param reference The family as stored, in the reference pose.
    * @param posed Its centres, halves and `up` at the pose, without a roll.
    * @param carried A direction of the reference pose on run `k`, as that run's segment carries it to the pose.
    */
-  export function twist(
-    reference: IAutoMovieHumanConicLoft.IFamily,
-    posed: Pick<IAutoMovieHumanConicLoft.IFamily, "centres" | "halves" | "up">,
-    carried: IAutoMovieHumanConicPose.TwistCarried,
-  ): IAutoMovieHumanConicLoft.IRoll | undefined {
+  export function twist(reference: IAutoMovieHumanConicLoft.IFamily, posed: Pick<IAutoMovieHumanConicLoft.IFamily, "centres" | "halves" | "up">, carried: (run: number, direction: AutoMovieVector3Tuple) => AutoMovieVector3Tuple): IAutoMovieHumanConicLoft.IRoll | undefined {
     // A posed course the engine does not admit has no chart to read; the family is refused with the engine's own rule when it is lofted.
-    if (
-      typeof AutoMovieViewJointedCourse.prepare(posed.centres, posed.halves) ===
-      "string"
-    )
-      return undefined;
-    const [from, to]: IAutoMovieHumanConicPose.ICourse[] = [
-      course(reference.centres, reference.halves),
-      course(posed.centres, posed.halves),
-    ];
-    const ends = (c: IAutoMovieHumanConicPose.ICourse): [number, number][] =>
-      c.lengths.map((_: number, k: number): [number, number] => [
-        k === 0 ? 0 : c.starts[k - 1]! + 2 * c.halves[k - 1]!,
-        k < c.starts.length ? c.starts[k]! : c.total,
-      ]);
+    if (typeof AutoMovieViewJointedCourse.prepare(posed.centres, posed.halves) === "string") return undefined;
+    const [from, to]: IAutoMovieHumanConicPose.ICourse[] = [course(reference.centres, reference.halves), course(posed.centres, posed.halves)];
+    const ends = (c: IAutoMovieHumanConicPose.ICourse): [number, number][] => c.lengths.map((_: number, k: number): [number, number] => [k === 0 ? 0 : c.starts[k - 1]! + 2 * c.halves[k - 1]!, k < c.starts.length ? c.starts[k]! : c.total]);
     const [runs, placed]: [number, number][][] = [ends(from!), ends(to!)];
     // Both charts are read as the turns alone carry them: a family's own roll rides on top of either and is no twist of a joint.
-    const [stored, moved] = [
-      AutoMovieHumanConicLoft.axis({
-        centres: reference.centres,
-        halves: reference.halves,
-        up: reference.up,
-      }),
-      AutoMovieHumanConicLoft.axis({
-        centres: posed.centres,
-        halves: posed.halves,
-        up: posed.up,
-      }),
-    ];
+    const [stored, moved] = [AutoMovieHumanConicLoft.axis({ centres: reference.centres, halves: reference.halves, up: reference.up }), AutoMovieHumanConicLoft.axis({ centres: posed.centres, halves: posed.halves, up: posed.up })];
     const turned: number[] = [];
     for (let k: number = 0; k < runs!.length; ++k) {
-      const target: AutoMovieVector3Tuple = carried(
-        k,
-        stored.at((runs![k]![0] + runs![k]![1]) / 2).u,
-      );
+      const target: AutoMovieVector3Tuple = carried(k, stored.at((runs![k]![0] + runs![k]![1]) / 2).u);
       const frame = moved.at((placed![k]![0] + placed![k]![1]) / 2);
-      const angle: number = Math.atan2(
-        target[0] * frame.v[0] +
-          target[1] * frame.v[1] +
-          target[2] * frame.v[2],
-        target[0] * frame.u[0] +
-          target[1] * frame.u[1] +
-          target[2] * frame.u[2],
-      );
+      const angle: number = Math.atan2(target[0] * frame.v[0] + target[1] * frame.v[1] + target[2] * frame.v[2], target[0] * frame.u[0] + target[1] * frame.u[1] + target[2] * frame.u[2]);
       const before: number = turned.at(-1) ?? 0;
-      turned.push(
-        angle + 2 * Math.PI * Math.round((before - angle) / (2 * Math.PI)),
-      );
+      const branch: number = angle + 2 * Math.PI * Math.round((before - angle) / (2 * Math.PI));
+      turned.push(Math.abs(branch) < NO_TWIST ? 0 : branch);
     }
-    if (turned.every((angle: number): boolean => Math.abs(angle) < NO_TWIST))
-      return undefined;
+    if (turned.every((angle: number): boolean => angle === 0)) return undefined;
     const knots: number[] = [];
     const values: number[] = [];
+    const eases: number[] = [];
     placed!.forEach(([start, end]: [number, number], k: number): void => {
-      const [a, b]: number[] = [turned[Math.max(0, k - 1)]!, turned[k]!];
-      for (let i: number = 0; i <= ROLL_KNOTS + 1; ++i) {
-        const t: number = i / (ROLL_KNOTS + 1);
-        const station: number = start + (end - start) * t;
-        if (knots.length > 0 && !(station > knots.at(-1)!)) continue;
-        knots.push(station);
-        values.push(a! + (b! - a!) * t);
+      // The halves of the turns at this run's two ends, sharing the run where it is shorter than both.
+      const [before, after]: [number, number] = [k === 0 ? 0 : to!.halves[k - 1]!, k < to!.halves.length ? to!.halves[k]! : 0];
+      const share: number = before + after > end - start ? (end - start) / (before + after) : 1;
+      // A joint without a turn's span leaves the run's start on the knot before it, which holds the same angle.
+      if (knots.length === 0 || start > knots.at(-1)!) {
+        knots.push(start);
+        values.push(turned[Math.max(0, k - 1)]!);
+        eases.push(before * share);
       }
+      knots.push(end);
+      values.push(turned[k]!);
+      eases.push(after * share);
     });
-    return { knots, values };
+    return { knots, values, eases };
   }
 
   /**
@@ -284,33 +252,21 @@ export namespace AutoMovieHumanConicPose {
    * `knots`, `tips` and reliefs. `station` maps a station of the reference family to the posed one.
    *
    * A family that already rolls its chart (`roll`) keeps that roll on mapped knots; such a family whose joints also twist is refused,
-   * since one roll would have to carry both.
+   * since one roll would have to carry both. A family's origin line (`origin`) is its own array too: one shift per knot in the section
+   * chart, which the posed course carries with its frames, so it needs no mapping when the knots' stations are mapped.
+   *
+   * `stations` says what moved the centres. A pose (`"pose"`) keeps every bone's length, so the stations are mapped by `map`, of slope
+   * one on every run. A person's segment lengths (`"material"`) stretch the runs themselves: the family keeps its stations as the
+   * reference's material coordinate and its consumer reads the person's course through `AutoMovieHumanMaterialCourse`, so no station is
+   * mapped here and `station` is null. The pose map must not carry a length: it puts a bone's whole change of length into the span of
+   * the turn before it, and refuses a bone shortened by more than that span.
    */
-  export function repose(
-    family: IAutoMovieHumanConicLoft.IFamily,
-    centres: AutoMovieVector3Tuple[],
-    up: AutoMovieVector3Tuple,
-    carried: IAutoMovieHumanConicPose.ReposeCarried,
-  ): IAutoMovieHumanConicPose.IReposeResult {
+  export function repose(family: IAutoMovieHumanConicLoft.IFamily, centres: AutoMovieVector3Tuple[], up: AutoMovieVector3Tuple, carried: (run: number, direction: AutoMovieVector3Tuple) => AutoMovieVector3Tuple, stations: "pose" | "material" = "pose"): { family: IAutoMovieHumanConicLoft.IFamily; station: ((station: number) => number) | null } {
     const posed: number[] = halves(family.centres, family.halves, centres);
-    const station: ((station: number) => number) | null =
-      centres.length < 3
-        ? null
-        : map(course(family.centres, family.halves), course(centres, posed));
-    const twisted: IAutoMovieHumanConicLoft.IRoll | undefined =
-      centres.length < 3
-        ? undefined
-        : twist(family, { centres, halves: posed, up }, carried);
-    if (twisted !== undefined && family.roll !== undefined)
-      throw new Error(
-        "pose: " + family.name + " rolls its chart and its joints twist",
-      );
-    const tip = (
-      end: IAutoMovieHumanConicLoft.ITip | null,
-    ): IAutoMovieHumanConicLoft.ITip | null =>
-      end === null || station === null
-        ? end
-        : { ...end, from: station(end.from), tip: station(end.tip) };
+    const station: ((station: number) => number) | null = centres.length < 3 || stations === "material" ? null : map(course(family.centres, family.halves), course(centres, posed));
+    const twisted: IAutoMovieHumanConicLoft.IRoll | undefined = centres.length < 3 ? undefined : twist(family, { centres, halves: posed, up }, carried);
+    if (twisted !== undefined && family.roll !== undefined) throw new Error("pose: " + family.name + " rolls its chart and its joints twist");
+    const tip = (end: IAutoMovieHumanConicLoft.ITip | null): IAutoMovieHumanConicLoft.ITip | null => (end === null || station === null ? end : { ...end, from: station(end.from), tip: station(end.tip) });
     return {
       station,
       family: {
@@ -318,47 +274,13 @@ export namespace AutoMovieHumanConicPose {
         centres,
         halves: posed,
         up,
-        ...(twisted !== undefined
-          ? { roll: twisted }
-          : family.roll === undefined || station === null
-            ? {}
-            : {
-                roll: {
-                  knots: family.roll.knots.map(station),
-                  values: family.roll.values,
-                },
-              }),
+        ...(twisted !== undefined ? { roll: twisted } : family.roll === undefined || station === null ? {} : { roll: { ...family.roll, knots: family.roll.knots.map(station) } }),
         ...(station === null
           ? {}
           : {
               knots: family.knots.map(station),
-              ...(family.tips === undefined
-                ? {}
-                : {
-                    tips: [tip(family.tips[0]), tip(family.tips[1])] as [
-                      IAutoMovieHumanConicLoft.ITip | null,
-                      IAutoMovieHumanConicLoft.ITip | null,
-                    ],
-                  }),
-              ...(family.reliefs === undefined
-                ? {}
-                : {
-                    reliefs: family.reliefs.map(
-                      (
-                        relief: NonNullable<
-                          IAutoMovieHumanConicLoft.IFamily["reliefs"]
-                        >[number],
-                      ): NonNullable<
-                        IAutoMovieHumanConicLoft.IFamily["reliefs"]
-                      >[number] => ({
-                        ...relief,
-                        stations: [
-                          station(relief.stations[0]),
-                          station(relief.stations[1]),
-                        ],
-                      }),
-                    ),
-                  }),
+              ...(family.tips === undefined ? {} : { tips: [tip(family.tips[0]), tip(family.tips[1])] as [IAutoMovieHumanConicLoft.ITip | null, IAutoMovieHumanConicLoft.ITip | null] }),
+              ...(family.reliefs === undefined ? {} : { reliefs: family.reliefs.map((relief: NonNullable<IAutoMovieHumanConicLoft.IFamily["reliefs"]>[number]): NonNullable<IAutoMovieHumanConicLoft.IFamily["reliefs"]>[number] => ({ ...relief, stations: [station(relief.stations[0]), station(relief.stations[1])] })) }),
             }),
       },
     };

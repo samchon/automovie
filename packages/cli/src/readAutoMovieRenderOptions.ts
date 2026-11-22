@@ -1,5 +1,6 @@
 import { AUTOMOVIE_RENDER_OPTIONS } from "./AUTOMOVIE_RENDER_OPTIONS";
 import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
+import { readAutoMoviePageTimeout } from "./readAutoMoviePageTimeout";
 
 /**
  * Split the options of `automovie render` into the command's own, `AUTOMOVIE_RENDER_OPTIONS`, and the request's, which `parseAutoMovieCapturePlanRequest` reads for the request's `subject`.
@@ -10,6 +11,7 @@ import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
  * | `--props <file>` | A JSON file whose value the module's `subjects` is called with | `null` |
  * | `--out <folder>` | Where `film.mp4` and `render-report.json` go | `media/automovie/<subject>/videos` |
  * | `--backend <software\|gpu>` | How the browser draws | `software` |
+ * | `--timeout-ms <milliseconds>` | Per-call budget for draw-function readiness, subject description/creation and drawing, not a total build or render deadline; integer 1 to 2147483647 | `120000` |
  *
  * Every other option is left for the request reader, which names the subject as `capture` and the inspector do; a render draws the subject's whole clock through its own camera, so `renderAutoMovie` refuses any request key but `subject`. It throws for an empty value of its own options, a missing `--module`, and a backend that is not `software` or `gpu`.
  *
@@ -35,6 +37,9 @@ export function readAutoMovieRenderOptions(
 
   /** How the browser draws. */
   backend: AutoMovieCaptureBackend;
+
+  /** Per-call milliseconds for draw-function readiness, subject description/creation and drawing, not a total build or render deadline. */
+  timeout: number;
 
   /** The request's own options, for the request reader. */
   request: Map<string, string>;
@@ -62,6 +67,7 @@ export function readAutoMovieRenderOptions(
     props: taken.get("props") ?? null,
     out: taken.get("out") ?? null,
     backend,
+    timeout: readAutoMoviePageTimeout(taken.get("timeout-ms")),
     request,
   };
 }

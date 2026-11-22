@@ -1,6 +1,6 @@
 ---
 name: human
-description: Builds the Human person as conic-lofted families joined by the engine's operators, verifies it against the reference by renders and tests, and governs supervised Human work. Use with 3d-modeling for Human geometry, with visual-debugging when inspecting the figure, and whenever workers build Human under a supervisor.
+description: Builds and verifies parameterized Human geometry from conic families. Use for Human code, its viewer, and supervised Human work, with 3d-modeling for geometry and visual-debugging for pictures.
 ---
 
 # Human
@@ -8,6 +8,8 @@ description: Builds the Human person as conic-lofted families joined by the engi
 The goal is one reusable construction that generates every supported person from parameters. It finds the major anatomical centres and axes and draws each region's view curves from them by sound laws. Its [construction tree](construction.md#tree) keeps logical anatomical identities independently of its surface decomposition, and the engine realizes the tree into one skin.
 
 The tasks and their order live in the issue tracker. An explicit stop overrides every instruction here.
+
+Before supervising Human work, read [Supervision](supervision.md) and follow its [ten-minute checklist](supervision.md#every-ten-minutes).
 
 ## The skills are binding
 
@@ -24,10 +26,11 @@ A measurement order, or another value of a parameter, is not research.
 
 ## Method
 
-1. **Families.** Every part is a conic family: a few view curves (outline pairs, axis, fullness) and one inflection line for each groove along it. [Lofting](../3d-modeling/crafting/lofting.md#one-section-family) owns the section model and its one limit, star-shape about the course.
-2. **Connections.** Parts meet only through the operator their topology selects in [Connections](construction.md#connections). The joint is composed in 2D before either side is lofted.
-3. **Repair.** A defect is fixed at the curve that makes it, in the order [Repair](construction.md#repair) gives.
-4. **Seeing.** Nothing is true until it is seen. Every shape claim rests on renders opened beside the reference, as [Verification](verification.md) requires.
+1. **Centres.** Every part starts from its own centres: joint centres from the person's measures, then the course its sections are centred on, as [Centres before curves](curves.md#centres-before-curves) orders them.
+2. **Families.** Every part is a conic family: a few view curves (outline pairs, axis, fullness) and one inflection line for each groove along it. [Lofting](../3d-modeling/crafting/lofting.md#one-section-family) owns the section model and its one limit, star-shape about the course.
+3. **Connections.** Parts meet only through the operator their topology selects in [Connections](construction.md#connections). The joint is composed in 2D before either side is lofted.
+4. **Repair.** A defect is fixed at the curve that makes it, in the order [Repair](construction.md#repair) gives.
+5. **Seeing.** Nothing is true until it is seen. Every shape claim rests on renders opened beside the reference, as [Verification](verification.md) requires.
 
 ## Three steps
 

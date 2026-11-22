@@ -1,5 +1,7 @@
 /**
- * A chord from a join's curve to one rail as a share of that surface's radius of curvature across the curve: `share / |k|`, `k` the normal curvature of the rail's surface in the direction square to the curve in its tangent plane at the traced point, capped at `cap` and, where `end` is given, at that share of the station distance from the traced point to the rail surface's nearer end.
+ * A chord from a join's curve to one rail as a share of the tighter radius the rail turns on: `share / max(|k|, kappa_g)`, `k` the normal curvature of the rail's surface in the direction square to the curve in its tangent plane at the traced point and, where the rail offsets square to the curve (the host's always, the part's unless the curve uses the part's phase), `kappa_g` the curve's geodesic curvature in that surface, positive where the curve turns toward the rail; capped at `cap` and, where `end` is given, at that share of the station distance from the traced point to the rail surface's nearer end.
+ *
+ * A square offset of the curve at distance `d` moves along it at `1 - kappa_g d` times the curve's speed, so past `1 / kappa_g` it runs backward and folds the blend however gentle the surface is across the curve: a contact that rounds a tight corner of the part narrows its rail there.
  *
  * A rail placed farther round a surface than its radius of curvature in that direction turns past the surface's side and folds the blend, at any scale. A share below one keeps every rail inside that radius wherever the curve runs: a small part's own tight curvature (a lip's or a lid's long-axis end) narrows its rail there and lets it widen where the part is flat. The cap bounds the chord where the surface is flat across the curve (`k` near zero). The engine evaluates the law at every traced point and reads it between them by the periodic cubic B-spline through those values, C2 round the loop.
  *
@@ -7,7 +9,7 @@
  *
  * Engine admission: `share` inside `(0, 1)`; `cap` positive; `end`, when given, inside `(0, 1)`.
  *
- * @evidence contracts/development/design.md#principled-representation The normal curvature `k = II(d, d) / I(d, d)` (Euler, Meusnier) of the surface in the rail's direction `d` is the inverse radius of the circle the surface follows there, so a chord a share of that radius cannot carry the rail past the surface's turn whatever the part's size.
+ * @evidence contracts/development/design.md#principled-representation The normal curvature `k = II(d, d) / I(d, d)` (Euler, Meusnier) of the surface in the rail's direction `d` is the inverse radius of the circle the surface follows there, so a chord a share of that radius cannot carry the rail past the surface's turn whatever the part's size; the curve's geodesic curvature toward the rail is the inverse radius at which its offset cusps (Farouki and Neff 1990), so a chord a share of it keeps the rail a regular offset.
  * @evidence contracts/development/design.md#minimal-and-owned-surface A share and a cap state the law; the radius comes from the surface, not from another field.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The width follows the surface's own curvature; no floor widens a rail toward a fold and no seam drops to a lower continuity to hide one.
  * @evidence contracts/development/common.md#meaningful-documentation States the formula, the curvature's direction, why a share below one keeps the rail inside, the cap, the end bound near a surface's end, where it is evaluated and interpolated, and the admission.

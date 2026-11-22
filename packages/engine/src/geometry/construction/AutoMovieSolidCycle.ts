@@ -6,7 +6,7 @@ import type { IAutoMovieSolidCycle } from "@automovie/interface";
  * and, per segment, the neighbour face across it with the segment's ends in
  * the neighbour's chart.
  *
- * Kinds, as `AutoMovieSolidMesh.ILoop`: a `hole` encloses a region of
+ * Kinds, as `IAutoMovieSolidMesh.ILoop`: a `hole` encloses a region of
  * the chart and the face keeps its outside; an `island` keeps its inside.
  * A `start` or `end` cycle winds once round the face's periodic phase and
  * the face keeps the stations above
@@ -18,11 +18,174 @@ import type { IAutoMovieSolidCycle } from "@automovie/interface";
  * first crossing and is not a general inverse of that predicate.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the four kinds and which side each keeps.
- * @evidence contracts/development/design.md#principled-representation Represents A trim cycle of a face in its own chart: the closed boundary of the face's kept region, a sequence of shared vertices with their charts on this face and, per segment, the neighbour face across it with the segment's ends in the neighbour's chart: companion namespace of 12 members (`ICycle`, `INeighbour`, `IFoot`, `kept`, `prepare`, `IPrepared`, ...); units and frames named in its text: second, world, local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidCycle` in packages/engine/src/geometry/construction/AutoMovieSolidCycle.ts; its surface is the 12 members listed and the text shows 17 other files naming it, mostly packages/engine (14), test (3), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#principled-representation Represents A trim cycle of a face in its own chart: the closed boundary of the face's kept region, a sequence of shared vertices with their charts on this face and, per segment, the neighbour face across it with the segment's ends in the neighbour's chart: companion namespace of 15 exported members (`IAutoMovieSolidCycle.ICycle`, `IAutoMovieSolidCycle.IExactSegment`, `IAutoMovieSolidCycle.IExact`, `piece`, `divide`, `held`, ...); units and frames named in its text: second, world, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidCycle` in packages/engine/src/geometry/construction/AutoMovieSolidCycle.ts; its surface is the 15 members listed and the text shows 17 other files naming it, mostly packages/engine (14), test (3), so no member is declared for a presumed future need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidCycle {
+  /**
+   * The exact boundary one segment of a cycle lies on: the cycle's own for every segment of a cycle as built, the segment's record
+   * on a cycle a clip has edited.
+   *
+   * @param cycle The cycle.
+   * @param k The segment, vertex `k` to `k + 1`.
+   * @param reversed Whether the caller walks the segment from `k + 1` to `k`, as a clip does that joins two trims.
+   * @returns The owner's readers with the removed side of the directed chord, or null where the segment is a chord.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Exactness belongs to a segment between two consecutive vertices of one owner's curve; an edited cycle records it per segment, and a cycle as built is such a segment throughout.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader serves the kept test, the crossing map and the clip's rebuilds.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cycle with a foreign vertex count and no per-segment record reads no curve; nothing is inferred from positions.
+   * @evidence contracts/development/common.md#meaningful-documentation States both sources of the record and the reversed walk.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time on an edited cycle; O(S) for the orientation of a cycle as built.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reader coordinates no work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the cycle's record or a fresh one sharing the owner's readers; retains nothing.
+   */
+  export function piece(
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart" | "exact" | "segments">,
+    k: number,
+    reversed: boolean = false,
+  ): IAutoMovieSolidCycle.IExactSegment | null {
+    const found: IAutoMovieSolidCycle.IExactSegment | null =
+      cycle.segments !== undefined
+        ? (cycle.segments[k] ?? null)
+        : cycle.exact !== undefined && cycle.exact.count === cycle.chart.length
+          ? { exact: cycle.exact, sense: removed(cycle) }
+          : null;
+    return found === null || !reversed
+      ? found
+      : { exact: found.exact, sense: -found.sense };
+  }
+
+  /**
+   * Record that a clip places a vertex into a segment, before the caller splices the vertex in: the segment becomes two chords, and
+   * every other segment keeps the boundary it lies on.
+   *
+   * @param cycle The cycle; its `segments` are written.
+   * @param segment The segment the vertex is placed into.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation A crossing is placed by a bisection of the clip's own rail, so the two pieces beside it run to a point the owner's curve does not own; the segments beyond them still join the owner's consecutive vertices.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The one place a cycle as built turns into an edited one.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Moves no vertex and drops no reader of an untouched segment.
+   * @evidence contracts/development/common.md#meaningful-documentation States the call order and what changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S) once per cycle for its orientation, then one splice.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every segment of one owner shares one record.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cycle holds one array of S references.
+   */
+  export function divide(cycle: IAutoMovieSolidCycle.ICycle, segment: number): void {
+    if (cycle.segments === undefined) {
+      const whole: IAutoMovieSolidCycle.IExactSegment | null = piece(cycle, segment);
+      if (whole === null) return;
+      cycle.segments = cycle.chart.map((): IAutoMovieSolidCycle.IExactSegment => whole);
+    }
+    cycle.segments.splice(segment, 1, null, null);
+  }
+
+  /**
+   * Whether a chart point lies on a cycle's kept side, each segment read as what it is: the owner's curve where the segment lies on
+   * an exact boundary (`piece`), its chord elsewhere (`kept`).
+   *
+   * A cycle as built reads its owner's curve alone. On an edited cycle the chords give the reading, and it is reversed for a point
+   * between an exact segment's chord and its curve: the cycle's true boundary is the chords with each exact segment's chord replaced
+   * by its arc, and crossing parity adds over those replacements, so the reading changes exactly inside the lens between chord and
+   * arc. The lens a point can lie in is that of the segment at its foot; the point is in it when the owner's curve and that chord
+   * disagree about its side.
+   *
+   * @param cycle The cycle.
+   * @param u The point's `u`.
+   * @param v The point's `v`.
+   * @param period The face's phase period; absent for a face that is not periodic.
+   * @returns True on the kept side or on the boundary.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation The atlas's region is the owner's curve between an owner's consecutive vertices, the same curve the neighbouring face ends on, and a clip's chords elsewhere; the parity of crossings is additive over the chord-to-arc replacements.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The cycle as built keeps its one reader; an edited one adds one foot and one side test to the chords' reading.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no tolerance; a point whose foot is a chord reads exactly as `kept`. The lens is attributed by the nearest segment, so a point nearer another segment than the exact one whose lens it lies in reads its chords.
+   * @evidence contracts/development/common.md#meaningful-documentation States both readings and the lens rule.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The owner's reader alone on a cycle as built; on an edited one `kept` and `foot`, O(S) each, and the owner's reader.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reader coordinates no work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a boolean; retains nothing.
+   */
+  export function held(
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart" | "along" | "exact" | "segments">,
+    u: number,
+    v: number,
+    period: number | undefined,
+  ): boolean {
+    if (cycle.segments === undefined) {
+      const whole: IAutoMovieSolidCycle.IExact | undefined =
+        cycle.exact?.count === cycle.chart.length ? cycle.exact : undefined;
+      return whole?.kept !== undefined
+        ? whole.kept(u, v)
+        : kept(cycle, u, v, period);
+    }
+    const chords: boolean = kept(cycle, u, v, period);
+    const at: IAutoMovieSolidCycle.IFoot = foot(cycle, u, v, period);
+    const beside: IAutoMovieSolidCycle.IExactSegment | null = cycle.segments[at.segment] ?? null;
+    if (beside === null || beside.exact.kept === undefined) return chords;
+
+    // The point's side of the chord at its foot against its side of the owner's curve.
+    const a: [number, number] = cycle.chart[at.segment]!;
+    const b: [number, number] = cycle.chart[(at.segment + 1) % cycle.chart.length]!;
+    const w: number = shift(v, a[1], period);
+    const side: number =
+      beside.sense *
+      ((b[0] - a[0]) * (w - a[1]) - (shift(b[1], a[1], period) - a[1]) * (u - a[0]));
+    return side > 0 === beside.exact.kept(u, v) ? !chords : chords;
+  }
+
+  /**
+   * A deep copy of a cycle, so later clips that edit cycles in place leave it as it was; its exact curve and boundary readers are pure
+   * functions of the owner's curve, shared rather than copied.
+   *
+   * @param c The cycle.
+   * @returns The copy.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Copies every array a clip edits in place and shares the immutable readers.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The one copy every snapshot of a body uses, so none drops a reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes no value.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is copied and what is shared.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S) for S vertices.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure copy coordinates no work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record; retains nothing.
+   */
+  export function copy(c: IAutoMovieSolidCycle.ICycle): IAutoMovieSolidCycle.ICycle {
+    return {
+      kind: c.kind,
+      vertices: c.vertices.slice(),
+      chart: c.chart.map((p: [number, number]): [number, number] => [p[0], p[1]]),
+      neighbours: c.neighbours.map(
+        (n: IAutoMovieSolidCycle.INeighbour): IAutoMovieSolidCycle.INeighbour => ({
+          face: n.face,
+          from: [n.from[0], n.from[1]],
+          to: [n.to[0], n.to[1]],
+        }),
+      ),
+      ...(c.along === undefined ? {} : { along: c.along }),
+      ...(c.exact === undefined ? {} : { exact: c.exact }),
+      ...(c.segments === undefined ? {} : { segments: c.segments.slice() }),
+    };
+  }
+
+  /**
+   * The removed side of a cycle's directed chords as its owner built it (`IAutoMovieSolidCycle.IExactSegment.sense`): a hole removes its polygon's inside,
+   * the left of its chords when its signed chart area is positive, and an island the outside; a start cycle removes the stations
+   * below it, the left of chords of rising phase, and an end cycle those above.
+   */
+  function removed(cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart">): number {
+    const n: number = cycle.chart.length;
+    if (cycle.kind === "start" || cycle.kind === "end")
+      return (
+        Math.sign(cycle.chart[n - 1]![1] - cycle.chart[0]![1]) *
+        (cycle.kind === "start" ? 1 : -1)
+      );
+    let area: number = 0;
+    for (let k: number = 0; k < n; k++) {
+      const a: [number, number] = cycle.chart[k]!;
+      const b: [number, number] = cycle.chart[(k + 1) % n]!;
+      area += a[0] * b[1] - b[0] * a[1];
+    }
+    return Math.sign(area) * (cycle.kind === "hole" ? 1 : -1);
+  }
+
   /**
    * Whether a chart point lies on a cycle's kept side or on the cycle.
    *
@@ -34,7 +197,7 @@ export namespace AutoMovieSolidCycle {
    *
    * @evidence contracts/development/implementation.md#principled-implementation Uses crossing parity in the existing chart branches for all four cycle kinds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the same predicate as the prepared reader, without retained state.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original inequality and half-period tie; a winding segment on its cycle's exact curve (`ICycle.along`) reads that curve's station instead of the chord's, and no other boundary is moved.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original inequality and half-period tie; a winding segment on its cycle's exact curve (`IAutoMovieSolidCycle.ICycle.along`) reads that curve's station instead of the chord's, and no other boundary is moved.
    * @evidence contracts/development/common.md#meaningful-documentation The inclusive 'on cycle' wording has an existing strict-parity boundary gap, recorded separately; preparation does not claim to fix it.
    * @evidence contracts/development/implementation.md#efficient-algorithms Scans S edges, plus the hole/island centre scan, in O(S) time.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work This live reading caches nothing; prepare is the face-local repeated-query path.
@@ -102,7 +265,7 @@ export namespace AutoMovieSolidCycle {
       number,
       number,
     ][];
-    /** Per winding segment, whether both its vertices lie on the cycle's exact curve (`ICycle.along`). */ on?: boolean[];
+    /** Per winding segment, whether both its vertices lie on the cycle's exact curve (`IAutoMovieSolidCycle.ICycle.along`). */ on?: boolean[];
   }
 
   /** Whether a segment's two stored vertices lie on the exact curve, as its builder evaluated them. */

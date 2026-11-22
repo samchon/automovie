@@ -65,6 +65,7 @@ export async function renderAutoMovie(props: {
     root,
     module: options.module,
     backend: options.backend,
+    timeout: options.timeout,
     env: props.env,
   });
   try {

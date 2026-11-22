@@ -25,7 +25,7 @@ const { combine, cross, dot, norm, unit }: typeof AutoMovieSolidVector =
  * Merge keeps the part outside the host; diff keeps its cutter inside. The host remains outside the part. Offset signs come from the other surface's oriented normal, so a tangent or degenerate direction can return null. Local Newton convergence and multiple-face boundary placement are not globally certified.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the square offset, the normal section, the modes and the kept sides.
- * @evidence contracts/development/design.md#principled-representation Represents The two rails at one intersection point, where each surface is trimmed back on its kept side: companion namespace of 12 members (`IRail`, `Keep`, `Mode`, `STEPS`, `ROUNDING`, `SWITCHES`, ...); units and frames named in its text: world, newton, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#principled-representation Represents The two rails at one intersection point, where each surface is trimmed back on its kept side: companion namespace of 12 members (`IAutoMovieSolidRail.IRail`, `Keep`, `IAutoMovieSolidRail.Mode`, `STEPS`, `ROUNDING`, `SWITCHES`, ...); units and frames named in its text: world, newton, local. It has no optional member, so no absent-value state combines with another.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidRail` in packages/engine/src/geometry/construction/AutoMovieSolidRail.ts; its surface is the 12 members listed and the text shows 13 other files naming it, mostly packages/engine (8), test (5), so no member is declared for a presumed future need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
@@ -52,6 +52,7 @@ export namespace AutoMovieSolidRail {
    * @param partWidth Positive chord, mm; or a fixed `{ station }` in station mode, required to lie on the kept side of this contact.
    * @param hostWidth Chord from the curve to the host's rail, mm, positive.
    * @param mode How the part's rail leaves the curve; absent, `station`.
+   * @param toward The rails' sides from a declared loop (`IAutoMovieSolidRail.IToward`); absent, from the two surfaces' normals and `keep`.
    * @returns Rails, or null on the checked direction, solve or atlas-transition failures.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Orients kept-side directions from surface normals, solves chord offsets and square-mode normal sections, then maps host offsets across atlas faces under regular, representable chart arithmetic.
@@ -70,8 +71,9 @@ export namespace AutoMovieSolidRail {
     partWidth: IAutoMovieSolidRail.IAtPartWidth,
     hostWidth: number,
     mode: IAutoMovieSolidRail.Mode = "station",
+    toward?: IAutoMovieSolidRail.IToward,
   ): IAutoMovieSolidRail.IRail | null {
-    return explain(part, host, curve, keep, partWidth, hostWidth, mode).rail;
+    return explain(part, host, curve, keep, partWidth, hostWidth, mode, toward).rail;
   }
 
   /**
@@ -84,6 +86,7 @@ export namespace AutoMovieSolidRail {
    * @param partWidth Positive chord, mm, or a fixed `{ station }` in station mode.
    * @param hostWidth Chord from the curve to the host's rail, mm.
    * @param mode How the part's rail leaves the curve.
+   * @param toward The rails' sides from a declared loop; absent, from the normals and `keep`.
    * @returns The explanation; `rail` is what `at` returns.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States that it returns what `at` returns together with the quantities read and the premise a refusal failed, with each parameter's unit and meaning.
@@ -102,6 +105,7 @@ export namespace AutoMovieSolidRail {
     partWidth: IAutoMovieSolidRail.IAtPartWidth,
     hostWidth: number,
     mode: IAutoMovieSolidRail.Mode = "station",
+    toward?: IAutoMovieSolidRail.IToward,
   ): IAutoMovieSolidRail.IExplanation {
     const quantities: Record<string, number> = {
       face: curve.face,
@@ -153,14 +157,12 @@ export namespace AutoMovieSolidRail {
     let partAcross: [number, number];
     let sigma: number;
     if (mode === "station") {
-      const facing: number = dot(a.u, nB);
+      // A declared loop names the kept direction itself; the normals name it through the kept side.
+      const facing: number = dot(a.u, toward === undefined ? nB : toward.part);
       quantities.facing = facing;
       quantities.stationSpeed = norm(a.u);
-      if (!(Math.abs(facing) > 0))
-        return refuse(
-          "the part's station line is parallel to the host (facing 0)",
-        );
-      const side: number = facing > 0 === (keep === "outside") ? 1 : -1;
+      if (!(Math.abs(facing) > 0)) return refuse("the part's station line is parallel to the host (facing 0)");
+      const side: number = facing > 0 === (toward !== undefined || keep === "outside") ? 1 : -1;
       quantities.side = side;
       sigma = side;
       partAcross = [side / norm(a.u), 0];
@@ -191,8 +193,8 @@ export namespace AutoMovieSolidRail {
       const e: [number, number] | null = square(
         a,
         [curve.rate[0], curve.rate[1]],
-        nB,
-        keep === "outside" ? 1 : -1,
+        toward === undefined ? nB : toward.part,
+        toward !== undefined || keep === "outside" ? 1 : -1,
         quantities,
         "part",
       );
@@ -244,7 +246,7 @@ export namespace AutoMovieSolidRail {
     const across: [number, number] | null = square(
       b,
       [curve.rate[2], curve.rate[3]],
-      nA,
+      toward === undefined ? nA : toward.host,
       1,
       quantities,
       "host",

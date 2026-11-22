@@ -10,6 +10,7 @@ import type {
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidIntersectionWalk } from "./AutoMovieSolidIntersectionWalk";
 import { AutoMovieSolidTraceLaw } from "./AutoMovieSolidTraceLaw";
+import type { AutoMovieSolidTraceObservation } from "./AutoMovieSolidTraceObservation";
 import { AutoMovieSolidTraceSolve } from "./AutoMovieSolidTraceSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
@@ -105,6 +106,23 @@ export namespace AutoMovieSolidIntersectionTrace {
 
     /** Seed corrected by the existing law-specific solve. */
     let first: IPoint | null;
+
+    /** The last meeting attempt's refusal, named in the diagnostic when the seed or the trace is lost. */
+    const attempt: AutoMovieSolidTraceObservation.IState = {
+      failure: null,
+      trial: null,
+      meeting: null,
+      step: null,
+    };
+
+    /** That refusal as text, where the solver recorded one: its guard, face, chart point, residual and crossings left. */
+    const refusal: () => string = (): string => {
+      const last: AutoMovieSolidTraceObservation.IFailure | null =
+        attempt.failure;
+      return last === null
+        ? ""
+        : `: ${last.reason} on host face ${host.faces[last.face]?.name ?? last.face} at [${last.chart.join(", ")}], gap ${last.gap ?? "unread"} mm, crossings left ${last.budget ?? "unread"}`;
+    };
     if (parameter.kind === "arc") {
       /** Arc preparation with the unchanged public step constants. */
       const walked: IAutoMovieSolidIntersectionWalk.IWalk | string =
@@ -129,6 +147,7 @@ export namespace AutoMovieSolidIntersectionTrace {
         walked.x,
         walked.face,
         tolerance,
+        attempt,
       );
     } else {
       /** Original phase/angle law admission result. */
@@ -159,12 +178,13 @@ export namespace AutoMovieSolidIntersectionTrace {
         [input.seed.s, input.seed.phi, input.seed.y, input.seed.theta],
         input.seed.face ?? 0,
         tolerance,
+        attempt,
       );
     }
     if (first === null)
       return report(
         "one loop per contact",
-        `no meeting near the seed (phi ${input.seed.phi}, s ${input.seed.s}, y ${input.seed.y}, theta ${input.seed.theta})`,
+        `no meeting near the seed (phi ${input.seed.phi}, s ${input.seed.s}, y ${input.seed.y}, theta ${input.seed.theta})${refusal()}`,
       );
 
     // Continuation over one turn, each target reached by halving steps.
@@ -186,11 +206,15 @@ export namespace AutoMovieSolidIntersectionTrace {
         current,
         target,
         tolerance,
+        attempt,
       );
       if (next === null)
         return report(
           "traced loop",
-          `lost at t ${current.t}, toward ${target}`,
+          `lost at t ${current.t}, toward ${target}${refusal()}; from host face ${host.faces[current.face]?.name ?? current.face} at [${[current.s, current.phi, current.y, current.theta].join(", ")}]` +
+            (attempt.step === null
+              ? ""
+              : `, last step ${attempt.step.h}, correction ${attempt.step.distance ?? "none"} mm against ${attempt.step.allowance ?? "none"} mm`),
         );
       current = next;
       if (i < count) points.push(next);

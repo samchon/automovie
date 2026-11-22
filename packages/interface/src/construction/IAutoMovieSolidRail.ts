@@ -107,4 +107,25 @@ export namespace IAutoMovieSolidRail {
         /** Absolute part u-coordinate, usually physical station millimetres, toward its kept side. */
         station: number;
       };
+
+  /**
+   * The world directions the two rails leave the curve toward, where a declared loop supplies them instead of the surfaces' normals.
+   *
+   * At a tangential contact the two normals are parallel, so neither surface's direction square to the curve has a component along the
+   * other's normal and the normals cannot tell a rail's side. A contact declared as a closed loop on the host knows both sides at
+   * every point: the host's rail stands outside the loop, and the part's on the side its surface is kept (`AutoMovieSolidSharedCurve`).
+   * Each rail then takes, of its two directions square to the curve, the one with a positive product with its vector here.
+   *
+   * @evidence contracts/development/design.md#principled-representation A side of a curve in a surface is one of two unit directions square to it; a world vector with a nonzero product with them names one, at any angle between the two surfaces.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One vector per rail.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A vector square to both candidate directions names no side and the rail is refused, never guessed.
+   * @evidence contracts/development/common.md#meaningful-documentation States why the normals fail at a tangential contact, who supplies the vectors and how each rail reads its own.
+   */
+  export interface IToward {
+    /** Toward the part's rail from the curve point: any world vector with a positive product with the part's kept direction. */
+    part: AutoMovieVector3Tuple;
+
+    /** Toward the host's rail from the curve point, likewise. */
+    host: AutoMovieVector3Tuple;
+  }
 }
