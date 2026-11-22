@@ -3,9 +3,10 @@
 // Plays every take of those scenes in Node the way the take worker does, then
 // reads their displayed contacts, props and refusals: the office switch and
 // lamp, Fall and Rise's recovery and hip hold, Farewell's kisses and hand
-// meetings, the Tourists camera, the screwdriver's tip, the low five and the
-// vehicles' seats, controls and treads. No browser is involved, so this runs
-// anywhere the packages build; CI runs it after the smoke test.
+// meetings, the Tourists camera, the screwdriver's tip, the low five, the
+// vehicles' seats, controls and treads, and the playground's cue tracks. No
+// browser is involved, so this runs anywhere the packages build; CI runs it
+// after the smoke test.
 import { SCENES_ASSISTANCE } from "../src/scenes/data/SCENES_ASSISTANCE";
 import { SCENES_HOUSEHOLD } from "../src/scenes/data/SCENES_HOUSEHOLD";
 import { SCENES_VEHICLES } from "../src/scenes/data/SCENES_VEHICLES";
@@ -14,6 +15,7 @@ import type { IScene } from "../src/scenes/structures/IScene";
 import { checkDrivingScrew } from "./checkDrivingScrew";
 import { checkEverydayScenes } from "./checkEverydayScenes";
 import { checkFarewellScene } from "./checkFarewellScene";
+import { checkPlaygroundCues } from "./checkPlaygroundCues";
 import { checkSceneTakes } from "./checkSceneTakes";
 import { checkTourists } from "./checkTourists";
 import { checkVehicleScenes } from "./checkVehicleScenes";
@@ -59,6 +61,7 @@ const CHECKS: readonly ISceneCheck[] = [
   { name: "Driving a Screw", run: checkDrivingScrew },
   { name: "Victory lap with a low five", run: checkVictoryLap },
   { name: "vehicles", run: checkVehicleScenes },
+  { name: "playground cue tracks", run: checkPlaygroundCues },
 ];
 
 let failed: number = 0;
