@@ -64,13 +64,20 @@ export function physicalShapePairDistance(
     );
     const world = (p: IAutoMovieVector3): IAutoMovieVector3 =>
       Vector3.add(centre, Quaternion.rotateVector(rotation, p));
-    const frame: IWires = wires(shape);
+    const frame: physicalShapePairDistance.IWires =
+      physicalShapePairDistance.wires(shape);
 
     // The other shape lies inside the sphere about its bounds, so a wire is
     // no nearer it than the wire is to that sphere, inside the shape or out:
     // a wire that far cannot lower the least found so far and is not queried.
-    const bounds: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(otherPose, other);
-    const middle: IAutoMovieVector3 = Vector3.scale(Vector3.add(bounds.min, bounds.max), 0.5);
+    const bounds: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(
+      otherPose,
+      other,
+    );
+    const middle: IAutoMovieVector3 = Vector3.scale(
+      Vector3.add(bounds.min, bounds.max),
+      0.5,
+    );
     const around: number = Vector3.distance(middle, bounds.max);
     for (const [a, b] of frame.segments) {
       const from: IAutoMovieVector3 = world(a);
@@ -92,17 +99,34 @@ export function physicalShapePairDistance(
   return least;
 }
 
-/** A shape's wire frame in its own frame: segments widened by a radius. */
-interface IWires {
-  /** The segments, shape-local metres; a point is a segment of no length. */
-  segments: readonly (readonly [IAutoMovieVector3, IAutoMovieVector3])[];
+/** Companion types and the wire frames of {@link physicalShapePairDistance}. */
+export namespace physicalShapePairDistance {
+  /** A shape's wire frame in its own frame: segments widened by a radius. */
+  export interface IWires {
+    /** The segments, shape-local metres; a point is a segment of no length. */
+    segments: readonly (readonly [IAutoMovieVector3, IAutoMovieVector3])[];
 
-  /** The radius the segments are widened by, metres. */
-  radius: number;
+    /** The radius the segments are widened by, metres. */
+    radius: number;
+  }
+
+  /**
+   * The wire frame of one shape: a sphere's centre and a capsule's axis
+   * widened by their radius, a box's and a hull's edges widened by nothing.
+   * A hull's edges are kept per point list.
+   *
+   * @param shape The shape.
+   * @returns Its wire frame, shape-local metres.
+   */
+  export function wires(shape: IAutoMoviePhysicalShape): IWires {
+    return frameOf(shape);
+  }
 }
 
 /** The wire frame of one shape. */
-const wires = (shape: IAutoMoviePhysicalShape): IWires => {
+const frameOf = (
+  shape: IAutoMoviePhysicalShape,
+): physicalShapePairDistance.IWires => {
   if (shape.kind === "sphere")
     return {
       segments: [
@@ -145,7 +169,9 @@ const wires = (shape: IAutoMoviePhysicalShape): IWires => {
     return { segments, radius: 0 };
   }
   if (shape.kind === "hull") {
-    const known: IWires | undefined = EDGES.get(shape.points);
+    const known: physicalShapePairDistance.IWires | undefined = EDGES.get(
+      shape.points,
+    );
     if (known !== undefined) return known;
     const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
       shape.points,
@@ -164,7 +190,7 @@ const wires = (shape: IAutoMoviePhysicalShape): IWires => {
         seen.add(key);
         segments.push([from, to]);
       });
-    const found: IWires = { segments, radius: 0 };
+    const found: physicalShapePairDistance.IWires = { segments, radius: 0 };
     EDGES.set(shape.points, found);
     return found;
   }
@@ -173,4 +199,7 @@ const wires = (shape: IAutoMoviePhysicalShape): IWires => {
 };
 
 /** Each hull's edges by its point list. */
-const EDGES: WeakMap<readonly IAutoMovieVector3[], IWires> = new WeakMap();
+const EDGES: WeakMap<
+  readonly IAutoMovieVector3[],
+  physicalShapePairDistance.IWires
+> = new WeakMap();

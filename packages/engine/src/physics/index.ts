@@ -98,6 +98,7 @@ export * from "./physicalReleasedQuality";
 export * from "./physicalShapeBounds";
 export * from "./physicalShapeNearest";
 export * from "./physicalShapeNormal";
+export * from "./physicalShapePairContact";
 export * from "./physicalShapePairDistance";
 export * from "./physicalShapeSegmentDistance";
 export * from "./physicalShapeSpan";
