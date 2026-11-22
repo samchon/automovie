@@ -17,15 +17,16 @@ import { prepareHingedChainAt } from "./prepareHingedChainAt";
  *
  * The branch is the one whose hinge articulation is nearest the given mid
  * joint's; the swivel is the root's turn about the root-to-target line past
- * the aim of that branch (`hingedArmSwivel.read`). The request's target is
- * the effector's place in the posed chain.
+ * the aim of that branch (`hingedArmSwivel.read`); the twist is the mid
+ * joint's own, where it has one. The request's target is the effector's
+ * place in the posed chain.
  *
  * @param props The fit request, its target where the posed effector lies.
  * @param upper The posed root joint, clinical degrees.
  * @param lower The posed mid joint, clinical degrees.
  * @returns The seed; null when the chain is not a hinged two-bone chain or is degenerate.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the branch and swivel readings and the null cases.
+ * @evidence contracts/development/common.md#meaningful-documentation States the frame, the branch, swivel and twist readings and the null cases.
  * @evidence contracts/development/implementation.md#principled-implementation The inverse of fitHingedChainAt's pose: the joints composed through the same clinical bases, the branch by the least angle between hinge articulations, the swivel by the chain's own reader.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareHingedChainAt owns the preparation; this composes, picks the branch and reads the swivel.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No search; a degenerate chain declines.
@@ -51,5 +52,11 @@ export function readHingedChainSeed(
       branch = index;
     }
   });
-  return { swivel: hingedArmSwivel.read(at.chain, root, at.branches[branch]!.theta), branch };
+  return {
+    swivel: hingedArmSwivel.read(at.chain, root, at.branches[branch]!.theta),
+    branch,
+    // The mid joint's distal twist, which a fit continued from the seed
+    // keeps the basin of (`IAutoMovieSwivelSeed.twist`).
+    ...(typeof lower.twist === "number" ? { twist: lower.twist } : {}),
+  };
 }

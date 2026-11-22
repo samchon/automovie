@@ -300,8 +300,9 @@ function preparedWorkspace(
           near?.prescribed === true ? near
             : workspace.props.near?.prescribed === true ? workspace.props.near : undefined;
         if (prescribed !== undefined) {
+          // The placement's orientation continues the prescribed seed's twist.
           const placed: ReturnType<typeof fitHingedChainAt> = fitHingedChainAt(
-            { ...workspace.props, target }, prescribed.swivel, prescribed.branch);
+            { ...workspace.props, target, near: prescribed }, prescribed.swivel, prescribed.branch);
           // The closed form stands only where it reaches the target within the
           // range of motion and keeps clear of the request's obstruction, the
           // one probe that confirms the swivel; elsewhere the fit continues

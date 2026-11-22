@@ -4,6 +4,7 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
@@ -13,7 +14,9 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { seated } from "../everyday/seated";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -42,10 +45,13 @@ type Frame = HumanMountOnFrame.Frame;
  * for that side, the foot level. A foot whose seat names no rest, or whose
  * rest the seated leg cannot reach, hangs under a thigh in the direction
  * `HumanMount.HANG` gives, or stands on the floor where that would pass it.
- * The root follows from the socket and the trunk's pitch, and the legs and
- * the hands are solved by inverse kinematics; a swinging leg is keyed in
- * joint space where its course leaves the leg's range (`HumanSwungLeg`), so
- * a course over a saddle past the hip's range never flips its knee.
+ * The root follows from the socket and the trunk's pitch, and the legs are
+ * solved by inverse kinematics; a swinging leg is keyed in joint space where
+ * its course leaves the leg's range (`HumanSwungLeg`), so a course over a
+ * saddle past the hip's range never flips its knee. The hands go from
+ * hanging to the thighs over the climb as planned courses
+ * (`courseArmGoal`), clear of the trunk as it rises, swings and turns onto
+ * the seat.
  *
  * The socket travels up from 10 % of the climb, passes `HumanMount.HOP`
  * above the seat and sets down on it at 80 %, the `seatContact`. It crosses
@@ -91,10 +97,10 @@ export namespace HumanMountOn {
    * @throws {HumanRefusal} When the pelvis stands more than a leg's length from its place on the seat, with that length.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the events and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Effector goals solved by the shared inverse kinematics: the seat socket on the seat, each ball of a foot on its tread. Every path is a minimum-jerk share (Flash and Hogan 1985). A foot is declared planted only while its hip keeps the ankle within the leg's reachable band, so no plant is held by a leg that cannot reach it.
+   * @evidence contracts/development/implementation.md#principled-implementation Effector goals solved by the shared inverse kinematics: the seat socket on the seat, each ball of a foot on its tread. Every path is a minimum-jerk share (Flash and Hogan 1985). A foot is declared planted only while its hip keeps the ankle within the leg's reachable band, so no plant is held by a leg that cannot reach it. The hands' way from hanging to the thighs is one planned course of both arms (TrajOpt, through `courseArmGoal`) on the thigh goals, so it keeps clear of the turning trunk.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Refuse, time the climb, place the feet's ends, find when each foot leaves and bears, then one posture function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rest out of the seated leg's reach is not clamped onto: the foot hangs, as the seat's `footrests` doc declares. The timing shares and the constants of `HumanMount` are provisional and named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Planning scans the climb at 60 Hz three times, each step one forward-kinematics pass of the pelvis; a posture costs one such pass and the limb fits.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning scans the climb at 60 Hz three times, each step one forward-kinematics pass of the pelvis, and lays one arm course per plan; a posture costs one such pass, the limb fits and a read of the course.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The feet's ends and instants are computed once per instance; each posture passes its caller's forward-kinematics reader and range-of-motion projector to the hands' fit (`seated.arms`).
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
    */
@@ -257,6 +263,7 @@ export namespace HumanMountOn {
     // Astride from the floor onto a stirrup, the rider stands in the near stirrup (`HumanMountStand`).
     const standing: boolean =
       astride && !settled && onFloor[lead] && places[lead].rests;
+    const apex: number = 0.55 * climb;
     if (standing)
       frameAt = HumanMountStand({
         body,
@@ -264,9 +271,9 @@ export namespace HumanMountOn {
         ankle: places[lead].foot.ankle,
         frame: frameWith,
         hop,
-        apex: 0.55 * climb,
+        apex,
         bears: 0.45 * climb,
-        until: contact,
+        until: climb,
       });
 
     // The pushing leg extends as it pushes: as the pelvis rises its knee straightens and its heel rolls up over the ball, by as much as the shank, in the knee's own plane, would bend the flat foot's ankle past what an unloaded ankle holds. The foot leaves when the extended leg's toes leave: when even the rolled foot's ankle is past the leg's reach, or the toes are extended as far as they go.
@@ -437,7 +444,7 @@ export namespace HumanMountOn {
           );
           if (side === push && onFloor[side])
             toes[`${side}Toes`] = [left().roll * (1 - share), 0, 0];
-          // A foot that bears nothing turns its toes down about its ball, so the ball, not the ankle, comes onto the rest; once on it the heel lowers about that ball as the seat takes the body, from the contact to seated.
+          // A foot that bears nothing turns its toes down about its ball, so the ball, not the ankle, comes onto the rest; once on it the heel lowers about that ball as the foot takes the body, from its bearing to seated, or to the apex for the near foot stood in.
           limbs[limb] = HumanMountPush.tip(
             body,
             side,
@@ -458,15 +465,19 @@ export namespace HumanMountOn {
             places[side].rests && t >= bearing[side]
               ? 1 -
                   minimumJerk.share(
-                    (t - bearing[side]) / Math.max(1e-6, climb - bearing[side]),
+                    (t - bearing[side]) /
+                      Math.max(1e-6, (standing && side === lead ? apex : climb) - bearing[side]),
                   )
               : 1,
           );
         }
+        // The hands' goals are their places on the thighs at every second;
+        // when they leave the hanging rest and how they get there is the
+        // arms' course below, which reads these goals.
         return seated.arms(
           body,
           { ...frame, joints: { ...frame.joints, ...toes }, limbs },
-          minimumJerk.share((t - 0.5 * climb) / (0.5 * climb)),
+          1,
           resolution,
           projection,
         );
@@ -474,7 +485,7 @@ export namespace HumanMountOn {
     };
 
     // A swinging leg is keyed in joint space where its world course leaves the leg's range (`HumanSwungLeg`): a course over a saddle asks the ankle past what the hip reaches, and a fit pinned there flips its knee.
-    return HumanSwungLeg.plan(
+    const swung: IAutoMovieMotionHumanActionPlan = HumanSwungLeg.plan(
       body,
       mounted,
       (side: AutoMovieHumanSide): HumanSwungLeg.Swing | null => {
@@ -486,5 +497,41 @@ export namespace HumanMountOn {
         return lands > leaves ? [leaves, lands] : null;
       },
     );
+    // The hands go from hanging to the thighs over the climb as planned
+    // courses (courseArmGoal), the way a low sit lays them: the plan's thigh
+    // goals are where they come to rest, and the planner lays the way there
+    // clear of the trunk as it rises, leans, swings and turns onto the seat,
+    // and of the swung leg. The course starts with the climb: an arm held at
+    // its entry angles while the pelvis rises toward the stirrup has no
+    // planned clearance and passes into the hips before any course begins.
+    // Fitted frame by frame on a goal ramp, the forearm crossed the spine.
+    const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
+      start: 0,
+      ready: climb,
+      relax: duration,
+      end: duration,
+    };
+    // A palm resting on a thigh rests anywhere on its front: the region the
+    // palm may land in spans the thigh's middle half about the front's mid
+    // station (`thighFront`, at half the thigh), so a rider's hand slides
+    // along the splayed thigh where the forearm would otherwise graze the
+    // trunk at the one point.
+    const disc: number = 0.25 * m.thigh;
+    return courseArmGoal({
+      body,
+      plan: swung,
+      side: "left",
+      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
+      span,
+      disc,
+      with: [
+        {
+          side: "right",
+          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+          span,
+          disc,
+        },
+      ],
+    });
   }
 }

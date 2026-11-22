@@ -232,9 +232,18 @@ export namespace courseLimbSwivels {
         }
         const turn: number = to.swivel - from.swivel;
         const unwrapped: number = turn - 360 * Math.round(turn / 360);
+        // The forearm's twist is carried between the knots too, so the
+        // placement between them continues it (`IAutoMovieSwivelSeed.twist`).
+        const twist: number | undefined =
+          from.twist === undefined
+            ? undefined
+            : to.twist === undefined
+              ? from.twist
+              : from.twist + (to.twist - from.twist) * share;
         out.set(limb, {
           swivel: from.swivel + unwrapped * share,
           branch: from.branch,
+          ...(twist === undefined ? {} : { twist }),
         });
       }
       return out;
