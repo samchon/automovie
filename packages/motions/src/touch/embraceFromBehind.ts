@@ -30,6 +30,7 @@ import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanAr
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
+import { AutoMovieMotionHumanRise } from "../compose/AutoMovieMotionHumanRise";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -83,6 +84,9 @@ interface ISolved {
   /** How far the body sinks on bent knees, metres. */
   sink: number;
 
+  /** The heels' raise, degrees: the rise onto the forefeet that lifts the chin. */
+  raise: number;
+
   /** The head's turn, degrees. */
   twist: number;
 
@@ -108,7 +112,10 @@ interface ISolved {
  * (`TWIST`), the neck's flexion and side bend and its protraction (`PROTRACT`) that bring the chin nearest
  * the top of the partner's shoulder beside the neck (halfway between the
  * shoulder's region and the neck's side), by turns on coarse grids refined by
- * degrees. A
+ * degrees; a chin still behind and below the shoulder then reaches forward in
+ * closed form, the neck flexing about its base by the angle that carries the
+ * chin forward to it and the heels rising (within the kiss's `RAISE`) by the
+ * height that flexion costs plus what was missing. A
  * chest already in the partner's back, a back the lean cannot reach, or a
  * chin left farther than `NEAR` from the shoulder is refused with the gap or
  * the miss. The hands go palm in onto the partner's abdomen, one each side
@@ -278,13 +285,24 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
                   {
                     pitch: solved.pitch,
                     roll: solved.roll,
-                    raise: 0,
+                    raise: solved.raise,
                     sink: solved.sink,
                   },
                   share(seconds),
                   false,
                 ),
             },
+            // Risen heels, the feet on their forefeet, as the kiss rises.
+            ...(solved.raise > 0
+              ? AutoMovieMotionHumanRise.legs({
+                  body,
+                  stance,
+                  from: 0,
+                  to: duration,
+                  degrees: (seconds: number): number =>
+                    solved.raise * share(seconds),
+                })
+              : []),
             {
               channels: ["head"],
               from: 0,
@@ -422,7 +440,7 @@ function solve(
         pitch: s.pitch,
         roll: s.roll,
         flexion: 0,
-        raise: 0,
+        raise: s.raise,
         sink: s.sink,
       }),
       s,
@@ -432,6 +450,7 @@ function solve(
     pitch: 0,
     roll: 0,
     sink: 0,
+    raise: 0,
     twist: 0,
     flexion: 0,
     tilt: 0,
@@ -541,6 +560,61 @@ function solve(
       5,
     );
   best = protracted(necked(sideways(best, 1, 4), 1, 4), 1);
+
+  // The head's own forward reach for a chin the lean leaves behind and below
+  // the shoulder: the neck flexes about its base by the angle that carries
+  // the chin's circle forward to the shoulder (an arcsine less its present
+  // angle), and the heels rise by the height that flexion costs plus what
+  // was already missing, the rise's height going as the sine of the heels'
+  // angle, within the kiss's `RAISE`.
+  if (best.miss > NEAR) {
+    const posture: IAutoMovieMotionHumanPosture = posed(best);
+    const base: IAutoMovieVector3 = HumanTrunk.resolve(
+      body,
+      posture,
+      undefined,
+      undefined,
+      new Set<AutoMovieHumanoidBone>(["neck"]),
+    ).get("neck")!.worldPosition;
+    const at: IAutoMovieVector3 = chin(posture, resolution);
+    const yaw: number = (entry.yaw * Math.PI) / 180;
+    const ahead: IAutoMovieVector3 = { x: Math.sin(yaw), y: 0, z: Math.cos(yaw) };
+    const out: number = Vector3.dot(Vector3.subtract(at, base), ahead);
+    const up: number = at.y - base.y;
+    const radius: number = Math.hypot(out, up);
+    const from: number = Math.atan2(out, up);
+    const reach: number = Math.asin(
+      Math.max(
+        -1,
+        Math.min(
+          1,
+          (out + Vector3.dot(Vector3.subtract(rest, at), ahead)) / radius,
+        ),
+      ),
+    );
+    const flexion: number = Math.max(
+      FLEXION[0],
+      Math.min(FLEXION[1], best.flexion + ((reach - from) * 180) / Math.PI),
+    );
+    // The chin's height on the flexed neck with the heels down and at the
+    // rise's limit: the rise lifts it as the sine of the heels' angle.
+    const flexed: ISolved = { ...best, flexion, raise: 0 };
+    const low: number = chin(posed(flexed), resolution).y;
+    const high: number = chin(posed({ ...flexed, raise: kiss.RAISE }), resolution)
+      .y;
+    const sine: number = Math.sin((kiss.RAISE * Math.PI) / 180);
+    const lift: number = rest.y - low;
+    const raise: number =
+      lift <= 0 || high <= low
+        ? 0
+        : Math.min(
+            kiss.RAISE,
+            (Math.asin(Math.min(1, (lift / (high - low)) * sine)) * 180) /
+              Math.PI,
+          );
+    const reached: ISolved = scored({ ...flexed, raise });
+    if (reached.miss < best.miss) best = reached;
+  }
   if (best.miss > NEAR) {
     // Where the shoulder lies from the chin, in the performer's frame.
     const off: IAutoMovieVector3 = Vector3.subtract(
@@ -552,7 +626,7 @@ function solve(
     const ahead: number = off.x * Math.sin(r) + off.z * Math.cos(r);
     throw refusal(
       partner,
-      `the chin stays ${(best.miss * 1000).toFixed(0)} mm from the partner's shoulder with the chest on the back (the shoulder ${(left * 1000).toFixed(0)} mm to the left, ${(off.y * 1000).toFixed(0)} mm up and ${(ahead * 1000).toFixed(0)} mm ahead of it), leaning ${best.roll.toFixed(0)} degrees aside, sinking ${(best.sink * 1000).toFixed(0)} mm, the head turned ${best.twist.toFixed(0)}, flexed ${best.flexion.toFixed(0)} and bent ${best.tilt.toFixed(0)}`,
+      `the chin stays ${(best.miss * 1000).toFixed(0)} mm from the partner's shoulder with the chest on the back (the shoulder ${(left * 1000).toFixed(0)} mm to the left, ${(off.y * 1000).toFixed(0)} mm up and ${(ahead * 1000).toFixed(0)} mm ahead of it), leaning ${best.roll.toFixed(0)} degrees aside, sinking ${(best.sink * 1000).toFixed(0)} mm, the head turned ${best.twist.toFixed(0)}, flexed ${best.flexion.toFixed(0)} and bent ${best.tilt.toFixed(0)}, the heels raised ${best.raise.toFixed(0)}`,
       "stand behind the shoulder the chin rests on, or embrace a partner whose shoulder is near the chin's height",
     );
   }

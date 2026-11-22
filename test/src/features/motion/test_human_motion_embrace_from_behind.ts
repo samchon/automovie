@@ -30,7 +30,7 @@ const ASIDE: number = 0.08;
 /** How long the embrace is held, seconds. */
 const HOLD: number = 2;
 
-/** The gap left between the chest and the back standing upright, metres (provisional staging: a short step back, so the lean that closes it carries the head forward over the shoulder). */
+/** The gap left between the chest and the back standing upright for the average man, metres, scaled with the embracer's stature (provisional staging: a short step back, so the lean that closes it carries the head forward over the shoulder). */
 const GAP: number = 0.2;
 
 /**
@@ -155,7 +155,12 @@ function scene(
         at: {
           x: 0,
           y: 0,
-          z: (a.measure.chestDepth + b.measure.chestDepth) / 2 + GAP,
+          // The step back scaled with the embracer's stature from the
+          // average man's, so every body closes it by the same lean.
+          z:
+            (a.measure.chestDepth + b.measure.chestDepth) / 2 +
+            (GAP * a.measure.stature) /
+              motionHumanBody("m-average").measure.stature,
         },
         yaw: 0,
         proficiency: { level: "trained" },
