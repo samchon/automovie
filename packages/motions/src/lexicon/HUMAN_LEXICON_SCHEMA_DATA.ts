@@ -364,8 +364,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "description": "Charge with cartridge: the cartridge set into the muzzle."
     },
     "chase": {
-      "$ref": "#/components/schemas/OmitIParamsatpacetrack",
-      "description": "Close on a person fast, to arm's length, as a chase ends."
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanPursuit.IIntercept",
+      "description": "Run after a person to arm's length of where they will be, as a chase ends: a row of `intercept`, so a chase runs."
     },
     "checkKick": {
       "$ref": "#/components/schemas/OmitIParamskind-o17",
@@ -1840,8 +1840,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "description": "Reach for a holster at the right hip."
     },
     "readingWalk": {
-      "$ref": "#/components/schemas/OmitIAutoMovieMotionHumanWalkParamspace",
-      "description": "The walk under a screen read while walking (`handToFace({ task: \"read\" })` over it): the slow pace, 0.77 of the free walk's speed, inside the 20 to 40 per cent reduction #3338 states for texting walkers (Lamberg and Muratori 2012 report about a third; the band is provisional until the paper's table is read). The composition gives where to."
+      "$ref": "#/components/schemas/OmitIAutoMovieMotionHumanWalkParamsmannerpace",
+      "description": "The walk under a screen read while walking (`handToFace({ task: \"read\" })` over it): the normal walk slowed by a third (a manner pace of 2/3), the reduction Lamberg and Muratori 2012 report for texting walkers, inside the 20 to 40 per cent band #3338 states (provisional until the paper's table is read). The composition gives where to."
     },
     "readyPosition": {
       "$ref": "#/components/schemas/OmitIParamskind-o10",
@@ -6243,8 +6243,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "description": "A draw on a cigarette: held at the lips for a puff's length, drawn by the seed between 1.6 and 2.1 s (#3346: mean puff durations of the Pennsylvania Adult Smoking Study and NCT04844762; a cigarette's dozen puffs, their intervals of 25 to 28 s and the decline of the puff over the cigarette are the composition's), the head level, between fingers that point up and back at the mouth with the palm toward the chin; its end stands 0.15 of a hand off the fingertips' pads (provisional). With `prop`, the held cigarette's `mouth` end meets the lips."
           },
           "readingWalk": {
-            "$ref": "#/components/schemas/OmitIAutoMovieMotionHumanWalkParamspace",
-            "description": "The walk under a screen read while walking (`handToFace({ task: \"read\" })` over it): the slow pace, 0.77 of the free walk's speed, inside the 20 to 40 per cent reduction #3338 states for texting walkers (Lamberg and Muratori 2012 report about a third; the band is provisional until the paper's table is read). The composition gives where to."
+            "$ref": "#/components/schemas/OmitIAutoMovieMotionHumanWalkParamsmannerpace",
+            "description": "The walk under a screen read while walking (`handToFace({ task: \"read\" })` over it): the normal walk slowed by a third (a manner pace of 2/3), the reduction Lamberg and Muratori 2012 report for texting walkers, inside the 20 to 40 per cent band #3338 states (provisional until the paper's table is read). The composition gives where to."
           },
           "photograph": {
             "$ref": "#/components/schemas/OmitIParamsgraspotherpointtask",
@@ -6381,7 +6381,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "required": [],
         "additionalProperties": false
       },
-      "OmitIAutoMovieMotionHumanWalkParamspace": {
+      "OmitIAutoMovieMotionHumanWalkParamsmannerpace": {
         "type": "object",
         "properties": {
           "to": {
@@ -6457,10 +6457,6 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "maximum": 30,
             "default": 0,
             "x-unit": "degrees"
-          },
-          "manner": {
-            "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo divides the speed. `pace: 1.5` makes the speed 1.5 times the\n`pace` gait's (a normal walk at the reference hip: about 2.3 m/s in\nsteps of at most 0.75 m, so about 180 steps a minute); `pace: 0.8` makes\nit 0.8 times. An Effort `time` factor makes the speed\n`1 / (1 - 0.3 time)` times (`HumanEffort.modifiers`). Neutral when\nabsent."
           },
           "station": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanFormation.IStation",
@@ -11940,8 +11936,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "description": "Come to a person's left side at the personal distance, as an escort takes station."
           },
           "chase": {
-            "$ref": "#/components/schemas/OmitIParamsatpacetrack",
-            "description": "Close on a person fast, to arm's length, as a chase ends."
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanPursuit.IIntercept",
+            "description": "Run after a person to arm's length of where they will be, as a chase ends: a row of `intercept`, so a chase runs."
           },
           "confront": {
             "$ref": "#/components/schemas/OmitIParamsatside",
@@ -12009,50 +12005,33 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false
       },
-      "OmitIParamsatpacetrack": {
+      "IAutoMovieMotionHumanPursuit.IIntercept": {
         "type": "object",
         "properties": {
           "target": {
-            "$ref": "#/components/schemas/IAutoMovieMotionTarget",
-            "description": "What to approach."
+            "type": "string",
+            "description": "The person headed off, by subject id; composed before the performer."
           },
-          "side": {
+          "pace": {
             "oneOf": [
               {
-                "const": "behind"
+                "const": "jog"
               },
               {
-                "const": "front"
+                "const": "run"
               },
               {
-                "const": "left"
-              },
-              {
-                "const": "right"
+                "const": "sprint"
               }
             ],
-            "description": "Where around a person target to stop, in that person's own frame:\n`front`, `left`, `right` or `behind`; along the line from the start\nwhen absent (and always for a prop or point)."
-          },
-          "effort": {
-            "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
-            "description": "Movement quality: Flow shortens the step by `0.15 flow`, Weight and Flow scale the arm swing, Flow draws the elbows in (`HumanEffort.modifiers`); its `time` factor is not read."
-          },
-          "manner": {
-            "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the walk there is performed (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent."
-          },
-          "avoid": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "People to walk round on the way, by subject id."
+            "description": "The running gait (IAutoMovieMotionHumanRun.IParams.pace gives the speeds); `run` when absent. A pace the target outruns is refused."
           }
         },
         "required": [
           "target"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Parameters of an interception."
       },
       "OmitIParamsatside": {
         "type": "object",
@@ -12106,34 +12085,6 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "target"
         ],
         "additionalProperties": false
-      },
-      "IAutoMovieMotionHumanPursuit.IIntercept": {
-        "type": "object",
-        "properties": {
-          "target": {
-            "type": "string",
-            "description": "The person headed off, by subject id; composed before the performer."
-          },
-          "pace": {
-            "oneOf": [
-              {
-                "const": "jog"
-              },
-              {
-                "const": "run"
-              },
-              {
-                "const": "sprint"
-              }
-            ],
-            "description": "The running gait (IAutoMovieMotionHumanRun.IParams.pace gives the speeds); `run` when absent. A pace the target outruns is refused."
-          }
-        },
-        "required": [
-          "target"
-        ],
-        "additionalProperties": false,
-        "description": "Parameters of an interception."
       },
       "IAutoMovieMotionHumanPursuit.IFlee": {
         "type": "object",
@@ -13316,6 +13267,115 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "A relay takeover zone on the track: the lane's middle at the zone's\nentry line and at its exit line, world metres on the floor. The pass at\n`at` must fall between them (World Athletics TR24.19: a 30 m zone)."
+      },
+      "OmitIAutoMovieMotionHumanWalkParamspace": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "$ref": "#/components/schemas/IAutoMovieVector3",
+            "description": "The floor point to stop at, world metres."
+          },
+          "via": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAutoMovieVector3"
+            },
+            "description": "Floor points passed in order before `to`, world metres."
+          },
+          "face": {
+            "type": "number",
+            "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
+          },
+          "facing": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "yaw": {
+                    "type": "number",
+                    "description": "Fixed heading in degrees about world +Y, zero toward +Z."
+                  }
+                },
+                "required": [
+                  "yaw"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "toward": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "World-space point, metres, toward which the walking body faces."
+                  },
+                  "turn": {
+                    "type": "number",
+                    "description": "Additional yaw in degrees relative to the direction toward the point; zero when omitted."
+                  }
+                },
+                "required": [
+                  "toward"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Which way the body faces while it walks, apart from the way it goes: a fixed heading, or toward a floor point (turned by `turn` degrees), so it walks backward, sideways or round while it faces it; along the way when absent."
+          },
+          "stride": {
+            "type": "number",
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.\nInclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "minimum": 0.6,
+            "maximum": 1.3,
+            "default": 1,
+            "x-unit": ""
+          },
+          "armSwing": {
+            "type": "number",
+            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. It multiplies the shoulder swing of the gait (`walk.SHOULDER`, 15 degrees either way).\nInclusive range [0, 2]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "minimum": 0,
+            "maximum": 2,
+            "default": 1,
+            "x-unit": ""
+          },
+          "elbows": {
+            "type": "number",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.\nInclusive range [0, 30]; schema default 0; unit \"degrees\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "minimum": 0,
+            "maximum": 30,
+            "default": 0,
+            "x-unit": "degrees"
+          },
+          "manner": {
+            "$ref": "#/components/schemas/IAutoMovieMotionManner",
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo divides the speed. `pace: 1.5` makes the speed 1.5 times the\n`pace` gait's (a normal walk at the reference hip: about 2.3 m/s in\nsteps of at most 0.75 m, so about 180 steps a minute); `pace: 0.8` makes\nit 0.8 times. An Effort `time` factor makes the speed\n`1 / (1 - 0.3 time)` times (`HumanEffort.modifiers`). Neutral when\nabsent."
+          },
+          "station": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanFormation.IStation",
+            "description": "A formation slot to keep (`walkStation.resolve`): the walk goes along\nthe slot's way from its start until the station ends, `to` and `via`\nread from it, and a gait that draws its own tempo keeps station by\nspeed matching (`walkStation`) while a cadenced one lets its step give.\nNo station when absent."
+          },
+          "cadence": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanWalkCadence.ICadence",
+            "description": "A beat track to keep step to (`walkCadence`): each heel strike answers\na beat, by the walker's drawn asynchrony and phase correction, when the\nwalker locks to it; no beat when absent."
+          },
+          "on": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string",
+                "description": "Scene subject id of the prop on which the performer walks."
+              }
+            },
+            "required": [
+              "prop"
+            ],
+            "additionalProperties": false,
+            "description": "A moving support walked on (#3491): a wagon's bed, a deck. `to` and\n`via` are read where the support stood at the walk's start, the walk is\nplanned there and carried by the support's motion, and its feet plant\non the prop. The ground when absent."
+          }
+        },
+        "required": [
+          "to"
+        ],
+        "additionalProperties": false
       },
       "OmitIParamsatpacesidetrack": {
         "type": "object",
@@ -34792,7 +34852,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The gait, which fixes the speed (`walk.FROUDE`; the speed model is\nIAutoMovieMotionHumanGait). No step exceeds 0.75 m\n(`walk.longestStep`):\n\n- `slow`: about 1.05 m/s, about 96 steps a minute; a stroll, a weary,\n  sad or cautious walk.\n- `normal`: about 1.5 m/s, about 120 steps a minute; ordinary walking.\n- `fast`: about 1.7 m/s, about 136 steps a minute; hurrying, a brisk\n  errand. A quicker way is a `run` jog.\n\n`normal` when absent. `normal` is the metabolic minimum of ordinary\nlimbs (PMID 21653821); the `slow` and `fast` Froude numbers have no\nstated source."
+            "description": "The gait, which fixes the speed (`walk.FROUDE`; the speed model is\nIAutoMovieMotionHumanGait). No step exceeds 0.75 m\n(`walk.longestStep`):\n\n- `slow`: about 0.82 m/s, about 85 steps a minute; a stroll, a weary,\n  sad or cautious walk.\n- `normal`: about 1.5 m/s, about 120 steps a minute; ordinary walking.\n- `fast`: about 1.72 m/s, about 138 steps a minute; hurrying, a brisk\n  errand. A quicker way is a `run` jog.\n\n`normal` when absent. `normal` is the metabolic minimum of ordinary\nlimbs (PMID 21653821); `slow` and `fast` are the slow and the fast\noutdoor paces of healthy adults at the reference hip (Murtagh, Mair,\nAguiar, Tudor-Locke and Murphy 2021, Sports Med 51:125)."
           },
           "via": {
             "type": "array",
@@ -37194,6 +37254,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "oneOf": [
               {
                 "const": "faceToFace"
+              },
+              {
+                "const": "fighting"
               },
               {
                 "const": "handing"
