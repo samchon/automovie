@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  IAutoMovieComposition,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
@@ -160,6 +161,31 @@ function scene(
     return -back(alone, "x", body, alone.duration).z;
   };
   const d: number = (behind(a) + behind(b) + GAP) / 2;
+  // Both sit down, then both lean from the same instant: each lean reads the
+  // other's seated back at its start, and the law needs the two leans to
+  // begin within a frame. Two bodies take unequal times to sit, so leans
+  // chained straight after each sit would start apart, one reading a partner
+  // still sitting down. `a`'s lean is placed first; `b` checks its own
+  // against `a`'s by its anchor.
+  const composition: IAutoMovieComposition = {
+    kind: "sequence",
+    parts: [
+      HumanChain.subject("a")
+        .sit({ seat: seat(a, -1, d), seconds: 0.5 })
+        .with(
+          HumanChain.subject("b").sit({ seat: seat(b, 1, d), seconds: 0.5 }),
+        ).node,
+      HumanChain.subject("a")
+        .registered(backToBack.name, { partner: "b", seconds: HOLD }, "leanA")
+        .with(
+          HumanChain.subject("b").registered(backToBack.name, {
+            partner: "a",
+            seconds: second,
+            with: "leanA",
+          }),
+        ).node,
+    ],
+  };
   return new HumanPerformance({
     seed: "back-to-back",
     laws: [backToBack],
@@ -179,19 +205,7 @@ function scene(
         proficiency: { level: "trained" },
       },
     ],
-    // `a` is placed first; `b` checks its lean against `a`'s by its anchor.
-    composition: HumanChain.subject("a")
-      .sit({ seat: seat(a, -1, d), seconds: 0.5 })
-      .registered(backToBack.name, { partner: "b", seconds: HOLD }, "leanA")
-      .with(
-        HumanChain.subject("b")
-          .sit({ seat: seat(b, 1, d), seconds: 0.5 })
-          .registered(backToBack.name, {
-            partner: "a",
-            seconds: second,
-            with: "leanA",
-          }),
-      ).node,
+    composition,
   });
 }
 
