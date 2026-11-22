@@ -23,7 +23,7 @@ import type { rideQuadruped } from "./rideQuadruped";
  * Admission and sample goals for individually authored equine footwork.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the supported film techniques, trust boundary and existing body/ground ownership.
- * @evidence contracts/development/design.md#principled-representation Rein-back is a diagonal phase choice. An arena stop is an authored finite interval and a geometric displacement within the actual floor-support solve.
+ * @evidence contracts/development/design.md#principled-representation Rein-back is a diagonal phase choice. An arena stop is an authored finite interval and a geometric displacement within the floor-support solve.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps equine-specific authored positions and times out of the general gait table and Engine. Only the existing ride calls this planning seam.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Supplies no anatomical limits, clinical measurements or real-horse guidance.
  */
@@ -145,9 +145,9 @@ export namespace EquineFootwork {
    *
    * @param archetype Exact source archetype identity.
    * @param course Caller-owned course before sampling.
-   * @param plan Its actual admitted geometry and speed profile.
+   * @param plan Its admitted geometry and speed profile.
    * @param gait Optional fixed gait in the public ride request.
-   * @param hooves The actual neutral hoof endpoints in model metres, which fix the pirouette heading.
+   * @param hooves The neutral hoof endpoints in model metres, which fix the pirouette heading.
    * @param centred The moving stance centres, under each attachment, which fix the shoulder-in heading.
    * @param reach The fore limb's length, attachment to hoof, metres, which bounds a scramble's climb per bound.
    * @param tail The rigid tail, which bounds a bank slide's sit.
@@ -155,7 +155,7 @@ export namespace EquineFootwork {
    * @throws {AutoMovieArchetypeRefusal} For an unsupported animal, travel context, inconsistent authored timing, an inadmissible lateral figure, jump or baulk, or a second jump.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Describes the source identity, route and typed refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Read actual route boundaries and ensure the diagonal backing is on a reversed level straight walk leg and a slide consumes only an independently authored terminal deceleration.
+   * @evidence contracts/development/implementation.md#principled-implementation Read route boundaries and ensure the diagonal backing is on a reversed level straight walk leg and a slide consumes only an independently authored terminal deceleration.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Inspect each explicitly authored technique at its own typed leg and use the native plan to validate its applicability.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No generated measurements substitute for authored input and no other species receives horse footwork.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(L) pass over L legs plus the bounded native plan queries for explicitly selected techniques.
@@ -371,7 +371,7 @@ export namespace EquineFootwork {
   /**
    * Return the two alternating diagonal phases of a rein-back stride.
    *
-   * @param limb The named actual hoof.
+   * @param limb The named hoof.
    * @returns Stride fraction, zero for the left fore and right hind, one half for the opposite diagonal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the origin and normalized phases.
@@ -379,7 +379,7 @@ export namespace EquineFootwork {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One division into the two named diagonal pairs.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The result names contact order. It supplies no invented measured speed or stride period.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the actual quadruped limb vocabulary.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the quadruped limb vocabulary.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds no sample or external resource.
    */
   export function reinBackPhase(
@@ -394,13 +394,13 @@ export namespace EquineFootwork {
    * @param slide Admitted sliding window, if supplied.
    * @param second The film second for the current pose.
    * @param neutral The neutral terminal point in model metres.
-   * @param goal Current gait's actual candidate foot goal.
+   * @param goal Current gait's candidate foot goal.
    * @returns Current foot goal, with the two stance channels blended only inside the authored slide.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States time, model metres and the scope of the slide.
    * @evidence contracts/development/implementation.md#principled-implementation The NRHA Judges' Guide depicts sliding ground contact at both hind feet while the horse proceeds straight into the stop. Minimum-jerk progress transitions the existing gait into that authored model-space stance. The admitted deceleration carries it to zero world speed. https://nrha.com/wp-content/uploads/2026/05/2026-NRHA-Handbook.pdf
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Compute one blend and retain a fixed terminal pose after contact.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The candidate still goes through the actual geometric contact solver and will refuse an infeasible foot placement.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The candidate still goes through the geometric contact solver and will refuse an infeasible foot placement.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and output per hind hoof.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Blends the existing gait goal and uses the same prepared terminal solver.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Changes no history and retains no caller state.

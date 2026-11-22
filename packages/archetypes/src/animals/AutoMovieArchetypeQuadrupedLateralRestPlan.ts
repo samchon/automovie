@@ -4,12 +4,12 @@ import type { AutoMovieArchetype } from "../core";
 import type { AutoMovieArchetypeQuadrupedRestPlan } from "./AutoMovieArchetypeQuadrupedRestPlan";
 
 /**
- * Authored lateral rest input and the actual posed geometry on its extended clock.
+ * Authored lateral rest input and the posed geometry on its extended clock.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the additional time states and actual world placement.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the additional time states and world placement.
  * @evidence contracts/development/design.md#principled-representation A lateral hold and two rigid roll intervals use explicit model and time units.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Retains the existing sternal clip's type parameters and shares its actual animal output.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Bounds come from the actual sampled supported body. Params claim authored movement without measured angles or kinetics.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Retains the existing sternal clip's type parameters and shares its animal output.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Bounds come from the sampled supported body. Params claim authored movement without measured angles or kinetics.
  */
 export namespace AutoMovieArchetypeQuadrupedLateralRestPlan {
   /**
@@ -36,19 +36,19 @@ export namespace AutoMovieArchetypeQuadrupedLateralRestPlan {
   }
 
   /**
-   * Actual currently posed archetype and the rigid model-to-scene placement.
+   * Currently posed archetype and the rigid model-to-scene placement.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines shape, placement, support sites and authored phase.
-   * @evidence contracts/development/design.md#principled-representation The draw model and rigid placement are separate; support sites refer to actual emitted source ids.
+   * @evidence contracts/development/design.md#principled-representation The draw model and rigid placement are separate; support sites refer to emitted source ids.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Existing rest body and stable scene placement serve playback without new scene types.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Claims touching parts only where full support geometry is observed.
    */
   export interface ISample<Id extends string, D extends string> {
-    /** Fresh actual posed animal in model space. */
+    /** Fresh posed animal in model space. */
     animal: AutoMovieArchetype<Id, D>;
     /** Unit-scale rigid placer's transform in scene metres. */
     placement: IAutoMovieTransform;
-    /** Actual model part ids at the lowest supporting surface. */
+    /** Model part ids at the lowest supporting surface. */
     support: readonly string[];
     /** The current timed step of the motion. */
     phase:
@@ -61,7 +61,7 @@ export namespace AutoMovieArchetypeQuadrupedLateralRestPlan {
   /**
    * Extended rest plan sampled without playback state.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the duration, aligned events and the fresh actual sample.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the duration, aligned events and the fresh sample.
    * @evidence contracts/development/design.md#principled-representation Composition uses film seconds and the closed phase cue labels, preserving the same typed animal and contact ids.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Only duration, cues and independent current model/placement are exposed.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No simulation loop, callback cache or forced renderer context is needed.
@@ -79,8 +79,8 @@ export namespace AutoMovieArchetypeQuadrupedLateralRestPlan {
     /**
      * Read one fresh sample at film seconds within the complete interval.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States seconds, the finite time domain and actual geometric support in a fresh sample.
-     * @evidence contracts/development/implementation.md#principled-implementation Evaluate the original sternal phases or compose the admitted minimum-jerk roll and folded limbs before measuring actual support.
+     * @evidence contracts/development/common.md#meaningful-documentation States seconds, the finite time domain and geometric support in a fresh sample.
+     * @evidence contracts/development/implementation.md#principled-implementation Evaluate the original sternal phases or compose the admitted minimum-jerk roll and folded limbs before measuring support.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock selects the independently evaluated phase, geometry and placement.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No prior frame, lifted contact proxy or stretched bar changes the sample.
      * @evidence contracts/development/implementation.md#efficient-algorithms One pose emission and one linear support observation per query.

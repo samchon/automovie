@@ -24,9 +24,9 @@ const SIDES: readonly IAutoMovieQuaternion[] = [
 /**
  * The least vertical lift that keeps every solid of a displayed model out of every authored footing plane it overlaps, zero when none enters one.
  *
- * A contact correction applied after an inertialized cut (Holden, Dead Blending, 2023; the engine's `inertializePose` places contact corrections after the blend): the decaying offsets start with a finite acceleration, so a hoof released from a planted stance can dip micrometres into its bed before the target carries it clear. Lifting the whole displayed body by the actual depth keeps the bed a support, never a solid passed through, and the lift is zero once nothing enters.
+ * A contact correction applied after an inertialized cut (Holden, Dead Blending, 2023; the engine's `inertializePose` places contact corrections after the blend): the decaying offsets start with a finite acceleration, so a hoof released from a planted stance can dip micrometres into its bed before the target carries it clear. Lifting the whole displayed body by the depth keeps the bed a support, never a solid passed through, and the lift is zero once nothing enters.
  *
- * Each part's horizontal extent and its lowest surface along each overlapping plane's normal are read from its actual primitive (`QuadrupedRestFloor`), as `AutoMovieArchetypeQuadrupedFooting.prepare`'s verification reads them; a separation `d` below a plane of upward normal `n` needs a vertical lift of `d / n_y`.
+ * Each part's horizontal extent and its lowest surface along each overlapping plane's normal are read from its primitive (`QuadrupedRestFloor`), as `AutoMovieArchetypeQuadrupedFooting.prepare`'s verification reads them; a separation `d` below a plane of upward normal `n` needs a vertical lift of `d / n_y`.
  *
  * @param scene The authored footing.
  * @param model The displayed model, in its placement's model space.
@@ -35,7 +35,7 @@ const SIDES: readonly IAutoMovieQuaternion[] = [
  * @throws {RangeError} For a part without a transformed primitive.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the cited place of contact corrections, why the dip arises, the measure and the unit.
- * @evidence contracts/development/implementation.md#principled-implementation Exact lowest support of each actual primitive along each plane's normal, converted to the vertical lift that restores zero separation.
+ * @evidence contracts/development/implementation.md#principled-implementation Exact lowest support of each primitive along each plane's normal, converted to the vertical lift that restores zero separation.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over parts, each against the planes its horizontal extent overlaps.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance widens the plane and no part is moved alone; the whole body rises by the measured depth only.
  * @evidence contracts/development/implementation.md#efficient-algorithms O(P·S) for P parts and S planes, with four extent reads per part.

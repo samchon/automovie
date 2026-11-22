@@ -8,14 +8,14 @@ import { AutoMovieArchetypeUnits } from "../core";
 import { solveQuadrupedSupportPlane } from "./solveQuadrupedSupportPlane";
 
 /**
- * A four-bar quadruped limb solved from its actual neutral controls.
+ * A four-bar quadruped limb solved from its neutral controls.
  * The upper bar and its folded lower carriage form one exact triangle; an
  * oriented terminal goal fixes the fourth bar and solves the proximal three.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the actual source controls, the two-piece triangle, degrees/metres and fixed root/terminal goals; unreachable requests refuse instead of changing the support.
- * @evidence contracts/development/design.md#principled-representation Four actual control-bar lengths and the lower carriage's neutral relative angles define each solve independently of species proportions or a gait's follow coefficient.
+ * @evidence contracts/development/common.md#meaningful-documentation States the source controls, the two-piece triangle, degrees/metres and fixed root/terminal goals; unreachable requests refuse instead of changing the support.
+ * @evidence contracts/development/design.md#principled-representation Four control-bar lengths and the lower carriage's neutral relative angles define each solve independently of species proportions or a gait's follow coefficient.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One prepared chain exposes its geometric distance band and exact-root solve to the shared ride; the ride owns support planning and the rest-pose solver keeps its different distal-carriage contract.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No species branches, surrogate standing-angle table, moving attachment, stretched bone or projected terminal goal substitutes for the actual chain.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No species branches, surrogate standing-angle table, moving attachment, stretched bone or projected terminal goal substitutes for the chain.
  */
 export namespace AutoMovieArchetypeQuadrupedLimb {
   /**
@@ -23,7 +23,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
    * terminal for point-only solves, or target(endpoint) for oriented solves.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Both bounds are metres, mathematical tangencies are included, and a zero root-to-goal distance remains orientation-degenerate even when the lower bound is zero.
-   * @evidence contracts/development/design.md#principled-representation The interval is [abs(a-lower), a+lower], where a is the first actual length and lower the folded sum of the last three bars for a point goal, or second/third bars for an oriented terminal goal.
+   * @evidence contracts/development/design.md#principled-representation The interval is [abs(a-lower), a+lower], where a is the first length and lower the folded sum of the last three bars for a point goal, or second/third bars for an oriented terminal goal.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The support planner consumes the same bounds that solve admits; no separate anatomical or tuned range can drift from this geometry.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No clinical ROM, biological reach fraction, speed-specific margin or hidden tolerance changes either bound.
    */
@@ -35,23 +35,23 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
   }
 
   /**
-   * A chain prepared from five actual neutral model-space controls.
+   * A chain prepared from five neutral model-space controls.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the actual neutral snapshot, model-space fixed root/goal, relative fold in degrees and five independently owned solved points.
-   * @evidence contracts/development/design.md#principled-representation A prepared geometric chain retains four scalar lengths, actual lower relative angles, its sagittal plane and its fore/hind branch; every call returns fresh results.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Point-only range/solve and a declared terminal-direction binding serve the actual ride's support planner; callers cannot mutate prepared lengths or controls.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the neutral snapshot, model-space fixed root/goal, relative fold in degrees and five independently owned solved points.
+   * @evidence contracts/development/design.md#principled-representation A prepared geometric chain retains four scalar lengths, lower relative angles, its sagittal plane and its fore/hind branch; every call returns fresh results.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Point-only range/solve and a declared terminal-direction binding serve the ride's support planner; callers cannot mutate prepared lengths or controls.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts There is no global cache, species dispatch, aliased source array, inferred clinical constraint or mutable per-frame continuation state.
    */
   export interface IPrepared {
     /**
      * Read the distance band at a relative carpus/hock fold, degrees.
      *
-     * @param fold Relative fold from the actual neutral carriage; fore rotates negatively, hind positively.
+     * @param fold Relative fold from the neutral carriage; fore rotates negatively, hind positively.
      * @returns Fresh minimum/maximum root-to-terminal distances in metres.
      * @throws {RangeError} For a nonfinite fold, a collapsed lower carriage or an unrepresentable distance band.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Gives fold convention, SI bounds and numerical-degeneracy refusals without asserting anatomical limits.
-     * @evidence contracts/development/implementation.md#principled-implementation Sum the three actual lower vectors with their neutral relative angles plus the declared signed fold, then return abs(a-lower) and a+lower.
+     * @evidence contracts/development/implementation.md#principled-implementation Sum the three lower vectors with their neutral relative angles plus the declared signed fold, then return abs(a-lower) and a+lower.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One lower-piece calculation returns the two scalar triangle bounds.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No goal-dependent projection, source replacement, empirical reach multiplier or biological coefficient affects the result.
      * @evidence contracts/development/implementation.md#efficient-algorithms Three trigonometric vector terms and fixed scalar arithmetic take constant work.
@@ -63,7 +63,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
     /**
      * Solve five model-space controls with supplied root and goal unchanged.
      *
-     * @param root Actual current attachment in the source sagittal plane, metres.
+     * @param root Current attachment in the source sagittal plane, metres.
      * @param goal Exact terminal endpoint in that plane, metres.
      * @param fold Relative carpus/hock fold in degrees, with range's fore/hind convention.
      * @returns Five fresh points; the first and last copy root and goal exactly.
@@ -74,7 +74,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit finite plane and reach, solve the upper triangle, recover the lower orientation and emit all five controls.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Root and goal never move and raw distance is never clamped. Only an admitted triangle's cosine is bounded to [-1,1]; a scale-derived plane admission accepts roundoff without projecting inputs.
      * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar/trigonometric work, five fresh output points and four representability checks; no iteration, search or runtime physical simulation.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses prepared actual lengths/angles and the same band as range; one triangle direction resolves every lower joint.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses prepared lengths/angles and the same band as range; one triangle direction resolves every lower joint.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Every point belongs to the caller; mutation and out-of-order calls cannot change the prepared fixed scalar state.
      */
     solve: (
@@ -92,7 +92,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
      * @throws {RangeError} For a zero, nonfinite or unrepresentable axis, or a lateral axis under the default sagittal contract.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Distinguishes a terminal direction effector from point-only carriage and states normalization, model frame and refusals.
-     * @evidence contracts/development/implementation.md#principled-implementation Normalize the declared axis, subtract the actual terminal length along it and solve the remaining three bars with the existing relative carpus/hock fold.
+     * @evidence contracts/development/implementation.md#principled-implementation Normalize the declared axis, subtract the terminal length along it and solve the remaining three bars with the existing relative carpus/hock fold.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate/snapshot one axis, then share the prepared piece, fit and four-length checks through range/target/solve.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The effector direction is explicit input; no invented fetlock angle, species case, changed root, clipped foot target or stretched bar makes the goal attainable.
      * @evidence contracts/development/implementation.md#efficient-algorithms One constant-size axis normalization prepares constant-time band, target and closed-form solve operations.
@@ -106,10 +106,10 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
   }
 
   /**
-   * A terminal position/direction effector using the actual final bar length.
+   * A terminal position/direction effector using the final bar length.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Range is root-to-ankle, target converts a terminal endpoint to that ankle, and solve emits all five model-space controls with the declared terminal axis.
-   * @evidence contracts/development/design.md#principled-representation The final vector d*u is fixed by the explicit unit direction; only the actual proximal three bars participate in the radial triangle band at a relative fold.
+   * @evidence contracts/development/design.md#principled-representation The final vector d*u is fixed by the explicit unit direction; only the proximal three bars participate in the radial triangle band at a relative fold.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The shared ride uses the same target and range for root planning that solve uses for exact foot placement and orientation.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Position and orientation are explicit effector constraints, not implicit biological constants or an angle chosen to make one floor fixture pass.
    */
@@ -119,11 +119,11 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
      * A nonfinite fold or degenerate/unrepresentable carriage throws RangeError.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Gives metres from root to target(endpoint), not root to the terminal, and preserves the existing relative fold convention.
-     * @evidence contracts/development/implementation.md#principled-implementation The folded second/third resultant has length L; the actual first length a gives [abs(a-L),a+L].
+     * @evidence contracts/development/implementation.md#principled-implementation The folded second/third resultant has length L; the first length a gives [abs(a-L),a+L].
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegate to the same lower-piece owner with the explicitly constrained terminal vector removed.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No terminal-radius allowance, anthropometric margin or position clamp changes the radial band.
      * @evidence contracts/development/implementation.md#efficient-algorithms Constant trigonometric/scalar work and one fresh bound pair.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the actual neutral relative fold and source lengths prepared for solve.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the neutral relative fold and source lengths prepared for solve.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no range result and creates no external resource.
      */
     range: (fold: number) => IRange;
@@ -133,9 +133,9 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
      * Nonfinite/nonplanar points or an unrepresentable result throw RangeError.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the exact target(endpoint)=endpoint-d*u relation, finite sagittal input and fresh result.
-     * @evidence contracts/development/implementation.md#principled-implementation Subtract the actual terminal length times the prepared normalized ankle-to-terminal axis.
+     * @evidence contracts/development/implementation.md#principled-implementation Subtract the terminal length times the prepared normalized ankle-to-terminal axis.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the point, subtract one fixed vector and admit representable output.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The terminal endpoint and axis do not move to fit reach or avoid geometry; the caller owns actual sole contact.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The terminal endpoint and axis do not move to fit reach or avoid geometry; the caller owns sole contact.
      * @evidence contracts/development/implementation.md#efficient-algorithms Three multiply/subtract operations and finite/plane admission take constant work.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the prepared terminal vector for support planning and solve.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh vector and retains no caller point.
@@ -146,7 +146,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
      * Solve the proximal three bars and the declared terminal position/axis.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Inputs are fixed model-space root/terminal and relative fold in degrees; five fresh outputs preserve four lengths and the supplied root/endpoint exactly, with RangeError for unsupported geometry.
-     * @evidence contracts/development/implementation.md#principled-implementation Fit the actual first bar against the folded second/third resultant to target(endpoint), then append the exact terminal endpoint along the declared final axis.
+     * @evidence contracts/development/implementation.md#principled-implementation Fit the first bar against the folded second/third resultant to target(endpoint), then append the exact terminal endpoint along the declared final axis.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Convert the goal, invoke the shared strict engine-backed triangle fit and check all four represented bar lengths.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No goal/root projection, final-axis relaxation or engine-clamped miss is returned as a successful contact.
      * @evidence contracts/development/implementation.md#efficient-algorithms Constant closed-form scalar work and five fresh points; no iteration or simulation.
@@ -171,15 +171,15 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
   }
 
   /**
-   * Snapshot four actual lengths and neutral relative angles.
+   * Snapshot four lengths and neutral relative angles.
    *
-   * @param source Five finite actual neutral controls, root to terminal, metres.
+   * @param source Five finite neutral controls, root to terminal, metres.
    * @param fore True for a fore elbow's rear branch and negative relative fold; false for a hind stifle's front branch and positive fold.
    * @returns A source-independent prepared chain for support planning and playback.
    * @throws {RangeError} For a malformed/sparse source, nonpositive lengths, nonplanarity beyond numerical roundoff or a degenerate neutral lower carriage.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the actual five-point model-space input, metres/degrees, fore/hind branch and source/solve refusal categories.
-   * @evidence contracts/development/implementation.md#principled-implementation Read four actual Euclidean lengths and lower relative sagittal angles once. Solve the first bar and folded rigid lower carriage as a triangle with admitted raw reach and unchanged endpoints.
+   * @evidence contracts/development/common.md#meaningful-documentation States the five-point model-space input, metres/degrees, fore/hind branch and source/solve refusal categories.
+   * @evidence contracts/development/implementation.md#principled-implementation Read four Euclidean lengths and lower relative sagittal angles once. Solve the first bar and folded rigid lower carriage as a triangle with admitted raw reach and unchanged endpoints.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit source geometry, prepare the folded lower piece, then expose its band and the closed solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads no species standing angles or follow share and changes no source point. A scale-derived binary64 plane bound admits arithmetic noise only; no clinical limit, projected reach, shifted root or fixture coefficient is introduced.
    * @evidence contracts/development/implementation.md#efficient-algorithms Preparation examines five controls/four bars once; every range and solve takes constant work with no retained history.
@@ -381,7 +381,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
       return [{ ...root }, elbow, wrist, ankle];
     }
 
-    /** Refuse a solved representation that cannot retain the four actual positive lengths. */
+    /** Refuse a solved representation that cannot retain the four positive lengths. */
     function checked(solved: IAutoMovieVector3[]): IAutoMovieVector3[] {
       if (solved.some((point: IAutoMovieVector3): boolean => !finite(point)))
         throw new RangeError(

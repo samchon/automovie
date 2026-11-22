@@ -20,7 +20,7 @@ import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { createQuadruped } from "./createQuadruped";
 
 /**
- * A whole-body pose of an equid on its own hooves: its trunk moved as one rigid body, each limb either placed with its hoof at a point or folded off the floor, solved through the actual rig.
+ * A whole-body pose of an equid on its own hooves: its trunk moved as one rigid body, each limb either placed with its hoof at a point or folded off the floor, solved through the rig.
  *
  * The trunk with the hindquarters, neck, head and tail is one rigid body moved from the rest model by `trunk`. A placed limb keeps its terminal endpoint on an anchor with the terminal bar's base direction in the world, so a flat hoof stays flat, and its proximal bars are solved by the shared exact limb owner (`AutoMovieArchetypeQuadrupedLimb`) with a declared relative fold; an anchor on the floor is a planted support. A folded limb turns its joints from a given chain by declared angles, forward kinematics in the trunk's own frame. Each bar is then turned from its rest direction onto its posed one and every part and contact rides its declared carrier (`AutoMovieArchetypeQuadrupedSkeleton.apply`). A limb that cannot reach its anchor, or a pose that puts any part under the floor, is refused. The centre of mass is approximated by the rest model's carried rigidly with the trunk, neglecting what the limbs, neck and head shift: a stated coarse proxy for weight transfer, not a load distribution.
  *
@@ -143,7 +143,7 @@ export namespace EquineBodyPose {
      * @evidence contracts/development/common.md#meaningful-documentation Metres; the direction runs from the bar's start to its endpoint.
      * @evidence contracts/development/implementation.md#principled-implementation A capsule's cap reaches its radius below its endpoint; a cylinder's end disc reaches its radius times the bar's horizontal share, the rim's lowest point.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per primitive.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read from the actual terminal part.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read from the terminal part.
      * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work The terminal parts are read once when prepared.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -157,7 +157,7 @@ export namespace EquineBodyPose {
      * The posed equid in the base model's space.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Returns the model; refuses an unreachable limb or a part under the floor at the given placement.
-     * @evidence contracts/development/implementation.md#principled-implementation Move the axial bones rigidly, pose each limb with `chain`, turn each bar onto its posed direction and emit through the actual carriers; then measure every part's lowest point under the placement.
+     * @evidence contracts/development/implementation.md#principled-implementation Move the axial bones rigidly, pose each limb with `chain`, turn each bar onto its posed direction and emit through the carriers; then measure every part's lowest point under the placement.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Trunk, four limbs, emission, floor check.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reach and floor are refused, never clamped.
      * @evidence contracts/development/implementation.md#efficient-algorithms Four constant-size limb poses, O(B) frames and O(P+A) emission and floor work.
@@ -180,7 +180,7 @@ export namespace EquineBodyPose {
    * @evidence contracts/development/common.md#meaningful-documentation States the input and output.
    * @evidence contracts/development/implementation.md#principled-implementation Read the rest FK frames, each limb's five joints from its four bars, the rest centre of mass and the declared carriers.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One rig read, one chain read per limb, one carrier read.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Chains come from the actual bars, never from a species table.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Chains come from the bars, never from a species table.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(B+P) once.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Everything prepared serves every pose.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the rest frames, chains, carriers and the source model for as long as the caller keeps the solver.

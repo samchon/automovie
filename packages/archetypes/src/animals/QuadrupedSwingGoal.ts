@@ -55,7 +55,7 @@ export namespace QuadrupedSwingGoal {
     gait: AutoMovieArchetypeQuadrupedGait.IGait;
     /** The animal's height at the withers, metres. */
     withers: number;
-    /** The limb's five actual neutral joints, model metres. */
+    /** The limb's five neutral joints, model metres. */
     rest: readonly IAutoMovieVector3[];
     /** The limb's step. */
     step: Step;

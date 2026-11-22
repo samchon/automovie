@@ -11,7 +11,7 @@ import type { rideQuadruped } from "./rideQuadruped";
  * owner distinguishes a virtual foot landing from a new locomotion request.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Separates admitted requests, boundary support clocks and committed legacy handovers, and states which spatial samples remain untouched.
- * @evidence contracts/development/design.md#principled-representation A clock reads the actual course's temporal domain and declared neighbouring gait domains; neither a held path nor a retained gait invents a new observed speed row.
+ * @evidence contracts/development/design.md#principled-representation A clock reads the course's temporal domain and declared neighbouring gait domains; neither a held path nor a retained gait invents a new observed speed row.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Internal to rideQuadruped; table interpolation and transition selection remain with AutoMovieArchetypeQuadrupedGait and QuadrupedChange.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No species case, arbitrary tolerance, global speed clamp, mutable registry or scene-specific exception decides a continuation.
  */
@@ -25,9 +25,9 @@ export namespace QuadrupedRideClock {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A continuation reader cannot admit a requested speed; ride input admission still calls the strict table operation.
    */
   export interface IClock {
-    /** Actual course start, film seconds, including its authored cue offset. */
+    /** Course start, film seconds, including its authored cue offset. */
     start: number;
-    /** Actual course end, film seconds. */
+    /** Course end, film seconds. */
     end: number;
     /** The course end on the hoof clock after removing stationary intervals. */
     movingEnd: number;
@@ -59,7 +59,7 @@ export namespace QuadrupedRideClock {
      * Read timing context at a film second, holding the nearest course boundary.
      * Spatial placement still reads the original plan at its original second.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines film seconds, actual cue-aware boundaries and the separation from unmodified spatial sampling.
+     * @evidence contracts/development/common.md#meaningful-documentation Defines film seconds, cue-aware boundaries and the separation from unmodified spatial sampling.
      * @evidence contracts/development/implementation.md#principled-implementation The prepared reader bounds only its time argument to start/end and delegates state construction to the admitted course plan.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar time bound precedes one existing plan-state read.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No distance, path, requested speed or source state is edited to create the boundary context.
@@ -89,26 +89,26 @@ export namespace QuadrupedRideClock {
   /**
    * Prepare temporal boundary sampling and declared legacy clock continuation.
    *
-   * A virtual previous/next landing can lie outside the actual course. Only its
+   * A virtual previous/next landing can lie outside the course. Only its
    * clock context uses the boundary state; its held spatial distance is still
    * read from the unmodified plan at the original landing second by the ride.
    * A selected stride may finish while the legacy Froude/mass/overlap law holds
    * it outside its own measured range. Its endpoint clock continues only while
-   * the actual speed is supported by the immediately neighbouring gait across
+   * the speed is supported by the immediately neighbouring gait across
    * that legacy edge. Declared speed-availability edges do not grant this rule.
    * Genuine zero-speed ramps keep the existing vMin²/(2a) distance bridge.
    *
    * @param species The ride's private selected table and species identity.
    * @param course The authored rates used only for genuine zero-speed ramps.
-   * @param plan The already admitted path and actual clock interval.
+   * @param plan The already admitted path and clock interval.
    * @param tempo The animal's normalized declared timing-spread coordinate.
    * @param withers The animal's withers height, metres.
    * @param holds Explicit hoof-clock holds, such as a jump's flight and its approach's stride adjustment, merged with the route pauses.
    * @returns A prepared continuation reader; requested-speed admission is unchanged.
-   * @throws {AutoMovieArchetypeRefusal} Through strict timing when no declared continuation supports the actual speed, or timing inputs are malformed.
+   * @throws {AutoMovieArchetypeRefusal} Through strict timing when no declared continuation supports the speed, or timing inputs are malformed.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States units, boundary-only temporal sampling, spatial preservation, legacy adjacent-domain continuation and the separately retained genuine-zero ramp bridge.
-   * @evidence contracts/development/implementation.md#principled-implementation Clamp clock query time to the actual profile interval, then read raw timing in range. Outside it, retain an endpoint only for a declared zero-speed ramp or an already committed gait with actual adjacent-domain support across a non-speed transition.
+   * @evidence contracts/development/implementation.md#principled-implementation Clamp clock query time to the profile interval, then read raw timing in range. Outside it, retain an endpoint only for a declared zero-speed ramp or an already committed gait with adjacent-domain support across a non-speed transition.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare interval bounds, gait ranges and zero-speed boundary distances once; each read applies the two explicit continuation reasons before delegating to strict table timing.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never clamp a requested speed, bridge an unobserved domain, mutate path distances or substitute an authored speed-availability edge for a measured legacy transition law.
    * @evidence contracts/development/implementation.md#efficient-algorithms Prepares G declared gait ranges and C course boundary records once; each read locates the gait among G entries, inspects its own and one adjacent range, scans zero-speed boundaries only for a subminimum ramp, and delegates the selected gait's R-row timing interpolation.
@@ -348,11 +348,11 @@ export namespace QuadrupedRideClock {
   }
 
   /**
-   * The speed a collected explicit gait's clock is read at: the actual speed inside its declared domain, and its fastest row while the horse is still above it but inside the parent gait's domain it is being collected out of.
+   * The speed a collected explicit gait's clock is read at: the speed inside its declared domain, and its fastest row while the horse is still above it but inside the parent gait's domain it is being collected out of.
    *
    * @param species The ride's species and selected table.
    * @param gait The committed gait.
-   * @param speed The actual course speed, metres per second.
+   * @param speed The course speed, metres per second.
    * @param withers The animal's withers height, metres.
    * @returns The speed to read the strict table at; unchanged when no collection rule applies, so the strict reader still refuses.
    *

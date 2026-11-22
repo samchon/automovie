@@ -57,7 +57,7 @@ export function QuadrupedAnimal<Id extends string>(
  * @evidence contracts/development/common.md#meaningful-documentation Every input states its ownership and unit.
  * @evidence contracts/development/design.md#principled-representation One body profile and its existing dimension draw session.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Adds no species registry or alternative geometry representation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The callback adds actual parts and contacts to the same physical model.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The callback adds parts and contacts to the same physical model.
  */
 export namespace QuadrupedAnimal {
   /** One producer's complete construction input. */

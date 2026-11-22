@@ -202,10 +202,10 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     /** The back's height above the ground, metres. */
     back: number;
 
-    /** The actual trunk capsule's axial span, metres; connected joints lie in their parent solids. */
+    /** The trunk capsule's axial span, metres; connected joints lie in their parent solids. */
     trunk: number;
 
-    /** Each connected neutral chain: shoulder/hip, elbow/stifle, carpus/hock, fetlock and terminal endpoint. Four lengths, footprint and distal directions are preserved; endpoint height gives the actual flat terminal cylinder's sole ground Y=0. */
+    /** Each connected neutral chain: shoulder/hip, elbow/stifle, carpus/hock, fetlock and terminal endpoint. Four lengths, footprint and distal directions are preserved; endpoint height gives the flat terminal cylinder's sole ground Y=0. */
     limbs: Readonly<Record<Limb, readonly IAutoMovieVector3[]>>;
 
     /** The point of buttock, `IBody.buttock` behind the initial shoulder site, at the initial hind conformation's height. This provisional rump landmark is independent of later neutral joint connection; no measured buttock height is claimed. */
@@ -250,7 +250,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
    * @returns The rest rig.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Initial chains define body landmarks from declared lengths/directions without changing sourced dimensions. The common neutral construction then grounds the actual terminal cylinders by their support clearance and connects detached roots to the unchanged torso capsules with an exact length-preserving proximal fit.
+   * @evidence contracts/development/implementation.md#principled-implementation Initial chains define body landmarks from declared lengths/directions without changing sourced dimensions. The common neutral construction then grounds the terminal cylinders by their support clearance and connects detached roots to the unchanged torso capsules with an exact length-preserving proximal fit.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Construct initial chains and body landmarks, then connect the neutral chains using the same capsule definitions the body layout emits.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species, speed or screenshot selects a correction. Parent solids, measured dimensions, all four lengths, footprints and distal carriage remain fixed; the terminal-centre height follows the real sole rather than a whole-model offset, and impossible connection refuses instead of stretching or hiding a motion-goal clamp.
    * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen initial links and at most four closed-form neutral proximal fits take O(1) time/space; no mesh search, iteration history or motion sampling occurs.
@@ -374,7 +374,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
    * @evidence contracts/development/common.md#meaningful-documentation States what it adds and what it reads.
    * @evidence contracts/development/implementation.md#principled-implementation Each bar joins the rig's endpoints. Known mass shares are normalized by their printed sum (Kubo's horse sums to 100.4); the torso's share is divided by drawn capsule volumes. With no segment study the shares remain absent and the existing builder uses solid volume under the authored total mass.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The trunk and hindquarters, withers, neck, shared head/pinna assembly, tail and limbs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scapula's and pelvis's mass remain in the source torso allocation; each shoulder blade's bar is massless. Optional explicitly sourced pinnae divide the unchanged whole-head share with the actual head capsule by solid volume; no biological ear density or mass fraction is invented. Mane and detailed hooves remain unmodelled.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scapula's and pelvis's mass remain in the source torso allocation; each shoulder blade's bar is massless. Optional explicitly sourced pinnae divide the unchanged whole-head share with the head capsule by solid volume; no biological ear density or mass fraction is invented. Mane and detailed hooves remain unmodelled.
    * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-three bone bars, the withers and at most two prepared ear plates take constant construction work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared torso definition serves conformation/layout and AutoMovieArchetypeQuadrupedHead owns the complete capsule/pinna geometry and source-budget allocation without duplicate ear planning.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -407,7 +407,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
                 0,
               ));
 
-    // The two unchanged torso solids also define neutral limb connection; their measured or authored total share is divided by their actual volumes.
+    // The two unchanged torso solids also define neutral limb connection; their measured or authored total share is divided by their volumes.
     const half: number = rig.trunk / 2;
     const parents: Readonly<
       Record<QuadrupedAttachments.Parent, QuadrupedAttachments.ICapsule>

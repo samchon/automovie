@@ -37,7 +37,7 @@ import { createPony } from "./createPony";
  * createDog's coarse Husky cohort prototype with required authored mass and
  * optional authored collar. A bare adult domestic cat supplies a level walk.
  * Ox, single-hump camel and Boso sika are coherent
- * coarse cohort references, with actual identifying parts and optional authored
+ * coarse cohort references, with identifying parts and optional authored
  * equipment. Source limitations remain with each body/gait owner; fixed cohort
  * means are not measured population variation or complete animal dynamics.
  *
@@ -160,20 +160,20 @@ export namespace createQuadruped {
     /** The producer's name, which the animal's `archetype` carries and refusals name. */
     archetype: string;
 
-    /** Producer neutral standing directions, degrees: AutoMovieArchetypeQuadrupedBody.IBody.stance builds the declared form, while pose solvers recover actual constructed control directions. */
+    /** Producer neutral standing directions, degrees: AutoMovieArchetypeQuadrupedBody.IBody.stance builds the declared form, while pose solvers recover constructed control directions. */
     stance: AutoMovieArchetypeQuadrupedBody.IBody["stance"];
 
     /** The gaits. */
     table: AutoMovieArchetypeQuadrupedGait.ITable;
 
-    /** Producer part-id vocabulary carried by the common neck nod, including neck/head themselves and optional tack that need not exist on every actual animal. QuadrupedCarriage binds existing accessories only. */
+    /** Producer part-id vocabulary carried by the common neck nod, including neck/head themselves and optional tack that need not exist on every animal. QuadrupedCarriage binds existing accessories only. */
     nodding: readonly string[];
 
     /** Producer contact-id vocabulary carried by the common neck nod; optional contacts need not exist on every animal. Absent or unlisted contacts preserve trunk carriage, including the legacy equid held-rein policy. */
     noddingContacts?: readonly string[];
   }
 
-  /** Equid head-carried vocabulary: neck, head, bridle, optional actual ear plates, the optional jaw, upper lip and nostrils. */
+  /** Equid head-carried vocabulary: neck, head, bridle, optional ear plates, the optional jaw, upper lip and nostrils. */
   export const BRIDLED: readonly string[] = [
     "neck",
     ...EquineHarness.HEAD,

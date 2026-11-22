@@ -6,23 +6,23 @@ import { AutoMovieArchetypeRefusal } from "../core";
  * The planner evaluates one gait clock per cell and permits at most one stride
  * decision there. This is an explicit capacity policy, not a biological minimum
  * period or a claim that constant clocks cannot be interpolated more sparsely.
- * Its actual cell width supplies the minimum supported period for that plan.
+ * Its cell width supplies the minimum supported period for that plan.
  *
  * For S cells, retained phase rows are at most S+1 and current/lookahead stride
  * records at most S+2. Four limbs publish at most 4(S+1) landings and at most S
  * gait/lead changes: 5S+4 animal events, plus the course's own C input events.
  * Neither the analysis nor the fluid solver's unrelated budgets apply here.
  *
- * @param archetype The actual producer named by a structured refusal.
+ * @param archetype The producer named by a structured refusal.
  * @param phase Previously admitted cumulative cycles, initially zero.
  * @param seconds Positive finite width of this plan's phase cell, seconds.
  * @param stride Positive finite effective period at the cell, seconds.
- * @param cells Positive safe-integer count of cells in the actual phase plan.
+ * @param cells Positive safe-integer count of cells in the phase plan.
  * @returns The strictly advancing, finite cumulative phase within capacity.
  * @throws {AutoMovieArchetypeRefusal} Before enumeration for nonrepresentable arithmetic or a plan requiring more than one complete cycle per cell.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States SI units, representability, the explicit one-decision-per-cell capacity policy and exact retained-record/event bounds without presenting capacity as physiology or mathematical interpolation necessity.
- * @evidence contracts/development/implementation.md#principled-implementation Divides the actual cell width by its effective period, then admits finite positive advance≤1, finite strictly increasing cumulative phase≤S and safe integer boundary indices/count≤1 before any stride allocation loop can use them.
+ * @evidence contracts/development/implementation.md#principled-implementation Divides the cell width by its effective period, then admits finite positive advance≤1, finite strictly increasing cumulative phase≤S and safe integer boundary indices/count≤1 before any stride allocation loop can use them.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Calculate the candidate and its integer crossings once, apply one complete admission predicate and return it or a structured refusal.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No biological minimum, ULP adjustment, scene exception or borrowed unrelated budget hides an unsupported clock; the caller must shorten the plan or supply a slower declared period.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar arithmetic and admission before any crossed-stride enumeration, including division overflow, unchanging rounded phases and finite billion-event requests.

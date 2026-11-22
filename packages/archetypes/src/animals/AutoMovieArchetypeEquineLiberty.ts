@@ -32,7 +32,7 @@ type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
 /**
  * A trained horse's liberty work after it halts: the bow, kneel and sit as stance rows, then optionally a lie-down and stay or a lateral "dead" hold and the rise from it.
  *
- * The rows play through the stance (`AutoMovieArchetypeEquineStance` with `EquineLibertyRows`). A recline plays the shared rests from the halt: the sternal rest (`AutoMovieArchetypeQuadrupedRest`), or the lateral rest that rolls onto a side, holds it and rolls back to rise (`AutoMovieArchetypeQuadrupedLateralRest`), each placed at the halt and carrying the horse's own tack through its actual carriers; the rest's phases are its named entry, hold and exit, and its events join the ride's instants.
+ * The rows play through the stance (`AutoMovieArchetypeEquineStance` with `EquineLibertyRows`). A recline plays the shared rests from the halt: the sternal rest (`AutoMovieArchetypeQuadrupedRest`), or the lateral rest that rolls onto a side, holds it and rolls back to rise (`AutoMovieArchetypeQuadrupedLateralRest`), each placed at the halt and carrying the horse's own tack through its carriers; the rest's phases are its named entry, hold and exit, and its events join the ride's instants.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what plays the rows and the recline and how they are placed.
  * @evidence contracts/development/design.md#principled-representation A ride in and a ride out on the same clock.

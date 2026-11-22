@@ -25,7 +25,7 @@ import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
  * angle and side travel are authored rather than fitted to those observations.
  * https://pmc.ncbi.nlm.nih.gov/articles/PMC13491436/
  *
- * @param animal The actual rigged animal and attached geometry to support.
+ * @param animal The rigged animal and attached geometry to support.
  * @param restParams The existing sternal plan and its complete carrier bindings.
  * @param params Explicit rolling shape, direction and durations for this take.
  * @returns One seekable rest performance with the lateral and return cues on its own clock.
@@ -35,8 +35,8 @@ import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
  * @evidence contracts/development/implementation.md#principled-implementation Insert a longitudinal roll within the sternal hold. Evaluate a common minimum-jerk roll and turn each lower-side proximal bar inward about its original joint. Carry the joined distal chain from the moved endpoint at its original folded directions, then place the model using every complete part surface.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit durations and support at both held ends, sample the existing lowering and rising through their original clip, and compose rolled placement on the middle interval.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No previous frame, guessed collider extent or altered bone length drives the performance. The caller authors coarse roll travel and time.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(B+P+A+V) actual FK, emission and support work in a rolling sample for B bones, P parts, A affordances and V owned geometry values. Other phases use one existing sample and the same linear support observation.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The sternal clip owns lowering, carried geometry and rising. One set of actually posed joint frames serves lateral queries. Existing carrier emission and whole-primitive support supply current geometry.
+ * @evidence contracts/development/implementation.md#efficient-algorithms O(B+P+A+V) FK, emission and support work in a rolling sample for B bones, P parts, A affordances and V owned geometry values. Other phases use one existing sample and the same linear support observation.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The sternal clip owns lowering, carried geometry and rising. One set of posed joint frames serves lateral queries. Existing carrier emission and whole-primitive support supply current geometry.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Scalar timing and snapshots of the held geometry, carrier bindings and admitted rig live only with the returned clip. Each returned frame belongs to the caller.
  */
 export function AutoMovieArchetypeQuadrupedLateralRest<
@@ -87,7 +87,7 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
     throw new RangeError("The roll clock is unrepresentable");
   const sign: number = side === "left" ? 1 : -1;
 
-  // Both halves join the same independently sampled actual sternal animal.
+  // Both halves join the same independently sampled sternal animal.
   const held: AutoMovieArchetypeQuadrupedRestPlan.ISample<Id, D> =
     rest.sample(start);
   const base: Bound = support(held.animal, rotation(0));
@@ -238,17 +238,17 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
   }
 }
 
-/** The actual low surface heights and all coincident lowest part ids. */
+/** The low surface heights and all coincident lowest part ids. */
 interface Bound {
-  /** Lowest actual supported surface before vertical placement, metres. */
+  /** Lowest supported surface before vertical placement, metres. */
   lowest: number;
   /** Lowest of the trunk and hindquarters surfaces, metres. */
   body: number;
-  /** Parts supplying the actual lowest support. */
+  /** Parts supplying the lowest support. */
   sites: readonly string[];
 }
 
-/** Find the exact set support over the actual transformed rigid primitives. */
+/** Find the exact set support over the transformed rigid primitives. */
 function support(
   animal: Pick<AutoMovieArchetype, "parts">,
   placement: IAutoMovieTransform,

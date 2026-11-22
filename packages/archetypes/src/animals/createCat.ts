@@ -6,7 +6,7 @@ import { createCohortQuadruped } from "./createCohortQuadruped";
 /**
  * Build one bare adult domestic-cat prototype for ordinary walking shots.
  *
- * The shared body and limb geometry carry the actual ground contacts through
+ * The shared body and limb geometry carry the ground contacts through
  * the quadruped ride. The rig's circular solids and two coarse pinna plates
  * are construction proxies, with mass allocated by the shared volume rule.
  *
@@ -19,7 +19,7 @@ import { createCohortQuadruped } from "./createCohortQuadruped";
  * @evidence contracts/development/implementation.md#principled-implementation One complete reference uses the existing non-equid producer and name-based species admission in rideQuadruped.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pass the single declared reference and its body owner to the cohort builder.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No other morphology, tack, clinical mass fractions or foot coefficients are inferred.
- * @evidence contracts/development/implementation.md#efficient-algorithms One fixed-size profile plan and one actual model are built.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One fixed-size profile plan and one model are built.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The common model builder owns dimensions, part solids and mass; the common ride owns contact motion.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The producer returns independent records without retaining the caller parameters or any external resource.
  */

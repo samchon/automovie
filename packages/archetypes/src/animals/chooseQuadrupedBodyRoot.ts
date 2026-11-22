@@ -9,9 +9,9 @@ import type { AutoMovieArchetypeQuadrupedRootRange } from "./AutoMovieArchetypeQ
  * attachment receives this same root; no limb root or terminal target changes.
  * A representable interior is preferred to a numerical reach tangency.
  *
- * @param range The actual four-limb/body-floor intersection, metres.
+ * @param range The four-limb/body-floor intersection, metres.
  * @param preferred The gait's soft vertical displacement, metres.
- * @param coordinateScale Maximum actual coordinate/length magnitude used to form the intersection, metres.
+ * @param coordinateScale Maximum coordinate/length magnitude used to form the intersection, metres.
  * @returns A finite shared root translation inside the original physical interval.
  * @throws {RangeError} For malformed or unrepresentable planning input.
  *

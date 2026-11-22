@@ -10,16 +10,16 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "./AutoMovieArchetypeQuadrupedHeadAttachment";
 
 /**
- * Two dimensioned coarse pinna plates rooted in the actual head capsule.
+ * Two dimensioned coarse pinna plates rooted in the head capsule.
  *
  * Published ear length/breadth are interpreted as a straight plate's complete
  * base-to-tip centreline and width. A rectangular plate, its thickness and its neutral direction are
  * explicit authored representation choices, not measured ear anatomy. Existing
  * body dimensions, skeletal controls and mass ownership are not changed.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the two real plate parts, metre/height-fraction conversion, complete pinna dimensions, authored rectangular interpretation and actual head-root seating.
- * @evidence contracts/development/design.md#principled-representation An explicit positive length, width and plate thickness plus a finite neutral direction determine each mirrored box; a containing root disk is admitted by the existing actual-head owner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Optional body data and one lay operation serve the actual equid producers without another body, skeleton, material or source-measurement table.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the two real plate parts, metre/height-fraction conversion, complete pinna dimensions, authored rectangular interpretation and head-root seating.
+ * @evidence contracts/development/design.md#principled-representation An explicit positive length, width and plate thickness plus a finite neutral direction determine each mirrored box; a containing root disk is admitted by the existing head owner.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Optional body data and one lay operation serve the equid producers without another body, skeleton, material or source-measurement table.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No species, seed, speed, picture or biological thickness/angle limit selects geometry. Missing source dimensions are not invented by this owner and an oversized root refuses rather than changing the head.
  */
 export namespace AutoMovieArchetypeQuadrupedEars {
@@ -43,24 +43,24 @@ export namespace AutoMovieArchetypeQuadrupedEars {
   }
 
   /**
-   * Two admitted plates and their actual total solid volume, cubic metres.
+   * Two admitted plates and their total solid volume, cubic metres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Volume is the sum of both actual rectangular solids; emit consumes an optional weight budget for the pair, not a biological density or ear-mass estimate.
-   * @evidence contracts/development/design.md#principled-representation One admitted immutable-dimension plan connects physical volume and actual emission so the whole-head source share can be divided without a second geometry calculation.
+   * @evidence contracts/development/common.md#meaningful-documentation Volume is the sum of both rectangular solids; emit consumes an optional weight budget for the pair, not a biological density or ear-mass estimate.
+   * @evidence contracts/development/design.md#principled-representation One admitted immutable-dimension plan connects physical volume and emission so the whole-head source share can be divided without a second geometry calculation.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The head assembler reads volume and calls emit; the existing lay seam uses the same plan for standalone callers.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No unrepresented tissue, inferred density, changed head dimensions or duplicate planning supplies the weight allocation.
    */
   export interface IPrepared {
-    /** Actual two-box volume, cubic metres. */
+    /** Two-box volume, cubic metres. */
     readonly volume: number;
     /**
      * Append both admitted metre-space boxes to the builder in the supplied colour.
      * A supplied pair weight is split equally; absent, the builder allocates by
-     * actual volume. Invalid weights refuse before emission; part identity and
+     * volume. Invalid weights refuse before emission; part identity and
      * material admission remain the builder's responsibility.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States builder mutation, model-metre geometry, optical colour, optional complete-pair weight and admission ownership.
-     * @evidence contracts/development/implementation.md#principled-implementation The prepared equal-volume boxes retain their admitted rigid frames and split a finite representably positive pair weight equally; absent weight preserves the builder's actual-volume allocation.
+     * @evidence contracts/development/implementation.md#principled-implementation The prepared equal-volume boxes retain their admitted rigid frames and split a finite representably positive pair weight equally; absent weight preserves the builder's volume allocation.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate the optional weight, then append the two prepared boxes through the existing builder.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No biological ear density, massless proxy or dimension change is introduced; invalid pair weights refuse before either append.
      * @evidence contracts/development/implementation.md#efficient-algorithms Exactly two box appends and constant scalar checks use O(1) time and new storage per emission, without repeating root admission.
@@ -77,20 +77,20 @@ export namespace AutoMovieArchetypeQuadrupedEars {
   /**
    * Add the two plates after admitting all dimensions and both complete roots.
    *
-   * @param builder The actual body builder.
-   * @param head Actual neutral head capsule controls, metres.
-   * @param withers Actual current withers height, metres.
+   * @param builder The body builder.
+   * @param head Neutral head capsule controls, metres.
+   * @param withers Current withers height, metres.
    * @param profile Explicit dimension ratios and authored plate construction.
    * @param color The body's optical colour.
-   * @param totalShare Optional complete two-plate weight budget; absent for existing actual-volume allocation.
-   * @throws {RangeError} For invalid or unrepresentable dimensions/direction or a complete root that cannot fit the actual head.
-   * @throws {Error} When the shared primitive mass owner cannot represent the actual positive solid.
+   * @param totalShare Optional complete two-plate weight budget; absent for existing volume allocation.
+   * @throws {RangeError} For invalid or unrepresentable dimensions/direction or a complete root that cannot fit the head.
+   * @throws {Error} When the shared primitive mass owner cannot represent the positive solid.
    * @evidence contracts/development/common.md#meaningful-documentation States model frame, normalized input and SI construction, complete base-to-tip/breadth definitions, head seating and existing mass ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation Prepare the actual two-plate geometry and emit that same admitted plan with the supplied pair weight or volume default.
+   * @evidence contracts/development/implementation.md#principled-implementation Prepare the two-plate geometry and emit that same admitted plan with the supplied pair weight or volume default.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepare call and one emission call share the complete-root and volume premises.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A plate never stretches to join the skull or changes sourced body values. Unknown biology remains authored geometry. Dimension/root refusal happens before either ear is appended; builder identity/material admission remains the builder's responsibility.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed scalar/vector work and two actual-capsule root queries take O(1) time and storage during construction, with no render, search history or per-frame solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The prepared owner supplies the same dimensions, actual volume and roots as the full-head assembler; no standalone layout duplicates its geometry.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed scalar/vector work and two capsule root queries take O(1) time and storage during construction, with no render, search history or per-frame solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The prepared owner supplies the same dimensions, volume and roots as the full-head assembler; no standalone layout duplicates its geometry.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Two call-local plans hold fresh scalar points/quaternions; no caller profile, source model, completed result cache or external resource is retained.
    */
   export function lay<Id extends string, Dimension extends string>(
@@ -108,14 +108,14 @@ export namespace AutoMovieArchetypeQuadrupedEars {
   }
 
   /**
-   * Admit complete roots once and retain the actual dimensions used for emission.
+   * Admit complete roots once and retain the dimensions used for emission.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Inputs are actual neutral head geometry, positive current height and explicit ear profile; output carries actual pair volume and independent emission into real builders.
-   * @evidence contracts/development/implementation.md#principled-implementation Convert normalized dimensions, admit their exact box mass-volume domain, seat each root rectangle's enclosing disk inside the actual head capsule and snapshot both rigid frames. Equal boxes divide a supplied pair weight equally.
+   * @evidence contracts/development/common.md#meaningful-documentation Inputs are neutral head geometry, positive current height and explicit ear profile; output carries pair volume and independent emission into real builders.
+   * @evidence contracts/development/implementation.md#principled-implementation Convert normalized dimensions, admit their exact box mass-volume domain, seat each root rectangle's enclosing disk inside the head capsule and snapshot both rigid frames. Equal boxes divide a supplied pair weight equally.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit dimensions/volume, prepare the two roots and return one volume/emission closure.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unsupported dimensions, unrepresentable volume and impossible roots refuse before emission. A caller's profile is not retained, nor is a biological density, thickness or angular bound inferred.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two constant-size root queries and fixed primitive arithmetic are paid once; each emission creates exactly two independent box parts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing primitive mass owner gives actual volume and the shared actual-head attachment owner supplies complete-root seating. The head's allocation and this emitter read the same prepared dimensions.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing primitive mass owner gives volume and the shared head attachment owner supplies complete-root seating. The head's allocation and this emitter read the same prepared dimensions.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only three scalar dimensions, pair volume and two bounded frame records; every emitted transform/shape is independently copied and no model, caller profile, process or result cache is retained.
    */
   export function prepare(
@@ -224,9 +224,9 @@ export namespace AutoMovieArchetypeQuadrupedEars {
   interface IPlan {
     /** Stable head-carried part identity. */
     id: "leftEar" | "rightEar";
-    /** Actual model-space primitive centre. */
+    /** Model-space primitive centre. */
     centre: IAutoMovieVector3;
-    /** Actual unit rigid orientation, local Y along the complete ear length. */
+    /** Unit rigid orientation, local Y along the complete ear length. */
     rotation: IAutoMovieQuaternion;
   }
 }

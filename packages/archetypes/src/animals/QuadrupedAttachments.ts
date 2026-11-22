@@ -10,14 +10,14 @@ import { QuadrupedRestLimb } from "./QuadrupedRestLimb";
 /**
  * Neutral body connections and fixed parent-local attachment observations.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Distinguishes explicit neutral construction from motion: the former connects an authored control rig to its actual torso capsules, while the latter only reads and admits fixed source attachments.
- * @evidence contracts/development/design.md#principled-representation Parent capsules have their actual axis/radius, and an attachment carries both model and primitive-centre parent coordinates. Neutral construction preserves four bar lengths, foot X/Z and distal carriage while placing the actual terminal cylinder's sole at ground Y=0.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieArchetypeQuadrupedBody uses the shared capsule definitions and neutral construction; AutoMovieArchetypeQuadrupedJoints uses the actual-part attachment admission. The ride receives fixed attachment metadata without a species branch or another skeleton representation.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes explicit neutral construction from motion: the former connects an authored control rig to its torso capsules, while the latter only reads and admits fixed source attachments.
+ * @evidence contracts/development/design.md#principled-representation Parent capsules have their axis/radius, and an attachment carries both model and primitive-centre parent coordinates. Neutral construction preserves four bar lengths, foot X/Z and distal carriage while placing the terminal cylinder's sole at ground Y=0.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieArchetypeQuadrupedBody uses the shared capsule definitions and neutral construction; AutoMovieArchetypeQuadrupedJoints uses the part attachment admission. The ride receives fixed attachment metadata without a species branch or another skeleton representation.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The explicit grounding and closest-solid construction operates only on initial provisional geometry, never on a requested moving root or foot. Already grounded and connected chains stay unchanged; impossible geometry refuses instead of stretching or using a speed/breed fixture.
  */
 export namespace QuadrupedAttachments {
   /**
-   * The actual rigid parent of an upper limb bar.
+   * The rigid parent of an upper limb bar.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the two existing axial parent parts.
    * @evidence contracts/development/design.md#principled-representation A closed union retains the quadruped hierarchy's fore/hind ownership.
@@ -31,7 +31,7 @@ export namespace QuadrupedAttachments {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines cap centres rather than total capsule extrema, with the common positive radius in metres.
    * @evidence contracts/development/design.md#principled-representation The same finite segment and radius define the constructed torso rod and its closed solid for connection admission.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by neutral geometry and the admitted actual parent reader; no mesh or material data are repeated.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by neutral geometry and the admitted parent reader; no mesh or material data are repeated.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A radius is not expanded to cover a detached joint, and unknown geometry cannot become a zero-height bar.
    */
   export interface ICapsule {
@@ -39,25 +39,25 @@ export namespace QuadrupedAttachments {
     from: IAutoMovieVector3;
     /** Second cap centre, model space. */
     to: IAutoMovieVector3;
-    /** Actual positive solid radius. */
+    /** Positive solid radius. */
     radius: number;
   }
 
   /**
-   * An already admitted actual parent capsule, with its primitive-centre frame.
+   * An already admitted parent capsule, with its primitive-centre frame.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation The reader supplies actual cap centres/radius and the finite unit rigid part frame, not a joint-origin FK frame.
-   * @evidence contracts/development/design.md#principled-representation Actual geometry and its actual model transform together define the owning parent coordinate system.
+   * @evidence contracts/development/common.md#meaningful-documentation The reader supplies cap centres/radius and the finite unit rigid part frame, not a joint-origin FK frame.
+   * @evidence contracts/development/design.md#principled-representation Geometry and its model transform together define the owning parent coordinate system.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Adds only the frame needed to express the attachment in the parent's local coordinates.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Frames originate from admitted source parts and never from a species proportion table or an inferred humanoid bone.
    */
   export interface IParent extends ICapsule {
-    /** Actual parent primitive-centre TRS; unit scale, model space. */
+    /** Parent primitive-centre TRS; unit scale, model space. */
     frame: IAutoMovieTransform;
   }
 
   /**
-   * One actual upper joint fixed in its real torso parent's coordinates.
+   * One upper joint fixed in its real torso parent's coordinates.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines source model-space point and primitive-centre parent-local point in metres; these are distinct from the skeleton's upper-joint origin.
    * @evidence contracts/development/design.md#principled-representation The closed parent identity and one rigidly transformed point represent the same fixed skeletal connection in both useful spaces.
@@ -67,16 +67,16 @@ export namespace QuadrupedAttachments {
   export interface IAttachment {
     /** Real parent part identity. */
     parent: Parent;
-    /** Actual upper endpoint in source model space. */
+    /** Upper endpoint in source model space. */
     point: IAutoMovieVector3;
-    /** Same point in the actual parent part's primitive-centre frame. */
+    /** Same point in the parent part's primitive-centre frame. */
     parentLocal: IAutoMovieVector3;
   }
 
   /**
-   * The torso capsules that both construction and the actual body layout use.
+   * The torso capsules that both construction and the body layout use.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the actual trunk/rump cap centres from the same rest landmarks and shared barrel radius.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the trunk/rump cap centres from the same rest landmarks and shared barrel radius.
    * @evidence contracts/development/implementation.md#principled-implementation The trunk spans its declared half-length at back-minus-radius; the rump shares its rear cap and ends at the declared quarters centre.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Compute the shared rear endpoint once and return the two named capsule records.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No attachment fit changes these body dimensions or adds an invisible connection primitive.
@@ -110,7 +110,7 @@ export namespace QuadrupedAttachments {
   }
 
   /**
-   * Ground actual terminal cylinders and connect provisional neutral roots to body solids.
+   * Ground terminal cylinders and connect provisional neutral roots to body solids.
    *
    * This is an authored construction rule, not measured joint anatomy. In each
    * limb's fixed sagittal plane, translate its initial chain by the terminal
@@ -119,12 +119,12 @@ export namespace QuadrupedAttachments {
    * solve the first two bars exactly, preserving all four lengths, the foot
    * X/Z and both distal directions. No whole-model root offset is introduced.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines exact flat-cylinder grounding, explicit neutral connection, actual parent section, preserved source lengths/footprint/distal carriage and refusal for incompatible geometry; terminalRadius is the same metre radius used by the body layout's fourth rods.
-   * @evidence contracts/development/implementation.md#principled-implementation The actual terminal cylinder requires distal endpoint Y=r*hypot(axisX,axisZ)+height*max(0,axisY), including an upward terminal's axial extent. Ground the initial chain without moving the body; a capsule's fixed-X section and the existing exact proximal fit then connect any outside root.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines exact flat-cylinder grounding, explicit neutral connection, parent section, preserved source lengths/footprint/distal carriage and refusal for incompatible geometry; terminalRadius is the same metre radius used by the body layout's fourth rods.
+   * @evidence contracts/development/implementation.md#principled-implementation The terminal cylinder requires distal endpoint Y=r*hypot(axisX,axisZ)+height*max(0,axisY), including an upward terminal's axial extent. Ground the initial chain without moving the body; a capsule's fixed-X section and the existing exact proximal fit then connect any outside root.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Apply the same pure connection rule to the two fore and two hind chains, without a breed or speed branch.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body measurements, parent solids, four lengths, footprint and distal carriage stay fixed; only the explicitly constructed terminal-centre height follows its real sole geometry. No whole-model rise changes measured withers height and no requested motion goal is clamped; impossible neutral reach refuses.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four fixed-size geometric projections and at most four closed-form two-circle fits take O(1) time and storage during construction.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the actual common torso definitions and QuadrupedRestLimb's admitted exact length-preserving fit, not a second IK implementation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the common torso definitions and QuadrupedRestLimb's admitted exact length-preserving fit, not a second IK implementation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Every returned chain/point is independently owned; no caller array, completed pose cache or handle is retained.
    */
   export function conform(
@@ -155,14 +155,14 @@ export namespace QuadrupedAttachments {
   }
 
   /**
-   * Admit actual physical connections and snapshot their fixed parent-local points.
+   * Admit physical connections and snapshot their fixed parent-local points.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Consumes source chains and already admitted actual parent capsules, rejects disconnected roots and states the primitive-centre coordinate convention.
-   * @evidence contracts/development/implementation.md#principled-implementation Compare each actual proximal point to its actual closed capsule, then invert that parent's unit rigid frame to record the same point locally.
+   * @evidence contracts/development/common.md#meaningful-documentation Consumes source chains and already admitted parent capsules, rejects disconnected roots and states the primitive-centre coordinate convention.
+   * @evidence contracts/development/implementation.md#principled-implementation Compare each proximal point to its closed capsule, then invert that parent's unit rigid frame to record the same point locally.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Four bindings use one physical membership and coordinate conversion owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reading never repairs source geometry or moves roots. Only scale-derived binary64 roundoff admits a calculated boundary; a real gap refuses.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four constant-size point/segment distances and rigid conversions, once per prepared animal.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual parent axes and frames prepared by AutoMovieArchetypeQuadrupedJoints serve both membership and parent-local coordinates.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Parent axes and frames prepared by AutoMovieArchetypeQuadrupedJoints serve both membership and parent-local coordinates.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned points are independent scalar copies and retain no part, geometry buffer or mutable source array.
    */
   export function read(
@@ -326,7 +326,7 @@ export namespace QuadrupedAttachments {
     return { parent, point: { ...point }, parentLocal };
   }
 
-  /** Nearest point on the actual finite axis; endpoint restriction defines a capsule, not a moving-target correction. */
+  /** Nearest point on the finite axis; endpoint restriction defines a capsule, not a moving-target correction. */
   function axisPoint(
     point: IAutoMovieVector3,
     solid: ICapsule,
@@ -371,7 +371,7 @@ export namespace QuadrupedAttachments {
     };
   }
 
-  /** Actual bar's sagittal direction, radians from down toward +Z. */
+  /** Bar's sagittal direction, radians from down toward +Z. */
   function direction(from: IAutoMovieVector3, to: IAutoMovieVector3): number {
     return Math.atan2(to.z - from.z, -(to.y - from.y));
   }

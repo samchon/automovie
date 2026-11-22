@@ -8,15 +8,15 @@ import type {
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedAttachments } from "./QuadrupedAttachments";
 
-/** One actual admitted rigid bar, with independently owned geometric observations. */
+/** One admitted rigid bar, with independently owned geometric observations. */
 interface Bar {
-  /** Actual primitive discriminator, not a reconstructed species assumption. */
+  /** Primitive discriminator, not a reconstructed species assumption. */
   kind: "cylinder" | "capsule";
-  /** Actual source primitive radius, metres. */
+  /** Source primitive radius, metres. */
   radius: number;
-  /** Actual source cylindrical span, excluding capsule caps, metres. */
+  /** Source cylindrical span, excluding capsule caps, metres. */
   height: number;
-  /** Actual primitive-centre frame, admitted rigid and copied. */
+  /** Primitive-centre frame, admitted rigid and copied. */
   frame: IAutoMovieTransform;
   /** Directed upper axis endpoint, source model metres. */
   from: IAutoMovieVector3;
@@ -25,31 +25,31 @@ interface Bar {
 }
 
 /**
- * Admit the actual neutral quadruped bars and read their fixed body connections.
+ * Admit the neutral quadruped bars and read their fixed body connections.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines actual primitive admission, closed bone identities, adjacent endpoint closure and physically connected parent-local roots, all in the source model frame.
- * @evidence contracts/development/design.md#principled-representation The actual 21 bars supply finite rigid frames, positive shapes and their directed endpoints; no body dimensions or species pose table rebuilds another animal.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One read prepares the limbs, neck and fixed attachment observations needed by locomotion and rest. Primitive validation stays here and actual torso connection geometry stays with QuadrupedAttachments.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines primitive admission, closed bone identities, adjacent endpoint closure and physically connected parent-local roots, all in the source model frame.
+ * @evidence contracts/development/design.md#principled-representation The 21 bars supply finite rigid frames, positive shapes and their directed endpoints; no body dimensions or species pose table rebuilds another animal.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One read prepares the limbs, neck and fixed attachment observations needed by locomotion and rest. Primitive validation stays here and torso connection geometry stays with QuadrupedAttachments.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing or unsupported geometry, dummy bone attachment, nonunit transforms, gaps and detached roots refuse rather than acquiring guessed heights, casts or replacement parts.
  */
 export namespace AutoMovieArchetypeQuadrupedJoints {
   /**
-   * Read and admit the five actual joints of every neutral limb and its parent.
+   * Read and admit the five joints of every neutral limb and its parent.
    *
    * The source bar's +Y runs from its upper to its lower endpoint. A capsule's
    * height is its cylindrical span, so cap radius never changes joint length.
-   * The returned attachment's parentLocal is relative to the actual parent's
+   * The returned attachment's parentLocal is relative to the parent's
    * primitive-centre TRS, not the generic skeleton's upper-joint frame.
    *
-   * @param parts Actual neutral model parts with root-local rigid transforms.
+   * @param parts Neutral model parts with root-local rigid transforms.
    * @returns Independent limb/neck points and admitted fixed parent coordinates.
    * @throws {RangeError} For malformed, missing, repeated or nonrigid bars, broken chains, unsupported parent solids or detached upper joints.
    * @evidence contracts/development/common.md#meaningful-documentation Gives source frame and units, directed endpoint/capsule semantics, primitive-centre attachment coordinates, independent output and each refusal category.
-   * @evidence contracts/development/implementation.md#principled-implementation Index source parts, admit each actual named bar once, derive directed axis endpoints from its own primitive height and rigid frame, require adjacent closure and a common sagittal plane, then admit each root in its actual trunk/rump solid.
+   * @evidence contracts/development/implementation.md#principled-implementation Index source parts, admit each named bar once, derive directed axis endpoints from its own primitive height and rigid frame, require adjacent closure and a common sagittal plane, then admit each root in its trunk/rump solid.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One source index and one fixed bar-admission pass precede four chain reads and one shared fixed-attachment read.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unsupported shape becomes height zero, no gap is used as an inferred bone length, and no source root is moved while reading. Only scale-derived binary64 noise is admitted; visible contact tolerances are not used for skeletal closure.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(P+B) indexing/admission for P source parts and the fixed 21 bones, with four fixed-size closure checks and bounded independent output.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each actual bar and parent frame is decoded once and reused by chain endpoints and parent-local attachment preparation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each bar and parent frame is decoded once and reused by chain endpoints and parent-local attachment preparation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned scalar points and frames retain no source part, array or geometry buffer; call-local maps are released after this one preparation.
    */
   export function read(parts: readonly IAutoMovieModelPart[]): {
@@ -130,7 +130,7 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
       return found;
     }
 
-    /** The actual coarse body contract uses capsules for both torso parents. */
+    /** The coarse body contract uses capsules for both torso parents. */
     function parent(
       id: QuadrupedAttachments.Parent,
     ): QuadrupedAttachments.IParent {
@@ -179,7 +179,7 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
       return points;
     }
 
-    /** One arithmetic-noise closure contract for actual axial and limb junctions. */
+    /** One arithmetic-noise closure contract for axial and limb junctions. */
     function closure(
       left: IAutoMovieVector3,
       right: IAutoMovieVector3,
@@ -198,7 +198,7 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
     }
   }
 
-  /** Admit the actual positive primitive and root-local unit rigid frame before decoding either endpoint. */
+  /** Admit the positive primitive and root-local unit rigid frame before decoding either endpoint. */
   function admit(part: IAutoMovieModelPart): Bar {
     if (
       part.geometry.type !== "primitive" ||

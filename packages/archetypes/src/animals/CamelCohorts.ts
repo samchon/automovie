@@ -35,7 +35,7 @@ export namespace CamelCohorts {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Every member identifies the original surface measurement and unit; breadth is explicitly a coarse diameter proxy.
    * @evidence contracts/development/design.md#principled-representation Required positive lengths remain one indivisible reference record; numeric admission belongs to the common factory/profile.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Contains only the seven source traits used by the actual current body and producer.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Contains only the seven source traits used by the current body and producer.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Body weight, tail anatomy, paired limb lengths, SD bounds and phenotype probabilities are not inferred from these means.
    */
   export interface IMeasures {

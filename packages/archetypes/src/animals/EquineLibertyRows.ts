@@ -87,7 +87,7 @@ export namespace EquineLibertyRows {
    * @returns Its plan, returning to the start.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and output.
-   * @evidence contracts/development/implementation.md#principled-implementation Read the standing pose's actual radii once, then build the kneel, bow or sit as the namespace documents, blending from the start on a minimum-jerk share.
+   * @evidence contracts/development/implementation.md#principled-implementation Read the standing pose's radii once, then build the kneel, bow or sit as the namespace documents, blending from the start on a minimum-jerk share.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One standing read, one branch per pose.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reach and floor are left to the stance's admission.
    * @evidence contracts/development/implementation.md#efficient-algorithms One solve to read radii; constant work per pose.

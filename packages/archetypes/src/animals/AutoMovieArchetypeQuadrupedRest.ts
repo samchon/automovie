@@ -23,9 +23,9 @@ import { QuadrupedRestLimb } from "./QuadrupedRestLimb";
  * Plan a deterministic standing-to-sternal-rest hold and supported rise.
  *
  * Four foot footprints stay at their source X/Z coordinates. Their terminal
- * cap centres follow the exact sole clearance of their actual bar shape as it
+ * cap centres follow the exact sole clearance of their bar shape as it
  * rotates; this permits geometric rolling, not a claimed no-slip material
- * contact. The actual trunk surface determines the supported belly height.
+ * contact. The trunk surface determines the supported belly height.
  * All source contact ids and semantics follow their explicitly declared bones.
  *
  * Ellis et al. 2018, Frontiers in Bioengineering and Biotechnology 6:162,
@@ -36,15 +36,15 @@ import { QuadrupedRestLimb } from "./QuadrupedRestLimb";
  * other species' behavior. Distal windows, pitch and durations remain authored.
  * Descent reverses the authored geometric path; side rolling is unsupported.
  *
- * @param animal The actual independently built quadruped; never modified.
+ * @param animal The independently built quadruped; never modified.
  * @param params Explicit floor, cycle clock, distal carriage, pitch and complete carriers.
  * @returns A finite cycle with named contact/standing events and time-only sampling.
  * @throws {RangeError} For malformed authoring input, inconsistent source geometry, unsupported parts, impossible reach, a goal miss or below-floor geometry at a requested sample.
- * @evidence contracts/development/common.md#meaningful-documentation States actual-bar ownership, units, geometric rolling support, explicit authoring provenance, source citation, phases, sample refusal and biological limits.
- * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk authored windows move the one root from standing clearance to the actual trunk support height and return the distal carriage to neutral. Each fixed footprint determines a sole-cleared terminal target; an exact two-circle proximal fit preserves all actual lengths. Generic FK then poses actual parts and source contacts and verifies their surface clearance and terminal targets.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Snapshot authoring values and actual rigid-tree metadata once; each sample evaluates its clock, one root, four supported IK chains, actual generic FK and the resulting primitive support checks. Floor extrema, limb fitting and coordinate lowering each have one small pure owner.
+ * @evidence contracts/development/common.md#meaningful-documentation States bar ownership, units, geometric rolling support, explicit authoring provenance, source citation, phases, sample refusal and biological limits.
+ * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk authored windows move the one root from standing clearance to the trunk support height and return the distal carriage to neutral. Each fixed footprint determines a sole-cleared terminal target; an exact two-circle proximal fit preserves all lengths. Generic FK then poses parts and source contacts and verifies their surface clearance and terminal targets.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Snapshot authoring values and rigid-tree metadata once; each sample evaluates its clock, one root, four supported IK chains, generic FK and the resulting primitive support checks. Floor extrema, limb fitting and coordinate lowering each have one small pure owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No animal kind, fixture, human bone, root-per-limb correction, stretched segment or clamped missed contact selects a pose. Only a scale-derived binary64 roundoff budget admits arithmetic noise. ROM, forces, balance dynamics and exact greyhound sequence fidelity remain unclaimed.
- * @evidence contracts/development/implementation.md#efficient-algorithms Plan preparation and sampling are O(P+B+A+V) for actual parts, rig bones, affordances and independently copied geometry values, with four fixed-size analytic fits. No frame table or iteration history is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Plan preparation and sampling are O(P+B+A+V) for parts, rig bones, affordances and independently copied geometry values, with four fixed-size analytic fits. No frame table or iteration history is retained.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Source joint measurements, admitted generic rig, neutral frames, source bar lookup, scalar clock and carrier copies are shared by all samples; every requested pose and its floor measurement are freshly computed.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the clip lifetime and O(P+B+A+V) prepared snapshot; samples own independently copied geometry/transforms and current contact frames while material/rest mass metadata retain producer ownership. No global cache, process, file or external handle is acquired.
  */
@@ -344,7 +344,7 @@ export function AutoMovieArchetypeQuadrupedRest<
     };
   }
 
-  /** Require the source's actual bar rather than rebuilding a species profile. */
+  /** Require the source's bar rather than rebuilding a species profile. */
   function bar(
     bone: AutoMovieArchetypeQuadrupedBody.Bone,
   ): IAutoMovieModelPart {

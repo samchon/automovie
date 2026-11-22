@@ -160,7 +160,7 @@ export namespace AutoMovieArchetypeEquineFordPlan {
      * The crossing at a film second; before 0 the wading's start and after the end the climbing's end.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit, the held ends and the fresh sample.
-     * @evidence contracts/development/implementation.md#principled-implementation The grounded ride's sample, or the closed-form swim pose, blended over a cut and lifted by its actual bed depth.
+     * @evidence contracts/development/implementation.md#principled-implementation The grounded ride's sample, or the closed-form swim pose, blended over a cut and lifted by its bed depth.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the segment by the film second, then one pose and one emission.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every floating second is verified against the footing; nothing is interpolated from other samples.
      * @evidence contracts/development/implementation.md#efficient-algorithms One ride sample, or one O(B) pose plus one emission and an O(P·S) footing check.

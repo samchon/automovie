@@ -38,7 +38,7 @@ export namespace QuadrupedHoofTrack {
   export interface IStance {
     /** Fraction of a stride between this hoof's landing and lifting. */
     duty: number;
-    /** Body state at actual touchdown, including its rigid world placement. */
+    /** Body state at touchdown, including its rigid world placement. */
     landed: AutoMovieArchetypeCourse.IState;
     /** Signed metres the body travels over the entire stance. */
     travel: number;
@@ -83,7 +83,7 @@ export namespace QuadrupedHoofTrack {
   /**
    * Read a stance from the admitted course and its gait clock.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Connects actual touchdown phase and hoof duty to the route's signed stance advance.
+   * @evidence contracts/development/common.md#meaningful-documentation Connects touchdown phase and hoof duty to the route's signed stance advance.
    * @evidence contracts/development/implementation.md#principled-implementation Read native body states at touchdown and separately at release; a stance after the course's end, such as the next footfall of a timed path that ends at speed, follows the course's final velocity (`onward`), and a two-track figure's crossover from the optional `crossing` reader over the same seconds and travel. A rein-back keeps at least one diagonal down.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reusable query combines phase-to-time, course distance and this gait's fore or hind duty.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Forward motion and signed reverse progress read the same route instead of synthesizing stance travel from speed.
@@ -198,9 +198,9 @@ export namespace QuadrupedHoofTrack {
     }
   }
   /**
-   * The swing height of a landmark gait: the toe raised to its coordinate along the actual neutral cannon, measured above the neutral hoof endpoint.
+   * The swing height of a landmark gait: the toe raised to its coordinate along the neutral cannon, measured above the neutral hoof endpoint.
    *
-   * @param chain The limb's actual neutral joint points, model metres, from the top joint to the hoof endpoint.
+   * @param chain The limb's neutral joint points, model metres, from the top joint to the hoof endpoint.
    * @param landmark The gait's landmark elevation.
    * @param fore Whether the limb is a fore.
    * @returns Metres of swing clearance.
@@ -208,7 +208,7 @@ export namespace QuadrupedHoofTrack {
    * @evidence contracts/development/common.md#meaningful-documentation States the frame, the points and the unit.
    * @evidence contracts/development/implementation.md#principled-implementation The cannon runs from the fetlock (chain point 3) to the carpus or hock (chain point 2); the coordinate interpolates their heights, less the hoof endpoint's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heights are the actual rig's; no withers share stands in.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heights are the rig's; no withers share stands in.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -225,7 +225,7 @@ export namespace QuadrupedHoofTrack {
   /**
    * The world point a stance plants its hoof at.
    *
-   * @param rest Actual neutral hoof endpoint in model metres.
+   * @param rest Neutral hoof endpoint in model metres.
    * @param support The stance.
    * @param under The model fore-aft position the hoof is centred toward: the proximal attachment's less the fetlock's lead on the hoof, so the fetlock, which the limb's reach holds, travels centred under the attachment; the neutral hoof's when absent.
    * @returns The world footprint before any authored surface is applied.
@@ -270,12 +270,12 @@ export namespace QuadrupedHoofTrack {
   /**
    * Admit an optional stationary departure anchor at the course start.
    *
-   * @param plan The owned course plan with the actual initial time and body placement.
+   * @param plan The owned course plan with the initial time and body placement.
    * @param requested The explicit flag for planting the initially neutral hooves.
    * @param archetype Owner printed in the typed course refusal.
-   * @returns The initial course state for holding the actual neutral footprints, when requested.
+   * @returns The initial course state for holding the neutral footprints, when requested.
    * @throws {AutoMovieArchetypeRefusal} If the explicit flag or starting speed cannot represent standing.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the actual course frame and admission rule without taking ownership of route math.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the course frame and admission rule without taking ownership of route math.
    * @evidence contracts/development/implementation.md#principled-implementation Evaluate the native course at its distance-zero time so delayed starts retain the right world placement.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure An absent request exits immediately. One initial state admits the explicit request or reports its conflict.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A moving start never silently reinterprets as a standing start or moves the route mark.
@@ -310,7 +310,7 @@ export namespace QuadrupedHoofTrack {
    * @param landed Previous contact phase, which can precede course start.
    * @param coming Next real contact phase.
    * @param current Predicted ordinary stance and its admitted duty.
-   * @param standing Actual starting placement when the rider requests a stand.
+   * @param standing Starting placement when the rider requests a stand.
    * @returns Chosen anchor, contact state, and normalized swing displacement/height.
    * @evidence contracts/development/common.md#meaningful-documentation Distinguishes provisional earlier stance from a hooved neutral standing departure.
    * @evidence contracts/development/implementation.md#principled-implementation Replace a pre-start stance anchor by the real start footprint with no prior advance and begin that hoof swing no earlier than phase zero.
@@ -347,7 +347,7 @@ export namespace QuadrupedHoofTrack {
    * Convert the fixed world footprint or world swing to the current body frame.
    *
    * @param state Current course state, including the body's world placement.
-   * @param rest Actual neutral hoof endpoints in model metres.
+   * @param rest Neutral hoof endpoints in model metres.
    * @param from Last committed stance.
    * @param to The next committed stance during swing. Omitted during stance.
    * @param amount The smooth swing progression from zero to one.
@@ -362,7 +362,7 @@ export namespace QuadrupedHoofTrack {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan world points from landed states, optionally blend one next point/rotation, and apply the inverse current body placement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The current yaw establishes only the relative readback and cannot reorient a planted sole in the world.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work over at most two admitted stances.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses existing rigid frame, vector and quaternion arithmetic. The route and gait already own the actual touchdown states.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses existing rigid frame, vector and quaternion arithmetic. The route and gait already own the touchdown states.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh footprint and retains nothing between calls.
    */
   export function target(
@@ -384,16 +384,26 @@ export namespace QuadrupedHoofTrack {
           -Math.abs(support.travel) / 2,
           Math.min(Math.abs(support.travel) / 2, (under ?? rest.z) - rest.z),
         );
+      if (to === undefined)
+        return {
+          z:
+            centre(from) +
+            from.travel / 2 -
+            (state.progress - from.landed.progress),
+        };
+      // The ground path and the body path, blended as a world-anchored swing's (`QuadrupedSwingChord.blend`): at rest at both ends.
+      const lifting: number =
+        from.landed.progress + centre(from) + from.travel / 2;
+      const landing: number = to.landed.progress + centre(to) + to.travel / 2;
       return {
-        z:
-          to === undefined
-            ? centre(from) +
-              from.travel / 2 -
-              (state.progress - from.landed.progress)
-            : centre(from) -
-              from.travel / 2 +
-              (centre(to) + to.travel / 2 - centre(from) + from.travel / 2) *
-                amount,
+        z: QuadrupedSwingChord.blend(
+          lifting + (landing - lifting) * amount - state.progress,
+          centre(from) -
+            from.travel / 2 +
+            (centre(to) + to.travel / 2 - centre(from) + from.travel / 2) *
+              amount,
+          amount,
+        ),
       };
     }
     const placed = (stance: IStance): IAutoMovieVector3 => {

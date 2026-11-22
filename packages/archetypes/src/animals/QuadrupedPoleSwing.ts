@@ -20,7 +20,7 @@ const SHARES: number = 48;
 const BAR: number = 4;
 
 /**
- * A swing's lift over the authored poles its hoof crosses: the arc's apex that keeps the terminal bar clear of each pole where the hoof's path actually passes over it.
+ * A swing's lift over the authored poles its hoof crosses: the arc's apex that keeps the terminal bar clear of each pole where the hoof's path passes over it.
  *
  * The swing's lift is an arc, its apex times the swing's rise at each share (`AutoMovieArchetypeQuadrupedMotion.swing`). The footing bounds the terminal bar by the capsule of its radius about its axis (`QuadrupedObstacleShape`) and a pole by its own capsule, so the two clear where every point of the bar's axis lies at least the sum of both radii from the pole's axis. In the pole's cross-section, a point at a horizontal distance short of that sum must stand above the pole's axis by the circle's height there; the lift raises the whole bar, so the apex a share asks is the largest such shortfall over the rise there. The bar is read from the endpoint to the fetlock as the body carries its rest attitude. A swing that crosses no pole needs none, and keeps its gait's apex.
  *
@@ -33,7 +33,7 @@ export namespace QuadrupedPoleSwing {
   /**
    * One swing's pole apex, metres above the ground, read once per swing.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation The limb, its stance's landing index, its actual chain, its hoof track's aim and the swing's liftoff and landing seconds.
+   * @evidence contracts/development/common.md#meaningful-documentation The limb, its stance's landing index, its chain, its hoof track's aim and the swing's liftoff and landing seconds.
    * @evidence contracts/development/design.md#principled-representation A function of the swing's identity and its path.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `crossings`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
@@ -79,7 +79,7 @@ export namespace QuadrupedPoleSwing {
    * Prepare a ride's swing apexes over its footing's poles.
    *
    * @param ground The admitted footing.
-   * @param parts The animal's actual parts, for each terminal's radius.
+   * @param parts The animal's parts, for each terminal's radius.
    * @param shown The course state at a second with the body's displayed placement.
    * @returns The reader, cached per swing; none when the footing has no poles, so no other ride pays for it.
    *

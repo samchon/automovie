@@ -60,7 +60,7 @@ export namespace QuadrupedScapula {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Both points in metres, model frame, root at zero.
    * @evidence contracts/development/design.md#principled-representation The arc's centre and the shoulder joint fix its radius and rest direction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read from the actual neutral FK frames.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read from the neutral FK frames.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IJoint {

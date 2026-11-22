@@ -17,12 +17,12 @@ import {
 const MASS: number = 7;
 
 /**
- * A horse's riding saddle as a prop a handler can carry, made of the actual saddle parts of the same horse saddled.
+ * A horse's riding saddle as a prop a handler can carry, made of the saddle parts of the same horse saddled.
  *
  * The prop keeps the saddled horse's model frame: every rigid part a saddled horse has and the same horse untacked or bareback lacks (the saddle tree, its leathers and stirrups) is laid again at its own place, so laying the prop's `seat` on the horse's `saddle` socket (`AutoMovieArchetypeEquineCare`) puts every part exactly where the producer saddles it. Flexible spans such as reins stay with the horse. `grip` is the near (left) edge of the saddle tree, where a hand carries and lays the saddle from the horse's near side.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the prop is made of, its frame, why the seat fits the socket, what stays with the horse and its contacts.
- * @evidence contracts/development/design.md#principled-representation A model of the actual saddle parts in the saddled horse's model frame, with a seat at its origin.
+ * @evidence contracts/development/design.md#principled-representation A model of the saddle parts in the saddled horse's model frame, with a seat at its origin.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One producer read by a scene that saddles a horse.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No saddle geometry is redrawn: every part is the producer's own.
  */

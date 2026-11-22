@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
- * Look up clinical horse joint-angle observations for an actual distal bone.
+ * Look up clinical horse joint-angle observations for a distal bone.
  *
  * The bone identifies its proximal joint. Right-side lookup returns the same
  * study population, with its measured side retained; it asserts no symmetry.
@@ -10,7 +10,7 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
  * Shoulder, hip and axial observations, and every local rotation limit, remain
  * unknown. Skin-marker rays also differ from the model's coarse bone bars.
  *
- * @param bone The actual bone whose proximal joint is being inspected.
+ * @param bone The bone whose proximal joint is being inspected.
  * @returns Read-only source observations and explicitly unknown runtime limits.
  *
  * @evidence contracts/development/common.md#meaningful-documentation The lookup and compare operation define proximal bone mapping, study-specific included-angle degrees, paired mean/SD tuples, source identity/conditions, unsupported joints and unknown runtime limits. Compare requires one retained DOI and a finite [0,360] angle and reports signed endpoint-SD differences, not probability or pose admission.
@@ -92,7 +92,7 @@ export function AutoMovieArchetypeEquineJointLimits(
  *
  * @evidence contracts/development/common.md#meaningful-documentation The six joint names, named degree mean/SD tuples, three retained DOI identities, cohort/side/sedation/acquisition/loading conditions and separately reported ROM are explicit. Reference is a discriminated union of missing observations and measured joints; diagnostics retain their selected source and define signed SD differences.
  * @evidence contracts/development/design.md#principled-representation Closed measured joints and source DOIs prevent unsupported identities; paired degree statistics are not interval endpoints. The reference union couples missing joint identity to missing data; limits remain outer-null, with all local axes unknown. Runtime validation handles finite angle/range and source-joint correspondence.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Archetypes owns the one horse source table and its clinical reference/comparison types. Skeleton inspection and actual marker goniometry consume them while the engine retains generic rigid articulation and its existing limit semantics.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Archetypes owns the one horse source table and its clinical reference/comparison types. Skeleton inspection and marker goniometry consume them while the engine retains generic rigid articulation and its existing limit semantics.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No unsupported joint alias, imported human slot, guessed symmetry or universal breed bound appears. Standing extension, absent ROM, unmeasured axes and uncalibrated coarse-bar landmarks preserve their distinct unknown or observational meaning; a diagnostic position is not anatomical acceptance.
  */
 export namespace AutoMovieArchetypeEquineJointLimits {
@@ -134,7 +134,7 @@ export namespace AutoMovieArchetypeEquineJointLimits {
     /** Enrolled population; each observation separately states its table sample. */
     readonly cohort: string;
 
-    /** Actual sampled limbs; lookup of the opposite side does not change this. */
+    /** Sampled limbs; lookup of the opposite side does not change this. */
     readonly side: string;
 
     /** Reported sedation, with absence of reporting stated explicitly. */
@@ -158,7 +158,7 @@ export namespace AutoMovieArchetypeEquineJointLimits {
     /** Number of horses stated for this joint by the table/caption. */
     readonly n: number;
 
-    /** Included-angle side and actual rays/landmarks; smaller means more flexion. */
+    /** Included-angle side and rays/landmarks; smaller means more flexion. */
     readonly angleDefinition: string;
 
     /** Handler-produced maximal passive flexion, mean and SD in degrees. */
@@ -231,7 +231,7 @@ export namespace AutoMovieArchetypeEquineJointLimits {
    * Model-local Euler offsets cannot be passed as included angles. This reports
    * observed differences; it neither admits nor rejects an anatomical pose.
    *
-   * @param bone Actual distal bone identifying the joint.
+   * @param bone Distal bone identifying the joint.
    * @param studyDoi The source whose angle convention the caller reproduced.
    * @param includedAngle Included landmark angle in degrees within [0, 360].
    * @returns That source's diagnostic, or null for an unmeasured joint.

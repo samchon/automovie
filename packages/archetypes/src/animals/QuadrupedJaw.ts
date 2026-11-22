@@ -5,18 +5,18 @@ import type { AutoMovieArchetypeBuilder } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
- * A coarse mandible laid inside the actual head capsule and hinged at an authored temporomandibular point.
+ * A coarse mandible laid inside the head capsule and hinged at an authored temporomandibular point.
  *
  * The jaw is a capsule whose axis runs parallel to the head's, offset ventrally so that its underside is tangent to the head capsule's underside. At rest it lies wholly inside the head, so the closed-mouth silhouette and every existing head contact are unchanged; opening it about its hinge drops the chin below the head. The hinge's place along the head and the jaw's radius are authored coarse construction, not measured mandible anatomy. The jaw is tissue already inside the head capsule's volume, so it carries no mass of its own: a share of zero under the head's source share.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the actual head frame, the ventral offset, the tangency that keeps the rest silhouette, the authored hinge and radius and the zero share.
- * @evidence contracts/development/design.md#principled-representation Two fractions of the actual head determine the jaw: its radius over the head's and its hinge's distance along poll to nose over the head's length.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the head frame, the ventral offset, the tangency that keeps the rest silhouette, the authored hinge and radius and the zero share.
+ * @evidence contracts/development/design.md#principled-representation Two fractions of the head determine the jaw: its radius over the head's and its hinge's distance along poll to nose over the head's length.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Optional body data, one geometry reader and one lay operation serve the head assembler and the expression layer that opens the jaw.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No species case or measured-looking constant: both fractions are authored and stated as such by the producer that supplies them.
  */
 export namespace QuadrupedJaw {
   /**
-   * Authored jaw construction as fractions of the actual head.
+   * Authored jaw construction as fractions of the head.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Both members are dimensionless fractions with their admitted ranges.
    * @evidence contracts/development/design.md#principled-representation Fractions of the head keep the jaw proportional to whatever head a species lays.
@@ -32,7 +32,7 @@ export namespace QuadrupedJaw {
   }
 
   /**
-   * The jaw's actual neutral geometry in the model's space.
+   * The jaw's neutral geometry in the model's space.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Metres in model space: the hinge, the chin, the radius and the head's lateral hinge axis.
    * @evidence contracts/development/design.md#principled-representation The capsule's two cap centres and radius, plus the unit hinge axis the jaw opens about.
@@ -54,9 +54,9 @@ export namespace QuadrupedJaw {
   }
 
   /**
-   * The jaw inside an actual head capsule.
+   * The jaw inside a head capsule.
    *
-   * @param head The actual neutral head capsule: poll, nose and radius.
+   * @param head The neutral head capsule: poll, nose and radius.
    * @param profile The authored jaw construction.
    * @returns The jaw's neutral geometry.
    * @throws {RangeError} For fractions outside their ranges or a degenerate head.
@@ -113,7 +113,7 @@ export namespace QuadrupedJaw {
    * Lay the jaw capsule as the part `jaw`.
    *
    * @param builder The body under construction.
-   * @param head The actual neutral head capsule.
+   * @param head The neutral head capsule.
    * @param profile The authored jaw construction.
    * @param color The coat's colour.
    * @throws {RangeError} As `geometry` refuses.

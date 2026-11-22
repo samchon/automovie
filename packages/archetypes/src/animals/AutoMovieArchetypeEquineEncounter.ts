@@ -68,12 +68,12 @@ type Pair<T> = readonly [T, T];
 /**
  * Two horses' agonistic encounter on one scene clock: threats, bites, rearing strikes and double-barrel kicks aimed at named regions of the other horse, the struck horse's response and an optional retreat.
  *
- * Each horse rides into the encounter and halts. A strike or kick is a stance row (`EquineEncounterRows`) whose hooves go to the aimed region's surface on the other horse's halted body, read from its actual bar: the region's point on the bar's axis pushed out along the bar's radius toward the attacker; the hoof's endpoint goes onto that point with its terminal bar along the inward normal, so the hoof's sole meets the surface end-on without entering it. A bite is a touching muzzle reach (`AutoMovieArchetypeEquineExpression`) onto the region's surface facing the biter's poll, so the head comes in along the surface's normal, tracked on the other horse's staged ride. A threat pins both ears back and faces the other horse's head. When each contact act ends the struck horse pins its ears and turns its head to the attacker for `RESPONSE`, so the touched region holds still while touched and the attacker's limbs are back down. A retreat plays its own ride from its start second, beginning at the halt. An unreachable region is refused by the stance or the reach.
+ * Each horse rides into the encounter and halts. A strike or kick is a stance row (`EquineEncounterRows`) whose hooves go to the aimed region's surface on the other horse's halted body, read from its bar: the region's point on the bar's axis pushed out along the bar's radius toward the attacker; the hoof's endpoint goes onto that point with its terminal bar along the inward normal, so the hoof's sole meets the surface end-on without entering it. A bite is a touching muzzle reach (`AutoMovieArchetypeEquineExpression`) onto the region's surface facing the biter's poll, so the head comes in along the surface's normal, tracked on the other horse's staged ride. A threat pins both ears back and faces the other horse's head. When each contact act ends the struck horse pins its ears and turns its head to the attacker for `RESPONSE`, so the touched region holds still while touched and the attacker's limbs are back down. A retreat plays its own ride from its start second, beginning at the halt. An unreachable region is refused by the stance or the reach.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the clock, how each act is aimed and staged, the response, the retreat and the refusals.
  * @evidence contracts/development/design.md#principled-representation Two rides in, two rides out on the same clock.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One entry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Contacts are touches at actual surfaces; no physics.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Contacts are touches at surfaces; no physics.
  */
 export namespace AutoMovieArchetypeEquineEncounter {
   /**
@@ -335,7 +335,7 @@ export namespace AutoMovieArchetypeEquineEncounter {
     return target;
   }
 
-  /** A region's surface point facing a world point, on a sample's actual bar: at the region's share along the bar, or, when `facing`, at the foot of the perpendicular from the point onto the bar (kept within its middle), so an approach from that point meets the surface end-on. */
+  /** A region's surface point facing a world point, on a sample's bar: at the region's share along the bar, or, when `facing`, at the foot of the perpendicular from the point onto the bar (kept within its middle), so an approach from that point meets the surface end-on. */
   function surface<Id extends string, D extends string>(
     sample: AutoMovieArchetypeRide.ISample<Id, D>,
     region: AutoMovieArchetypeEquineEncounterCue.Region,

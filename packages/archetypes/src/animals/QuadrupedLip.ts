@@ -5,18 +5,18 @@ import type { AutoMovieArchetypeBuilder } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
- * A coarse upper lip laid inside the actual head capsule at the muzzle and hinged at its root, so it can curl up.
+ * A coarse upper lip laid inside the head capsule at the muzzle and hinged at its root, so it can curl up.
  *
  * The lip is a capsule whose axis runs parallel to the head's over its muzzle end, offset dorsally so that its upper side is tangent to the head capsule's upper side. At rest it lies wholly inside the head, so the closed-mouth silhouette and every existing head contact are unchanged; turning it dorsally about its root lifts its free end above the muzzle, the flehmen's lip curl (EquiFACS AU10, upper lip raiser). The root's place along the head and the lip's radius are authored coarse construction, not measured anatomy. Its tissue is the head capsule's own, so it carries no mass of its own: a share of zero under the head's source share.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the actual head frame, the dorsal offset, the tangency that keeps the rest silhouette, the authored root and radius and the zero share.
- * @evidence contracts/development/design.md#principled-representation Two fractions of the actual head determine the lip: its radius over the head's and its root's distance along poll to nose over the head's length.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the head frame, the dorsal offset, the tangency that keeps the rest silhouette, the authored root and radius and the zero share.
+ * @evidence contracts/development/design.md#principled-representation Two fractions of the head determine the lip: its radius over the head's and its root's distance along poll to nose over the head's length.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Optional body data, one geometry reader and one lay operation serve the head assembler and the expression layer that curls the lip.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No species case or measured-looking constant: both fractions are authored and stated as such by the producer that supplies them.
  */
 export namespace QuadrupedLip {
   /**
-   * Authored lip construction as fractions of the actual head.
+   * Authored lip construction as fractions of the head.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Both members are dimensionless fractions with their admitted ranges.
    * @evidence contracts/development/design.md#principled-representation Fractions of the head keep the lip proportional to whatever head a species lays.
@@ -32,7 +32,7 @@ export namespace QuadrupedLip {
   }
 
   /**
-   * The lip's actual neutral geometry in the model's space.
+   * The lip's neutral geometry in the model's space.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Metres in model space: the root, the free end and the radius.
    * @evidence contracts/development/design.md#principled-representation The capsule's two cap centres and radius.
@@ -51,9 +51,9 @@ export namespace QuadrupedLip {
   }
 
   /**
-   * The lip inside an actual head capsule.
+   * The lip inside a head capsule.
    *
-   * @param head The actual neutral head capsule: poll, nose and radius.
+   * @param head The neutral head capsule: poll, nose and radius.
    * @param profile The authored lip construction.
    * @returns The lip's neutral geometry.
    * @throws {RangeError} For fractions outside their ranges or a degenerate head.
@@ -109,7 +109,7 @@ export namespace QuadrupedLip {
    * Lay the lip capsule as the part `lip`.
    *
    * @param builder The body under construction.
-   * @param head The actual neutral head capsule.
+   * @param head The neutral head capsule.
    * @param profile The authored lip construction.
    * @param color The coat's colour.
    * @throws {RangeError} As `geometry` refuses.

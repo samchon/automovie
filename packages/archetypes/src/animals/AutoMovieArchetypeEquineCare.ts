@@ -16,14 +16,14 @@ import {
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
- * The places a handler touches when caring for an equid, read from its actual parts: each side of the barrel to brush, the poll a headstall crosses, the head's socket a halter is put on, the trunk's socket a saddle is laid on, and each hoof to hold up.
+ * The places a handler touches when caring for an equid, read from its parts: each side of the barrel to brush, the poll a headstall crosses, the head's socket a halter is put on, the trunk's socket a saddle is laid on, and each hoof to hold up.
  *
- * Each care point is a contact on the surface of one actual part, its frame's +Y the outward normal and +X the direction a brush strokes along the coat (backward along the barrel) or the bar's axis for a held hoof. A point is carried by its part, so in any posed sample of the equid its frame is the rest frame moved by that part's own rigid change.
+ * Each care point is a contact on the surface of one part, its frame's +Y the outward normal and +X the direction a brush strokes along the coat (backward along the barrel) or the bar's axis for a held hoof. A point is carried by its part, so in any posed sample of the equid its frame is the rest frame moved by that part's own rigid change.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each care point, its frame convention and how it follows the posed equid.
- * @evidence contracts/development/design.md#principled-representation Affordance records in the rest model's space, each bound to one actual part.
+ * @evidence contracts/development/design.md#principled-representation Affordance records in the rest model's space, each bound to one part.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Read by a scene that stages a handler: the points join the horse prop's contacts and their frames its contact reader.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every point is on an actual part's surface; none is placed by a fitted offset.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every point is on a part's surface; none is placed by a fitted offset.
  */
 export namespace AutoMovieArchetypeEquineCare {
   /**
@@ -62,7 +62,7 @@ export namespace AutoMovieArchetypeEquineCare {
    * @returns Its care points.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and output.
-   * @evidence contracts/development/implementation.md#principled-implementation Each point is on its actual part's surface: the trunk capsule's side at the middle of its axis, the head capsule's dorsal surface at the poll, and each pastern bar's axis at its middle, a round handle of the bar's diameter facing out.
+   * @evidence contracts/development/implementation.md#principled-implementation Each point is on its part's surface: the trunk capsule's side at the middle of its axis, the head capsule's dorsal surface at the poll, and each pastern bar's axis at its middle, a round handle of the bar's diameter facing out.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record per point, built from the part it lies on.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, once.

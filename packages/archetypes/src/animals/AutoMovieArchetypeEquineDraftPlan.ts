@@ -168,7 +168,7 @@ export namespace AutoMovieArchetypeEquineDraftPlan {
      * The take at a film second.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and the fresh sample.
-     * @evidence contracts/development/implementation.md#principled-implementation The horse's ride sample, the cart's towed placement on the hitch while coupled and its parked placement otherwise, and traces laid between their actual ends.
+     * @evidence contracts/development/implementation.md#principled-implementation The horse's ride sample, the cart's towed placement on the hitch while coupled and its parked placement otherwise, and traces laid between their ends.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the stage, read both supports, lay the lines.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every point comes from the posed models; nothing is cached between seconds.
      * @evidence contracts/development/implementation.md#efficient-algorithms One horse sample and one towed sample per call.

@@ -30,11 +30,11 @@ import { QuadrupedAnimal } from "./QuadrupedAnimal";
  *
  * @param params Required positive mass in kilograms, optional cohort, tempo and authored collar.
  * @param seed Picks one whole cohort and the tempo; absent, Pet and mean tempo.
- * @returns The dog, including its actual parts and optional lead affordance.
+ * @returns The dog, including its parts and optional lead affordance.
  * @throws {AutoMovieArchetypeRefusal} For invalid mass, cohort, tempo or collar dimensions.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States source scope, authored mass, contact, units and remaining physical gaps.
- * @evidence contracts/development/implementation.md#principled-implementation One whole-cohort model draw feeds the shared quadruped builder. The actual head capsule contains each complete ear root disk through the shared radius-aware attachment owner, preserving measured ear length and its authored upright direction; no equine weight law or changed head size is used.
+ * @evidence contracts/development/implementation.md#principled-implementation One whole-cohort model draw feeds the shared quadruped builder. The head capsule contains each complete ear root disk through the shared radius-aware attachment owner, preserving measured ear length and its authored upright direction; no equine weight law or changed head size is used.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit mass and tack, select the cohort, record dimensions and build the body with ears and optional collar.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No independent trait bands, invented canine mass shares, paw friction or rider contacts.
  * @evidence contracts/development/implementation.md#efficient-algorithms A fixed-size coarse rig and at most five added parts.
@@ -187,7 +187,7 @@ export namespace createDog {
     "one standard deviation around the pooled Labrador stride time: Light et al. 2010, AJVR 71:997, doi:10.2460/ajvr.71.9.997",
   );
 
-  /** Actual constructed neck lengths, metres; the narrowest limits a collar when any cohort may be drawn. */
+  /** Constructed neck lengths, metres; the narrowest limits a collar when any cohort may be drawn. */
   export const NECK_LENGTHS: Readonly<
     Record<AutoMovieArchetypeDogBody.Cohort, number>
   > = {
@@ -262,10 +262,10 @@ export namespace createDog {
   }
 
   /**
-   * Lay one collar within the neck and put the rein frame on its actual lead.
+   * Lay one collar within the neck and put the rein frame on its lead.
    *
    * @param builder The model under construction.
-   * @param rig Its actual rest landmarks.
+   * @param rig Its rest landmarks.
    * @param tack The admitted positive authored lengths, metres.
    * @throws {AutoMovieArchetypeRefusal} When the collar is longer than the neck.
    */

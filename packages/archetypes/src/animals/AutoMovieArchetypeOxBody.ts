@@ -72,7 +72,7 @@ export function AutoMovieArchetypeOxBody(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each source record names its cohort and units; construction members state their dimensionless or degree meaning and authored provenance.
  * @evidence contracts/development/design.md#principled-representation Published body and limb means remain separate records; explicit construction parameters describe the remaining rigid-bar interpretation instead of presenting it as measured anatomy.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The body function and actual ox producer read these dimensions; the shared rig owns layout and no second skeleton, mass allocator or species branch is introduced.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The body function and ox producer read these dimensions; the shared rig owns layout and no second skeleton, mass allocator or species branch is introduced.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No unknown dimension becomes a cited value, no population SD becomes an independent trait band and no female-cohort control transfer is described as an ox measurement.
  */
 export namespace AutoMovieArchetypeOxBody {

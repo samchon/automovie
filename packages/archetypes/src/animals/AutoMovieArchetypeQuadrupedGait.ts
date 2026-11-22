@@ -40,7 +40,7 @@ export namespace AutoMovieArchetypeQuadrupedGait {
   /** The gaits that have a lead, whose right lead mirrors the left: the canter and the gallop; the walk and the trot are symmetric. */
   export const LEADED: readonly Gait[] = ["canter", "gallop"];
 
-  /** How many times a stride the trunk sinks: twice in the symmetric walk, trot, pace, ambling stepping gaits (`AutoMovieArchetypeEquineGaitedProfile`), passage and piaffe, and once in the canter and gallop. The tölt uses the same two-cycle coarse carriage proxy as the walk. Species supply the actual oscillation range. */
+  /** How many times a stride the trunk sinks: twice in the symmetric walk, trot, pace, ambling stepping gaits (`AutoMovieArchetypeEquineGaitedProfile`), passage and piaffe, and once in the canter and gallop. The tölt uses the same two-cycle coarse carriage proxy as the walk. Species supply the oscillation range. */
   export const BEATS: Readonly<Record<Gait, number>> = {
     walk: 2,
     trot: 2,
@@ -145,7 +145,7 @@ export namespace AutoMovieArchetypeQuadrupedGait {
   /**
    * A swing height named by the limb's own anatomical landmarks rather than by a share of the withers height.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the coordinate, its two ends and that the ride reads it from the actual rig.
+   * @evidence contracts/development/common.md#meaningful-documentation States the coordinate, its two ends and that the ride reads it from the rig.
    * @evidence contracts/development/design.md#principled-representation One unitless coordinate per limb end along the neutral cannon, so the height scales with the animal's own segments.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read only by the ride's swing lift for gaits whose source states heights by landmark, such as the FEI passage and piaffe.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Admission keeps each coordinate inside zero to one; no withers fraction is fitted to stand in for the landmark.
@@ -307,7 +307,7 @@ export namespace AutoMovieArchetypeQuadrupedGait {
    * @param species The species.
    * @param gait The gait.
    * @param speed The speed, metres per second, inside the gait's range for that height.
-   * @param tempo Coordinate of the table's declared timing spread, from -1 to 1; zero when absent. It denotes standard deviations only when that source actually reports an SD.
+   * @param tempo Coordinate of the table's declared timing spread, from -1 to 1; zero when absent. It denotes standard deviations only when that source reports an SD.
    * @param withers The animal's withers height, metres; the declared reference when absent. Absolute tables preserve their clocks without a measured-height claim.
    * @returns Declared stride time, timing spread and fore duty, with separate hind duty when supplied. Duties are ratios of interpolated contact durations to period, not a claim to reproduce independently averaged biological statistics. Height similarity remains provisional as `scale` states.
    * @throws {AutoMovieArchetypeRefusal} When the species has no such gait, the speed lies outside the gait's range for that height, giving the range, the tempo lies outside -1 to 1, or the height is not positive.

@@ -9,15 +9,15 @@ import { QuadrupedScapula } from "./QuadrupedScapula";
  * A common vertical body-root interval satisfying four fixed limb attachments.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines model-space metre constraints, one shared vertical translation, the above-foot branch and refusal of an empty intersection.
- * @evidence contracts/development/design.md#principled-representation Each limb combines its fixed neutral attachment, unchanged terminal goal and actual folded-chain reach; all four constrain the same scalar root translation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns vertical feasibility only; limb reach, contact goals, neutral body construction and actual pose lowering retain their separate owners.
+ * @evidence contracts/development/design.md#principled-representation Each limb combines its fixed neutral attachment, unchanged terminal goal and folded-chain reach; all four constrain the same scalar root translation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owns vertical feasibility only; limb reach, contact goals, neutral body construction and pose lowering retain their separate owners.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No limb root moves independently, no foot target is clipped and no species, speed, seed or clinical limit supplies a substitute reach.
  */
 export namespace AutoMovieArchetypeQuadrupedRootRange {
   /**
    * One fixed attachment and its unchanged model-space terminal target.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines metre coordinates before the shared vertical translation and the actual folded-chain radial interval.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines metre coordinates before the shared vertical translation and the folded-chain radial interval.
    * @evidence contracts/development/design.md#principled-representation A complete attachment/goal/reach tuple constrains one limb without encoding a second skeleton or a preferred fitted pose.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Consumed by the common body-root intersection; reach imports the exact limb owner's contract.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts All three quantities are required and are checked for finite representability; a missing limb cannot be replaced by a default.
@@ -27,7 +27,7 @@ export namespace AutoMovieArchetypeQuadrupedRootRange {
     attachment: IAutoMovieVector3;
     /** Unchanged model-space distal endpoint goal, metres. */
     goal: IAutoMovieVector3;
-    /** Actual chain's inclusive radial reach at its current fold, metres. */
+    /** Chain's inclusive radial reach at its current fold, metres. */
     reach: AutoMovieArchetypeQuadrupedLimb.IRange;
 
     /** The requested carpus or hock fold, degrees, which 
@@ -57,20 +57,20 @@ elax may lower for a swinging limb. */
   }
 
   /**
-   * Intersect actual four-limb reach with one whole-body floor requirement.
+   * Intersect four-limb reach with one whole-body floor requirement.
    *
    * The proximal joint stays above its terminal target. For horizontal offset q
    * and radial interval [r,R], its vertical drop is exactly
    * [sqrt(max(0,r²-q²)), sqrt(R²-q²)]. Subtracting the neutral attachment height
    * from the goal height converts that drop into the shared root translation.
    *
-   * @param constraints All four actual attachments, terminal targets and fold-dependent reaches.
-   * @param floorMinimum Lowest root translation clearing the actual non-limb body geometry, metres.
+   * @param constraints All four attachments, terminal targets and fold-dependent reaches.
+   * @param floorMinimum Lowest root translation clearing the non-limb body geometry, metres.
    * @returns The inclusive intersection; this operation does not select a trajectory.
    * @throws {RangeError} For malformed/nonrepresentable geometry, horizontal overreach or incompatible whole-body constraints.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Gives the exact geometric interval, above-foot branch, metre frames and physical floor requirement, distinguishing feasibility from path selection.
-   * @evidence contracts/development/implementation.md#principled-implementation Derive each limb's vertical-drop interval from its actual radial reach and fixed horizontal separation, translate it into root coordinates and intersect all four with the actual body-floor lower bound. A fore limb with a shoulder blade takes the highest bound its blade reaches within range (`QuadrupedScapula.high`), and the two hinds the highest at which one turn of the pelvis within its range lets both reach (`QuadrupedPelvis.high`); that shared turn is chosen once the root is (`QuadrupedPelvis.turn`).
+   * @evidence contracts/development/implementation.md#principled-implementation Derive each limb's vertical-drop interval from its radial reach and fixed horizontal separation, translate it into root coordinates and intersect all four with the body-floor lower bound. A fore limb with a shoulder blade takes the highest bound its blade reaches within range (`QuadrupedScapula.high`), and the two hinds the highest at which one turn of the pelvis within its range lets both reach (`QuadrupedPelvis.high`); that shared turn is chosen once the root is (`QuadrupedPelvis.turn`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit each complete constraint, derive its two bounds once and accumulate their intersection before one final emptiness check.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Targets, attachments and reach radii remain unchanged. Squared-radius arithmetic is normalized to avoid avoidable overflow; an empty or unrepresentable interval is refused rather than padded or projected.
    * @evidence contracts/development/implementation.md#efficient-algorithms Exactly four constant-size constraints take O(1) work and storage with no root search, event enumeration, physical simulation or retained samples.

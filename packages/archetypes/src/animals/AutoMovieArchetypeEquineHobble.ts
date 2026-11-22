@@ -22,7 +22,7 @@ const WORLD: IAutoMovieTransform = AutoMovieArchetypeFrame.upright({
 /**
  * A fore hobble (`createHobble`) worn by a moving equid: at each film second each cuff closes round its foreleg's cannon a little above the fetlock, along the cannon's own axis, and the strap is laid between the cuffs' inner sides.
  *
- * The cuffs are posed in world coordinates from the equid's sample, so the strap's drawn length is the actual distance the forelegs hold the cuffs apart; read with `AutoMovieArchetype.span("strap")`.
+ * The cuffs are posed in world coordinates from the equid's sample, so the strap's drawn length is the distance the forelegs hold the cuffs apart; read with `AutoMovieArchetype.span("strap")`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States where each cuff is, along which axis, and what the strap measures.
  * @evidence contracts/development/design.md#principled-representation A ride of the hobble on the equid's clock.

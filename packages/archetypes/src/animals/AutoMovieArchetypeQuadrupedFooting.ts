@@ -31,11 +31,11 @@ const SIDES: readonly IAutoMovieQuaternion[] = [
 type Interval = readonly [number, number];
 
 /**
- * Authored world footing evaluated against actual emitted rigid parts.
+ * Authored world footing evaluated against emitted rigid parts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines named surface geometry and support roles on a film route.
  * @evidence contracts/development/design.md#principled-representation The planes own horizontal extent, independent tilt and world height. Coordinate frame and valid ranges are admitted at runtime.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Uses actual points, orientations and geometric primitives from their existing owners.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Uses points, orientations and geometric primitives from their existing owners.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Authored set surfaces supply landing height and slope. There is no inferred path from the pictured terrain.
  */
 export namespace AutoMovieArchetypeQuadrupedFooting {
@@ -90,9 +90,9 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
   export type Material = "sand" | "mud" | "bog" | "snow";
 
   /**
-   * One physical pole as a capsule spanning actual world endpoints.
+   * One physical pole as a capsule spanning world endpoints.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation A named physical pole is a finite capsule with its actual endpoint geometry.
+   * @evidence contracts/development/common.md#meaningful-documentation A named physical pole is a finite capsule with its endpoint geometry.
    * @evidence contracts/development/design.md#principled-representation A closed segment and positive radius describe that solid without a hidden route cue.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the existing world vector and transform contracts and exposes only values consumed along the route.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Authoring gives the physical terrain values, and query results do not use a renderer cache or fixture constants.
@@ -104,7 +104,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
     from: IAutoMovieVector3;
     /** Centre of the round end cap in world metres. */
     to: IAutoMovieVector3;
-    /** Actual radius in metres. */
+    /** Radius in metres. */
     radius: number;
   }
 
@@ -186,12 +186,12 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
     /**
      * Reject a currently emitted body whose solid geometry enters the named terrain.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation Receives the actual primitive body and its world transform and refuses obstructed surfaces.
-     * @evidence contracts/development/implementation.md#principled-implementation Project actual surfaces onto the authored plane normal and compare complete physical bounds against each pole segment.
+     * @evidence contracts/development/common.md#meaningful-documentation Receives the primitive body and its world transform and refuses obstructed surfaces.
+     * @evidence contracts/development/implementation.md#principled-implementation Project surfaces onto the authored plane normal and compare complete physical bounds against each pole segment.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Measure world part bounds, then check only relevant patches and any configured poles.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sole points, expected joint coordinates and flag labels do not stand in for actual whole shapes.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Probes O(P) actual parts, each against at most S surfaces and K poles.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses existing actual primitive supports and the native segment-to-shape distance.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sole points, expected joint coordinates and flag labels do not stand in for whole shapes.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Probes O(P) parts, each against at most S surfaces and K poles.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses existing primitive supports and the native segment-to-shape distance.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources All per-query geometry remains call-local.
      */
     verify: (
@@ -204,11 +204,11 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
    * Snapshot the route's requested terrain and make its two independent queries.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Spells out units, authored bounds, whole-geometry verification and typed refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Convert rise over run to a unit tilted normal. Read the highest authored region under each named landing. Later measure actual rigid part support against all spatially relevant planes and conservative pole clearances.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit geometry once, then retain helpers for landing and actual-pose verification.
+   * @evidence contracts/development/implementation.md#principled-implementation Convert rise over run to a unit tilted normal. Read the highest authored region under each named landing. Later measure rigid part support against all spatially relevant planes and conservative pole clearances.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit geometry once, then retain helpers for landing and pose verification.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing floor or obstructed body refuses. Pole checks bound complete cylindrical parts by containing physical capsules.
    * @evidence contracts/development/implementation.md#efficient-algorithms Landing reads each of S authored planes once. Verification reads P parts against S planes and K poles with a horizontal overlap test first.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuse actual primitive support and the engine's finite segment-to-solid distance, retaining plane-frame transforms across samples.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuse primitive support and the engine's finite segment-to-solid distance, retaining plane-frame transforms across samples.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the caller's independent copied world geometry for one route's lifetime and no current frame or external resource.
    */
   export function prepare(
@@ -312,7 +312,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
       names.add(id);
     }
 
-    /** Choose the topmost real patch below the footprint and orient the actual carried axes. */
+    /** Choose the topmost real patch below the footprint and orient the carried axes. */
     function landing(
       point: IAutoMovieVector3,
       rotation: IAutoMovieQuaternion,
@@ -353,7 +353,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
       return result;
     }
 
-    /** Check actual oriented shapes against each overlapping finite patch and physical pole. */
+    /** Check oriented shapes against each overlapping finite patch and physical pole. */
     function verify(
       animal: Pick<AutoMovieArchetype, "parts">,
       placement: IAutoMovieTransform,

@@ -9,14 +9,14 @@ import { createCohortQuadruped } from "./createCohortQuadruped";
  *
  * @param params Positive authored whole-model kilograms, optional fixed reference, timing coordinate and equipment.
  * @param seed Without a fixed cohort, selects one whole Maur1-Maur5 mean; seedless construction retains the pooled mean.
- * @returns The actual shared quadruped with one coarse identifying hump.
+ * @returns The shared quadruped with one coarse identifying hump.
  * @throws {AutoMovieArchetypeRefusal} For invalid mass, tempo or authored equipment.
  * @evidence contracts/development/common.md#meaningful-documentation Names the pooled/five-group selection policy, unknown group frequencies, separate provisional conformation cohort, authored mass and estimated single hump.
- * @evidence contracts/development/implementation.md#principled-implementation AutoMovieArchetypeCamelBody preserves the cited height/chest/neck/head measurements and distinguishes separate Egyptian limb landmarks. The same sphere record supplies actual hump emission and shared equipment clearance. Connected pack bridges rise above actual body solids; their remaining rods/pads must retain authored separation before emission.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared factory draws one complete reference, constructs its body, adds its height-scaled identifying sphere and delegates actual equipment.
+ * @evidence contracts/development/implementation.md#principled-implementation AutoMovieArchetypeCamelBody preserves the cited height/chest/neck/head measurements and distinguishes separate Egyptian limb landmarks. The same sphere record supplies hump emission and shared equipment clearance. Connected pack bridges rise above body solids; their remaining rods/pads must retain authored separation before emission.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared factory draws one complete reference, constructs its body, adds its height-scaled identifying sphere and delegates equipment.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Chest girth excludes the hump as the primary source defines it. Hump size is declared construction, not a measured anatomical statistic; no equine weight law or unknown camel mass/foot coefficient is substituted.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most six fixed-size profile/rig/equipment plans establish seed-independent admission, then only the selected body geometry and hump are emitted. There is no unselected model construction, mesh search or iterative fitting.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared cohort/body/lead/equipment owners each retain their actual construction; the identifying hump's radius/centre are recorded once for actual collision admission and emission. Species differences remain data and additions outside the ride.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared cohort/body/lead/equipment owners each retain their construction; the identifying hump's radius/centre are recorded once for collision admission and emission. Species differences remain data and additions outside the ride.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned model owns its records and no query, process, renderer or global cache is retained.
  */
 export function createCamel(
@@ -84,7 +84,7 @@ export function createCamel(
  * Authored camel equipment and explicit coarse hump construction.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Separates required mass, optional equipment and provisional single-hump shape.
- * @evidence contracts/development/design.md#principled-representation The shared reference/mass contract composes with the actual pack dimensions; one normalized radius/offset describes the identifying coarse hump.
+ * @evidence contracts/development/design.md#principled-representation The shared reference/mass contract composes with the pack dimensions; one normalized radius/offset describes the identifying coarse hump.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Source measurements remain AutoMovieArchetypeCamelBody's and physical equipment remains its own shared owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No measured hump dimensions, saddle fit, physiological mass estimate or dynamic load capacity is implied.
  */
@@ -104,7 +104,7 @@ export namespace createCamel {
     /** Fix one whole source vector; seeded omission draws five groups and equipment must fit the whole unfixed palette. */
     cohort?: AutoMovieArchetypeCamelBody.Cohort;
 
-    /** Authored side pack; its fit is checked against the actual body. */
+    /** Authored side pack; its fit is checked against the body. */
     equipment?: Pick<AutoMovieArchetypeQuadrupedEquipment.IParams, "pack">;
   }
 

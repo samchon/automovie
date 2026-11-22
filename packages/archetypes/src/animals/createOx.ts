@@ -13,14 +13,14 @@ import { AutoMovieArchetypeQuadrupedHeadAttachment } from "./AutoMovieArchetypeQ
 import { createCohortQuadruped } from "./createCohortQuadruped";
 
 /**
- * A coarse Kathani working-ox reference with actual horns and authored equipment, declaring the roper's targets: `head` at the poll, `horns` between the horns' bases and `hind` between the hocks.
+ * A coarse Kathani working-ox reference with horns and authored equipment, declaring the roper's targets: `head` at the poll, `horns` between the horns' bases and `hind` between the hocks.
  *
  * @param params Authored whole-model kilograms, optional lead and yoke/pack dimensions.
  * @param seed Independent construction seed and declared timing-spread coordinate.
- * @returns The actual shared quadruped model; mass/foot coefficients are not inferred.
+ * @returns The shared quadruped model; mass/foot coefficients are not inferred.
  * @throws {AutoMovieArchetypeRefusal} For invalid mass, tempo or equipment dimensions.
  * @evidence contracts/development/common.md#meaningful-documentation Names the whole Kathani reference, separate provisional limb cohort, measured horn/ear lengths and authored geometry/equipment limits.
- * @evidence contracts/development/implementation.md#principled-implementation AutoMovieArchetypeOxBody owns the cited whole-cohort means and explicitly transferred limb controls. Actual horn/ear rods use the published lengths and authored directions/radii. The common head-capsule owner seats their complete root disks, preserving already seated horn positions and translating ear roots without changing length; no source head measure changes.
+ * @evidence contracts/development/implementation.md#principled-implementation AutoMovieArchetypeOxBody owns the cited whole-cohort means and explicitly transferred limb controls. Horn/ear rods use the published lengths and authored directions/radii. The common head-capsule owner seats their complete root disks, preserving already seated horn positions and translating ear roots without changing length; no source head measure changes.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Supply the ox reference/body to one shared builder and add its two horns/ears and any explicitly dimensioned equipment.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No horse mass law, invented working-ox weight, population allometry, measured horn curvature or maker yoke dimension is claimed. This fixed mean prototype does not complete population variation or animal dynamics.
  * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size body and four identifying rods plus the explicitly requested equipment; no mesh search or fitting loop.
@@ -166,7 +166,7 @@ export namespace createOx {
     /** Required authored complete kilograms; no working-ox mass was measured. */
     mass: number;
 
-    /** Actual yoke or pack, each with its explicitly authored physical dimensions. */
+    /** Yoke or pack, each with its explicitly authored physical dimensions. */
     equipment?: AutoMovieArchetypeQuadrupedEquipment.IParams;
   }
 

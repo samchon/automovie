@@ -5,18 +5,18 @@ import type { AutoMovieArchetypeBuilder } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
- * Two coarse nostrils laid inside the actual head capsule's nose cap, one to each side, so breathing can flare them.
+ * Two coarse nostrils laid inside the head capsule's nose cap, one to each side, so breathing can flare them.
  *
  * Each nostril is a sphere centred on the nose cap's lateral side, inset so that it is internally tangent to the cap: at rest it lies wholly inside the head and the closed silhouette and every head contact are unchanged; widening its radius pushes it out of the muzzle, the flare. Its radius and how far it sits back from the nose are authored coarse construction, not measured anatomy, and it carries no mass of its own: a share of zero under the head's source share.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the place on the nose cap, the tangency, the flare, the authored fractions and the zero share.
- * @evidence contracts/development/design.md#principled-representation Two fractions of the actual head determine the pair.
+ * @evidence contracts/development/design.md#principled-representation Two fractions of the head determine the pair.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Optional body data, one geometry reader and one lay operation serve the head assembler and the breathing layer.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No species case or measured-looking constant.
  */
 export namespace QuadrupedNostrils {
   /**
-   * Authored nostril construction as fractions of the actual head.
+   * Authored nostril construction as fractions of the head.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Both members are dimensionless fractions with their admitted ranges.
    * @evidence contracts/development/design.md#principled-representation Fractions of the head keep the pair proportional to it.
@@ -51,9 +51,9 @@ export namespace QuadrupedNostrils {
   }
 
   /**
-   * The nostrils inside an actual head capsule.
+   * The nostrils inside a head capsule.
    *
-   * @param head The actual neutral head capsule: poll, nose and radius.
+   * @param head The neutral head capsule: poll, nose and radius.
    * @param profile The authored construction.
    * @returns Their neutral geometry.
    * @throws {RangeError} For fractions outside their ranges or a degenerate head.
@@ -108,7 +108,7 @@ export namespace QuadrupedNostrils {
    * Lay the nostrils as the parts `leftNostril` and `rightNostril`.
    *
    * @param builder The body under construction.
-   * @param head The actual neutral head capsule.
+   * @param head The neutral head capsule.
    * @param profile The authored construction.
    * @param color The coat's colour.
    * @throws {RangeError} As `geometry` refuses.

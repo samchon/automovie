@@ -16,16 +16,16 @@ const REPOSE: typeof AutoMovieArchetype.prototype.reposed =
 const CLONE: typeof structuredClone = structuredClone;
 
 /**
- * Private data-copy admission for the actual neutral preparation.
+ * Private data-copy admission for the neutral preparation.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the independent primitive record and its actual native clone owner.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the independent primitive record and its native clone owner.
  * @evidence contracts/development/design.md#principled-representation The qualified shape is a tree of ordinary owned data records with scalar leaves.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Only native quadruped preparation and ODE hitch emission consume this protocol.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Unsupported graphs or overridden clone functions use the existing generic clone.
  */
 export namespace ApplyQuadrupedCarrierPose {
   /**
-   * Move actual parts and contact frames through their admitted carrier deltas.
+   * Move parts and contact frames through their admitted carrier deltas.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the original geometry and complete carrier inputs and fresh normal posed output.
    * @evidence contracts/development/implementation.md#principled-implementation Apply the same rigid deltas to both kinds of carrier and emit through the original model's reposed method.
@@ -131,10 +131,10 @@ export namespace ApplyQuadrupedCarrierPose {
   ) => IAutoMovieModelPart | undefined;
 
   /**
-   * Observe whether the actual neutral emission used the native owners.
+   * Observe whether the neutral emission used the native owners.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Reports admission after the actual neutral emission.
-   * @evidence contracts/development/design.md#principled-representation A current built-in clone and native repose give the normalizer's actual private output.
+   * @evidence contracts/development/common.md#meaningful-documentation Reports admission after the neutral emission.
+   * @evidence contracts/development/design.md#principled-representation A current built-in clone and native repose give the normalizer's private output.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Only private neutral preparation observes the result.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A caller flag cannot authenticate an opaque source.
    */
@@ -161,7 +161,7 @@ export namespace ApplyQuadrupedCarrierPose {
   /**
    * Check the currently installed native repose before the private copying path.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the actual native repose binding read by the current private source.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the native repose binding read by the current private source.
    * @evidence contracts/development/implementation.md#principled-implementation A descriptor check leaves any changed accessor to the ordinary call.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Match one exact prototype data function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No altered method is made opaque to the original pose.
@@ -180,7 +180,7 @@ export namespace ApplyQuadrupedCarrierPose {
    * Prepare the bounded layout copier for the owned primitive parts.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the native output ownership, supported record tree and declined alternative.
-   * @evidence contracts/development/implementation.md#principled-implementation Admit only own plain enumerable string data and the actual primitive shape's scalar values, with separate records at every mutable node.
+   * @evidence contracts/development/implementation.md#principled-implementation Admit only own plain enumerable string data and the primitive shape's scalar values, with separate records at every mutable node.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One private snapshot admission, followed by ordinary spreads in native key order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither descriptors nor model data from an unproved public receiver establish copying; unsupported part identities keep the original clone.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(P) bounded recipe checks once; each qualified part copy allocates a constant number of fresh records.
@@ -225,7 +225,7 @@ export namespace ApplyQuadrupedCarrierPose {
     );
   }
 
-  /** Admit only the actual renderer part fields and an independent scalar recipe. */
+  /** Admit only the renderer part fields and an independent scalar recipe. */
   function plainPart(part: IAutoMovieModelPart): boolean {
     if (
       !plainData(part) ||

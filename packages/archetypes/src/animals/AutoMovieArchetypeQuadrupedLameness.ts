@@ -127,7 +127,7 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
    * @param legs The course's legs.
    * @param fallback The gait an unnamed leg is checked as: the ride's gait, else the fastest it could reach.
    * @param parts The animal's neutral parts.
-   * @param limbs The actual neutral limb chains.
+   * @param limbs The neutral limb chains.
    * @returns The offset reader, or undefined without a lameness.
    * @throws {AutoMovieArchetypeRefusal} For a gait other than walk or trot, an unknown grade or a malformed record.
    *

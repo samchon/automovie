@@ -16,15 +16,15 @@ import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
  * New ride and Rest consumers prepare QuadrupedPose once and use its sample;
  * this adapter retains callers that already supply neutral/placed rig frames.
  *
- * @param rig Actual admitted neutral quadruped tree.
+ * @param rig Admitted neutral quadruped tree.
  * @param neutral Its original unplaced neutral world frames.
  * @param placed Its neutral frames under the requested complete root placement.
  * @param limbs Four complete solved five-point world chains.
  * @param tail Current authored world tail direction.
  * @returns Fresh generic local degree coordinates from the shared lowering owner.
  * @throws {RangeError} For an absent/ambiguous root, incomplete frames or invalid goals.
- * @evidence contracts/development/common.md#meaningful-documentation States compatibility scope, actual rig/frame premises, complete world-metre chain inputs, tail goal and independent generic degree output.
- * @evidence contracts/development/implementation.md#principled-implementation Recover the one complete rigid root as placed-root times inverse-neutral-root, then delegate all world-goal-to-local-angle work to QuadrupedPoseAngles on the actual rig and generic reader.
+ * @evidence contracts/development/common.md#meaningful-documentation States compatibility scope, rig/frame premises, complete world-metre chain inputs, tail goal and independent generic degree output.
+ * @evidence contracts/development/implementation.md#principled-implementation Recover the one complete rigid root as placed-root times inverse-neutral-root, then delegate all world-goal-to-local-angle work to QuadrupedPoseAngles on the rig and generic reader.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One rigid root conversion and one shared lowering call preserve the legacy signature without another angle, axis or FK implementation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No Rest-specific rotation type, species branch, human bone, Euler sign table, modified segment or completed-pose fallback remains.
  * @evidence contracts/development/implementation.md#efficient-algorithms O(B+G) one-shot compatibility preparation/lowering for bones and goals; production consumers reuse QuadrupedPose's once-prepared reader instead.

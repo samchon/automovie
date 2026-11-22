@@ -4,27 +4,27 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
- * Seat a real appendage's complete root cross-section inside its actual head.
+ * Seat a real appendage's complete root cross-section inside its head.
  *
  * The shared head is the capsule with cap centres poll/nose and headRadius.
  * Eroding that solid by the positive root radius leaves the same finite axis
  * and radius R-r. A centre inside this eroded capsule carries a whole ball of
- * radius r inside the head, hence the actual root disk in every orientation.
+ * radius r inside the head, hence the root disk in every orientation.
  * This is authored neutral construction, not a measured anatomical insertion.
  * Stem length/direction and any branches remain the producer's responsibility.
  *
- * @param head Actual generating head capsule, neutral model-space metres.
+ * @param head Generating head capsule, neutral model-space metres.
  * @param hint Authored root-centre hint in that same frame; an already seated centre stays unchanged.
- * @param stemRadius Positive finite radius enclosing the actual root cross-section, metres; for a box use its root rectangle's half-diagonal.
- * @returns A fresh seated centre, preserving an outside hint's nearest-axis bearing. Radius equality seats on the actual capsule axis.
+ * @param stemRadius Positive finite radius enclosing the root cross-section, metres; for a box use its root rectangle's half-diagonal.
+ * @returns A fresh seated centre, preserving an outside hint's nearest-axis bearing. Radius equality seats on the capsule axis.
  * @throws {RangeError} For nonfinite/degenerate head geometry, invalid radius, a root larger than the head or an unrepresentable inset/output.
  * @throws {Error} When the shared closest-segment owner cannot represent its finite query.
- * @evidence contracts/development/common.md#meaningful-documentation Defines the actual closed capsule, neutral metre frame, complete cross-section radius, erosion proof, unchanged inside hints, equality boundary, fresh output and numerical refusals; no biological insertion is asserted.
- * @evidence contracts/development/implementation.md#principled-implementation A capsule is its finite axis Minkowski-summed with a radius-R ball. Projecting a root centre into its radius-(R-r) erosion contains a whole radius-r ball and therefore every actual root disk orientation. The existing finite-axis closest-segment witness supplies the axis point with its documented binary64 precision; no changed head dimension is used.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit actual geometry/radius, read one nearest-axis witness, preserve an inside hint or project its bearing to the eroded boundary, then admit the represented output.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the closed capsule, neutral metre frame, complete cross-section radius, erosion proof, unchanged inside hints, equality boundary, fresh output and numerical refusals; no biological insertion is asserted.
+ * @evidence contracts/development/implementation.md#principled-implementation A capsule is its finite axis Minkowski-summed with a radius-R ball. Projecting a root centre into its radius-(R-r) erosion contains a whole radius-r ball and therefore every root disk orientation. The existing finite-axis closest-segment witness supplies the axis point with its documented binary64 precision; no changed head dimension is used.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit geometry/radius, read one nearest-axis witness, preserve an inside hint or project its bearing to the eroded boundary, then admit the represented output.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species case, picture-fitted offset, mesh repair, hidden join primitive, biological default, tolerance-sized gap or caller mutation supplies contact. Impossible complete-root seating refuses rather than changing either radius.
  * @evidence contracts/development/implementation.md#efficient-algorithms One constant-dimensional closest-segment query and fixed scalar/vector arithmetic take O(1) time and storage during initial construction; no mesh, repeated model build, search or per-frame work occurs.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Deer antlers, dog/ox ears and equid ear construction share one actual-capsule seating rule and the engine's existing finite-axis proximity owner; already valid ox horn roots retain their geometry.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Deer antlers, dog/ox ears and equid ear construction share one capsule seating rule and the engine's existing finite-axis proximity owner; already valid ox horn roots retain their geometry.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one independent point, retaining no head/hint, model, query, cache, process or external handle.
  */
 export function AutoMovieArchetypeQuadrupedHeadAttachment(

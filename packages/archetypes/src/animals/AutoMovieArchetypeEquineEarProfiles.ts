@@ -10,7 +10,7 @@ import type { AutoMovieArchetypeQuadrupedEars } from "./AutoMovieArchetypeQuadru
  * these are reported reference means, not a validated Veracruz population law.
  *
  * Mule: Salamanca-Carreño et al.2020, Animals10:679, TableS1 pp6-7,
- * https://doi.org/10.3390/ani10040679; actual raw15 mules,7 male/8 female,
+ * https://doi.org/10.3390/ani10040679; raw15 mules,7 male/8 female,
  * ages4-22 in these rows. ALC/LORE/ORE are withers/ear length/ear width in cm.
  * The supplement is https://mdpi-res.com/d_attachment/animals/animals-10-00679/article_deploy/animals-10-00679-s001.pdf.
  *
@@ -21,7 +21,7 @@ import type { AutoMovieArchetypeQuadrupedEars } from "./AutoMovieArchetypeQuadru
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the two donor papers, exact table/columns/units, adult/age caveat, 15 raw mule rows, same-cohort normalization and distinct current body references; plate thickness and pose are explicitly authored.
  * @evidence contracts/development/design.md#principled-representation Complete donor height/length/breadth records preserve their source pairing. Only deterministic cohort ratios and named plate construction reach the optional common body profile.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One reference-data owner supplies donkey/mule ear profiles to their actual existing producers; common geometry and head attachment stay with their own owners.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One reference-data owner supplies donkey/mule ear profiles to their existing producers; common geometry and head attachment stay with their own owners.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No independent marginal draw, invented biological thickness/angle/clinical limit, copied horse ear, replacement current body dimensions or fixture-fitted breed exception is introduced.
  */
 export namespace AutoMovieArchetypeEquineEarProfiles {

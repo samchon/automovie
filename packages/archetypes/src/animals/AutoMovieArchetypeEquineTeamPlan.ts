@@ -149,7 +149,7 @@ export namespace AutoMovieArchetypeEquineTeamPlan {
      * The team at a film second.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and the fresh sample.
-     * @evidence contracts/development/implementation.md#principled-implementation Each horse's own ride, the vehicle towed by the pole head, and spans laid between the actual collar parts and the vehicle's bars.
+     * @evidence contracts/development/implementation.md#principled-implementation Each horse's own ride, the vehicle towed by the pole head, and spans laid between the collar parts and the vehicle's bars.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Read every ride and the vehicle, then lay the spans by role and stage.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every span end is a posed part or a vehicle-rigid point; nothing is cached.
      * @evidence contracts/development/implementation.md#efficient-algorithms One sample per horse and one vehicle sample.

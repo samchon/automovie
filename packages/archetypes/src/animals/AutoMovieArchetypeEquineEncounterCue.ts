@@ -26,7 +26,7 @@ export namespace AutoMovieArchetypeEquineEncounterCue {
   /**
    * A body region a strike, bite or kick is aimed at.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names each region; each is a bar of the actual body.
+   * @evidence contracts/development/common.md#meaningful-documentation Names each region; each is a bar of the body.
    * @evidence contracts/development/design.md#principled-representation Closed literals.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The aim of the contact acts.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.

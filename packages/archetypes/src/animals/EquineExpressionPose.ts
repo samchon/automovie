@@ -36,7 +36,7 @@ const BONES: ReadonlySet<string> = new Set<string>([
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
 /**
- * Re-pose one sample of an equid's ride through its actual rig: the neck and head, each ear about its root, the jaw about its hinge, the upper lip about its root and the tail about its dock.
+ * Re-pose one sample of an equid's ride through its rig: the neck and head, each ear about its root, the jaw about its hinge, the upper lip about its root and the tail about its dock.
  *
  * The sample's own bone frames are read by the shared FK reader; the neck, head and tail get new frames and every other bone keeps its own, and a part or contact whose carrier keeps its frame keeps its own transform untouched, so the limbs, the trunk and everything they carry are the base sample's exactly. Each non-bone part rides its declared carrier (`AutoMovieArchetypeQuadrupedSkeleton.apply`'s rigid delta), the head's tack, ears and jaw riding the head; an ear is then turned about its root and the jaw about its hinge. Spans such as the lead and the reins are laid again by the model between their ends, so a rope stays on its halter and its held point.
  *

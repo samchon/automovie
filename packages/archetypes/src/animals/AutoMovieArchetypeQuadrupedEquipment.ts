@@ -7,39 +7,39 @@ import { QuadrupedEquipmentBearing } from "./QuadrupedEquipmentBearing";
 import { QuadrupedEquipmentPlan } from "./QuadrupedEquipmentPlan";
 
 /**
- * Authored yokes and pack frames on the actual rest quadruped's landmarks.
+ * Authored yokes and pack frames on the rest quadruped's landmarks.
  *
  * The model faces +Z and its left is +X. Every equipment length is supplied
  * in metres; no maker specification, load rating or measured animal fit is
  * implied. Geometry and hook contacts use the same planned dimensions.
- * Additional producer spheres describe actual emitted body solids, not fit
+ * Additional producer spheres describe emitted body solids, not fit
  * proxies; an omitted sphere list is empty. Their centres and radii use this
  * same neutral model frame and metres.
  * Visible tangent bearing rails and connecting rods support each clear frame
- * on the actual body. Their coarse line contacts do not claim padding,
+ * on the body. Their coarse line contacts do not claim padding,
  * restraint, pressure distribution or rated working capacity.
  * The caller supplies total body-plus-equipment mass to the existing builder.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the rest frame, authored SI dimensions, actual-rig fit, common geometry/contact ownership and physical limits.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the rest frame, authored SI dimensions, rig fit, common geometry/contact ownership and physical limits.
  * @evidence contracts/development/design.md#principled-representation Two independently optional equipment assemblies carry closed contact identities and explicit positive physical lengths; no invented material coefficient or segment mass share is required.
- * @evidence contracts/development/design.md#minimal-and-owned-surface This owner only adds yoke/pack parts and their hook sites to the actual builder. The existing lead/collar owner and the producer's total mass remain separate.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface This owner only adds yoke/pack parts and their hook sites to the builder. The existing lead/collar owner and the producer's total mass remain separate.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Source anatomy, maker compliance and load-bearing capacity are not inferred from authored coarse equipment. No horse geometry, weight law or implicit dimensional default is copied.
  */
 export namespace AutoMovieArchetypeQuadrupedEquipment {
   /**
    * One real additional spherical body part, in canonical model metres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the actual emitted part identity, centre and positive primitive sphere radius, distinct from the ordinary rig envelope.
-   * @evidence contracts/development/design.md#principled-representation The same producer record supplies actual sphere emission and physical equipment admission; this is actual geometry rather than a species-specific fit proxy.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the emitted part identity, centre and positive primitive sphere radius, distinct from the ordinary rig envelope.
+   * @evidence contracts/development/design.md#principled-representation The same producer record supplies sphere emission and physical equipment admission; this is geometry rather than a species-specific fit proxy.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Represents the live additional spherical body solid consumed by shared equipment support and collision checks; ordinary rig geometry keeps its existing owner.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No guessed anatomical radius, renderer-only obstacle or hardcoded species clearance enters the contract.
    */
   export interface ISphere {
-    /** Identity of the actual emitted body sphere. */
+    /** Identity of the emitted body sphere. */
     readonly id: string;
-    /** Actual primitive sphere radius, positive finite metres. */
+    /** Primitive sphere radius, positive finite metres. */
     readonly radius: number;
-    /** Actual primitive centre in the neutral model frame, metres. */
+    /** Primitive centre in the neutral model frame, metres. */
     readonly centre: Readonly<IAutoMovieVector3>;
   }
 
@@ -80,15 +80,15 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
   }
 
   /**
-   * Actual optional assemblies, with every dimension explicitly authored.
+   * Optional assemblies, with every dimension explicitly authored.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Every member names a physical metre length or clearance and the actual neck/trunk limit that admits it; pack width is explicitly vertical pad width.
+   * @evidence contracts/development/common.md#meaningful-documentation Every member names a physical metre length or clearance and the neck/trunk limit that admits it; pack width is explicitly vertical pad width.
    * @evidence contracts/development/design.md#principled-representation An absent assembly adds nothing; a present one requires its complete geometry and hook. Clearances are nonnegative and other dimensions positive, checked before any builder mutation.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Only the two requested equipment assemblies are represented. Lead, total mass, material coefficients and species anatomy stay with their current owners.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No dimension is guessed from a species name, no partial hook can be written and no manufacturer or safe-load promise is encoded.
    */
   export interface IParams {
-    /** Crossbeam in front of the actual neck root, with a connected hitch hook. */
+    /** Crossbeam in front of the neck root, with a connected hitch hook. */
     yoke?: {
       /** Complete lateral beam length; must span neck, beam radius and clearance. */
       width: number;
@@ -96,7 +96,7 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
       /** Circular crossbeam radius, metres. */
       radius: number;
 
-      /** Distance along the actual neck axis from its root, metres, inside the neck's positive span. */
+      /** Distance along the neck axis from its root, metres, inside the neck's positive span. */
       neckAt: number;
 
       /** Free beam/hitch separation from neck and trunk, metres, zero allowed; the separate visible bearing rail touches the neck. */
@@ -111,7 +111,7 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
       /** Fore-aft pad/rail length; its crossbars fit the trunk behind the neck-root footprint. */
       length: number;
 
-      /** Each side pad's vertical width, metres; must fit the actual barrel and stay above ground. */
+      /** Each side pad's vertical width, metres; must fit the barrel and stay above ground. */
       width: number;
 
       /** Each side pad's lateral thickness, metres. */
@@ -137,21 +137,21 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
   /**
    * Add admitted yoke/pack geometry and their three possible real hook sites.
    *
-   * @param builder The actual animal builder, whose caller supplies total equipment-inclusive mass.
+   * @param builder The animal builder, whose caller supplies total equipment-inclusive mass.
    * @param rig Canonical +Z-forward rest landmarks of that animal.
    * @param params Complete authored metre dimensions for each requested assembly.
    * @param archetype The producer identity reported by a parameter refusal.
-   * @param spheres Actual additional emitted body spheres, in neutral model metres; defaults to an empty list and is copied during planning.
+   * @param spheres Additional emitted body spheres, in neutral model metres; defaults to an empty list and is copied during planning.
    * @throws {AutoMovieArchetypeRefusal} For invalid dimensions, nonfinite derived geometry, ordinary rig fit failure or insufficient authored clearance from an additional sphere.
    * @throws {RangeError} If an additional sphere has a nonpositive/nonfinite radius or nonfinite centre.
    * @throws {Error} If the producer already used one of this equipment's part identities.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines assembly admission, no-op absence, rest-frame ownership, geometry/contact equivalence, all units and failure behavior.
-   * @evidence contracts/development/implementation.md#principled-implementation Plan the clear frame against the actual neck axis and circular barrel, then connect it to tangent body-bearing rails using the same body boundaries and actual frame endpoints. Additional spheres raise connected pack bridges; every rod/box retains authored clearance from those additional solids. Bearing rails touch their declared neck/trunk surface. U-hook contacts remain on the real bearing bar with outward normal +Y.
+   * @evidence contracts/development/implementation.md#principled-implementation Plan the clear frame against the neck axis and circular barrel, then connect it to tangent body-bearing rails using the same body boundaries and frame endpoints. Additional spheres raise connected pack bridges; every rod/box retains authored clearance from those additional solids. Bearing rails touch their declared neck/trunk surface. U-hook contacts remain on the real bearing bar with outward normal +Y.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit and plan both assemblies completely, then append their real primitives and contact records; one hook planner owns all three sites.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No guessed equipment size, floating contact, copied horse rig, patched builder, hidden mass share or contact coefficient is used. An invalid second assembly leaves no first assembly partially appended. A brace of exactly zero length is omitted because the crossbar already joins the rail there.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed assembly sizes require O(S) planning and copied-sphere storage for S additional body spheres, with O(1) equipment records. Append cost includes the builder's existing O(P) id scan per fixed part for P already-built parts; no fitting or mesh search occurs.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One planned bearing point supplies each actual hook and its contact; both pack sides share their authored dimensions and the same hook owner. No species branch or duplicate lead implementation exists.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One planned bearing point supplies each hook and its contact; both pack sides share their authored dimensions and the same hook owner. No species branch or duplicate lead implementation exists.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary plan owns fixed equipment records and O(S) independent sphere copies, released after appending. The builder owns emitted data; no producer sphere input, query, cache, process or external handle is retained.
    */
   export function lay(
@@ -170,16 +170,16 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
   /**
    * Admit and plan complete authored equipment without mutating a builder.
    *
-   * @param rig Actual neutral body landmarks and dimensions, metres.
+   * @param rig Neutral body landmarks and dimensions, metres.
    * @param params Complete authored assemblies; absence plans no parts.
-   * @param archetype Actual producer identity used by actionable refusals.
-   * @param spheres Actual additional body spheres in neutral model metres; defaults to an empty list, distinct from the ordinary rig envelope.
+   * @param archetype Producer identity used by actionable refusals.
+   * @param spheres Additional body spheres in neutral model metres; defaults to an empty list, distinct from the ordinary rig envelope.
    * @returns A fixed-size equipment plan with independent additional-sphere copies, ready for one or more independent emissions.
-   * @throws {AutoMovieArchetypeRefusal} For invalid assembly dimensions, nonfinite derived geometry or insufficient actual-body clearance.
+   * @throws {AutoMovieArchetypeRefusal} For invalid assembly dimensions, nonfinite derived geometry or insufficient body clearance.
    * @throws {RangeError} For nonpositive/nonfinite additional sphere radii or nonfinite sphere centres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines non-emitting actual-rig admission, whole assembly inputs and the independent builder-emission boundary.
-   * @evidence contracts/development/implementation.md#principled-implementation Admit complete equipment against the actual rig and copied additional spheres before emission. Connected pack bridges use conservative sphere-top clearance. All cylinders/boxes retain authored clearance from additional spheres, while visible bearing rails touch only their declared neck/trunk course.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines non-emitting rig admission, whole assembly inputs and the independent builder-emission boundary.
+   * @evidence contracts/development/implementation.md#principled-implementation Admit complete equipment against the rig and copied additional spheres before emission. Connected pack bridges use conservative sphere-top clearance. All cylinders/boxes retain authored clearance from additional spheres, while visible bearing rails touch only their declared neck/trunk course.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Create one plan, populate requested assemblies through their existing owners and return that same admitted plan.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No probe builder, partial emitted model, guessed source dimensions or repeated random construction establishes eligibility.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most two fixed assemblies require O(S) work and sphere-copy storage for S additional spheres, plus fixed equipment records. Repeating preflight for K candidate cohorts costs O(KS); no full model or mesh is built.
@@ -281,7 +281,7 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     QuadrupedEquipmentBearing.yoke(plan, rig, yoke, centre, WOOD);
   }
 
-  /** Fit pads to the actual side planes; their rails and over-back bridges share those endpoints. */
+  /** Fit pads to the side planes; their rails and over-back bridges share those endpoints. */
   function planPack(
     plan: QuadrupedEquipmentPlan,
     rig: AutoMovieArchetypeQuadrupedBody.IRig,

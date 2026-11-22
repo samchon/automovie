@@ -45,7 +45,7 @@ export namespace QuadrupedRideAdmission {
    * @param gait The ride's fixed gait, if any.
    * @param tempo The animal's timing-spread coordinate.
    * @param withers The animal's withers height, metres.
-   * @param rig The actual limb chains, whose hip height sets the change points.
+   * @param rig The limb chains, whose hip height sets the change points.
    * @param dimensions The animal's dimensions, for mass-scaled change points.
    * @throws {AutoMovieArchetypeRefusal} When a named gait is absent, a requested speed lies outside every applicable declared domain, or a yielding footing sinks a hoof as deep as its carpus or hock stands.
    *
@@ -135,7 +135,7 @@ export namespace QuadrupedRideAdmission {
           fix: "Declare a shallower yield, or plan the passage as a plunge or a stuck interval.",
         });
 
-    /** Requested named gaits are strict; automatic requests need actual declared coverage. */
+    /** Requested named gaits are strict; automatic requests need declared coverage. */
     function speed(
       which: AutoMovieArchetypeQuadrupedGait.Gait | undefined,
       value: number,

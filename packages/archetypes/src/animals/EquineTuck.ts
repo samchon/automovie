@@ -12,7 +12,7 @@ import type { QuadrupedRidePose } from "./QuadrupedRidePose";
  * St George, Clayton, Sinclair, Richards, Roy and Hobbs 2021, Muscle Function and Kinematics during Submaximal Equine Jumping, Animals 11:414, Table 1 (https://doi.org/10.3390/ani11020414; seventeen horses over a 1.0 m vertical) report the maximum carpus flexion over the jump stride: trailing fore 128.3 ± 7.2 and leading fore 130.7 ± 9.8 degrees in the intermediate-elevation group, reached at 24.8 and 28.2 % of the jump stride, after takeoff. `FOLD` is the mean of those two group means. The same table gives no hock angle; it gives the hindlimb's greatest shortening (`SHORTENING`), from which `hind` finds the hock fold.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the source, the values used, what is left untucked and why.
- * @evidence contracts/development/design.md#principled-representation One measured fold in degrees and a hanging hoof height from the actual limb's reach.
+ * @evidence contracts/development/design.md#principled-representation One measured fold in degrees and a hanging hoof height from the limb's reach.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the ride's swing goals while a jump carries them.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No hock angle is invented: the hind fold follows from the measured shortening.
  */
@@ -37,9 +37,9 @@ export namespace EquineTuck {
   ) => QuadrupedRidePose.IGoal;
 
   /**
-   * Prepare one limb's tuck from its actual neutral chain.
+   * Prepare one limb's tuck from its neutral chain.
    *
-   * @param chain The limb's actual neutral joint points, model metres, attachment first and hoof endpoint last.
+   * @param chain The limb's neutral joint points, model metres, attachment first and hoof endpoint last.
    * @param fold The tuck's greatest fold, degrees.
    * @param fore Whether the chain is a fore's.
    * @returns The tuck reader.
@@ -149,7 +149,7 @@ export namespace EquineTuck {
   /**
    * The four limbs' prepared tucks.
    *
-   * @param limbs The actual neutral limb chains.
+   * @param limbs The neutral limb chains.
    * @param withers The height at the withers, metres.
    * @returns The fore and hind tucks.
    *
@@ -178,7 +178,7 @@ export namespace EquineTuck {
   /**
    * One hind's tuck: the hock fold at which the hind's greatest reach, hip to hoof, is its standing length less SHORTENING of the withers.
    *
-   * @param chain The hind's actual neutral joint points.
+   * @param chain The hind's neutral joint points.
    * @param withers The height at the withers, metres.
    * @returns The tuck reader.
    *
