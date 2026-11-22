@@ -136,7 +136,7 @@ function umbrella(
     .registered("workHeld", {
       prop: "umbrella",
       // Held low before the body, the runner within the free arm.
-      at: { out: 0.05, up: shoulder - 0.45, forward: 0.3, level: true },
+      at: { out: 0.15, up: shoulder - 0.45, forward: 0.3, level: true },
       seconds: 0.4,
     })
     .registered("workHeld", {
@@ -148,7 +148,7 @@ function umbrella(
     })
     .registered("workHeld", {
       prop: "umbrella",
-      at: { out: 0.05, up: shoulder + 0.2, forward: 0.15, level: true },
+      at: { out: 0.05, up: shoulder + 0.05, forward: 0.25, level: true },
       seconds: 0.4,
     })
     .walk({ to: { x: 0, y: 0, z: 2 } });

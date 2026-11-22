@@ -10,6 +10,7 @@ import type {
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanHeldWork,
   IAutoMovieMotionPropDrive,
+  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -88,13 +89,21 @@ export function heldDigits(
         fix: "name a contact riding the driven hinge or slider",
       });
     const digit: AutoMovieHumanDigit = DIGITS[held.side][d.by.digit];
-    // The pad's place in the hand's frame as the work begins.
+    // The pad's place and facing in the hand's frame as the work begins.
+    const surface: IAutoMovieMotionHumanHand.IFrame = HumanHand.frame(
+      context.body,
+      bones,
+      held.side,
+      PADS[d.by.digit],
+    );
+    const unturn: IAutoMovieQuaternion = Quaternion.inverse(hand.worldRotation);
     const pad: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(hand.worldRotation),
-      Vector3.subtract(
-        HumanHand.frame(context.body, bones, held.side, PADS[d.by.digit]).point,
-        hand.worldPosition,
-      ),
+      unturn,
+      Vector3.subtract(surface.point, hand.worldPosition),
+    );
+    const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+      unturn,
+      surface.normal,
     );
     worked.push({
       digit,
@@ -102,6 +111,7 @@ export function heldDigits(
       site,
       drive: drives[k]!,
       pad,
+      normal,
       start: drives[k]!.travel(0),
     });
   });
@@ -123,6 +133,9 @@ export function heldDigits(
           w.pad,
           Quaternion.rotateVector(held.frame.rotation, moved),
         ),
+        // The contact faces the pad as the pad faced it, so the digit keeps
+        // its configuration: the touched surface's normal opposes the pad's.
+        normal: Vector3.scale(w.normal, -1),
         surface: "pad",
         on: `${held.side}Hand`,
         contact: true,
@@ -222,6 +235,9 @@ interface IWorked {
 
   /** The digit's pad in the hand's frame as the work begins. */
   pad: IAutoMovieVector3;
+
+  /** The pad's outward facing in the hand's frame as the work begins. */
+  normal: IAutoMovieVector3;
 
   /** The articulation's travel as the work begins. */
   start: number;
