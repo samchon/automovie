@@ -1,4 +1,5 @@
 import {
+  ANKLE_DORSIFLEXION,
   ROM_TOLERANCE,
   getConstraint,
   hingedArmSwivel,
@@ -166,7 +167,9 @@ export namespace HumanSwungLeg {
    * and its keys. The swing is fitted on the frame grid (`STEP`), its first
    * frame cold and each later one continuing the frame before, as a display
    * continues a free leg; a frame whose hip or knee lies within
-   * `EDGE` of a bound is pinned there. The window runs from the last frame
+   * `EDGE` of a bound is pinned there; a leg so pinned is keyed from its
+   * first frame whose free foot reaches the unloaded ankle's dorsal limit
+   * (`ANKLE_DORSIFLEXION.unloaded`) if that comes earlier. The window runs from the last frame
    * before the first pinned one to the landing, and its keys are the fits at
    * its ends and at its middle: the start is a pose the leg holds freely, so
    * the world course is shown up to it; the landing is fitted as the display
@@ -237,8 +240,23 @@ export namespace HumanSwungLeg {
         }),
       ),
     );
-    const first: number = pinned.indexOf(true);
-    if (first < 0) return null;
+    // A foot in the air past the unloaded ankle's dorsal limit has left what
+    // the free ankle holds (at the leave the foot still bears): a leg whose
+    // course also leaves its range is keyed from there on.
+    const strained: number = fits.findIndex(
+      (joints: Joints, i: number): boolean =>
+        i > 0 &&
+        BONES[side].some(
+          (bone: AutoMovieHumanoidBone): boolean =>
+            FEET.has(bone) &&
+            (joints[bone]?.[0] ?? -Infinity) >=
+              ANKLE_DORSIFLEXION.unloaded - EDGE,
+        ),
+    );
+    const pinnedAt: number = pinned.indexOf(true);
+    if (pinnedAt < 0) return null;
+    const first: number =
+      strained >= 0 && strained < pinnedAt ? strained : pinnedAt;
     const open: number = Math.max(0, first - 1);
     const start: number = times[open]!;
     const end: number = swing[1];
