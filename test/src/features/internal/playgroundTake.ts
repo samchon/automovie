@@ -95,6 +95,5 @@ export namespace playgroundTake {
     failures: string[],
   ): void {
     collectTakeClean(label, take, failures);
-
   }
 }
