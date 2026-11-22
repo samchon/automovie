@@ -4,6 +4,8 @@ import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -13,6 +15,7 @@ import {
   HumanFrailWalk,
   HumanPerformance,
   HumanRefusal,
+  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -40,7 +43,9 @@ const EN_BLOC: number = 10;
  *    way on a wider base, and the trunk leans further forward.
  * 3. A half turn in place takes more steps at full severity, and the head
  *    turns with the pelvis, en bloc.
- * 4. A severity outside 0 to 1 is refused.
+ * 4. The frail walker sits into an armchair and rises from it with both
+ *    hands bearing on its armrests.
+ * 5. A severity outside 0 to 1 is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the cases and what each reads.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the plans' durations and heel strikes and the displayed chest's lean; a frail walk as fast as the ordinary one, as few steps, an upright trunk or an admitted out-of-range grade fails.
@@ -169,6 +174,20 @@ export function test_human_motion_frail_walk(): void {
       `${fit}: the frail half turn is en bloc, the head within ${EN_BLOC} degrees of the pelvis (${lead.toFixed(1)})`,
       lead <= EN_BLOC,
     );
+    // The frail walker sits into an armchair and rises from it with both
+    // hands on its armrests.
+    const chair: HumanPerformance = armchair(body);
+    assertTakeClean(`${fit} frail armchair`, chair);
+    for (const name of ["sit", "rise"] as const) {
+      const span: IAutoMovieMotionHumanSegment = chair
+        .segments("a")
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === name)!;
+      const bearing: number = span.plan.contacts.filter(
+        (w: IAutoMovieMotionHumanContactWindow): boolean =>
+          (w.part === "leftHand" || w.part === "rightHand") && (w.kind === "bear" || w.kind === "plant"),
+      ).length;
+      TestValidator.predicate(`${fit}: the frail walker ${name}s with both hands on the armrests`, bearing >= 2);
+    }
     TestValidator.predicate(
       `${fit}: a severity past 1 is refused`,
       ((): boolean => {
@@ -208,6 +227,32 @@ function perform(
     laws: [HumanFrailWalk.frailWalk],
     composition: chain.node,
   });
+}
+
+/** A frail walk to an armchair 2 m ahead, a sit into it and a rise from it. */
+function armchair(body: IAutoMovieMotionHumanBody): HumanPerformance {
+  const front: number = 2;
+  const height: number = seated.popliteal(body);
+  // Armrests 0.2 m above the seat at the sitter's sides, 0.25 m back from the front edge (provisional armchair).
+  const half: number = body.measure.hipHalfWidth + body.measure.thighRadius + 0.05;
+  const seat: IAutoMovieMotionHumanSeated.ISeat = {
+    at: { x: 0, y: height, z: front },
+    yaw: 180,
+    depth: 0.45,
+    back: 0.5,
+    armrests: {
+      // Facing -Z, the sitter's left is -X.
+      left: { x: -half, y: height + 0.2, z: front + 0.25 },
+      right: { x: half, y: height + 0.2, z: front + 0.25 },
+    },
+  };
+  return perform(
+    body,
+    HumanChain.subject("a")
+      .registered(HumanFrailWalk.frailWalk.name, { to: { x: 0, y: 0, z: front - 0.15 }, face: 180, severity: 1 })
+      .sit({ seat, seconds: 1 })
+      .rise(),
+  );
 }
 
 /** The performer's walking segment. */
