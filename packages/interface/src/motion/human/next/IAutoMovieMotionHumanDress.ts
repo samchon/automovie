@@ -13,11 +13,11 @@ export interface IAutoMovieMotionHumanDress<Chain> {
   /**
    * Putting on a hat or a pair of glasses held in one hand, with both hands, while standing.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `item`, `prop`, `hand` and `manner` of `ILegacyDress.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanDress.dress: Putting on a hat or a pair of glasses held in one hand, with both hands, while standing.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanDress.dress is provided by the chain that implements IAutoMovieMotionHumanDress.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanDress.dress is provided by the chain that implements IAutoMovieMotionHumanDress.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanDress.dress is provided by the chain that implements IAutoMovieMotionHumanDress.

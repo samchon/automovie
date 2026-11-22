@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanSupport as ILegacySupport } from "../actions/IAutoMovieMotionHumanSupport";
 
 /**
- * Mechanism: A body support: a hand or foot taking the body's weight on a place.
+ * A body support: a hand or foot taking the body's weight on a place.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -13,11 +13,11 @@ export interface IAutoMovieMotionHumanSupport<Chain> {
   /**
    * Moving the body's weight across a sequence of supports: each stance's contacts (`IAutoMovieMotionHumanSupport.IStance`) solved into one static key posture, and the body carried from key to key with every new contact placed and bearing before any contact the next stance lacks lets go.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `balance`, `stances`, `on` and `assist` of `ILegacySupport.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSupport.support: Moving the body's weight across a sequence of supports: each stance's contacts (`IAutoMovieMotionHumanSupport.IStance`) solved into one static key posture, and the body carried from key to key with every new contact placed and bearing before any contact the next stance lacks lets go.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSupport.support is provided by the chain that implements IAutoMovieMotionHumanSupport.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSupport.support is provided by the chain that implements IAutoMovieMotionHumanSupport.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSupport.support is provided by the chain that implements IAutoMovieMotionHumanSupport.

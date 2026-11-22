@@ -5,7 +5,7 @@ import type { IAutoMovieMotionHumanStreetDance } from "../exercise/IAutoMovieMot
 import type { IAutoMovieMotionHumanTapDance } from "../exercise/IAutoMovieMotionHumanTapDance";
 
 /**
- * Mechanism: Footwork and body movement on a beat: social, ballet, tap, street and group dance. A beat count at a tempo gives the duration; dance styles share one 120 bpm clock.
+ * Footwork and body movement on a beat: social, ballet, tap, street and group dance. A beat count at a tempo gives the duration; dance styles share one 120 bpm clock.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -17,11 +17,11 @@ export interface IAutoMovieMotionHumanDance<Chain> {
   /**
    * A solo dance step locked to a declared beat (#3253, M23): the bounce, the side-to-side sway, the step-touch and the box step.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `kind`, `bpm`, `beats`, `lock`, `side`, `waltz` and `manner` of `ILegacyDance.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanDance.dance: A solo dance step locked to a declared beat (#3253, M23): the bounce, the side-to-side sway, the step-touch and the box step.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanDance.dance is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanDance.dance is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanDance.dance is provided by the chain that implements IAutoMovieMotionHumanDance.
@@ -34,11 +34,11 @@ export interface IAutoMovieMotionHumanDance<Chain> {
   /**
    * Classical ballet on the beat clock (#3991): the five positions of the feet with a plié or a relevé, the pirouette from fourth on demi-pointe en dehors or en dedans, and the grand jeté with its split at the flight's apex.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `kind`, `position`, `movement`, `turnout`, `turns`, `direction`, `split`, `side`, `bpm`, `beats` and `lock` of `IAutoMovieMotionHumanBallet.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanDance.ballet: Classical ballet on the beat clock (#3991): the five positions of the feet with a plié or a relevé, the pirouette from fourth on demi-pointe en dehors or en dedans, and the grand jeté with its split at the flight's apex.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanDance.ballet is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanDance.ballet is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanDance.ballet is provided by the chain that implements IAutoMovieMotionHumanDance.
@@ -51,11 +51,11 @@ export interface IAutoMovieMotionHumanDance<Chain> {
   /**
    * Tap dance on the beat clock (#3991): the shuffle, the flap, the ball change, the heel drop, the cramp roll and a single time step.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `step`, `bpm`, `repeats`, `side` and `lock` of `IAutoMovieMotionHumanTapDance.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanDance.tapDance: Tap dance on the beat clock (#3991): the shuffle, the flap, the ball change, the heel drop, the cramp roll and a single time step.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanDance.tapDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanDance.tapDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanDance.tapDance is provided by the chain that implements IAutoMovieMotionHumanDance.
@@ -63,16 +63,19 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDance.tapDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDance.tapDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    */
-  tapDance(params: IAutoMovieMotionHumanDance.ITapDance, anchor?: string): Chain;
+  tapDance(
+    params: IAutoMovieMotionHumanDance.ITapDance,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Street grooves on the beat clock (#4010): the rock, a bounce of the knees with the chest and the head isolating side to side and popping hits that stop sharp on their beat subdivisions; and the moonwa.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `groove`, `bpm`, `beats`, `hits`, `vary`, `side` and `lock` of `IAutoMovieMotionHumanStreetDance.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanDance.streetDance: Street grooves on the beat clock (#4010): the rock, a bounce of the knees with the chest and the head isolating side to side and popping hits that stop sharp on their beat subdivisions; and the moonwa.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanDance.streetDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanDance.streetDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanDance.streetDance is provided by the chain that implements IAutoMovieMotionHumanDance.
@@ -80,16 +83,19 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDance.streetDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDance.streetDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    */
-  streetDance(params: IAutoMovieMotionHumanDance.IStreetDance, anchor?: string): Chain;
+  streetDance(
+    params: IAutoMovieMotionHumanDance.IStreetDance,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Social group dances on one shared beat (#4010), each member dancing the same steps relative to the group: - line: a grapevine to the right and back to the left, the last count turning a quarter to the left, so every repeat faces the next wall and the rows keep their spacing; - circle: members spaced evenly round a centre, hands joined with their neighbours, side-stepping round the centre so the circle rotates; - conga: members in file, each with both hands on the shoulders of the one ahead, stepping three counts forward and kicking on the fourth.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `kind`, `bpm`, `repeats`, `centre`, `members`, `left`, `right`, `ahead`, `vary` and `lock` of `IAutoMovieMotionHumanGroupDance.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanDance.groupDance: Social group dances on one shared beat (#4010), each member dancing the same steps relative to the group: - line: a grapevine to the right and back to the left, the last count turning a quarter to the left, so every repeat faces the next wall and the rows keep their spacing; - circle: members spaced evenly round a centre, hands joined with their neighbours, side-stepping round the centre so the circle rotates; - conga: members in file, each with both hands on the shoulders of the one ahead, stepping three counts forward and kicking on the fourth.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanDance.groupDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanDance.groupDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanDance.groupDance is provided by the chain that implements IAutoMovieMotionHumanDance.
@@ -97,7 +103,10 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDance.groupDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDance.groupDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    */
-  groupDance(params: IAutoMovieMotionHumanDance.IGroupDance, anchor?: string): Chain;
+  groupDance(
+    params: IAutoMovieMotionHumanDance.IGroupDance,
+    anchor?: string,
+  ): Chain;
 }
 
 /**

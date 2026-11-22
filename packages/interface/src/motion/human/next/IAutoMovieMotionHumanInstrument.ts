@@ -10,7 +10,7 @@ import type { IAutoMovieMotionHumanCymbalStrike } from "../tasks/IAutoMovieMotio
 import type { IAutoMovieMotionHumanSideDrumStrike } from "../tasks/IAutoMovieMotionHumanSideDrumStrike";
 
 /**
- * Mechanism: playing and conducting music: wind, bowed string, plucked string, keyboard and percussion instruments, and the conductor's baton.
+ * Playing and conducting music: wind, bowed string, plucked string, keyboard and percussion instruments, and the conductor's baton.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -22,11 +22,11 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Playing pose of a held bugle, with the modeled mouthpiece at the lips.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `prop`, `side`, `delay`, `prepare`, `seconds` and `retract` of `IAutoMovieMotionHumanPlayWindInstrument.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanInstrument.playWindInstrument: Playing pose of a held bugle, with the modeled mouthpiece at the lips.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanInstrument.playWindInstrument is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanInstrument.playWindInstrument is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanInstrument.playWindInstrument is provided by the chain that implements IAutoMovieMotionHumanInstrument.
@@ -42,11 +42,11 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Conducting with a held baton: its tip beats the standard figure of the meter on the beat clock, the ictus, the tip's lowest point of each beat, falling on the beat's instant.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `baton`, `meter`, `bars`, `bpm`, `lock` and `side` of `IAutoMovieMotionHumanConduct.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanInstrument.conduct: Conducting with a held baton: its tip beats the standard figure of the meter on the beat clock, the ictus, the tip's lowest point of each beat, falling on the beat's instant.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanInstrument.conduct is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanInstrument.conduct is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanInstrument.conduct is provided by the chain that implements IAutoMovieMotionHumanInstrument.
@@ -62,11 +62,11 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Bow a violin string.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `bow`, `violin`, `string`, `direction` and `seconds` of `IAutoMovieMotionHumanBowViolinParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanInstrument.bowViolin: Bow a violin string.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanInstrument.bowViolin is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanInstrument.bowViolin is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanInstrument.bowViolin is provided by the chain that implements IAutoMovieMotionHumanInstrument.
@@ -82,11 +82,11 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Fret and pluck one guitar note.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `prop`, `fret`, `string`, `stopAt`, `pluckAt`, `releaseAt` and `duration` of `IAutoMovieMotionHumanGuitarNote`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanInstrument.guitarNote: Fret and pluck one guitar note.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanInstrument.guitarNote is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanInstrument.guitarNote is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanInstrument.guitarNote is provided by the chain that implements IAutoMovieMotionHumanInstrument.
@@ -102,11 +102,11 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Strum a guitar chord.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `prop`, `direction`, `stopAt`, `sweepStartAt`, `sweepEndAt`, `releaseAt` and `duration` of `IAutoMovieMotionHumanGuitarChord`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanInstrument.guitarChord: Strum a guitar chord.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanInstrument.guitarChord is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanInstrument.guitarChord is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanInstrument.guitarChord is provided by the chain that implements IAutoMovieMotionHumanInstrument.
@@ -122,11 +122,11 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Play a score of piano notes.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `prop` and `notes` of `IAutoMovieMotionHumanPianoScore`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanInstrument.pianoScore: Play a score of piano notes.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanInstrument.pianoScore is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanInstrument.pianoScore is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanInstrument.pianoScore is provided by the chain that implements IAutoMovieMotionHumanInstrument.
@@ -142,11 +142,11 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Press and release a piano pedal.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `prop`, `presses` and `duration` of `IAutoMovieMotionHumanPianoPedal`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanInstrument.pianoPedal: Press and release a piano pedal.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanInstrument.pianoPedal is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanInstrument.pianoPedal is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanInstrument.pianoPedal is provided by the chain that implements IAutoMovieMotionHumanInstrument.
@@ -162,11 +162,11 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Play a piano score with its pedal.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `pedal` of `IAutoMovieMotionHumanPianoPerformance`, with those of `IAutoMovieMotionHumanPianoScore`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanInstrument.pianoPerformance: Play a piano score with its pedal.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanInstrument.pianoPerformance is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanInstrument.pianoPerformance is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanInstrument.pianoPerformance is provided by the chain that implements IAutoMovieMotionHumanInstrument.
@@ -182,11 +182,11 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Strike a side drum.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `stick`, `drum` and `hand` of `IAutoMovieMotionHumanSideDrumStrike`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanInstrument.sideDrumStrike: Strike a side drum.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanInstrument.sideDrumStrike is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanInstrument.sideDrumStrike is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanInstrument.sideDrumStrike is provided by the chain that implements IAutoMovieMotionHumanInstrument.
@@ -202,11 +202,11 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
   /**
    * Strike a cymbal.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `stick`, `cymbal` and `hand` of `IAutoMovieMotionHumanCymbalStrike`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanInstrument.cymbalStrike: Strike a cymbal.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanInstrument.cymbalStrike is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanInstrument.cymbalStrike is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanInstrument.cymbalStrike is provided by the chain that implements IAutoMovieMotionHumanInstrument.

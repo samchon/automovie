@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanStageBladeFootwork } from "../lexicon/IAutoMo
 import type { IAutoMovieMotionHumanSwordGuard } from "../lexicon/IAutoMovieMotionHumanSwordGuard";
 
 /**
- * Mechanism: Fighting with a blade: the sword guard and the staged blade footwork.
+ * Fighting with a blade: the sword guard and the staged blade footwork.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -14,11 +14,11 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
   /**
    * The guards of blade work: the blade taken from where the hand holds it to a named guard and kept there.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `guard` and `seconds` of `IAutoMovieMotionHumanSwordGuard.IParams`, with those of `IAutoMovieMotionHumanSword.IWield`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanBlade.swordGuard: The guards of blade work: the blade taken from where the hand holds it to a named guard and kept there.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanBlade.swordGuard is provided by the chain that implements IAutoMovieMotionHumanBlade.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanBlade.swordGuard is provided by the chain that implements IAutoMovieMotionHumanBlade.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanBlade.swordGuard is provided by the chain that implements IAutoMovieMotionHumanBlade.
@@ -26,16 +26,19 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBlade.swordGuard is provided by the chain that implements IAutoMovieMotionHumanBlade.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBlade.swordGuard is provided by the chain that implements IAutoMovieMotionHumanBlade.
    */
-  swordGuard(params: IAutoMovieMotionHumanBlade.ISwordGuard, anchor?: string): Chain;
+  swordGuard(
+    params: IAutoMovieMotionHumanBlade.ISwordGuard,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Controls for one grounded stage mark shift with a padded blade silhouette.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `style`, `direction`, `lead`, `distance`, `duration` and `propCue` of `IAutoMovieMotionHumanStageBladeFootwork.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanBlade.stageBladeFootwork: Controls for one grounded stage mark shift with a padded blade silhouette.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanBlade.stageBladeFootwork is provided by the chain that implements IAutoMovieMotionHumanBlade.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanBlade.stageBladeFootwork is provided by the chain that implements IAutoMovieMotionHumanBlade.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanBlade.stageBladeFootwork is provided by the chain that implements IAutoMovieMotionHumanBlade.
@@ -43,7 +46,10 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBlade.stageBladeFootwork is provided by the chain that implements IAutoMovieMotionHumanBlade.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBlade.stageBladeFootwork is provided by the chain that implements IAutoMovieMotionHumanBlade.
    */
-  stageBladeFootwork(params: IAutoMovieMotionHumanBlade.IStageBladeFootwork, anchor?: string): Chain;
+  stageBladeFootwork(
+    params: IAutoMovieMotionHumanBlade.IStageBladeFootwork,
+    anchor?: string,
+  ): Chain;
 }
 
 /**
@@ -68,5 +74,6 @@ export namespace IAutoMovieMotionHumanBlade {
    * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStageBladeFootwork` owns the type; the alias serves this family's `stageBladeFootwork` signature.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `stageBladeFootwork` takes the type its law reads.
    */
-  export type IStageBladeFootwork = IAutoMovieMotionHumanStageBladeFootwork.IParams;
+  export type IStageBladeFootwork =
+    IAutoMovieMotionHumanStageBladeFootwork.IParams;
 }

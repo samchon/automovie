@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanArmPhrase } from "../compose/IAutoMovieMotion
 import type { IAutoMovieMotionHumanGesture as ILegacyGesture } from "../everyday/IAutoMovieMotionHumanGesture";
 
 /**
- * Mechanism: Gestures of the hands and arms: emblems, beats and pointing, as arm phrases.
+ * Gestures of the hands and arms: emblems, beats and pointing, as arm phrases.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -14,11 +14,11 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
   /**
    * A communicative gesture while standing: the hand, head or trunk moves through Kendon's phases (Kendon 1980; McNeill 1992, Hand and Mind): preparation from rest to the stroke's start, the stroke that carries the meaning, an optional post-stroke hold, and retraction to rest.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `balance`, `kind`, `side`, `target`, `region`, `count`, `hold`, `depth`, `effort`, `turn`, `shape`, `aim` and `manner` of `ILegacyGesture.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGesture.gesture: A communicative gesture while standing: the hand, head or trunk moves through Kendon's phases (Kendon 1980; McNeill 1992, Hand and Mind): preparation from rest to the stroke's start, the stroke that carries the meaning, an optional post-stroke hold, and retraction to rest.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGesture.gesture is provided by the chain that implements IAutoMovieMotionHumanGesture.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGesture.gesture is provided by the chain that implements IAutoMovieMotionHumanGesture.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGesture.gesture is provided by the chain that implements IAutoMovieMotionHumanGesture.
@@ -26,16 +26,19 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGesture.gesture is provided by the chain that implements IAutoMovieMotionHumanGesture.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGesture.gesture is provided by the chain that implements IAutoMovieMotionHumanGesture.
    */
-  gesture(params: IAutoMovieMotionHumanGesture.IGesture, anchor?: string): Chain;
+  gesture(
+    params: IAutoMovieMotionHumanGesture.IGesture,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Arm primitives: a hand surface carried to a target, kept on it and taken back.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `phrase`, `target`, `offset`, `from`, `swing`, `cycles`, `mirror`, `side`, `surface`, `shape`, `facing`, `hold`, `manner`, `held` and `point` of `IAutoMovieMotionHumanArmPhrase.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGesture.armPhrase: Arm primitives: a hand surface carried to a target, kept on it and taken back.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGesture.armPhrase is provided by the chain that implements IAutoMovieMotionHumanGesture.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGesture.armPhrase is provided by the chain that implements IAutoMovieMotionHumanGesture.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGesture.armPhrase is provided by the chain that implements IAutoMovieMotionHumanGesture.
@@ -43,7 +46,10 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGesture.armPhrase is provided by the chain that implements IAutoMovieMotionHumanGesture.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGesture.armPhrase is provided by the chain that implements IAutoMovieMotionHumanGesture.
    */
-  armPhrase(params: IAutoMovieMotionHumanGesture.IArmPhrase, anchor?: string): Chain;
+  armPhrase(
+    params: IAutoMovieMotionHumanGesture.IArmPhrase,
+    anchor?: string,
+  ): Chain;
 }
 
 /**

@@ -7,7 +7,7 @@ import type { IAutoMovieMotionHumanVehicleHit } from "../reaction/IAutoMovieMoti
 import type { IAutoMovieMotionHumanWireFlight } from "../reaction/IAutoMovieMotionHumanWireFlight";
 
 /**
- * Mechanism: The falls and the balance reactions: a collapse, a stagger, a knockdown, a body thrown or hit, a perturbation and a wire flight. Each is planned by physics of the body and its support, not by a fixed pose.
+ * The falls and the balance reactions: a collapse, a stagger, a knockdown, a body thrown or hit, a perturbation and a wire flight. Each is planned by physics of the body and its support, not by a fixed pose.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -19,11 +19,11 @@ export interface IAutoMovieMotionHumanFall<Chain> {
   /**
    * A staged collapse: the body goes down to the floor in a chosen direction and tone, for a faint or a fatal hit.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `direction`, `tone`, `side`, `from`, `sag` and `seconds` of `IAutoMovieMotionHumanCollapse.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanFall.collapse: A staged collapse: the body goes down to the floor in a chosen direction and tone, for a faint or a fatal hit.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFall.collapse is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFall.collapse is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFall.collapse is provided by the chain that implements IAutoMovieMotionHumanFall.
@@ -36,11 +36,11 @@ export interface IAutoMovieMotionHumanFall<Chain> {
   /**
    * A stagger: a blow pushes the centre of mass past the base of support and recovery steps catch it.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `from`, `speed` and `manner` of `IAutoMovieMotionHumanStagger.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanFall.stagger: A stagger: a blow pushes the centre of mass past the base of support and recovery steps catch it.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFall.stagger is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFall.stagger is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFall.stagger is provided by the chain that implements IAutoMovieMotionHumanFall.
@@ -53,11 +53,11 @@ export interface IAutoMovieMotionHumanFall<Chain> {
   /**
    * A knockdown: the legs give way and the body goes down away from the blow, sitting onto the floor and falling back to lie supine.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `from` and `seconds` of `IAutoMovieMotionHumanKnockdown.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanFall.knockdown: A knockdown: the legs give way and the body goes down away from the blow, sitting onto the floor and falling back to lie supine.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFall.knockdown is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFall.knockdown is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFall.knockdown is provided by the chain that implements IAutoMovieMotionHumanFall.
@@ -65,16 +65,19 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFall.knockdown is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.knockdown is provided by the chain that implements IAutoMovieMotionHumanFall.
    */
-  knockdown(params: IAutoMovieMotionHumanFall.IKnockdown, anchor?: string): Chain;
+  knockdown(
+    params: IAutoMovieMotionHumanFall.IKnockdown,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A struck body thrown clear of the floor by a blast or a jerk-back, then landing on its back.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `rig`, `from`, `distance`, `height`, `seconds` and `wall` of `IAutoMovieMotionHumanThrown.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanFall.thrown: A struck body thrown clear of the floor by a blast or a jerk-back, then landing on its back.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFall.thrown is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFall.thrown is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFall.thrown is provided by the chain that implements IAutoMovieMotionHumanFall.
@@ -87,11 +90,11 @@ export interface IAutoMovieMotionHumanFall<Chain> {
   /**
    * One perturbation law whose response follows from the forces on its performer (#3430): the body absorbs an impulse within its base, catches it with capture steps, or falls, as the engine's balance outcome decides from the impulse, the body's mass and its support (`resolveAutoMovieBalanceOutcome`), or as the author fixes the outcome.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `outcome`, `by`, `fulcrum` and `on` of `IAutoMovieMotionHumanPerturb.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanFall.perturb: One perturbation law whose response follows from the forces on its performer (#3430): the body absorbs an impulse within its base, catches it with capture steps, or falls, as the engine's balance outcome decides from the impulse, the body's mass and its support (`resolveAutoMovieBalanceOutcome`), or as the author fixes the outcome.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFall.perturb is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFall.perturb is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFall.perturb is provided by the chain that implements IAutoMovieMotionHumanFall.
@@ -104,11 +107,11 @@ export interface IAutoMovieMotionHumanFall<Chain> {
   /**
    * A body flown on wires along an authored path that ignores gravity: a superhero's flight, a wuxia leap, a levitation (wire work in Hong Kong action cinema, David Bordwell, Planet Hong Kong, 2nd ed., 2011).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `to`, `via`, `seconds`, `shape` and `touches` of `IAutoMovieMotionHumanWireFlight.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanFall.wireFlight: A body flown on wires along an authored path that ignores gravity: a superhero's flight, a wuxia leap, a levitation (wire work in Hong Kong action cinema, David Bordwell, Planet Hong Kong, 2nd ed., 2011).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFall.wireFlight is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFall.wireFlight is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFall.wireFlight is provided by the chain that implements IAutoMovieMotionHumanFall.
@@ -116,16 +119,19 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFall.wireFlight is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.wireFlight is provided by the chain that implements IAutoMovieMotionHumanFall.
    */
-  wireFlight(params: IAutoMovieMotionHumanFall.IWireFlight, anchor?: string): Chain;
+  wireFlight(
+    params: IAutoMovieMotionHumanFall.IWireFlight,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A pedestrian struck by a moving car, or diving clear of it.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `vehicle`, `edge`, `horizon` and `seconds` of `IAutoMovieMotionHumanVehicleHit.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanFall.vehicleHit: A pedestrian struck by a moving car, or diving clear of it.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFall.vehicleHit is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFall.vehicleHit is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFall.vehicleHit is provided by the chain that implements IAutoMovieMotionHumanFall.
@@ -133,7 +139,10 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFall.vehicleHit is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.vehicleHit is provided by the chain that implements IAutoMovieMotionHumanFall.
    */
-  vehicleHit(params: IAutoMovieMotionHumanFall.IVehicleHit, anchor?: string): Chain;
+  vehicleHit(
+    params: IAutoMovieMotionHumanFall.IVehicleHit,
+    anchor?: string,
+  ): Chain;
 }
 
 /**

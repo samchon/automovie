@@ -41,11 +41,11 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
   /**
    * Taking a clinch grip on a partner standing within reach and holding it: the two-handed neck tie of Muay Thai (`plum`), or judo's collar and sleeve grip (`collarSleeve`, kumikata).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `balance`, `partner`, `grip`, `hand`, `hold`, `under` and `manner` of `IAutoMovieMotionHumanClinch.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGrapple.clinch: Taking a clinch grip on a partner standing within reach and holding it: the two-handed neck tie of Muay Thai (`plum`), or judo's collar and sleeve grip (`collarSleeve`, kumikata).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGrapple.clinch is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGrapple.clinch is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGrapple.clinch is provided by the chain that implements IAutoMovieMotionHumanGrapple.
@@ -58,11 +58,11 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
   /**
    * Inputs shared by two actors in a preplanned sport grappling scene.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `role` and `partner` of `ILegacyGrapple.IParams`, with those of `IScene`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGrapple.grapple: Inputs shared by two actors in a preplanned sport grappling scene.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGrapple.grapple is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGrapple.grapple is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGrapple.grapple is provided by the chain that implements IAutoMovieMotionHumanGrapple.
@@ -78,11 +78,11 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
   /**
    * A broken base (kuzushi): the receiver of a judo throw drawn off balance forward, the whole body tipped about the ankles over the toes while the feet stay on the floor, the stage before a throw carries the body over.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `partner`, `depth` and `hold` of `IAutoMovieMotionHumanKuzushi.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGrapple.kuzushi: A broken base (kuzushi): the receiver of a judo throw drawn off balance forward, the whole body tipped about the ankles over the toes while the feet stay on the floor, the stage before a throw carries the body over.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGrapple.kuzushi is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGrapple.kuzushi is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGrapple.kuzushi is provided by the chain that implements IAutoMovieMotionHumanGrapple.
@@ -98,11 +98,11 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
   /**
    * A sudden lunge that closes both hands on a victim's region, as a shambler breaks from its walk: the front foot steps long, the trunk pitches forward and the hands close on the region through the stage.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `partner`, `region` and `side` of `IAutoMovieMotionHumanLungeGrab.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGrapple.lungeGrab: A sudden lunge that closes both hands on a victim's region, as a shambler breaks from its walk: the front foot steps long, the trunk pitches forward and the hands close on the region through the stage.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGrapple.lungeGrab is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGrapple.lungeGrab is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGrapple.lungeGrab is provided by the chain that implements IAutoMovieMotionHumanGrapple.
@@ -118,11 +118,11 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
   /**
    * A partner's response to a pull through grips (#3439), the outcomes of `perturb` a sustained force decides: `resist`, `yield` and `thrown`.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `by`, `fulcrum` and `on` of `IAutoMovieMotionHumanForceResponse.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGrapple.forceResponse: A partner's response to a pull through grips (#3439), the outcomes of `perturb` a sustained force decides: `resist`, `yield` and `thrown`.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGrapple.forceResponse is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGrapple.forceResponse is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGrapple.forceResponse is provided by the chain that implements IAutoMovieMotionHumanGrapple.

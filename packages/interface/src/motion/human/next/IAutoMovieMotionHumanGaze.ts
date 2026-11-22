@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanLook } from "../everyday/IAutoMovieMotionHumanLook";
 
 /**
- * Mechanism: Overlay: where the eyes and head look. It layers on any whole-body action.
+ * An overlay: where the eyes and head look. It layers on any whole-body action.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -13,11 +13,11 @@ export interface IAutoMovieMotionHumanGaze<Chain> {
   /**
    * Standing and turning the eyes, head and trunk to a target, either at once or, when cued by something seen or heard, after a seeded reaction time: the orienting response of a bystander.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `target`, `with`, `cue` and `seconds` of `IAutoMovieMotionHumanLook.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGaze.look: Standing and turning the eyes, head and trunk to a target, either at once or, when cued by something seen or heard, after a seeded reaction time: the orienting response of a bystander.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGaze.look is provided by the chain that implements IAutoMovieMotionHumanGaze.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGaze.look is provided by the chain that implements IAutoMovieMotionHumanGaze.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGaze.look is provided by the chain that implements IAutoMovieMotionHumanGaze.

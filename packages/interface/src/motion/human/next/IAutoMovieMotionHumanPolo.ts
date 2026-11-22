@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanPolo as ILegacyPolo } from "../lexicon/IAutoMovieMotionHumanPolo";
 
 /**
- * Mechanism: Behaviour: a polo stroke from the saddle. The ball leaves the mallet at 20 m/s unless `speed` says otherwise, and the trunk leans out over the side by at most 45 degrees by default.
+ * A polo stroke from the saddle. The ball leaves the mallet at 20 m/s unless `speed` says otherwise, and the trunk leans out over the side by at most 45 degrees by default.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -11,13 +11,13 @@ import type { IAutoMovieMotionHumanPolo as ILegacyPolo } from "../lexicon/IAutoM
  */
 export interface IAutoMovieMotionHumanPolo<Chain> {
   /**
-   * The ball's speed off the mallet, metres per second; 20 when absent.
+   * A polo stroke from the saddle: the rider leans by `lean` and swings the mallet on the given side and stroke through the ball at `contact`; the ball leaves the mallet at `speed`, 20 m/s when absent.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `on`, `frame`, `mallet`, `ball`, `side`, `stroke`, `contact`, `lean` and `speed` of `ILegacyPolo`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPolo.polo: The ball's speed off the mallet, metres per second; 20 when absent.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPolo.polo is provided by the chain that implements IAutoMovieMotionHumanPolo.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPolo.polo is provided by the chain that implements IAutoMovieMotionHumanPolo.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanPolo.polo is provided by the chain that implements IAutoMovieMotionHumanPolo.

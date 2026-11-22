@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanWeaponTrack } from "../lexicon/IAutoMovieMotionHumanWeaponTrack";
 
 /**
- * Mechanism: Handling a firearm: tracking a target with a weapon.
+ * Handling a firearm: tracking a target with a weapon.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -13,11 +13,11 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
   /**
    * Tracking: a presented firearm kept on a target that moves (#3348).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `target` and `track` of `IAutoMovieMotionHumanWeaponTrack.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanFirearm.weaponTrack: Tracking: a presented firearm kept on a target that moves (#3348).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFirearm.weaponTrack is provided by the chain that implements IAutoMovieMotionHumanFirearm.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFirearm.weaponTrack is provided by the chain that implements IAutoMovieMotionHumanFirearm.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFirearm.weaponTrack is provided by the chain that implements IAutoMovieMotionHumanFirearm.
@@ -25,7 +25,10 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFirearm.weaponTrack is provided by the chain that implements IAutoMovieMotionHumanFirearm.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFirearm.weaponTrack is provided by the chain that implements IAutoMovieMotionHumanFirearm.
    */
-  weaponTrack(params: IAutoMovieMotionHumanFirearm.IWeaponTrack, anchor?: string): Chain;
+  weaponTrack(
+    params: IAutoMovieMotionHumanFirearm.IWeaponTrack,
+    anchor?: string,
+  ): Chain;
 }
 
 /**

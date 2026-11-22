@@ -11,7 +11,7 @@ import type { IAutoMovieMotionHumanUseTool } from "../tasks/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanWipe } from "../tasks/IAutoMovieMotionHumanWipe";
 
 /**
- * Mechanism: Working an object or a device by hand: a control, a pour, a tool, writing or typing, and pushing or pulling a load.
+ * Working an object or a device by hand: a control, a pour, a tool, writing or typing, and pushing or pulling a load.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -23,11 +23,11 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
   /**
    * Operating an articulated thing with one hand while standing: pressing a button along its axis, turning a knob about its axis, pulling or pushing a drawer along its slide, or swinging a hinged door by its handle.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `balance`, `mechanism`, `hand` and `manner` of `ILegacyOperate.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanOperate.operate: Operating an articulated thing with one hand while standing: pressing a button along its axis, turning a knob about its axis, pulling or pushing a drawer along its slide, or swinging a hinged door by its handle.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.operate is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.operate is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.operate is provided by the chain that implements IAutoMovieMotionHumanOperate.
@@ -41,13 +41,13 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
   ): Chain;
 
   /**
-   * Authoring contracts for one staged liquid transfer between rigid props.
+   * Pour a liquid between two rigid props: the source is tilted over the target until the transferred volume has left it, then righted.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `source`, `target`, `hand`, `tilt`, `gap`, `timing`, `sourceMl`, `targetMl`, `capacityMl` and `transferMl` of `IAutoMovieMotionHumanPour.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanOperate.pour: Authoring contracts for one staged liquid transfer between rigid props.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.pour is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.pour is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.pour is provided by the chain that implements IAutoMovieMotionHumanOperate.
@@ -60,11 +60,11 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
   /**
    * A keyed contact sequence: digits of one hand or both pressing sites of a prop one after another, timed by the caller or by skill.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `prop`, `contacts`, `text`, `side` and `digit` of `IAutoMovieMotionHumanManipulate.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanOperate.manipulate: A keyed contact sequence: digits of one hand or both pressing sites of a prop one after another, timed by the caller or by skill.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.manipulate is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.manipulate is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.manipulate is provided by the chain that implements IAutoMovieMotionHumanOperate.
@@ -80,11 +80,11 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
   /**
    * Working a prop the hand already holds: its fingers drive the prop's own articulations (scissor blades closed by the rings, a folding knife's blade swung open, a chopstick pinched), the hand may carry it to a place before the body (a tray raised on the palm, an umbrella over the head), and the prop may take another prop onto one of its sockets (a morsel pinched between chopstick tips).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `prop`, `side`, `drive`, `at`, `take`, `push` and `seconds` of `IAutoMovieMotionHumanHeldWork.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanOperate.workHeld: Working a prop the hand already holds: its fingers drive the prop's own articulations (scissor blades closed by the rings, a folding knife's blade swung open, a chopstick pinched), the hand may carry it to a place before the body (a tray raised on the palm, an umbrella over the head), and the prop may take another prop onto one of its sockets (a morsel pinched between chopstick tips).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.workHeld is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.workHeld is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.workHeld is provided by the chain that implements IAutoMovieMotionHumanOperate.
@@ -100,11 +100,11 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
   /**
    * Working with a one-handed tool held in the hand, in cycles over a work point while standing: hammering, sawing, stirring or turning a screwdriver.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `tool`, `prop`, `on`, `hand`, `cycles` and `manner` of `IAutoMovieMotionHumanUseTool.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanOperate.useTool: Working with a one-handed tool held in the hand, in cycles over a work point while standing: hammering, sawing, stirring or turning a screwdriver.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.useTool is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.useTool is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.useTool is provided by the chain that implements IAutoMovieMotionHumanOperate.
@@ -120,11 +120,11 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
   /**
    * Work with a long tool held in two hands, standing, in cycles at a work point: chopping and splitting with an axe, a side chop at a standing trunk, a sledgehammer or pickaxe swung at the ground, digging and throwing with a shovel, and raking.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `stroke`, `prop`, `at`, `to`, `hand` and `cycles` of `IAutoMovieMotionHumanLongTool.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanOperate.longTool: Work with a long tool held in two hands, standing, in cycles at a work point: chopping and splitting with an axe, a side chop at a standing trunk, a sledgehammer or pickaxe swung at the ground, digging and throwing with a shovel, and raking.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.longTool is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.longTool is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.longTool is provided by the chain that implements IAutoMovieMotionHumanOperate.
@@ -140,11 +140,11 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
   /**
    * Typing a text on a keyboard from the posture the performer is in (seated at a desk, or standing at a counter), pressing each key with an index fingertip.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `keyboard` and `text` of `IAutoMovieMotionHumanTypeText.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanOperate.typeText: Typing a text on a keyboard from the posture the performer is in (seated at a desk, or standing at a counter), pressing each key with an index fingertip.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.typeText is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.typeText is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.typeText is provided by the chain that implements IAutoMovieMotionHumanOperate.
@@ -160,11 +160,11 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
   /**
    * Wiping a table, counter or other level surface with the flat palm in circles, standing before it: a household task (#3256) that the composed laws lacked, the palm's circling stroke on a work surface.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `balance`, `on`, `hand`, `cycles` and `manner` of `IAutoMovieMotionHumanWipe.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanOperate.wipe: Wiping a table, counter or other level surface with the flat palm in circles, standing before it: a household task (#3256) that the composed laws lacked, the palm's circling stroke on a work surface.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.wipe is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.wipe is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.wipe is provided by the chain that implements IAutoMovieMotionHumanOperate.
@@ -177,11 +177,11 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
   /**
    * A heavy load that is not carried moved by its two handles (#3351): a crate, a wardrobe or a car pushed ahead walking forward, pulled toward the body walking backward, or a sack dragged behind walking forward; or pushed and pulled at and not moved at all, the scene where force is shown and nothing moves.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `prop`, `way`, `to`, `left`, `right`, `load`, `moves` and `seconds` of `IAutoMovieMotionHumanPushPull.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanOperate.pushPull: A heavy load that is not carried moved by its two handles (#3351): a crate, a wardrobe or a car pushed ahead walking forward, pulled toward the body walking backward, or a sack dragged behind walking forward; or pushed and pulled at and not moved at all, the scene where force is shown and nothing moves.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.pushPull is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.pushPull is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.pushPull is provided by the chain that implements IAutoMovieMotionHumanOperate.
@@ -197,11 +197,11 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
   /**
    * A pushed load's handles held in both hands through a walk: a sled push.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `sled`, `to`, `left`, `right`, `lean`, `incline`, `facing`, `seconds` and `moves` of `IAutoMovieMotionHumanPushSled.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanOperate.pushSled: A pushed load's handles held in both hands through a walk: a sled push.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.pushSled is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.pushSled is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.pushSled is provided by the chain that implements IAutoMovieMotionHumanOperate.
@@ -217,11 +217,11 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
   /**
    * Throwing pottery: seated at a wheel, both hands keep contact with the clay wall, one inside and one outside, while the wheel head turns and the wall is drawn up.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `wheel`, `rise`, `rpm` and `seconds` of `IAutoMovieMotionHumanThrowPottery.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanOperate.throwPottery: Throwing pottery: seated at a wheel, both hands keep contact with the clay wall, one inside and one outside, while the wheel head turns and the wall is drawn up.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.throwPottery is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.throwPottery is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.throwPottery is provided by the chain that implements IAutoMovieMotionHumanOperate.

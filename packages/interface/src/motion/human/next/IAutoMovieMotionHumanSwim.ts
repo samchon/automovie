@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanAquatic } from "../sport/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanSwim as ILegacySwim } from "../sport/IAutoMovieMotionHumanSwim";
 
 /**
- * Mechanism: Moving and floating in water: the strokes and the aquatic actions. The crawl cycle is 1.4 s at a 1 m/s glide (provisional).
+ * Moving and floating in water: the strokes and the aquatic actions. The crawl cycle is 1.4 s at a 1 m/s glide (provisional).
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -14,11 +14,11 @@ export interface IAutoMovieMotionHumanSwim<Chain> {
   /**
    * Swimming on a declared water plane (#3254, M25): treading water and the front crawl.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `kind`, `water`, `cycles` and `manner` of `ILegacySwim.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSwim.swim: Swimming on a declared water plane (#3254, M25): treading water and the front crawl.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSwim.swim is provided by the chain that implements IAutoMovieMotionHumanSwim.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSwim.swim is provided by the chain that implements IAutoMovieMotionHumanSwim.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSwim.swim is provided by the chain that implements IAutoMovieMotionHumanSwim.
@@ -31,11 +31,11 @@ export interface IAutoMovieMotionHumanSwim<Chain> {
   /**
    * Timed pool, aquatic team and small-craft performances.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `kind`, `water`, `support`, `prop`, `wall`, `at`, `side`, `phase`, `station`, `role`, `seconds`, `partner`, `depth`, `bases`, `footRest`, `leftGrip`, `rightGrip`, `boom` and `rudder` of `IAutoMovieMotionHumanAquatic.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSwim.aquatic: Timed pool, aquatic team and small-craft performances.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSwim.aquatic is provided by the chain that implements IAutoMovieMotionHumanSwim.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSwim.aquatic is provided by the chain that implements IAutoMovieMotionHumanSwim.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSwim.aquatic is provided by the chain that implements IAutoMovieMotionHumanSwim.

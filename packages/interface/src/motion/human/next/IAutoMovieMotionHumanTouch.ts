@@ -14,13 +14,13 @@ import type { IAutoMovieMotionHumanTouch as ILegacyTouch } from "../touch/IAutoM
  */
 export interface IAutoMovieMotionHumanTouch<Chain> {
   /**
-   * A touch while standing: one hand, or both, laid on a region of a partner or of the performer's own body and moved on it by a kind of social touch (Jung et al.
+   * A touch while standing: one hand, or both, laid on a region of a partner or of the performer's own body and moved on it by a kind of social touch; the kinds and their source are on `IAutoMovieMotionHumanTouch`.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `balance`, `target`, `kind`, `with`, `side`, `site`, `prop`, `point`, `grasp`, `clear`, `elbow`, `arms`, `other`, `rests`, `count`, `hold`, `tangent` and `manner` of `ILegacyTouch.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanTouch.touch: A touch while standing: one hand, or both, laid on a region of a partner or of the performer's own body and moved on it by a kind of social touch (Jung et al.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanTouch.touch is provided by the chain that implements IAutoMovieMotionHumanTouch.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanTouch.touch is provided by the chain that implements IAutoMovieMotionHumanTouch.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanTouch.touch is provided by the chain that implements IAutoMovieMotionHumanTouch.
@@ -33,11 +33,11 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
   /**
    * A high five, a low five or a fist bump between two standing partners: both bring one hand to one shared point between them and meet there at one shared instant (#3284), the mutual goal the handshake uses (`AutoMovieMotionMeeting`).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `partner`, `kind`, `side`, `prop`, `point`, `window` and `at` of `IAutoMovieMotionHumanHighFive.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanTouch.highFive: A high five, a low five or a fist bump between two standing partners: both bring one hand to one shared point between them and meet there at one shared instant (#3284), the mutual goal the handshake uses (`AutoMovieMotionMeeting`).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanTouch.highFive is provided by the chain that implements IAutoMovieMotionHumanTouch.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanTouch.highFive is provided by the chain that implements IAutoMovieMotionHumanTouch.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanTouch.highFive is provided by the chain that implements IAutoMovieMotionHumanTouch.
@@ -53,11 +53,11 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
   /**
    * A kiss while standing: the lips brought to a partner's region (a cheek, the forehead, the crown, the lips, the back of a hand) by leaning the body from the hips and flexing the neck, the head turned to one side for a cheek or the lips so the noses stay clear (#3284).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `partner`, `region`, `handRole`, `side`, `hold` and `manner` of `IAutoMovieMotionHumanKiss.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanTouch.kiss: A kiss while standing: the lips brought to a partner's region (a cheek, the forehead, the crown, the lips, the back of a hand) by leaning the body from the hips and flexing the neck, the head turned to one side for a cheek or the lips so the noses stay clear (#3284).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanTouch.kiss is provided by the chain that implements IAutoMovieMotionHumanTouch.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanTouch.kiss is provided by the chain that implements IAutoMovieMotionHumanTouch.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanTouch.kiss is provided by the chain that implements IAutoMovieMotionHumanTouch.
@@ -70,11 +70,11 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
   /**
    * A touch with the leg while standing (#3357's effectors below the hip): the toes, the heel or the knee of one leg is brought onto a place and held there, the other leg bearing the body.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `balance`, `target`, `with`, `side` and `hold` of `IAutoMovieMotionHumanLegTouch.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanTouch.legTouch: A touch with the leg while standing (#3357's effectors below the hip): the toes, the heel or the knee of one leg is brought onto a place and held there, the other leg bearing the body.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanTouch.legTouch is provided by the chain that implements IAutoMovieMotionHumanTouch.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanTouch.legTouch is provided by the chain that implements IAutoMovieMotionHumanTouch.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanTouch.legTouch is provided by the chain that implements IAutoMovieMotionHumanTouch.

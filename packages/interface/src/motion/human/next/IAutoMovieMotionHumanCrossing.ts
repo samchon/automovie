@@ -1,9 +1,9 @@
-import type { IAutoMovieMotionHumanSquatVault } from "../sport/IAutoMovieMotionHumanSquatVault";
 import type { IAutoMovieMotionHumanStepOver } from "../everyday/IAutoMovieMotionHumanStepOver";
+import type { IAutoMovieMotionHumanSquatVault } from "../sport/IAutoMovieMotionHumanSquatVault";
 import type { IAutoMovieMotionHumanVault } from "../sport/IAutoMovieMotionHumanVault";
 
 /**
- * Mechanism: Crossing an obstacle: stepping over it and the vaults.
+ * Crossing an obstacle: stepping over it and the vaults.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -15,11 +15,11 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
   /**
    * Stepping over a low obstacle placed in the scene, a kerb or a hurdle (`HumanObstacle`), from standing in front of it: the lead foot lifts over it and lands beyond, then the trail foot follows and lands beside it, both feet clearing the obstacle's top.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `obstacle`, `lead`, `manner` and `onto` of `IAutoMovieMotionHumanStepOver.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCrossing.stepOver: Stepping over a low obstacle placed in the scene, a kerb or a hurdle (`HumanObstacle`), from standing in front of it: the lead foot lifts over it and lands beyond, then the trail foot follows and lands beside it, both feet clearing the obstacle's top.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCrossing.stepOver is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCrossing.stepOver is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCrossing.stepOver is provided by the chain that implements IAutoMovieMotionHumanCrossing.
@@ -27,16 +27,19 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCrossing.stepOver is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCrossing.stepOver is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    */
-  stepOver(params: IAutoMovieMotionHumanCrossing.IStepOver, anchor?: string): Chain;
+  stepOver(
+    params: IAutoMovieMotionHumanCrossing.IStepOver,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A handspring vault (#3377): a front handspring whose hands land on a prop's top, a vaulting table, a box or a plyometric box, and fly from it to a chosen mat or the floor beyond.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `on` and `landOn` of `IAutoMovieMotionHumanVault.IParams`, with those of `IAutoMovieMotionHumanHandspring.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCrossing.vault: A handspring vault (#3377): a front handspring whose hands land on a prop's top, a vaulting table, a box or a plyometric box, and fly from it to a chosen mat or the floor beyond.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCrossing.vault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCrossing.vault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCrossing.vault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
@@ -49,11 +52,11 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
   /**
    * A squat vault over a box: the hands set on the near edge of the box's top, the body tucked over them, a push-off into a flight over the box and a landing on both feet beyond its far edge.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `on` and `seconds` of `IAutoMovieMotionHumanSquatVault.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCrossing.squatVault: A squat vault over a box: the hands set on the near edge of the box's top, the body tucked over them, a push-off into a flight over the box and a landing on both feet beyond its far edge.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCrossing.squatVault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCrossing.squatVault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCrossing.squatVault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
@@ -61,7 +64,10 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCrossing.squatVault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCrossing.squatVault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    */
-  squatVault(params: IAutoMovieMotionHumanCrossing.ISquatVault, anchor?: string): Chain;
+  squatVault(
+    params: IAutoMovieMotionHumanCrossing.ISquatVault,
+    anchor?: string,
+  ): Chain;
 }
 
 /**

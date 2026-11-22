@@ -13,11 +13,11 @@ export interface IAutoMovieMotionHumanRescue<Chain> {
   /**
    * The cliffhanger rescue: one person hangs from a named ledge's lip and loses the grip; the other, braced prone at the lip, catches the falling wrist in a mutual grip and hauls them up and over onto the top, both ending kneeling above the edge.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `role` and `partner` of `IAutoMovieMotionHumanEdgeRescue.IParams`, with those of `IScene`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanRescue.edgeRescue: The cliffhanger rescue: one person hangs from a named ledge's lip and loses the grip; the other, braced prone at the lip, catches the falling wrist in a mutual grip and hauls them up and over onto the top, both ending kneeling above the edge.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRescue.edgeRescue is provided by the chain that implements IAutoMovieMotionHumanRescue.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRescue.edgeRescue is provided by the chain that implements IAutoMovieMotionHumanRescue.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRescue.edgeRescue is provided by the chain that implements IAutoMovieMotionHumanRescue.

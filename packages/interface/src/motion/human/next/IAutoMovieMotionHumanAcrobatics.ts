@@ -1,13 +1,13 @@
+import type { IAutoMovieMotionHumanTrampoline } from "../exercise/IAutoMovieMotionHumanTrampoline";
+import type { IAutoMovieMotionHumanSkydive } from "../lexicon/IAutoMovieMotionHumanSkydive";
 import type { IAutoMovieMotionHumanCartwheel } from "../sport/IAutoMovieMotionHumanCartwheel";
 import type { IAutoMovieMotionHumanGymnastics } from "../sport/IAutoMovieMotionHumanGymnastics";
 import type { IAutoMovieMotionHumanHandspring } from "../sport/IAutoMovieMotionHumanHandspring";
 import type { IAutoMovieMotionHumanRoundOff } from "../sport/IAutoMovieMotionHumanRoundOff";
 import type { IAutoMovieMotionHumanSalto } from "../sport/IAutoMovieMotionHumanSalto";
-import type { IAutoMovieMotionHumanSkydive } from "../lexicon/IAutoMovieMotionHumanSkydive";
-import type { IAutoMovieMotionHumanTrampoline } from "../exercise/IAutoMovieMotionHumanTrampoline";
 
 /**
- * Mechanism: Gymnastic and tumbling skills in flight: the salto, cartwheel, round-off, handspring and trampoline.
+ * Gymnastic and tumbling skills in flight: the salto, cartwheel, round-off, handspring and trampoline.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -19,11 +19,11 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
   /**
    * A handstand kicked up from standing, held and stepped down (#3251).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `seconds` and `manner` of `IAutoMovieMotionHumanGymnastics.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAcrobatics.gymnastics: A handstand kicked up from standing, held and stepped down (#3251).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAcrobatics.gymnastics is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAcrobatics.gymnastics is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAcrobatics.gymnastics is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
@@ -31,16 +31,19 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAcrobatics.gymnastics is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.gymnastics is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
-  gymnastics(params: IAutoMovieMotionHumanAcrobatics.IGymnastics, anchor?: string): Chain;
+  gymnastics(
+    params: IAutoMovieMotionHumanAcrobatics.IGymnastics,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A salto: a jump whose flight turns the whole body head over heels about its centre of mass, forward or backward, a whole number of times, and lands on the feet (#3377: the salti of floor gymnastics, a diver's and a free-runner's flip).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `to`, `apex`, `way` and `turns` of `IAutoMovieMotionHumanSalto.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAcrobatics.salto: A salto: a jump whose flight turns the whole body head over heels about its centre of mass, forward or backward, a whole number of times, and lands on the feet (#3377: the salti of floor gymnastics, a diver's and a free-runner's flip).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAcrobatics.salto is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAcrobatics.salto is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAcrobatics.salto is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
@@ -53,11 +56,11 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
   /**
    * A cartwheel (#3377): the body turns once about its front-to-back axis, sideways, passing from one foot to one hand, the other hand, and the other foot, and stands again a wheel's roll to the side.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `to` and `seconds` of `IAutoMovieMotionHumanCartwheel.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAcrobatics.cartwheel: A cartwheel (#3377): the body turns once about its front-to-back axis, sideways, passing from one foot to one hand, the other hand, and the other foot, and stands again a wheel's roll to the side.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAcrobatics.cartwheel is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAcrobatics.cartwheel is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAcrobatics.cartwheel is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
@@ -65,16 +68,19 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAcrobatics.cartwheel is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.cartwheel is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
-  cartwheel(params: IAutoMovieMotionHumanAcrobatics.ICartwheel, anchor?: string): Chain;
+  cartwheel(
+    params: IAutoMovieMotionHumanAcrobatics.ICartwheel,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A round-off (#3377): a cartwheel that travels along the way the body faced, turns half round about the vertical and lands on both feet at once, facing back where it came from, the entry to a back handspring or a back salto.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `lead` and `seconds` of `IAutoMovieMotionHumanRoundOff.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAcrobatics.roundOff: A round-off (#3377): a cartwheel that travels along the way the body faced, turns half round about the vertical and lands on both feet at once, facing back where it came from, the entry to a back handspring or a back salto.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAcrobatics.roundOff is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAcrobatics.roundOff is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAcrobatics.roundOff is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
@@ -82,16 +88,19 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAcrobatics.roundOff is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.roundOff is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
-  roundOff(params: IAutoMovieMotionHumanAcrobatics.IRoundOff, anchor?: string): Chain;
+  roundOff(
+    params: IAutoMovieMotionHumanAcrobatics.IRoundOff,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A front handspring (#3377): from standing, the body reaches forward into a lunge, turns head over heels in pitch over its hands, leaves them and flies to its feet, landing arched and rising to stand.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `lead` of `IAutoMovieMotionHumanHandspring.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAcrobatics.handspring: A front handspring (#3377): from standing, the body reaches forward into a lunge, turns head over heels in pitch over its hands, leaves them and flies to its feet, landing arched and rising to stand.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAcrobatics.handspring is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAcrobatics.handspring is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAcrobatics.handspring is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
@@ -99,16 +108,19 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAcrobatics.handspring is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.handspring is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
-  handspring(params: IAutoMovieMotionHumanAcrobatics.IHandspring, anchor?: string): Chain;
+  handspring(
+    params: IAutoMovieMotionHumanAcrobatics.IHandspring,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Bouncing on a trampoline (#4006): straight bounces that build toward an apex, a shape held at each flight's apex, and a kill that absorbs the last landing to a stop.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `on`, `bounces`, `apex` and `shape` of `IAutoMovieMotionHumanTrampoline.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAcrobatics.trampoline: Bouncing on a trampoline (#4006): straight bounces that build toward an apex, a shape held at each flight's apex, and a kill that absorbs the last landing to a stop.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAcrobatics.trampoline is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAcrobatics.trampoline is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAcrobatics.trampoline is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
@@ -116,16 +128,19 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAcrobatics.trampoline is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.trampoline is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
-  trampoline(params: IAutoMovieMotionHumanAcrobatics.ITrampoline, anchor?: string): Chain;
+  trampoline(
+    params: IAutoMovieMotionHumanAcrobatics.ITrampoline,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A parachute jump from a named edge: the exit, the belly-to-earth freefall in the arch with an optional track and turn, the deployment at an authored altitude, the canopy flight steered by the toggles with a flare before the ground, and the landing in a parachute landing fall or on the feet.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `from`, `edge`, `deploy`, `track`, `turn`, `toggles` and `landing` of `IAutoMovieMotionHumanSkydive.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAcrobatics.skydive: A parachute jump from a named edge: the exit, the belly-to-earth freefall in the arch with an optional track and turn, the deployment at an authored altitude, the canopy flight steered by the toggles with a flare before the ground, and the landing in a parachute landing fall or on the feet.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAcrobatics.skydive is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAcrobatics.skydive is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAcrobatics.skydive is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
@@ -133,7 +148,10 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAcrobatics.skydive is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.skydive is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
-  skydive(params: IAutoMovieMotionHumanAcrobatics.ISkydive, anchor?: string): Chain;
+  skydive(
+    params: IAutoMovieMotionHumanAcrobatics.ISkydive,
+    anchor?: string,
+  ): Chain;
 }
 
 /**

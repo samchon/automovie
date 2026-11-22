@@ -6,7 +6,7 @@ import type { IAutoMovieMotionHumanRest } from "../everyday/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanShift } from "../everyday/IAutoMovieMotionHumanShift";
 
 /**
- * Mechanism: The standing postures: quiet standing, shifting weight, bending, crouching, bracing and resting.
+ * The standing postures: quiet standing, shifting weight, bending, crouching, bracing and resting.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -18,11 +18,11 @@ export interface IAutoMovieMotionHumanStance<Chain> {
   /**
    * Quiet standing: both feet planted where they are (or under the hips when entered from the air), the pelvis settling over them, the column upright on the plumb line and inclined slightly forward at the ankles (`standUpright`), arms hanging relaxed, and the body swaying slightly.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `seconds`, `sway` and `on` of `IAutoMovieMotionHumanStand.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanStance.stand: Quiet standing: both feet planted where they are (or under the hips when entered from the air), the pelvis settling over them, the column upright on the plumb line and inclined slightly forward at the ankles (`standUpright`), arms hanging relaxed, and the body swaying slightly.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanStance.stand is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanStance.stand is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanStance.stand is provided by the chain that implements IAutoMovieMotionHumanStance.
@@ -35,11 +35,11 @@ export interface IAutoMovieMotionHumanStance<Chain> {
   /**
    * Shifting along a bench while seated: the seat socket slides sideways along the seat by the requested distance, while the feet stay planted and the hands stay on the thighs.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `by` and `seconds` of `IAutoMovieMotionHumanShift.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanStance.shift: Shifting along a bench while seated: the seat socket slides sideways along the seat by the requested distance, while the feet stay planted and the hands stay on the thighs.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanStance.shift is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanStance.shift is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanStance.shift is provided by the chain that implements IAutoMovieMotionHumanStance.
@@ -52,11 +52,11 @@ export interface IAutoMovieMotionHumanStance<Chain> {
   /**
    * Bending down to bring a hand to a low point (the floor, a low shelf, a note on the ground) with the feet planted, by a stoop, a squat or a semi-squat, then straightening up.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `balance`, `toward`, `side`, `strategy` and `hold` of `IAutoMovieMotionHumanBend.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanStance.bend: Bending down to bring a hand to a low point (the floor, a low shelf, a note on the ground) with the feet planted, by a stoop, a squat or a semi-squat, then straightening up.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanStance.bend is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanStance.bend is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanStance.bend is provided by the chain that implements IAutoMovieMotionHumanStance.
@@ -69,11 +69,11 @@ export interface IAutoMovieMotionHumanStance<Chain> {
   /**
    * A crouch or a squat held in place: the hips sink over the planted feet to a knee flexion the depth names, the trunk inclines until the centre of mass is back over the feet, the hands come to rest on the thighs above the knees, the body holds, then stands again.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `balance`, `depth`, `heels`, `hold` and `manner` of `IAutoMovieMotionHumanCrouch.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanStance.crouch: A crouch or a squat held in place: the hips sink over the planted feet to a knee flexion the depth names, the trunk inclines until the centre of mass is back over the feet, the hands come to rest on the thighs above the knees, the body holds, then stands again.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanStance.crouch is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanStance.crouch is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanStance.crouch is provided by the chain that implements IAutoMovieMotionHumanStance.
@@ -86,11 +86,11 @@ export interface IAutoMovieMotionHumanStance<Chain> {
   /**
    * Bracing for an expected impact, push or a falling body: the stance widens and staggers along the line of the coming force, the body lowers and leans into it, and the hands come up in front, all set before the force arrives.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `balance`, `toward`, `kind` and `seconds` of `IAutoMovieMotionHumanBrace.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanStance.brace: Bracing for an expected impact, push or a falling body: the stance widens and staggers along the line of the coming force, the body lowers and leans into it, and the hands come up in front, all set before the force arrives.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanStance.brace is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanStance.brace is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanStance.brace is provided by the chain that implements IAutoMovieMotionHumanStance.
@@ -103,11 +103,11 @@ export interface IAutoMovieMotionHumanStance<Chain> {
   /**
    * Standing with the hands at rest places: in the front pockets, on the hips, arms crossed, clasped in front or behind, behind the head, or the chin on a fist, each hand moved there and held.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `left`, `right` and `seconds` of `IAutoMovieMotionHumanRest.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanStance.rest: Standing with the hands at rest places: in the front pockets, on the hips, arms crossed, clasped in front or behind, behind the head, or the chin on a fist, each hand moved there and held.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanStance.rest is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanStance.rest is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanStance.rest is provided by the chain that implements IAutoMovieMotionHumanStance.

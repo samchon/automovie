@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanDefend } from "../striking/IAutoMovieMotionHu
 import type { IAutoMovieMotionHumanGuard } from "../striking/IAutoMovieMotionHumanGuard";
 
 /**
- * Mechanism: Defending against a strike: blocking, parrying and the guard.
+ * Defending against a strike: blocking, parrying and the guard.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -14,11 +14,11 @@ export interface IAutoMovieMotionHumanDefence<Chain> {
   /**
    * A defence against one placed strike: a glove, forearm or shin brought to where the incoming weapon will be, or the head moved off its line.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `kind`, `against` and `outcome` of `IAutoMovieMotionHumanDefend.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanDefence.defend: A defence against one placed strike: a glove, forearm or shin brought to where the incoming weapon will be, or the head moved off its line.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanDefence.defend is provided by the chain that implements IAutoMovieMotionHumanDefence.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanDefence.defend is provided by the chain that implements IAutoMovieMotionHumanDefence.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanDefence.defend is provided by the chain that implements IAutoMovieMotionHumanDefence.
@@ -31,11 +31,11 @@ export interface IAutoMovieMotionHumanDefence<Chain> {
   /**
    * The fighting stance taken and held: from whatever the performer stands in, each foot steps to its stance place in turn (the rear foot first, so the lead foot stays a support), the root sinks until both knees soften and turns to the stance heading, and the gloves come up to the guard, then the stance holds with a light bounce through the knees.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `seconds`, `stance`, `style` and `facing` of `IAutoMovieMotionHumanGuard.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanDefence.guard: The fighting stance taken and held: from whatever the performer stands in, each foot steps to its stance place in turn (the rear foot first, so the lead foot stays a support), the root sinks until both knees soften and turns to the stance heading, and the gloves come up to the guard, then the stance holds with a light bounce through the knees.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanDefence.guard is provided by the chain that implements IAutoMovieMotionHumanDefence.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanDefence.guard is provided by the chain that implements IAutoMovieMotionHumanDefence.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanDefence.guard is provided by the chain that implements IAutoMovieMotionHumanDefence.

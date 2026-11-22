@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanBaseball } from "../sport/IAutoMovieMotionHum
 import type { IAutoMovieMotionHumanRacket } from "../sport/IAutoMovieMotionHumanRacket";
 
 /**
- * Mechanism: Swinging an implement at a ball: the bat and the racket share one cut timing model (edge peak 6 to 10 m/s by skill).
+ * Swinging an implement at a ball: the bat and the racket share one cut timing model (edge peak 6 to 10 m/s by skill).
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -14,11 +14,11 @@ export interface IAutoMovieMotionHumanSwing<Chain> {
   /**
    * Baseball and softball positions without the bat's swing or the pitch (#3248): the catcher's crouch, fielding a ground ball, and the batting stance with its load.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `kind`, `seconds` and `manner` of `IAutoMovieMotionHumanBaseball.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSwing.baseball: Baseball and softball positions without the bat's swing or the pitch (#3248): the catcher's crouch, fielding a ground ball, and the batting stance with its load.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSwing.baseball is provided by the chain that implements IAutoMovieMotionHumanSwing.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSwing.baseball is provided by the chain that implements IAutoMovieMotionHumanSwing.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSwing.baseball is provided by the chain that implements IAutoMovieMotionHumanSwing.
@@ -34,11 +34,11 @@ export interface IAutoMovieMotionHumanSwing<Chain> {
   /**
    * Racket-sport strokes (#3725 and #3726) and the solo ready position, split step and golf address (#3249).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `kind`, `side`, `seconds`, `implement`, `contactAt` and `manner` of `IAutoMovieMotionHumanRacket.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSwing.racket: Racket-sport strokes (#3725 and #3726) and the solo ready position, split step and golf address (#3249).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSwing.racket is provided by the chain that implements IAutoMovieMotionHumanSwing.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSwing.racket is provided by the chain that implements IAutoMovieMotionHumanSwing.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSwing.racket is provided by the chain that implements IAutoMovieMotionHumanSwing.

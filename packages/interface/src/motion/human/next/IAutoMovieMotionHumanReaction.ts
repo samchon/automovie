@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanFlinch } from "../reaction/IAutoMovieMotionHu
 import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
 
 /**
- * Mechanism: The small involuntary reactions that share one size-and-time model: an intensity share of a small displacement that peaks within a fraction of a second and returns. The flinch peaks at 0.2 s and is back by 0.6 s; the give peaks at 0.12 s, holds 0.15 s and is back 0.45 s later; intensity scales the size and not the time.
+ * The small involuntary reactions that share one size-and-time model: an intensity share of a small displacement that peaks within a fraction of a second and returns. The flinch peaks at 0.2 s and is back by 0.6 s; the give peaks at 0.12 s, holds 0.15 s and is back 0.45 s later; intensity scales the size and not the time.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -14,11 +14,11 @@ export interface IAutoMovieMotionHumanReaction<Chain> {
   /**
    * A flinch: the protective startle away from a sudden threat or a blow, the head and trunk pulled away from it, the shoulders raised and the hands brought up before the face, then a return to what the body held.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `from`, `intensity` and `manner` of `IAutoMovieMotionHumanFlinch.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanReaction.flinch: A flinch: the protective startle away from a sudden threat or a blow, the head and trunk pulled away from it, the shoulders raised and the hands brought up before the face, then a return to what the body held.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanReaction.flinch is provided by the chain that implements IAutoMovieMotionHumanReaction.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanReaction.flinch is provided by the chain that implements IAutoMovieMotionHumanReaction.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanReaction.flinch is provided by the chain that implements IAutoMovieMotionHumanReaction.
@@ -31,11 +31,11 @@ export interface IAutoMovieMotionHumanReaction<Chain> {
   /**
    * Giving way to a contact: the head turned aside by a slap, or the trunk carried by a hand that pushes or pulls, then a return to what the body held.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `from`, `part`, `way` and `intensity` of `IAutoMovieMotionHumanGive.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanReaction.give: Giving way to a contact: the head turned aside by a slap, or the trunk carried by a hand that pushes or pulls, then a return to what the body held.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanReaction.give is provided by the chain that implements IAutoMovieMotionHumanReaction.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanReaction.give is provided by the chain that implements IAutoMovieMotionHumanReaction.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanReaction.give is provided by the chain that implements IAutoMovieMotionHumanReaction.

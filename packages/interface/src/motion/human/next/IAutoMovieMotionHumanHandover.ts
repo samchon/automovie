@@ -4,7 +4,7 @@ import type { IAutoMovieMotionHumanReceive } from "../handling/IAutoMovieMotionH
 import type { IAutoMovieMotionHumanRelayPass } from "../handling/IAutoMovieMotionHumanRelayPass";
 
 /**
- * Mechanism: Passing an object between two people: giving, receiving, relaying and the handshake.
+ * Passing an object between two people: giving, receiving, relaying and the handshake.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -16,11 +16,11 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
   /**
    * The giver's authored parameters for offering a held prop to a receiver.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `prop`, `to`, `handle`, `hand`, `receiverHand`, `mass` and `outcome` of `IAutoMovieMotionHumanHandoverAction.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanHandover.handOver: The giver's authored parameters for offering a held prop to a receiver.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHandover.handOver is provided by the chain that implements IAutoMovieMotionHumanHandover.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHandover.handOver is provided by the chain that implements IAutoMovieMotionHumanHandover.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHandover.handOver is provided by the chain that implements IAutoMovieMotionHumanHandover.
@@ -28,16 +28,19 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHandover.handOver is provided by the chain that implements IAutoMovieMotionHumanHandover.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandover.handOver is provided by the chain that implements IAutoMovieMotionHumanHandover.
    */
-  handOver(params: IAutoMovieMotionHumanHandover.IHandOver, anchor?: string): Chain;
+  handOver(
+    params: IAutoMovieMotionHumanHandover.IHandOver,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Taking a prop a giver holds out: the receiver's half of a handover.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `prop`, `from`, `handle`, `hand`, `giverHand`, `mass` and `outcome` of `IAutoMovieMotionHumanReceive.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanHandover.receive: Taking a prop a giver holds out: the receiver's half of a handover.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHandover.receive is provided by the chain that implements IAutoMovieMotionHumanHandover.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHandover.receive is provided by the chain that implements IAutoMovieMotionHumanHandover.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHandover.receive is provided by the chain that implements IAutoMovieMotionHumanHandover.
@@ -45,16 +48,19 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHandover.receive is provided by the chain that implements IAutoMovieMotionHumanHandover.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandover.receive is provided by the chain that implements IAutoMovieMotionHumanHandover.
    */
-  receive(params: IAutoMovieMotionHumanHandover.IReceive, anchor?: string): Chain;
+  receive(
+    params: IAutoMovieMotionHumanHandover.IReceive,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A relay baton pass, one role of it, performed over a run (`HumanChain.over`): the outgoing runner's hand goes back, open, palm back, and the incoming runner pushes the baton's end into it at a film second both roles state alike (`at`), from where the baton passes to the outgoing hand.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `role`, `partner`, `at`, `baton`, `end`, `side` and `zone` of `IAutoMovieMotionHumanRelayPass.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanHandover.relayPass: A relay baton pass, one role of it, performed over a run (`HumanChain.over`): the outgoing runner's hand goes back, open, palm back, and the incoming runner pushes the baton's end into it at a film second both roles state alike (`at`), from where the baton passes to the outgoing hand.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHandover.relayPass is provided by the chain that implements IAutoMovieMotionHumanHandover.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHandover.relayPass is provided by the chain that implements IAutoMovieMotionHumanHandover.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHandover.relayPass is provided by the chain that implements IAutoMovieMotionHumanHandover.
@@ -62,16 +68,19 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHandover.relayPass is provided by the chain that implements IAutoMovieMotionHumanHandover.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandover.relayPass is provided by the chain that implements IAutoMovieMotionHumanHandover.
    */
-  relayPass(params: IAutoMovieMotionHumanHandover.IRelayPass, anchor?: string): Chain;
+  relayPass(
+    params: IAutoMovieMotionHumanHandover.IRelayPass,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Shaking hands with a partner: both bring the same hand's palm to one shared point, clasp, pump together and let go.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `partner`, `hand` and `pumps` of `IAutoMovieMotionHumanHandshake.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanHandover.handshake: Shaking hands with a partner: both bring the same hand's palm to one shared point, clasp, pump together and let go.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHandover.handshake is provided by the chain that implements IAutoMovieMotionHumanHandover.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHandover.handshake is provided by the chain that implements IAutoMovieMotionHumanHandover.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHandover.handshake is provided by the chain that implements IAutoMovieMotionHumanHandover.
@@ -79,7 +88,10 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHandover.handshake is provided by the chain that implements IAutoMovieMotionHumanHandover.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandover.handshake is provided by the chain that implements IAutoMovieMotionHumanHandover.
    */
-  handshake(params: IAutoMovieMotionHumanHandover.IHandshake, anchor?: string): Chain;
+  handshake(
+    params: IAutoMovieMotionHumanHandover.IHandshake,
+    anchor?: string,
+  ): Chain;
 }
 
 /**

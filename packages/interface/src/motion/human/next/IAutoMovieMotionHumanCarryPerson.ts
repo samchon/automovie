@@ -15,11 +15,11 @@ export interface IAutoMovieMotionHumanCarryPerson<Chain> {
   /**
    * Being carried by another person: on the back, in the arms or over a shoulder.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `by`, `on` and `seconds` of `IAutoMovieMotionHumanCarried.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCarryPerson.carryPerson: Being carried by another person: on the back, in the arms or over a shoulder.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCarryPerson.carryPerson is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCarryPerson.carryPerson is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCarryPerson.carryPerson is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
@@ -35,11 +35,11 @@ export interface IAutoMovieMotionHumanCarryPerson<Chain> {
   /**
    * The lift into a carry and the set-down out of it (#3349): the carried body leaves the posture it was entered in for the carry's over the first `lift` seconds, and over the last `setDown` seconds comes down to stand where the carrier has brought it.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `lift` and `setDown` of `IAutoMovieMotionHumanCarriedLift.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCarryPerson.carriedLift: The lift into a carry and the set-down out of it (#3349): the carried body leaves the posture it was entered in for the carry's over the first `lift` seconds, and over the last `setDown` seconds comes down to stand where the carrier has brought it.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCarryPerson.carriedLift is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCarryPerson.carriedLift is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCarryPerson.carriedLift is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
@@ -55,11 +55,11 @@ export interface IAutoMovieMotionHumanCarryPerson<Chain> {
   /**
    * Holding an infant taken up before (`pickUp` at its `seat`), standing or seated as the body entered: in the cradle hold, against the shoulder with the other hand patting its back, or feeding it from a bottle in the other hand, optionally rocking it.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `hold`, `prop`, `hand`, `seconds`, `rock`, `pats` and `bottle` of `IAutoMovieMotionHumanHoldInfant.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCarryPerson.holdInfant: Holding an infant taken up before (`pickUp` at its `seat`), standing or seated as the body entered: in the cradle hold, against the shoulder with the other hand patting its back, or feeding it from a bottle in the other hand, optionally rocking it.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCarryPerson.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCarryPerson.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCarryPerson.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.

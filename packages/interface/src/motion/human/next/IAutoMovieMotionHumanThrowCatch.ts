@@ -8,7 +8,7 @@ import type { IAutoMovieMotionHumanRelease } from "../throwing/IAutoMovieMotionH
 import type { IAutoMovieMotionHumanThrowObjectParams } from "../throwing/IAutoMovieMotionHumanThrowObjectParams";
 
 /**
- * Mechanism: Throwing, catching and kicking an object or a ball, and juggling.
+ * Throwing, catching and kicking an object or a ball, and juggling.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -18,13 +18,13 @@ import type { IAutoMovieMotionHumanThrowObjectParams } from "../throwing/IAutoMo
  */
 export interface IAutoMovieMotionHumanThrowCatch<Chain> {
   /**
-   * The parameters of a throw (`IAutoMovieMotionHumanThrowObjectParams`).
+   * Throw the held object at a target: the style fixes the release angle, the windup and the trunk's turn and tilt, and the speed follows from the distance and the angle by the range equation, so a farther target is a faster throw.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `at`, `style`, `hand`, `prop`, `angle`, `attitude`, `implement` and `manner` of `IAutoMovieMotionHumanThrowObjectParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanThrowCatch.throwObject: The parameters of a throw (`IAutoMovieMotionHumanThrowObjectParams`).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanThrowCatch.throwObject is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanThrowCatch.throwObject is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanThrowCatch.throwObject is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
@@ -40,11 +40,11 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
   /**
    * Catching an object thrown by another action: the hands meet it where its path enters the reach, give with it, and bring it to the chest.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `from`, `hands`, `side`, `ball` and `glove` of `IAutoMovieMotionHumanCatchObject.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanThrowCatch.catchObject: Catching an object thrown by another action: the hands meet it where its path enters the reach, give with it, and bring it to the chest.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanThrowCatch.catchObject is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanThrowCatch.catchObject is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanThrowCatch.catchObject is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
@@ -60,11 +60,11 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
   /**
    * Letting go: a hand opens on what it holds, and the held prop leaves it.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `hand`, `prop` and `launch` of `IAutoMovieMotionHumanRelease.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanThrowCatch.release: Letting go: a hand opens on what it holds, and the held prop leaves it.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanThrowCatch.release is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanThrowCatch.release is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanThrowCatch.release is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
@@ -80,11 +80,11 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
   /**
    * Kicking the ball prop lying beside the support foot with the instep, from standing: the kicking leg swings back, then through the ball and on.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `ball`, `foot`, `toward`, `speed`, `lift` and `manner` of `IAutoMovieMotionHumanKickBall.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanThrowCatch.kickBall: Kicking the ball prop lying beside the support foot with the instep, from standing: the kicking leg swings back, then through the ball and on.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanThrowCatch.kickBall is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanThrowCatch.kickBall is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanThrowCatch.kickBall is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
@@ -100,11 +100,11 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
   /**
    * Toss juggling (#3997): the cascade, an odd number of balls each thrown from inside to the other hand and caught on the outside, and the shower, the balls travelling round, thrown high from one hand and passed low back from the other.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `pattern`, `balls`, `height`, `throws` and `drops` of `IAutoMovieMotionHumanJuggle.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanThrowCatch.juggle: Toss juggling (#3997): the cascade, an odd number of balls each thrown from inside to the other hand and caught on the outside, and the shower, the balls travelling round, thrown high from one hand and passed low back from the other.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanThrowCatch.juggle is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanThrowCatch.juggle is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanThrowCatch.juggle is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
@@ -120,11 +120,11 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
   /**
    * A field event's throw (#3872): the shot, the discus or the hammer from a throwing circle, or the javelin from the end of its runway.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `event`, `implement`, `area` and `distance` of `IAutoMovieMotionHumanFieldThrow.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanThrowCatch.fieldThrow: A field event's throw (#3872): the shot, the discus or the hammer from a throwing circle, or the javelin from the end of its runway.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanThrowCatch.fieldThrow is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanThrowCatch.fieldThrow is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanThrowCatch.fieldThrow is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
@@ -140,11 +140,11 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
   /**
    * A two-hand sports-stick action layered on the authored standing or moving support.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `kind`, `stick`, `ball`, `toward`, `hand`, `seconds` and `speed` of `IAutoMovieMotionHumanStickBall.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanThrowCatch.stickBall: A two-hand sports-stick action layered on the authored standing or moving support.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanThrowCatch.stickBall is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanThrowCatch.stickBall is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanThrowCatch.stickBall is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
@@ -160,11 +160,11 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
   /**
    * Team ball skills.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `kind`, `side`, `count`, `manner`, `prop`, `at`, `flightSeconds` and `contactAt` of `IAutoMovieMotionHumanBallSport.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanThrowCatch.ballSport: Team ball skills.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanThrowCatch.ballSport is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanThrowCatch.ballSport is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanThrowCatch.ballSport is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.

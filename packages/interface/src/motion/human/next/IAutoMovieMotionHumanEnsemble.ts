@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanInstance } from "../ensemble/IAutoMovieMotionHumanInstance";
 
 /**
- * Mechanism: Groups of people: a formation, a crowd and a manoeuvre.
+ * Groups of people: a formation, a crowd and a manoeuvre.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -13,11 +13,11 @@ export interface IAutoMovieMotionHumanEnsemble<Chain> {
   /**
    * An instanced member: a performer that displays a template member's placed posture, read whole film frames earlier and moved rigidly by the offset it stands at from the template, so a rear rank marching with its front rank costs no plans and no fits of its own.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `of`, `seconds` and `shift` of `IAutoMovieMotionHumanInstance.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanEnsemble.instance: An instanced member: a performer that displays a template member's placed posture, read whole film frames earlier and moved rigidly by the offset it stands at from the template, so a rear rank marching with its front rank costs no plans and no fits of its own.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanEnsemble.instance is provided by the chain that implements IAutoMovieMotionHumanEnsemble.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanEnsemble.instance is provided by the chain that implements IAutoMovieMotionHumanEnsemble.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanEnsemble.instance is provided by the chain that implements IAutoMovieMotionHumanEnsemble.
@@ -25,7 +25,10 @@ export interface IAutoMovieMotionHumanEnsemble<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanEnsemble.instance is provided by the chain that implements IAutoMovieMotionHumanEnsemble.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanEnsemble.instance is provided by the chain that implements IAutoMovieMotionHumanEnsemble.
    */
-  instance(params: IAutoMovieMotionHumanEnsemble.IInstance, anchor?: string): Chain;
+  instance(
+    params: IAutoMovieMotionHumanEnsemble.IInstance,
+    anchor?: string,
+  ): Chain;
 }
 
 /**

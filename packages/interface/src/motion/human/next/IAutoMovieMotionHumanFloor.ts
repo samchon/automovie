@@ -6,7 +6,7 @@ import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanRoll } from "../floor/IAutoMovieMotionHumanRoll";
 
 /**
- * Mechanism: The actions on and from the floor: lying down, rolling, crawling and getting up.
+ * The actions on and from the floor: lying down, rolling, crawling and getting up.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -18,11 +18,11 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
   /**
    * Lying down on the floor from standing into a position: supine, prone, or on the left or right side.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `position`, `hold` and `manner` of `IAutoMovieMotionHumanLieDown.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanFloor.lieDown: Lying down on the floor from standing into a position: supine, prone, or on the left or right side.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.lieDown is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.lieDown is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.lieDown is provided by the chain that implements IAutoMovieMotionHumanFloor.
@@ -35,11 +35,11 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
   /**
    * Getting up from the floor to standing: from lying on the back or the front, from the hands and knees or crouched, as a crawl ends.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `pattern`, `lead` and `manner` of `IAutoMovieMotionHumanGetUp.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanFloor.getUp: Getting up from the floor to standing: from lying on the back or the front, from the hands and knees or crouched, as a crawl ends.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.getUp is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.getUp is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.getUp is provided by the chain that implements IAutoMovieMotionHumanFloor.
@@ -52,11 +52,11 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
   /**
    * A forward or backward roll on the floor: the body crouches into a tuck over its feet, rolls once round over its back as a ball rolls, without flight, and rises from the tuck on its feet where the roll has carried it.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `direction` of `IAutoMovieMotionHumanRoll.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanFloor.roll: A forward or backward roll on the floor: the body crouches into a tuck over its feet, rolls once round over its back as a ball rolls, without flight, and rises from the tuck on its feet where the roll has carried it.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.roll is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.roll is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.roll is provided by the chain that implements IAutoMovieMotionHumanFloor.
@@ -69,11 +69,11 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
   /**
    * Crawling on hands and knees along the heading, from standing: the body gets down onto hands and knees, then crawls a number of cycles in the diagonal pattern, each hand moving with the opposite knee like a quadruped's trot (Patrick, Noah and Yang 2009, J Neurophysiol 101:603).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `balance`, `kind`, `cycles` and `manner` of `IAutoMovieMotionHumanCrawl.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanFloor.crawl: Crawling on hands and knees along the heading, from standing: the body gets down onto hands and knees, then crawls a number of cycles in the diagonal pattern, each hand moving with the opposite knee like a quadruped's trot (Patrick, Noah and Yang 2009, J Neurophysiol 101:603).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.crawl is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.crawl is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.crawl is provided by the chain that implements IAutoMovieMotionHumanFloor.
@@ -86,11 +86,11 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
   /**
    * A supine quadrupedal crawl, the crab walk of horror films: from sitting, the hands plant behind the hips and the pelvis lifts, and the body travels on its hands and feet with the chest up, feet first or head first.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `to`, `lead`, `backbend` and `height` of `IAutoMovieMotionHumanCrabWalk.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanFloor.crabWalk: A supine quadrupedal crawl, the crab walk of horror films: from sitting, the hands plant behind the hips and the pelvis lifts, and the body travels on its hands and feet with the chest up, feet first or head first.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.crabWalk is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.crabWalk is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.crabWalk is provided by the chain that implements IAutoMovieMotionHumanFloor.
@@ -98,16 +98,19 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.crabWalk is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.crabWalk is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
-  crabWalk(params: IAutoMovieMotionHumanFloor.ICrabWalk, anchor?: string): Chain;
+  crabWalk(
+    params: IAutoMovieMotionHumanFloor.ICrabWalk,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A fall onto the floor on purpose from a stance: a goalkeeper's dive to the side, or a sliding tackle forward on the hip.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `kind` and `side` of `IAutoMovieMotionHumanDive.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanFloor.dive: A fall onto the floor on purpose from a stance: a goalkeeper's dive to the side, or a sliding tackle forward on the hip.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.dive is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.dive is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.dive is provided by the chain that implements IAutoMovieMotionHumanFloor.

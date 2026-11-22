@@ -4,7 +4,7 @@ import type { IAutoMovieMotionHumanPutDown } from "../handling/IAutoMovieMotionH
 import type { IAutoMovieMotionHumanRegrasp } from "../handling/IAutoMovieMotionHumanRegrasp";
 
 /**
- * Mechanism: Taking, holding and releasing an object by hand: the grasp, the carry pose and the regrasp. pickUp and putDown share one reach model (`HumanPrehension`).
+ * Taking, holding and releasing an object by hand: the grasp, the carry pose and the regrasp. pickUp and putDown share one reach model (`HumanPrehension`).
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -16,11 +16,11 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
   /**
    * Reaching for a prop's grip, grasping it and lifting it clear.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `prop`, `handle`, `hand`, `lift` and `use` of `IAutoMovieMotionHumanPickUp.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPrehension.pickUp: Reaching for a prop's grip, grasping it and lifting it clear.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPrehension.pickUp is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPrehension.pickUp is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanPrehension.pickUp is provided by the chain that implements IAutoMovieMotionHumanPrehension.
@@ -36,11 +36,11 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
   /**
    * Setting a held prop down at a place and letting go.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `prop`, `at`, `on`, `onto`, `yaw`, `rotation` and `hand` of `IAutoMovieMotionHumanPutDown.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPrehension.putDown: Setting a held prop down at a place and letting go.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPrehension.putDown is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPrehension.putDown is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanPrehension.putDown is provided by the chain that implements IAutoMovieMotionHumanPrehension.
@@ -56,11 +56,11 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
   /**
    * A held object moved within or with the hand that holds it, without being put down: turned about one of its own axes (a key in a lock, a cap), shifted to another of its grips (a pen turned into a writing grip, a phone from a carry grip to a texting grip), or rolled across the fingers (a coin).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `kind`, `prop`, `side`, `axis`, `angle` and `to` of `IAutoMovieMotionHumanRegrasp.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPrehension.regrasp: A held object moved within or with the hand that holds it, without being put down: turned about one of its own axes (a key in a lock, a cap), shifted to another of its grips (a pen turned into a writing grip, a phone from a carry grip to a texting grip), or rolled across the fingers (a coin).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPrehension.regrasp is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPrehension.regrasp is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanPrehension.regrasp is provided by the chain that implements IAutoMovieMotionHumanPrehension.
@@ -76,11 +76,11 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
   /**
    * Loads carried at the sides with the arms hanging, performed over a walk (`HumanChain.over`): a farmer's walk.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `left`, `right` and `seconds` of `IAutoMovieMotionHumanCarryHang.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPrehension.carryHang: Loads carried at the sides with the arms hanging, performed over a walk (`HumanChain.over`): a farmer's walk.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPrehension.carryHang is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPrehension.carryHang is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanPrehension.carryHang is provided by the chain that implements IAutoMovieMotionHumanPrehension.

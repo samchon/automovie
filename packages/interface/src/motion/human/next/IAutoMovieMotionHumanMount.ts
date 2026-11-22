@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanRide } from "../lexicon/IAutoMovieMotionHumanRide";
 
 /**
- * Mechanism: Living mounts: riding a horse.
+ * Living mounts: riding a horse.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -13,11 +13,11 @@ export interface IAutoMovieMotionHumanMount<Chain> {
   /**
    * Riding: a seated person carried by a support that moves by itself, such as a car, a bicycle or a horse given to the performance as a moving prop (`HumanObject.prop` with a motion).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `on`, `seconds`, `rising`, `feet`, `placeFeet`, `seat`, `hands` and `equestrian` of `IAutoMovieMotionHumanRide.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanMount.rideHorse: Riding: a seated person carried by a support that moves by itself, such as a car, a bicycle or a horse given to the performance as a moving prop (`HumanObject.prop` with a motion).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanMount.rideHorse is provided by the chain that implements IAutoMovieMotionHumanMount.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanMount.rideHorse is provided by the chain that implements IAutoMovieMotionHumanMount.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanMount.rideHorse is provided by the chain that implements IAutoMovieMotionHumanMount.

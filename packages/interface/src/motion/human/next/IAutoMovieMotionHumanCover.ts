@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanCover as ILegacyCover } from "../lexicon/IAutoMovieMotionHumanCover";
 
 /**
- * Mechanism: moving against a cover: peeking, sidling, a window and a breach, with the back or the chest against the wall.
+ * Moving against a cover: peeking, sidling, a window and a breach, with the back or the chest against the wall.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -13,11 +13,11 @@ export interface IAutoMovieMotionHumanCover<Chain> {
   /**
    * Take cover: peek round it, sidle along it, look out of a window or breach.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params One of the variants of `ILegacyCover.IParams`: `IPeek`, `ISidle`, `IWindow` or `IBreach`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCover.cover: Take cover: peek round it, sidle along it, look out of a window or breach.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCover.cover is provided by the chain that implements IAutoMovieMotionHumanCover.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCover.cover is provided by the chain that implements IAutoMovieMotionHumanCover.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCover.cover is provided by the chain that implements IAutoMovieMotionHumanCover.

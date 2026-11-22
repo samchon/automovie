@@ -6,7 +6,7 @@ import type { IAutoMovieMotionHumanStretch } from "../exercise/IAutoMovieMotionH
 import type { IAutoMovieMotionHumanWorkout as ILegacyWorkout } from "../exercise/IAutoMovieMotionHumanWorkout";
 
 /**
- * Mechanism: Repeated exercises and stretches: a repetition clock built from `tempo` (3.3 s a repetition by default) and the kind tables.
+ * Repeated exercises and stretches: a repetition clock built from `tempo` (3.3 s a repetition by default) and the kind tables.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -18,11 +18,11 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
   /**
    * A standing bodyweight exercise counted in repetitions (#3245, M24): the squat, the forward lunge, high knees and the jumping jack (ACSM's Guidelines for Exercise Testing and Prescription, 11th ed.).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `balance`, `kind`, `reps`, `depth`, `tempo`, `side` and `manner` of `IAutoMovieMotionHumanExercise.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWorkout.exercise: A standing bodyweight exercise counted in repetitions (#3245, M24): the squat, the forward lunge, high knees and the jumping jack (ACSM's Guidelines for Exercise Testing and Prescription, 11th ed.).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWorkout.exercise is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWorkout.exercise is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWorkout.exercise is provided by the chain that implements IAutoMovieMotionHumanWorkout.
@@ -36,13 +36,13 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
   ): Chain;
 
   /**
-   * A standing static stretch or yoga pose held and released (#3246, M24): the neck side bend, the cross-body shoulder stretch, the overhead side bend, the standing quadriceps stretch holding the ankle, and the tree pose (ACSM's Guidelines, 11th ed.; the hold of 30 s, Bandy et al.
+   * A standing static stretch or yoga pose held and released (#3246): the neck side bend, the cross-body shoulder stretch, the overhead side bend, the standing quadriceps stretch and the tree pose, held 30 s by default (`stretch.HOLD`, Bandy et al. 1997).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `kind`, `side`, `seconds`, `intensity` and `manner` of `IAutoMovieMotionHumanStretch.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWorkout.stretch: A standing static stretch or yoga pose held and released (#3246, M24): the neck side bend, the cross-body shoulder stretch, the overhead side bend, the standing quadriceps stretch holding the ankle, and the tree pose (ACSM's Guidelines, 11th ed.; the hold of 30 s, Bandy et al.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWorkout.stretch is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWorkout.stretch is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWorkout.stretch is provided by the chain that implements IAutoMovieMotionHumanWorkout.
@@ -58,11 +58,11 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
   /**
    * An exercise, a stretch or a pose done on a support that is not only the feet, or with the feet kept under a moving trunk: the body gets from standing into the exercise's first posture, passes through the postures of each repetition, and gets up again (#3377, #3378).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `kind`, `reps`, `hold`, `on`, `stay`, `load` and `manner` of `ILegacyWorkout.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWorkout.workout: An exercise, a stretch or a pose done on a support that is not only the feet, or with the feet kept under a moving trunk: the body gets from standing into the exercise's first posture, passes through the postures of each repetition, and gets up again (#3377, #3378).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWorkout.workout is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWorkout.workout is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWorkout.workout is provided by the chain that implements IAutoMovieMotionHumanWorkout.
@@ -76,13 +76,13 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
   ): Chain;
 
   /**
-   * Authoring inputs for one two-foot rope-skipping cycle in place.
+   * Skip a rope in place: one two-foot jump over the rope at each of its turns.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `periodSeconds` and `flightSeconds` of `IAutoMovieMotionHumanRopeSkip.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWorkout.ropeSkip: Authoring inputs for one two-foot rope-skipping cycle in place.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWorkout.ropeSkip is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWorkout.ropeSkip is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWorkout.ropeSkip is provided by the chain that implements IAutoMovieMotionHumanWorkout.
@@ -98,11 +98,11 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
   /**
    * A walk along a line too narrow for a normal gait (#3875 beam, #3997 tightrope): the feet step heel to toe on the line, each turned out from it, the arms held out to the sides, and the body sways over the line and corrects (`lineWalk`).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `on`, `to`, `steps`, `pole` and `sag` of `IAutoMovieMotionHumanLineWalk.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWorkout.lineWalk: A walk along a line too narrow for a normal gait (#3875 beam, #3997 tightrope): the feet step heel to toe on the line, each turned out from it, the arms held out to the sides, and the body sways over the line and corrects (`lineWalk`).
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWorkout.lineWalk is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWorkout.lineWalk is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWorkout.lineWalk is provided by the chain that implements IAutoMovieMotionHumanWorkout.
@@ -118,11 +118,11 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
   /**
    * A walk on stilts (#3997): each foot strapped on a stilt's platform, the stilts' tips the only floor contacts, short steps on a wide base.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `stilts`, `to` and `steps` of `IAutoMovieMotionHumanStiltWalk.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWorkout.stiltWalk: A walk on stilts (#3997): each foot strapped on a stilt's platform, the stilts' tips the only floor contacts, short steps on a wide base.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWorkout.stiltWalk is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWorkout.stiltWalk is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWorkout.stiltWalk is provided by the chain that implements IAutoMovieMotionHumanWorkout.

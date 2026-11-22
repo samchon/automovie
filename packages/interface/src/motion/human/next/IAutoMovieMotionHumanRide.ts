@@ -3,7 +3,7 @@ import type { IAutoMovieMotionHumanTravelCarExit } from "../lexicon/IAutoMovieMo
 import type { IAutoMovieMotionHumanTravelLeaf } from "../lexicon/IAutoMovieMotionHumanTravelLeaf";
 
 /**
- * Mechanism: Riding a vehicle or travelling by one: a car, its exit and a leaf.
+ * Riding a vehicle or travelling by one: a car, its exit and a leaf.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -15,11 +15,11 @@ export interface IAutoMovieMotionHumanRide<Chain> {
   /**
    * Getting into a car through its door: the person stands in the doorway with the back to the seat, sits down onto it sideways with the legs still outside, then swings round on the seat to face the way the seat faces, and the head is ducked under the door's top throughout.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `seat`, `through` and `seconds` of `IAutoMovieMotionHumanTravelCar.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanRide.travelCar: Getting into a car through its door: the person stands in the doorway with the back to the seat, sits down onto it sideways with the legs still outside, then swings round on the seat to face the way the seat faces, and the head is ducked under the door's top throughout.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRide.travelCar is provided by the chain that implements IAutoMovieMotionHumanRide.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRide.travelCar is provided by the chain that implements IAutoMovieMotionHumanRide.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRide.travelCar is provided by the chain that implements IAutoMovieMotionHumanRide.
@@ -33,13 +33,13 @@ export interface IAutoMovieMotionHumanRide<Chain> {
   ): Chain;
 
   /**
-   * Parameters of the opt-in `HumanTravelCarExit.getOut` law for a stationary car with an already-open rear door.
+   * Get out of a stationary car through its already open rear door: the legs swing out, the body ducks under the frame and stands clear of the door (the opt-in `HumanTravelCarExit.getOut` law).
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `bench`, `width`, `through`, `floor`, `turnSeconds`, `clearance`, `landingDistance`, `duckDegrees`, `stagger` and `liftShare` of `IAutoMovieMotionHumanTravelCarExit.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanRide.travelCarExit: Parameters of the opt-in `HumanTravelCarExit.getOut` law for a stationary car with an already-open rear door.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRide.travelCarExit is provided by the chain that implements IAutoMovieMotionHumanRide.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRide.travelCarExit is provided by the chain that implements IAutoMovieMotionHumanRide.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRide.travelCarExit is provided by the chain that implements IAutoMovieMotionHumanRide.
@@ -55,11 +55,11 @@ export interface IAutoMovieMotionHumanRide<Chain> {
   /**
    * Opening a door by its handle and holding it: the hand reaches the handle, closes on it and goes with it while the leaf swings, the person standing, and walking round with the leaf when the arm alone would lose the handle.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `door`, `handle`, `seconds` and `side` of `IAutoMovieMotionHumanTravelLeaf.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanRide.travelLeaf: Opening a door by its handle and holding it: the hand reaches the handle, closes on it and goes with it while the leaf swings, the person standing, and walking round with the leaf when the arm alone would lose the handle.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRide.travelLeaf is provided by the chain that implements IAutoMovieMotionHumanRide.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRide.travelLeaf is provided by the chain that implements IAutoMovieMotionHumanRide.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRide.travelLeaf is provided by the chain that implements IAutoMovieMotionHumanRide.

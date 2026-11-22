@@ -14,11 +14,11 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
   /**
    * A staged disarm: the defender takes a knife or a handgun from a resisting partner, and the partner's hand gives it up.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `partner`, `prop`, `kind`, `hand` and `lever` of `IAutoMovieMotionHumanDisarm.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanHostage.disarm: A staged disarm: the defender takes a knife or a handgun from a resisting partner, and the partner's hand gives it up.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHostage.disarm is provided by the chain that implements IAutoMovieMotionHumanHostage.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHostage.disarm is provided by the chain that implements IAutoMovieMotionHumanHostage.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHostage.disarm is provided by the chain that implements IAutoMovieMotionHumanHostage.
@@ -31,11 +31,11 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
   /**
    * A hostage hold from behind: the holder's free arm lies across the hostage's chest or neck, the other hand presents a held weapon at the hostage's head or throat, and the pair walks backward together.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The `partner`, `arm`, `prop`, `point`, `region`, `back` and `seconds` of `IAutoMovieMotionHumanHostageHold.IParams`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanHostage.hostageHold: A hostage hold from behind: the holder's free arm lies across the hostage's chest or neck, the other hand presents a held weapon at the hostage's head or throat, and the pair walks backward together.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHostage.hostageHold is provided by the chain that implements IAutoMovieMotionHumanHostage.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHostage.hostageHold is provided by the chain that implements IAutoMovieMotionHumanHostage.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHostage.hostageHold is provided by the chain that implements IAutoMovieMotionHumanHostage.

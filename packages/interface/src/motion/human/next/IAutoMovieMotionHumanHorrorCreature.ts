@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanGait } from "../lexicon/IAutoMovieMotionHumanGait";
 
 /**
- * Mechanism: Behaviour: the gaits of a horror creature, stage readings of a walk with its own Froude number, step and unevenness (provisional; no study was read).
+ * The gaits of a horror creature, stage readings of a walk with its own Froude number, step and unevenness (provisional; no study was read).
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -11,22 +11,62 @@ import type { IAutoMovieMotionHumanGait } from "../lexicon/IAutoMovieMotionHuman
  */
 export interface IAutoMovieMotionHumanHorrorCreature<Chain> {
   /**
-   * Named ways of going somewhere on foot; the composition gives the destination.
+   * Shamble to `to`: a stiff leg dragged with its foot barely clearing the floor and stood on briefly, the trunk leaning and the arms hanging still (`HumanHorrorGait.SHAMBLE`, provisional); a crowd of shamblers falls out of step by its seeded tempo. It stops at `to` as a walk does.
    *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes, and the stiff side.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanHorrorCreature.horrorGait: Named ways of going somewhere on foot; the composition gives the destination.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHorrorCreature.horrorGait is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHorrorCreature.horrorGait is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHorrorCreature.horrorGait is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHorrorCreature.horrorGait is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHorrorCreature.horrorGait is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHorrorCreature.horrorGait is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the gait does with its provisional constant, where it ends, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHorrorCreature.shamble is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHorrorCreature.shamble is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHorrorCreature.shamble is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHorrorCreature.shamble is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHorrorCreature.shamble is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHorrorCreature.shamble is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
    */
-  horrorGait(
-    params: IAutoMovieMotionHumanHorrorCreature.IHorrorGait,
+  shamble(
+    params: IAutoMovieMotionHumanHorrorCreature.IShamble,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * Lurch to `to`: one knee held stiff at a slow cadence and that leg swung out, the trunk upright and the arms still (`HumanHorrorGait.LURCH`, provisional). It stops at `to` as a walk does.
+   *
+   * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes, and the stiff side.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the gait does with its provisional constant, where it ends, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHorrorCreature.lurch is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHorrorCreature.lurch is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHorrorCreature.lurch is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHorrorCreature.lurch is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHorrorCreature.lurch is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHorrorCreature.lurch is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   */
+  lurch(
+    params: IAutoMovieMotionHumanHorrorCreature.ILurch,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * Stalk to `to`: a creep on deeply bent knees with the trunk hunched (`HumanHorrorGait.STALK`, provisional). It stops at `to` as a walk does.
+   *
+   * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the gait does with its provisional constant, where it ends, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHorrorCreature.stalk is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHorrorCreature.stalk is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHorrorCreature.stalk is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHorrorCreature.stalk is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHorrorCreature.stalk is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHorrorCreature.stalk is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
+   */
+  stalk(
+    params: IAutoMovieMotionHumanHorrorCreature.IStalk,
     anchor?: string,
   ): Chain;
 }
@@ -36,12 +76,32 @@ export interface IAutoMovieMotionHumanHorrorCreature<Chain> {
  */
 export namespace IAutoMovieMotionHumanHorrorCreature {
   /**
-   * The parameters of `horrorGait`: `IAutoMovieMotionHumanGait.IParams`, the type its law takes.
+   * The parameters of `shamble`: `IAutoMovieMotionHumanGait.ILimp`, the type its law takes.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanGait.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGait.IParams` owns the shape; the alias serves `horrorGait` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanGait.ILimp`: units, frames and defaults are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGait.ILimp` owns the shape; the alias serves `shamble` of this behaviour.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
-  export type IHorrorGait = IAutoMovieMotionHumanGait.IParams;
+  export type IShamble = IAutoMovieMotionHumanGait.ILimp;
+
+  /**
+   * The parameters of `lurch`: `IAutoMovieMotionHumanGait.ILimp`, the type its law takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanGait.ILimp`: units, frames and defaults are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGait.ILimp` owns the shape; the alias serves `lurch` of this behaviour.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type ILurch = IAutoMovieMotionHumanGait.ILimp;
+
+  /**
+   * The parameters of `stalk`: `IAutoMovieMotionHumanGait.IParams`, the type its law takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanGait.IParams`: units, frames and defaults are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGait.IParams` owns the shape; the alias serves `stalk` of this behaviour.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type IStalk = IAutoMovieMotionHumanGait.IParams;
 }
