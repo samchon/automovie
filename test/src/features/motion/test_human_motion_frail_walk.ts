@@ -1,3 +1,4 @@
+import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
@@ -5,6 +6,7 @@ import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
@@ -26,6 +28,9 @@ const GRADES: readonly number[] = [0, 0.5, 1];
 /** How close the ungraded frail walk keeps to the ordinary walk's time, seconds. */
 const SAME: number = 1e-6;
 
+/** How far the head may turn ahead of the pelvis in an en-bloc turn, degrees (provisional: the head leads an ordinary turn by about 20 to 30 degrees, Hollands et al. 2004, and en bloc it does not). */
+const EN_BLOC: number = 10;
+
 /**
  * The walk of a frail older person (#4009), graded by severity.
  *
@@ -33,7 +38,9 @@ const SAME: number = 1e-6;
  * 1. Severity 0 is the ordinary walk: the same time over the same way.
  * 2. As the severity grows the walk takes longer and more steps over the same
  *    way on a wider base, and the trunk leans further forward.
- * 3. A severity outside 0 to 1 is refused.
+ * 3. A half turn in place takes more steps at full severity, and the head
+ *    turns with the pelvis, en bloc.
+ * 4. A severity outside 0 to 1 is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the cases and what each reads.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the plans' durations and heel strikes and the displayed chest's lean; a frail walk as fast as the ordinary one, as few steps, an upright trunk or an admitted out-of-range grade fails.
@@ -123,6 +130,45 @@ export function test_human_motion_frail_walk(): void {
       `${fit}: frailer walks walk on a wider base (${widths.map((w: number): string => (w * 1000).toFixed(0)).join(", ")} mm)`,
       widths[0]! < widths[1]! && widths[1]! < widths[2]!,
     );
+    // A half turn in place: frailer, more steps, and the head turning with
+    // the pelvis (en bloc) rather than ahead of it.
+    const turns: HumanPerformance[] = [0, 1].map(
+      (severity: number): HumanPerformance =>
+        perform(
+          body,
+          HumanChain.subject("a").registered(HumanFrailWalk.frailWalk.name, {
+            to: { x: 0, y: 0, z: 0 },
+            face: 180,
+            severity,
+          }),
+        ),
+    );
+    turns.forEach((film: HumanPerformance, i: number): void =>
+      assertTakeClean(`${fit} frail half turn at ${i}`, film),
+    );
+    const turnSteps: number[] = turns.map(
+      (film: HumanPerformance): number =>
+        walked(film).plan.events.filter((event: IAutoMovieMotionEvent): boolean =>
+          event.name.includes("HeelStrike"),
+        ).length,
+    );
+    TestValidator.predicate(
+      `${fit}: a frail half turn takes more steps (${turnSteps.join(", ")})`,
+      turnSteps[0]! < turnSteps[1]!,
+    );
+    const lead: number = Array.from({ length: 13 }, (_v: unknown, k: number): number => {
+      const film: HumanPerformance = turns[1]!;
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = film.bones(
+        "a",
+        (film.duration * k) / 12,
+      );
+      const apart: number = heading(bones.get("head")!) - heading(bones.get("hips")!);
+      return Math.abs((((apart % 360) + 540) % 360) - 180);
+    }).reduce((a: number, b: number): number => Math.max(a, b));
+    TestValidator.predicate(
+      `${fit}: the frail half turn is en bloc, the head within ${EN_BLOC} degrees of the pelvis (${lead.toFixed(1)})`,
+      lead <= EN_BLOC,
+    );
     TestValidator.predicate(
       `${fit}: a severity past 1 is refused`,
       ((): boolean => {
@@ -167,4 +213,10 @@ function perform(
 /** The performer's walking segment. */
 function walked(film: HumanPerformance): IAutoMovieMotionHumanSegment {
   return film.segments("a")[0]!;
+}
+
+/** A displayed bone's heading about +Y, degrees. */
+function heading(bone: IAutoMovieResolvedBone): number {
+  const forward: IAutoMovieVector3 = Quaternion.rotateVector(bone.worldRotation, { x: 0, y: 0, z: 1 });
+  return (Math.atan2(forward.x, forward.z) * 180) / Math.PI;
 }

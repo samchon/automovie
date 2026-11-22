@@ -108,6 +108,7 @@ export namespace HumanFrailWalk {
         const params: IAutoMovieMotionHumanWalkParams = {
           to: context.params.to,
           ...(context.params.via === undefined ? {} : { via: context.params.via }),
+          ...(context.params.face === undefined ? {} : { face: context.params.face }),
           ...(context.params.manner === undefined
             ? {}
             : { manner: context.params.manner }),

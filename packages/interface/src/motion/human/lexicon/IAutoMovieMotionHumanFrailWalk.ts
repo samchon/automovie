@@ -19,6 +19,9 @@ export interface IAutoMovieMotionHumanFrailWalk {
   /** Floor points passed on the way, world metres; none when absent. */
   via?: IAutoMovieVector3[];
 
+  /** The heading faced on arrival, degrees; a turn in place when `to` is where the walker stands. The direction of travel when absent. */
+  face?: number;
+
   /**
    * How frail the walk is, from 0, the ordinary walk, to 1, a shuffle;
    * 0.5 when absent.
