@@ -6,7 +6,12 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanFrailWalk,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -47,7 +52,7 @@ export function test_human_motion_frail_walk(): void {
       (severity: number): HumanPerformance =>
         perform(
           body,
-          HumanChain.subject("a").act("frailWalk", {
+          HumanChain.subject("a").registered(HumanFrailWalk.frailWalk.name, {
             to: { x: 0, y: 0, z: DISTANCE },
             severity,
           }),
@@ -124,7 +129,7 @@ export function test_human_motion_frail_walk(): void {
         try {
           perform(
             body,
-            HumanChain.subject("a").act("frailWalk", {
+            HumanChain.subject("a").registered(HumanFrailWalk.frailWalk.name, {
               to: { x: 0, y: 0, z: DISTANCE },
               severity: 1.5,
             }),
@@ -154,6 +159,7 @@ function perform(
         proficiency: { level: "trained" },
       },
     ],
+    laws: [HumanFrailWalk.frailWalk],
     composition: chain.node,
   });
 }
