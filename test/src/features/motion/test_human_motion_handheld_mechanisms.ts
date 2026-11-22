@@ -33,11 +33,8 @@ const ON: number = 0.03;
 const HOLD: number = 0.005;
 /** A cut point lies on its authored line within this, metres. */
 const LINE: number = 0.005;
-/** The hand's place before opening an umbrella, in shares of the arm's reach: the forearm held forward with the elbow bent, the hand half a reach ahead and well below the shoulder (provisional). */
+/** How far ahead the umbrella is held before opening, as a share of the arm's reach: the forearm held forward with the elbow bent (provisional). */
 const AHEAD: number = 0.5;
-
-/** See `AHEAD`: how far below the shoulder, as a share of the reach. */
-const BELOW: number = 0.6;
 
 /** Room between two sharers' shoulders for the arm that holds the umbrella, as a share of the holder's reach (provisional). */
 const ROOM: number = 0.5;
@@ -140,6 +137,10 @@ function umbrella(
   ];
   const shoulder: number = body.measure.shoulderHeight;
   const reach: number = body.measure.upperArm + body.measure.forearm;
+  // Held so the runner's open stop, the free hand's farthest push, comes
+  // to shoulder height: the umbrella's own grip-to-stop length sets how low
+  // its handle sits, for any umbrella and body.
+  const stop: number = runner.frame.translation.y + runner.travel!;
   // Sharing one umbrella the two walk shoulder to shoulder, with room between
   // for the arm that holds it: half the holder's reach.
   const apart: number = 2 * body.measure.shoulderHalfWidth + ROOM * reach;
@@ -149,7 +150,7 @@ function umbrella(
     .registered("workHeld", {
       prop: "umbrella",
       // Held low before the body, the runner within the free arm.
-      at: { out: 0.05, up: shoulder - BELOW * reach, forward: AHEAD * reach },
+      at: { out: 0.05, up: shoulder - stop, forward: AHEAD * reach },
       seconds: 0.4,
     })
     .registered("workHeld", {
