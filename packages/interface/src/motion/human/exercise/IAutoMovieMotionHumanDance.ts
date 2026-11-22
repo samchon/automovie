@@ -52,21 +52,15 @@ export namespace IAutoMovieMotionHumanDance {
    * @evidence contracts/development/design.md#principled-representation The step, the tempo and the number of beats.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The tempo is a number, not audio.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The step. */
     kind: IAutoMovieMotionHumanDance.Kind;
 
-    /** Beats per minute; `BPM` when absent.
-     * Exclusive minimum: 0. Unit: "beats/min". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Beats per minute, positive; `dance.BPM` (120) when absent. */
     bpm?: number;
 
-    /** How many beats; 8 when absent. At the default 120 beats a minute a beat is 0.5 s (`dance.BPM`), so 8 beats take 4 s plus one beat.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many beats, a whole number of at least 1; 8 when absent. At the default 120 beats a minute a beat is 0.5 s (`dance.BPM`), so 8 beats take 4 s plus one beat. */
     beats?: number;
 
     /**

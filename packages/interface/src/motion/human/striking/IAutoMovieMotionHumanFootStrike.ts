@@ -71,8 +71,6 @@ export namespace IAutoMovieMotionHumanFootStrike {
    * @evidence contracts/development/design.md#principled-representation The technique, the target, the leg and the two modifiers.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the foot strike plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The foot strike. Launch to contact: `side` 0.77 s (the middle of 0.70 to 0.84 s, Pieter and Pieter); every other technique 0.33 s, the round kick's ({@link IAutoMovieMotionHumanKick}); times 1.06 at novice to 1.0 at elite (`footStrike.SIDE`, `footStrike.KICK`). The recoil is 0.65 s. */

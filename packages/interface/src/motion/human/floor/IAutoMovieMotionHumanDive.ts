@@ -51,8 +51,6 @@ export namespace IAutoMovieMotionHumanDive {
    * @evidence contracts/development/design.md#principled-representation The kind and, for a dive, its side.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed unions.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** A dive to the side or a slide forward; `dive` when absent. */

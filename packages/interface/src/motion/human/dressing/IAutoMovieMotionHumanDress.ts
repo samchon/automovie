@@ -46,8 +46,6 @@ export namespace IAutoMovieMotionHumanDress {
    * @evidence contracts/development/design.md#principled-representation A closed item, the held wearable, its hand and a manner.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Four members read by `plan`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place is typed.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The item: where it is worn and how the free hand steadies it. */

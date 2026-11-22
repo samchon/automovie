@@ -135,9 +135,7 @@ export namespace IAutoMovieMotionHumanSword {
     /** Whether it lands or is stopped short for a parry to meet; `lands` when absent. */
     outcome?: "lands" | "parried";
 
-    /** A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.
-     * Exclusive minimum: 0. Exclusive maximum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried. */
     feint?: number;
   }
 

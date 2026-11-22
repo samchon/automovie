@@ -35,9 +35,7 @@ export namespace IAutoMovieMotionHumanGroupDance {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default, and the type states who checks it.
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default.
    * @evidence contracts/development/design.md#principled-representation The dance, the tempo in beats per minute, the repeats, the circle's centre in world metres and size, the neighbours by scene id, and the timing variation in seconds.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The members groupDance.plan and its line, circle and conga courses read; `lock` reuses the dance law's own type.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts One record with members per dance rather than a union on `kind`: the circle's and the conga's members are optional fields the other dances leave unused, and their presence per dance remains for the law.
@@ -46,22 +44,16 @@ export namespace IAutoMovieMotionHumanGroupDance {
     /** The dance. */
     kind: Kind;
 
-    /** Beats per minute; the dance law's `BPM` when absent.
-     * Exclusive minimum: 0. Unit: "beats/min". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Beats per minute, positive; the dance law's `BPM` when absent. */
     bpm?: number;
 
-    /** How many times the eight-count pattern is danced; 1 when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many times the eight-count pattern is danced, a whole number of at least 1; 1 when absent. */
     repeats?: number;
 
     /** A circle's centre on the floor, world metres. */
     centre?: IAutoMovieVector3;
 
-    /** How many dance in the circle, so each member knows its neighbours.
-     * Numeric representation: "uint32". Inclusive minimum: 3. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many dance in the circle, a whole number of at least 3, so each member knows its neighbours. */
     members?: number;
 
     /** A circle member's neighbour on the left, whose right hand this one's left hand joins; open when absent. */
@@ -73,9 +65,7 @@ export namespace IAutoMovieMotionHumanGroupDance {
     /** The conga member ahead, whose shoulders this one holds; the head of the line when absent. */
     ahead?: string;
 
-    /** The most a member's timing strays from the beat, seconds, drawn from its seed; 0.02 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** The most a member's timing strays from the beat, seconds, at least 0, drawn from its seed; 0.02 when absent. */
     vary?: number;
 
     /** A cue track to lock the beats to, as the dance law's. */

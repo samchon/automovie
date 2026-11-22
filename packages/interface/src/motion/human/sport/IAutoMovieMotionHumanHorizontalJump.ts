@@ -22,16 +22,12 @@ export namespace IAutoMovieMotionHumanHorizontalJump {
    * @evidence contracts/development/design.md#principled-representation The pit's id and the measured distance in metres.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The distance is the outcome; the law refuses one the run cannot bring.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and approach refusals.
    */
   export interface IParams {
     /** Scene id of the jump pit; its `board` top's far edge is the take-off line and its `sand` top the landing surface. */
     pit: string;
 
-    /** The measured jump, metres from the take-off line to the nearest heel mark, perpendicular to the line.
-     * Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** The measured jump, metres, positive, from the take-off line to the nearest heel mark, perpendicular to the line. */
     distance: number;
   }
 }

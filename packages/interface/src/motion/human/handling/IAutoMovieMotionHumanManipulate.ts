@@ -87,8 +87,6 @@ export namespace IAutoMovieMotionHumanManipulate {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation prop: The prop pressed. contacts: The contacts, in order; or none with a `text`. text: A text typed on a keyboard prop (`createKeyboard`'s `homeRow` and `keys`), instead of `contacts`.
    * @evidence contracts/development/design.md#principled-representation prop: The prop pressed. contacts: The contacts, in order; or none with a `text`. text: A text typed on a keyboard prop (`createKeyboard`'s `homeRow` and `keys`), instead of `contacts`.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/manipulate.ts (manipulate.plan, context); handling/manipulate.ts (manipulate.sequence, context); handling/manipulate.ts (interval, context); handling/manipulate.ts (typed, context); handling/manipulate.ts (manipulate.sequence); handling/manipulate.ts (interval).

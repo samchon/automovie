@@ -45,8 +45,6 @@ export namespace IAutoMovieMotionHumanRegrasp {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation angle: A twist's turn, degrees, counter-clockwise looking down the axis.
    * @evidence contracts/development/design.md#principled-representation angle: A twist's turn, degrees, counter-clockwise looking down the axis.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/regrasp.ts (regrasp.plan, context); handling/regrasp.ts (regrasp.inHand, context).

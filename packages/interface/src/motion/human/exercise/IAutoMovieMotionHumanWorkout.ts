@@ -69,21 +69,15 @@ export namespace IAutoMovieMotionHumanWorkout {
    * @evidence contracts/development/design.md#principled-representation The exercise, the count, the hold, the prop borne and whether the body stays down.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The kind is a closed union; no angle is typed by the author.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The exercise. */
     kind: IAutoMovieMotionHumanWorkout.Kind;
 
-    /** Repetitions; the kind's own count when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Repetitions, a whole number of at least 1; the kind's own count when absent. */
     reps?: number;
 
-    /** Seconds a held pose is stayed in; the kind's own when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds a held pose is stayed in, at least 0; the kind's own when absent. */
     hold?: number;
 
     /** The prop the body bears on, by one of its affordances: a bench's `surface` under a kind that lies or sits raised, a bar's `bar` between the hands of a hanging kind, which hangs from nothing else. Its place when the action starts replaces the height the kind computes from the body, and the body goes to it. None when absent. */

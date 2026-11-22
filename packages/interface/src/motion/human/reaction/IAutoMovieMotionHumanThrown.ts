@@ -37,8 +37,6 @@ export namespace IAutoMovieMotionHumanThrown {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and default.
    * @evidence contracts/development/design.md#principled-representation Metres and seconds; the law refuses non-positive lengths.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `thrown.plan`.

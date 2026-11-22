@@ -25,8 +25,6 @@ export namespace IAutoMovieMotionHumanJuggle {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default, and the height states how the flight and holds follow from it.
    * @evidence contracts/development/design.md#principled-representation The pattern, the balls by scene id in hand order, the throw height in metres, the throw count and the dropped throws by one-based count.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The members juggle.plan reads; the timing is derived from the height by Shannon's theorem, not supplied.
@@ -39,14 +37,10 @@ export namespace IAutoMovieMotionHumanJuggle {
     /** The balls' scene ids, resting at the hands' start points (`juggle.start`): the first in the right hand, the second in the left, any third on top of the first. */
     balls: string[];
 
-    /** How high the throws rise above the hands, metres; 0.6 when absent. Gravity decides the flight, `sqrt(8 h / g)` between hands level with each other (g 9.80665 m/s2): 0.70 s at 0.6 m. The hold times follow from the flight by Shannon's theorem at a dwell ratio of 0.75 (`juggle.DWELL`, Beek and Lewbel 1995), so a higher throw is slower in every beat; a vacancy under `juggle.VACANCY` (0.12 s) is refused.
-     * Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How high the throws rise above the hands, metres, positive; 0.6 when absent. Gravity decides the flight, `sqrt(8 h / g)` between hands level with each other (g 9.80665 m/s2): 0.70 s at 0.6 m. The hold times follow from the flight by Shannon's theorem at a dwell ratio of 0.75 (`juggle.DWELL`, Beek and Lewbel 1995), so a higher throw is slower in every beat; a vacancy under `juggle.VACANCY` (0.12 s) is refused. */
     height?: number;
 
-    /** How many throws; three for each ball when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many throws, a whole number of at least 1; three for each ball when absent. */
     throws?: number;
 
     /** Balls dropped: the throw counts (from 1) whose ball is not caught and falls to the floor. */

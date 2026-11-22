@@ -54,8 +54,6 @@ export namespace IAutoMovieMotionHumanPoleVault {
    * @evidence contracts/development/design.md#principled-representation The pole and its planted end, and the landing surface.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Subject and affordance ids.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The pole, its subject id; a hand holds it at the entry. */

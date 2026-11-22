@@ -31,8 +31,6 @@ export namespace IAutoMovieMotionHumanSalto {
    * @evidence contracts/development/design.md#principled-representation The landing place, the apex, the way and the turns.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The way is a closed union and the turns are whole.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The floor point to land on, world metres. */
@@ -44,9 +42,7 @@ export namespace IAutoMovieMotionHumanSalto {
     /** Which way the body turns; `forward` when absent. */
     way?: "forward" | "backward";
 
-    /** Whole turns; 1 when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Whole turns, at least 1; 1 when absent. */
     turns?: number;
   }
 }

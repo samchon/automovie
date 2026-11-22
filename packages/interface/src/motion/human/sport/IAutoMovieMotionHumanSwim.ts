@@ -55,8 +55,6 @@ export namespace IAutoMovieMotionHumanSwim {
    * @evidence contracts/development/design.md#principled-representation The stroke, the plane's height and the cycle count.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The plane is a world height the author states.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The stroke. */
@@ -65,9 +63,7 @@ export namespace IAutoMovieMotionHumanSwim {
     /** The water plane's world height, metres; the entry's chest height when absent. */
     water?: number;
 
-    /** Cycles; 3 when absent. A cycle takes 1.4 s in the front crawl (`swim.CYCLE`) and the backstroke, 1 s treading water, so 3 cycles of the crawl take 4.2 s; the keyed strokes take the seconds of their keys (`SwimStroke.strokes`).
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Cycles, a whole number of at least 1; 3 when absent. A cycle takes 1.4 s in the front crawl (`swim.CYCLE`) and the backstroke, 1 s treading water, so 3 cycles of the crawl take 4.2 s; the keyed strokes take the seconds of their keys (`SwimStroke.strokes`). */
     cycles?: number;
 
     /** How it is performed: `pace: 1.5` makes each cycle 1.5 times shorter and, for a keyed stroke, the glide 1.5 times faster ({@link IAutoMovieMotionManner.pace}). Neutral when absent. */

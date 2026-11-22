@@ -43,8 +43,6 @@ export namespace IAutoMovieMotionHumanWireFlight {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame, unit and default.
    * @evidence contracts/development/design.md#principled-representation World root points in metres and seconds.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `wireFlight.plan`.

@@ -40,8 +40,6 @@ export namespace IAutoMovieMotionHumanAthletics {
    * @evidence contracts/development/design.md#principled-representation The front foot and the time held.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No block spacing in metres: the knees decide it.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The front foot. The placed front plate chooses the side when `on` is set and this is absent. Otherwise defaults to `left`. */
@@ -53,12 +51,10 @@ export namespace IAutoMovieMotionHumanAthletics {
     /** The sprinter's sex, the stratum whose measured centre-of-mass distance the set takes (`CENTRE`); `male` when absent. */
     sex?: "female" | "male";
 
-    /** Seconds held in the set; 1.5 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds held in the set, at least 0; 1.5 when absent. */
     seconds?: number;
 
-    /** Optional drive from the gun to front-block exit, in seconds. Omitted ends the action at the gun. Exclusive minimum: 0. Unit: "s". */
+    /** The drive from the gun to the front block's exit, seconds, positive; the action ends at the gun when absent. */
     drive?: number;
 
     /** How it is performed. */

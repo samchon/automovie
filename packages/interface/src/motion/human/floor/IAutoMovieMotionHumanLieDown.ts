@@ -40,16 +40,12 @@ export namespace IAutoMovieMotionHumanLieDown {
    * @evidence contracts/development/design.md#principled-representation A closed position and a hold.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Three members read by `plan`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No angle is typed by the author.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The position; `supine` when absent. */
     position?: IAutoMovieMotionHumanLieDown.Position;
 
-    /** Seconds held lying; 2 when absent.
-     * Inclusive minimum: 0. Schema default: 2. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds held lying, at least 0; 2 when absent. */
     hold?: number;
 
     /** How it is performed. */

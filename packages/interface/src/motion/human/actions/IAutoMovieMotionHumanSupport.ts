@@ -56,8 +56,6 @@ export namespace IAutoMovieMotionHumanSupport {
    * @evidence contracts/development/design.md#principled-representation The stances in order.
    * @evidence contracts/development/design.md#minimal-and-owned-surface One member read by `plan`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No posture is typed.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /**

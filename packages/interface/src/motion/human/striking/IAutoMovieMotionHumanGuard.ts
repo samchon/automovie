@@ -42,8 +42,6 @@ export namespace IAutoMovieMotionHumanGuard {
    * @evidence contracts/development/design.md#principled-representation A duration in seconds (raised to the setting time when planning), a closed union of stances, and the interface's motion target to face.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The timing, stance, style and target the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** How long the guard is held, seconds; 1 when absent and never under the 0.6 s the stance takes to set (`guard.SET`). */

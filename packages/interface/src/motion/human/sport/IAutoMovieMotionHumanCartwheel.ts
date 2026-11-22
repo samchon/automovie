@@ -36,16 +36,12 @@ export namespace IAutoMovieMotionHumanCartwheel {
    * @evidence contracts/development/design.md#principled-representation The side, the seconds and the manner.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The side is a closed union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The side the body wheels to; `left` when absent. */
     to?: "left" | "right";
 
-    /** Seconds the cartwheel takes; `SECONDS` when absent (`cartwheel.SECONDS`, 1.6 s, provisional: no study of a cartwheel's duration was read).
-     * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds the cartwheel takes, positive; 1.6 s when absent (`cartwheel.SECONDS`, provisional: no study of a cartwheel's duration was read). */
     seconds?: number;
   }
 }

@@ -125,8 +125,6 @@ export namespace IAutoMovieMotionHumanArmPhrase {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation offset: The target's point moved in the performer's frame by shares of the arm's length; none when absent. from: A stroke's start, by the same shares from the target's point; the target's point when absent. swing: An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent.
    * @evidence contracts/development/design.md#principled-representation offset: The target's point moved in the performer's frame by shares of the arm's length; none when absent. from: A stroke's start, by the same shares from the target's point; the target's point when absent. swing: An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/armPhrase.ts (armPhrase.plan, context); everyday/armPhrase.ts (armPhrase.plan).

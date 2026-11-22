@@ -56,8 +56,6 @@ export namespace IAutoMovieMotionHumanUseTool {
    * @evidence contracts/development/design.md#principled-representation The work, the held tool, the work point, the hand and the count.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Six members read by `plan`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place or tool length is typed.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The work: hammering, sawing, stirring or driving a screw. */
@@ -72,9 +70,7 @@ export namespace IAutoMovieMotionHumanUseTool {
     /** The working hand; the hand that holds `prop` when absent, `right` if both or neither do. */
     hand?: AutoMovieHumanSide;
 
-    /** How many cycles; 4 when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many cycles, a whole number of at least 1; 4 when absent. */
     cycles?: number;
 
     /** How it is performed. */

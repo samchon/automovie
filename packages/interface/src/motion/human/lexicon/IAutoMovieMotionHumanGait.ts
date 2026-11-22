@@ -50,8 +50,6 @@ export namespace IAutoMovieMotionHumanGait {
   /**
    * What a styled gait leaves to the composition: the walk's destination, waypoints, arrival heading and elbows.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation What a styled gait leaves to the composition: the walk's destination, waypoints, arrival heading and elbows.
    * @evidence contracts/development/design.md#principled-representation Closed choices "pace", "stride", "armSwing" distinguish the admitted cases.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanGait.ts (HumanGait.doubleTime, context); lexicon/HumanGait.ts (HumanGait.sad, context); lexicon/HumanGait.ts (HumanGait.proud, context); lexicon/HumanGait.ts (HumanGait.drunk, context); lexicon/HumanGait.ts (mood, context); lexicon/HumanGait.ts (distance, context).

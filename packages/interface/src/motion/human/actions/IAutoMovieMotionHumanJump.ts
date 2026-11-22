@@ -75,8 +75,6 @@ export namespace IAutoMovieMotionHumanJump {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation to: The point to land on, world metres: its height is the landing surface's, the floor's 0, a box's top or a step's. on: The prop whose top is landed on, its subject id, so the feet bear on it; the floor when absent. apex: Apex height of the flight above take-off, metres; positive. Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
    * @evidence contracts/development/design.md#principled-representation to: The point to land on, world metres: its height is the landing surface's, the floor's 0, a box's top or a step's. on: The prop whose top is landed on, its subject id, so the feet bear on it; the floor when absent. apex: Apex height of the flight above take-off, metres; positive. Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/jump.ts (jump.plan, context); chain/HumanChainTravel.ts (HumanChainTravel.jump, params).
@@ -89,9 +87,7 @@ export namespace IAutoMovieMotionHumanJump {
     /** The prop whose top is landed on, its subject id, so the feet bear on it; the floor when absent. */
     on?: string;
 
-    /** Apex height of the flight above take-off, metres; positive; 0.06 hip heights plus a tenth of the jump's length when absent (`jump`, provisional). Gravity decides the flight time: the take-off speed is `sqrt(2 g apex)` and a level landing follows `sqrt(8 apex / g)` later, g 9.80665 m/s2: 0.36 s for a 1 m jump at the reference hip (apex 0.15 m). The push-off (0.3 s, `jump.PUSH`), the absorption (0.3 s, `jump.ABSORB`) and the rise to standing (0.45 s, `jump.RISE`) are provisional and scaled by `manner.pace`; the flight is not.
-     * Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Apex height of the flight above take-off, metres; positive; 0.06 hip heights plus a tenth of the jump's length when absent (`jump`, provisional). Gravity decides the flight time: the take-off speed is `sqrt(2 g apex)` and a level landing follows `sqrt(8 apex / g)` later, g 9.80665 m/s2: 0.36 s for a 1 m jump at the reference hip (apex 0.15 m). The push-off (0.3 s, `jump.PUSH`), the absorption (0.3 s, `jump.ABSORB`) and the rise to standing (0.45 s, `jump.RISE`) are provisional and scaled by `manner.pace`; the flight is not. */
     apex?: number;
 
     /**

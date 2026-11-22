@@ -76,9 +76,7 @@ export namespace IAutoMovieMotionHumanStuntFall {
   /**
    * Parameters: a stair fall or a high fall.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; planStuntFall owns the geometry refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the variants and the admission owners.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the variants.
    * @evidence contracts/development/design.md#principled-representation A closed discriminated union on kind.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The variants planStuntFall dispatches on.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Alternatives are separated by kind rather than optional fields.

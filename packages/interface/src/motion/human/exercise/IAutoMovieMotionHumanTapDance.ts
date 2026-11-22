@@ -43,9 +43,7 @@ export namespace IAutoMovieMotionHumanTapDance {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default, and the type states who checks it.
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default.
    * @evidence contracts/development/design.md#principled-representation The step, the tempo in beats per minute or a cue-track lock, a whole repeat count and the leading foot.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The members tapDance.plan reads; `lock` reuses the dance law's own type.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: every member applies to every step, and the tempo and count ranges remain for runtime admission.
@@ -54,14 +52,10 @@ export namespace IAutoMovieMotionHumanTapDance {
     /** The step. */
     step: Step;
 
-    /** Beats per minute; the dance law's `BPM` when absent.
-     * Exclusive minimum: 0. Unit: "beats/min". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Beats per minute, positive; the dance law's `BPM` when absent. */
     bpm?: number;
 
-    /** How many times the step is danced, the leading foot alternating; 1 when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many times the step is danced, a whole number of at least 1, the leading foot alternating; 1 when absent. */
     repeats?: number;
 
     /** The foot that leads the first repeat; `right` when absent. */

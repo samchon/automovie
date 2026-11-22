@@ -39,8 +39,6 @@ export namespace IAutoMovieMotionHumanKnockdown {
    * @evidence contracts/development/design.md#principled-representation The blow is the interface's motion-target union and the lying time seconds, checked non-negative when planning.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** Where the blow came from; a place ahead of the performer when absent. */

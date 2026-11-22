@@ -85,8 +85,6 @@ export namespace IAutoMovieMotionHumanPunch {
    * @evidence contracts/development/design.md#principled-representation Closed unions for the technique and the hand, the interface's motion target, the accuracy union and a feint share in (0, 1), checked when planning.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan, the defence's telegraph and the kickboxing rules read.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target and accuracy types.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The technique. */

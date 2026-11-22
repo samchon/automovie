@@ -38,16 +38,12 @@ export namespace IAutoMovieMotionHumanRoundOff {
    * @evidence contracts/development/design.md#principled-representation The leading hand and the seconds.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The hand is a closed union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The hand that goes down first; `left` when absent. */
     lead?: "left" | "right";
 
-    /** Seconds the round-off takes; `SECONDS` when absent (`roundOff.SECONDS`, 1.2 s, provisional: quicker than the cartwheel, the entry to a tumbling run).
-     * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds the round-off takes, positive; 1.2 s when absent (`roundOff.SECONDS`, provisional: quicker than the cartwheel, the entry to a tumbling run). */
     seconds?: number;
   }
 }

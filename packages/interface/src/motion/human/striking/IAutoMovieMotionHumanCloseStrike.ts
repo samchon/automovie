@@ -63,8 +63,6 @@ export namespace IAutoMovieMotionHumanCloseStrike {
    * @evidence contracts/development/design.md#principled-representation The technique, the target, the arm and a feint share in (0, 1).
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the close strike plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The close strike. It keeps the elite cross's timing: 0.310 s from launch to contact at elite skill (Cheraghi et al. 2014), 1.06 times at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}); no study of an elbow's or a headbutt's delivery time was located. GLORY rules ban elbows (`KickboxingRules`). */
@@ -76,9 +74,7 @@ export namespace IAutoMovieMotionHumanCloseStrike {
     /** The striking arm; rear when absent. A headbutt strikes with neither. */
     arm?: IAutoMovieMotionHumanCloseStrike.Arm;
 
-    /** A feint: the share of the delivery shown before returning, in (0, 1).
-     * Exclusive minimum: 0. Exclusive maximum: 1. Unit: dimensionless.
-     */
+    /** A feint: the share of the delivery shown before returning, in (0, 1). */
     feint?: number;
   }
 }

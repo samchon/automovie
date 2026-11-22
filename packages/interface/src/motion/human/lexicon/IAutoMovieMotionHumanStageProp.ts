@@ -39,8 +39,7 @@ export interface IAutoMovieMotionHumanStageProp {
   at?: IAutoMovieVector3;
 
   /**
-   * Staged time in seconds. Defaults to the beat's authored time.
-   * Exclusive minimum: 0. Unit: seconds.
+   * Staged time, seconds, positive; the beat's authored time when absent.
    */
   seconds?: number;
 }

@@ -45,8 +45,6 @@ export namespace IAutoMovieMotionHumanPerturb {
    * @evidence contracts/development/design.md#principled-representation The outcome as a closed union, `auto` leaving it to the impulse.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The one value the plan reads besides the forces.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The impulse is not a parameter: it is the performance's force input.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The outcome: decided by the impulse (`auto`), or fixed by the author and refused when the impulse cannot produce it; `auto` when absent. */

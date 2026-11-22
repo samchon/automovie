@@ -56,8 +56,6 @@ export namespace IAutoMovieMotionHumanDefend {
    * @evidence contracts/development/design.md#principled-representation A closed union of defence kinds, the strike as its anchor (checked when planning to strike this performer) and an optional forced outcome.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The three values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the outcome union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The defence. */

@@ -62,8 +62,6 @@ export namespace IAutoMovieMotionHumanCrawl {
    * @evidence contracts/development/design.md#principled-representation A kind, a cycle count and a manner.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Three members read by `plan`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No distance is typed.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /**
@@ -78,9 +76,7 @@ export namespace IAutoMovieMotionHumanCrawl {
     /** On what it crawls: `knees` (hands and knees), `bear` (hands and feet, the knees off the floor) or `inchworm` (the hands walked out to a plank, the feet in to the hands); `knees` when absent. */
     kind?: IAutoMovieMotionHumanCrawl.Kind;
 
-    /** How many crawl cycles; 3 when absent. A cycle takes 1.2 s at a 0.93 m hip (`crawl.CYCLE`, provisional), so 3 cycles are 3.6 s.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many crawl cycles, a whole number of at least 1; 3 when absent. A cycle takes 1.2 s at a 0.93 m hip (`crawl.CYCLE`, provisional), so 3 cycles are 3.6 s. */
     cycles?: number;
 
     /** How it is performed. */

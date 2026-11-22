@@ -30,16 +30,12 @@ export namespace IAutoMovieMotionHumanStep {
    * @evidence contracts/development/design.md#principled-representation A stance-local direction, a whole step count, metric travel, a signed world turn, and optional lead and guard choices.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The travel, stance and guard values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The direction in the stance's own frame. */
     direction: "forward" | "back" | "left" | "right";
 
-    /** How many steps; 1 when absent. Each step takes the body's step period, 0.35 s at the reference hip and shorter on a shorter leg (`step.PERIOD`, about three steps a second, provisional), so the phrase lasts about `steps` times that.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many steps, a whole number of at least 1; 1 when absent. Each step takes the body's step period, 0.35 s at the reference hip and shorter on a shorter leg (`step.PERIOD`, about three steps a second, provisional), so the phrase lasts about `steps` times that. */
     steps?: number;
 
     /**

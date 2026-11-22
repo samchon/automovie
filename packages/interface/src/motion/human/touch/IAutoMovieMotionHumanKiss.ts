@@ -51,8 +51,6 @@ export namespace IAutoMovieMotionHumanKiss {
    * @evidence contracts/development/design.md#principled-representation The partner and region as the target union's person case, the turn side as a closed union.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's regions.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The partner. */
@@ -94,7 +92,6 @@ export namespace IAutoMovieMotionHumanKiss {
 
     /** An individually presented hand may require a turn toward the staged skin point, degrees. */
     twist?: number;
-
 
     /** The heels' raise, degrees. */
     raise: number;

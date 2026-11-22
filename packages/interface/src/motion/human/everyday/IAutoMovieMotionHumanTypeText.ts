@@ -41,8 +41,6 @@ export namespace IAutoMovieMotionHumanTypeText {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation keyboard: The keyboard's prop subject: its `homeRow` affordance is the home row's middle and its `keys` the key field, the typist on its `+Z` side (`createKeyboard`'s contacts). text: The text, of keys the layout has (letters and spaces).
    * @evidence contracts/development/design.md#principled-representation keyboard: The keyboard's prop subject: its `homeRow` affordance is the home row's middle and its `keys` the key field, the typist on its `+Z` side (`createKeyboard`'s contacts). text: The text, of keys the layout has (letters and spaces).
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.typeText, params); everyday/typeText.ts (typeText.plan, context).

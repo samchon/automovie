@@ -50,8 +50,6 @@ export namespace IAutoMovieMotionHumanLegTouch {
    * @evidence contracts/development/design.md#principled-representation The place as the shared target union, the part as a closed union, the hold in seconds.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /**

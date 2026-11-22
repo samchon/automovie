@@ -120,9 +120,7 @@ export namespace IAutoMovieMotionHumanCrossing {
   /**
    * Parameters: one of the four crossing paths.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; planNamedCrossing owns the geometry and clearance refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the four variants and the admission owners.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the four variants.
    * @evidence contracts/development/design.md#principled-representation A closed discriminated union, so a variant cannot combine another's fields.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The variants the crossing planner dispatches on.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Alternatives are separated by kind rather than optional fields.

@@ -56,8 +56,6 @@ export namespace IAutoMovieMotionHumanRest {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation left: The left hand's place; `side` when absent. right: The right hand's place; `side` when absent. seconds: How long, seconds; 2 when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
    * @evidence contracts/development/design.md#principled-representation left: The left hand's place; `side` when absent. right: The right hand's place; `side` when absent. seconds: How long, seconds; 2 when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.rest, params); everyday/rest.ts (rest.plan, context).
@@ -70,9 +68,7 @@ export namespace IAutoMovieMotionHumanRest {
     /** The right hand's place; `side` when absent. */
     right?: IAutoMovieMotionHumanRest.Place;
 
-    /** How long, seconds; 2 when absent.
-     * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How long, seconds, positive; 2 when absent. */
     seconds?: number;
   }
 

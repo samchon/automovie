@@ -54,8 +54,6 @@ export namespace IAutoMovieMotionHumanSit {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation back: The seated back; `upright` when absent. seconds: Seconds to stay seated after `seated`; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. legs: How the legs rest once seated on a seat inside the band: `parallel`, both feet where they stood, or `crossed`, the left ankle lifted and set down across the right one over `CROSS` seconds after `seated`, which the time seated must cover. `parallel` when absent; ignored on a high seat.
    * @evidence contracts/development/design.md#principled-representation back: The seated back; `upright` when absent. seconds: Seconds to stay seated after `seated`; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. legs: How the legs rest once seated on a seat inside the band: `parallel`, both feet where they stood, or `crossed`, the left ankle lifted and set down across the right one over `CROSS` seconds after `seated`, which the time seated must cover. `parallel` when absent; ignored on a high seat.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.sit, params); everyday/sit.ts (sit.plan, context); everyday/sit.ts (sit.plan).
@@ -77,9 +75,7 @@ export namespace IAutoMovieMotionHumanSit {
     /** The seated back; `upright` when absent. */
     back?: "upright" | "lean" | "slump";
 
-    /** Seconds to stay seated after `seated`; 1 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds to stay seated after `seated`, at least 0; 1 when absent. */
     seconds?: number;
 
     /**

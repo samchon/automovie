@@ -43,8 +43,6 @@ export namespace IAutoMovieMotionHumanLook {
    * @evidence contracts/development/design.md#principled-representation The target is the shared motion target union, tracked every instant; the recruitment is HumanGaze's closed union; the cue is a closed union of the two sensory channels whose reaction times differ; the duration is seconds, and a non-positive one is refused at plan time.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the target and recruitment types are imported from their owners.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No field names a scene or body; the one invalid combination, an uncued target outside the attended field, depends on where the target is at the start and is refused at plan time.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** What to look at. */
@@ -56,9 +54,7 @@ export namespace IAutoMovieMotionHumanLook {
     /** What drew the look; an immediate, willed look when absent. */
     cue?: "seen" | "signal";
 
-    /** How long the action lasts, seconds; 0.6 s after `settled` when absent.
-     * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How long the action lasts, seconds, positive; 0.6 s after `settled` when absent. */
     seconds?: number;
   }
 }

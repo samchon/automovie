@@ -36,8 +36,6 @@ export namespace IAutoMovieMotionHumanReceive {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation hand: The receiver's taking hand; `right` when absent. giverHand: The giver's holding hand; `right` when absent. mass: The prop's mass, kilograms; 0.09 when absent.
    * @evidence contracts/development/design.md#principled-representation hand: The receiver's taking hand; `right` when absent. giverHand: The giver's holding hand; `right` when absent. mass: The prop's mass, kilograms; 0.09 when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainMutual.ts (HumanChainMutual.receive, params); handling/receive.ts (receive.plan, context).

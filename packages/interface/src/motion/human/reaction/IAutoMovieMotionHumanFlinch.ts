@@ -41,8 +41,6 @@ export namespace IAutoMovieMotionHumanFlinch {
    * @evidence contracts/development/design.md#principled-representation The threat is the existing target union; optional intensity and shared manner feed the original modifier admission rather than another reaction-specific parameter record.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Plan reads all three inputs: threat, optional top-level intensity and optional shared manner.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target union and shared manner contract without a performer-specific threat or replacement intensity rule.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** Where the threat comes from; a place ahead of the performer when absent. */

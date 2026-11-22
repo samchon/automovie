@@ -58,8 +58,6 @@ export namespace IAutoMovieMotionHumanForceResponse {
    * @evidence contracts/development/design.md#principled-representation The author's outcome and, for a throw, the thrower and the fulcrum region it turns over.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Three members; the outcome is the author's through `perturb`, and the pull is the force input, never a parameter.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A throw's fulcrum is named, not guessed from the bodies.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The thrower's subject id, for `thrown`. */

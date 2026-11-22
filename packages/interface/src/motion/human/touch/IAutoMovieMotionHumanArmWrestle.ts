@@ -45,8 +45,6 @@ export namespace IAutoMovieMotionHumanArmWrestle {
    * @evidence contracts/development/design.md#principled-representation The partner, the shared point on the table, the declared outcome and the struggle's length.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The outcome is declared, never drawn, so both roles agree without a shared draw.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The partner. */

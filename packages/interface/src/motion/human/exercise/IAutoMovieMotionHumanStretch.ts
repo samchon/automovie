@@ -45,8 +45,6 @@ export namespace IAutoMovieMotionHumanStretch {
    * @evidence contracts/development/design.md#principled-representation The pose, the side, the hold and the intensity.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The intensity is a closed union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The pose. */
@@ -55,9 +53,7 @@ export namespace IAutoMovieMotionHumanStretch {
     /** The side stretched or lifted; `right` when absent. */
     side?: "left" | "right";
 
-    /** Seconds held at the end of the range, after 1.5 s to enter and before 1.5 s to release; `HOLD` when absent (`stretch.HOLD`, 30 s, Bandy et al. 1997).
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds held at the end of the range, at least 0, after 1.5 s to enter and before 1.5 s to release; `HOLD` when absent (`stretch.HOLD`, 30 s, Bandy et al. 1997). */
     seconds?: number;
 
     /** How far into the joint's own range (`stretch.INTENSITY`): `mild` half of it, a gentle stretch; `moderate` deep, a working stretch or a held pose. `moderate` when absent. */

@@ -39,8 +39,6 @@ export namespace IAutoMovieMotionHumanWipe {
    * @evidence contracts/development/design.md#principled-representation The surface's centre, the hand and the count.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Four members read by `plan`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place is typed.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /**
@@ -58,9 +56,7 @@ export namespace IAutoMovieMotionHumanWipe {
     /** The hand; `right` when absent. */
     hand?: AutoMovieHumanSide;
 
-    /** How many circles; 3 when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many circles, a whole number of at least 1; 3 when absent. */
     cycles?: number;
 
     /** How it is performed. */

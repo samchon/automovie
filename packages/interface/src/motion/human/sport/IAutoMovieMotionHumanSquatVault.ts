@@ -36,8 +36,6 @@ export namespace IAutoMovieMotionHumanSquatVault {
    * @evidence contracts/development/design.md#principled-representation The box by its subject id and the landing's hold.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A subject id, resolved through the prop's own affordance.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The box vaulted over, its subject id; its `surface` is the top the hands are set on. */

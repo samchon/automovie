@@ -56,9 +56,7 @@ export namespace IAutoMovieMotionHumanSwordParry {
     /** The line closed when it answers no attack; `highOutside` when absent. */
     line?: IAutoMovieMotionHumanSwordParry.Opening;
 
-    /** Seconds the blades stay together after they meet: a beat leaves at once, a bind stays; as long as the stopped attack stays where it was met when absent, none for a drill.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds the blades stay together after they meet, at least 0: a beat leaves at once, a bind stays; as long as the stopped attack stays where it was met when absent, none for a drill. */
     hold?: number;
   }
 }

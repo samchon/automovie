@@ -22,9 +22,7 @@ export namespace IAutoMovieMotionHumanTrampoline {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and support refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default, and the type states who checks it.
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default.
    * @evidence contracts/development/design.md#principled-representation The trampoline by scene id, a whole bounce count, the apex as the feet's height above the bed in metres, and the apex shape.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The four members trampolineBounce.plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: every member applies to every bounce; an apex beyond the legs' push remains for the law's runtime refusal.
@@ -33,14 +31,10 @@ export namespace IAutoMovieMotionHumanTrampoline {
     /** The trampoline's scene id; the jumper stands on its bed as the action starts. */
     on: string;
 
-    /** How many bounces; 4 when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many bounces, a whole number of at least 1; 4 when absent. */
     bounces?: number;
 
-    /** The apex the bounces build toward, the feet's height above the bed, metres; 1 when absent. Refused beyond what the legs' push can sustain.
-     * Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** The apex the bounces build toward, the feet's height above the bed, metres, positive; 1 when absent. Refused beyond what the legs' push can sustain. */
     apex?: number;
 
     /** The shape held at each apex; `straight` when absent. */

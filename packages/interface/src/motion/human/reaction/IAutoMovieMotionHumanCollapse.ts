@@ -46,8 +46,6 @@ export namespace IAutoMovieMotionHumanCollapse {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and default.
    * @evidence contracts/development/design.md#principled-representation Seconds and closed unions; the law refuses a negative time.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `collapse.plan`.

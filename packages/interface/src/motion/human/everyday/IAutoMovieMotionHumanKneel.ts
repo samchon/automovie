@@ -43,8 +43,6 @@ export namespace IAutoMovieMotionHumanKneel {
    * @evidence contracts/development/design.md#principled-representation A closed kind, a side, a hold, whether to rise and an optional knee target.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Seven optional members, all read by `plan`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No angle is typed by the author; a knee place is a motion target the scene resolves.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /**
@@ -62,9 +60,7 @@ export namespace IAutoMovieMotionHumanKneel {
     /** The knee that goes down first; `right` when absent. */
     knee?: "left" | "right";
 
-    /** Seconds held kneeling; 1.5 when absent.
-     * Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds held kneeling; 1.5 when absent. */
     hold?: number;
 
     /** Whether the body rises again at the end; `true` when absent. */

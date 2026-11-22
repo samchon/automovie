@@ -30,8 +30,6 @@ export namespace IAutoMovieMotionHumanTravelLeaf {
   /**
    * Parameters of opening a door.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`. Exclusive minimum: 0.6. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. side: The hand; the right when absent.
    * @evidence contracts/development/design.md#principled-representation seconds: Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`. Exclusive minimum: 0.6. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. side: The hand; the right when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanTravelLeaf.ts (HumanTravelLeaf.openDoor, context); lexicon/HumanTravelLeaf.ts (HumanTravelLeaf.openDoor).
@@ -44,9 +42,7 @@ export namespace IAutoMovieMotionHumanTravelLeaf {
     /** The handle taken: one of the prop's points, such as a door's `pull` or `push`. */
     handle: string;
 
-    /** Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`.
-     * Exclusive minimum: 0.6. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds the hand holds the handle, from the start of the reach; more than the reach's 0.6 s (`HumanTravelLeaf.TAKE`). */
     seconds: number;
 
     /** The hand; the right when absent. */

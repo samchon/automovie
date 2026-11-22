@@ -27,9 +27,7 @@ export namespace IAutoMovieMotionHumanStreetDance {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default, and the type states who checks it.
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default.
    * @evidence contracts/development/design.md#principled-representation The groove, the tempo in beats per minute, the beat count, the hits in quarter beats from the first beat, the timing variation in seconds and the first sliding foot.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The members streetDance.plan reads; `lock` reuses the dance law's own type.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts One record rather than a union on `groove`: `hits` serves only the rock and `side` only the moonwalk, and the other groove leaves them unused.
@@ -38,22 +36,16 @@ export namespace IAutoMovieMotionHumanStreetDance {
     /** The groove. */
     groove: Groove;
 
-    /** Beats per minute; the dance law's `BPM` when absent.
-     * Exclusive minimum: 0. Unit: "beats/min". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Beats per minute, positive; the dance law's `BPM` when absent. */
     bpm?: number;
 
-    /** How many beats; 8 when absent, at the dance law's tempo (`dance.BPM`, 0.5 s a beat): 4 s plus one beat.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many beats, a whole number of at least 1; 8 when absent, at the dance law's tempo (`dance.BPM`, 0.5 s a beat): 4 s plus one beat. */
     beats?: number;
 
     /** The rock's popping hits, in quarter beats from the first beat; one on each beat's "and" when absent. */
     hits?: number[];
 
-    /** The most a member's timing strays from the beat, seconds, drawn per member from its seed; 0.02 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** The most a member's timing strays from the beat, seconds, at least 0, drawn per member from its seed; 0.02 when absent. */
     vary?: number;
 
     /** The moonwalk's first sliding foot; `right` when absent. */

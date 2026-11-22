@@ -58,9 +58,7 @@ export namespace IAutoMovieMotionHumanEdgeRescue {
   /**
    * Parameters: the scene, this performer's role and the partner.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; planEdgeRescue owns the load and margin refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the members and the admission owners.
+   * @evidence contracts/development/common.md#meaningful-documentation States the members.
    * @evidence contracts/development/design.md#principled-representation The shared scene with the role and the partner's subject.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The fields planEdgeRescue reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The partner's body is read from the performance.

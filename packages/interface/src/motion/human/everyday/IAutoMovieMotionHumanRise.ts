@@ -68,8 +68,6 @@ export namespace IAutoMovieMotionHumanRise {
   /**
    * Parameters; the rise starts from the seated entry.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation to: Where the body gets off a high seat: ahead of it, or to one side of a seat sat astride. When absent, the left of a seat the entry's base names as sat astride (the side horses and cycles are mounted from, a provisional convention) and ahead of any other. Read only where the feet are off the floor; a seat inside the band is risen from over the planted feet. manner: How it is performed: the manner's tempo stretches or shortens the rise, or the getting off; neutral when absent.
    * @evidence contracts/development/design.md#principled-representation to: Where the body gets off a high seat: ahead of it, or to one side of a seat sat astride. When absent, the left of a seat the entry's base names as sat astride (the side horses and cycles are mounted from, a provisional convention) and ahead of any other. Read only where the feet are off the floor; a seat inside the band is risen from over the planted feet. manner: How it is performed: the manner's tempo stretches or shortens the rise, or the getting off; neutral when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.rise, params); everyday/rise.ts (rise.plan, context); lexicon/HumanMountOff.ts (HumanMountOff.plan, context); lexicon/HumanMountOff.ts (HumanMountOff.plan).

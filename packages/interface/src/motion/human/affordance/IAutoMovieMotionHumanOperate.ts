@@ -72,8 +72,6 @@ export namespace IAutoMovieMotionHumanOperate {
    * @evidence contracts/development/design.md#principled-representation The mechanism, the hand and the manner.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Three members read by `plan`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place is typed by the author.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /**

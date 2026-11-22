@@ -32,8 +32,6 @@ export namespace IAutoMovieMotionHumanCarried {
   /**
    * Parameters of being carried.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation on: The carrier's bone the body goes with; the upper chest when absent. seconds: Seconds carried.
    * @evidence contracts/development/design.md#principled-representation on: The carrier's bone the body goes with; the upper chest when absent. seconds: Seconds carried.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarried.ts (HumanCarried.carried, context); lexicon/HumanCarried.ts (HumanCarried.carried).
@@ -168,14 +166,10 @@ export namespace IAutoMovieMotionHumanCarried {
     /** The carry; `piggyback` when absent. */
     carry?: IAutoMovieMotionHumanCarried.Carry;
 
-    /** Seconds carried, more than none; 2 when absent.
-     * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds carried, more than none; 2 when absent. */
     seconds?: number;
 
-    /** Kilograms the carried person carries besides their body (a pack, gear), which the carrier bears too; none when absent.
-     * Inclusive minimum: 0. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Kilograms the carried person carries besides their body (a pack, gear), at least 0, which the carrier bears too; none when absent. */
     mass?: number;
 
     /** A second helper's subject id, on the carry's other side (`HumanCarriedCoupling.PAIRED`: a supported walk between two helpers); none when absent. */
@@ -197,17 +191,13 @@ export namespace IAutoMovieMotionHumanCarried {
     /** The carried person's subject id: the hands then hold where the coupled carry puts that body (#3437); the carry's own places when absent. */
     of?: string;
 
-    /** Kilograms the carried person carries besides their body, as their `borne` states it; none when absent.
-     * Inclusive minimum: 0. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Kilograms the carried person carries besides their body, at least 0, as their `borne` states it; none when absent. */
     mass?: number;
 
     /** The other helper's subject id when two helpers carry one person (`HumanCarriedCoupling.PAIRED`): this one is the second when its carry is the other side's; none when absent. */
     beside?: string;
 
-    /** Seconds held, more than none; 2 when absent.
-     * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds held, more than none; 2 when absent. */
     seconds?: number;
   }
 }

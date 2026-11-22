@@ -38,8 +38,6 @@ export namespace IAutoMovieMotionHumanKickBall {
    * @evidence contracts/development/design.md#principled-representation The ball, the kicking foot and the direction.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The planner reads the two release components only for an explicitly launched ball.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The ball is the scene's prop; its size is its own.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The ball's prop subject: its `grip` contact is its centre and that grip's aperture its diameter (`createBall`'s contacts). */

@@ -26,21 +26,15 @@ export namespace IAutoMovieMotionHumanChiSau {
    * @evidence contracts/development/design.md#principled-representation The partner and two optional extents.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the chi sau plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns the partner refusal.
    */
   export interface IParams {
     /** The other performer, who performs chi sau naming this one. */
     partner: string;
 
-    /** Roll cycles; 4 when absent, each `chiSau.CYCLE` (1.2 s, provisional), so 4.8 s of rolling.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Roll cycles, a whole number of at least 1; 4 when absent, each `chiSau.CYCLE` (1.2 s, provisional), so 4.8 s of rolling. */
     cycles?: number;
 
-    /** The drill's seconds; the cycles at the provisional cycle length when absent.
-     * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** The drill's seconds, positive; the cycles at the provisional cycle length when absent. */
     seconds?: number;
   }
 }

@@ -31,8 +31,6 @@ export namespace IAutoMovieMotionHumanShift {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation by: Distance along the seat, metres; positive toward the performer's left. seconds: Seconds to stay seated after setting down; 0.5 when absent.
    * @evidence contracts/development/design.md#principled-representation by: Distance along the seat, metres; positive toward the performer's left. seconds: Seconds to stay seated after setting down; 0.5 when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.shift, params); everyday/shift.ts (shift.plan, context).

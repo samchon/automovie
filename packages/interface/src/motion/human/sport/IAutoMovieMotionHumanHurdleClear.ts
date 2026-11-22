@@ -28,8 +28,6 @@ export namespace IAutoMovieMotionHumanHurdleClear {
    * @evidence contracts/development/design.md#principled-representation The hurdle's scene id.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The one value the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The legs are the run's: the planted foot takes off and the other leads.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and approach refusals.
    */
   export interface IParams {
     /** Scene id of the hurdle; its `top` bar edge and `bar` depth decide the barrier. */

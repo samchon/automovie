@@ -43,8 +43,6 @@ export namespace IAutoMovieMotionHumanBallSport {
    * @evidence contracts/development/design.md#principled-representation The skill, hand, implied bounce count, release prop and aim, and optional volleyball contact.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The skill. */
@@ -53,9 +51,7 @@ export namespace IAutoMovieMotionHumanBallSport {
     /** Dribbling or throwing hand; `right` when absent. */
     side?: "left" | "right";
 
-    /** Dribble bounces; 4 when absent, at 2 bounces a second (`ballSport.BOUNCES`, provisional): a 2 s dribble.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Dribble bounces, a whole number of at least 1; 4 when absent, at 2 bounces a second (`ballSport.BOUNCES`, provisional): a 2 s dribble. */
     count?: number;
 
     /** How it is performed. */
@@ -68,8 +64,9 @@ export namespace IAutoMovieMotionHumanBallSport {
     at?: IAutoMovieVector3;
 
     /**
-     * Positive seconds from release through `at` for a chest pass, set shot, handball throw, or the first impact of a bounce pass.
-     * Exclusive minimum: 0. Unit: s. Each court skill has a provisional default.
+     * Seconds, positive, from the release to the ball passing `at` for a chest
+     * pass, a set shot or a handball throw, or to a bounce pass's first
+     * impact; each court skill's own provisional time when absent.
      */
     flightSeconds?: number;
 

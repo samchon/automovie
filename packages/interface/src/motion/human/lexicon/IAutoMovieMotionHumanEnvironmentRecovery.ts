@@ -100,9 +100,7 @@ export namespace IAutoMovieMotionHumanEnvironmentRecovery {
   /**
    * Parameters: a trip or a slip.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; planEnvironmentRecovery owns the cue and outcome refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the two variants and the admission owners.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two variants.
    * @evidence contracts/development/design.md#principled-representation A closed discriminated union on kind.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The two causes the law admits.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Alternatives are separated by kind rather than optional fields.

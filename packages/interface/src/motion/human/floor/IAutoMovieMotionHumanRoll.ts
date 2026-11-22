@@ -35,8 +35,6 @@ export namespace IAutoMovieMotionHumanRoll {
    * @evidence contracts/development/design.md#principled-representation The way the body turns.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The value the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** Which way the body turns; `forward` when absent. */

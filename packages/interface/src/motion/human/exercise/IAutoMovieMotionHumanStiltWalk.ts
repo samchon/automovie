@@ -29,9 +29,7 @@ export namespace IAutoMovieMotionHumanStiltWalk {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and support refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame, unit and default, and the type states who checks it.
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame, unit, range and default.
    * @evidence contracts/development/design.md#principled-representation The two stilts by scene id, the stop as a world floor point in metres and a whole step count.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The three members stiltWalk.plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: every member is used by every walk, and reach and support limits remain for the law's runtime refusals.
@@ -43,9 +41,7 @@ export namespace IAutoMovieMotionHumanStiltWalk {
     /** The floor point to stop at, world metres. */
     to: IAutoMovieVector3;
 
-    /** How many steps; the fewest short steps that reach `to` when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many steps, a whole number of at least 1; the fewest short steps that reach `to` when absent. */
     steps?: number;
   }
 }

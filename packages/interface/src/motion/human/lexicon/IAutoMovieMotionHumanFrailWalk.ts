@@ -29,7 +29,6 @@ export interface IAutoMovieMotionHumanFrailWalk {
    * Each feature runs linearly between the two ends (`HumanFrailWalk`):
    * 0 fits a healthy older adult, about 0.5 a tiring or unsteady one, 1 a
    * weak one who shuffles.
-   * Unit: "1". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
    */
   severity?: number;
 

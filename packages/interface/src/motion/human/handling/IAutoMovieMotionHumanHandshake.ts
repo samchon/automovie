@@ -78,8 +78,6 @@ export namespace IAutoMovieMotionHumanHandshake {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation hand: The shaking hand; `right` when absent. pumps: Pump cycles; 2 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
    * @evidence contracts/development/design.md#principled-representation hand: The shaking hand; `right` when absent. pumps: Pump cycles; 2 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/HumanMutual.ts (HumanMutual.handshake, params); chain/HumanChainMutual.ts (HumanChainMutual.handshake, params); handling/handshake.ts (handshake.plan, context); HumanChain.ts (HumanChain.pair, return); HumanChain.ts (HumanChain.pair, params); actions/HumanMutual.ts (HumanMutual.handshake).
@@ -92,9 +90,7 @@ export namespace IAutoMovieMotionHumanHandshake {
     /** The shaking hand; `right` when absent. */
     hand?: AutoMovieHumanSide;
 
-    /** Pump cycles; 2 when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Pump cycles, a whole number of at least 1; 2 when absent. */
     pumps?: number;
   }
 

@@ -55,8 +55,6 @@ export namespace IAutoMovieMotionHumanHandToFace {
    * @evidence contracts/development/design.md#principled-representation The task by name, the hand, the repetitions and the time at the face.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The row supplies every default.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The task: one of the table's by name, or a row of the production's own. */
@@ -70,9 +68,7 @@ export namespace IAutoMovieMotionHumanHandToFace {
     /** Repetitions at the face; the row's when absent. */
     count?: number;
 
-    /** Seconds at the face after the repetitions, or two bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds at the face after the repetitions, at least 0, or two such bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent. */
     seconds?:
       | number
       | {

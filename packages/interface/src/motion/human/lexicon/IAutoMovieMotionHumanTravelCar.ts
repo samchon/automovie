@@ -37,8 +37,6 @@ export namespace IAutoMovieMotionHumanTravelCar {
   /**
    * Parameters of getting in.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds of the sitting down; `sit`'s own when absent.
    * @evidence contracts/development/design.md#principled-representation seconds: Seconds of the sitting down; `sit`'s own when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanTravelCar.ts (HumanTravelCar.getIn, context); lexicon/HumanTravelCar.ts (HumanTravelCar.getIn).

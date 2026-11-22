@@ -39,8 +39,6 @@ export namespace IAutoMovieMotionHumanLineWalk {
    * @evidence contracts/development/design.md#principled-representation The line, the stopping point and an optional step count.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The step count is derived unless authored.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and support refusals.
    */
   export interface IParams {
     /** The line walked on. */
@@ -49,17 +47,13 @@ export namespace IAutoMovieMotionHumanLineWalk {
     /** Where along the line the walk stops, world metres; projected on the line. */
     to: IAutoMovieVector3;
 
-    /** How many steps; the fewest heel-to-toe steps that reach `to` when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many steps, a whole number of at least 1; the fewest heel-to-toe steps that reach `to` when absent. */
     steps?: number;
 
     /** A balancing pole held across the body in both hands at its `leftGrip` and `rightGrip`, the pole resting there as the walk starts; the arms held out when absent. */
     pole?: string;
 
-    /** How far a rope or wire sags at its middle under the walker, metres; the line's footprints follow the sag. Refused when the tension it needs exceeds the line's working load. Straight when absent.
-     * Inclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How far a rope or wire sags at its middle under the walker, metres, at least 0; the line's footprints follow the sag. Refused when the tension it needs exceeds the line's working load. Straight when absent. */
     sag?: number;
   }
 }

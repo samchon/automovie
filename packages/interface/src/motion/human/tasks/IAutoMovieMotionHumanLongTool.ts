@@ -57,9 +57,7 @@ export namespace IAutoMovieMotionHumanLongTool {
     /** The trailing hand, which holds the tool near its end; the hand that holds `prop` when absent. */
     hand?: AutoMovieHumanSide;
 
-    /** How many strokes; 3 when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless.
-     */
+    /** How many strokes, a whole number of at least 1; 3 when absent. */
     cycles?: number;
   }
 }

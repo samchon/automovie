@@ -35,8 +35,6 @@ export namespace IAutoMovieMotionHumanRacket {
    * @evidence contracts/development/design.md#principled-representation The position, the hand and the hold.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The position or stroke. */
@@ -45,9 +43,7 @@ export namespace IAutoMovieMotionHumanRacket {
     /** The racket or lead hand; `right` when absent. */
     side?: "left" | "right";
 
-    /** Seconds held for a solo position; 0.6 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds held for a solo position, at least 0; 0.6 when absent. */
     seconds?: number;
 
     /** The held racket subject during a ready position, split step or stroke. Omit to rehearse without a prop. */

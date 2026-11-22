@@ -46,21 +46,15 @@ export namespace IAutoMovieMotionHumanMartialArt {
    * @evidence contracts/development/design.md#principled-representation The named form, series count and hold with a lead override for stance phrases.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The named form or unpartnered screen reset. */
     kind: IAutoMovieMotionHumanMartialArt.Kind;
 
-    /** Punches of a choku-zuki series; 4 when absent. Each punch extends in 0.2 s and stays 0.2 s (`martialArt`).
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Punches of a choku-zuki series, a whole number of at least 1; 4 when absent. Each punch extends in 0.2 s and stays 0.2 s (`martialArt`). */
     count?: number;
 
-    /** Seconds the stance is held; 1 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds the stance is held, at least 0; 1 when absent. */
     seconds?: number;
 
     /** Leading foot of a linked stance phrase or reset. Left when absent. */

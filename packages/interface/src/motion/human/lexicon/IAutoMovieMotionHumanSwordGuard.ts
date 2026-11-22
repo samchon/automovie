@@ -37,8 +37,6 @@ export namespace IAutoMovieMotionHumanSwordGuard {
   /**
    * Parameters of a guard.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation guard: The guard; `middle` when absent. seconds: Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
    * @evidence contracts/development/design.md#principled-representation guard: The guard; `middle` when absent. seconds: Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSwordGuard.ts (HumanSwordGuard.guard, context); lexicon/HumanSwordGuard.ts (HumanSwordGuard.guard).
@@ -48,9 +46,7 @@ export namespace IAutoMovieMotionHumanSwordGuard {
     /** The guard; `middle` when absent. */
     guard?: IAutoMovieMotionHumanSwordGuard.Guard;
 
-    /** Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. */
     seconds?: number;
   }
 }

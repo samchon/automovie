@@ -30,8 +30,6 @@ export namespace IAutoMovieMotionHumanGive {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation from: Where the contact comes from; a place ahead of the performer when absent. part: What gives way; `head` when absent. way: Whether the part goes away from the contact (a slap, a push) or toward it (a pull); `away` when absent.
    * @evidence contracts/development/design.md#principled-representation from: Where the contact comes from; a place ahead of the performer when absent. part: What gives way; `head` when absent. way: Whether the part goes away from the contact (a slap, a push) or toward it (a pull); `away` when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: reaction/give.ts (give.plan, context); reaction/give.ts (give.turned, context); reaction/give.ts (give.plan).
@@ -47,9 +45,7 @@ export namespace IAutoMovieMotionHumanGive {
     /** Whether the part goes away from the contact (a slap, a push) or toward it (a pull); `away` when absent. */
     way?: "away" | "toward";
 
-    /** How strong, in (0, 1]; 1 when absent. It scales the size and not the time: at 1 the head turns 45 degrees with an 8 degree tilt, or the trunk shifts 3 % of the stature (`give.TURN`, `give.TILT`, `give.SHIFT`, provisional), peaking at 0.12 s, held 0.15 s and back by 0.6 s more (`give.RISE`, `give.RETURN`). 1 fits a slap; less fits a light push or a nudge.
-     * Exclusive minimum: 0. Inclusive maximum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How strong, in (0, 1]; 1 when absent. It scales the size and not the time: at 1 the head turns 45 degrees with an 8 degree tilt, or the trunk shifts 3 % of the stature (`give.TURN`, `give.TILT`, `give.SHIFT`, provisional), peaking at 0.12 s, held 0.15 s and back by 0.6 s more (`give.RISE`, `give.RETURN`). 1 fits a slap; less fits a light push or a nudge. */
     intensity?: number;
   }
 }

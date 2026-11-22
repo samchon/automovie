@@ -55,8 +55,6 @@ export namespace IAutoMovieMotionHumanCrouch {
    * @evidence contracts/development/design.md#principled-representation Two closed names and a hold; the knee flexion and the heel lift come from tables.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Four optional members, all read by `plan`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No height or angle is typed by the author.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /**
@@ -74,9 +72,7 @@ export namespace IAutoMovieMotionHumanCrouch {
     /** The heels; `flat` for a partial and `up` for a full squat when absent. */
     heels?: IAutoMovieMotionHumanCrouch.Heels;
 
-    /** Seconds held at the lowest pose; 1 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds held at the lowest pose, at least 0; 1 when absent. */
     hold?: number;
 
     /** How it is performed. */

@@ -24,8 +24,6 @@ export namespace IAutoMovieMotionHumanCarryHang {
    * @evidence contracts/development/design.md#principled-representation The props held in each hand and how long the carry lasts.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A hand with no prop is left to the walk.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The prop the left hand holds; that arm is left to the walk when absent. */

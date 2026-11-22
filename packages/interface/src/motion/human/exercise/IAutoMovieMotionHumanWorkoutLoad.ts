@@ -54,8 +54,6 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
   /**
    * The load's parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation hand: The hand that holds it; `right` when absent. other: The prop's affordance the other hand takes (a bar's second handle); one hand holds when absent. handle: The prop's affordance the holding hand took, which with `other` gives the bar's own line; the line from the hand's grip to `other` when absent, which leaves a bar a few degrees out of level by the palm's depth.
    * @evidence contracts/development/design.md#principled-representation hand: The hand that holds it; `right` when absent. other: The prop's affordance the other hand takes (a bar's second handle); one hand holds when absent. handle: The prop's affordance the holding hand took, which with `other` gives the bar's own line; the line from the hand's grip to `other` when absent, which leaves a bar a few degrees out of level by the palm's depth.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/WorkoutLoad.ts (WorkoutLoad.of, load).
@@ -100,9 +98,11 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
      */
-    apply(posture: IAutoMovieMotionHumanPosture,
+    apply(
+      posture: IAutoMovieMotionHumanPosture,
       resolution?: IAutoMoviePoseResolution.ISource,
-      projection?: (pose: IAutoMoviePose) => IAutoMoviePose): IAutoMovieMotionHumanPosture;
+      projection?: (pose: IAutoMoviePose) => IAutoMoviePose,
+    ): IAutoMovieMotionHumanPosture;
 
     /**
      * Check the support grip in the resolved posture of a two-handed phase.

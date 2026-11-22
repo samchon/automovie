@@ -50,8 +50,6 @@ export namespace IAutoMovieMotionHumanKnee {
    * @evidence contracts/development/design.md#principled-representation The interface's motion target and a closed union of legs.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the plan and the kickboxing rules read.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** What it strikes. */

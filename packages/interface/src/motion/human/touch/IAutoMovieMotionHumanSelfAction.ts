@@ -44,8 +44,6 @@ export namespace IAutoMovieMotionHumanSelfAction {
    * @evidence contracts/development/design.md#principled-representation The action by name, the hand of a one-arm action and the repetitions.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed kind union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The action. */

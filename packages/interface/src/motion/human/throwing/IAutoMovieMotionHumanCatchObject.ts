@@ -47,8 +47,6 @@ export namespace IAutoMovieMotionHumanCatchObject {
    * @evidence contracts/development/design.md#principled-representation The source anchor, prop and hand configuration identify the catch.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Ordinary and staged catch share the same hand options.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The referenced throw and ball supply the ordinary approach.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The anchor of the throw caught. */
@@ -77,8 +75,10 @@ export namespace IAutoMovieMotionHumanCatchObject {
    */
   export interface IStageParams extends IParams {
     /**
-     * Seconds after the anchored prop release at which `stageCatch` reads the realized interception. Absent, use the ordinary throw's approach.
-     * Exclusive minimum: 0. Unit: s. `stageCatch` admits this only inside the source action's surviving window.
+     * Seconds, positive, after the anchored prop's release at which
+     * `stageCatch` reads the realized interception; `stageCatch` admits it
+     * only inside the source action's surviving window. The ordinary
+     * throw's approach when absent.
      */
     intercept?: number;
   }

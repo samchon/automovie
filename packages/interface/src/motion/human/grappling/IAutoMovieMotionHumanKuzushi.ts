@@ -31,8 +31,6 @@ export namespace IAutoMovieMotionHumanKuzushi {
    * @evidence contracts/development/design.md#principled-representation The tip's size and how long it is held.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The partner is named for the composition's mutual join; the tip itself reads only the body.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The partner who breaks the base, for the mutual join; unread by the tip. */

@@ -40,13 +40,9 @@ export namespace IAutoMovieMotionHumanGymnastics {
    * @evidence contracts/development/design.md#principled-representation The hold.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
-    /** Seconds held inverted; 2 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds held inverted, at least 0; 2 when absent. */
     seconds?: number;
 
     /** How it is performed. */

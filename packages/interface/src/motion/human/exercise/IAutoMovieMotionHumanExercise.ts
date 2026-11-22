@@ -52,8 +52,6 @@ export namespace IAutoMovieMotionHumanExercise {
    * @evidence contracts/development/design.md#principled-representation The exercise, the count, the depth, the tempo and the lead side.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The tempo is three seconds, as the issue's sketch writes it.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /**
@@ -68,9 +66,7 @@ export namespace IAutoMovieMotionHumanExercise {
     /** The exercise. */
     kind: IAutoMovieMotionHumanExercise.Kind;
 
-    /** Whole-number repetitions, at least one; 3 when absent. A repetition takes the `tempo` seconds plus 0.3 s at the top (`exercise`): 3.3 s at the default tempo, so 3 repetitions take 9.9 s.
-     * Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Whole-number repetitions, at least one; 3 when absent. A repetition takes the `tempo` seconds plus 0.3 s at the top (`exercise`): 3.3 s at the default tempo, so 3 repetitions take 9.9 s. */
     reps?: number;
 
     /** A squat's depth; `parallel` when absent. */

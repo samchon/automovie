@@ -57,8 +57,6 @@ export namespace IAutoMovieMotionHumanBend {
    * @evidence contracts/development/design.md#principled-representation The target is the shared motion target union, read once at the start; the hand is the shared hand side; the hold is seconds, and a negative hold is refused at plan time, the one invalid value the type does not rule out.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the target and hand types are imported from their owners.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No field names a scene or body, and every combination of fields is meaningful.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /**
@@ -79,9 +77,7 @@ export namespace IAutoMovieMotionHumanBend {
     /** How the body lowers; `auto` when absent. */
     strategy?: IAutoMovieMotionHumanBend.Strategy;
 
-    /** Seconds the hand stays at the target; 0.5 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds the hand stays at the target, at least 0; 0.5 when absent. */
     hold?: number;
   }
 

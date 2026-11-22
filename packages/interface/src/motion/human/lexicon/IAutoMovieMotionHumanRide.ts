@@ -34,8 +34,6 @@ export namespace IAutoMovieMotionHumanRide {
   /**
    * Parameters of a ride.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds ridden, more than none. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. rising: A rising trot: the mount's stride time, seconds, or the cue track of the performance that holds its strides (the footfalls of one diagonal, as the mount's own ride publishes them). The rider stands in the stirrups and sits again once a stride, the seat rising `POST` thigh lengths off the saddle, so both feet must rest on the support. On a cue track the seat is down at each of its instants and seated before the first and after the last. Seated throughout when absent. seat: The support's point the seat stays on, by its id, where the seat itself moves within the support: a saddle on a horse's trunk, which rises and falls with the stride over the course its root follows. The body is carried with the support alone when absent.
    * @evidence contracts/development/design.md#principled-representation seconds: Seconds ridden, more than none. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. rising: A rising trot: the mount's stride time, seconds, or the cue track of the performance that holds its strides (the footfalls of one diagonal, as the mount's own ride publishes them). The rider stands in the stirrups and sits again once a stride, the seat rising `POST` thigh lengths off the saddle, so both feet must rest on the support. On a cue track the seat is down at each of its instants and seated before the first and after the last. Seated throughout when absent. seat: The support's point the seat stays on, by its id, where the seat itself moves within the support: a saddle on a horse's trunk, which rises and falls with the stride over the course its root follows. The body is carried with the support alone when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanRide.ts (HumanRide.ride, context); lexicon/HumanRide.ts (HumanRide.ride).
@@ -45,22 +43,20 @@ export namespace IAutoMovieMotionHumanRide {
     /** The moving prop ridden: its subject id in the performance. */
     on: string;
 
-    /** Seconds ridden, more than none.
-     * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds ridden, more than none. */
     seconds: number;
 
     /**
-     * A rising trot: the mount's stride time, seconds, or the cue track of
-     * the performance that holds its strides (the footfalls of one
-     * diagonal, as the mount's own ride publishes them). The rider stands
-     * in the stirrups and sits again once a stride, the seat rising `POST`
-     * thigh lengths (`HumanRide.POST`, 0.25, provisional) off the saddle; a trot's stride time is on {@link IAutoMovieMotionHumanMounted.stride}, so both feet must rest on the support.
-     * On a cue track the seat is down at each of its instants and seated
-     * before the first and after the last. Seated throughout when absent.
-     
- * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- */
+     * A rising trot: the mount's stride time, seconds, positive, or the cue
+     * track of the performance that holds its strides (the footfalls of one
+     * diagonal, as the mount's own ride publishes them; a trot's stride time
+     * is on `IAutoMovieMotionHumanMounted.stride`). The rider stands in the
+     * stirrups and sits again once a stride, the seat rising `POST` thigh
+     * lengths (`HumanRide.POST`, 0.25, provisional) off the saddle, so both
+     * feet must rest on the support. On a cue track the seat is down at each
+     * of its instants and seated before the first and after the last. Seated
+     * throughout when absent.
+     */
     rising?:
       | number
       | {

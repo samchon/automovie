@@ -34,8 +34,6 @@ export namespace IAutoMovieMotionHumanRelease {
    * @evidence contracts/development/design.md#principled-representation The hand, the held prop and a launcher's own launch.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Three members read by `plan`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The launch speed is the launcher's, given by the row that knows it.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The opening hand; `right` when absent. */

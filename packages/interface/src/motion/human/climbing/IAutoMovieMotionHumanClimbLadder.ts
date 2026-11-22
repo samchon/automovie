@@ -50,16 +50,12 @@ export namespace IAutoMovieMotionHumanClimbLadder {
    * @evidence contracts/development/design.md#principled-representation The ladder as the scene's prop, and how far to climb.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Three members read by `plan`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No hold is typed.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The ladder's prop subject: a fixture whose rungs are its `rung1` upward. */
     ladder: string;
 
-    /** How many rungs the feet climb; 3 when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many rungs the feet climb, a whole number of at least 1; 3 when absent. */
     rungs?: number;
 
     /** The upper surface the route joins to the floor; the climb ends on the rungs when absent. */

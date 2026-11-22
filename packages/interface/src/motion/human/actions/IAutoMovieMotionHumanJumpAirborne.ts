@@ -19,14 +19,10 @@ export namespace IAutoMovieMotionHumanJumpAirborne {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The way is a closed union.
    */
   export interface IRotation {
-    /** Somersault turns, whole or half; 0 when absent.
-     * Inclusive minimum: 0. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Somersault turns, whole or half, at least 0; 0 when absent. */
     somersault?: number;
 
-    /** Twist turns, signed; 0 when absent.
-     * Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Twist turns, signed; 0 when absent. */
     twist?: number;
 
     /** Which way the somersault turns; `forward` when absent. */

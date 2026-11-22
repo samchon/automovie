@@ -47,9 +47,7 @@ export namespace IAutoMovieMotionHumanSkydive {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; planSkydive owns the altitude refusal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member, unit and default, and the admission owners.
+   * @evidence contracts/development/common.md#meaningful-documentation States each member, unit and default.
    * @evidence contracts/development/design.md#principled-representation The exit's prop and edge, the deployment altitude in metres, the freefall's track speed and turn rate, the toggles and the landing.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The fields planSkydive reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The exit height and the landing ground come from the scene.

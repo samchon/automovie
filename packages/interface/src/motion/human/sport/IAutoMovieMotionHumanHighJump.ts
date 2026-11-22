@@ -62,8 +62,6 @@ export namespace IAutoMovieMotionHumanHighJump {
    * @evidence contracts/development/design.md#principled-representation The landing place, its support, the high jump's crossbar and the authored centre-of-mass rise above its axis.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The surface is a prop's subject id, as the jump's.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** Where the body comes down on its back, world metres: its height is the landing surface's, the floor's 0 or a mat's top. */

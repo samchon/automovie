@@ -36,8 +36,6 @@ export namespace IAutoMovieMotionHumanFieldThrow {
    * @evidence contracts/development/design.md#principled-representation The event, two scene ids and a distance in metres.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The distance is the outcome; the law refuses one the event cannot reach.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach, foul and speed refusals.
    */
   export interface IParams {
     /** The throw. */
@@ -49,9 +47,7 @@ export namespace IAutoMovieMotionHumanFieldThrow {
     /** Scene id of the throwing circle or the javelin runway (`createThrowingCircle`). */
     area: string;
 
-    /** The recorded result, metres from the circle's inside edge or the arc to the landing mark.
-     * Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** The recorded result, metres, positive, from the circle's inside edge or the arc to the landing mark. */
     distance: number;
   }
 }
