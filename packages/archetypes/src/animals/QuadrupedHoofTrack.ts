@@ -384,26 +384,16 @@ export namespace QuadrupedHoofTrack {
           -Math.abs(support.travel) / 2,
           Math.min(Math.abs(support.travel) / 2, (under ?? rest.z) - rest.z),
         );
-      if (to === undefined)
-        return {
-          z:
-            centre(from) +
-            from.travel / 2 -
-            (state.progress - from.landed.progress),
-        };
-      // The ground path and the body path, blended as a world-anchored swing's (`QuadrupedSwingChord.blend`): at rest at both ends.
-      const lifting: number =
-        from.landed.progress + centre(from) + from.travel / 2;
-      const landing: number = to.landed.progress + centre(to) + to.travel / 2;
       return {
-        z: QuadrupedSwingChord.blend(
-          lifting + (landing - lifting) * amount - state.progress,
-          centre(from) -
-            from.travel / 2 +
-            (centre(to) + to.travel / 2 - centre(from) + from.travel / 2) *
-              amount,
-          amount,
-        ),
+        z:
+          to === undefined
+            ? centre(from) +
+              from.travel / 2 -
+              (state.progress - from.landed.progress)
+            : centre(from) -
+              from.travel / 2 +
+              (centre(to) + to.travel / 2 - centre(from) + from.travel / 2) *
+                amount,
       };
     }
     const placed = (stance: IStance): IAutoMovieVector3 => {
