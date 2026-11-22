@@ -10,7 +10,6 @@ import type {
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanHeldWork,
   IAutoMovieMotionPropDrive,
-  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -28,10 +27,12 @@ import { poseBones } from "../posture/poseBones";
  * articulations moves, in the hand's own frame, by the articulation's
  * travel: turned about a hinge's axis through its pivot, or slid along a
  * slider's `+X`. The digit's pad starts where the entry pose has it, in its
- * grip on the contact, and moves by the contact's displacement since the
- * work began, so it keeps that grip with no jump as the work starts. The goal is written in that frame
- * (`IAutoMovieHumanDigitGoal.on`), so it holds whatever the arm does, and
- * the digit's pad bears on it.
+ * grip on the contact, and rides the contact rigidly from there, so it
+ * keeps that grip with no jump as the work starts. A ring or a stick fixes
+ * where the pad bears, not how it faces, so the goal is a place alone and
+ * the digit faces as its own joints carry it there. The goal is written in
+ * that frame (`IAutoMovieHumanDigitGoal.on`), so it holds whatever the arm
+ * does.
  *
  * @param context The action's context.
  * @param held The held prop.
@@ -89,29 +90,40 @@ export function heldDigits(
         fix: "name a contact riding the driven hinge or slider",
       });
     const digit: AutoMovieHumanDigit = DIGITS[held.side][d.by.digit];
-    // The pad's place and facing in the hand's frame as the work begins.
+    // The pad's place in the hand's frame as the work begins.
     const surface: IAutoMovieMotionHumanHand.IFrame = HumanHand.frame(
       context.body,
       bones,
       held.side,
       PADS[d.by.digit],
     );
-    const unturn: IAutoMovieQuaternion = Quaternion.inverse(hand.worldRotation);
     const pad: IAutoMovieVector3 = Quaternion.rotateVector(
-      unturn,
+      Quaternion.inverse(hand.worldRotation),
       Vector3.subtract(surface.point, hand.worldPosition),
     );
-    const normal: IAutoMovieVector3 = Quaternion.rotateVector(
-      unturn,
-      surface.normal,
+    // The joint's pivot and its axis (a turn's `+Y`, a slide's `+X`) in the
+    // hand's frame, from the hand bone's origin as the pad is.
+    const pivot: IAutoMovieVector3 = Vector3.add(
+      Vector3.add(
+        HumanHand.offset(context.body, held.side, "grip").point,
+        held.frame.position,
+      ),
+      Quaternion.rotateVector(held.frame.rotation, joint.frame.translation),
+    );
+    const turning: boolean = joint.kind === "hinge";
+    const axis: IAutoMovieVector3 = Vector3.normalize(
+      Quaternion.rotateVector(
+        Quaternion.multiply(held.frame.rotation, joint.frame.rotation),
+        turning ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 },
+      ),
     );
     worked.push({
       digit,
-      joint,
-      site,
       drive: drives[k]!,
       pad,
-      normal,
+      pivot,
+      axis,
+      turning,
       start: drives[k]!.travel(0),
     });
   });
@@ -122,20 +134,19 @@ export function heldDigits(
       Record<AutoMovieHumanDigit, IAutoMovieHumanDigitGoal>
     > = {};
     for (const w of worked) {
-      // The pad keeps its grip in the contact: it starts where it is and
-      // moves by the contact's displacement since the work began.
-      const moved: IAutoMovieVector3 = Vector3.subtract(
-        heldDigits.posed(w.joint, w.site, w.drive.travel(seconds)),
-        heldDigits.posed(w.joint, w.site, w.start),
-      );
+      // The pad rides the contact rigidly from where it is as the work
+      // begins: turned about the hinge with it, or slid with it.
+      const travel: number = w.drive.travel(seconds) - w.start;
       goals[w.digit] = {
-        point: Vector3.add(
-          w.pad,
-          Quaternion.rotateVector(held.frame.rotation, moved),
-        ),
-        // The contact faces the pad as the pad faced it, so the digit keeps
-        // its configuration: the touched surface's normal opposes the pad's.
-        normal: Vector3.scale(w.normal, -1),
+        point: w.turning
+          ? Vector3.add(
+              w.pivot,
+              Quaternion.rotateVector(
+                Quaternion.fromAxisAngle(w.axis, travel),
+                Vector3.subtract(w.pad, w.pivot),
+              ),
+            )
+          : Vector3.add(w.pad, Vector3.scale(w.axis, travel)),
         surface: "pad",
         on: `${held.side}Hand`,
         contact: true,
@@ -233,20 +244,20 @@ interface IWorked {
   /** The digit. */
   digit: AutoMovieHumanDigit;
 
-  /** The driven articulation. */
-  joint: IAutoMovieAffordance;
-
-  /** The contact the digit stays on. */
-  site: IAutoMovieAffordance;
-
   /** The planned drive of the articulation. */
   drive: IAutoMovieMotionPropDrive;
 
   /** The digit's pad in the hand's frame as the work begins. */
   pad: IAutoMovieVector3;
 
-  /** The pad's outward facing in the hand's frame as the work begins. */
-  normal: IAutoMovieVector3;
+  /** The articulation's pivot in the hand's frame, metres. */
+  pivot: IAutoMovieVector3;
+
+  /** The unit axis a hinge turns about, or a slider slides along, in the hand's frame. */
+  axis: IAutoMovieVector3;
+
+  /** Whether the articulation turns (a hinge) rather than slides. */
+  turning: boolean;
 
   /** The articulation's travel as the work begins. */
   start: number;
