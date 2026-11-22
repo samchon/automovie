@@ -12,7 +12,6 @@ export type { IAutoMovieBicubicAtlasTessellation64 } from "./IAutoMovieBicubicAt
 export type { IAutoMovieBicubicAtlasVertex64 } from "./IAutoMovieBicubicAtlasVertex64";
 export type { IAutoMovieCanonicalBoundary64 } from "./IAutoMovieCanonicalBoundary64";
 export type { IAutoMovieCanonicalBoundaryPhase64 } from "./IAutoMovieCanonicalBoundaryPhase64";
-export type { IAutoMovieClampedTailField64 } from "./IAutoMovieClampedTailField64";
 export type { IAutoMovieContourLoft64 } from "./IAutoMovieContourLoft64";
 export type { IAutoMovieContourLoftCurves64 } from "./IAutoMovieContourLoftCurves64";
 export type { IAutoMovieContourLoftEmission64 } from "./IAutoMovieContourLoftEmission64";

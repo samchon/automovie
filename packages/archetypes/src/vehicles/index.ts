@@ -23,7 +23,6 @@ export * from "./rideMotorcycle";
 export * from "./rideWheelchair";
 export * from "./wheelchairHandrimFrame";
 export * from "./rowBoat";
-export * from "./prepareTowedCartDriver";
 export * from "./createCanoe";
 export * from "./createCarriage";
 export * from "./createChariot";
