@@ -5,10 +5,12 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanWalkFoot,
   IAutoMovieMotionHumanWalkGait,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { walkFoot } from "./walkFoot";
+import { walkSteps } from "./walkSteps";
 
 /** Swing endpoints in action seconds. */
 type Swing = Pick<NonNullable<IAutoMovieMotionHumanWalkFoot.IScheduled["swing"]>, "off" | "on">;
@@ -46,7 +48,7 @@ interface IArrival {
  */
 export function walkSwing(
   body: IAutoMovieMotionHumanBody,
-  gait: Pick<IAutoMovieMotionHumanWalkGait, "lift" | "stiff" | "swing" | "toeClearance">,
+  gait: Pick<IAutoMovieMotionHumanWalkGait, "lift" | "stiff" | "swing" | "toeClearance" | "width">,
   at: (side: "left" | "right", seconds: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => walkFoot.IEnd,
   closing: (side: "left" | "right", on: number) => boolean = (): boolean => false,
 ): (
@@ -64,6 +66,14 @@ export function walkSwing(
     if (retained?.on === swing.on) return retained.read;
     const from: walkFoot.IEnd = at(side, swing.off, resolution);
     const before: walkFoot.IEnd = at(side, swing.off - TICK, resolution);
+    const to: walkFoot.IEnd = at(side, swing.on, resolution);
+    const bow: IAutoMovieVector3 | undefined = passing(
+      side,
+      (gait.width ?? walkSteps.WIDTH) * body.measure.hipHeight,
+      from.ankle,
+      to.ankle,
+      at(side === "left" ? "right" : "left", (swing.off + swing.on) / 2, resolution),
+    );
     const read: ReadSwing = walkFoot.prepareSwing(body, side, {
       from,
       velocity: Vector3.scale(
@@ -76,7 +86,8 @@ export function walkSwing(
           TICK,
         toes: (from.toes - before.toes) / TICK,
       },
-      to: at(side, swing.on, resolution),
+      to,
+      ...(bow === undefined ? {} : { bow }),
       seconds: swing.on - swing.off,
       lift: gait.lift,
       ...(gait.toeClearance === undefined ? {} : { clearance: gait.toeClearance }),
@@ -89,6 +100,54 @@ export function walkSwing(
     readers[side].set(swing.off, { on: swing.on, read });
     return read;
   };
+}
+
+/**
+ * How far a swing bows out from the stance foot it passes: on a curve the
+ * straight chord between a foot's footprints cuts in toward the other foot,
+ * so where it passes the stance foot it is brought out to the nearer of the
+ * two widths the footprints themselves stood beside it at, and to no less
+ * than the gait's step width, which a tight curve's footprints may close
+ * below. A straight walk's chord keeps its width and does not bow.
+ *
+ * @param side The swinging foot.
+ * @param width The gait's step width, metres.
+ * @param from Its departing ankle, world metres.
+ * @param to Its landing ankle, world metres.
+ * @param stance The other foot's stance as the swing passes it.
+ * @returns The bow's amplitude on the swing's raised-cosine profile, horizontal world metres, or undefined when the chord keeps its width or never passes the stance foot.
+ */
+function passing(
+  side: "left" | "right",
+  width: number,
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+  stance: walkFoot.IEnd,
+): IAutoMovieVector3 | undefined {
+  const heading: number = HumanFoot.heading(stance.rotation);
+  const r: number = (heading * Math.PI) / 180;
+  const forward: IAutoMovieVector3 = { x: Math.sin(r), y: 0, z: Math.cos(r) };
+  // The swinging foot's own side of the stance foot.
+  const sign: number = side === "left" ? 1 : -1;
+  const out: IAutoMovieVector3 = { x: sign * Math.cos(r), y: 0, z: -sign * Math.sin(r) };
+  const along: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
+    (p.x - stance.ankle.x) * forward.x + (p.z - stance.ankle.z) * forward.z;
+  const aside: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
+    (p.x - stance.ankle.x) * out.x + (p.z - stance.ankle.z) * out.z;
+  const a0: number = along(from);
+  const a1: number = along(to);
+  if (!(a0 < 0 && a1 > 0)) return undefined;
+  const u: number = -a0 / (a1 - a0);
+  const d0: number = aside(from);
+  const d1: number = aside(to);
+  const short: number =
+    Math.max(Math.min(d0, d1), width) - (d0 + (d1 - d0) * u);
+  if (!(short > 0)) return undefined;
+  // The swing lays the bow on its lift's raised-cosine profile over the
+  // chord's progress (`walkFoot.prepareSwing`), so it is scaled to reach the
+  // shortfall at the passing point, kept off the chord's ends.
+  const at: number = Math.min(0.75, Math.max(0.25, u));
+  return Vector3.scale(out, short / Math.sin(Math.PI * at) ** 2);
 }
 
 /** Seconds before toe-off over which a stance's departure rates are read: a backward difference over a millisecond, far under a stance's tenths of a second, whose endpoints are settled to the reach owner's nanometre root tolerance. */
