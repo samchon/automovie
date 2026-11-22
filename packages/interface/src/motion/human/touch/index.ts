@@ -8,3 +8,6 @@ export type { IAutoMovieMotionHumanSelfAction } from "./IAutoMovieMotionHumanSel
 export type { IAutoMovieMotionHumanTouch } from "./IAutoMovieMotionHumanTouch";
 export type { IAutoMovieMotionHumanTouchEffectors } from "./IAutoMovieMotionHumanTouchEffectors";
 export type { IAutoMovieMotionHumanTouchSite } from "./IAutoMovieMotionHumanTouchSite";
+export type { IAutoMovieMotionHumanEmbraceFromBehind } from "./IAutoMovieMotionHumanEmbraceFromBehind";
+export type { IAutoMovieMotionHumanBackToBack } from "./IAutoMovieMotionHumanBackToBack";
+export type { IAutoMovieMotionHumanSitOnLap } from "./IAutoMovieMotionHumanSitOnLap";

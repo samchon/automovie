@@ -7,3 +7,5 @@ export type { IAutoMovieMotionHumanLogRoll } from "./IAutoMovieMotionHumanLogRol
 export type { IAutoMovieMotionHumanTurnOver } from "./IAutoMovieMotionHumanTurnOver";
 export type { IAutoMovieMotionHumanRoll } from "./IAutoMovieMotionHumanRoll";
 export type { IAutoMovieMotionHumanCrabWalk } from "./IAutoMovieMotionHumanCrabWalk";
+export type { IAutoMovieMotionHumanLieTogether } from "./IAutoMovieMotionHumanLieTogether";
+export type { IAutoMovieMotionHumanPullCover } from "./IAutoMovieMotionHumanPullCover";

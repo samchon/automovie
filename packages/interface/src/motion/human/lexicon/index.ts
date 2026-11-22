@@ -116,3 +116,6 @@ export type { IAutoMovieMotionHumanAidWalk } from "./IAutoMovieMotionHumanAidWal
 export type { IAutoMovieMotionHumanFrailWalk } from "./IAutoMovieMotionHumanFrailWalk";
 export type { IAutoMovieMotionHumanCrutchWalk } from "./IAutoMovieMotionHumanCrutchWalk";
 export type { IAutoMovieMotionHumanAssistedTransfer } from "./IAutoMovieMotionHumanAssistedTransfer";
+export type { IAutoMovieMotionHumanCrutchSit } from "./IAutoMovieMotionHumanCrutchSit";
+export type { IAutoMovieMotionHumanCrutchStairs } from "./IAutoMovieMotionHumanCrutchStairs";
+export type { IAutoMovieMotionHumanCaneSweep } from "./IAutoMovieMotionHumanCaneSweep";

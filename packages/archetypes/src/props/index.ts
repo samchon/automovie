@@ -126,3 +126,6 @@ export * from "./createStagePoleBladeProp";
 export * from "./createStagePracticeSwordProp";
 export * from "./createStageShaftProp";
 export * from "./createStageTwoHandedSwordProp";
+export * from "./createFingerRing";
+export * from "./createNecklace";
+export * from "./createLongCane";
