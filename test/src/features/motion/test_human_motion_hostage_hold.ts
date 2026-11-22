@@ -20,8 +20,19 @@ import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
-/** The holder stands this far behind the hostage, metres: a close hold. */
-const BEHIND: number = 0.35;
+/** The gap between the holder's chest and the hostage's back in the hold, metres: the grapple specs' skin. */
+const SKIN: number = 0.01;
+
+/**
+ * How far behind the hostage the holder stands, metres: a close hold, the
+ * holder's chest against the hostage's back, each trunk half its depth from
+ * its line, so the holding arm reaches round the hostage's own trunk.
+ */
+const behind = (
+  holder: IAutoMovieMotionHumanBody,
+  hostage: IAutoMovieMotionHumanBody,
+): number =>
+  (holder.measure.chestDepth + hostage.measure.chestDepth) / 2 + SKIN;
 /** The pair walks back this far, metres: authored. */
 const BACK: number = 0.9;
 /** The muzzle stays at the temple within this, metres: a hand's breadth. */
@@ -129,6 +140,7 @@ function perform(
   hostage: IAutoMovieMotionHumanBody,
   point: string | undefined,
 ): HumanPerformance {
+  const back: number = behind(holder, hostage);
   const model: ReturnType<typeof createHandgun> = createHandgun({
     frame: "compact",
   });
@@ -136,7 +148,7 @@ function perform(
     position: {
       x: -0.2 * holder.measure.stature,
       y: 0.55 * holder.measure.stature,
-      z: 0.25 - BEHIND,
+      z: 0.25 - back,
     },
     rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
   });
@@ -148,7 +160,7 @@ function perform(
       {
         subject: "h",
         body: holder,
-        at: { x: 0, y: 0, z: -BEHIND },
+        at: { x: 0, y: 0, z: -back },
         yaw: 0,
         proficiency: { level: "trained" },
       },

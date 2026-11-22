@@ -18,7 +18,6 @@ import {
   HumanSignature,
   HumanStrike,
   chiSau,
-  grapple,
 } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";

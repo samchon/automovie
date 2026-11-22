@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanKickboxingRing,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
+  IAutoMovieResolvedBone,
   IAutoMovieScheduleEntry,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -43,19 +44,97 @@ const RECEIVER_YAW: number = 188;
 /** The initiator's mark, metres. */
 const ACTOR_MARK: IAutoMovieVector3 = { x: 0, y: 0, z: -0.27 };
 
+/** The initiator's facing, the line the receiver's mark lies on. */
+const FACING: IAutoMovieVector3 = {
+  x: Math.sin((ACTOR_YAW * Math.PI) / 180),
+  y: 0,
+  z: Math.cos((ACTOR_YAW * Math.PI) / 180),
+};
+
+/** The receiver's mark, metres: ahead of the initiator's along its facing by a spacing. */
+const receiverMark = (along: number): IAutoMovieVector3 =>
+  Vector3.add(ACTOR_MARK, Vector3.scale(FACING, along));
+
+/** A trunk part read as a sphere: its bone, its centre's height on the body and its radius. */
+interface IBall {
+  /** The bone carrying it. */
+  bone: "head" | "chest";
+
+  /** The centre's standing height, metres. */
+  height: number;
+
+  /** The radius, metres. */
+  radius: number;
+}
+
 /**
- * The receiver's mark, metres: ahead of the initiator's along its facing by
- * the least spacing at which the two bodies' leaning heads and chests cannot
- * meet in the entry stance (`grapple.spacing`).
+ * The least spacing of the marks at which the two fighters' heads and chests
+ * never meet over a played scene, metres: each a sphere (the head by its
+ * radius, the chest by half its depth) carried by its displayed bone. The
+ * receiver's whole motion is its own on its mark, the stances read nothing
+ * of the initiator, so moving its mark by s along the facing moves every
+ * sphere of it by s. For two spheres whose centres lie `along` apart on the
+ * facing and `lateral` across it, they clear by `skin` once
+ * `along + s >= sqrt((r1 + r2 + skin)^2 - lateral^2)`; the spacing is the
+ * played one plus the greatest such s over the scene's instants, the closest
+ * approach of the two bodies' solved stances.
  */
-const receiverMark = (body: IAutoMovieMotionHumanBody): IAutoMovieVector3 => {
-  const along: number = grapple.spacing("mmaReset", body, body);
-  const yaw: number = (ACTOR_YAW * Math.PI) / 180;
-  return {
-    x: ACTOR_MARK.x + Math.sin(yaw) * along,
-    y: 0,
-    z: ACTOR_MARK.z + Math.cos(yaw) * along,
+const spacing = (
+  film: HumanPerformance,
+  body: IAutoMovieMotionHumanBody,
+  played: number,
+  from: number,
+  to: number,
+): number => {
+  const balls: IBall[] = [
+    {
+      bone: "head",
+      height: body.measure.headHeight,
+      radius: body.measure.headRadius,
+    },
+    {
+      bone: "chest",
+      height: body.measure.chestHeight,
+      radius: body.measure.chestDepth / 2,
+    },
+  ];
+  const centre = (
+    subject: string,
+    ball: IBall,
+    seconds: number,
+  ): IAutoMovieVector3 => {
+    const bone: IAutoMovieResolvedBone = film
+      .bones(subject, seconds)
+      .get(ball.bone)!;
+    return Vector3.add(
+      bone.worldPosition,
+      Quaternion.rotateVector(bone.worldRotation, {
+        x: 0,
+        y: ball.height - body.rest.get(ball.bone)!.y,
+        z: 0,
+      }),
+    );
   };
+  let more: number = -Infinity;
+  for (let t: number = from; t <= to + 1e-9; t += 1 / 24)
+    for (const a of balls)
+      for (const b of balls) {
+        const gap: IAutoMovieVector3 = Vector3.subtract(
+          centre("b", b, t),
+          centre("a", a, t),
+        );
+        const along: number = Vector3.dot(gap, FACING);
+        const lateral: number = Math.sqrt(
+          Math.max(0, Vector3.dot(gap, gap) - along * along),
+        );
+        const reach: number = a.radius + b.radius + SKIN;
+        if (lateral >= reach) continue;
+        more = Math.max(
+          more,
+          Math.sqrt(reach * reach - lateral * lateral) - along,
+        );
+      }
+  return played + Math.max(0, more);
 };
 
 /**
@@ -115,39 +194,48 @@ function scene(
     setup,
     "clinch",
   );
-  const film: HumanPerformance = new HumanPerformance({
-    seed: "mma-clinch",
-    laws: [grapple],
-    performers: [
-      {
-        subject: "a",
-        body,
-        at: ACTOR_MARK,
-        yaw: ACTOR_YAW,
-        proficiency: { level: "trained" },
-      },
-      {
-        subject: "b",
-        body,
-        at: receiverMark(body),
-        yaw: RECEIVER_YAW,
-        proficiency: { level: "trained" },
-      },
-    ],
-    composition: {
-      kind: "sequence",
-      parts: [
-        pair.node,
+  // The marks are set by the two bodies' own solved stances: played once at
+  // the spacing their entry lean gives (`grapple.spacing`), then at the
+  // closest-approach spacing that play reads (`spacing`).
+  const played = (along: number): HumanPerformance =>
+    new HumanPerformance({
+      seed: "mma-clinch",
+      laws: [grapple],
+      performers: [
         {
-          kind: "parallel",
-          parts: [
-            initiator.stand({ seconds: 0.4, sway: 0 }, "nextA").node,
-            receiver.stand({ seconds: 0.4, sway: 0 }, "nextB").node,
-          ],
+          subject: "a",
+          body,
+          at: ACTOR_MARK,
+          yaw: ACTOR_YAW,
+          proficiency: { level: "trained" },
+        },
+        {
+          subject: "b",
+          body,
+          at: receiverMark(along),
+          yaw: RECEIVER_YAW,
+          proficiency: { level: "trained" },
         },
       ],
-    },
-  });
+      composition: {
+        kind: "sequence",
+        parts: [
+          pair.node,
+          {
+            kind: "parallel",
+            parts: [
+              initiator.stand({ seconds: 0.4, sway: 0 }, "nextA").node,
+              receiver.stand({ seconds: 0.4, sway: 0 }, "nextB").node,
+            ],
+          },
+        ],
+      },
+    });
+  const first: number = grapple.spacing("mmaReset", body, body);
+  const trial: HumanPerformance = played(first);
+  const film: HumanPerformance = played(
+    spacing(trial, body, first, 0, trial.duration),
+  );
   assertTakeClean(`staged_mma_reset ${film.duration}`, film);
   const entry = (anchor: string): IAutoMovieScheduleEntry =>
     film.schedule.entries.find((row): boolean => row.intent.anchor === anchor)!;

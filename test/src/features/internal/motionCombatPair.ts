@@ -44,7 +44,7 @@ export namespace motionCombatPair {
   export function pair(
     body: IAutoMovieMotionHumanBody,
     distance: number,
-    composition: IAutoMovieMotionHumanChainCore,
+    composition: Pick<IAutoMovieMotionHumanChainCore, "node">,
     seed: string,
   ): HumanPerformance {
     return new HumanPerformance({

@@ -214,7 +214,8 @@ function perform(
     .stand({ seconds: 0.5, sway: 0 })
     .registered(row, { at }, "strike")
     .stand({ seconds: 2, sway: 0 });
-  const partner: IAutoMovieMotionHumanChainCore = HumanChain.subject("b");
+  const partner: ReturnType<typeof HumanChain.subject> =
+    HumanChain.subject("b");
   return new HumanPerformance({
     seed: `foot-${row}`,
     laws: Object.values(HumanStrike),

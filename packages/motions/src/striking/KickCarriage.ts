@@ -176,13 +176,18 @@ export namespace KickCarriage {
       yaw: entry.yaw + carriage.turn * w,
       pitch: entry.pitch + carriage.pitch * w,
       roll: entry.roll,
-      joints: StrikingStance.facing(
-        props.joints ?? {
-          ...entry.joints,
-          ...StrikingStance.joints(entry.joints),
-        },
-        carriage.turn * w,
-      ),
+      joints: {
+        ...StrikingStance.facing(
+          props.joints ?? {
+            ...entry.joints,
+            ...StrikingStance.joints(entry.joints),
+          },
+          carriage.turn * w,
+        ),
+        // The support heel rises about the ball and the toes extend by the
+        // same angle, so they stay flat on the floor (the forefoot rocker).
+        [`${support}Toes`]: [KickForm.PIVOT.raise * w, 0, 0],
+      },
       limbs: {},
     };
     const tilted: IAutoMovieMotionHumanPosture =

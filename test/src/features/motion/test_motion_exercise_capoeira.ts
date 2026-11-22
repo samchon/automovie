@@ -13,7 +13,6 @@ import {
   HumanColliders,
   HumanPerformance,
   HumanSignature,
-  grapple,
 } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
