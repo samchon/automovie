@@ -300,13 +300,6 @@ export namespace QuadrupedStridePlan {
    * @param after The new gait's timing at the change.
    * @returns The shift in strides; zero when nothing changes or a rein-back is involved.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the shift, its unit and the bound it keeps.
-   * @evidence contracts/development/implementation.md#principled-implementation Each hoof's swing is one stride plus the landing phases' difference less the old duty, bounded by the two gaits' steady swing spans one less their duties; the shift is the value nearest zero in the four hooves' intervals.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One interval per hoof, one intersection and one clamp.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tuned bound: the span limits are the two gaits' own duty factors at the change.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per change.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieArchetypeQuadrupedGait.phase` and the clock's timing.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   function gaitChangeShift(
     species: createQuadruped.ISpecies,

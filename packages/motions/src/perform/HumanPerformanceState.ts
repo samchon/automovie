@@ -53,6 +53,7 @@ import { HumanPerformanceSoftBudget } from "./HumanPerformanceSoftBudget";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
 import { validateInitialPropMounts } from "./validateInitialPropMounts";
+import { perf1Clock } from "./perf1Clock";
 
 /**
  * Everything a performance resolves and its readers share: the people with
@@ -539,8 +540,16 @@ export namespace HumanPerformanceState {
       KEPT.set(key, kept);
       return kept;
     }
-    const state: IAutoMovieMotionHumanPerformanceState =
-      new HumanPerformanceState(input, selection.flight);
+    const began: number = perf1Clock.now();
+    perf1Clock.depth++;
+    let state: IAutoMovieMotionHumanPerformanceState;
+    try {
+      state = new HumanPerformanceState(input, selection.flight);
+    } finally {
+      perf1Clock.depth--;
+    }
+    perf1Clock.record("prep", perf1Clock.now() - began);
+    perf1Clock.record("take-ms", state.duration * 1000);
     KEPT.set(key, state);
     if (KEPT.size > KEEP) KEPT.delete(KEPT.keys().next().value!);
     return state;

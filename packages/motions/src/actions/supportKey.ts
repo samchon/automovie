@@ -13,6 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { perf1Clock } from "../perform/perf1Clock";
 import { HumanBodyFit } from "../posture/HumanBodyFit";
 import { HumanBodyFitMerit } from "../posture/HumanBodyFitMerit";
 import { HumanColliders } from "../posture/HumanColliders";
@@ -29,6 +30,9 @@ import { prepareRaisedKneeSupport } from "./prepareRaisedKneeSupport";
 import { preparePairedFloorSupport } from "./preparePairedFloorSupport";
 import { prepareSupportSeed } from "./prepareSupportSeed";
 import { supportContact } from "./supportContact";
+
+/** TEMPORARY perf-1 probe of repeated key inputs. */
+const PROBES: Set<string> = new Set();
 
 /** A contact with no authored or previously laid world position yet. */
 type ContactPoint = IAutoMovieVector3 | null;
@@ -83,6 +87,13 @@ export namespace supportKey {
     held: boolean = false,
   ): IAutoMovieMotionHumanPosture {
     const points: ContactPoint[] = contacts.map(at);
+    {
+      const began: number = perf1Clock.now();
+      const probe: string = JSON.stringify([body.measure, preferred, from, contacts, points, swings, held, miss]);
+      perf1Clock.record(PROBES.has(probe) ? "supportKey.repeat" : "supportKey.new", 0);
+      PROBES.add(probe);
+      perf1Clock.record("supportKey.probe-ms", perf1Clock.now() - began);
+    }
     const forms: supportContact.IForm[] = contacts.map(
       (c: IAutoMovieMotionHumanSupport.IContact, k: number): supportContact.IForm =>
         form(c, points[k]!),

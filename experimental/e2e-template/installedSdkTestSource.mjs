@@ -9,7 +9,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type { IAutoMovieHumanParameters } from "@automovie/interface";
 import {
-  createHumanBody, HumanChain, HumanHand, HumanObject, HumanPerformance, swipeTouchscreen,
+  AutoMovieMotionHumanOperate, createHumanBody, HumanChain, HumanHand, HumanObject, HumanPerformance,
 } from "@automovie/motions";
 
 import type { IFilmProduction } from "../../../src/IFilmProduction";
@@ -51,7 +51,7 @@ export async function test_installed_sdk(): Promise<void> {
     Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
   );
   const centre = { x: -body.measure.shoulderHalfWidth, y: body.measure.shoulderHeight - 0.14, z: 0.48 };
-  const Chain = HumanChain.extend({ swipeTouchscreen });
+  const Chain = HumanChain.extend({ swipeTouchscreen: AutoMovieMotionHumanOperate.swipeTouchscreen });
   // The contact matrix retains seed zero and seed 180, the largest measured gap in the native sweep.
   for (const seed of [0, 180]) {
     const phone = createPhone({}, seed);
@@ -61,10 +61,10 @@ export async function test_installed_sdk(): Promise<void> {
     const glassOffset = Quaternion.rotateVector(rotation, { x: 0, y: shell.halfExtents.y, z: shell.halfExtents.z });
     const film = new HumanPerformance({
       seed: "catalogue/phone-use",
-      laws: [swipeTouchscreen],
+      laws: [AutoMovieMotionHumanOperate.swipeTouchscreen],
       performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } }],
       props: [HumanObject.prop("phone", phone, { position: Vector3.subtract(centre, glassOffset), rotation, fixed: true })],
-      composition: Chain.subject("a").stand({ seconds: 0.6, sway: 0 })
+      composition: Chain.subject("a").stand({ hold: 0.6, sway: 0 })
         .swipeTouchscreen({ prop: "phone", screen: "screen", from: -0.25, to: 0.25 }).node,
     });
     const stroke = film.segments("a")[1]!;

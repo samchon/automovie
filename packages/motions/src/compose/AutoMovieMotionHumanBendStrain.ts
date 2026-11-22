@@ -73,12 +73,10 @@ export namespace AutoMovieMotionHumanBendStrain {
     const forearm: number | null = half(
       prepared.lowerDomain.constraint?.twist ?? null,
     );
-    const hand: IAutoMovieJointConstraint | null = getConstraint(
-      `${side}Hand`,
-      readHumanBone(body, `${side}Hand`)?.constraint ?? null,
-    );
+    const wristOf: IHand = handOf(chain, body, side);
+    const hand: IAutoMovieJointConstraint | null = wristOf.range;
     const wrist: number | null = half(hand?.flexion ?? null);
-    const handAxes: IAutoMovieJointAxes | undefined = chain.axes[`${side}Hand`];
+    const handAxes: IAutoMovieJointAxes | undefined = wristOf.axes;
     clinical?.(hand, handAxes);
     return (
       u: AutoMovieMotionHumanBendSearch.IAngles,
@@ -175,6 +173,52 @@ export namespace AutoMovieMotionHumanBendStrain {
   export const UNMADE: number = 1e6;
 
   /**
+   * The hand's range and clinical axes the strain decomposes the wrist's swing on.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds and its absent case.
+   * @evidence contracts/development/design.md#principled-representation The rig's own constraint and axes of the hand bone.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by `of` and the unmade bound.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The members are read, never defaulted.
+   */
+  export interface IHand {
+    /** The hand's range of motion, or null where the rig gives none. */
+    range: IAutoMovieJointConstraint | null;
+
+    /** The hand's clinical axes, or undefined where the rig gives none. */
+    axes: IAutoMovieJointAxes | undefined;
+  }
+
+  /**
+   * The hand's range and axes, as the strain reads them.
+   *
+   * @param chain The prepared chain.
+   * @param body The body.
+   * @param side The arm.
+   * @returns The range and the axes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's resolved constraint of the hand bone and the chain's axes for it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two reads.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one read `of` and the unmade bound share, so both judge the same wrist.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function handOf(
+    chain: AutoMovieMotionHumanBendChain.IChain,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+  ): IHand {
+    return {
+      range: getConstraint(
+        `${side}Hand`,
+        readHumanBone(body, `${side}Hand`)?.constraint ?? null,
+      ),
+      axes: chain.axes[`${side}Hand`],
+    };
+  }
+
+  /**
    * Half the width of each shoulder axis's range, degrees, in the order
    * flexion, abduction, twist; null for an axis that does not move.
    *
@@ -212,7 +256,7 @@ export namespace AutoMovieMotionHumanBendStrain {
    * (provisional): the place is solved once while the region then moves with
    * the head, so a turn that ends on a limit is lost a moment later.
    */
-  const RESERVE: number = 0.1;
+  export const RESERVE: number = 0.1;
 
   /**
    * Half the width of a range, degrees, or null for an axis that does not move.
