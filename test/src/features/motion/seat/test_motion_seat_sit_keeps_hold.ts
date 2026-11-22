@@ -5,10 +5,10 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSeat,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -33,7 +33,7 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 export function test_motion_seat_sit_keeps_hold(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const chair: IAutoMovieMotionHumanSeated.ISeat = {
-    at: { x: 0, y: seated.popliteal(body), z: -0.1 },
+    at: { x: 0, y: AutoMovieMotionHumanSeat.seated.popliteal(body), z: -0.1 },
     yaw: 0,
     depth: 0.45,
   };

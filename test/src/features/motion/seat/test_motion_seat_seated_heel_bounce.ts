@@ -12,13 +12,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSeat,
   HumanChain,
   HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  seated,
-  seatedHeelBounce,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -67,7 +66,7 @@ export function test_motion_seat_seated_heel_bounce(): void {
           seat: {
             at: {
               x: at.x,
-              y: floor + seated.popliteal(body),
+              y: floor + AutoMovieMotionHumanSeat.seated.popliteal(body),
               z: body.rest.get("leftFoot")!.z - 0.1,
             },
             yaw: 0,
@@ -89,8 +88,8 @@ export function test_motion_seat_seated_heel_bounce(): void {
         performers: [
           { subject: "a", body, at, yaw: 0, proficiency: { level: "trained" } },
         ],
-        laws: [seatedHeelBounce],
-        composition: chain.registered(seatedHeelBounce.name, {
+        laws: [AutoMovieMotionHumanSeat.seatedHeelBounce],
+        composition: chain.registered(AutoMovieMotionHumanSeat.seatedHeelBounce.name, {
           ...props,
           amplitude,
           side,

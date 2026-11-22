@@ -7,12 +7,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanWorkout,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  HumanSportWorkout,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -31,7 +31,7 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  */
 export function test_motion_workout_continuous_workout(): void {
   const findings: string[] = [];
-  const laws = [HumanSportWorkout.plank, HumanSportWorkout.pushUp];
+  const laws = [AutoMovieMotionHumanWorkout.HumanSportWorkout.plank, AutoMovieMotionHumanWorkout.HumanSportWorkout.pushUp];
   for (const specimen of ["f-small", "m-large"] as const) {
     const body = motionHumanBody(specimen);
     const cast = {

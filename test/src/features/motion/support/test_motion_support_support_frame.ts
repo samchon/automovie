@@ -13,11 +13,11 @@ import type {
 import {
   AutoMovieMotionHumanAuditBalance,
   AutoMovieMotionHumanAuditMotion,
+  AutoMovieMotionHumanSeat,
   AutoMovieMotionHumanSupport,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -184,7 +184,7 @@ export function test_motion_support_support_frame(): void {
       const seat: IAutoMovieMotionHumanSeated.ISeat = {
         at: {
           x: 0,
-          y: floor + seated.popliteal(body),
+          y: floor + AutoMovieMotionHumanSeat.seated.popliteal(body),
           z: body.rest.get("leftFoot")!.z - 0.1,
         },
         yaw: 0,

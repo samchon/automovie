@@ -9,10 +9,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  shiftStandingWeight,
 } from "@automovie/motions";
 import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -55,7 +55,7 @@ export function test_motion_stance_shift_standing_weight(): void {
             proficiency: { level: "trained" },
           },
         ],
-        laws: [shiftStandingWeight],
+        laws: [AutoMovieMotionHumanStance.shiftStandingWeight],
         composition: HumanChain.subject("actor")
           .stand({ hold: 0.6, sway: 0 })
           .registered("shiftStandingWeight", params).node,

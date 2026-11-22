@@ -14,6 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSeat,
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanStrike,
   HumanChain,
@@ -21,7 +22,6 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -198,7 +198,7 @@ function checkSupportEntries(body: IAutoMovieMotionHumanBody): string[] {
   const issues: string[] = [];
   const actor = HumanChain.subject("a");
   const chair: IAutoMovieMotionHumanSeated.ISeat = {
-    at: { x: 0, y: seated.popliteal(body), z: -0.1 },
+    at: { x: 0, y: AutoMovieMotionHumanSeat.seated.popliteal(body), z: -0.1 },
     yaw: 0,
     depth: 0.45,
   };

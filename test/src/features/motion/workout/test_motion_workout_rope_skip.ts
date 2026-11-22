@@ -17,7 +17,6 @@ import {
   HumanHand,
   HumanPerformance,
   HumanRefusal,
-  prepareRopeSkip,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -106,7 +105,7 @@ export function test_motion_workout_rope_skip(): void {
   const handleDiameter: number = 0.022225;
   const epsilon: number = 1e-6;
   const sides: readonly AutoMovieHumanSide[] = ["left", "right"];
-  const setup: Parameters<typeof prepareRopeSkip>[0] = {
+  const setup: Parameters<typeof AutoMovieMotionHumanWorkout.prepareRopeSkip>[0] = {
     performance,
     performer: performer.subject,
     action: action.id,
@@ -116,7 +115,7 @@ export function test_motion_workout_rope_skip(): void {
     handleLength,
     handleDiameter,
   };
-  const sample: ReturnType<typeof prepareRopeSkip> = prepareRopeSkip(setup);
+  const sample: ReturnType<typeof AutoMovieMotionHumanWorkout.prepareRopeSkip> = AutoMovieMotionHumanWorkout.prepareRopeSkip(setup);
   TestValidator.predicate(
     "the cord owns only its visible action interval",
     sample(0.15) === undefined &&
@@ -339,7 +338,7 @@ export function test_motion_workout_rope_skip(): void {
       vclose(point, pass.points[i]!),
     ),
   );
-  const slow: ReturnType<typeof prepareRopeSkip> = prepareRopeSkip({
+  const slow: ReturnType<typeof AutoMovieMotionHumanWorkout.prepareRopeSkip> = AutoMovieMotionHumanWorkout.prepareRopeSkip({
     ...setup,
     action: "slow-turn",
   });

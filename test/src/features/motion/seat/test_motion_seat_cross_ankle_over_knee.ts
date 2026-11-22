@@ -19,13 +19,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSeat,
+  createHumanBody,
   HumanChain,
   HumanColliders,
   HumanPerformance,
   HumanRefusal,
-  createHumanBody,
-  crossAnkleOverKnee,
-  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -58,7 +57,7 @@ export function test_motion_seat_cross_ankle_over_knee(): void {
   const chair: IAutoMovieMotionHumanSeated.ISeat = {
     at: {
       x: 0,
-      y: seated.popliteal(body) * 1.195,
+      y: AutoMovieMotionHumanSeat.seated.popliteal(body) * 1.195,
       z: body.rest.get("leftFoot")!.z - 0.1,
     },
     yaw: 0,
@@ -75,7 +74,7 @@ export function test_motion_seat_cross_ankle_over_knee(): void {
       composition: start()
         .sit({ seat: chair, back: "slump" })
         .registered("crossAnkleOverKnee", { side, hold: 1 }).node,
-      laws: [crossAnkleOverKnee],
+      laws: [AutoMovieMotionHumanSeat.crossAnkleOverKnee],
     });
     const crossing: IAutoMovieMotionHumanSegment =
       performance.segments(subject)[1]!;
@@ -244,11 +243,11 @@ export function test_motion_seat_cross_ankle_over_knee(): void {
         .sit({
           seat: {
             ...chair,
-            at: { ...chair.at, y: seated.popliteal(standard) },
+            at: { ...chair.at, y: AutoMovieMotionHumanSeat.seated.popliteal(standard) },
           },
         })
         .registered("crossAnkleOverKnee", { side: "right", hold: 1 }).node,
-      laws: [crossAnkleOverKnee],
+      laws: [AutoMovieMotionHumanSeat.crossAnkleOverKnee],
     });
   } catch (error) {
     uncalibrated = error;
@@ -264,7 +263,7 @@ export function test_motion_seat_cross_ankle_over_knee(): void {
       seed: "chair crossing without sitting",
       performers: [performer],
       composition: start().registered("crossAnkleOverKnee", {}).node,
-      laws: [crossAnkleOverKnee],
+      laws: [AutoMovieMotionHumanSeat.crossAnkleOverKnee],
     });
   } catch (error) {
     refusal = error;

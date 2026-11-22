@@ -7,7 +7,7 @@ import type {
 import {
   AutoMovieMotionHumanArm,
   AutoMovieMotionHumanLean,
-  braceOnThigh,
+  AutoMovieMotionHumanStance,
   poseBones,
 } from "@automovie/motions";
 import { resolveHumanPosture } from "@automovie/motions/internal";
@@ -37,7 +37,7 @@ export function test_motion_stance_brace_on_thigh(): void {
   );
   const entry: IAutoMoviePose = resolveHumanPosture(f.body, rest);
   const original: ReturnType<typeof poseBones> = poseBones(f.body, entry);
-  const arm: IAutoMovieMotionHumanPrimitive = braceOnThigh(
+  const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanStance.braceOnThigh(
     f.body,
     "right",
     AutoMovieMotionHumanArm.angles(entry, "right"),

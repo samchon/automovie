@@ -6,13 +6,13 @@ import {
 import type { IAutoMovieMotionHumanChain } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditContinuity,
+  AutoMovieMotionHumanSeat,
   HUMAN_LEXICON,
   HumanChain,
   HumanHand,
   HumanPerformance,
   HumanRefusal,
   HumanVerdicts,
-  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -226,7 +226,7 @@ export function test_motion_gait_gait_overlay(): void {
   const seat = {
     at: {
       x: 0,
-      y: seated.popliteal(body),
+      y: AutoMovieMotionHumanSeat.seated.popliteal(body),
       z: body.rest.get("leftFoot")!.z - 0.1,
     },
     yaw: 0,

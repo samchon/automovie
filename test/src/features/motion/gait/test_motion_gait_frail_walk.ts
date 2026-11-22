@@ -12,10 +12,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanGait,
+  AutoMovieMotionHumanSeat,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -264,7 +264,7 @@ function perform(
 /** A frail walk to an armchair 2 m ahead, a sit into it and a rise from it. */
 function armchair(body: IAutoMovieMotionHumanBody): HumanPerformance {
   const front: number = 2;
-  const height: number = seated.popliteal(body);
+  const height: number = AutoMovieMotionHumanSeat.seated.popliteal(body);
   // Armrests 0.2 m above the seat at the sitter's sides, 0.25 m back from the front edge (provisional armchair).
   const half: number =
     body.measure.hipHalfWidth + body.measure.thighRadius + 0.05;

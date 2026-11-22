@@ -10,11 +10,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanWorkout,
   HumanChain,
   HumanFoot,
   HumanPerformance,
   HumanSport,
-  HumanSportWorkout,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -121,7 +121,7 @@ export function test_motion_gait_floor_travel_exercise(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const freeze: HumanPerformance = new HumanPerformance({
     seed: "baby-freeze",
-    laws: [HumanSportWorkout.babyFreeze],
+    laws: [AutoMovieMotionHumanWorkout.HumanSportWorkout.babyFreeze],
     performers: [
       {
         subject: "b",

@@ -7,11 +7,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSeat,
   HumanChain,
   HumanFoot,
   HumanPerformance,
   HumanSignature,
-  bedsidePerch,
 } from "@automovie/motions";
 import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -69,7 +69,7 @@ export function test_motion_seat_bedside_perch(): void {
           proficiency: { level: "trained" },
         },
       ],
-      composition: bedsidePerch(
+      composition: AutoMovieMotionHumanSeat.bedsidePerch(
         HumanChain.subject("actor"),
         bed,
         { at: origin, yaw },
@@ -171,7 +171,7 @@ export function test_motion_seat_bedside_perch(): void {
     }
   }
   TestValidator.error("a crib has no seat at its edge", (): void => {
-    bedsidePerch(
+    AutoMovieMotionHumanSeat.bedsidePerch(
       HumanChain.subject("actor"),
       createBed({ kind: "crib" }),
       { at: origin, yaw },

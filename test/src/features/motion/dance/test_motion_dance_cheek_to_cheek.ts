@@ -9,10 +9,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanDance,
+  AutoMovieMotionHumanStance,
+  headRest,
   HumanChain,
   HumanPerformance,
-  headRest,
-  shiftStandingWeight,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -76,7 +76,7 @@ export function test_motion_dance_cheek_to_cheek(): void {
       (a.measure.chestDepth + b.measure.chestDepth) / 2 + CLEAR;
     const film: HumanPerformance = new HumanPerformance({
       seed: "cheek-to-cheek",
-      laws: [headRest, shiftStandingWeight],
+      laws: [headRest, AutoMovieMotionHumanStance.shiftStandingWeight],
       performers: [
         {
           subject: "a",

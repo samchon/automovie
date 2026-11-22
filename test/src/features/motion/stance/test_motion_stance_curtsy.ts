@@ -10,11 +10,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanFoot,
   HumanPerformance,
   HumanRefusal,
-  curtsy,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -39,8 +39,8 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  */
 export function test_motion_stance_curtsy(): void {
   const Chain: IAutoMovieMotionHumanChain.IExtension<{
-    curtsy: typeof curtsy;
-  }> = HumanChain.extend({ curtsy });
+    curtsy: typeof AutoMovieMotionHumanStance.curtsy;
+  }> = HumanChain.extend({ curtsy: AutoMovieMotionHumanStance.curtsy });
   const body: IAutoMovieMotionHumanBody = motionHumanBody("f-average");
   for (const side of ["left", "right"] as const) {
     const yaw: number = side === "left" ? 0 : 35;

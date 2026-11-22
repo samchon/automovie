@@ -12,11 +12,11 @@ import {
   AutoMovieMotionHumanGait,
   AutoMovieMotionHumanMilitaryDrill,
   AutoMovieMotionHumanStance,
+  AutoMovieMotionHumanWorkout,
   HumanChain,
   HumanFoot,
   HumanPerformance,
   HumanSignature,
-  HumanSportGym,
   HumanVerdicts,
   poseBones,
 } from "@automovie/motions";
@@ -87,7 +87,7 @@ export function test_motion_gait_gait_ground_lock(): void {
       seed: "crouch-entry",
       performers: [...film.performers],
       laws: [
-        HumanSportGym.calfRaise,
+        AutoMovieMotionHumanWorkout.HumanSportGym.calfRaise,
         AutoMovieMotionHumanMilitaryDrill.HumanDrill.squats,
         AutoMovieMotionHumanFall.HumanFloorFall.goalkeeperDiveLeft,
       ],

@@ -18,13 +18,13 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanGait,
+  AutoMovieMotionHumanSeat,
   HumanChain,
   HumanFoot,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  seated,
 } from "@automovie/motions";
 
 import { checkTakeClean } from "../../internal/checkTakeClean";
@@ -279,7 +279,7 @@ function take(body: IAutoMovieMotionHumanBody, named: boolean): ITake {
     left: createAxillaryCrutch({ length }),
     right: createAxillaryCrutch({ length }),
   };
-  const height: number = seated.popliteal(body);
+  const height: number = AutoMovieMotionHumanSeat.seated.popliteal(body);
   const half: number =
     body.measure.hipHalfWidth + body.measure.thighRadius + 0.05;
   const back: number = 0.15;
