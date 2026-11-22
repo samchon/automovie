@@ -30168,7 +30168,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "pull": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanDrawFromCarrier.IPull",
-            "description": "The other hand turning a worn carrier toward the drawing shoulder while the trunk turns, as a longsword is drawn from the hip; the carrier holds still when absent."
+            "description": "The other hand drawing a worn carrier back along its line and turning it toward the drawing shoulder while the trunk turns, as a longsword is drawn from the hip; the carrier holds still when absent."
           }
         },
         "required": [
@@ -30228,7 +30228,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "handle"
         ],
         "additionalProperties": false,
-        "description": "The other hand's share of a long draw. A blade longer than the drawing\narm's reach along the line leaves its scabbard only when the other hand\nturns the scabbard at its throat and the hips turn away from the\ndrawing side, so the blade leaves across the body.\nThe carrier rides the other hand from its throat and turns about where\nit hangs, its line tipping toward the drawing shoulder by the least angle\nthat brings the drawn hand within the arm's reach, so the blade leaves up\nand across the body along the turning line; it is worn again on the bone\nit hung from where the draw leaves it."
+        "description": "The other hand's share of a long draw. A blade longer than the drawing\narm's reach along the line leaves its scabbard only when the other hand\ndraws the scabbard back at its throat and the hips turn away from the\ndrawing side, so the blade leaves across the body.\nThe carrier rides the other hand from its throat: it slides back along\nits own line (the frog riding the belt) and then turns about where it\nhangs toward the drawing shoulder, each by the least that brings the\ndrawn hand within the arm's reach, so the blade leaves low and in front\nalong the moving line; it is worn again on the bone it hung from where\nthe draw leaves it."
       },
       "IAutoMovieMotionHumanBowViolinParams": {
         "type": "object",
@@ -41554,6 +41554,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "prefer": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanLieDown.IPose",
             "description": "The posture the stance's solve stays nearest, by its whole body's tilt and its joints (degrees); the posture the body enters with when absent. A stance without targets is shaped by it: kneeling, squatting, standing."
+          },
+          "free": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAutoMovieMotionHumanSupport.Part"
+            },
+            "description": "The parts the stance lets go free: each lifts off the contact it bore by in the stance before and hangs as the stance's posture carries it, bearing on nothing, instead of holding its last place until another contact of its limb replaces it; none when absent."
           }
         },
         "required": [
