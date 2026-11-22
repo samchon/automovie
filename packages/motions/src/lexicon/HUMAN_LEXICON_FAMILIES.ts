@@ -93,6 +93,7 @@ import { HumanTrick } from "./HumanTrick";
 import { HumanRoman } from "./HumanRoman";
 import { HumanLasso } from "./HumanLasso";
 import { HumanSabre } from "./HumanSabre";
+import { HumanLanceCouch } from "./HumanLanceCouch";
 import { HumanMusketDrill } from "./HumanMusketDrill";
 import { HumanPartner } from "./HumanPartner";
 import { HumanPose } from "./HumanPose";
@@ -204,6 +205,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
     HumanRoman,
     HumanLasso,
     HumanSabre,
+    HumanLanceCouch,
     },
   ],
   carried: [HumanCarried, { spacecraftGlide }],

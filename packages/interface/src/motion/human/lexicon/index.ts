@@ -88,6 +88,7 @@ export type { IAutoMovieMotionHumanTrick } from "./IAutoMovieMotionHumanTrick";
 export type { IAutoMovieMotionHumanRoman } from "./IAutoMovieMotionHumanRoman";
 export type { IAutoMovieMotionHumanLasso } from "./IAutoMovieMotionHumanLasso";
 export type { IAutoMovieMotionHumanSabre } from "./IAutoMovieMotionHumanSabre";
+export type { IAutoMovieMotionHumanLanceCouch } from "./IAutoMovieMotionHumanLanceCouch";
 export type { IAutoMovieMotionHumanHandrimStroke } from "./IAutoMovieMotionHumanHandrimStroke";
 export type { IAutoMovieMotionHumanSocial } from "./IAutoMovieMotionHumanSocial";
 export type { IAutoMovieMotionHumanSword } from "./IAutoMovieMotionHumanSword";

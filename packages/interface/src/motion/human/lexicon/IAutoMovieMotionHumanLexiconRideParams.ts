@@ -15,6 +15,7 @@ import type { IAutoMovieMotionHumanTrick } from "./IAutoMovieMotionHumanTrick";
 import type { IAutoMovieMotionHumanRoman } from "./IAutoMovieMotionHumanRoman";
 import type { IAutoMovieMotionHumanLasso } from "./IAutoMovieMotionHumanLasso";
 import type { IAutoMovieMotionHumanSabre } from "./IAutoMovieMotionHumanSabre";
+import type { IAutoMovieMotionHumanLanceCouch } from "./IAutoMovieMotionHumanLanceCouch";
 import type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 
 /**
@@ -80,4 +81,7 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
 
   /** Carry a cavalry sabre at the slope from the saddle and bring it to the engage at the charge. */
   HumanSabre: IAutoMovieMotionHumanSabre;
+
+  /** Couch a lance from the saddle, lower its point onto a tent peg or a ring at the gallop and carry it off. */
+  HumanLanceCouch: IAutoMovieMotionHumanLanceCouch;
 }

@@ -40,6 +40,7 @@ export namespace SceneBuildTypes {
       HumanRoman: "roman";
       HumanLasso: "lasso";
       HumanSabre: "sabre";
+      HumanLanceCouch: "lanceCouch";
     };
     sport: { HumanSittingVolley: "sittingVolley" };
     support: {

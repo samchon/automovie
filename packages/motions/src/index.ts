@@ -350,6 +350,7 @@ export * from "./lexicon/HumanRoman";
 export * from "./lexicon/HumanLasso";
 export * from "./lexicon/HumanSabre";
 export * from "./lexicon/HumanMountedPresentation";
+export * from "./lexicon/HumanLanceCouch";
 export * from "./lexicon/HumanBoard";
 export * from "./lexicon/HumanClasp";
 export * from "./lexicon/HumanDrape";
