@@ -1,5 +1,7 @@
 import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   IAutoMovieAffordance,
   IAutoMovieMotionClockInstant,
@@ -14,6 +16,7 @@ import type {
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanTrampoline,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -25,6 +28,7 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
 
@@ -322,28 +326,31 @@ export namespace trampolineBounce {
           Quaternion.rotateVector(resolveHumanPosture.heading(turned), rest),
         );
         const onBed: boolean = phaseAt(s).kind !== "flight";
-        // In the air the legs take the shape's joints, no foot goal held.
+        // The feet ride the bed on it; in the air each foot leaves the bed's
+        // place for where the shape's joints carry it as the shape comes in
+        // (`air`), so the take-off and the landing meet the bed's goal.
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
           ...turned.limbs,
           leftLeg: undefined,
           rightLeg: undefined,
         };
-        if (onBed)
-          for (const side of ["left", "right"] as const) {
-            const stand: IAutoMovieMotionHumanFoot.IPlacement =
-              context.entry.feet[side];
-            limbs[side === "left" ? "leftLeg" : "rightLeg"] =
-              AutoMovieMotionHumanLeg.goal(
-                body,
-                { ...turned, root },
-                side,
-                {
-                  ankle: { ...stand.ankle, y: stand.ankle.y + lift },
-                  rotation: stand.rotation,
-                },
-                true,
-              );
-          }
+        const free: IAutoMovieMotionHumanPosture = { ...turned, root, limbs };
+        for (const side of ["left", "right"] as const) {
+          const stand: IAutoMovieMotionHumanFoot.IPlacement =
+            context.entry.feet[side];
+          const bed: IAutoMovieMotionHumanFoot.IPlacement = {
+            ankle: { ...stand.ankle, y: stand.ankle.y + lift },
+            rotation: stand.rotation,
+          };
+          limbs[side === "left" ? "leftLeg" : "rightLeg"] =
+            AutoMovieMotionHumanLeg.goal(
+              body,
+              { ...turned, root },
+              side,
+              onBed ? bed : toward(body, bed, free, side, air),
+              onBed,
+            );
+        }
         return { ...turned, root, limbs };
       },
     };
@@ -354,6 +361,27 @@ export namespace trampolineBounce {
     });
   }
 
+  /** A foot's placement in the air: from the bed's place toward where the shape's joints carry it, by how far the shape has come in. */
+  function toward(
+    body: IAutoMovieMotionHumanBody,
+    bed: IAutoMovieMotionHumanFoot.IPlacement,
+    shaped: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    air: number,
+  ): IAutoMovieMotionHumanFoot.IPlacement {
+    const bone: AutoMovieHumanoidBone =
+      side === "left" ? "leftFoot" : "rightFoot";
+    const free: IAutoMovieResolvedBone = poseBones(
+      body,
+      resolveHumanPosture(body, shaped),
+      undefined,
+      new Set<AutoMovieHumanoidBone>([bone]),
+    ).get(bone)!;
+    return {
+      ankle: Vector3.lerp(bed.ankle, free.worldPosition, air),
+      rotation: Quaternion.slerp(bed.rotation, free.worldRotation, air),
+    };
+  }
   /** One phase of the routine. */
   interface IPhase {
     /** What it is. */

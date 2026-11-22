@@ -114,31 +114,6 @@ export namespace balletPirouette {
         yaw(t) - entry.yaw,
       );
 
-    // The retiré: the working toes before the supporting knee, the foot
-    // pointed down across the shin.
-    const retire: (t: number) => IAutoMovieMotionHumanFoot.IPlacement = (
-      t: number,
-    ): IAutoMovieMotionHumanFoot.IPlacement => {
-      const ankle: IAutoMovieVector3 = support(t).ankle;
-      const heading: number = yaw(t);
-      const knee: IAutoMovieVector3 = {
-        ...ankle,
-        y: ankle.y + body.measure.shank,
-      };
-      const toes: IAutoMovieVector3 = HumanFrame.point(
-        { origin: knee, yaw: heading },
-        { x: 0, y: 0, z: 0.06 * body.measure.stature },
-      );
-      return HumanFoot.pivot(
-        body,
-        working,
-        "toe",
-        toes,
-        heading + (working === "right" ? 90 : -90),
-        RETIRE,
-      );
-    };
-
     const standing: IAutoMovieVector3 = balletPositions.hips(body, entry);
     const depth: number = balletPositions.drop(body);
     const middle: IAutoMovieVector3 = Vector3.lerp(
@@ -183,6 +158,42 @@ export namespace balletPirouette {
       return { ...plie(1), y: standing.y - depth * (1 - up) };
     };
 
+    // The retiré: the working toes before the supporting knee, the foot
+    // pointed down across the shin. The knee is placed in closed form where
+    // the thigh and the shank meet between the supporting hip joint and
+    // ankle, bent forward along the heading (the leg's pole).
+    const upper: IAutoMovieVector3 = body.rest.get(
+      supporting === "left" ? "leftUpperLeg" : "rightUpperLeg",
+    )!;
+    const retire: (t: number) => IAutoMovieMotionHumanFoot.IPlacement = (
+      t: number,
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
+      const ankle: IAutoMovieVector3 = support(t).ankle;
+      const heading: number = yaw(t);
+      const hip: IAutoMovieVector3 = HumanFrame.point(
+        { origin: hips(t), yaw: heading },
+        upper,
+      );
+      const knee: IAutoMovieVector3 = kneeBetween(
+        hip,
+        ankle,
+        body.measure.thigh,
+        body.measure.shank,
+        HumanFrame.forward(heading),
+      );
+      const toes: IAutoMovieVector3 = HumanFrame.point(
+        { origin: knee, yaw: heading },
+        { x: 0, y: 0, z: 0.06 * body.measure.stature },
+      );
+      return HumanFoot.pivot(
+        body,
+        working,
+        "toe",
+        toes,
+        heading + (working === "right" ? 90 : -90),
+        RETIRE,
+      );
+    };
     const arms: IAutoMovieMotionHumanPosture["joints"] = ExerciseKey.from(
       body,
       {},
@@ -261,5 +272,35 @@ export namespace balletPirouette {
   /** A share held within [0, 1]. */
   function clamp(share: number): number {
     return Math.max(0, Math.min(1, share));
+  }
+
+  /** The knee where a thigh and a shank meet between a hip joint and an ankle, bent toward a pole direction (the law of cosines in their plane). */
+  function kneeBetween(
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    thigh: number,
+    shank: number,
+    pole: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    const up: IAutoMovieVector3 = Vector3.subtract(hip, ankle);
+    const d: number = Math.min(thigh + shank - 1e-6, Vector3.length(up));
+    const u: IAutoMovieVector3 = Vector3.normalize(up);
+    const across: IAutoMovieVector3 = Vector3.subtract(
+      pole,
+      Vector3.scale(u, Vector3.dot(pole, u)),
+    );
+    const w: IAutoMovieVector3 =
+      Vector3.length(across) > 1e-9 ? Vector3.normalize(across) : pole;
+    const cosine: number = Math.max(
+      -1,
+      Math.min(1, (shank * shank + d * d - thigh * thigh) / (2 * shank * d)),
+    );
+    return Vector3.add(
+      ankle,
+      Vector3.add(
+        Vector3.scale(u, shank * cosine),
+        Vector3.scale(w, shank * Math.sqrt(1 - cosine * cosine)),
+      ),
+    );
   }
 }

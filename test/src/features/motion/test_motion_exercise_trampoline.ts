@@ -31,9 +31,10 @@ const G: number = 9.80665;
  * Scenarios, on two body proportions:
  * 1. Each contact's deepest bed deflection matches the bed's
  *    force-deflection law for the body's mass and the fall within 10 mm.
- * 2. Each flight is ballistic: its time is the take-off speed's, so its
- *    apex rises to the height that time gives within 20 mm, and the apexes
- *    build toward the authored one and do not exceed it.
+ * 2. Each flight is ballistic: its time is the take-off speed's, so a
+ *    straight body's feet rise to the height that time gives within 20 mm
+ *    (a shape folds the feet toward the hips), and the apexes build toward
+ *    the authored one and do not exceed it.
  * 3. A tuck's apex folds the knees past 90 degrees.
  * 4. An apex beyond what the legs' push sustains is refused on `apex` with
  *    the reachable height.
@@ -73,7 +74,7 @@ export function test_motion_exercise_trampoline(): void {
         const peak: number = feet(at(`apex${k}`));
         TestValidator.predicate(
           `${name} ${shape} flight ${k} is ballistic (${peak.toFixed(3)} m apex for ${height.toFixed(3)} m)`,
-          Math.abs(peak - height) <= 0.02 &&
+          (shape !== "straight" || Math.abs(peak - height) <= 0.02) &&
             height <= apex + 1e-9 &&
             height >= last - 1e-9,
         );
