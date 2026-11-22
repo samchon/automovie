@@ -1,7 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionClock,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -16,7 +18,9 @@ import type {
 
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
@@ -90,6 +94,25 @@ export namespace HumanWeaponPresent {
   /** Seconds to present the weapon from where the hand holds it, novice and elite (provisional). */
   export const PRESENT: readonly [number, number] = [0.9, 0.5];
 
+  /**
+   * A seated presentation's ready station before the chest.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states the body measure it is a share of and the point it is read from.
+   * @evidence contracts/development/design.md#principled-representation Two shares of the shooter's own measures, so every body presents through the same place on itself.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `present`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IReady {
+    /** How far ahead of the eye along the floor line to the target, a share of the arm's reach from the shoulder to the grip (upper arm, forearm and half the hand). */
+    ahead: number;
+
+    /** How far below the eye, a share of the stature: about the drop from the eye to the breastbone. */
+    below: number;
+  }
+
+  /** The ready station a seated presentation comes up through, before the chest on the line to the target (provisional: about 0.3 m ahead and 0.35 m below the eye on a 1.75 m body with a 0.66 m reach). */
+  export const READY: IReady = { ahead: 0.45, below: 0.2 };
+
   /** The muzzle's rise about the hand at the recoil's peak, degrees, novice and elite (provisional). */
   export const RISE: readonly [number, number] = [14, 7];
 
@@ -152,32 +175,71 @@ export namespace HumanWeaponPresent {
           context.random("present"),
           HumanSkill.quantity(context.skill, "speed", PRESENT[0], PRESENT[1]),
         );
-        return HumanWeaponHeld.carried(
+        const aimed: ReturnType<typeof HumanWeaponTrack.path> =
+          HumanWeaponTrack.path(
+            context,
+            pose,
+            eye,
+            carriage === "aim" ? target : null,
+          );
+        // In the saddle a weapon drawn at the hip comes up through a ready
+        // station before the chest on the line to the target, then onto the
+        // aim, so the hand does not skim the trunk the seat keeps square to
+        // the horse; on foot the presentation goes straight to the pose.
+        const reach: number =
+          context.body.measure.upperArm +
+          context.body.measure.forearm +
+          0.5 * context.body.measure.hand;
+        const ready: IAutoMovieMotionHumanStrikingHeld.IHandFrame | undefined =
+          context.entry.base.kind === "seated" && carriage === "aim"
+            ? {
+                point: Vector3.add(eye, {
+                  x: READY.ahead * reach * line.x,
+                  y: -READY.below * context.body.measure.stature,
+                  z: READY.ahead * reach * line.z,
+                }),
+                rotation: pose.rotation,
+              }
+            : undefined;
+        // At the recover the left hand holds the firelock above the lock.
+        const support: ReturnType<typeof HumanWeaponHeld.supported> =
+          carriage === "recover" && s.lock !== undefined
+            ? s.lock
+            : HumanWeaponHeld.supported(context, s, pose, bladed);
+        const presented: IAutoMovieMotionHumanActionPlan = HumanWeaponHeld.carried(
           context,
           s,
           StrikingBlade.plan(context, {
             tool,
             clock: AutoMovieMotionManner.time(
               AutoMovieMotionClock.phrase({
-                prepare: set,
-                attack: 0,
+                prepare: ready === undefined ? set : set / 2,
+                attack: ready === undefined ? 0 : set / 2,
                 hold: seconds,
                 retract: 0,
               }),
               AutoMovieMotionManner.of(context, p.manner),
             ),
-            path: HumanWeaponTrack.path(
-              context,
-              pose,
-              eye,
-              carriage === "aim" ? target : null,
-            ),
+            path:
+              ready === undefined
+                ? aimed
+                : (
+                    progress: number,
+                    at: number,
+                  ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
+                    const to: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+                      aimed(progress, at);
+                    return {
+                      point: Vector3.lerp(ready.point, to.point, progress),
+                      rotation: Quaternion.slerp(
+                        ready.rotation,
+                        to.rotation,
+                        progress,
+                      ),
+                    };
+                  },
             back,
-            // At the recover the left hand holds the firelock above the lock.
-            support:
-              carriage === "recover" && s.lock !== undefined
-                ? s.lock
-                : HumanWeaponHeld.supported(context, s, pose, bladed),
+            support,
             turn,
             advance: "none",
             line,
@@ -187,6 +249,35 @@ export namespace HumanWeaponPresent {
           // An aimed weapon keeps its line on the target from a moving support.
           carriage === "aim" ? { target, pivot: eye } : undefined,
         );
+        if (support === null) return presented;
+        // Two hands on one weapon are laid in one course, the hands on it
+        // excused from each other, so neither arm is fitted afresh at each
+        // instant and both stay rigid on the weapon where both reach it.
+        const other: AutoMovieHumanSide = tool.side === "left" ? "right" : "left";
+        const raised: number =
+          (presented.events.find(
+            (e: IAutoMovieMotionEvent): boolean => e.name === "ready",
+          )?.share ?? 0) * presented.duration;
+        return courseArmGoal({
+          body: context.body,
+          plan: presented,
+          side: tool.side,
+          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, tool.side),
+          grasp: ["hand"],
+          span: {
+            start: 0,
+            ready: Math.max(raised, Math.min(set, presented.duration)),
+            relax: presented.duration,
+            end: presented.duration,
+          },
+          with: [
+            {
+              side: other,
+              rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
+              grasp: ["hand"],
+            },
+          ],
+        });
       },
       // A grip a pick up weighs for this presentation is judged at the pose
       // the plan strokes to, with that grip's weapon, by the bound the plan

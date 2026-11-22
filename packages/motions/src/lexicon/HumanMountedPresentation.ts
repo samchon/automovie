@@ -95,24 +95,42 @@ export namespace HumanMountedPresentation {
    *
    * @param off The target's signed bearing off the seat's heading, degrees, positive to the left.
    * @param held The trunk turn the presentation already takes, degrees, such as a shouldered long gun's blade; the sum stays within `range`.
+   * @param side The presenting arm.
    * @param axis The refused parameter's name.
-   * @returns The turn, degrees, positive to the left: 0 within the arms' `TURN`, else the excess, toward the target.
-   * @throws {HumanRefusal} A `reach` refusal on `axis` when the turn with `held` leaves `range` on the target's side, naming the bearing and the feasible bearings.
+   * @returns The turn, degrees, positive to the left, toward the target: on the presenting arm's side, 0 within the arms' `TURN` and the excess past it; across the body, the whole bearing as far as the trunk's range allows, the arms taking the rest.
+   * @throws {HumanRefusal} A `reach` refusal on `axis` when the bearing lies past the trunk's range and the arms' `TURN` on its side, naming the bearing and the feasible bearings.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result, its sign and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The arms present within `TURN` of the chest's facing, so the trunk turns by whatever of the bearing exceeds it, and that turn with the one already held must stay within the range on that side.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One excess and one bound.
+   * @evidence contracts/development/common.md#meaningful-documentation States the result, its sign, both sides and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The arms present within `TURN` of the chest's facing on their own side, so the trunk turns by whatever of the bearing exceeds it there; an arm does not present across the chest, so for a target on the other side the trunk turns toward it by its whole bearing up to its range, and only the rest is the arms'; with the turn already held, the sum stays within the range.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One side test, one turn and one bound.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target beyond the reach is refused, never presented to at a clamped bearing.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function turn(off: number, held: number, axis: string): number {
+  export function turn(
+    off: number,
+    held: number,
+    side: AutoMovieHumanSide,
+    axis: string,
+  ): number {
     const reach: IRange = range();
     const arms: number = HumanWeaponPresent.TURN;
-    if (Math.abs(off) <= arms) return 0;
-    const excess: number = off - Math.sign(off) * arms;
-    if (held + excess > reach.left || held + excess < reach.right)
+    // The presenting arm's own side: the right arm's to the right, negative.
+    const across: boolean = side === "right" ? off > 0 : off < 0;
+    const most: number = off > 0 ? reach.left - held : reach.right - held;
+    const taken: number = across
+      ? off > 0
+        ? Math.max(0, Math.min(off, most))
+        : Math.min(0, Math.max(off, most))
+      : Math.abs(off) <= arms
+        ? 0
+        : off - Math.sign(off) * arms;
+    if (
+      held + taken > reach.left ||
+      held + taken < reach.right ||
+      Math.abs(off - taken) > arms
+    )
       throw new HumanRefusal({
         kind: "reach",
         axis,
@@ -126,7 +144,7 @@ export namespace HumanMountedPresentation {
         reason: `the target lies ${off.toFixed(0)} degrees off the seat's heading, beyond the trunk's turn and the arms' ${arms} degrees`,
         fix: "turn the horse toward the target or move the target within the rider's reach",
       });
-    return excess;
+    return taken;
   }
 
   /**
@@ -179,7 +197,7 @@ export namespace HumanMountedPresentation {
     reach: number,
     axis: string,
   ): IStation {
-    const t: number = turn(bearing(0, root, target), 0, axis);
+    const t: number = turn(bearing(0, root, target), 0, side, axis);
     const shoulder: IAutoMovieVector3 = Vector3.add(
       root,
       Quaternion.rotateVector(

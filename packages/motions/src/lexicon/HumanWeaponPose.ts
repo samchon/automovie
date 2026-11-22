@@ -55,7 +55,7 @@ export namespace HumanWeaponPose {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None optional.
    */
   export interface IPosed {
-    /** The trunk's turn toward the firing side, degrees. */
+    /** The trunk's whole turn, degrees, positive toward the performer's left: a long gun's blade toward the firing side on foot, with a seated performer's turn toward the target. */
     turn: number;
 
     /** The entry posture with the trunk turned and the supporting hand on its planned handle. */
@@ -132,27 +132,46 @@ export namespace HumanWeaponPose {
     // A long gun is shouldered with the support shoulder forward: the
     // trunk turns toward the firing side, and the eye, the shoulders and
     // the reach are read on the turned trunk. At the recover the body stays
-    // "as square to the front as possible".
+    // "as square to the front as possible". A seated shooter takes no blade:
+    // standing, the hips and the feet take it, but the saddle holds the pelvis,
+    // so it would all land in the spine; the seated turn toward the target is
+    // the trunk's own (`mounted`).
     const turn: number =
-      !s.long || carriage === "recover" || carriage === "shoulder"
+      seated || !s.long || carriage === "recover" || carriage === "shoulder"
         ? 0
         : s.tool.side === "right"
           ? -HumanWeaponPresent.BLADED
           : HumanWeaponPresent.BLADED;
+    const ahead = (yaw: number): IAutoMovieVector3 =>
+      HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw },
+        { x: 0, y: 0, z: 1 },
+      );
+    const aimed: IAutoMovieVector3 | undefined =
+      p.target === undefined ? undefined : context.aim(p.target, start).point;
     // In the saddle the pelvis keeps the horse's heading, so the trunk turns
-    // toward a target the arms alone cannot present to (HumanMountedPresentation).
-    const mounted: number =
-      seated && p.target !== undefined
-        ? HumanMountedPresentation.turn(
-            HumanMountedPresentation.bearing(
-              entry.yaw,
-              entry.root,
-              context.aim(p.target, start).point,
-            ),
-            turn,
-            "target",
-          )
-        : 0;
+    // toward a target the arms alone cannot present to (HumanMountedPresentation),
+    // by the signed bearing read on the same floor line the arms' bound reads.
+    const mounted: number = ((): number => {
+      if (!seated || aimed === undefined) return 0;
+      const floor: IAutoMovieVector3 = StrikingTarget.line(
+        entry.root,
+        aimed,
+        entry.yaw,
+      );
+      const left: IAutoMovieVector3 = HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
+        { x: 1, y: 0, z: 0 },
+      );
+      const bearing: number =
+        (Math.atan2(
+          Vector3.dot(floor, left),
+          Vector3.dot(floor, ahead(entry.yaw)),
+        ) *
+          180) /
+        Math.PI;
+      return HumanMountedPresentation.turn(bearing, turn, s.tool.side, "target");
+    })();
     const bladed: IAutoMovieMotionHumanPosture = StrikingBlade.turned(
       entry,
       turn + mounted,
@@ -202,15 +221,8 @@ export namespace HumanWeaponPose {
                 bones.get(context.body.surfaces.regions.mouth.bone)!,
               ).point;
     const chest: IAutoMovieVector3 = bones.get("chest")!.worldPosition;
-    const ahead = (yaw: number): IAutoMovieVector3 =>
-      HumanFrame.point(
-        { origin: { x: 0, y: 0, z: 0 }, yaw },
-        { x: 0, y: 0, z: 1 },
-      );
     const target: IAutoMovieVector3 =
-      p.target === undefined
-        ? Vector3.add(eye, Vector3.scale(ahead(entry.yaw), 10))
-        : context.aim(p.target, start).point;
+      aimed ?? Vector3.add(eye, Vector3.scale(ahead(entry.yaw), 10));
     const line: IAutoMovieVector3 = StrikingTarget.line(
       entry.root,
       target,
@@ -222,7 +234,10 @@ export namespace HumanWeaponPose {
       ) *
         180) /
       Math.PI;
-    if (off > HumanWeaponPresent.TURN)
+    // A seated turn has already refused a target past the trunk's reach and
+    // brought the target to the arms' bound, so only an unturned
+    // presentation is judged against it here.
+    if (mounted === 0 && off > HumanWeaponPresent.TURN)
       throw new HumanRefusal({
         kind: "reach",
         axis: "target",
@@ -451,7 +466,18 @@ export namespace HumanWeaponPose {
           posture: supported,
         });
       })();
-    return { turn, bladed: supported(pose), eye, target, line, carriage, pose, tool, back };
+    // The stroke twists the trunk by the whole turn the pose was laid on.
+    return {
+      turn: turn + mounted,
+      bladed: supported(pose),
+      eye,
+      target,
+      line,
+      carriage,
+      pose,
+      tool,
+      back,
+    };
   }
 
   /**
