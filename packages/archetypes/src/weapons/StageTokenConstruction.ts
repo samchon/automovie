@@ -22,7 +22,7 @@ const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
  * The stored model record and original draw session preserve the silhouette's scene identity, size and material.
  *
  * @param kind The historical profile label.
- * @param build The shape builder for the chosen profile, with its actual resolved dimensions.
+ * @param build The shape builder for the chosen profile, with its resolved dimensions.
  * @param params The model choice, admitted dimensions and scene identifier.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.

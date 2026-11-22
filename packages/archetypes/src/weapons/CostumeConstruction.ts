@@ -14,10 +14,10 @@ import { createArmour } from "./createArmour";
 /**
  * Fit a digital costume piece from its admitted record.
  *
- * Each type builds its actual hollow form. The pre-fit record determines its saved dimensions and the wear frame stays at the model origin.
+ * Each type builds its hollow form. The pre-fit record determines its saved dimensions and the wear frame stays at the model origin.
  *
  * @param kind The selected costume form.
- * @param cellsOf Builds the actual hollow costume shell cells.
+ * @param cellsOf Builds the hollow costume shell cells.
  * @param params An optional body measure along with the corresponding costume record and dimensions.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
@@ -115,7 +115,7 @@ export function CostumeConstruction(
   });
 }
 
-/** Admit only the body's dimensions this kind actually uses, without inventing anthropometric bands. */
+/** Admit only the body's dimensions this kind uses, without inventing anthropometric bands. */
 function admitMeasure(
   kind: createArmour.Kind,
   measure: Partial<IAutoMovieBodyMeasure>,

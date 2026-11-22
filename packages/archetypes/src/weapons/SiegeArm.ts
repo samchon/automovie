@@ -33,7 +33,7 @@ export namespace SiegeArm {
   /** The arm's travel at rest, its long end straight up, its centre of mass on the short side lowest: a quarter turn. */
   export const REST: number = 90;
 
-  /** Unsourced authored sizes, metres: post and base sections (beam also caps the designed moving diameter), counterweight box, release control and windlass height. Actual moving arm/cradle radius is designed from their whole angular floor domain, separately from base/control stock. */
+  /** Unsourced authored sizes, metres: post and base sections (beam also caps the designed moving diameter), counterweight box, release control and windlass height. Moving arm/cradle radius is designed from their whole angular floor domain, separately from base/control stock. */
   export const ESTIMATES: Readonly<{
     post: number;
     beam: number;
@@ -92,10 +92,10 @@ export namespace SiegeArm {
    * @param counterweight Whether the arm carries a hanging counterweight (a trebuchet) or a cup at the long end (a mangonel).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it lays.
-   * @evidence contracts/development/implementation.md#principled-implementation Keep sourced arm lengths, axle height and declared angle range. Design the unsourced moving section against the exact whole-domain arm/cradle/cord support, then admit actual base/post and plumb-counterweight support. The pouch socket consumes that real section. Generic articulation moves the connected fittings; every actual solid enters the existing total-mass volume allocation, independently of the stated reduced launch mass law.
+   * @evidence contracts/development/implementation.md#principled-implementation Keep sourced arm lengths, axle height and declared angle range. Design the unsourced moving section against the exact whole-domain arm/cradle/cord support, then admit base/post and plumb-counterweight support. The pouch socket consumes that real section. Generic articulation moves the connected fittings; every solid enters the existing total-mass volume allocation, independently of the stated reduced launch mass law.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Frame, arm, counterweight and contacts, then connected shaft/cradle/span/control fittings through SiegeStructure.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Fixed frame/control stock remains separate from the admitted moving section. No fitting is hidden with zero share, no source length/angle/floor is shifted and no runtime pose clamp or new physical simulator replaces the declared launch approximation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A bounded list of primitive fittings, two spans and at most six contacts; generic articulation and actual-anchor span emission remain linear in that list.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A bounded list of primitive fittings, two spans and at most six contacts; generic articulation and anchor span emission remain linear in that list.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work SiegeStructure owns each missing physical fitting and its articulation membership; the existing pendulum and draw owners are unchanged.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -238,7 +238,7 @@ export namespace SiegeArm {
     });
     SiegeStructure.lay(builder, d, e, counterweight, radius);
 
-    /** Admit the whole actual solid; the ground remains model Y zero. */
+    /** Admit the whole solid; the ground remains model Y zero. */
     function floor(id: string, minimum: number): void {
       if (!(Number.isFinite(minimum) && minimum >= 0))
         throw new RangeError(`Siege ${id} cannot clear the declared floor`);

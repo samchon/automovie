@@ -19,7 +19,7 @@ import { createCostumeVambrace } from "./createCostumeVambrace";
 /**
  * A piece of armour worn on one bone: a helmet (open, closed or brimmed), a cuirass, a mail shirt, a gauntlet, a vambrace or a greave.
  *
- * Actual closed wall cells leave face, neck, arm, hem and limb cavities open.
+ * Closed wall cells leave face, neck, arm, hem and limb cavities open.
  * Museum H/W/D and total mass remain the selected record's; fitted body
  * boundaries retain their exact measure, plate and provisional helmet pad.
  * Unfitted elliptical walls use the plate band as a minimum normal gauge;

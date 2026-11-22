@@ -395,12 +395,12 @@ export namespace createCannon {
   export const recoil: typeof cannonRecoil = cannonRecoil;
 
   /**
-   * Actual field-gun axle support for generic towing; cannonTowing admits its kind.
+   * Field-gun axle support for generic towing; cannonTowing admits its kind.
    *
-   * @param gun Actual neutral fieldGun output; its trail coupling lies behind its own +Z direction.
+   * @param gun Neutral fieldGun output; its trail coupling lies behind its own +Z direction.
    * @returns An independent model-space metre axle supporting rigid body pitch with both wheels grounded; generic towing derives the reverse trail-first orientation.
-   * @throws {RangeError} For another producer/kind or invalid actual wheel-axis geometry.
-   * @throws {AutoMovieArchetypeRefusal} If an actual required wheel-spin affordance is absent.
+   * @throws {RangeError} For another producer/kind or invalid wheel-axis geometry.
+   * @throws {AutoMovieArchetypeRefusal} If a required wheel-spin affordance is absent.
    */
   export const towing: typeof cannonTowing = cannonTowing;
 }

@@ -12,9 +12,9 @@ import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
  * Analytic level-ground support over a complete declared rotation about model -X.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines model metres, degree intervals, one fixed vertical pivot, exact box/cylinder support families, outward binary64 arithmetic and maximum representable section design without an authored floor gap.
- * @evidence contracts/development/design.md#principled-representation A point's height is H+y*cos(angle)+z*sin(angle). Box support reduces to its actual YZ corners; an X-axis cylinder subtracts radius and a sagittal cylinder reduces its circular support to two sinusoidal signs at each endpoint.
+ * @evidence contracts/development/design.md#principled-representation A point's height is H+y*cos(angle)+z*sin(angle). Box support reduces to its YZ corners; an X-axis cylinder subtracts radius and a sagittal cylinder reduces its circular support to two sinusoidal signs at each endpoint.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owns only the siege construction's angular support and representable section search; existing primitive geometry, articulation, launch and total mass remain with their owners.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose grid, picture tuning, runtime projection, raised ground, safety padding or hidden proxy replaces the actual emitted solid.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose grid, picture tuning, runtime projection, raised ground, safety padding or hidden proxy replaces the emitted solid.
  */
 export namespace SiegeClearance {
   /**
@@ -68,11 +68,11 @@ export namespace SiegeClearance {
   }
 
   /**
-   * Lowest actual unrotated box surface after its carrier's complete X rotation.
+   * Lowest unrotated box surface after its carrier's complete X rotation.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Actual centre/full dimensions and pivot height are metres; angle interval is degrees; no mesh or proxy is consumed.
-   * @evidence contracts/development/implementation.md#principled-implementation All four YZ corner combinations supply the box's complete analytic support for an X-axis carrier. At endpoint/stationary angles and adjacent representable angle inputs, the same generic turn/move arithmetic independently admits actual rounded primitive transforms and eight corners.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reduce four analytic corner minima, then inspect actual transformed corners at the finite critical-clock representation boundary.
+   * @evidence contracts/development/common.md#meaningful-documentation Centre/full dimensions and pivot height are metres; angle interval is degrees; no mesh or proxy is consumed.
+   * @evidence contracts/development/implementation.md#principled-implementation All four YZ corner combinations supply the box's complete analytic support for an X-axis carrier. At endpoint/stationary angles and adjacent representable angle inputs, the same generic turn/move arithmetic independently admits rounded primitive transforms and eight corners.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reduce four analytic corner minima, then inspect transformed corners at the finite critical-clock representation boundary.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never replaces a box by its centre or discards longitudinal half-depth.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four analytic minima and a bounded endpoint/stationary-neighbor set of eight-corner transform checks; no angle grid or model build.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses minimum for every corner rather than another angular solver.
@@ -123,14 +123,14 @@ export namespace SiegeClearance {
   }
 
   /**
-   * Lowest finite-cylinder surface for the actual X or sagittal source axis.
+   * Lowest finite-cylinder surface for the X or sagittal source axis.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Actual endpoint/radius metres, fixed pivot and degree interval describe the source cylinder; supported axes are the siege's X crossshafts and YZ-plane rods.
-   * @evidence contracts/development/implementation.md#principled-implementation For an X crossshaft, vertical radial support is radius. For a YZ axis u, support is radius*abs(u.z*cos(angle)-u.y*sin(angle)); two signs at each endpoint cover the complete flat-capped solid. The builder's vector length/rotationBetween and generic turn/move arithmetic also admit actual rounded cylinder support at the finite critical clocks and their adjacent inputs.
+   * @evidence contracts/development/common.md#meaningful-documentation Endpoint/radius metres, fixed pivot and degree interval describe the source cylinder; supported axes are the siege's X crossshafts and YZ-plane rods.
+   * @evidence contracts/development/implementation.md#principled-implementation For an X crossshaft, vertical radial support is radius. For a YZ axis u, support is radius*abs(u.z*cos(angle)-u.y*sin(angle)); two signs at each endpoint cover the complete flat-capped solid. The builder's vector length/rotationBetween and generic turn/move arithmetic also admit rounded cylinder support at the finite critical clocks and their adjacent inputs.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Reduce endpoint/circular-support analytic minima, construct the same primitive rigid frame and check its critical-clock representability.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No capsule cap, centre-only floor test or invented projection substitutes for the actual flat-capped cylinder; unsupported axes refuse.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No capsule cap, centre-only floor test or invented projection substitutes for the flat-capped cylinder; unsupported axes refuse.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most four analytic minima and a bounded critical-neighbor set of constant-size primitive-frame checks, independent of interval length.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares minimum with actual box corners and the section design.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares minimum with box corners and the section design.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no cylinder or pose history.
    */
   export function cylinder(
@@ -211,7 +211,7 @@ export namespace SiegeClearance {
    * @throws {RangeError} If no positive representable section fits.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines the authored cap, zero-radius limiting premise, monotone homothetic section domain and admitted positive binary64 boundary value; no physical safety gap is added.
-   * @evidence contracts/development/implementation.md#principled-implementation Positive binary64 encodings are ordered integers. Bisect the finite cap's encoding against feasible zero until adjacent encodings remain, using the same actual rounded CAD definition and analytic support predicate for each candidate.
+   * @evidence contracts/development/implementation.md#principled-implementation Positive binary64 encodings are ordered integers. Bisect the finite cap's encoding against feasible zero until adjacent encodings remain, using the same rounded CAD definition and analytic support predicate for each candidate.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit cap/zero limit, keep an already feasible cap or search its finite representation interval, then admit the positive result.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixed radius fraction, epsilon, floor shift, angle grid or capture-only correction chooses the section. Finite critical-clock representability checks supplement the full analytic support domain rather than replacing it.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most 63 encoding halvings plus three boundary admissions, each calling the fixed-size analytic construction predicate; no model build, integration or mesh search occurs.
@@ -268,7 +268,7 @@ function critical(
   if (angle >= first && angle <= last) angles.add(angle);
 }
 
-/** Check actual rigid-transform representability at critical clocks and adjacent inputs. */
+/** Check rigid-transform representability at critical clocks and adjacent inputs. */
 function neighbours(
   angles: ReadonlySet<number>,
   first: number,

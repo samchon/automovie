@@ -33,7 +33,7 @@ const MASS: number = 0.12;
  *
  * The blade runs along `+Y` from its shoulder at the origin to the `tip`.
  * The socket tube lies one crank toward `-Z`, behind the shoulder, with its
- * bore sized from the musket's actual barrel. Its `socket` frame shares the
+ * bore sized from the musket's barrel. Its `socket` frame shares the
  * blade's axes and sits on the tube's axis at its front end, so placing it
  * on the musket's `bayonet` frame slides the tube over the muzzle and hangs
  * the blade below the barrel, parallel to it. The `handle` is the tube a hand

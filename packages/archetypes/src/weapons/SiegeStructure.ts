@@ -10,25 +10,25 @@ import { SiegeClearance } from "./SiegeClearance";
 import type { createSiegeEngine } from "./createSiegeEngine";
 
 /**
- * Actual coarse fittings of the existing tip-carried lever-arm launcher.
+ * Coarse fittings of the existing tip-carried lever-arm launcher.
  *
  * Hansen 1992 describes axles in bearings, a net pouch, a separate firing
  * catch and loading tackle (https://linnamuuseum.ee/JaanMarss/juhendid/Mehaanilised_kaugrelvad_keskajal/andmebaas/Middelaldercentret/Peter%20Vemming%20Hansen/acta.html).
  * Those relationships motivate these parts; their dimensions are construction
  * envelopes of SiegeArm's authored sections and control grip. The moving arm
  * and cradle section are designed together against their complete angular
- * floor-support domain; the actual section places the arm-tip socket.
+ * floor-support domain; the section places the arm-tip socket.
  * There is no independent sling swing or historical sling-length
  * claim. The windlass is the existing authored crank, not Hansen's ground tackle.
- * Cord diameter borrows Tarver's actual 5/8-inch manila sling rope (1995, p.155,
+ * Cord diameter borrows Tarver's 5/8-inch manila sling rope (1995, p.155,
  * https://uccshes.wordpress.com/wp-content/uploads/2012/09/reconstruction-of-a-traction-trebuchet.pdf);
  * its use on the counterweight type is a declared construction transfer.
- * Every actual solid contributes its volume under the existing composite
+ * Every solid contributes its volume under the existing composite
  * relative-density premise and drawn total mass. The independent long-thin-bar
  * pendulum's stated arm mass remains its provisional launch approximation.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the primary structural reference, SI construction envelopes, whole-domain section design, moving/stationary groups, tip-carried cradle premise and actual-solid mass allocation under the unchanged total/pendulum scope.
- * @evidence contracts/development/design.md#principled-representation Named rigid primitive fittings use the actual axle, arm, socket, slider and crank frames. Two declared spans join actual arm-tip and cradle points; the existing articulation owner moves all groups.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the primary structural reference, SI construction envelopes, whole-domain section design, moving/stationary groups, tip-carried cradle premise and solid mass allocation under the unchanged total/pendulum scope.
+ * @evidence contracts/development/design.md#principled-representation Named rigid primitive fittings use the axle, arm, socket, slider and crank frames. Two declared spans join arm-tip and cradle points; the existing articulation owner moves all groups.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Internal to SiegeArm.lay; owns only missing physical fittings and their part membership, without another launcher law, dimension draw, physics engine or public affordance.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No measured sling length, structural rating, material density, automatic release coupling or independent projectile motion is invented. The existing explicitly provisional tip-carried launcher remains visible as that approximation.
  */
@@ -37,7 +37,7 @@ export namespace SiegeStructure {
   export const CORD_RADIUS: number =
     ((5 / 8) * AutoMovieArchetypeUnits.INCH) / 2;
 
-  /** Actual rigid pieces turned by the existing arm hinge; spans follow their ends. */
+  /** Rigid pieces turned by the existing arm hinge; spans follow their ends. */
   export const ARM_PARTS: readonly string[] = [
     "arm",
     "axle",
@@ -47,7 +47,7 @@ export namespace SiegeStructure {
     "pouch-back",
   ];
 
-  /** Actual rotating windlass group, carried only by the existing crank. */
+  /** Rotating windlass group, carried only by the existing crank. */
   export const WINCH_PARTS: readonly string[] = [
     "winch-shaft",
     "winch-drum",
@@ -55,20 +55,20 @@ export namespace SiegeStructure {
     "winch-grip",
   ];
 
-  /** Actual extracted pin/drawbar and supported crosshead; guides and beds stay fixed. */
+  /** Extracted pin/drawbar and supported crosshead; guides and beds stay fixed. */
   export const PIN_PARTS: readonly string[] = [
     "release-pin",
     "release-link",
     "release-carriage",
   ];
 
-  /** One actual dimension-derived box, with its complete support bounds. */
+  /** One dimension-derived box, with its complete support bounds. */
   interface IBox {
-    /** Actual part identity. */
+    /** Part identity. */
     id: string;
     /** Full positive sizes, metres. */
     size: IAutoMovieVector3;
-    /** Actual neutral centre, model metres. */
+    /** Neutral centre, model metres. */
     at: IAutoMovieVector3;
   }
 
@@ -77,10 +77,10 @@ export namespace SiegeStructure {
    *
    * @param d Drawn source dimensions and complete degree travel interval.
    * @param e Existing authored frame/control stock; beam caps the moving diameter.
-   * @returns Admitted actual moving radius, metres.
+   * @returns Admitted moving radius, metres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation The existing beam section is an authored upper cap, not a sourced diameter. Actual arm-cylinder support, all cradle-box corners and both measured-radius cords constrain the same section over every declared angle.
-   * @evidence contracts/development/implementation.md#principled-implementation Test the actual rounded dimension-derived cradle records, arm cylinder and vertical-cord circular supports through SiegeClearance. The homothetic section's zero-radius limit clears the floor; choose an admitted representable positive-clearance section at that analytic boundary below the authored cap.
+   * @evidence contracts/development/common.md#meaningful-documentation The existing beam section is an authored upper cap, not a sourced diameter. Arm-cylinder support, all cradle-box corners and both measured-radius cords constrain the same section over every declared angle.
+   * @evidence contracts/development/implementation.md#principled-implementation Test the rounded dimension-derived cradle records, arm cylinder and vertical-cord circular supports through SiegeClearance. The homothetic section's zero-radius limit clears the floor; choose an admitted representable positive-clearance section at that analytic boundary below the authored cap.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Snapshot the source angle domain, then pass one complete analytic tip-assembly predicate to the bounded representation search.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source arm length, axle height, cocked/release/reach angle, scene floor or capture placement changes; no single endpoint or sampled angle supplies the support domain.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most 66 fixed-size analytic predicates including boundary admissions; four cradle boxes and a constant number of cylinder-support signs per predicate, without building a model or running a physical solver.
@@ -133,18 +133,18 @@ export namespace SiegeStructure {
   /**
    * Construct connected fittings inside the existing authored section envelopes.
    *
-   * @param builder Engine with its actual base/posts/arm and kind's contacts recorded.
+   * @param builder Engine with its base/posts/arm and kind's contacts recorded.
    * @param d Existing drawn SI dimensions; no dimension is drawn here.
    * @param e Existing authored post/beam/box and control sizes.
    * @param counterweight Whether the short end carries its existing hanging box.
-   * @param armRadius The complete tip assembly's admitted actual section radius.
+   * @param armRadius The complete tip assembly's admitted section radius.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines SI inputs, separate frame/control and admitted moving-arm stocks, actual socket/controls, rigid ownership and real span endpoints. Every actual fitting contributes its real volume to the existing total-mass composite allocation.
-   * @evidence contracts/development/implementation.md#principled-implementation The section-sized crossshaft spans both posts at the true hinge. The same designed cradle records put the inner floor on the actual arm-radius socket. Short sling spans join actual arm/cradle rims. Admit every moving fitting's complete angular box/cylinder support, all crank rotations, and each fixed/pin support before recording the real solid. A real crosshead carries the extracted pin/drawbar on two fixed beds and parallel side guides throughout the existing slider interval; the central opening clears the descending drawbar and the trestle reaches the far end.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines SI inputs, separate frame/control and admitted moving-arm stocks, socket/controls, rigid ownership and real span endpoints. Every fitting contributes its real volume to the existing total-mass composite allocation.
+   * @evidence contracts/development/implementation.md#principled-implementation The section-sized crossshaft spans both posts at the true hinge. The same designed cradle records put the inner floor on the arm-radius socket. Short sling spans join arm/cradle rims. Admit every moving fitting's complete angular box/cylinder support, all crank rotations, and each fixed/pin support before recording the real solid. A real crosshead carries the extracted pin/drawbar on two fixed beds and parallel side guides throughout the existing slider interval; the central opening clears the descending drawbar and the trestle reaches the far end.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Build pivot and optional short-end axle, the open tip cradle and two spans, fixed release rails/guide and the slider pin, then the rotating windlass.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The unsourced moving section is designed by actual whole-domain support, separately from fixed stock. Rope diameter is Tarver's read reconstruction value, explicitly transferred to the counterweight construction. No zero-share fitting, hidden physical proxy, soil offset, runtime pose clamp, hanging-sling dynamics, wound-cable law or rated strength is introduced. Source lengths, angles, total mass and long-thin-bar launch law remain fixed.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The unsourced moving section is designed by whole-domain support, separately from fixed stock. Rope diameter is Tarver's read reconstruction value, explicitly transferred to the counterweight construction. No zero-share fitting, hidden physical proxy, soil offset, runtime pose clamp, hanging-sling dynamics, wound-cable law or rated strength is introduced. Source lengths, angles, total mass and long-thin-bar launch law remain fixed.
    * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of boxes/rods and two spans; builder lookups are linear in the engine's bounded part list, and each pose reuses the generic articulation/span owners.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses existing primitive construction, actual-part anchor conversion and span realization. Existing authored control stock supplies coarse detail envelopes rather than another physical-size table.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses existing primitive construction, part anchor conversion and span realization. Existing authored control stock supplies coarse detail envelopes rather than another physical-size table.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Records only builder-owned primitive/span data; retains no caller records, cache, sampled pose history or external resource.
    */
   export function lay(
@@ -324,7 +324,7 @@ export namespace SiegeStructure {
       "winch",
     );
 
-    /** Each real rod is admitted in its actual carrier's complete angle domain. */
+    /** Each real rod is admitted in its carrier's complete angle domain. */
     function rod(
       id: string,
       radius: number,

@@ -15,16 +15,16 @@ import { SiegeArm } from "./SiegeArm";
 /**
  * A siege engine that throws a stone: a counterweight trebuchet, its arm swung up by a box hanging from its short end, or a mangonel, a traction trebuchet whose short end the crew hauls down, its pull taken as the weight that would pull as hard.
  *
- * The engine stands on its base at the origin, its arm across its posts' actual crossshaft, the long end toward `+Z` and level at rest. `arm` is the throwing arm's hinge, a positive travel raising the long end; it is cocked by its reverse, the long end down. The unsourced arm/cradle section is designed together to clear model floor zero over every declared angle; fixed base/control stock stays separate. A trebuchet's `counterweight` hangs from the short end on a hinge that turns against the arm, so it stays plumb. `pouch` is the inner floor of the real-section arm-tip cradle, joined to the arm by two folded sling spans, with no independent sling swing. `pin` is the real release rod, its cocked-tip drawbar and fixed guide/trestle. `winch` is the cross-post windlass with its radial crank and axial grip, turning by its ratio as the arm is wound. `frame` is the base the crew stands on. `throwAt` uses the same source launch law and the current actual pouch origin. Actual-solid composite mass distribution under the drawn total is separate from that law's provisional armMass/counterweight controls.
+ * The engine stands on its base at the origin, its arm across its posts' crossshaft, the long end toward `+Z` and level at rest. `arm` is the throwing arm's hinge, a positive travel raising the long end; it is cocked by its reverse, the long end down. The unsourced arm/cradle section is designed together to clear model floor zero over every declared angle; fixed base/control stock stays separate. A trebuchet's `counterweight` hangs from the short end on a hinge that turns against the arm, so it stays plumb. `pouch` is the inner floor of the real-section arm-tip cradle, joined to the arm by two folded sling spans, with no independent sling swing. `pin` is the real release rod, its cocked-tip drawbar and fixed guide/trestle. `winch` is the cross-post windlass with its radial crank and axial grip, turning by its ratio as the arm is wound. `frame` is the base the crew stands on. `throwAt` uses the same source launch law and the current pouch origin. Solid composite mass distribution under the drawn total is separate from that law's provisional armMass/counterweight controls.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
  * @returns The engine.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or one the kind lacks.
- * @throws {RangeError} If no positive representable moving section or actual fitting clears its complete declared angular floor domain.
+ * @throws {RangeError} If no positive representable moving section or fitting clears its complete declared angular floor domain.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the engine stands, each contact and articulation, and what the throw does.
- * @evidence contracts/development/implementation.md#principled-implementation Draw the unchanged dimensions, then lay the frame, actual pivot/control fittings and tip-carried cradle through SiegeArm.lay and SiegeStructure. Generic articulation and actual-part spans realize the same contacts in every pose.
+ * @evidence contracts/development/implementation.md#principled-implementation Draw the unchanged dimensions, then lay the frame, pivot/control fittings and tip-carried cradle through SiegeArm.lay and SiegeStructure. Generic articulation and part spans realize the same contacts in every pose.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, lay, build.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No crew is built in. Unsourced moving sections are designed by complete angular solid support and the real socket follows that section. Every real solid participates in the existing total-mass composite volume/default-density allocation; it is not a measured component-mass calibration. Source lengths, angle/band/seed contracts and the separate reduced beam-tip launch law remain unchanged; independent sling dynamics or rated strength are not claimed.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One builder pass.
@@ -177,7 +177,7 @@ export namespace createSiegeEngine {
   }
 
   /**
-   * The throw from a pin pulled at a second: the arm released from its cocked travel swings under gravity as SiegeArm.pendulum gives it. The stone leaves the actual section-sized pouch socket at its release travel with the existing armLength-based tangential velocity approximation. The socket's section-radius offset and independent sling motion do not enter that reduced velocity law, whose armMass/counterweight controls are not a calibration of the coarse composite's actual solid allocation.
+   * The throw from a pin pulled at a second: the arm released from its cocked travel swings under gravity as SiegeArm.pendulum gives it. The stone leaves the section-sized pouch socket at its release travel with the existing armLength-based tangential velocity approximation. The socket's section-radius offset and independent sling motion do not enter that reduced velocity law, whose armMass/counterweight controls are not a calibration of the coarse composite's solid allocation.
    *
    * @param engine A siege engine.
    * @param start The film second the pin is pulled.
