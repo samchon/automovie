@@ -51,6 +51,15 @@ export namespace HumanSegmentShown {
     prepared?: prepareHumanSegmentPose.IPrepared,
     retain: boolean = true,
   ): { pose: IAutoMoviePose; kept?: HumanSegment.IShown } {
+    // Past the end of the person's last action the body holds that action's
+    // final pose to the film's end: the film can outlast it (another
+    // performer acts on, or the film's length rounds past the action's end),
+    // and no still stretch or plan read past the action's end is its final
+    // pose.
+    const final: IAutoMovieMotionHumanSegment | undefined =
+      person.segments.at(-1);
+    if (final !== undefined && seconds > final.end)
+      return of(person, final.end, requested, prepared, retain);
     const cached: HumanSegment.IShown | undefined = person.resolving
       ? person.planning?.get(seconds)
       : person.cache.get(seconds);
@@ -63,7 +72,9 @@ export namespace HumanSegmentShown {
     // outside any planning while the schedule is resolved is the demand
     // evaluated alone, since nothing is kept there.
     const demand: ReadonlySet<AutoMovieHumanoidBone> | undefined =
-      !retain || (person.resolving && person.planning === undefined) ? requested : undefined;
+      !retain || (person.resolving && person.planning === undefined)
+        ? requested
+        : undefined;
 
     // Where the pose holds still back to an earlier second
     // (`HumanSegmentStill.representative`), it is that second's pose: read
