@@ -33,9 +33,12 @@ export interface IAutoMovieMotionHumanPolo<Chain> {
  */
 export namespace IAutoMovieMotionHumanPolo {
   /**
-   * The parameters of `polo`.
+   * The parameters of `polo`: `IAutoMovieMotionHumanPolo` (`lexicon/IAutoMovieMotionHumanPolo`), the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `polo`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanPolo` (`lexicon/IAutoMovieMotionHumanPolo`): the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPolo` (`lexicon/IAutoMovieMotionHumanPolo`) owns the shape; the alias serves `polo` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IPolo = ILegacyPolo;
 }

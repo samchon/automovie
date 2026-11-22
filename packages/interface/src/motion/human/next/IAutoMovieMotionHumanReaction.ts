@@ -51,16 +51,22 @@ export interface IAutoMovieMotionHumanReaction<Chain> {
  */
 export namespace IAutoMovieMotionHumanReaction {
   /**
-   * The parameters of `flinch`.
+   * The parameters of `flinch`: `IAutoMovieMotionHumanFlinch.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `flinch`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanFlinch.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanFlinch.IParams` owns the shape; the alias serves `flinch` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IFlinch = IAutoMovieMotionHumanFlinch.IParams;
 
   /**
-   * The parameters of `give`.
+   * The parameters of `give`: `IAutoMovieMotionHumanGive.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `give`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanGive.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGive.IParams` owns the shape; the alias serves `give` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IGive = IAutoMovieMotionHumanGive.IParams;
 }

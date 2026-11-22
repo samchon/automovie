@@ -1,8 +1,8 @@
+import type { IAutoMovieMotionHumanMartialArt } from "../sport/IAutoMovieMotionHumanMartialArt";
 import type { IAutoMovieMotionHumanCloseStrike } from "../striking/IAutoMovieMotionHumanCloseStrike";
 import type { IAutoMovieMotionHumanFootStrike } from "../striking/IAutoMovieMotionHumanFootStrike";
 import type { IAutoMovieMotionHumanKick } from "../striking/IAutoMovieMotionHumanKick";
 import type { IAutoMovieMotionHumanKnee } from "../striking/IAutoMovieMotionHumanKnee";
-import type { IAutoMovieMotionHumanMartialArt } from "../sport/IAutoMovieMotionHumanMartialArt";
 import type { IAutoMovieMotionHumanPunch } from "../striking/IAutoMovieMotionHumanPunch";
 import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHumanStep";
 
@@ -82,7 +82,10 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanStrike.closeStrike is provided by the chain that implements IAutoMovieMotionHumanStrike.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanStrike.closeStrike is provided by the chain that implements IAutoMovieMotionHumanStrike.
    */
-  closeStrike(params: IAutoMovieMotionHumanStrike.ICloseStrike, anchor?: string): Chain;
+  closeStrike(
+    params: IAutoMovieMotionHumanStrike.ICloseStrike,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A foot strike beyond the round and push kicks: the heel, the sole or the blade of the foot brought onto the target through a chamber and recoiled to the stance.
@@ -99,7 +102,10 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanStrike.footStrike is provided by the chain that implements IAutoMovieMotionHumanStrike.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanStrike.footStrike is provided by the chain that implements IAutoMovieMotionHumanStrike.
    */
-  footStrike(params: IAutoMovieMotionHumanStrike.IFootStrike, anchor?: string): Chain;
+  footStrike(
+    params: IAutoMovieMotionHumanStrike.IFootStrike,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Fighting-stance footwork: steps that keep the stance, the foot on the side of travel moving first and the other following to restore the stance without crossing (IBA coaching manual pp.
@@ -133,7 +139,10 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanStrike.martialArt is provided by the chain that implements IAutoMovieMotionHumanStrike.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanStrike.martialArt is provided by the chain that implements IAutoMovieMotionHumanStrike.
    */
-  martialArt(params: IAutoMovieMotionHumanStrike.IMartialArt, anchor?: string): Chain;
+  martialArt(
+    params: IAutoMovieMotionHumanStrike.IMartialArt,
+    anchor?: string,
+  ): Chain;
 }
 
 /**
@@ -141,51 +150,72 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
  */
 export namespace IAutoMovieMotionHumanStrike {
   /**
-   * The parameters of `punch`.
+   * The parameters of `punch`: `IAutoMovieMotionHumanPunch.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `punch`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanPunch.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPunch.IParams` owns the shape; the alias serves `punch` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IPunch = IAutoMovieMotionHumanPunch.IParams;
 
   /**
-   * The parameters of `kick`.
+   * The parameters of `kick`: `IAutoMovieMotionHumanKick.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `kick`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanKick.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanKick.IParams` owns the shape; the alias serves `kick` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IKick = IAutoMovieMotionHumanKick.IParams;
 
   /**
-   * The parameters of `knee`.
+   * The parameters of `knee`: `IAutoMovieMotionHumanKnee.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `knee`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanKnee.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanKnee.IParams` owns the shape; the alias serves `knee` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IKnee = IAutoMovieMotionHumanKnee.IParams;
 
   /**
-   * The parameters of `closeStrike`.
+   * The parameters of `closeStrike`: `IAutoMovieMotionHumanCloseStrike.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `closeStrike`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanCloseStrike.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCloseStrike.IParams` owns the shape; the alias serves `closeStrike` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type ICloseStrike = IAutoMovieMotionHumanCloseStrike.IParams;
 
   /**
-   * The parameters of `footStrike`.
+   * The parameters of `footStrike`: `IAutoMovieMotionHumanFootStrike.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `footStrike`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanFootStrike.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanFootStrike.IParams` owns the shape; the alias serves `footStrike` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IFootStrike = IAutoMovieMotionHumanFootStrike.IParams;
 
   /**
-   * The parameters of `step`.
+   * The parameters of `step`: `IAutoMovieMotionHumanStep.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `step`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanStep.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStep.IParams` owns the shape; the alias serves `step` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IStep = IAutoMovieMotionHumanStep.IParams;
 
   /**
-   * The parameters of `martialArt`.
+   * The parameters of `martialArt`: `IAutoMovieMotionHumanMartialArt.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `martialArt`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanMartialArt.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanMartialArt.IParams` owns the shape; the alias serves `martialArt` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IMartialArt = IAutoMovieMotionHumanMartialArt.IParams;
 }

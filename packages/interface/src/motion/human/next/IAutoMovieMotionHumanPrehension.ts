@@ -28,7 +28,10 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanPrehension.pickUp is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanPrehension.pickUp is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    */
-  pickUp(params: IAutoMovieMotionHumanPrehension.IPickUp, anchor?: string): Chain;
+  pickUp(
+    params: IAutoMovieMotionHumanPrehension.IPickUp,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Setting a held prop down at a place and letting go.
@@ -45,7 +48,10 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanPrehension.putDown is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanPrehension.putDown is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    */
-  putDown(params: IAutoMovieMotionHumanPrehension.IPutDown, anchor?: string): Chain;
+  putDown(
+    params: IAutoMovieMotionHumanPrehension.IPutDown,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A held object moved within or with the hand that holds it, without being put down: turned about one of its own axes (a key in a lock, a cap), shifted to another of its grips (a pen turned into a writing grip, a phone from a carry grip to a texting grip), or rolled across the fingers (a coin).
@@ -62,7 +68,10 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanPrehension.regrasp is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanPrehension.regrasp is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    */
-  regrasp(params: IAutoMovieMotionHumanPrehension.IRegrasp, anchor?: string): Chain;
+  regrasp(
+    params: IAutoMovieMotionHumanPrehension.IRegrasp,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Loads carried at the sides with the arms hanging, performed over a walk (`HumanChain.over`): a farmer's walk.
@@ -79,7 +88,10 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanPrehension.carryHang is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanPrehension.carryHang is provided by the chain that implements IAutoMovieMotionHumanPrehension.
    */
-  carryHang(params: IAutoMovieMotionHumanPrehension.ICarryHang, anchor?: string): Chain;
+  carryHang(
+    params: IAutoMovieMotionHumanPrehension.ICarryHang,
+    anchor?: string,
+  ): Chain;
 }
 
 /**
@@ -87,30 +99,42 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
  */
 export namespace IAutoMovieMotionHumanPrehension {
   /**
-   * The parameters of `pickUp`.
+   * The parameters of `pickUp`: `IAutoMovieMotionHumanPickUp.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `pickUp`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanPickUp.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPickUp.IParams` owns the shape; the alias serves `pickUp` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IPickUp = IAutoMovieMotionHumanPickUp.IParams;
 
   /**
-   * The parameters of `putDown`.
+   * The parameters of `putDown`: `IAutoMovieMotionHumanPutDown.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `putDown`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanPutDown.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPutDown.IParams` owns the shape; the alias serves `putDown` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IPutDown = IAutoMovieMotionHumanPutDown.IParams;
 
   /**
-   * The parameters of `regrasp`.
+   * The parameters of `regrasp`: `IAutoMovieMotionHumanRegrasp.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `regrasp`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanRegrasp.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRegrasp.IParams` owns the shape; the alias serves `regrasp` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IRegrasp = IAutoMovieMotionHumanRegrasp.IParams;
 
   /**
-   * The parameters of `carryHang`.
+   * The parameters of `carryHang`: `IAutoMovieMotionHumanCarryHang.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `carryHang`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanCarryHang.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCarryHang.IParams` owns the shape; the alias serves `carryHang` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type ICarryHang = IAutoMovieMotionHumanCarryHang.IParams;
 }

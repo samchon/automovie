@@ -46,7 +46,10 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanTouch.highFive is provided by the chain that implements IAutoMovieMotionHumanTouch.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanTouch.highFive is provided by the chain that implements IAutoMovieMotionHumanTouch.
    */
-  highFive(params: IAutoMovieMotionHumanTouch.IHighFive, anchor?: string): Chain;
+  highFive(
+    params: IAutoMovieMotionHumanTouch.IHighFive,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A kiss while standing: the lips brought to a partner's region (a cheek, the forehead, the crown, the lips, the back of a hand) by leaning the body from the hips and flexing the neck, the head turned to one side for a cheek or the lips so the noses stay clear (#3284).
@@ -80,7 +83,10 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanTouch.legTouch is provided by the chain that implements IAutoMovieMotionHumanTouch.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanTouch.legTouch is provided by the chain that implements IAutoMovieMotionHumanTouch.
    */
-  legTouch(params: IAutoMovieMotionHumanTouch.ILegTouch, anchor?: string): Chain;
+  legTouch(
+    params: IAutoMovieMotionHumanTouch.ILegTouch,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Arm wrestling, one role of it (#3350): the elbow planted on a table's top, the hand clasped with the partner's above it, the struggle and the pin.
@@ -97,7 +103,10 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanTouch.armWrestle is provided by the chain that implements IAutoMovieMotionHumanTouch.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanTouch.armWrestle is provided by the chain that implements IAutoMovieMotionHumanTouch.
    */
-  armWrestle(params: IAutoMovieMotionHumanTouch.IArmWrestle, anchor?: string): Chain;
+  armWrestle(
+    params: IAutoMovieMotionHumanTouch.IArmWrestle,
+    anchor?: string,
+  ): Chain;
 }
 
 /**
@@ -105,37 +114,52 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
  */
 export namespace IAutoMovieMotionHumanTouch {
   /**
-   * The parameters of `touch`.
+   * The parameters of `touch`: `IAutoMovieMotionHumanTouch.IParams` (`touch/IAutoMovieMotionHumanTouch`), the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `touch`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanTouch.IParams` (`touch/IAutoMovieMotionHumanTouch`): the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTouch.IParams` (`touch/IAutoMovieMotionHumanTouch`) owns the shape; the alias serves `touch` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type ITouch = ILegacyTouch.IParams;
 
   /**
-   * The parameters of `highFive`.
+   * The parameters of `highFive`: `IAutoMovieMotionHumanHighFive.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `highFive`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanHighFive.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHighFive.IParams` owns the shape; the alias serves `highFive` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IHighFive = IAutoMovieMotionHumanHighFive.IParams;
 
   /**
-   * The parameters of `kiss`.
+   * The parameters of `kiss`: `IAutoMovieMotionHumanKiss.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `kiss`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanKiss.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanKiss.IParams` owns the shape; the alias serves `kiss` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IKiss = IAutoMovieMotionHumanKiss.IParams;
 
   /**
-   * The parameters of `legTouch`.
+   * The parameters of `legTouch`: `IAutoMovieMotionHumanLegTouch.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `legTouch`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanLegTouch.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLegTouch.IParams` owns the shape; the alias serves `legTouch` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type ILegTouch = IAutoMovieMotionHumanLegTouch.IParams;
 
   /**
-   * The parameters of `armWrestle`.
+   * The parameters of `armWrestle`: `IAutoMovieMotionHumanArmWrestle.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `armWrestle`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanArmWrestle.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanArmWrestle.IParams` owns the shape; the alias serves `armWrestle` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IArmWrestle = IAutoMovieMotionHumanArmWrestle.IParams;
 }

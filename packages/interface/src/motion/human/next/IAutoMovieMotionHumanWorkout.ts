@@ -30,7 +30,10 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWorkout.exercise is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWorkout.exercise is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    */
-  exercise(params: IAutoMovieMotionHumanWorkout.IExercise, anchor?: string): Chain;
+  exercise(
+    params: IAutoMovieMotionHumanWorkout.IExercise,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A standing static stretch or yoga pose held and released (#3246, M24): the neck side bend, the cross-body shoulder stretch, the overhead side bend, the standing quadriceps stretch holding the ankle, and the tree pose (ACSM's Guidelines, 11th ed.; the hold of 30 s, Bandy et al.
@@ -47,7 +50,10 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWorkout.stretch is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWorkout.stretch is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    */
-  stretch(params: IAutoMovieMotionHumanWorkout.IStretch, anchor?: string): Chain;
+  stretch(
+    params: IAutoMovieMotionHumanWorkout.IStretch,
+    anchor?: string,
+  ): Chain;
 
   /**
    * An exercise, a stretch or a pose done on a support that is not only the feet, or with the feet kept under a moving trunk: the body gets from standing into the exercise's first posture, passes through the postures of each repetition, and gets up again (#3377, #3378).
@@ -64,7 +70,10 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWorkout.workout is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWorkout.workout is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    */
-  workout(params: IAutoMovieMotionHumanWorkout.IWorkout, anchor?: string): Chain;
+  workout(
+    params: IAutoMovieMotionHumanWorkout.IWorkout,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Authoring inputs for one two-foot rope-skipping cycle in place.
@@ -81,7 +90,10 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWorkout.ropeSkip is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWorkout.ropeSkip is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    */
-  ropeSkip(params: IAutoMovieMotionHumanWorkout.IRopeSkip, anchor?: string): Chain;
+  ropeSkip(
+    params: IAutoMovieMotionHumanWorkout.IRopeSkip,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A walk along a line too narrow for a normal gait (#3875 beam, #3997 tightrope): the feet step heel to toe on the line, each turned out from it, the arms held out to the sides, and the body sways over the line and corrects (`lineWalk`).
@@ -98,7 +110,10 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWorkout.lineWalk is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWorkout.lineWalk is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    */
-  lineWalk(params: IAutoMovieMotionHumanWorkout.ILineWalk, anchor?: string): Chain;
+  lineWalk(
+    params: IAutoMovieMotionHumanWorkout.ILineWalk,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A walk on stilts (#3997): each foot strapped on a stilt's platform, the stilts' tips the only floor contacts, short steps on a wide base.
@@ -115,7 +130,10 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWorkout.stiltWalk is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWorkout.stiltWalk is provided by the chain that implements IAutoMovieMotionHumanWorkout.
    */
-  stiltWalk(params: IAutoMovieMotionHumanWorkout.IStiltWalk, anchor?: string): Chain;
+  stiltWalk(
+    params: IAutoMovieMotionHumanWorkout.IStiltWalk,
+    anchor?: string,
+  ): Chain;
 }
 
 /**
@@ -123,44 +141,62 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
  */
 export namespace IAutoMovieMotionHumanWorkout {
   /**
-   * The parameters of `exercise`.
+   * The parameters of `exercise`: `IAutoMovieMotionHumanExercise.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `exercise`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanExercise.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanExercise.IParams` owns the shape; the alias serves `exercise` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IExercise = IAutoMovieMotionHumanExercise.IParams;
 
   /**
-   * The parameters of `stretch`.
+   * The parameters of `stretch`: `IAutoMovieMotionHumanStretch.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `stretch`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanStretch.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStretch.IParams` owns the shape; the alias serves `stretch` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IStretch = IAutoMovieMotionHumanStretch.IParams;
 
   /**
-   * The parameters of `workout`.
+   * The parameters of `workout`: `IAutoMovieMotionHumanWorkout.IParams` (`exercise/IAutoMovieMotionHumanWorkout`), the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `workout`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanWorkout.IParams` (`exercise/IAutoMovieMotionHumanWorkout`): the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWorkout.IParams` (`exercise/IAutoMovieMotionHumanWorkout`) owns the shape; the alias serves `workout` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IWorkout = ILegacyWorkout.IParams;
 
   /**
-   * The parameters of `ropeSkip`.
+   * The parameters of `ropeSkip`: `IAutoMovieMotionHumanRopeSkip.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `ropeSkip`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanRopeSkip.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRopeSkip.IParams` owns the shape; the alias serves `ropeSkip` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IRopeSkip = IAutoMovieMotionHumanRopeSkip.IParams;
 
   /**
-   * The parameters of `lineWalk`.
+   * The parameters of `lineWalk`: `IAutoMovieMotionHumanLineWalk.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `lineWalk`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanLineWalk.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLineWalk.IParams` owns the shape; the alias serves `lineWalk` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type ILineWalk = IAutoMovieMotionHumanLineWalk.IParams;
 
   /**
-   * The parameters of `stiltWalk`.
+   * The parameters of `stiltWalk`: `IAutoMovieMotionHumanStiltWalk.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `stiltWalk`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanStiltWalk.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStiltWalk.IParams` owns the shape; the alias serves `stiltWalk` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IStiltWalk = IAutoMovieMotionHumanStiltWalk.IParams;
 }

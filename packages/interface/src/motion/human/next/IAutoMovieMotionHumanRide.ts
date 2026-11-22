@@ -27,7 +27,10 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.travelCar is provided by the chain that implements IAutoMovieMotionHumanRide.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.travelCar is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
-  travelCar(params: IAutoMovieMotionHumanRide.ITravelCar, anchor?: string): Chain;
+  travelCar(
+    params: IAutoMovieMotionHumanRide.ITravelCar,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Parameters of the opt-in `HumanTravelCarExit.getOut` law for a stationary car with an already-open rear door.
@@ -44,7 +47,10 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.travelCarExit is provided by the chain that implements IAutoMovieMotionHumanRide.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.travelCarExit is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
-  travelCarExit(params: IAutoMovieMotionHumanRide.ITravelCarExit, anchor?: string): Chain;
+  travelCarExit(
+    params: IAutoMovieMotionHumanRide.ITravelCarExit,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Opening a door by its handle and holding it: the hand reaches the handle, closes on it and goes with it while the leaf swings, the person standing, and walking round with the leaf when the arm alone would lose the handle.
@@ -61,7 +67,10 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.travelLeaf is provided by the chain that implements IAutoMovieMotionHumanRide.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.travelLeaf is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
-  travelLeaf(params: IAutoMovieMotionHumanRide.ITravelLeaf, anchor?: string): Chain;
+  travelLeaf(
+    params: IAutoMovieMotionHumanRide.ITravelLeaf,
+    anchor?: string,
+  ): Chain;
 }
 
 /**
@@ -69,23 +78,32 @@ export interface IAutoMovieMotionHumanRide<Chain> {
  */
 export namespace IAutoMovieMotionHumanRide {
   /**
-   * The parameters of `travelCar`.
+   * The parameters of `travelCar`: `IAutoMovieMotionHumanTravelCar.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `travelCar`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanTravelCar.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTravelCar.IParams` owns the shape; the alias serves `travelCar` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type ITravelCar = IAutoMovieMotionHumanTravelCar.IParams;
 
   /**
-   * The parameters of `travelCarExit`.
+   * The parameters of `travelCarExit`: `IAutoMovieMotionHumanTravelCarExit.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `travelCarExit`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanTravelCarExit.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTravelCarExit.IParams` owns the shape; the alias serves `travelCarExit` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type ITravelCarExit = IAutoMovieMotionHumanTravelCarExit.IParams;
 
   /**
-   * The parameters of `travelLeaf`.
+   * The parameters of `travelLeaf`: `IAutoMovieMotionHumanTravelLeaf.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `travelLeaf`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanTravelLeaf.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTravelLeaf.IParams` owns the shape; the alias serves `travelLeaf` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type ITravelLeaf = IAutoMovieMotionHumanTravelLeaf.IParams;
 }

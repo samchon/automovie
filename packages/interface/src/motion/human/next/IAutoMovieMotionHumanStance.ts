@@ -1,9 +1,9 @@
+import type { IAutoMovieMotionHumanStand } from "../actions/IAutoMovieMotionHumanStand";
 import type { IAutoMovieMotionHumanBend } from "../everyday/IAutoMovieMotionHumanBend";
 import type { IAutoMovieMotionHumanBrace } from "../everyday/IAutoMovieMotionHumanBrace";
 import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHumanCrouch";
 import type { IAutoMovieMotionHumanRest } from "../everyday/IAutoMovieMotionHumanRest";
 import type { IAutoMovieMotionHumanShift } from "../everyday/IAutoMovieMotionHumanShift";
-import type { IAutoMovieMotionHumanStand } from "../actions/IAutoMovieMotionHumanStand";
 
 /**
  * Mechanism: The standing postures: quiet standing, shifting weight, bending, crouching, bracing and resting.
@@ -123,44 +123,62 @@ export interface IAutoMovieMotionHumanStance<Chain> {
  */
 export namespace IAutoMovieMotionHumanStance {
   /**
-   * The parameters of `stand`.
+   * The parameters of `stand`: `IAutoMovieMotionHumanStand.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `stand`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanStand.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStand.IParams` owns the shape; the alias serves `stand` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IStand = IAutoMovieMotionHumanStand.IParams;
 
   /**
-   * The parameters of `shift`.
+   * The parameters of `shift`: `IAutoMovieMotionHumanShift.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `shift`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanShift.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanShift.IParams` owns the shape; the alias serves `shift` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IShift = IAutoMovieMotionHumanShift.IParams;
 
   /**
-   * The parameters of `bend`.
+   * The parameters of `bend`: `IAutoMovieMotionHumanBend.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `bend`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanBend.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBend.IParams` owns the shape; the alias serves `bend` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IBend = IAutoMovieMotionHumanBend.IParams;
 
   /**
-   * The parameters of `crouch`.
+   * The parameters of `crouch`: `IAutoMovieMotionHumanCrouch.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `crouch`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanCrouch.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCrouch.IParams` owns the shape; the alias serves `crouch` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type ICrouch = IAutoMovieMotionHumanCrouch.IParams;
 
   /**
-   * The parameters of `brace`.
+   * The parameters of `brace`: `IAutoMovieMotionHumanBrace.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `brace`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanBrace.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBrace.IParams` owns the shape; the alias serves `brace` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IBrace = IAutoMovieMotionHumanBrace.IParams;
 
   /**
-   * The parameters of `rest`.
+   * The parameters of `rest`: `IAutoMovieMotionHumanRest.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `rest`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanRest.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRest.IParams` owns the shape; the alias serves `rest` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IRest = IAutoMovieMotionHumanRest.IParams;
 }

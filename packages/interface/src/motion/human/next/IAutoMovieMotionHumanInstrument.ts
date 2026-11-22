@@ -1,12 +1,12 @@
-import type { IAutoMovieMotionHumanBowViolinParams } from "../music/IAutoMovieMotionHumanBowViolinParams";
-import type { IAutoMovieMotionHumanConduct } from "../music/IAutoMovieMotionHumanConduct";
-import type { IAutoMovieMotionHumanCymbalStrike } from "../tasks/IAutoMovieMotionHumanCymbalStrike";
+import type { IAutoMovieMotionHumanPlayWindInstrument } from "../daily/IAutoMovieMotionHumanPlayWindInstrument";
 import type { IAutoMovieMotionHumanGuitarChord } from "../handling/IAutoMovieMotionHumanGuitarChord";
 import type { IAutoMovieMotionHumanGuitarNote } from "../handling/IAutoMovieMotionHumanGuitarNote";
 import type { IAutoMovieMotionHumanPianoPedal } from "../handling/IAutoMovieMotionHumanPianoPedal";
 import type { IAutoMovieMotionHumanPianoPerformance } from "../handling/IAutoMovieMotionHumanPianoPerformance";
 import type { IAutoMovieMotionHumanPianoScore } from "../handling/IAutoMovieMotionHumanPianoScore";
-import type { IAutoMovieMotionHumanPlayWindInstrument } from "../daily/IAutoMovieMotionHumanPlayWindInstrument";
+import type { IAutoMovieMotionHumanBowViolinParams } from "../music/IAutoMovieMotionHumanBowViolinParams";
+import type { IAutoMovieMotionHumanConduct } from "../music/IAutoMovieMotionHumanConduct";
+import type { IAutoMovieMotionHumanCymbalStrike } from "../tasks/IAutoMovieMotionHumanCymbalStrike";
 import type { IAutoMovieMotionHumanSideDrumStrike } from "../tasks/IAutoMovieMotionHumanSideDrumStrike";
 
 /**
@@ -34,7 +34,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanInstrument.playWindInstrument is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanInstrument.playWindInstrument is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    */
-  playWindInstrument(params: IAutoMovieMotionHumanInstrument.IPlayWindInstrument, anchor?: string): Chain;
+  playWindInstrument(
+    params: IAutoMovieMotionHumanInstrument.IPlayWindInstrument,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Conducting with a held baton: its tip beats the standard figure of the meter on the beat clock, the ictus, the tip's lowest point of each beat, falling on the beat's instant.
@@ -51,7 +54,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanInstrument.conduct is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanInstrument.conduct is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    */
-  conduct(params: IAutoMovieMotionHumanInstrument.IConduct, anchor?: string): Chain;
+  conduct(
+    params: IAutoMovieMotionHumanInstrument.IConduct,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Bow a violin string.
@@ -68,7 +74,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanInstrument.bowViolin is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanInstrument.bowViolin is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    */
-  bowViolin(params: IAutoMovieMotionHumanInstrument.IBowViolin, anchor?: string): Chain;
+  bowViolin(
+    params: IAutoMovieMotionHumanInstrument.IBowViolin,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Fret and pluck one guitar note.
@@ -85,7 +94,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanInstrument.guitarNote is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanInstrument.guitarNote is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    */
-  guitarNote(params: IAutoMovieMotionHumanInstrument.IGuitarNote, anchor?: string): Chain;
+  guitarNote(
+    params: IAutoMovieMotionHumanInstrument.IGuitarNote,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Strum a guitar chord.
@@ -102,7 +114,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanInstrument.guitarChord is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanInstrument.guitarChord is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    */
-  guitarChord(params: IAutoMovieMotionHumanInstrument.IGuitarChord, anchor?: string): Chain;
+  guitarChord(
+    params: IAutoMovieMotionHumanInstrument.IGuitarChord,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Play a score of piano notes.
@@ -119,7 +134,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanInstrument.pianoScore is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanInstrument.pianoScore is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    */
-  pianoScore(params: IAutoMovieMotionHumanInstrument.IPianoScore, anchor?: string): Chain;
+  pianoScore(
+    params: IAutoMovieMotionHumanInstrument.IPianoScore,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Press and release a piano pedal.
@@ -136,7 +154,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanInstrument.pianoPedal is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanInstrument.pianoPedal is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    */
-  pianoPedal(params: IAutoMovieMotionHumanInstrument.IPianoPedal, anchor?: string): Chain;
+  pianoPedal(
+    params: IAutoMovieMotionHumanInstrument.IPianoPedal,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Play a piano score with its pedal.
@@ -153,7 +174,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanInstrument.pianoPerformance is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanInstrument.pianoPerformance is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    */
-  pianoPerformance(params: IAutoMovieMotionHumanInstrument.IPianoPerformance, anchor?: string): Chain;
+  pianoPerformance(
+    params: IAutoMovieMotionHumanInstrument.IPianoPerformance,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Strike a side drum.
@@ -170,7 +194,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanInstrument.sideDrumStrike is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanInstrument.sideDrumStrike is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    */
-  sideDrumStrike(params: IAutoMovieMotionHumanInstrument.ISideDrumStrike, anchor?: string): Chain;
+  sideDrumStrike(
+    params: IAutoMovieMotionHumanInstrument.ISideDrumStrike,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Strike a cymbal.
@@ -187,7 +214,10 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanInstrument.cymbalStrike is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanInstrument.cymbalStrike is provided by the chain that implements IAutoMovieMotionHumanInstrument.
    */
-  cymbalStrike(params: IAutoMovieMotionHumanInstrument.ICymbalStrike, anchor?: string): Chain;
+  cymbalStrike(
+    params: IAutoMovieMotionHumanInstrument.ICymbalStrike,
+    anchor?: string,
+  ): Chain;
 }
 
 /**
@@ -195,72 +225,103 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
  */
 export namespace IAutoMovieMotionHumanInstrument {
   /**
-   * The parameters of `playWindInstrument`.
+   * The parameters of `playWindInstrument`: `IAutoMovieMotionHumanPlayWindInstrument.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `playWindInstrument`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanPlayWindInstrument.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPlayWindInstrument.IParams` owns the shape; the alias serves `playWindInstrument` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
-  export type IPlayWindInstrument = IAutoMovieMotionHumanPlayWindInstrument.IParams;
+  export type IPlayWindInstrument =
+    IAutoMovieMotionHumanPlayWindInstrument.IParams;
 
   /**
-   * The parameters of `conduct`.
+   * The parameters of `conduct`: `IAutoMovieMotionHumanConduct.IParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `conduct`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanConduct.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanConduct.IParams` owns the shape; the alias serves `conduct` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IConduct = IAutoMovieMotionHumanConduct.IParams;
 
   /**
-   * The parameters of `bowViolin`.
+   * The parameters of `bowViolin`: `IAutoMovieMotionHumanBowViolinParams`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `bowViolin`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanBowViolinParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBowViolinParams` owns the shape; the alias serves `bowViolin` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IBowViolin = IAutoMovieMotionHumanBowViolinParams;
 
   /**
-   * The parameters of `guitarNote`.
+   * The parameters of `guitarNote`: `IAutoMovieMotionHumanGuitarNote`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `guitarNote`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanGuitarNote`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGuitarNote` owns the shape; the alias serves `guitarNote` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IGuitarNote = IAutoMovieMotionHumanGuitarNote;
 
   /**
-   * The parameters of `guitarChord`.
+   * The parameters of `guitarChord`: `IAutoMovieMotionHumanGuitarChord`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `guitarChord`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanGuitarChord`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGuitarChord` owns the shape; the alias serves `guitarChord` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IGuitarChord = IAutoMovieMotionHumanGuitarChord;
 
   /**
-   * The parameters of `pianoScore`.
+   * The parameters of `pianoScore`: `IAutoMovieMotionHumanPianoScore`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `pianoScore`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanPianoScore`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPianoScore` owns the shape; the alias serves `pianoScore` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IPianoScore = IAutoMovieMotionHumanPianoScore;
 
   /**
-   * The parameters of `pianoPedal`.
+   * The parameters of `pianoPedal`: `IAutoMovieMotionHumanPianoPedal`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `pianoPedal`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanPianoPedal`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPianoPedal` owns the shape; the alias serves `pianoPedal` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IPianoPedal = IAutoMovieMotionHumanPianoPedal;
 
   /**
-   * The parameters of `pianoPerformance`.
+   * The parameters of `pianoPerformance`: `IAutoMovieMotionHumanPianoPerformance`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `pianoPerformance`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanPianoPerformance`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPianoPerformance` owns the shape; the alias serves `pianoPerformance` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IPianoPerformance = IAutoMovieMotionHumanPianoPerformance;
 
   /**
-   * The parameters of `sideDrumStrike`.
+   * The parameters of `sideDrumStrike`: `IAutoMovieMotionHumanSideDrumStrike`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `sideDrumStrike`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanSideDrumStrike`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSideDrumStrike` owns the shape; the alias serves `sideDrumStrike` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type ISideDrumStrike = IAutoMovieMotionHumanSideDrumStrike;
 
   /**
-   * The parameters of `cymbalStrike`.
+   * The parameters of `cymbalStrike`: `IAutoMovieMotionHumanCymbalStrike`, the type its law takes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `cymbalStrike`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanCymbalStrike`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCymbalStrike` owns the shape; the alias serves `cymbalStrike` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type ICymbalStrike = IAutoMovieMotionHumanCymbalStrike;
 }
