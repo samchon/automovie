@@ -132,6 +132,7 @@ export function test_motion_exercise_tightrope(): void {
     "a sag too shallow for the span is refused with the least sag",
     refused?.axis === "sag" &&
       refused.feasible?.kind === "range" &&
+      refused.feasible.minimum !== null &&
       refused.feasible.minimum > 0.03,
   );
 }
