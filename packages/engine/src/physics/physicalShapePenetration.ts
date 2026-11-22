@@ -131,7 +131,14 @@ export function physicalShapePenetration(
   };
 }
 
-/** Companion types of {@link physicalShapePenetration}. */
+/**
+ * Companion types of {@link physicalShapePenetration}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the depth, the separating direction and both deepest points.
+ * @evidence contracts/development/design.md#principled-representation World metres; the depth is the shortest separating translation's positive length and the normal its unit direction from the first shape.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the pair contact when a wire core lies inside the other solid.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A separated pair returns null instead of a negative depth.
+ */
 export namespace physicalShapePenetration {
   /** A penetration between two convex colliders, world metres. */
   export interface IResult {
@@ -247,9 +254,16 @@ function step(simplex: IVertex[]): IStep {
   ): IStep => {
     const ab: IAutoMovieVector3 = Vector3.subtract(b.p, a.p);
     const ao: IAutoMovieVector3 = Vector3.scale(a.p, -1);
-    return Vector3.dot(ab, ao) > 0
-      ? { enclosed: false, simplex: [b, a], direction: triple(ab, ao, ab) }
-      : { enclosed: false, simplex: [a], direction: ao };
+    if (!(Vector3.dot(ab, ao) > 0))
+      return { enclosed: false, simplex: [a], direction: ao };
+    // The origin on the segment's line leaves no normal toward it: any
+    // direction perpendicular to the segment completes the simplex.
+    const toward: IAutoMovieVector3 = triple(ab, ao, ab);
+    return {
+      enclosed: false,
+      simplex: [b, a],
+      direction: Vector3.length(toward) > 0 ? toward : perpendicular(ab),
+    };
   };
   const triangle: (c: IVertex, b: IVertex, a: IVertex) => IStep = (
     c: IVertex,
@@ -296,6 +310,17 @@ function step(simplex: IVertex[]): IStep {
   if (Vector3.dot(outward(Vector3.cross(ad, ab), ac), ao) > 0)
     return triangle(b!, d!, a!);
   return { enclosed: true, simplex, direction: { x: 0, y: 0, z: 0 } };
+}
+
+/** A direction perpendicular to a nonzero vector. */
+function perpendicular(v: IAutoMovieVector3): IAutoMovieVector3 {
+  const seed: IAutoMovieVector3 =
+    Math.abs(v.x) <= Math.abs(v.y) && Math.abs(v.x) <= Math.abs(v.z)
+      ? { x: 1, y: 0, z: 0 }
+      : Math.abs(v.y) <= Math.abs(v.z)
+        ? { x: 0, y: 1, z: 0 }
+        : { x: 0, y: 0, z: 1 };
+  return Vector3.cross(v, seed);
 }
 
 /** A barycentric combination of three points. */

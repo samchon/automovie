@@ -115,7 +115,14 @@ export function physicalShapePairContact(
   return best!;
 }
 
-/** Companion types of {@link physicalShapePairContact}. */
+/**
+ * Companion types of {@link physicalShapePairContact}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the signed distance, normal direction and both witnesses.
+ * @evidence contracts/development/design.md#principled-representation World metres; the distance is signed, negative overlapping; the normal is unit and points from the first shape toward the second.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the geometry queries, the solver's contact detection and the compliant contacts.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts One record for touching, overlapping and apart; no separate penetration type.
+ */
 export namespace physicalShapePairContact {
   /** A contact between two convex colliders, world metres. */
   export interface IResult {

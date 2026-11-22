@@ -34,6 +34,14 @@ export namespace solveXpbdJoints {
   /**
    * One position pass over the joints.
    * @param joints The joints, in creation order.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the attachment and both limit forms.
+   * @evidence contracts/development/implementation.md#principled-implementation Block point and rotation corrections toward the anchor and the admitted rotation (projectPhysicalJointRotation, limitPhysicalSwingTwist).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over joints: anchor, then rotation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Joints between two kinematic bodies are skipped; limits are the profile's.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in joints per pass.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each pass reads the current poses; nothing carries over.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mutates only the bodies it is given; allocates only transient vectors.
    */
   export function positions(joints: readonly AutoMovieXpbdJoint[]): void {
     for (const joint of joints) {
@@ -84,6 +92,14 @@ export namespace solveXpbdJoints {
    *
    * @param joints The joints, in creation order.
    * @param h The substep, seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the implicit damper and its cap.
+   * @evidence contracts/development/implementation.md#principled-implementation Backward-Euler damper lambda = h c (s - v) / (1 + h c w), capped at the torque times h.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over joints and their motors.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A motor without damping or torque is skipped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in motors.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Motors are reset by their owner each step.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mutates only the bodies it is given; allocates only transient vectors.
    */
   export function motors(
     joints: readonly AutoMovieXpbdJoint[],

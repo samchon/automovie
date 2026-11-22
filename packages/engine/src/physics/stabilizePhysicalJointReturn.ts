@@ -61,7 +61,14 @@ export function stabilizePhysicalJointReturn(
   };
 }
 
-/** Companion types of {@link stabilizePhysicalJointReturn}. */
+/**
+ * Companion types of {@link stabilizePhysicalJointReturn}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the projected state and the projection's angle.
+ * @evidence contracts/development/design.md#principled-representation A parent-relative pose and velocities in SI units with the projection's angle in radians.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by ownership advancement at return entry, which records the angle on the ownership event.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The angle is reported, not hidden, so a large projection stays visible.
+ */
 export namespace stabilizePhysicalJointReturn {
   /** A parent-relative state projected onto its joint's limits, and the projection's angle. */
   export interface IResult {

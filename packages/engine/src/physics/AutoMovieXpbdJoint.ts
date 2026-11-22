@@ -79,7 +79,14 @@ export class AutoMovieXpbdJoint {
 
 /** Companion types of {@link AutoMovieXpbdJoint}. */
 export namespace AutoMovieXpbdJoint {
-  /** One free axis's velocity motor. */
+  /**
+   * One free axis's velocity motor.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the speed, damping and cap.
+   * @evidence contracts/development/design.md#principled-representation Radians per second, newton metre seconds per radian and newton metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Set by the joint motor configuration and read by the solver's motors.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One record per free axis.
+   */
   export interface IMotor {
     /** Target relative angular speed about the axis, radians per second. */
     speed: number;

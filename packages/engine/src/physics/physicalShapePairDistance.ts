@@ -99,7 +99,14 @@ export function physicalShapePairDistance(
   return least;
 }
 
-/** Companion types and the wire frames of {@link physicalShapePairDistance}. */
+/**
+ * Companion types and the wire frames of {@link physicalShapePairDistance}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what a wire frame is and its radius.
+ * @evidence contracts/development/design.md#principled-representation Shape-frame segments in metres with one radius that widens every segment.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by the pair distance and the pair contact, which query the same wires.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A vertex is a zero-length segment rather than a separate kind.
+ */
 export namespace physicalShapePairDistance {
   /** A shape's wire frame in its own frame: segments widened by a radius. */
   export interface IWires {

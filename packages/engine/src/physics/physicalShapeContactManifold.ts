@@ -82,7 +82,14 @@ export function physicalShapeContactManifold(
   });
 }
 
-/** Companion types of {@link physicalShapeContactManifold}. */
+/**
+ * Companion types of {@link physicalShapeContactManifold}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States that a patch point carries one world witness on each shape.
+ * @evidence contracts/development/design.md#principled-representation World metres, one witness per shape, the first on the first shape.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the solver's contact detection and the planner's separation rows.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The point holds only the two witnesses; its gap is derived from them along the caller's normal.
+ */
 export namespace physicalShapeContactManifold {
   /** One patch point with its witness on each shape, world metres. */
   export interface IPoint {

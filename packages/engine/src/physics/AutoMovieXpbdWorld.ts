@@ -368,7 +368,14 @@ export class AutoMovieXpbdWorld {
 
 /** Companion types of {@link AutoMovieXpbdWorld}. */
 export namespace AutoMovieXpbdWorld {
-  /** A responding pair of the last step. */
+  /**
+   * A responding pair of the last step.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the pair, its normal, friction and points.
+   * @evidence contracts/development/design.md#principled-representation Colliders, a unit normal, a dimensionless coefficient and points in world metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the simulation's contact receipts and supports.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One record per pair; the points hold their own values.
+   */
   export interface IManifold {
     /** Index of the pair among the step's touching pairs. */
     pair: number;
@@ -389,7 +396,14 @@ export namespace AutoMovieXpbdWorld {
     points: IManifoldPoint[];
   }
 
-  /** One point of a responding manifold. */
+  /**
+   * One point of a responding manifold.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the witness midpoint, separation and impulse.
+   * @evidence contracts/development/design.md#principled-representation World metres and newton seconds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read with its manifold.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Separation and impulse are the step's own values, not estimates.
+   */
   export interface IManifoldPoint {
     /** World midpoint of the two witnesses, metres. */
     point: IAutoMovieVector3;
@@ -401,7 +415,14 @@ export namespace AutoMovieXpbdWorld {
     impulse: number;
   }
 
-  /** An overlap involving a sensor collider. */
+  /**
+   * An overlap involving a sensor collider.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the overlapping pair.
+   * @evidence contracts/development/design.md#principled-representation The two colliders.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the compliant contacts.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No measurement is attached; the reader measures what it needs.
+   */
   export interface IIntersection {
     /** The first collider. */
     a: AutoMovieXpbdCollider;
