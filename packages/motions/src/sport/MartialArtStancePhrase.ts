@@ -417,12 +417,6 @@ export function MartialArtStancePhrase(
         from: 0,
         to: clock.duration,
         span,
-        // The clock is the law's own, lengthened by a slower tempo.
-        together: AutoMovieMotionHumanArm.together(
-          context.handover,
-          true,
-          context.tempo,
-        ),
         rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
         weight: open,
         surface: fist ? "fist" : "palm",
