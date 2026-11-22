@@ -91,6 +91,7 @@ export namespace IAutoMovieMotionHumanStrikingBlade {
      *
      * @param seconds Seconds since the action's start.
      * @returns The displacement, world metres.
+     * @evidence contracts/development/common.md#meaningful-documentation Documents member: A displacement added to the path's hand point at a second since the action's start, world metres: the landing's following of a target that moves after the stroke is planned.
      */
     follow?(seconds: number): IAutoMovieVector3;
 

@@ -32,7 +32,11 @@ export interface IAutoMovieMotionHumanTether {
  * Companion types of {@link IAutoMovieMotionHumanTether}.
  */
 export namespace IAutoMovieMotionHumanTether {
-  /** A prop's named point. */
+  /**
+   * A prop's named point.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IEnd: A prop's named point.
+   */
   export interface IEnd {
     /** The prop's subject. */
     prop: string;
@@ -41,10 +45,18 @@ export namespace IAutoMovieMotionHumanTether {
     point: string;
   }
 
-  /** A fixed or a driven length. */
+  /**
+   * A fixed or a driven length.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Length: A fixed or a driven length.
+   */
   export type Length = IFree | IDriven;
 
-  /** A fixed length of line out. */
+  /**
+   * A fixed length of line out.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IFree: A fixed length of line out.
+   */
   export interface IFree {
     /** The discriminant. */
     kind: "free";
@@ -53,7 +65,11 @@ export namespace IAutoMovieMotionHumanTether {
     metres: number;
   }
 
-  /** A length paid in by an articulation's travel: `metres - per × travel`, never below zero. */
+  /**
+   * A length paid in by an articulation's travel: `metres - per × travel`, never below zero.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IDriven: A length paid in by an articulation's travel: `metres - per × travel`, never below zero.
+   */
   export interface IDriven {
     /** The discriminant. */
     kind: "driven";
@@ -68,7 +84,11 @@ export namespace IAutoMovieMotionHumanTether {
     per: number;
   }
 
-  /** The line as it lies at a second. */
+  /**
+   * The line as it lies at a second.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents ISpan: The line as it lies at a second.
+   */
   export interface ISpan {
     /** The near end, world metres. */
     from: IAutoMovieVector3;

@@ -48,16 +48,19 @@ export interface IAutoMovieMotionHumanClimb<Chain> {
 
 /**
  * The parameter types of the Climb methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Climb method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanClimb {
-  /** The parameters of `climbLadder`. */
+  /**
+   * The parameters of `climbLadder`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `climbLadder`: the existing type of its law.
+   */
   export type IClimbLadder = IAutoMovieMotionHumanClimbLadder.IParams;
 
-  /** The parameters of `climbStairs`. */
+  /**
+   * The parameters of `climbStairs`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `climbStairs`: the existing type of its law.
+   */
   export type IClimbStairs = IAutoMovieMotionHumanClimbStairs.IParams;
 }

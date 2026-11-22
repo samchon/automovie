@@ -84,22 +84,33 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
 
 /**
  * The parameter types of the Prehension methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Prehension method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanPrehension {
-  /** The parameters of `pickUp`. */
+  /**
+   * The parameters of `pickUp`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `pickUp`: the existing type of its law.
+   */
   export type IPickUp = IAutoMovieMotionHumanPickUp.IParams;
 
-  /** The parameters of `putDown`. */
+  /**
+   * The parameters of `putDown`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `putDown`: the existing type of its law.
+   */
   export type IPutDown = IAutoMovieMotionHumanPutDown.IParams;
 
-  /** The parameters of `regrasp`. */
+  /**
+   * The parameters of `regrasp`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `regrasp`: the existing type of its law.
+   */
   export type IRegrasp = IAutoMovieMotionHumanRegrasp.IParams;
 
-  /** The parameters of `carryHang`. */
+  /**
+   * The parameters of `carryHang`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `carryHang`: the existing type of its law.
+   */
   export type ICarryHang = IAutoMovieMotionHumanCarryHang.IParams;
 }

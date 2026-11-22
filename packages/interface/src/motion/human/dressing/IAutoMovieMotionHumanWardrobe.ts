@@ -16,10 +16,18 @@ export type IAutoMovieMotionHumanWardrobe =
   | IAutoMovieMotionHumanWardrobe.IFoot;
 
 export namespace IAutoMovieMotionHumanWardrobe {
-  /** The modes that thread or clear one sleeve or move the zip with one hand. */
+  /**
+   * The modes that thread or clear one sleeve or move the zip with one hand.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Sided: The modes that thread or clear one sleeve or move the zip with one hand.
+   */
   export type Sided = "sleeveIn" | "sleeveOut" | "closeZip" | "openZip";
 
-  /** The seated modes that put footwear on or take it off one foot. */
+  /**
+   * The seated modes that put footwear on or take it off one foot.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Footwear: The seated modes that put footwear on or take it off one foot.
+   */
   export type Footwear = "footwearOn" | "footwearOff";
 
   /**

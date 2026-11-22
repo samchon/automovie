@@ -120,28 +120,47 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
 
 /**
  * The parameter types of the Floor methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Floor method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanFloor {
-  /** The parameters of `lieDown`. */
+  /**
+   * The parameters of `lieDown`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `lieDown`: the existing type of its law.
+   */
   export type ILieDown = IAutoMovieMotionHumanLieDown.IParams;
 
-  /** The parameters of `getUp`. */
+  /**
+   * The parameters of `getUp`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `getUp`: the existing type of its law.
+   */
   export type IGetUp = IAutoMovieMotionHumanGetUp.IParams;
 
-  /** The parameters of `roll`. */
+  /**
+   * The parameters of `roll`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `roll`: the existing type of its law.
+   */
   export type IRoll = IAutoMovieMotionHumanRoll.IParams;
 
-  /** The parameters of `crawl`. */
+  /**
+   * The parameters of `crawl`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `crawl`: the existing type of its law.
+   */
   export type ICrawl = IAutoMovieMotionHumanCrawl.IParams;
 
-  /** The parameters of `crabWalk`. */
+  /**
+   * The parameters of `crabWalk`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `crabWalk`: the existing type of its law.
+   */
   export type ICrabWalk = IAutoMovieMotionHumanCrabWalk.IParams;
 
-  /** The parameters of `dive`. */
+  /**
+   * The parameters of `dive`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `dive`: the existing type of its law.
+   */
   export type IDive = IAutoMovieMotionHumanDive.IParams;
 }

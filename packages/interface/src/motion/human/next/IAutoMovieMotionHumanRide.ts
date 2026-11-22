@@ -66,19 +66,26 @@ export interface IAutoMovieMotionHumanRide<Chain> {
 
 /**
  * The parameter types of the Ride methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Ride method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanRide {
-  /** The parameters of `travelCar`. */
+  /**
+   * The parameters of `travelCar`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `travelCar`: the existing type of its law.
+   */
   export type ITravelCar = IAutoMovieMotionHumanTravelCar.IParams;
 
-  /** The parameters of `travelCarExit`. */
+  /**
+   * The parameters of `travelCarExit`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `travelCarExit`: the existing type of its law.
+   */
   export type ITravelCarExit = IAutoMovieMotionHumanTravelCarExit.IParams;
 
-  /** The parameters of `travelLeaf`. */
+  /**
+   * The parameters of `travelLeaf`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `travelLeaf`: the existing type of its law.
+   */
   export type ITravelLeaf = IAutoMovieMotionHumanTravelLeaf.IParams;
 }

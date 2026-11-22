@@ -70,6 +70,7 @@ export namespace IAutoMovieMotionHumanDrawFromCarrier {
    * along the moving line; it is worn again on the bone it hung from where
    * the draw leaves it.
    *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IPull: The other hand's share of a long draw.
    */
   export interface IPull {
     /** The carrier's affordance the other hand grips, at its throat. */

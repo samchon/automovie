@@ -48,16 +48,19 @@ export interface IAutoMovieMotionHumanSwim<Chain> {
 
 /**
  * The parameter types of the Swim methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Swim method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanSwim {
-  /** The parameters of `swim`. */
+  /**
+   * The parameters of `swim`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `swim`: the existing type of its law.
+   */
   export type ISwim = ILegacySwim.IParams;
 
-  /** The parameters of `aquatic`. */
+  /**
+   * The parameters of `aquatic`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `aquatic`: the existing type of its law.
+   */
   export type IAquatic = IAutoMovieMotionHumanAquatic.IParams;
 }

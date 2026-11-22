@@ -31,10 +31,18 @@ export interface IAutoMovieMotionHumanTurnOver {
  * Companion types of {@link IAutoMovieMotionHumanTurnOver}.
  */
 export namespace IAutoMovieMotionHumanTurnOver {
-  /** The lying positions. */
+  /**
+   * The lying positions.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Position: The lying positions.
+   */
   export type Position = "supine" | "lateralLeft" | "prone" | "lateralRight";
 
-  /** A lying surface on a prop. */
+  /**
+   * A lying surface on a prop.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IOn: A lying surface on a prop.
+   */
   export interface IOn {
     /** The bed or sofa prop. */
     prop: string;

@@ -30,13 +30,12 @@ export interface IAutoMovieMotionHumanMount<Chain> {
 
 /**
  * The parameter types of the Mount methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Mount method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanMount {
-  /** The parameters of `rideHorse`. */
+  /**
+   * The parameters of `rideHorse`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `rideHorse`: the existing type of its law.
+   */
   export type IRideHorse = IAutoMovieMotionHumanRide.IParams;
 }

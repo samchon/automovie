@@ -37,6 +37,10 @@ export interface IAutoMovieMotionHumanSabre {
   seconds: number;
 }
 export namespace IAutoMovieMotionHumanSabre {
-  /** A sabre carriage: `slope`, upright against the right shoulder, or `engage`, level forward at the charge. */
+  /**
+   * A sabre carriage: `slope`, upright against the right shoulder, or `engage`, level forward at the charge.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Carry: A sabre carriage: `slope`, upright against the right shoulder, or `engage`, level forward at the charge.
+   */
   export type Carry = "slope" | "engage";
 }

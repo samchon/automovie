@@ -66,19 +66,26 @@ export interface IAutoMovieMotionHumanSeat<Chain> {
 
 /**
  * The parameter types of the Seat methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Seat method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanSeat {
-  /** The parameters of `sit`. */
+  /**
+   * The parameters of `sit`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `sit`: the existing type of its law.
+   */
   export type ISit = IAutoMovieMotionHumanSit.IParams;
 
-  /** The parameters of `rise`. */
+  /**
+   * The parameters of `rise`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `rise`: the existing type of its law.
+   */
   export type IRise = IAutoMovieMotionHumanRise.IParams;
 
-  /** The parameters of `kneel`. */
+  /**
+   * The parameters of `kneel`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `kneel`: the existing type of its law.
+   */
   export type IKneel = IAutoMovieMotionHumanKneel.IParams;
 }

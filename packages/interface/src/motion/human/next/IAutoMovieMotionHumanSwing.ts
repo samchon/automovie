@@ -48,16 +48,19 @@ export interface IAutoMovieMotionHumanSwing<Chain> {
 
 /**
  * The parameter types of the Swing methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Swing method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanSwing {
-  /** The parameters of `baseball`. */
+  /**
+   * The parameters of `baseball`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `baseball`: the existing type of its law.
+   */
   export type IBaseball = IAutoMovieMotionHumanBaseball.IParams;
 
-  /** The parameters of `racket`. */
+  /**
+   * The parameters of `racket`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `racket`: the existing type of its law.
+   */
   export type IRacket = IAutoMovieMotionHumanRacket.IParams;
 }

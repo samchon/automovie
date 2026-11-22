@@ -81,7 +81,11 @@ export namespace IAutoMovieMotionHumanHeldWork {
     site: string;
   }
 
-  /** A digit of one hand. */
+  /**
+   * A digit of one hand.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Digit: A digit of one hand.
+   */
   export type Digit = "thumb" | "index" | "middle" | "ring" | "little";
 
   /**

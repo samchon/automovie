@@ -66,19 +66,26 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
 
 /**
  * The parameter types of the Crossing methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Crossing method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanCrossing {
-  /** The parameters of `stepOver`. */
+  /**
+   * The parameters of `stepOver`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `stepOver`: the existing type of its law.
+   */
   export type IStepOver = IAutoMovieMotionHumanStepOver.IParams;
 
-  /** The parameters of `vault`. */
+  /**
+   * The parameters of `vault`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `vault`: the existing type of its law.
+   */
   export type IVault = IAutoMovieMotionHumanVault.IParams;
 
-  /** The parameters of `squatVault`. */
+  /**
+   * The parameters of `squatVault`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `squatVault`: the existing type of its law.
+   */
   export type ISquatVault = IAutoMovieMotionHumanSquatVault.IParams;
 }

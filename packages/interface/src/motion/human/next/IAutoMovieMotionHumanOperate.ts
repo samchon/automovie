@@ -210,43 +210,82 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
 
 /**
  * The parameter types of the Operate methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Operate method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanOperate {
-  /** The parameters of `operate`. */
+  /**
+   * The parameters of `operate`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `operate`: the existing type of its law.
+   */
   export type IOperate = ILegacyOperate.IParams;
 
-  /** The parameters of `pour`. */
+  /**
+   * The parameters of `pour`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `pour`: the existing type of its law.
+   */
   export type IPour = IAutoMovieMotionHumanPour.IParams;
 
-  /** The parameters of `manipulate`. */
+  /**
+   * The parameters of `manipulate`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `manipulate`: the existing type of its law.
+   */
   export type IManipulate = IAutoMovieMotionHumanManipulate.IParams;
 
-  /** The parameters of `workHeld`. */
+  /**
+   * The parameters of `workHeld`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `workHeld`: the existing type of its law.
+   */
   export type IWorkHeld = IAutoMovieMotionHumanHeldWork.IParams;
 
-  /** The parameters of `useTool`. */
+  /**
+   * The parameters of `useTool`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `useTool`: the existing type of its law.
+   */
   export type IUseTool = IAutoMovieMotionHumanUseTool.IParams;
 
-  /** The parameters of `longTool`. */
+  /**
+   * The parameters of `longTool`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `longTool`: the existing type of its law.
+   */
   export type ILongTool = IAutoMovieMotionHumanLongTool.IParams;
 
-  /** The parameters of `typeText`. */
+  /**
+   * The parameters of `typeText`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `typeText`: the existing type of its law.
+   */
   export type ITypeText = IAutoMovieMotionHumanTypeText.IParams;
 
-  /** The parameters of `wipe`. */
+  /**
+   * The parameters of `wipe`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `wipe`: the existing type of its law.
+   */
   export type IWipe = IAutoMovieMotionHumanWipe.IParams;
 
-  /** The parameters of `pushPull`. */
+  /**
+   * The parameters of `pushPull`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `pushPull`: the existing type of its law.
+   */
   export type IPushPull = IAutoMovieMotionHumanPushPull.IParams;
 
-  /** The parameters of `pushSled`. */
+  /**
+   * The parameters of `pushSled`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `pushSled`: the existing type of its law.
+   */
   export type IPushSled = IAutoMovieMotionHumanPushSled.IParams;
 
-  /** The parameters of `throwPottery`. */
+  /**
+   * The parameters of `throwPottery`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `throwPottery`: the existing type of its law.
+   */
   export type IThrowPottery = IAutoMovieMotionHumanThrowPottery.IParams;
 }

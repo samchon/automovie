@@ -138,31 +138,54 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
 
 /**
  * The parameter types of the Grapple methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Grapple method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanGrapple {
-  /** The parameters of `clinch`. */
+  /**
+   * The parameters of `clinch`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `clinch`: the existing type of its law.
+   */
   export type IClinch = IAutoMovieMotionHumanClinch.IParams;
 
-  /** The parameters of `grapple`. */
+  /**
+   * The parameters of `grapple`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `grapple`: the existing type of its law.
+   */
   export type IGrapple = ILegacyGrapple.IParams;
 
-  /** The parameters of `kuzushi`. */
+  /**
+   * The parameters of `kuzushi`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `kuzushi`: the existing type of its law.
+   */
   export type IKuzushi = IAutoMovieMotionHumanKuzushi.IParams;
 
-  /** The parameters of `lungeGrab`. */
+  /**
+   * The parameters of `lungeGrab`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `lungeGrab`: the existing type of its law.
+   */
   export type ILungeGrab = IAutoMovieMotionHumanLungeGrab.IParams;
 
-  /** The parameters of `forceResponse`. */
+  /**
+   * The parameters of `forceResponse`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `forceResponse`: the existing type of its law.
+   */
   export type IForceResponse = IAutoMovieMotionHumanForceResponse.IParams;
 
-  /** The parameters of `disarm`. */
+  /**
+   * The parameters of `disarm`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `disarm`: the existing type of its law.
+   */
   export type IDisarm = IAutoMovieMotionHumanDisarm.IParams;
 
-  /** The parameters of `hostageHold`. */
+  /**
+   * The parameters of `hostageHold`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `hostageHold`: the existing type of its law.
+   */
   export type IHostageHold = IAutoMovieMotionHumanHostageHold.IParams;
 }

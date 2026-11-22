@@ -34,6 +34,10 @@ export interface IAutoMovieMotionHumanLogRoll {
  * Companion types of {@link IAutoMovieMotionHumanLogRoll}.
  */
 export namespace IAutoMovieMotionHumanLogRoll {
-  /** The positions a log roll ends in. */
+  /**
+   * The positions a log roll ends in.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents End: The positions a log roll ends in.
+   */
   export type End = "supine" | "prone";
 }

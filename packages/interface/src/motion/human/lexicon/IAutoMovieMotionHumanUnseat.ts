@@ -56,6 +56,8 @@ export namespace IAutoMovieMotionHumanUnseat {
    * - `drag`: the foot on `side` stays in its stirrup and the body slides on the floor behind;
    * - `clear`: steps clear on the high side, `side`, landing on the feet as the horse goes down;
    * - `slump`: loses voluntary control and slumps over the neck, staying on or sliding off to `side`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Fall: How a rider leaves the saddle: - `back`: thrown backward over the croup, landing on the back behind the saddle; - `side`: thrown sideways over the shoulder to `side`; - `forward`: thrown forward over the neck; - `pullDow
    */
   export type Fall =
     | "back"

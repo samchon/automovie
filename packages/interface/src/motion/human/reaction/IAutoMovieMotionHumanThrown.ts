@@ -24,7 +24,11 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The flight is the ballistic path of the authored throw, never a scripted curve.
  */
 export namespace IAutoMovieMotionHumanThrown {
-  /** The stunt rig that throws the body. */
+  /**
+   * The stunt rig that throws the body.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Rig: The stunt rig that throws the body.
+   */
   export type Rig = "blast" | "jerkBack";
 
   /**

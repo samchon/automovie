@@ -27,6 +27,8 @@ export namespace IAutoMovieMotionHumanTrick {
    * - `sideDrag`: hanging head down along `side`, the foot on that side in its strap;
    * - `backDrag`: hanging head down over the croup, both feet in their straps;
    * - `pickup`: leaning down along `side` with that hand on `object`, the other hand on the horn and the other foot in its strap.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Kind: A trick-riding figure: - `seat`: back in the seat; - `hippodrome`: standing on the seat, the feet under the hippodrome strap; - `sideDrag`: hanging head down along `side`, the foot on that side in its strap; - `backDrag`
    */
   export type Kind = "seat" | "hippodrome" | "sideDrag" | "backDrag" | "pickup";
 

@@ -30,13 +30,12 @@ export interface IAutoMovieMotionHumanEnsemble<Chain> {
 
 /**
  * The parameter types of the Ensemble methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Ensemble method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanEnsemble {
-  /** The parameters of `instance`. */
+  /**
+   * The parameters of `instance`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `instance`: the existing type of its law.
+   */
   export type IInstance = IAutoMovieMotionHumanInstance.IParams;
 }

@@ -33,6 +33,10 @@ export interface IAutoMovieMotionHumanSlipRing {
  * Companion types of {@link IAutoMovieMotionHumanSlipRing}.
  */
 export namespace IAutoMovieMotionHumanSlipRing {
-  /** The fingers a ring is worn on. */
+  /**
+   * The fingers a ring is worn on.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Finger: The fingers a ring is worn on.
+   */
   export type Finger = "index" | "middle" | "ring" | "little";
 }

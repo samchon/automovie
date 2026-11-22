@@ -102,25 +102,40 @@ export interface IAutoMovieMotionHumanDance<Chain> {
 
 /**
  * The parameter types of the Dance methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Dance method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanDance {
-  /** The parameters of `dance`. */
+  /**
+   * The parameters of `dance`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `dance`: the existing type of its law.
+   */
   export type IDance = ILegacyDance.IParams;
 
-  /** The parameters of `ballet`. */
+  /**
+   * The parameters of `ballet`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `ballet`: the existing type of its law.
+   */
   export type IBallet = IAutoMovieMotionHumanBallet.IParams;
 
-  /** The parameters of `tapDance`. */
+  /**
+   * The parameters of `tapDance`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `tapDance`: the existing type of its law.
+   */
   export type ITapDance = IAutoMovieMotionHumanTapDance.IParams;
 
-  /** The parameters of `streetDance`. */
+  /**
+   * The parameters of `streetDance`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `streetDance`: the existing type of its law.
+   */
   export type IStreetDance = IAutoMovieMotionHumanStreetDance.IParams;
 
-  /** The parameters of `groupDance`. */
+  /**
+   * The parameters of `groupDance`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `groupDance`: the existing type of its law.
+   */
   export type IGroupDance = IAutoMovieMotionHumanGroupDance.IParams;
 }

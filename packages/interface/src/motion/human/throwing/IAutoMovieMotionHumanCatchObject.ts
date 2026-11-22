@@ -109,13 +109,18 @@ export namespace IAutoMovieMotionHumanCatchObject {
     object(seconds: number): IAutoMovieVector3;
   }
 
-  /** The staged catch law: a catch law whose plan publishes its object path (`IPlan`), so a law built on it reads the path. */
+  /**
+   * The staged catch law: a catch law whose plan publishes its object path (`IPlan`), so a law built on it reads the path.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IStageLaw: The staged catch law: a catch law whose plan publishes its object path (`IPlan`), so a law built on it reads the path.
+   */
   export interface IStageLaw extends IAutoMovieMotionHumanActionLaw<IStageParams> {
     /**
      * Plan a staged catch.
      *
      * @param context The action's context.
      * @returns The plan with its object path.
+     * @evidence contracts/development/common.md#meaningful-documentation Documents plan: Plan a staged catch.
      */
     plan(context: IAutoMovieMotionHumanActionContext<IStageParams>): IPlan;
   }

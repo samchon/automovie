@@ -11,7 +11,11 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A medium is one closed kind with its own depth; a walk without one is a walk on rigid ground.
  */
 export namespace IAutoMovieMotionHumanMedium {
-  /** The medium walked through. */
+  /**
+   * The medium walked through.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Kind: The medium walked through.
+   */
   export type Kind = "water" | "snow" | "sand" | "mud";
 
   /**

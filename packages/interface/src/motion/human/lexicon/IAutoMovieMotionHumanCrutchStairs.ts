@@ -40,7 +40,11 @@ export namespace IAutoMovieMotionHumanCrutchStairs {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Every crutch frame derives from the same flight the law plans.
    */
   export interface ILaw extends IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCrutchStairs> {
-    /** From one crutch's staged floor frame, the climb's parameters and the climb's first film second (zero when absent), the crutch's world frame at each film second. */
+    /**
+     * From one crutch's staged floor frame, the climb's parameters and the climb's first film second (zero when absent), the crutch's world frame at each film second.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents track: From one crutch's staged floor frame, the climb's parameters and the climb's first film second (zero when absent), the crutch's world frame at each film second.
+     */
     track: (
       start: IAutoMovieRigidTransform,
       params: IAutoMovieMotionHumanCrutchStairs,

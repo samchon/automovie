@@ -19,7 +19,11 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A car whose course never meets the pedestrian is refused, and so is a dive that cannot clear its path.
  */
 export namespace IAutoMovieMotionHumanVehicleHit {
-  /** The post-impact trajectory class. */
+  /**
+   * The post-impact trajectory class.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Trajectory: The post-impact trajectory class.
+   */
   export type Trajectory =
     | "forwardProjection"
     | "wrap"

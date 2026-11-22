@@ -17,7 +17,11 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A backbend beyond the spine's range is refused, never clamped.
  */
 export namespace IAutoMovieMotionHumanCrabWalk {
-  /** Which end of the body leads the travel. */
+  /**
+   * Which end of the body leads the travel.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Lead: Which end of the body leads the travel.
+   */
   export type Lead = "feet" | "head";
 
   /**

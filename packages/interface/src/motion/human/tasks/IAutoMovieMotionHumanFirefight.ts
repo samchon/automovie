@@ -19,7 +19,11 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A target beyond the nozzle's reach is refused; the discharge is a screen cue, never simulated.
  */
 export namespace IAutoMovieMotionHumanFirefight {
-  /** A hose team member's role. */
+  /**
+   * A hose team member's role.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Role: A hose team member's role.
+   */
   export type Role = "nozzle" | "backup";
 
   /**

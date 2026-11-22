@@ -39,6 +39,8 @@ export namespace IAutoMovieMotionPropWear {
    * The second end of a binding: while the prop is worn, the bound ends keep
    * the places they had when it was put on, never more than `slack` apart,
    * until a later grip takes the prop off and the parts are freed.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents ILink: The second end of a binding: while the prop is worn, the bound ends keep the places they had when it was put on, never more than `slack` apart, until a later grip takes the prop off and the parts are freed.
    */
   export interface ILink {
     /** The wearer's other bound bone, such as the other wrist; absent when the prop binds to a target. */

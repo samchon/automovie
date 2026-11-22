@@ -30,13 +30,12 @@ export interface IAutoMovieMotionHumanSupport<Chain> {
 
 /**
  * The parameter types of the Support methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Support method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanSupport {
-  /** The parameters of `support`. */
+  /**
+   * The parameters of `support`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `support`: the existing type of its law.
+   */
   export type ISupport = ILegacySupport.IParams;
 }

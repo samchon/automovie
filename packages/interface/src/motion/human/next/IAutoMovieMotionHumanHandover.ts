@@ -84,22 +84,33 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
 
 /**
  * The parameter types of the Handover methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Handover method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanHandover {
-  /** The parameters of `handOver`. */
+  /**
+   * The parameters of `handOver`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `handOver`: the existing type of its law.
+   */
   export type IHandOver = IAutoMovieMotionHumanHandoverAction.IParams;
 
-  /** The parameters of `receive`. */
+  /**
+   * The parameters of `receive`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `receive`: the existing type of its law.
+   */
   export type IReceive = IAutoMovieMotionHumanReceive.IParams;
 
-  /** The parameters of `relayPass`. */
+  /**
+   * The parameters of `relayPass`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `relayPass`: the existing type of its law.
+   */
   export type IRelayPass = IAutoMovieMotionHumanRelayPass.IParams;
 
-  /** The parameters of `handshake`. */
+  /**
+   * The parameters of `handshake`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `handshake`: the existing type of its law.
+   */
   export type IHandshake = IAutoMovieMotionHumanHandshake.IParams;
 }

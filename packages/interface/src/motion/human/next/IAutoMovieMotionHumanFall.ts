@@ -138,31 +138,54 @@ export interface IAutoMovieMotionHumanFall<Chain> {
 
 /**
  * The parameter types of the Fall methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Fall method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanFall {
-  /** The parameters of `collapse`. */
+  /**
+   * The parameters of `collapse`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `collapse`: the existing type of its law.
+   */
   export type ICollapse = IAutoMovieMotionHumanCollapse.IParams;
 
-  /** The parameters of `stagger`. */
+  /**
+   * The parameters of `stagger`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `stagger`: the existing type of its law.
+   */
   export type IStagger = IAutoMovieMotionHumanStagger.IParams;
 
-  /** The parameters of `knockdown`. */
+  /**
+   * The parameters of `knockdown`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `knockdown`: the existing type of its law.
+   */
   export type IKnockdown = IAutoMovieMotionHumanKnockdown.IParams;
 
-  /** The parameters of `thrown`. */
+  /**
+   * The parameters of `thrown`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `thrown`: the existing type of its law.
+   */
   export type IThrown = IAutoMovieMotionHumanThrown.IParams;
 
-  /** The parameters of `perturb`. */
+  /**
+   * The parameters of `perturb`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `perturb`: the existing type of its law.
+   */
   export type IPerturb = IAutoMovieMotionHumanPerturb.IParams;
 
-  /** The parameters of `wireFlight`. */
+  /**
+   * The parameters of `wireFlight`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `wireFlight`: the existing type of its law.
+   */
   export type IWireFlight = IAutoMovieMotionHumanWireFlight.IParams;
 
-  /** The parameters of `vehicleHit`. */
+  /**
+   * The parameters of `vehicleHit`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `vehicleHit`: the existing type of its law.
+   */
   export type IVehicleHit = IAutoMovieMotionHumanVehicleHit.IParams;
 }

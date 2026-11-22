@@ -37,7 +37,11 @@ export interface IAutoMovieMotionHumanBindPartner extends Omit<
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Exactly one end is required.
  */
 export namespace IAutoMovieMotionHumanBindPartner {
-  /** The second end of the binding and its slack. */
+  /**
+   * The second end of the binding and its slack.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents ILink: The second end of the binding and its slack.
+   */
   export interface ILink {
     /** The partner's other bound region, such as the other wrist; absent when the restraint binds to a target. */
     region?: AutoMovieHumanoidRegion;

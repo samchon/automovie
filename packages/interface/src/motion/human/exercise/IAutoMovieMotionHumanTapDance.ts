@@ -44,6 +44,8 @@ export namespace IAutoMovieMotionHumanTapDance {
    * Parameters.
    *
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IParams: Parameters.
    */
   export interface IParams {
     /** The step. */

@@ -30,13 +30,12 @@ export interface IAutoMovieMotionHumanGaze<Chain> {
 
 /**
  * The parameter types of the Gaze methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Gaze method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanGaze {
-  /** The parameters of `look`. */
+  /**
+   * The parameters of `look`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `look`: the existing type of its law.
+   */
   export type ILook = IAutoMovieMotionHumanLook.IParams;
 }

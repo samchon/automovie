@@ -120,28 +120,47 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
 
 /**
  * The parameter types of the Workout methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Workout method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanWorkout {
-  /** The parameters of `exercise`. */
+  /**
+   * The parameters of `exercise`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `exercise`: the existing type of its law.
+   */
   export type IExercise = IAutoMovieMotionHumanExercise.IParams;
 
-  /** The parameters of `stretch`. */
+  /**
+   * The parameters of `stretch`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `stretch`: the existing type of its law.
+   */
   export type IStretch = IAutoMovieMotionHumanStretch.IParams;
 
-  /** The parameters of `workout`. */
+  /**
+   * The parameters of `workout`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `workout`: the existing type of its law.
+   */
   export type IWorkout = ILegacyWorkout.IParams;
 
-  /** The parameters of `ropeSkip`. */
+  /**
+   * The parameters of `ropeSkip`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `ropeSkip`: the existing type of its law.
+   */
   export type IRopeSkip = IAutoMovieMotionHumanRopeSkip.IParams;
 
-  /** The parameters of `lineWalk`. */
+  /**
+   * The parameters of `lineWalk`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `lineWalk`: the existing type of its law.
+   */
   export type ILineWalk = IAutoMovieMotionHumanLineWalk.IParams;
 
-  /** The parameters of `stiltWalk`. */
+  /**
+   * The parameters of `stiltWalk`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `stiltWalk`: the existing type of its law.
+   */
   export type IStiltWalk = IAutoMovieMotionHumanStiltWalk.IParams;
 }

@@ -38,6 +38,10 @@ export interface IAutoMovieMotionHumanLieOnSurface {
  * Companion types of {@link IAutoMovieMotionHumanLieOnSurface}.
  */
 export namespace IAutoMovieMotionHumanLieOnSurface {
-  /** The lying positions on the surface: on the back, or on the side that turns toward the head end from the edge. */
+  /**
+   * The lying positions on the surface: on the back, or on the side that turns toward the head end from the edge.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Position: The lying positions on the surface: on the back, or on the side that turns toward the head end from the edge.
+   */
   export type Position = "supine" | "lateral";
 }

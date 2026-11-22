@@ -42,7 +42,11 @@ export interface IAutoMovieMotionHumanCrutchWalk {
 }
 
 export namespace IAutoMovieMotionHumanCrutchWalk {
-  /** The clinical crutch gaits. */
+  /**
+   * The clinical crutch gaits.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Pattern: The clinical crutch gaits.
+   */
   export type Pattern = "threePoint" | "swingTo" | "swingThrough";
 
   /**
@@ -54,7 +58,11 @@ export namespace IAutoMovieMotionHumanCrutchWalk {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Every crutch frame derives from the same stations the law plans.
    */
   export interface ILaw extends IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCrutchWalk> {
-    /** From one crutch's staged floor frame, the walk's parameters, the crutch's side and the walk's first film second (zero when absent), the crutch's world frame at each film second. */
+    /**
+     * From one crutch's staged floor frame, the walk's parameters, the crutch's side and the walk's first film second (zero when absent), the crutch's world frame at each film second.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents track: From one crutch's staged floor frame, the walk's parameters, the crutch's side and the walk's first film second (zero when absent), the crutch's world frame at each film second.
+     */
     track: (
       start: IAutoMovieRigidTransform,
       params: IAutoMovieMotionHumanCrutchWalk,

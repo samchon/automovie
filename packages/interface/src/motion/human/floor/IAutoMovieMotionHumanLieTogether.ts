@@ -30,6 +30,10 @@ export interface IAutoMovieMotionHumanLieTogether {
  * Companion types of {@link IAutoMovieMotionHumanLieTogether}.
  */
 export namespace IAutoMovieMotionHumanLieTogether {
-  /** Spooning behind the partner, or the head on the partner's chest. */
+  /**
+   * Spooning behind the partner, or the head on the partner's chest.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Way: Spooning behind the partner, or the head on the partner's chest.
+   */
   export type Way = "spoon" | "chest";
 }

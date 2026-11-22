@@ -35,9 +35,17 @@ export interface IAutoMovieMotionHumanPolo {
   speed?: number;
 }
 export namespace IAutoMovieMotionHumanPolo {
-  /** The horse's side a stroke is made on: `offside`, its right, or `nearside`, its left. */
+  /**
+   * The horse's side a stroke is made on: `offside`, its right, or `nearside`, its left.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Side: The horse's side a stroke is made on: `offside`, its right, or `nearside`, its left.
+   */
   export type Side = "offside" | "nearside";
 
-  /** A stroke: `forehand`, swung forward through the ball, or `backhand`, swung back through it. */
+  /**
+   * A stroke: `forehand`, swung forward through the ball, or `backhand`, swung back through it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Stroke: A stroke: `forehand`, swung forward through the ball, or `backhand`, swung back through it.
+   */
   export type Stroke = "forehand" | "backhand";
 }

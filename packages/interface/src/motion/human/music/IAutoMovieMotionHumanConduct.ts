@@ -15,7 +15,11 @@ import type { IAutoMovieMotionHumanDance } from "../exercise/IAutoMovieMotionHum
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The figure is the meter's; no free path is authorable.
  */
 export namespace IAutoMovieMotionHumanConduct {
-  /** The meter whose figure the baton beats. */
+  /**
+   * The meter whose figure the baton beats.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Meter: The meter whose figure the baton beats.
+   */
   export type Meter = "2/4" | "3/4" | "4/4";
 
   /**

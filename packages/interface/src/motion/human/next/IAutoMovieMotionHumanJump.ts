@@ -102,25 +102,40 @@ export interface IAutoMovieMotionHumanJump<Chain> {
 
 /**
  * The parameter types of the Jump methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Jump method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanJump {
-  /** The parameters of `jump`. */
+  /**
+   * The parameters of `jump`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `jump`: the existing type of its law.
+   */
   export type IJump = ILegacyJump.IParams;
 
-  /** The parameters of `horizontalJump`. */
+  /**
+   * The parameters of `horizontalJump`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `horizontalJump`: the existing type of its law.
+   */
   export type IHorizontalJump = IAutoMovieMotionHumanHorizontalJump.IParams;
 
-  /** The parameters of `highJump`. */
+  /**
+   * The parameters of `highJump`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `highJump`: the existing type of its law.
+   */
   export type IHighJump = IAutoMovieMotionHumanHighJump.IParams;
 
-  /** The parameters of `poleVault`. */
+  /**
+   * The parameters of `poleVault`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `poleVault`: the existing type of its law.
+   */
   export type IPoleVault = IAutoMovieMotionHumanPoleVault.IParams;
 
-  /** The parameters of `hurdleClear`. */
+  /**
+   * The parameters of `hurdleClear`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `hurdleClear`: the existing type of its law.
+   */
   export type IHurdleClear = IAutoMovieMotionHumanHurdleClear.IParams;
 }

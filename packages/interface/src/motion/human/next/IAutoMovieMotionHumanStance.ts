@@ -120,28 +120,47 @@ export interface IAutoMovieMotionHumanStance<Chain> {
 
 /**
  * The parameter types of the Stance methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Stance method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanStance {
-  /** The parameters of `stand`. */
+  /**
+   * The parameters of `stand`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `stand`: the existing type of its law.
+   */
   export type IStand = IAutoMovieMotionHumanStand.IParams;
 
-  /** The parameters of `shift`. */
+  /**
+   * The parameters of `shift`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `shift`: the existing type of its law.
+   */
   export type IShift = IAutoMovieMotionHumanShift.IParams;
 
-  /** The parameters of `bend`. */
+  /**
+   * The parameters of `bend`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `bend`: the existing type of its law.
+   */
   export type IBend = IAutoMovieMotionHumanBend.IParams;
 
-  /** The parameters of `crouch`. */
+  /**
+   * The parameters of `crouch`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `crouch`: the existing type of its law.
+   */
   export type ICrouch = IAutoMovieMotionHumanCrouch.IParams;
 
-  /** The parameters of `brace`. */
+  /**
+   * The parameters of `brace`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `brace`: the existing type of its law.
+   */
   export type IBrace = IAutoMovieMotionHumanBrace.IParams;
 
-  /** The parameters of `rest`. */
+  /**
+   * The parameters of `rest`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `rest`: the existing type of its law.
+   */
   export type IRest = IAutoMovieMotionHumanRest.IParams;
 }

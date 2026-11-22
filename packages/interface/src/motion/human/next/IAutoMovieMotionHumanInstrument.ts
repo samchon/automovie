@@ -48,16 +48,19 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
 
 /**
  * The parameter types of the Instrument methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Instrument method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanInstrument {
-  /** The parameters of `playWindInstrument`. */
+  /**
+   * The parameters of `playWindInstrument`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `playWindInstrument`: the existing type of its law.
+   */
   export type IPlayWindInstrument = IAutoMovieMotionHumanPlayWindInstrument.IParams;
 
-  /** The parameters of `conduct`. */
+  /**
+   * The parameters of `conduct`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `conduct`: the existing type of its law.
+   */
   export type IConduct = IAutoMovieMotionHumanConduct.IParams;
 }

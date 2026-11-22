@@ -84,22 +84,33 @@ export interface IAutoMovieMotionHumanCarryPerson<Chain> {
 
 /**
  * The parameter types of the CarryPerson methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each CarryPerson method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanCarryPerson {
-  /** The parameters of `carryPerson`. */
+  /**
+   * The parameters of `carryPerson`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `carryPerson`: the existing type of its law.
+   */
   export type ICarryPerson = IAutoMovieMotionHumanCarried.IParams;
 
-  /** The parameters of `carriedLift`. */
+  /**
+   * The parameters of `carriedLift`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `carriedLift`: the existing type of its law.
+   */
   export type ICarriedLift = IAutoMovieMotionHumanCarriedLift.IParams;
 
-  /** The parameters of `holdInfant`. */
+  /**
+   * The parameters of `holdInfant`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `holdInfant`: the existing type of its law.
+   */
   export type IHoldInfant = IAutoMovieMotionHumanHoldInfant.IParams;
 
-  /** The parameters of `edgeRescue`. */
+  /**
+   * The parameters of `edgeRescue`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `edgeRescue`: the existing type of its law.
+   */
   export type IEdgeRescue = IAutoMovieMotionHumanEdgeRescue.IParams;
 }

@@ -20,10 +20,18 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The path is the author's; nothing is fitted to it.
  */
 export namespace IAutoMovieMotionHumanWireFlight {
-  /** The body's shape in the air. */
+  /**
+   * The body's shape in the air.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Shape: The body's shape in the air.
+   */
   export type Shape = "superman" | "hover" | "seated" | "stride" | "limp";
 
-  /** A hand or a foot that touches a surface in the air. */
+  /**
+   * A hand or a foot that touches a surface in the air.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Part: A hand or a foot that touches a surface in the air.
+   */
   export type Part = "leftHand" | "rightHand" | "leftFoot" | "rightFoot";
 
   /**

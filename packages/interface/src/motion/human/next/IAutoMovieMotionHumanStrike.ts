@@ -138,31 +138,54 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
 
 /**
  * The parameter types of the Strike methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Strike method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanStrike {
-  /** The parameters of `punch`. */
+  /**
+   * The parameters of `punch`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `punch`: the existing type of its law.
+   */
   export type IPunch = IAutoMovieMotionHumanPunch.IParams;
 
-  /** The parameters of `kick`. */
+  /**
+   * The parameters of `kick`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `kick`: the existing type of its law.
+   */
   export type IKick = IAutoMovieMotionHumanKick.IParams;
 
-  /** The parameters of `knee`. */
+  /**
+   * The parameters of `knee`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `knee`: the existing type of its law.
+   */
   export type IKnee = IAutoMovieMotionHumanKnee.IParams;
 
-  /** The parameters of `closeStrike`. */
+  /**
+   * The parameters of `closeStrike`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `closeStrike`: the existing type of its law.
+   */
   export type ICloseStrike = IAutoMovieMotionHumanCloseStrike.IParams;
 
-  /** The parameters of `footStrike`. */
+  /**
+   * The parameters of `footStrike`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `footStrike`: the existing type of its law.
+   */
   export type IFootStrike = IAutoMovieMotionHumanFootStrike.IParams;
 
-  /** The parameters of `step`. */
+  /**
+   * The parameters of `step`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `step`: the existing type of its law.
+   */
   export type IStep = IAutoMovieMotionHumanStep.IParams;
 
-  /** The parameters of `martialArt`. */
+  /**
+   * The parameters of `martialArt`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `martialArt`: the existing type of its law.
+   */
   export type IMartialArt = IAutoMovieMotionHumanMartialArt.IParams;
 }

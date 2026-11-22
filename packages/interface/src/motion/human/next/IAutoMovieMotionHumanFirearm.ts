@@ -30,13 +30,12 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
 
 /**
  * The parameter types of the Firearm methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Firearm method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanFirearm {
-  /** The parameters of `weaponTrack`. */
+  /**
+   * The parameters of `weaponTrack`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `weaponTrack`: the existing type of its law.
+   */
   export type IWeaponTrack = IAutoMovieMotionHumanWeaponTrack.IParams;
 }

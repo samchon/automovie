@@ -221,6 +221,10 @@ export namespace IAutoMovieMotionHumanArmGeometry {
     hand: IAutoMovieQuaternion;
   }
 
-  /** What carries an obstacle shape: a rig bone, or a subject and part (`subject:part`) of a segment no human body carries (`IAutoMovieMotionHumanColliders.IExternal`). */
+  /**
+   * What carries an obstacle shape: a rig bone, or a subject and part (`subject:part`) of a segment no human body carries (`IAutoMovieMotionHumanColliders.IExternal`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Segment: What carries an obstacle shape: a rig bone, or a subject and part (`subject:part`) of a segment no human body carries (`IAutoMovieMotionHumanColliders.IExternal`).
+   */
   export type Segment = AutoMovieHumanoidBone | `${string}:${string}`;
 }

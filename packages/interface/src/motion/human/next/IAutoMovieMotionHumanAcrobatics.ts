@@ -138,31 +138,54 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
 
 /**
  * The parameter types of the Acrobatics methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Acrobatics method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanAcrobatics {
-  /** The parameters of `gymnastics`. */
+  /**
+   * The parameters of `gymnastics`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `gymnastics`: the existing type of its law.
+   */
   export type IGymnastics = IAutoMovieMotionHumanGymnastics.IParams;
 
-  /** The parameters of `salto`. */
+  /**
+   * The parameters of `salto`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `salto`: the existing type of its law.
+   */
   export type ISalto = IAutoMovieMotionHumanSalto.IParams;
 
-  /** The parameters of `cartwheel`. */
+  /**
+   * The parameters of `cartwheel`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `cartwheel`: the existing type of its law.
+   */
   export type ICartwheel = IAutoMovieMotionHumanCartwheel.IParams;
 
-  /** The parameters of `roundOff`. */
+  /**
+   * The parameters of `roundOff`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `roundOff`: the existing type of its law.
+   */
   export type IRoundOff = IAutoMovieMotionHumanRoundOff.IParams;
 
-  /** The parameters of `handspring`. */
+  /**
+   * The parameters of `handspring`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `handspring`: the existing type of its law.
+   */
   export type IHandspring = IAutoMovieMotionHumanHandspring.IParams;
 
-  /** The parameters of `trampoline`. */
+  /**
+   * The parameters of `trampoline`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `trampoline`: the existing type of its law.
+   */
   export type ITrampoline = IAutoMovieMotionHumanTrampoline.IParams;
 
-  /** The parameters of `skydive`. */
+  /**
+   * The parameters of `skydive`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `skydive`: the existing type of its law.
+   */
   export type ISkydive = IAutoMovieMotionHumanSkydive.IParams;
 }

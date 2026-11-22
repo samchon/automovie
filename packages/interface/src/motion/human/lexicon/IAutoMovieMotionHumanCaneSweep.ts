@@ -30,6 +30,10 @@ export interface IAutoMovieMotionHumanCaneSweep {
  * Companion types of {@link IAutoMovieMotionHumanCaneSweep}.
  */
 export namespace IAutoMovieMotionHumanCaneSweep {
-  /** The two-point touch, the tip lifted between touches, or constant contact, the tip sliding along the floor. */
+  /**
+   * The two-point touch, the tip lifted between touches, or constant contact, the tip sliding along the floor.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Technique: The two-point touch, the tip lifted between touches, or constant contact, the tip sliding along the floor.
+   */
   export type Technique = "twoPoint" | "constant";
 }

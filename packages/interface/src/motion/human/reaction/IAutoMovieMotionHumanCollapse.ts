@@ -23,10 +23,18 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member combines into a meaningless state: the side is read only by a sideways fall, the source only for its heading.
  */
 export namespace IAutoMovieMotionHumanCollapse {
-  /** Where the body goes down. */
+  /**
+   * Where the body goes down.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Direction: Where the body goes down.
+   */
   export type Direction = "backward" | "forward" | "sideways" | "inPlace";
 
-  /** How the body meets the floor. */
+  /**
+   * How the body meets the floor.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Tone: How the body meets the floor.
+   */
   export type Tone = "limp" | "protective";
 
   /**

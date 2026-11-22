@@ -30,6 +30,8 @@ export namespace IAutoMovieMotionHumanStiltWalk {
    * Parameters.
    *
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and support refusals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IParams: Parameters.
    */
   export interface IParams {
     /** The stilts, each standing under its foot as the walk starts. */

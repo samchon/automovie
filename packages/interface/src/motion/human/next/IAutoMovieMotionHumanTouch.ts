@@ -102,25 +102,40 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
 
 /**
  * The parameter types of the Touch methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Touch method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanTouch {
-  /** The parameters of `touch`. */
+  /**
+   * The parameters of `touch`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `touch`: the existing type of its law.
+   */
   export type ITouch = ILegacyTouch.IParams;
 
-  /** The parameters of `highFive`. */
+  /**
+   * The parameters of `highFive`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `highFive`: the existing type of its law.
+   */
   export type IHighFive = IAutoMovieMotionHumanHighFive.IParams;
 
-  /** The parameters of `kiss`. */
+  /**
+   * The parameters of `kiss`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `kiss`: the existing type of its law.
+   */
   export type IKiss = IAutoMovieMotionHumanKiss.IParams;
 
-  /** The parameters of `legTouch`. */
+  /**
+   * The parameters of `legTouch`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `legTouch`: the existing type of its law.
+   */
   export type ILegTouch = IAutoMovieMotionHumanLegTouch.IParams;
 
-  /** The parameters of `armWrestle`. */
+  /**
+   * The parameters of `armWrestle`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `armWrestle`: the existing type of its law.
+   */
   export type IArmWrestle = IAutoMovieMotionHumanArmWrestle.IParams;
 }

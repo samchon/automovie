@@ -12,7 +12,11 @@ import type { AutoMovieHumanoidRegion } from "../../../skeleton/AutoMovieHumanoi
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The weapon stays at its region within the law's tolerance; a region out of reach is refused.
  */
 export namespace IAutoMovieMotionHumanHostageHold {
-  /** Where the holding arm lies across the hostage. */
+  /**
+   * Where the holding arm lies across the hostage.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Arm: Where the holding arm lies across the hostage.
+   */
   export type Arm = "chest" | "neck";
 
   /**

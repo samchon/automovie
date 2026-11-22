@@ -23,6 +23,8 @@ export namespace IAutoMovieMotionHumanTrampoline {
    * Parameters.
    *
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and support refusals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IParams: Parameters.
    */
   export interface IParams {
     /** The trampoline's scene id; the jumper stands on its bed as the action starts. */

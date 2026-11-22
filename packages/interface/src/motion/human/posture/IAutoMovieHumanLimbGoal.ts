@@ -127,7 +127,11 @@ export interface IAutoMovieHumanLimbGoal {
  *
  */
 export namespace IAutoMovieHumanLimbGoal {
-  /** The performer's own bones a hand is laid on. */
+  /**
+   * The performer's own bones a hand is laid on.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents OwnRests: The performer's own bones a hand is laid on.
+   */
   export type OwnRests = readonly AutoMovieHumanoidBone[];
 
   /**

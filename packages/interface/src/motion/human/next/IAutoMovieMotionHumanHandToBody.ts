@@ -48,16 +48,19 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
 
 /**
  * The parameter types of the HandToBody methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each HandToBody method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanHandToBody {
-  /** The parameters of `handToFace`. */
+  /**
+   * The parameters of `handToFace`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `handToFace`: the existing type of its law.
+   */
   export type IHandToFace = IAutoMovieMotionHumanHandToFace.IParams;
 
-  /** The parameters of `selfAction`. */
+  /**
+   * The parameters of `selfAction`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `selfAction`: the existing type of its law.
+   */
   export type ISelfAction = IAutoMovieMotionHumanSelfAction.IParams;
 }

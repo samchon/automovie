@@ -32,6 +32,7 @@ export interface IAutoMovieMotionHumanDanceFootKey {
    *
    * @param seconds Action seconds within the dwell.
    * @returns The placement.
+   * @evidence contracts/development/common.md#meaningful-documentation Documents member: The placement while it dwells, for a foot that turns as it bears (a pirouette's supporting foot); `place` throughout when absent.
    */
   hold?(seconds: number): IAutoMovieMotionHumanFoot.IPlacement;
 }

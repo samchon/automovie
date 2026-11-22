@@ -156,34 +156,61 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
 
 /**
  * The parameter types of the ThrowCatch methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each ThrowCatch method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanThrowCatch {
-  /** The parameters of `throwObject`. */
+  /**
+   * The parameters of `throwObject`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `throwObject`: the existing type of its law.
+   */
   export type IThrowObject = IAutoMovieMotionHumanThrowObjectParams;
 
-  /** The parameters of `catchObject`. */
+  /**
+   * The parameters of `catchObject`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `catchObject`: the existing type of its law.
+   */
   export type ICatchObject = IAutoMovieMotionHumanCatchObject.IParams;
 
-  /** The parameters of `release`. */
+  /**
+   * The parameters of `release`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `release`: the existing type of its law.
+   */
   export type IRelease = IAutoMovieMotionHumanRelease.IParams;
 
-  /** The parameters of `kickBall`. */
+  /**
+   * The parameters of `kickBall`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `kickBall`: the existing type of its law.
+   */
   export type IKickBall = IAutoMovieMotionHumanKickBall.IParams;
 
-  /** The parameters of `juggle`. */
+  /**
+   * The parameters of `juggle`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `juggle`: the existing type of its law.
+   */
   export type IJuggle = IAutoMovieMotionHumanJuggle.IParams;
 
-  /** The parameters of `fieldThrow`. */
+  /**
+   * The parameters of `fieldThrow`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `fieldThrow`: the existing type of its law.
+   */
   export type IFieldThrow = IAutoMovieMotionHumanFieldThrow.IParams;
 
-  /** The parameters of `stickBall`. */
+  /**
+   * The parameters of `stickBall`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `stickBall`: the existing type of its law.
+   */
   export type IStickBall = IAutoMovieMotionHumanStickBall.IParams;
 
-  /** The parameters of `ballSport`. */
+  /**
+   * The parameters of `ballSport`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `ballSport`: the existing type of its law.
+   */
   export type IBallSport = IAutoMovieMotionHumanBallSport.IParams;
 }

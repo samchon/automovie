@@ -20,7 +20,11 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The weapon's custody passes by grips the performance already resolves; no second owner is invented.
  */
 export namespace IAutoMovieMotionHumanDisarm {
-  /** The weapon the technique is staged for. */
+  /**
+   * The weapon the technique is staged for.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents Kind: The weapon the technique is staged for.
+   */
   export type Kind = "knife" | "handgun";
 
   /**

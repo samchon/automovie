@@ -48,16 +48,19 @@ export interface IAutoMovieMotionHumanReaction<Chain> {
 
 /**
  * The parameter types of the Reaction methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Reaction method.
- * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
  */
 export namespace IAutoMovieMotionHumanReaction {
-  /** The parameters of `flinch`. */
+  /**
+   * The parameters of `flinch`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `flinch`: the existing type of its law.
+   */
   export type IFlinch = IAutoMovieMotionHumanFlinch.IParams;
 
-  /** The parameters of `give`. */
+  /**
+   * The parameters of `give`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `give`: the existing type of its law.
+   */
   export type IGive = IAutoMovieMotionHumanGive.IParams;
 }
