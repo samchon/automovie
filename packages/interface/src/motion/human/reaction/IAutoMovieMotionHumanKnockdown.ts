@@ -46,7 +46,7 @@ export namespace IAutoMovieMotionHumanKnockdown {
     /** Where the blow came from; a place ahead of the performer when absent. */
     from?: IAutoMovieMotionTarget;
 
-    /** How long the body lies after landing, seconds; 1 when absent. */
+    /** How long the body lies after landing, seconds; 1 when absent. The seat lands at 0.45 s and the back rests by 1.1 s after the start, so the action lasts 1.1 s plus this. 0 ends the action on the lie; a longer lie fits a stunned or unconscious body. */
     seconds?: number;
   }
 }

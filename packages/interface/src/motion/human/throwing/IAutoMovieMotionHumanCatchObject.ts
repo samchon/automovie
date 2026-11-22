@@ -54,7 +54,7 @@ export namespace IAutoMovieMotionHumanCatchObject {
     /** The anchor of the throw caught. */
     from: string;
 
-    /** One hand or two; `two` when absent. */
+    /** One hand or two; `two` when absent. The hands reach the object in the aimed movement time to its size (McIntosh et al. 2018), give 0.05 to 0.15 m with it (provisional) and hold it at the sternum. */
     hands?: "one" | "two";
 
     /** The catching hand when one; `right` when absent. */

@@ -58,13 +58,13 @@ export namespace IAutoMovieMotionHumanClinch {
     /** The partner gripped. */
     partner: string;
 
-    /** The grip; `plum` when absent. */
+    /** The grip; `plum` when absent: `plum`, the two-handed neck tie of Muay Thai clinch fighting; `collarSleeve`, judo's collar and sleeve grip that opens a throw. */
     grip?: IAutoMovieMotionHumanClinch.Grip;
 
     /** The collar hand of `collarSleeve`; `right` when absent. */
     hand?: AutoMovieHumanSide;
 
-    /** Seconds the grip is held; 2 when absent.
+    /** Seconds the grip is held once both hands have closed, before they let go; 2 s when absent ({@link clinch}, provisional: no study of a grip's duration was read). The hands reach in their aimed movement time first (McIntosh et al. 2018), so the whole action is that time, `hold` and the release. 0 closes and lets go at once; a few seconds fits a held neck tie or a grip taken before a throw.
      * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     hold?: number;

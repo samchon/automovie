@@ -41,10 +41,10 @@ export namespace IAutoMovieMotionHumanVehicleHit {
     /** The car's affordance at the top of its leading edge, the bonnet's front; read from the car's colliders when absent, as the highest top among those reaching furthest forward (`vehicleFront`). */
     edge?: string;
 
-    /** How far past the action's start the car's course is searched for the contact, seconds; 6 when absent. */
+    /** How far past the action's start the car's course is searched for the contact, seconds; 6 when absent. A car that reaches the pedestrian later is not struck. */
     horizon?: number;
 
-    /** How long the body lies after landing, seconds; 1 when absent. */
+    /** How long the body lies after landing, seconds; 1 when absent; see {@link IAutoMovieMotionHumanKnockdown.IParams.seconds}. */
     seconds?: number;
   }
 
@@ -63,7 +63,7 @@ export namespace IAutoMovieMotionHumanVehicleHit {
     /** The pedestrian's side the dive goes to; the side nearer the car's path edge when absent. */
     side?: AutoMovieHumanSide;
 
-    /** How far past the action's start the car's course is searched for its arrival, seconds; 6 when absent. */
+    /** How far past the action's start the car's course is searched for its arrival, seconds; 6 when absent. A car that arrives later is not dived from. */
     horizon?: number;
   }
 }

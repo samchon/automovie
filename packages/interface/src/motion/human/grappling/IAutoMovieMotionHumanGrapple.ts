@@ -1,7 +1,13 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
- * Inputs shared by two actors in a preplanned sport grappling scene.
+ * Inputs shared by two actors in a preplanned sport grappling scene. The
+ * scene is one law and one parameter set for judo, wrestling, MMA mat work
+ * and sumo: a paired clock of reach, take, release and rest beats whose
+ * length is `seconds`, and an authored outcome. The scene takes 3 to 6 s
+ * at the lengths on {@link Kind}; no skill or strength
+ * is read. A kind is a staging, not a rulebook: the award is not inferred
+ * from the pose.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States that both roles share one authored scene.
  * @evidence contracts/development/design.md#principled-representation A closed scene kind and explicit staged outcome separate choreography from partner identity.
@@ -21,19 +27,33 @@ export namespace IAutoMovieMotionHumanGrapple {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Scene kind and scene outcome are separate inputs.
    */
   export type Kind =
+    /** Judo shoulder throw, 3.5 s by default. */
     | "seoiNage"
+    /** Judo hip throw, 3.8 s. */
     | "oGoshi"
+    /** Judo major outer reap, 3.4 s. */
     | "oSotoGari"
+    /** Judo forward foot sweep timed to the step, the quickest scene, 3 s. */
     | "deAshiHarai"
+    /** Wrestling single-leg takedown, 3.8 s. */
     | "singleLeg"
+    /** Wrestling double-leg takedown, 3.6 s. */
     | "doubleLeg"
+    /** Greco-Roman upper-body throw, 3.8 s. */
     | "grecoRoman"
+    /** Judo hold on the mat, 5 s. */
     | "judoHold"
+    /** Wrestling fall to the back, 5 s. */
     | "wrestlingFall"
+    /** Mat guard pass, the longest scene, 6 s. */
     | "guardPass"
+    /** MMA reset after a mat exchange, 4.2 s. */
     | "mmaReset"
+    /** Sumo push out, 4.5 s: a charge from the shikiri lines 0.7 m apart, a drive of 2.1 m in 0.35 m steps over the 4.55 m ring ({@link grappleSumo}). */
     | "oshiDashi"
+    /** Sumo belt-grip force-out, 5 s, driven the same way. */
     | "yoriKiri"
+    /** Sumo overarm belt throw, 4 s. */
     | "uwateNage";
 
   /**
@@ -74,7 +94,7 @@ export namespace IAutoMovieMotionHumanGrapple {
     /** Lead side of the staged scene, right when absent. */
     side?: AutoMovieHumanSide;
 
-    /** Total scene duration in seconds, positive and finite. Each kind uses its own staging duration when absent. */
+    /** Total scene duration in seconds, positive and finite. Absent, each kind takes its own length listed on {@link Kind} ({@link grappleStances.seconds}, {@link grappleSumo.seconds}); every one is an authored staging length, provisional: no study of a bout's phase times was read. The phases keep their shares of it, so a longer scene is the same beats slower. */
     seconds?: number;
   }
 

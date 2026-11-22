@@ -109,7 +109,7 @@ export namespace IAutoMovieMotionHumanStagger {
     /** Where the blow comes from: the body is pushed away from it; a place ahead of the performer when absent. */
     from?: IAutoMovieMotionTarget;
 
-    /** The centre of mass's speed after the blow, m/s. */
+    /** The centre of mass's speed after the blow, m/s. Up to four recovery steps catch it (each about 0.18 to 0.24 s, 0.38 to 0.59 stature long); a faster push is refused as a fall, naming the fastest push the body catches, and a fall is a `knockdown`. The step count and times are the body's dynamics and follow this speed alone. */
     speed: number;
 
     /** How it is performed: the tempo scales the trunk's righting after the last step. */

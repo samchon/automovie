@@ -51,10 +51,10 @@ export namespace IAutoMovieMotionHumanKickBall {
     /** Where the ball is kicked toward; along the heading when absent. */
     toward?: IAutoMovieMotionTarget;
 
-    /** Horizontal launch speed in m/s. Omit for a contact-only kick. */
+    /** Horizontal launch speed of the ball, m/s, authored and never derived from the leg. Omit for a contact-only kick: the foot meets the ball and the ball is not launched. The foot meets the ball at the stroke's film instant, 0.45 s after the start (the backswing 0.35 s and the swing 0.1 s; the follow-through 0.15 s and the return 0.45 s end the kick at 1.05 s; all provisional, scaled by the manner's tempo). */
     speed?: number;
 
-    /** Upward launch speed in m/s. With a launch, defaults to a small positive departure. */
+    /** Upward launch speed of the ball, m/s; 0.3 m/s when absent, a ground ball, and read only with `speed`. A chip or a lofted kick takes a larger value. */
     lift?: number;
 
     /** How it is performed. */

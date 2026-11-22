@@ -19,7 +19,7 @@ export interface IAutoMovieMotionHumanThrowObjectParams {
   /** Where the object goes. */
   at: IAutoMovieMotionTarget;
 
-  /** The style; `overarm` when absent. */
+  /** The style; `overarm` when absent. It fixes the release angle, the windup and the trunk's turn and tilt ({@link IAutoMovieMotionHumanThrowObjectForm.Style} gives each style's angle and windup, provisional). The speed follows from the distance and the angle by the range equation, so a farther target is a faster throw. */
   style?: IAutoMovieMotionHumanThrowObjectForm.Style;
 
   /** The throwing hand; `right` when absent. */
@@ -32,7 +32,7 @@ export interface IAutoMovieMotionHumanThrowObjectParams {
    */
   prop?: string;
 
-  /** The release angle above the horizontal, degrees; the style's when absent. */
+  /** The release angle above the horizontal, degrees; the style's when absent ({@link throwObjectForm.ANGLE}). A target the angle cannot reach is refused. */
   angle?: number;
 
   /**

@@ -55,7 +55,7 @@ export namespace IAutoMovieMotionHumanRelease {
       from: string;
       /** The point its line runs to, such as the arrow's `tip`. */
       to: string;
-      /** The launcher's speed along the line, metres per second. */
+      /** The launcher's speed along the line, metres per second: the arrow's speed off the string, set by the bow's `launchSpeed` at the string's travel; a hand's own velocity is added. */
       speed: number;
     };
   }

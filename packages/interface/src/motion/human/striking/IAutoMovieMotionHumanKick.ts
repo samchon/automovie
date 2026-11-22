@@ -25,13 +25,25 @@ import type { IAutoMovieMotionHumanStrikingRecord } from "./IAutoMovieMotionHuma
  * Both gloves keep their guard (the kick-guard decision of the kickboxing
  * research of #3201).
  *
- * Timing (Gavagan and Sayers 2017): preparation 0.074 s, chamber 14 % and
- * extension 11 % of the 1.02 s execution, recoil 0.65 s; the round kick lands
- * at 0.55 of its peak foot speed. Skill scales chamber and recoil by 1.4 to 1
- * and the strike phase by 1.06 to 1, and the chamber's fold and the pelvis's
- * turn by its range share ({@link StrikingSkill}). Every phase applies to
- * low, body and high kicks alike, an approximation the source states (it
- * timed head kicks).
+ * Timing, from launch to contact (Gavagan and Sayers 2017): preparation
+ * 0.074 s, chamber 14 % and extension 11 % of the 1.02 s execution, recoil
+ * 0.65 s ({@link StrikingSkill.KICK_PREPARATION}, `KICK_CHAMBER`,
+ * `KICK_EXTENSION`, `KICK_RECOIL`). At elite skill a kick takes 0.33 s from
+ * launch to contact and 0.98 s in all. The performer's `recovery` skill
+ * multiplies the chamber and the recoil by 1.4 at novice, 1.3 at amateur,
+ * 1.1 at trained and 1.0 at elite, and its `speed` skill the extension by
+ * 1.06 to 1.0 ({@link StrikingSkill.recovery}, {@link StrikingSkill.strike},
+ * levels on {@link HumanSkill.LEVELS}), so launch to contact is 0.39 s at
+ * novice, 0.38 at amateur, 0.35 at trained and 0.33 at elite, and the whole
+ * kick 1.30, 1.22, 1.06 and 0.98 s. A seeded timing variability is added to
+ * the chamber ({@link HumanSkill.jitter}). A feint shows the chamber and
+ * returns without extending. The round kick lands at 0.55 of its peak foot
+ * speed; the peak (6.5 m/s novice, 14.3 m/s elite) is a reference the kick
+ * does not read ({@link StrikingSkill.KICK_PEAK_SPEED}). The chamber's fold
+ * and the pelvis's turn scale by the skill's range share
+ * ({@link StrikingSkill.amplitude}). Every phase applies to low, body and
+ * high kicks alike, an approximation the source states (it timed head
+ * kicks). A kick does not read `manner`.
  *
  * A round kick may be redirected before its chamber key into another round
  * kick ({@link KickRedirect}).

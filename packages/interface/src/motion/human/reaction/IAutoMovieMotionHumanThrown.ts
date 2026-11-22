@@ -44,13 +44,13 @@ export namespace IAutoMovieMotionHumanThrown {
     /** Where the blast went off or the cable pulls from: the body is thrown away from a blast and toward a pull. */
     from: IAutoMovieMotionTarget;
 
-    /** How far the body's root travels over the ground, metres; positive. */
+    /** How far the body's root travels over the ground, metres; positive. The ground speed is this over the flight time, which `height` fixes: a 0.5 m height is airborne about 0.64 s. */
     distance: number;
 
-    /** How high the root rises above its take-off height, metres; positive. */
+    /** How high the root rises above its take-off height, metres; positive. The root rises and falls under standard gravity, so the flight lasts about `2 sqrt(2 h / g)`: 0.64 s at 0.5 m, 0.9 s at 1 m. */
     height: number;
 
-    /** How long the body lies after landing, seconds; 1 when absent. */
+    /** How long the body lies after landing, seconds; 1 when absent; see {@link IAutoMovieMotionHumanKnockdown.IParams.seconds}. */
     seconds?: number;
 
     /** A wall in the flight's path, a point on its face: the flight stops on it, the impact is the action's hit, and the body slides down it to sit on the floor; none when absent. */
