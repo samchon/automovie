@@ -59,8 +59,9 @@ export function HumanPerformanceSite(
   const site: IAutoMovieAffordance | undefined = posed?.find(
     (a: IAutoMovieAffordance): boolean => a.id === id,
   );
-  const rest: IAutoMovieVector3 | undefined = prop.points[id]?.point;
-  if (site === undefined && rest === undefined)
+  const translation: IAutoMovieVector3 | undefined =
+    site?.frame.translation ?? prop.points[id]?.point;
+  if (translation === undefined)
     throw new HumanRefusal({
       kind: "affordance",
       axis: "point",
@@ -68,7 +69,6 @@ export function HumanPerformanceSite(
       reason: `the prop ${subject} names no point ${id}`,
       fix: "name one of the prop's own points",
     });
-  const translation: IAutoMovieVector3 = site?.frame.translation ?? rest!;
   const turn: IAutoMovieQuaternion = site?.frame.rotation ?? {
     x: 0,
     y: 0,
