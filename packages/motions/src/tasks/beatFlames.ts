@@ -76,7 +76,8 @@ export const beatFlames: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFir
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IBeatFlames>,
 ): IAutoMovieMotionHumanActionPlan {
-  const p: IAutoMovieMotionHumanFirefight.IBeatFlames = context.params;  const count: number = p.count ?? COUNT;
+  const p: IAutoMovieMotionHumanFirefight.IBeatFlames = context.params;
+  const count: number = p.count ?? COUNT;
   if (!(Number.isInteger(count) && count > 0))
     throw new HumanRefusal({
       kind: "parameter",
@@ -189,7 +190,7 @@ function plan(
   const composed: IAutoMovieMotionHumanActionPlan =
     composeAutoMovieMotionHumanAction({
       base: {
-        ...base,
+        ...HumanTrunkLean.moving(base, forward),
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
           const posture: IAutoMovieMotionHumanPosture = HumanTrunkLean.lean(
             context.body,

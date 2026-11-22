@@ -221,11 +221,13 @@ function pottery(
   const wheel = createPotteryWheel({ id: "wheel" });
   const props: IAutoMovieMotionHumanProp[] = [
     HumanObject.prop("chair", chair, placement),
-    // Turned so the wall's working faces are on the potter's side.
+    // Turned so the wall's working faces are on the potter's side, and a
+    // thigh's length ahead of the chair: a potter sits with the wheel head
+    // over the knees, between the legs, so its distance follows the body.
     everydayTake.prop(
       "wheel",
       wheel,
-      { x: 0, y: 0, z: 0.14 },
+      { x: 0, y: 0, z: placement.at.z + body.measure.thigh },
       Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
       true,
     ),

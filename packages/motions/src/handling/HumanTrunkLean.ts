@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
@@ -65,6 +66,35 @@ export namespace HumanTrunkLean {
       pitch: degrees,
       roll: 0,
     });
+  }
+
+  /**
+   * A base the hinge moves: without the windows in which the base declares
+   * itself still (`still`, `legsStill`) whenever a hinge is asked. Inside a
+   * legs-still window the display fits the legs once and keeps their joints
+   * relative to the pelvis, on the premise that the root and the trunk do
+   * not move; a hinge pitches the root, so a kept window would swing the
+   * planted knees and feet with the pelvis instead of holding them.
+   *
+   * @param base The law's base plan.
+   * @param degrees The deepest hinge the law asks, degrees.
+   * @returns The base, its still windows dropped when the hinge is positive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is dropped, when, and why the window's premise fails.
+   * @evidence contracts/development/implementation.md#principled-implementation The legs-still window (`HumanSegmentLegs`) reuses leg joints only where root and trunk are unchanged; a hinged base changes both, so it states no such window and its world leg goals hold the legs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One test and one rest spread.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A base with no hinge keeps its windows unchanged.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function moving(
+    base: IAutoMovieMotionHumanActionPlan,
+    degrees: number,
+  ): IAutoMovieMotionHumanActionPlan {
+    if (!(degrees > 0)) return base;
+    const { still: _still, legsStill: _legsStill, ...hinged } = base;
+    return hinged;
   }
 
   /**

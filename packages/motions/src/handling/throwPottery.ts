@@ -263,7 +263,7 @@ function plan(
     clock.duration,
   );
   const base: IAutoMovieMotionHumanActionPlan = {
-    ...under,
+    ...HumanTrunkLean.moving(under, forward),
     posture: (seconds: number): IAutoMovieMotionHumanPosture =>
       HumanTrunkLean.lean(
         context.body,
