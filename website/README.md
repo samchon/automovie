@@ -28,7 +28,6 @@ pnpm --filter @automovie/website bake         # optional: the takes and stills, 
 pnpm --filter @automovie/website typedoc      # optional: the API reference, into public/api/
 pnpm --filter @automovie/website build        # checks, TypeDoc, bake, then the static export into out/
 pnpm --filter @automovie/website typecheck
-pnpm --filter @automovie/website run deploy   # build, then publish out/ to gh-pages by hand
 ```
 
 Next loads the compiler API from the `typescript` package, which the native TypeScript 7 package does not export, so `typescript` is 5.9 in this package alone, which TypeDoc also reads, and `ttsc` finds the native compiler under the alias `typescript-native`. `typecheck` runs on the native compiler like the rest of the workspace.
@@ -77,7 +76,7 @@ pnpm --filter @automovie/website run posters            # the baked stills on on
 | `src/scenes/`, `src/takes/` | The scene records, their status and player, and the take worker with its client. |
 | `src/motions/`, `src/gallery/`, `src/playground/` | The motion catalogue's data, the archetypes' data and the playground's addresses and adapters. |
 | `src/stage/` | The shared renderer. |
-| `build/` | The checks, the bake, the bundle check, the smoke test, the screenshot tools and the manual deploy. |
+| `build/` | The checks, the bake, the bundle check, the smoke test, and the screenshot tools. |
 
 Only the `package/` folders, the body parameters in `src/playground/data/` and `src/baked/PropShapes.ts` load the packages at runtime; composition types may refer to their public types with erased imports. The scene, motion, archetype and landing pages run the motion code only in the take worker, never on their main thread.
 
@@ -85,6 +84,6 @@ Only the `package/` folders, the body parameters in `src/playground/data/` and `
 
 ## Deploy
 
-`.github/workflows/website.yml` runs one job on pull requests that touch the site or a package it bundles, and on `master`: the type check, the build and the smoke test, then on `master` the deploy of `out/`. The `gh-pages` branch holds one commit that every deploy overwrites: `single-commit: true` in the workflow and `history: false` in `build/deploy.ts`, the manual route that `pnpm run deploy` takes from the current checkout.
+`.github/workflows/website.yml` runs one job on pull requests that touch the site or a package it bundles, and on `master`: the type check, the build and the smoke test, then on `master` the deploy of `out/`. The `gh-pages` branch holds one commit that every deploy overwrites: `single-commit: true` in the workflow.
 
 GitHub Pages serves the site under `/automovie/`, which `basePath` in `next.config.ts` sets.
