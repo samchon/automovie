@@ -44,7 +44,7 @@ const SIZE: Readonly<createHoseLine.ISize> = {
  * @evidence contracts/development/implementation.md#principled-implementation A hose run on a bend at the operator's hold, a lead and a nozzle, a bail on a hinge, and one grip per team member along the line.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Record the size, lay the hose, nozzle and bail, then the contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hose is two rigid straight runs either side of one bend at the operator's hold; its sag and other kinks are not modelled. Every figure but the bore is a named estimate.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Four parts and six contacts.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts and seven contacts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
@@ -82,13 +82,26 @@ export function createHoseLine(
   builder.rod("lead", SIZE.outer / 2, v(0, 0, bend), v(0, 0, start), {
     color: "#d8c9a3",
   });
+  // The bend turns about the vertical (`flex`) and, riding it, tips about
+  // the across axis (`flexPitch`), so the nozzle can be aimed down or
+  // swept while the run behind keeps its place.
+  builder.ball("knuckle", SIZE.outer / 2, v(0, 0, bend), { color: "#d8c9a3" });
   builder.affordance({
     id: "flex",
     kind: "wheel",
     extent: null,
     travel: SIZE.flex,
-    parts: ["hose"],
+    parts: ["knuckle"],
     frame: ArchetypeFrame.upright(v(0, 0, bend)),
+  });
+  builder.affordance({
+    id: "flexPitch",
+    kind: "wheel",
+    extent: null,
+    travel: SIZE.flex,
+    rides: "flex",
+    parts: ["hose"],
+    frame: ArchetypeFrame.facing(v(0, 0, bend), v(1, 0, 0), v(0, 0, 1)),
   });
   builder.rod("nozzle", 0.035, v(0, 0, start), v(0, 0, tip), {
     color: "#3d3d3d",
@@ -137,7 +150,7 @@ export function createHoseLine(
     id: "backup",
     kind: "handle",
     symmetry: "round",
-    rides: "flex",
+    rides: "flexPitch",
     frame: ArchetypeFrame.facing(
       v(0, 0, tip - SIZE.nozzle - SIZE.spacing),
       v(0, 1, 0),

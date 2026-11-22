@@ -29,7 +29,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
-import { pickUp } from "./pickUp";
+import { HumanTrunkLean } from "./HumanTrunkLean";
 
 /** A palm and the wall face it lies on. */
 interface IPair {
@@ -87,7 +87,7 @@ const RPM: number = 120;
  * The faces ride the wheel's `raise` slider, which the pull drives from its
  * travel at the start up by `rise` over `seconds`, so both palms rise with
  * the wall and its height grows monotonically; the trunk leans forward over
- * the wheel, by the least of LEANS that brings every palm place within the
+ * the wheel, by the least of `HumanTrunkLean.LEANS` that brings every palm place within the
  * arms, coming in and going out with the hands; the head's crank turns at
  * `rpm` throughout. The clay is round about the head's axis, so each palm
  * stays on the same surface in the turning head's frame. The hands reach
@@ -207,32 +207,18 @@ function plan(
     );
   // The trunk leans over the wheel as little as brings both palms' places,
   // from the wall's start to its top, within the arms.
-  const leaned: (degrees: number) => IAutoMovieMotionHumanPosture = (
-    degrees: number,
-  ): IAutoMovieMotionHumanPosture => lean(context.entry.posture, degrees);
-  const reach: (degrees: number) => boolean = (degrees: number): boolean =>
-    PAIRS.every((pair: IPair): boolean => {
-      const reaches: ReturnType<typeof pickUp.reaches> = pickUp.reaches(
-        context,
-        pair.side,
-        leaned(degrees),
-      );
-      return [0, rise].every((lift: number): boolean =>
-        reaches({
+  const forward: number = HumanTrunkLean.least(
+    context,
+    PAIRS.flatMap((pair: IPair): HumanTrunkLean.IWrist[] =>
+      [0, rise].map(
+        (lift: number): HumanTrunkLean.IWrist => ({
+          side: pair.side,
           point: wrist(pair.side, pair.face, lift),
           rotation: turn(pair.side),
         }),
-      );
-    });
-  const forward: number = LEANS.find(reach) ?? DEEPEST;
-  for (const pair of PAIRS)
-    for (const lift of [0, rise])
-      pickUp.reachable(
-        context,
-        pair.side,
-        wrist(pair.side, pair.face, lift),
-        leaned(forward),
-      );
+      ),
+    ),
+  );
 
   const tempo: number = context.tempo ?? 1;
   const reachOf: (side: AutoMovieHumanSide, id: string) => number = (
@@ -302,7 +288,7 @@ function plan(
   const base: IAutoMovieMotionHumanActionPlan = {
     ...under,
     posture: (seconds: number): IAutoMovieMotionHumanPosture =>
-      lean(
+      HumanTrunkLean.lean(
         under.posture(seconds),
         forward * clock.envelope(["start", "ready"], ["relax", "end"], seconds),
       ),

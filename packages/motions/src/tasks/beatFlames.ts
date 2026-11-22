@@ -22,7 +22,7 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { writeWith } from "../handling/writeWith";
+import { HumanTrunkLean } from "../handling/HumanTrunkLean";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 
@@ -51,8 +51,10 @@ const CLEAR: number = 0.02;
  * time. The region is read where the partner lies at the start. Events:
  * `strokeStart` at the first beat, `strokeEnd` after the last.
  *
- * Refusals: a hand that does not hold the cloth, a cloth without a `face`,
- * a non-positive whole count, and a region beyond the arm.
+ * The trunk leans in over the partner as far as the beats need
+ * (`HumanTrunkLean`). Refusals: a hand that does not hold the cloth, a cloth
+ * without a `face`, a non-positive whole count, and a region beyond the arm
+ * at the deepest lean.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the held lever, the beat, the clearance, the timing and the refusals.
  * @evidence contracts/development/design.md#principled-representation A law record over the held cloth's face and the partner's region.
@@ -118,7 +120,18 @@ function plan(
     Vector3.scale(region.normal, CLEAR),
   );
   const up: IAutoMovieVector3 = Vector3.add(down, { x: 0, y: RAISE, z: 0 });
-  writeWith.reach(context, side, [down, up], lever);
+  // Kneeling over a lying partner, the trunk leans in as far as the beats
+  // need (`HumanTrunkLean`).
+  const forward: number = HumanTrunkLean.least(
+    context,
+    [down, up].map(
+      (point: IAutoMovieVector3): HumanTrunkLean.IWrist => ({
+        side,
+        point: Vector3.subtract(point, lever),
+        rotation,
+      }),
+    ),
+  );
   const tempo: number = context.tempo ?? 1;
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare:
@@ -164,7 +177,11 @@ function plan(
       base: {
         ...base,
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-          const posture: IAutoMovieMotionHumanPosture = base.posture(seconds);
+          const posture: IAutoMovieMotionHumanPosture = HumanTrunkLean.lean(
+            base.posture(seconds),
+            forward *
+              clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+          );
           return { ...posture, joints: { ...posture.joints, ...kept.fingers } };
         },
       },

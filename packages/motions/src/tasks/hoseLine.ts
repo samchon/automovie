@@ -206,10 +206,12 @@ function nozzle(
         return open * (u * u * (3 - 2 * u)) * (1 - v * v * (3 - 2 * v));
       },
     },
-    // The line bends at the hold against the sweep, so the run behind the
-    // nozzle, and the backup's grip on it, stays where the backup holds it.
+    // The line bends at the hold against the aim and the sweep, so the run
+    // behind the nozzle, and the backup's grip on it, keeps its place: the
+    // bend turns back the aim's heading and the sweep, and tips back its
+    // pitch, as the hold carries them in.
     ...(held.affordances.some(
-      (a: IAutoMovieAffordance): boolean => a.id === "flex",
+      (a: IAutoMovieAffordance): boolean => a.id === "flexPitch",
     )
       ? [
           {
@@ -217,7 +219,15 @@ function nozzle(
             articulation: "flex",
             from: 0,
             to: 1,
-            travel: (seconds: number): number => -sweep(seconds),
+            travel: (seconds: number): number =>
+              -(heading * reached(seconds) + sweep(seconds)),
+          },
+          {
+            prop: p.prop,
+            articulation: "flexPitch",
+            from: 0,
+            to: 1,
+            travel: (seconds: number): number => tilt * reached(seconds),
           },
         ]
       : []),
@@ -261,6 +271,22 @@ function nozzle(
     );
     return (SPAN / 2) * Math.sin(2 * Math.PI * sweeps * u);
   };
+  // The aim's heading and pitch, degrees, as the line turns from its
+  // stream at entry to the target, and how far the hold has carried it in.
+  const toward: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(at, outlet),
+  );
+  const along: IAutoMovieVector3 = Vector3.normalize(stream);
+  const heading: number =
+    ((Math.atan2(toward.x, toward.z) - Math.atan2(along.x, along.z)) * 180) /
+    Math.PI;
+  const tilt: number =
+    ((Math.asin(Math.max(-1, Math.min(1, toward.y))) -
+      Math.asin(Math.max(-1, Math.min(1, along.y)))) *
+      180) /
+    Math.PI;
+  const reached: (seconds: number) => number = (seconds: number): number =>
+    clock.envelope(["start", "ready"], ["relax", "end"], seconds);
   const kept: IAutoMovieMotionPropHold = AutoMovieMotionHumanHeld.hold(
     context,
     held,
@@ -357,14 +383,22 @@ function backup(
       const at: number = context.start + Math.min(clock.duration, k / FRAME);
       const reader: IAutoMovieMotionHumanPropReader = context.prop(p.prop);
       const frame: IAutoMovieRigidTransform = reader.frame(at);
-      // The grip where the line's bend puts it, when it rides one.
-      const joint: IAutoMovieAffordance | undefined = sites.find(
-        (a: IAutoMovieAffordance): boolean => a.id === grip.rides,
-      );
-      const local: IAutoMovieVector3 =
-        joint === undefined
-          ? grip.frame.translation
-          : heldDigits.posed(joint, grip, reader.state?.(at)?.[joint.id] ?? 0);
+      // The grip where the line's bends put it: through each joint it rides,
+      // the nearest first.
+      const state: Readonly<Record<string, number>> = reader.state?.(at) ?? {};
+      let local: IAutoMovieVector3 = grip.frame.translation;
+      let rides: string | undefined = grip.rides;
+      while (rides !== undefined) {
+        const joint: IAutoMovieAffordance = sites.find(
+          (a: IAutoMovieAffordance): boolean => a.id === rides,
+        )!;
+        local = heldDigits.posed(
+          joint,
+          { ...grip, frame: { ...grip.frame, translation: local } },
+          state[joint.id] ?? 0,
+        );
+        rides = joint.rides;
+      }
       found = Vector3.add(
         frame.position,
         Quaternion.rotateVector(frame.rotation, local),

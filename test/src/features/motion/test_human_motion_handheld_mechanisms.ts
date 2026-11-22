@@ -181,11 +181,14 @@ function umbrella(
   let stays: number = 0;
   for (let i: number = 0; i <= 24; ++i) {
     const t: number = operate.start + ((operate.end - operate.start) * i) / 24;
-    const state: Record<string, number> = take.state("umbrella", t);
-    const rib: number = state["rib0"] ?? 0;
+    // The ribs as the runner's travel poses the umbrella.
+    const posed: ReturnType<typeof model.articulate> = model.articulate({
+      runner: take.state("umbrella", t)["runner"] ?? 0,
+    });
+    const rib: number = posed.travel("rib0");
     follows &&= rib >= last - 1e-6;
     for (let k: number = 1; k < UmbrellaRunner.RIBS; ++k)
-      follows &&= Math.abs((state[`rib${k}`] ?? 0) - rib) <= 1e-6;
+      follows &&= Math.abs(posed.travel(`rib${k}`) - rib) <= 1e-6;
     last = rib;
   }
   const end: Record<string, number> = take.state("umbrella", operate.end);
@@ -196,7 +199,11 @@ function umbrella(
   );
   checks.check(
     `${label}: every rib opens with the runner to the open angle`,
-    follows && Math.abs((end["rib0"] ?? 0) - UmbrellaRunner.OPEN) <= SHUT,
+    follows &&
+      Math.abs(
+        model.articulate({ runner: end["runner"] ?? 0 }).travel("rib0") -
+          UmbrellaRunner.OPEN,
+      ) <= SHUT,
   );
   // The left hand on the runner through the push's middle half.
   for (let i: number = 6; i <= 18; ++i) {
