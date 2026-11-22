@@ -87,7 +87,7 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
      * @evidence contracts/development/implementation.md#principled-implementation Stations are laid from the seated trunk's own right shoulder joint: the slope's by the arm's own segments, the engage's by the ox's row in arm lengths; the slope's loosened grip is the grip window's in-hand turn about the grip socket, the world turn that brings the blade's axis onto the shoulder's front taken into the hand's frame; the goal hangs the elbow from the body and keeps the arm's solution at the decisive station, as the sword strokes do; the charge starts at the cue plus `HumanResponse.latency` for a warned reaction; the horse's gait is the latest change on the ride's own gait track at or before the charge.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the stations, the clock, then the sampler.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A charge before the gallop is refused, never delayed.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One shoulder resolve, one turn and one decisive arm fit per plan; a sample reads one seat frame and the two rein contacts and writes two arm goals, each laid by its own course.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One shoulder resolve, one turn and one decisive arm fit per plan; a sample reads one seat frame and the two rein contacts and writes two arm goals, laid together by one course.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work The tool and the stations are shared by every sample.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the tool and the carrier reader.
      */
@@ -256,8 +256,24 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
           edge: row(ox.edge, bearing),
         },
       };
+      // Each station's grip within the arm's reach of its shoulder, read in closed form before the course is laid.
+      const most: number = m.upperArm + m.forearm + 0.5 * m.hand;
+      for (const [name, at, from] of [
+        ["carry", stations.slope.grip, shoulder],
+        ["target", stations.engage.grip, engaged.shoulder],
+      ] as const) {
+        const span: number = Vector3.distance(at, from);
+        if (span > most)
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: name,
+            value: span,
+            feasible: { kind: "range", minimum: 0, maximum: most, unit: "m" },
+            reason: `the ${name === "carry" ? "slope" : "engage"} holds the grip ${span.toFixed(3)} m from the right shoulder, beyond the arm's ${most.toFixed(3)} m`,
+            fix: "carry a sabre the rider's arm can hold at the station",
+          });
+      }
       const duration: number = params.seconds;
-
       // The slope: the historical slope rests the back of the blade on the right shoulder with the grip loosened, the hilt pivoting in the palm between the thumb and the fingers. The hand holds the carry, and the blade turns in the hand about the grip until its back lies along the front of the shoulder; it turns back as the fingers close to the full grip over the first half of the charge's transition, before the engage.
       const rested: IAutoMovieVector3 = Vector3.normalize(
         Vector3.subtract(
@@ -448,7 +464,6 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
         relax: duration,
         end: duration,
       };
-      // Each arm its own course: the sabre arm's, then the rein hand's on the plan the first leaves, since the two hands share no implement.
       return HumanMountedFrame.coursed(
         goals,
         carrier,
@@ -456,16 +471,20 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
         (local: IAutoMovieMotionHumanActionPlan) =>
           courseArmGoal({
             body: context.body,
-            plan: courseArmGoal({
-              body: context.body,
-              plan: local,
-              side: "right",
-              rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
-              span,
-            }),
-            side: "left",
-            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
+            plan: local,
+            side: "right",
+            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
             span,
+            with: [
+              {
+                side: "left",
+                rest: AutoMovieMotionHumanArm.angles(
+                  context.entry.pose,
+                  "left",
+                ),
+                span,
+              },
+            ],
           }),
       );
     },

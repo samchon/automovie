@@ -1,6 +1,7 @@
 import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanMounted,
   IAutoMovieMotionHumanPosture,
@@ -8,6 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { seated } from "../everyday/seated";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountedStirrups } from "./HumanMountedStirrups";
 import { respondHumanMounted } from "./respondHumanMounted";
@@ -46,6 +48,44 @@ export namespace HumanMountedBank {
    */
   export function bank(seat: IAutoMovieMotionHumanMounted.Seat): boolean {
     return seat === "descent" || seat === "ascent";
+  }
+
+  /** The trunk joints the descent sets upright: their flexion and lateral bend zeroed, their twist kept. */
+  export const TRUNK: readonly AutoMovieHumanoidBone[] = ["spine", "chest"];
+
+  /**
+   * A bank seat's key: the descent's sits with the pelvis and the trunk upright in the carrier frame, whatever the entry leant, the seat socket where the entry had it, so the response then keeps the trunk upright in space; the ascent's is its out-of-saddle seat as solved.
+   *
+   * @param body The body.
+   * @param seat The bank seat.
+   * @param key The seat's posture as solved from the entry or the stirrups.
+   * @returns The key.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the descent sets and what it keeps.
+   * @evidence contracts/development/implementation.md#principled-implementation The pelvis's attitude levelled to the heading and the root placed by `seated.root` so the seat socket stays where `seated.socket` read it; the trunk's flexion and lateral bend zeroed.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One attitude, one root, one loop.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Solved once per figure.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture.
+   */
+  export function key(
+    body: IAutoMovieMotionHumanBody,
+    seat: IAutoMovieMotionHumanMounted.Seat,
+    key: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture {
+    if (seat !== "descent") return key;
+    const attitude: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> =
+      { yaw: key.yaw, pitch: 0, roll: 0 };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...key.joints };
+    for (const bone of TRUNK)
+      joints[bone] = [0, 0, (joints[bone] ?? [0, 0, 0])[2]];
+    return {
+      ...key,
+      ...attitude,
+      root: seated.root(body, seated.socket(body, key), attitude),
+      joints,
+    };
   }
 
   /**

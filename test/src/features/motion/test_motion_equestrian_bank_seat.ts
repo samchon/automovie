@@ -27,6 +27,7 @@ const SPACE: number = 5;
  * Scenarios:
  * 1. In each seat, held, the trunk's forward inclination in space (the hips to the neck against the vertical, along the level forward) lies within 5 degrees of the same seat's on a level horse, though the horse is pitched 20 degrees from before the performance began: the trunk keeps its inclination in space against the carrier's own attitude, not against its change since the start.
  * 2. On the level the descent's trunk is upright within 10 degrees, and the ascent's inclines forward by more than 20 degrees.
+ * 4. A descent entered from a two-point seat, the trunk leant forward over the withers, sits upright in space on the bank within 10 degrees: the seat sets its own trunk, not the entry's.
  * 3. On the bank the descent's hips, in the saddle's frame, lie within 30 mm of their height on the level (the seat kept), and the ascent's stand higher than the descent's on the level (the seat clear); the ascent's left wrist is within 0.7 hand lengths of the mane.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both seats, each scenario and each bound's source.
@@ -71,7 +72,12 @@ export function test_motion_equestrian_bank_seat(): void {
     ],
   };
   // The seat held: half a second after the first figure arrives.
-  const take = (seat: Bank, grade: number): ITake => {
+  const take = (
+    seat: Bank,
+    grade: number,
+    list: IAutoMovieMotionHumanMounted.IFigure[] = figures[seat],
+    arrival: string = `${seat}:0`,
+  ): ITake => {
     const scene: mountedHorseScene.IScene = mountedHorseScene.build({
       horse,
       body,
@@ -91,7 +97,7 @@ export function test_motion_equestrian_bank_seat(): void {
           .registered("mounted", {
             on: "horse",
             frame: "seat",
-            figures: figures[seat],
+            figures: list,
           }),
     });
     assertTakeClean(`the ${seat} seat on a ${grade}-degree grade`, scene.film);
@@ -99,7 +105,7 @@ export function test_motion_equestrian_bank_seat(): void {
       scene.segments[scene.segments.length - 1]!;
     const arrived: number =
       act.start +
-      act.plan.events.find((e) => e.name === `${seat}:0`)!.share *
+      act.plan.events.find((e) => e.name === arrival)!.share *
         (act.end - act.start);
     return { scene, at: arrived + 0.5 };
   };
@@ -173,6 +179,26 @@ export function test_motion_equestrian_bank_seat(): void {
         );
     }
   }
+  // 4. A descent entered leaning forward.
+  const forward: ITake = take(
+    "descent",
+    -BANK,
+    [
+      {
+        seat: "twoPoint",
+        transfer: 0.8,
+        seconds: 0.5,
+        supports: { ...feet, leftHand: "leftRein", rightHand: "rightRein" },
+      },
+      ...figures.descent,
+    ],
+    "descent:1",
+  );
+  const after: number = inclination(forward.scene, forward.at);
+  if (Math.abs(after) > 10)
+    findings.push(
+      `descent after a two-point seat: the trunk inclines ${after.toFixed(1)} degrees in space`,
+    );
   TestValidator.equals("the bank seats", findings, []);
 }
 

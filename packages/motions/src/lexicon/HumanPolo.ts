@@ -40,9 +40,9 @@ const PHASES: Readonly<
   settle: 0.6,
 };
 
-/** The swing's angles in its plane from the contact, degrees: the mallet carried upright, the top of the backswing past it, the follow-through (provisional). */
+/** The swing's angles in its plane from the contact, degrees: the carry, the hand raised 30 degrees forward of straight over the shoulder so the arm clears the head; the top of the backswing past it; the follow-through (provisional). */
 const ANGLES: Readonly<Record<"carry" | "top" | "finish", number>> = {
-  carry: -180,
+  carry: -210,
   top: -225,
   finish: 80,
 };

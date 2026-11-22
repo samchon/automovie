@@ -19,6 +19,7 @@ import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
@@ -31,12 +32,11 @@ const HAND: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLasso>;
 
-/** The swinging hand's circle about the overhead centre, a forearm's small circle, and the centre's height over the head, metres; the throw's reach-out time, seconds; the dally's radius round the horn, metres, and seconds per turn (provisional stage readings). */
+/** The swinging hand's circle about the overhead centre, a forearm's small circle, metres; the throw's reach-out time, seconds; the dally's radius round the horn, metres, and seconds per turn (provisional stage readings). */
 const SWING: Readonly<
-  Record<"radius" | "over" | "throw" | "wrap" | "turn", number>
+  Record<"radius" | "throw" | "wrap" | "turn", number>
 > = {
   radius: 0.3,
-  over: 0.2,
   throw: 0.25,
   wrap: 0.08,
   turn: 0.5,
@@ -170,20 +170,27 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
       const turns: number = params.dally?.turns ?? 0;
       const duration: number = caught + turns * SWING.turn + 0.5;
 
-      // Where the loop is: on the circle over the head, then reaching out.
+      // Where the loop is: on the circle straight above the right shoulder, then reaching out. The centre stands where the wrist on the circle lies at the arm's full length from the shoulder, so the grip half a hand beyond it is within reach; centred over the swinging arm's own shoulder, the hand's circle keeps the forearm off the head.
       const m = context.body.measure;
       const centre = (film: number): IAutoMovieVector3 => {
-        const frame: IAutoMovieRigidTransform = carrier(film);
-        const head: IAutoMovieVector3 = HumanMountedFrame.move(
+        const moved: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
           entry,
           origin,
-          frame,
-        ).root;
-        return Vector3.add(head, {
-          x: 0,
-          y: m.headHeight - m.hipHeight + SWING.over,
-          z: 0,
-        });
+          carrier(film),
+        );
+        return Vector3.add(
+          moved.root,
+          Quaternion.rotateVector(resolveHumanPosture.heading(moved), {
+            x: -m.shoulderHalfWidth,
+            y:
+              m.shoulderHeight -
+              m.hipHeight +
+              Math.sqrt(
+                (m.upperArm + m.forearm) ** 2 - SWING.radius * SWING.radius,
+              ),
+            z: 0,
+          }),
+        );
       };
       const loop = (t: number): IAutoMovieVector3 => {
         const film: number = context.start + t;
