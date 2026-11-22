@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanDisarm } from "../grappling/IAutoMovieMotionH
 import type { IAutoMovieMotionHumanHostageHold } from "../grappling/IAutoMovieMotionHumanHostageHold";
 
 /**
- * Mechanism: Behaviour: a hostage held by an arm and a disarm of a knife or a handgun. The hold and the disarm are authored scenes with no source (provisional).
+ * A hostage scene: a hostage held by an arm and a disarm of a knife or a handgun. The hold and the disarm are authored scenes with no source (provisional).
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.

@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanEdgeRescue } from "../lexicon/IAutoMovieMotionHumanEdgeRescue";
 
 /**
- * Mechanism: Behaviour: a rescue from an edge. A rescuer and a faller each play a role, planned together on one ledge scene. The code defines no timing from a study; the scene is authored (provisional).
+ * A rescue from an edge. A rescuer and a faller each play a role, planned together on one ledge scene. The code defines no timing from a study; the scene is authored (provisional).
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.

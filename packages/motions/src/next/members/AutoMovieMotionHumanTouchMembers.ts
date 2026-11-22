@@ -3,4 +3,3 @@ export { touch } from "../../touch/touch";
 export { highFive } from "../../touch/highFive";
 export { kiss } from "../../touch/kiss";
 export { legTouch } from "../../touch/legTouch";
-export { armWrestle } from "../../touch/armWrestle";

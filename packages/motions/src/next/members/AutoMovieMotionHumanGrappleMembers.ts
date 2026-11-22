@@ -3,6 +3,5 @@ export { clinch } from "../../grappling/clinch";
 export { grapple } from "../../grappling/grapple";
 export { kuzushi } from "../../grappling/kuzushi";
 export { lungeGrab } from "../../touch/lungeGrab";
+export { armWrestle } from "../../touch/armWrestle";
 export { HumanForceResponse as forceResponse } from "../../grappling/HumanForceResponse";
-export { disarm } from "../../grappling/disarm";
-export { hostageHold } from "../../grappling/hostageHold";

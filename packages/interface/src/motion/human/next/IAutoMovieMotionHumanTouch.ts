@@ -1,11 +1,10 @@
-import type { IAutoMovieMotionHumanArmWrestle } from "../touch/IAutoMovieMotionHumanArmWrestle";
 import type { IAutoMovieMotionHumanHighFive } from "../touch/IAutoMovieMotionHumanHighFive";
 import type { IAutoMovieMotionHumanKiss } from "../touch/IAutoMovieMotionHumanKiss";
 import type { IAutoMovieMotionHumanLegTouch } from "../touch/IAutoMovieMotionHumanLegTouch";
 import type { IAutoMovieMotionHumanTouch as ILegacyTouch } from "../touch/IAutoMovieMotionHumanTouch";
 
 /**
- * Mechanism: Touching a partner: a touch, a high five, a kiss, a leg touch and arm wrestling.
+ * Touching a partner: a touch, a high five, a kiss and a leg touch.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -87,26 +86,6 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
     params: IAutoMovieMotionHumanTouch.ILegTouch,
     anchor?: string,
   ): Chain;
-
-  /**
-   * Arm wrestling, one role of it (#3350): the elbow planted on a table's top, the hand clasped with the partner's above it, the struggle and the pin.
-   *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanTouch.armWrestle: Arm wrestling, one role of it (#3350): the elbow planted on a table's top, the hand clasped with the partner's above it, the struggle and the pin.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanTouch.armWrestle is provided by the chain that implements IAutoMovieMotionHumanTouch.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanTouch.armWrestle is provided by the chain that implements IAutoMovieMotionHumanTouch.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanTouch.armWrestle is provided by the chain that implements IAutoMovieMotionHumanTouch.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanTouch.armWrestle is provided by the chain that implements IAutoMovieMotionHumanTouch.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanTouch.armWrestle is provided by the chain that implements IAutoMovieMotionHumanTouch.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanTouch.armWrestle is provided by the chain that implements IAutoMovieMotionHumanTouch.
-   */
-  armWrestle(
-    params: IAutoMovieMotionHumanTouch.IArmWrestle,
-    anchor?: string,
-  ): Chain;
 }
 
 /**
@@ -152,14 +131,4 @@ export namespace IAutoMovieMotionHumanTouch {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type ILegTouch = IAutoMovieMotionHumanLegTouch.IParams;
-
-  /**
-   * The parameters of `armWrestle`: `IAutoMovieMotionHumanArmWrestle.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanArmWrestle.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanArmWrestle.IParams` owns the shape; the alias serves `armWrestle` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IArmWrestle = IAutoMovieMotionHumanArmWrestle.IParams;
 }

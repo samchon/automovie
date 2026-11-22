@@ -1,77 +1,14 @@
-import type { IAutoMovieMotionHumanGait } from "../lexicon/IAutoMovieMotionHumanGait";
+import type { IAutoMovieMotionHumanGaitStyled } from "./IAutoMovieMotionHumanGaitStyled";
 
 /**
- * Mechanism: Behaviour: military drill. Marching keeps the regulation's cadence and step: quick time is 120 steps a minute and double time 180 on a 30 inch (0.762 m) step (US Army TC 3-21.5, as `HumanGait.MARCH` and `HumanGait.DOUBLE` state them). The gun crew, gun drill and musket drill rows are preset data.
+ * Military drill: the Gait family's `march` and `doubleTime` at the regulation's cadence and step (`HUMAN_DRILL_CADENCES`; US Army TC 3-21.5: quick time 120 steps a minute and double time 180, on a 0.762 m step), with the drill, gun drill, musket drill and gun crew rows on `AutoMovieMotionHumanMilitaryDrill` (`HumanDrill`, `HumanGunDrill`, `HumanMusketDrill`, `HumanGunCrew`). The drill adds no method of its own.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per law of the MilitaryDrill family, each taking the law's own parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The MilitaryDrill laws and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
+ * @evidence contracts/development/common.md#meaningful-documentation States the gaits drill marches with, the cadences and step with their source, and the drill rows on the runtime namespace.
+ * @evidence contracts/development/design.md#principled-representation The drill's vocabulary is the styled gaits, extended rather than redeclared, so the march keeps one method.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface No method the Gait family owns; the drill rows are runtime data.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the march and double time are not declared a second time.
  */
-export interface IAutoMovieMotionHumanMilitaryDrill<Chain> {
-  /**
-   * Named ways of going somewhere on foot; the composition gives the destination.
-   *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanMilitaryDrill.march: Named ways of going somewhere on foot; the composition gives the destination.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanMilitaryDrill.march is provided by the chain that implements IAutoMovieMotionHumanMilitaryDrill.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanMilitaryDrill.march is provided by the chain that implements IAutoMovieMotionHumanMilitaryDrill.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanMilitaryDrill.march is provided by the chain that implements IAutoMovieMotionHumanMilitaryDrill.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanMilitaryDrill.march is provided by the chain that implements IAutoMovieMotionHumanMilitaryDrill.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanMilitaryDrill.march is provided by the chain that implements IAutoMovieMotionHumanMilitaryDrill.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanMilitaryDrill.march is provided by the chain that implements IAutoMovieMotionHumanMilitaryDrill.
-   */
-  march(
-    params: IAutoMovieMotionHumanMilitaryDrill.IMarch,
-    anchor?: string,
-  ): Chain;
-
-  /**
-   * Named ways of going somewhere on foot; the composition gives the destination.
-   *
-   * @param params The action's parameters.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanMilitaryDrill.doubleTime: Named ways of going somewhere on foot; the composition gives the destination.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanMilitaryDrill.doubleTime is provided by the chain that implements IAutoMovieMotionHumanMilitaryDrill.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanMilitaryDrill.doubleTime is provided by the chain that implements IAutoMovieMotionHumanMilitaryDrill.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanMilitaryDrill.doubleTime is provided by the chain that implements IAutoMovieMotionHumanMilitaryDrill.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanMilitaryDrill.doubleTime is provided by the chain that implements IAutoMovieMotionHumanMilitaryDrill.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanMilitaryDrill.doubleTime is provided by the chain that implements IAutoMovieMotionHumanMilitaryDrill.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanMilitaryDrill.doubleTime is provided by the chain that implements IAutoMovieMotionHumanMilitaryDrill.
-   */
-  doubleTime(
-    params: IAutoMovieMotionHumanMilitaryDrill.IDoubleTime,
-    anchor?: string,
-  ): Chain;
-}
-
-/**
- * The parameter types of the MilitaryDrill methods.
- */
-export namespace IAutoMovieMotionHumanMilitaryDrill {
-  /**
-   * The parameters of `march`: `IAutoMovieMotionHumanGait.IMarch`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanGait.IMarch`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGait.IMarch` owns the shape; the alias serves `march` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IMarch = IAutoMovieMotionHumanGait.IMarch;
-
-  /**
-   * The parameters of `doubleTime`: `IAutoMovieMotionHumanGait.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanGait.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGait.IParams` owns the shape; the alias serves `doubleTime` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IDoubleTime = IAutoMovieMotionHumanGait.IParams;
-}
+export interface IAutoMovieMotionHumanMilitaryDrill<
+  Chain,
+> extends IAutoMovieMotionHumanGaitStyled<Chain> {}
