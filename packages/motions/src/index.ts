@@ -554,6 +554,7 @@ export * from "./dressing/wardrobe";
 export * from "./lexicon/HumanCarrierCustody";
 export * from "./handling/HumanPocket";
 export * from "./dressing/dressPartner";
+export * from "./dressing/coatPartner";
 export * from "./touch/composeHumanCare";
 export * from "./tasks/composeHumanToolWork";
 export * from "./daily/composeHumanBathing";

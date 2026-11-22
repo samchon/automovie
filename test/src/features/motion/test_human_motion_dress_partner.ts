@@ -98,17 +98,18 @@ export function test_human_motion_dress_partner(): void {
         film.prop("item", worn + 0.01),
         film.bones("b", worn + 0.01).get(bone)!,
       );
-      TestValidator.predicate(
-        `${label}: the item rides the partner's bone`,
-        [0.5, 1].every((share: number): boolean => {
+      const drifts: readonly number[] = [0.5, 1].map(
+        (share: number): number => {
           const t: number = worn + share * (film.duration - worn);
-          return (
-            Vector3.distance(
-              local(film.prop("item", t), film.bones("b", t).get(bone)!),
-              first,
-            ) <= RIGID
+          return Vector3.distance(
+            local(film.prop("item", t), film.bones("b", t).get(bone)!),
+            first,
           );
-        }),
+        },
+      );
+      TestValidator.predicate(
+        `${label}: the item rides the partner's bone (${drifts.map((d: number): string => (d * 1000).toFixed(2)).join(", ")} mm)`,
+        drifts.every((d: number): boolean => d <= RIGID),
       );
     }
   const self: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
