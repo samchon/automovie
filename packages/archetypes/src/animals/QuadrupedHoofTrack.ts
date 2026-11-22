@@ -374,7 +374,7 @@ export namespace QuadrupedHoofTrack {
     clear?: (point: IAutoMovieVector3) => IAutoMovieVector3,
   ): Pick<QuadrupedRidePose.IGoal, "x" | "z" | "orientation" | "surface"> {
     if (!worldAnchors && footing === undefined) {
-      // Each stance's centre moves toward the attachment by at most half its travel, as ootprint places it.
+      // Each stance's centre moves toward the attachment by at most half its travel, as the footprint places it.
       const centre = (support: IStance): number =>
         rest.z +
         Math.max(

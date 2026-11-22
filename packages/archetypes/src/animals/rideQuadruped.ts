@@ -163,6 +163,8 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   }
 
   const slowest: QuadrupedGait.Gait = species.table.order[0]!;
+  const fastest: QuadrupedGait.Gait =
+    species.table.order[species.table.order.length - 1]!;
   const initial: QuadrupedStridePlan.IStride = {
     gait: gait ?? slowest,
     lead: "left",
@@ -178,7 +180,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     species.archetype,
     course.lameness,
     course.legs,
-    gait ?? species.table.order[species.table.order.length - 1]!,
+    gait ?? fastest,
     animal.parts,
     rig.limbs,
   );

@@ -18,7 +18,7 @@ const STEPS: number = 60;
  */
 export namespace QuadrupedPelvis {
   /** The bone that turns: the hindquarters bar, the femurs' parent. */
-  export const BONE: "hindquarters" = "hindquarters";
+  export const BONE = "hindquarters" as const;
 
   /** The pelvis's flexion-extension range during locomotion, degrees: 8.2 (Back et al. 1996, as `HorseGait.FOLLOW` cites). */
   export const RANGE: number = 8.2;
