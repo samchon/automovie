@@ -10,6 +10,7 @@ import type {
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanLexiconParams,
   IAutoMovieMotionHumanOperate,
+  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanWeaponPresent,
   IAutoMovieMotionTarget,
@@ -49,7 +50,9 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  *   the string is drawn while the bow rises and the bow arm extends (the
  *   shot cycle's set-up and pre-draw, KSL Shot Cycle); the hand takes the
  *   string where the bow arm carries the bow (`onBowArm`: the grip the bow
- *   arm's own goal asks, never the bow's displayed frame), and
+ *   arm's own goal asks, never the bow's displayed frame) and draws it to
+ *   the anchor under the chin, at most the travel given (`toAnchor`),
+ *   and
  *   the string's drive moves the nock and, by `follows`, bends the limbs
  *   (#3476).
  * - `loose`: a release of the drawing hand, or a staged hand-off at `open`
@@ -131,7 +134,8 @@ export namespace HumanArchery {
       context: IAutoMovieMotionHumanActionContext<
         IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
       >,
-    ): IAutoMovieMotionHumanActionPlan => drawRow.plan(onBowArm(context)),
+    ): IAutoMovieMotionHumanActionPlan =>
+      drawRow.plan(toAnchor(onBowArm(context))),
   };
 
   /** Open the drawing hand or perform the authored hand-off at the same named event. */
@@ -218,6 +222,92 @@ export namespace HumanArchery {
     },
   };
 }
+
+/**
+ * The draw's context with the string drawn to the anchor: the archer draws
+ * to the face, never to the bow's own limit, the string to the chin with the
+ * index finger under the jaw (the under-chin anchor of target archery), so
+ * the drawing hand lies below the face rather than in it. The travel is the
+ * string's run along its slider from where it rests to the chin's surface
+ * point, at most the travel the composition gives; a chin
+ * not ahead along the draw keeps the given travel.
+ *
+ * @param context The draw's context, its bow read off the bow arm.
+ * @returns The context whose slider travel ends at the anchor.
+ */
+function toAnchor(
+  context: IAutoMovieMotionHumanActionContext<
+    IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
+  >,
+): IAutoMovieMotionHumanActionContext<
+  IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
+> {
+  const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
+    context.params.mechanism;
+  if (mechanism.kind !== "slider" || mechanism.at.kind !== "prop")
+    return context;
+  const point: string = mechanism.at.point;
+  const reader: IAutoMovieMotionHumanPropReader = context.prop(
+    mechanism.at.subject,
+  );
+  const articulate: IAutoMovieMotionHumanProp["articulate"] =
+    reader.prop.articulate;
+  if (articulate === undefined) return context;
+  const state: Readonly<Record<string, number>> =
+    reader.state?.(context.start) ?? {};
+  const rest: number = state[point] ?? 0;
+  const frame: IAutoMovieRigidTransform = reader.frame(context.start);
+  // The string's world point at a travel from its rest.
+  const at: (travel: number) => IAutoMovieVector3 | undefined = (
+    travel: number,
+  ): IAutoMovieVector3 | undefined => {
+    const posed: IAutoMovieAffordance | undefined = articulate({
+      ...state,
+      [point]: rest + travel,
+    }).affordances.find((a: IAutoMovieAffordance): boolean => a.id === point);
+    return posed === undefined
+      ? undefined
+      : Vector3.add(
+          frame.position,
+          Quaternion.rotateVector(frame.rotation, posed.frame.translation),
+        );
+  };
+  const start: IAutoMovieVector3 | undefined = at(0);
+  const along: IAutoMovieVector3 | undefined = at(mechanism.travel);
+  if (start === undefined || along === undefined) return context;
+  const run: number = Vector3.distance(start, along);
+  if (!(run > Number.EPSILON)) return context;
+  const chin: IAutoMovieVector3 = context.aim(
+    { kind: "self", region: "chin" },
+    context.start,
+  ).point;
+  // The drawing hand comes to rest against the chin: the string stops the
+  // hand's thumb reach from its grip (in the operation's relaxed slider
+  // grip) short of the chin, so the hand meets the jaw rather than entering
+  // it.
+  const side: AutoMovieHumanSide = context.params.hand ?? "right";
+  const thumb: number = Vector3.distance(
+    HumanHand.offset(context.body, side, "thumbTip", "relaxed", DRAW_CURL)
+      .point,
+    HumanHand.offset(context.body, side, "grip").point,
+  );
+  const toChin: number =
+    Vector3.dot(
+      Vector3.subtract(chin, start),
+      Vector3.scale(Vector3.subtract(along, start), 1 / run),
+    ) - thumb;
+  if (!(toChin > 0) || toChin >= run) return context;
+  return {
+    ...context,
+    params: {
+      ...context.params,
+      mechanism: { ...mechanism, travel: mechanism.travel * (toChin / run) },
+    },
+  };
+}
+
+/** The finger curl over the relaxed shape the drawing hand holds the string in, degrees: the slider grip `operate` takes a slider with (`operateHand`). */
+const DRAW_CURL: number = 40;
 
 /**
  * The nocking's parameters with the arrow's own `nock` socket laid on the
