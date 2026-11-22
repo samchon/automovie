@@ -92,7 +92,9 @@ export async function test_physical_support_witnesses(): Promise<void> {
     world.timestep = 1 / 960;
     world.contactFrequency = 240;
     const rigid: AutoMovieXpbdBody = world.createBody(true, {
-      position: { x: 0, y: underside ? -1.099 : 0.099, z: 0 },
+      // The lifted box starts 10 mm into the floor: the four passes leave its
+      // -x end still pressing while the lifter raises its +x end clear.
+      position: { x: 0, y: underside ? -1.099 : lifted ? 0.09 : 0.099, z: 0 },
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     });
     rigid.setMass(
@@ -181,7 +183,18 @@ export async function test_physical_support_witnesses(): Promise<void> {
     const label: string = JSON.stringify({ underside, floorFirst, lifted });
     if (!manifold || (!underside && !pressing.length))
       findings.push(
-        `${label}: the fixture did not establish the intended contact`,
+        `${label}: the fixture did not establish the intended contact ${JSON.stringify(
+          {
+            normal: manifold?.normal,
+            separations: manifold?.points.map(
+              (point: AutoMovieXpbdWorld.IManifoldPoint): number =>
+                point.separation,
+            ),
+            points: manifold?.points.map(
+              (point: AutoMovieXpbdWorld.IManifoldPoint): V => point.point,
+            ),
+          },
+        )}`,
       );
     if (
       lifted &&
