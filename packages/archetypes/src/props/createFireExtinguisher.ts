@@ -74,13 +74,27 @@ export function createFireExtinguisher(
     material: "steel",
     draw,
   });
+  // The valve's depth along `Z`, and the handle's run behind it: its middle
+  // and its length.
+  const valve: number = 0.04;
+  const handleAt: number = -0.035;
+  const handleLength: number = 0.11;
+  // The hand closes on the handle's free run, from the valve's back face to
+  // the handle's end, clear of the valve and the pin's ring before it.
+  const back: number = -valve / 2;
+  const end: number = handleAt - handleLength / 2;
   builder.rod("cylinder", r, v(0, 0, 0), v(0, body, 0), { color: "#b3201b" });
-  builder.box("valve", v(0.03, 0.04, 0.04), v(0, body + 0.02, 0), {
+  builder.box("valve", v(0.03, 0.04, valve), v(0, body + 0.02, 0), {
     color: "#3a3a3a",
   });
-  builder.box("handle", v(0.025, 0.012, 0.11), v(0, body + 0.045, -0.035), {
-    color: "#2a2a2a",
-  });
+  builder.box(
+    "handle",
+    v(0.025, 0.012, handleLength),
+    v(0, body + 0.045, handleAt),
+    {
+      color: "#2a2a2a",
+    },
+  );
   builder.box("lever", v(0.025, 0.01, 0.11), v(0, body + 0.07, -0.035), {
     color: "#2a2a2a",
   });
@@ -99,14 +113,14 @@ export function createFireExtinguisher(
     kind: "handle",
     symmetry: "none",
     frame: ArchetypeFrame.facing(
-      v(0, body + 0.039, -0.04),
+      v(0, body + 0.039, (back + end) / 2),
       v(0, -1, 0),
       v(0, 0, -1),
     ),
     extent: null,
     grip: "power",
     aperture: 0.03,
-    length: 0.1,
+    length: back - end,
   });
   builder.affordance({
     id: "lever",
