@@ -80,7 +80,9 @@ export namespace supportWindows {
             ? "seat"
             : part === "back"
               ? "lie"
-              : "plant",
+              : part === "head" || part === "chest"
+                ? "bear"
+                : "plant",
       support,
     };
   }

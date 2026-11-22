@@ -91,7 +91,7 @@ export function overlayContactGoals(
 function limbOf(
   part: IAutoMovieMotionHumanContactWindow["part"],
 ): AutoMovieHumanLimb | undefined {
-  if (part === "seat" || part === "back") return undefined;
+  if (part === "seat" || part === "back" || part === "head" || part === "chest") return undefined;
   const side: "left" | "right" = part.startsWith("left") ? "left" : "right";
   return `${side}${/(Hand|Arm)$/.test(part) ? "Arm" : "Leg"}`;
 }

@@ -24,7 +24,7 @@ import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHuman
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion, AutoMovieHumanoidRegion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers. Shares the canonical AutoMovieHumanoidRegion, AutoMovieHumanoidBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanContactWindow {
-  /** The body part in contact. */
+  /** The body part in contact; head and chest bear through their egion, as a head resting on a partner's shoulder (#4012). */
   part: (readonly [
     "leftFoot",
     "rightFoot",
@@ -40,6 +40,8 @@ export interface IAutoMovieMotionHumanContactWindow {
     "rightUpperLeg",
     "leftLowerLeg",
     "rightLowerLeg",
+    "head",
+    "chest",
   ])[number];
 
   /** How it bears: fixed, turning about the contact, holding, sitting, lying or striking. */

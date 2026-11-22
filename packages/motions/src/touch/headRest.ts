@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -8,7 +9,7 @@ import type {
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanHeadRest,
   IAutoMovieMotionHumanJoints,
-  IAutoMovieMotionHumanKiss,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRise,
   IAutoMovieMotionHumanTarget,
@@ -20,50 +21,43 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { kiss } from "./kiss";
+import { StrikingBody } from "../striking/StrikingBody";
+import { headRestAim } from "./headRestAim";
 import { kissBody } from "./kissBody";
-import { kissPose } from "./kissPose";
 
 /** The miss under which the head rests on the region, metres (provisional: a skin contact). */
 const NEAR: number = 0.01;
 
-/** The most the neck and the head bend to a side together, degrees (provisional: about the cervical lateral flexion of a healthy adult, 40 to 45 degrees). */
-const TILT: number = 40;
-
-/** One candidate of the solve: the kiss's lean and neck flexion, and the head's side bend. */
-interface ISolved extends IAutoMovieMotionHumanKiss.ISolved {
-  /** The side bend shared over the neck and the head, degrees. */
-  tilt: number;
-}
+/** The share of the body's weight a resting head lays on the partner (provisional: half the head and neck's 8.1 % of body mass, Winter 2009, Biomechanics and Motor Control of Human Movement, table 4.1). */
+const LOAD: number = 0.081 / 2;
 
 /**
  * Rest the head on a partner (#4012). The resting head's own region, the
  * temple on the side the partner's region lies unless named, is brought to
- * the partner's region as it stands at the start. The body leans from the
- * hips as a kiss does (`kissBody`, seated or on planted feet), the neck
- * flexes and the head bends to the side, each found by a coordinate
- * search: the forward lean and the neck on a grid, then the side lean,
- * then the side bend, then the grid again. The head goes down in the free
- * transport time of its travel, rests the authored span and comes up in
- * the same time. A region the lean, the neck and the side bend cannot
- * bring the head to within `NEAR` is refused with the miss and the
- * angles, so a much shorter partner's shoulder is out of reach standing.
+ * the partner's region. The body leans from the hips as a kiss does
+ * (`kissBody`, seated or on planted feet), the neck flexes and the head
+ * bends to the side (`headRestAim`): solved once against the region where
+ * the performer sees it at the start, then corrected at every second
+ * against the region where it is felt, a held limb's feedback delay before
+ * (`HumanPerception.HELD`, as `touchHold.felt` reads a partner under the
+ * hand), so the head follows the partner's shoulder as the partner
+ * breathes or turns. The head goes down in the free transport time of its
+ * travel, rests the authored span on a loaded `head` window on the
+ * partner's region, and comes up in the same time. A region the lean, the
+ * neck and the side bend cannot bring the head to within `NEAR` is refused
+ * with the miss and the angles, so a much shorter partner's shoulder is out
+ * of reach standing.
  *
- * The resting head is aimed at the partner's region at the start and does
- * not yet follow the partner's later turn; contact windows cannot yet
- * name the head as the bearing part.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the regions, the solve, the timing, the refusal and what the draft does not yet do.
- * @evidence contracts/development/design.md#principled-representation A law over the kiss's lean model with its own region and a side bend.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Adds only the side bend and the own-region aim; the lean, the head shares and the timing are the kiss's owners'.
+ * @evidence contracts/development/common.md#meaningful-documentation States the regions, the solve, the per-second correction, the timing, the window and the refusal.
+ * @evidence contracts/development/design.md#principled-representation A law over the kiss's lean model with its own region and a side bend, and a head contact window on the partner's region.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Adds the side bend, the own-region aim and the felt correction; the lean, the head shares, the timing and the felt delay are their owners'.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The miss is measured on the posture the display writes; nothing presses the head on into the partner.
  */
 export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadRest> =
@@ -111,7 +105,8 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
         (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
           s.kind === "seat",
       );
-      const solved: ISolved = solve(body, entry, stance, seated, own, at);
+      const aim: headRestAim.IAim = headRestAim.prepare(body, entry, stance, seated, own);
+      const solved: headRestAim.ISolved = aim.solve(at);
       if (solved.miss > NEAR)
         throw new HumanRefusal({
           kind: "reach",
@@ -145,38 +140,95 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
       );
       const share: (seconds: number) => number = (seconds: number): number =>
         clock.envelope(["start", "ready"], ["relax", "end"], seconds);
-      const flexion: IAutoMovieMotionHumanJoints.Angles =
-        AutoMovieMotionHumanHead.share(0, solved.flexion);
-      const bend: IAutoMovieMotionHumanJoints.Angles =
-        AutoMovieMotionHumanHead.share(1, solved.tilt);
-      return composeAutoMovieMotionHumanAction({
-        base: AutoMovieMotionHumanBase.under(context, clock.duration),
+      const aimed: (seconds: number) => headRestAim.ISolved = following(
+        context,
+        p,
+        aim.follow(solved),
+      );
+      const duration: number = clock.duration;
+      const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.under(context, duration),
         clock,
         primitives: [
           {
             channels: ["root", "trunk"],
             from: 0,
-            to: clock.duration,
+            to: duration,
             write: (
               posture: IAutoMovieMotionHumanPosture,
               seconds: number,
             ): IAutoMovieMotionHumanPosture =>
-              kissBody(body, posture, stance, solved, share(seconds), seated),
+              kissBody(body, posture, stance, aimed(seconds), share(seconds), seated),
           },
-          AutoMovieMotionHumanJoints.pulse(
-            clock,
-            ["start", "ready"],
-            ["relax", "end"],
-            {
-              neck: [flexion.neck![0], bend.neck![1], 0],
-              head: [flexion.head![0], bend.head![1], 0],
+          {
+            channels: ["head"],
+            from: 0,
+            to: duration,
+            write: (
+              posture: IAutoMovieMotionHumanPosture,
+              seconds: number,
+            ): IAutoMovieMotionHumanPosture => {
+              const s: headRestAim.ISolved = aimed(seconds);
+              const k: number = share(seconds);
+              const flexion: IAutoMovieMotionHumanJoints.Angles = AutoMovieMotionHumanHead.share(0, s.flexion * k);
+              const bend: IAutoMovieMotionHumanJoints.Angles = AutoMovieMotionHumanHead.share(1, s.tilt * k);
+              const added: (bone: "neck" | "head") => readonly [number, number, number] = (
+                bone: "neck" | "head",
+              ): readonly [number, number, number] => {
+                const held: readonly [number, number, number] = posture.joints[bone] ?? [0, 0, 0];
+                return [held[0] + flexion[bone]![0], held[1] + bend[bone]![1], held[2]];
+              };
+              return {
+                ...posture,
+                joints: { ...posture.joints, neck: added("neck"), head: added("head") },
+              };
             },
-          ),
+          },
         ],
         contact: "contact",
       });
+      return {
+        ...plan,
+        contacts: [
+          ...plan.contacts,
+          {
+            part: "head",
+            kind: "bear",
+            region: own,
+            load: LOAD,
+            from: clock.at("ready") / duration,
+            to: clock.at("relax") / duration,
+            support: { kind: "person", subject: p.partner, region: p.region },
+          },
+        ],
+      };
     },
   };
+
+/** The aim at each second: the plan's solution corrected onto the partner's region where it is felt, a held limb's feedback delay before. */
+function following(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeadRest>,
+  p: IAutoMovieMotionHumanHeadRest,
+  follow: (to: IAutoMovieVector3) => headRestAim.ISolved,
+): (seconds: number) => headRestAim.ISolved {
+  const partner: IAutoMovieMotionHumanPerformerReader = context.performer(p.partner);
+  const bone: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+    partner.body.surfaces.regions[p.region].bone,
+  ]);
+  let last: number | undefined;
+  let kept: headRestAim.ISolved | undefined;
+  return (seconds: number): headRestAim.ISolved => {
+    if (kept !== undefined && last === seconds) return kept;
+    const felt: IAutoMovieVector3 = StrikingBody.region(
+      partner.body,
+      partner.bones(context.start + seconds - HumanPerception.HELD, bone),
+      p.region,
+    ).point;
+    last = seconds;
+    kept = follow(felt);
+    return kept;
+  };
+}
 
 /** The temple on the side of the performer the partner's region lies. */
 function side(
@@ -195,90 +247,4 @@ function side(
   return Vector3.dot(Vector3.subtract(at, head), left) >= 0
     ? "templeLeft"
     : "templeRight";
-}
-
-/** The lean, the neck flexion and the side bend that bring the own region nearest the point. */
-function solve(
-  body: IAutoMovieMotionHumanActionContext["body"],
-  entry: IAutoMovieMotionHumanPosture,
-  stance: IAutoMovieMotionHumanRise.Stance,
-  seated: boolean,
-  own: AutoMovieHumanoidRegion,
-  at: IAutoMovieVector3,
-): ISolved {
-  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-    prepareHumanPoseResolution();
-  const leaned: ReturnType<typeof kissPose> = kissPose(
-    body,
-    entry,
-    stance,
-    0,
-    seated,
-  );
-  const point: ReturnType<typeof HumanTrunk.preparePoint> =
-    HumanTrunk.preparePoint(body, own);
-  const posed: (s: ISolved) => IAutoMovieMotionHumanPosture = (s: ISolved): IAutoMovieMotionHumanPosture => {
-    const posture: IAutoMovieMotionHumanPosture = leaned(s);
-    const bend: IAutoMovieMotionHumanJoints.Angles =
-      AutoMovieMotionHumanHead.share(1, s.tilt);
-    const add: (bone: "neck" | "head") => readonly [number, number, number] = (
-      bone: "neck" | "head",
-    ): readonly [number, number, number] => {
-      const held: readonly [number, number, number] =
-        posture.joints[bone] ?? [0, 0, 0];
-      return [held[0], held[1] + bend[bone]![1], held[2]];
-    };
-    return {
-      ...posture,
-      joints: { ...posture.joints, neck: add("neck"), head: add("head") },
-    };
-  };
-  const scored: (s: ISolved) => ISolved = (s: ISolved): ISolved => ({
-    ...s,
-    miss: Vector3.distance(point(posed(s), resolution), at),
-  });
-  const least: (candidates: readonly ISolved[]) => ISolved = (candidates: readonly ISolved[]): ISolved =>
-    candidates
-      .map(scored)
-      .reduce((a: ISolved, b: ISolved): ISolved => (b.miss < a.miss ? b : a));
-  const span: (from: number, to: number, step: number) => number[] = (from: number, to: number, step: number): number[] => {
-    const out: number[] = [];
-    for (let v: number = from; v <= to + 1e-9; v += step) out.push(v);
-    return out;
-  };
-  const sagittal: (s: ISolved) => ISolved = (s: ISolved): ISolved => {
-    const coarse: ISolved = least([
-      s,
-      ...span(-10, 45, 5).flatMap((pitch: number): ISolved[] =>
-        span(-30, 45, 5).map((flexion: number): ISolved => ({ ...s, pitch, flexion })),
-      ),
-    ]);
-    return least([
-      coarse,
-      ...span(coarse.pitch - 4, coarse.pitch + 4, 1).flatMap((pitch: number): ISolved[] =>
-        span(coarse.flexion - 4, coarse.flexion + 4, 1).map(
-          (flexion: number): ISolved => ({ ...coarse, pitch, flexion }),
-        ),
-      ),
-    ]);
-  };
-  const lateral: (s: ISolved) => ISolved = (s: ISolved): ISolved =>
-    least([
-      s,
-      ...span(-TILT, TILT, 2).map((tilt: number): ISolved => ({ ...s, tilt })),
-    ]);
-  const neutral: ISolved = scored({
-    pitch: 0,
-    roll: 0,
-    flexion: 0,
-    raise: 0,
-    tilt: 0,
-    miss: Infinity,
-  });
-  let best: ISolved = sagittal(neutral);
-  best = least(
-    span(-kiss.ROLL, kiss.ROLL, 1).map((roll: number): ISolved => ({ ...best, roll })),
-  );
-  best = sagittal(lateral(best));
-  return lateral(best);
 }
