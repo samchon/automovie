@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { ArchetypeUnits, type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
 import { createCar } from "./createCar";
 
 /**
@@ -15,6 +15,12 @@ import { createCar } from "./createCar";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No plane is restated by a builder; each reads it from the layout.
  */
 export namespace CarBody {
+  /** A sedan's bonnet leading edge above the ground, metres: below the 76.9 cm the new-car fleet averaged before bonnets rose to 83.8 cm by 2024 (Transport & Environment, as the IET reports, https://engx.theiet.org/b/articles/posts/call-to-cap-rising-car-bonnet-heights-amid-pedestrian-safety-fears, read through a search summary), a sedan standing below the SUVs that raised that average; provisional. */
+  export const LEADING: number = 0.75;
+
+  /** The front bumper's top above the ground, metres: provisional. */
+  export const BUMPER: number = 0.5;
+
   /**
    * The planes a car is built on, metres in the car's space.
    *
@@ -120,9 +126,7 @@ export namespace CarBody {
     // A van's rear doors' inner face, their 0.04 m panel inside the rear.
     const inside: number = rear + 0.04;
     const pillar: number =
-      kind === "van"
-        ? inside + d.loadLength!
-        : door - createCar.DOOR_SPAN;
+      kind === "van" ? inside + d.loadLength! : door - createCar.DOOR_SPAN;
     const sz: number = pillar + createCar.PILLAR_SGRP;
     const sy: number = floor + d.seatHeight!;
     const sx: number = side * createCar.OCCUPANT;
@@ -184,13 +188,13 @@ export namespace CarBody {
   }
 
   /**
-   * The shell: the floor, the bonnet with its lid on a hinge, and the roof on its pillars; `CarRear` builds what the class carries behind the cabin.
+   * The shell: the floor, the front bumper, the bonnet rising from its leading edge to the windscreen's foot with its lid on a hinge, and the roof on its pillars; `CarRear` builds what the class carries behind the cabin.
    *
    * @param builder The car under construction.
    * @param l The layout.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is built.
-   * @evidence contracts/development/implementation.md#principled-implementation Boxes and rods on the layout's planes. The bonnet's hinge lies on its rear edge with `+Y` along `-X`, so a positive turn lifts its front edge, the right-hand rule taking `+Z` toward `+Y`.
+   * @evidence contracts/development/implementation.md#principled-implementation Boxes, rods and convex prisms on the layout's planes; the front rises from the bumper's top and the bonnet's leading edge to the belt at the windscreen's foot. The bonnet's hinge lies on its rear edge with `+Y` along `-X`, so a positive turn lifts its front edge, the right-hand rule taking `+Z` toward `+Y`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The common shell only.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None beyond the layout's marked constants.
    * @evidence contracts/development/implementation.md#efficient-algorithms A few tens of parts.
@@ -209,16 +213,48 @@ export namespace CarBody {
       v(0, l.floor - 0.06, (l.front + l.rear) / 2),
       { color: BODY },
     );
+    // The front in profile: the bumper's face up to `BUMPER`, the bonnet's
+    // leading edge as far below the belt as a sedan's `LEADING` sits below
+    // its belt, and the bonnet rising from it to the belt at the
+    // windscreen's foot.
+    const lead: number =
+      l.belt - (createCar.ROCKER + createCar.BELT - CarBody.LEADING);
+    const x: number = width / 2;
     builder.box(
-      "bonnet",
-      v(width, l.belt - l.floor, l.front - l.firewall),
-      v(0, (l.belt + l.floor) / 2, (l.front + l.firewall) / 2),
+      "bumper",
+      v(width, CarBody.BUMPER - l.floor, 0.12),
+      v(0, (CarBody.BUMPER + l.floor) / 2, l.front - 0.06),
       { color: BODY },
     );
-    builder.box(
+    builder.convex(
+      "bonnet",
+      [
+        v(-x, l.floor, l.front - 0.12),
+        v(x, l.floor, l.front - 0.12),
+        v(-x, lead, l.front),
+        v(x, lead, l.front),
+        v(-x, l.floor, l.firewall),
+        v(x, l.floor, l.firewall),
+        v(-x, l.belt, l.firewall),
+        v(x, l.belt, l.firewall),
+      ],
+      undefined,
+      { color: BODY },
+    );
+    const lid: number = 0.03;
+    builder.convex(
       "bonnet-lid",
-      v(width - 0.04, 0.03, l.front - l.firewall),
-      v(0, l.belt + 0.015, (l.front + l.firewall) / 2),
+      [
+        v(-x + 0.02, lead, l.front),
+        v(x - 0.02, lead, l.front),
+        v(-x + 0.02, lead + lid, l.front),
+        v(x - 0.02, lead + lid, l.front),
+        v(-x + 0.02, l.belt, l.firewall),
+        v(x - 0.02, l.belt, l.firewall),
+        v(-x + 0.02, l.belt + lid, l.firewall),
+        v(x - 0.02, l.belt + lid, l.firewall),
+      ],
+      undefined,
       { color: BODY },
     );
     builder.affordance({
