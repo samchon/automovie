@@ -38,7 +38,7 @@ export namespace IAutoMovieMotionHumanVehicleHit {
     /** The car's scene subject id. */
     vehicle: string;
 
-    /** The car's affordance at the top of its leading edge, the bonnet's front; `bonnetEdge` when absent. */
+    /** The car's affordance at the top of its leading edge, the bonnet's front; read from the car's colliders when absent, as the highest top among those reaching furthest forward (`vehicleFront`). */
     edge?: string;
 
     /** How far past the action's start the car's course is searched for the contact, seconds; 6 when absent. */

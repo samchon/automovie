@@ -877,6 +877,8 @@
     "drawFromCarrier": {},
     "collapse": {},
     "thrown": {},
+    "vehicleDive": {},
+    "vehicleHit": {},
     "wireFlight": {},
     "shamble": {},
     "lurch": {},

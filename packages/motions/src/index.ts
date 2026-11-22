@@ -401,6 +401,7 @@ export * from "./lexicon/HumanCover";
 export * from "./lexicon/HumanWallRun";
 export * from "./lexicon/HumanRope";
 export * from "./lexicon/HumanStuntFall";
+export * from "./lexicon/HumanVehicleHit";
 export * from "./lexicon/HumanTreeClimb";
 export * from "./lexicon/HumanSkydive";
 export * from "./lexicon/HumanEdgeRescue";

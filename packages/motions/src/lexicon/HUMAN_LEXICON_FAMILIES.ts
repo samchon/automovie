@@ -140,6 +140,7 @@ import { HumanStuntFall } from "./HumanStuntFall";
 import { HumanTreeClimb } from "./HumanTreeClimb";
 import { HumanSkydive } from "./HumanSkydive";
 import { HumanEdgeRescue } from "./HumanEdgeRescue";
+import { HumanVehicleHit } from "./HumanVehicleHit";
 import { HumanUpperRows } from "./HumanUpperRows";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 import { HumanWeaponMelee } from "./HumanWeaponMelee";
@@ -221,7 +222,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   sportGym: [HumanSportGym],
   sportCarry: [HumanSportCarry],
   floorRoll: [HumanFloorRoll],
-  floorFall: [HumanFloorFall, { collapse, thrown, wireFlight, wireArrest, stopDropRoll }],
+  floorFall: [HumanFloorFall, HumanVehicleHit, { collapse, thrown, wireFlight, wireArrest, stopDropRoll }],
   support: [HumanSupportRows, { HumanAidWalk, HumanAssistedTransfer }],
   sportSwing: [HumanSportSwing, HumanPrecisionSport],
   sportThrow: [HumanSportThrow, { stageCatch, stageDeflect }],

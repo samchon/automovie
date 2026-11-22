@@ -2,6 +2,7 @@ import type { IAutoMovieMotionHumanDive } from "../floor/IAutoMovieMotionHumanDi
 import type { IAutoMovieMotionHumanCollapse } from "../reaction/IAutoMovieMotionHumanCollapse";
 import type { IAutoMovieMotionHumanFirefight } from "../tasks/IAutoMovieMotionHumanFirefight";
 import type { IAutoMovieMotionHumanThrown } from "../reaction/IAutoMovieMotionHumanThrown";
+import type { IAutoMovieMotionHumanVehicleHit } from "../reaction/IAutoMovieMotionHumanVehicleHit";
 import type { IAutoMovieMotionHumanWireFlight } from "../reaction/IAutoMovieMotionHumanWireFlight";
 
 /**
@@ -29,6 +30,12 @@ export interface IAutoMovieMotionHumanLexiconFloorFallParams {
 
   /** A struck body thrown clear of the floor by a blast or a jerk-back, landing on its back. */
   thrown: IAutoMovieMotionHumanThrown.IParams;
+
+  /** A pedestrian struck by a moving car, thrown along the frontal impact trajectory its front and speed give, landing on the back. */
+  vehicleHit: IAutoMovieMotionHumanVehicleHit.IParams;
+
+  /** A near-miss dive to the side, clear of a moving car's width as it arrives. */
+  vehicleDive: IAutoMovieMotionHumanVehicleHit.IDive;
 
   /** A body flown on wires along an authored path in a flight shape. */
   wireFlight: IAutoMovieMotionHumanWireFlight.IParams;
