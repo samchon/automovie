@@ -28,6 +28,7 @@ import type {
   IAutoMovieMotionMeeting,
   IAutoMovieMotionTarget,
   IAutoMovieSchedule,
+  IAutoMovieScheduleContext,
   IAutoMovieScheduleCue,
 } from "@automovie/interface";
 
@@ -141,6 +142,9 @@ export class HumanPerformanceState {
 
   /** Whether the schedule is still being resolved: until every action is placed, a pose may read people not placed yet, so nothing is kept. */
   public resolving: boolean = true;
+
+  /** The resolver's demand placement while an action is timed (`IAutoMovieMotionHumanPerformanceState.demand`). */
+  public demand: IAutoMovieScheduleContext["demand"] = undefined;
 
   /** How many actions and overlays have been placed so far: two instants with the same count have the same placed state. */
   public placements: number = 0;

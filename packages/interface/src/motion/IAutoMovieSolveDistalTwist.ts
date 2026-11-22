@@ -67,6 +67,8 @@ export namespace IAutoMovieSolveDistalTwist {
     rotation: IAutoMovieQuaternion;
     /** Skeleton supplying effective ROM when the corresponding precomputed clamp is absent. */
     skeleton: IAutoMovieSkeleton;
+    /** The mid joint's clinical twist this solve continues, degrees: the twist a fit of a nearby pose chose (`IAutoMovieSwivelSeed.twist`) or a trial's own. Present, the start is the alias nearest it and the twist stays in the start's basin of the effector's miss; absent, the least miss over the candidates is taken. */
+    reference?: number;
     /** Optional reusable ROM projectors. Called synchronously and repeatedly, never retained; must return the same bone in clinical degrees without mutating the argument. Exceptions propagate. Omission constructs both projectors from skeleton. */
     clamps?: {
       /** Projects the trial mid joint onto its effective ROM; extreme trial twists also establish the allowed search interval. */

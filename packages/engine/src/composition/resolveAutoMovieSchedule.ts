@@ -1,6 +1,8 @@
 import type {
   IAutoMovieComposition,
+  IAutoMovieIntent,
   IAutoMovieSchedule,
+  IAutoMovieScheduleContext,
   IAutoMovieScheduleEntry,
   IAutoMovieScheduleLaws,
   IAutoMovieScheduleWalk,
@@ -50,35 +52,95 @@ export function resolveAutoMovieSchedule(
   laws: IAutoMovieScheduleLaws,
 ): IAutoMovieSchedule {
   const walk: IAutoMovieScheduleWalk.IWalk = AutoMovieScheduleWalk.create(laws);
+  // A parallel group's parts are placed in declaration order, except that a
+  // law reading a subject whose actions a later part of an open group holds
+  // places that part first (`IAutoMovieScheduleContext.demand`): a
+  // topological order over the reads, so a production need not declare the
+  // read subject's chain before the reader's. A part already being placed
+  // when a demand asks for it is a cycle of reads.
+  const waiting: IAutoMovieSchedulePart[] = [];
+  let demanding: number = 0;
+  const placePart = (part: IAutoMovieSchedulePart): number => {
+    part.status = "placing";
+    part.end = place(part.node, part.start);
+    part.status = "placed";
+    waiting.splice(waiting.indexOf(part), 1);
+    return part.end;
+  };
+  walk.demand = (subject: string): IAutoMovieScheduleContext.Demand => {
+    const next: IAutoMovieSchedulePart | undefined = waiting.find(
+      (part: IAutoMovieSchedulePart): boolean =>
+        part.status === "pending" && part.subjects.has(subject),
+    );
+    if (next !== undefined) {
+      ++demanding;
+      try {
+        placePart(next);
+      } finally {
+        --demanding;
+      }
+      return "placed";
+    }
+    return demanding > 0 &&
+      waiting.some(
+        (part: IAutoMovieSchedulePart): boolean =>
+          part.status === "placing" && part.subjects.has(subject),
+      )
+      ? "cycle"
+      : "none";
+  };
   const place = (node: IAutoMovieComposition, start: number): number => {
     if (node.kind === "intent")
       return AutoMovieSchedulePlace.intent(walk, node.intent, start);
     if (node.kind === "sequence") {
-      // The entry an intent's cut interrupts is the first one the next part places.
+      // The entry an intent's cut interrupts is the first one the next part
+      // places, found by that part's leading intent: a demand may place
+      // another part's entries among them.
       let cutIndex: number | undefined;
       return node.parts.reduce(
         (at: number, part: IAutoMovieComposition): number => {
           const first: number = walk.entries.length;
           const end: number = place(part, at);
-          if (cutIndex !== undefined && walk.entries.length > first)
-            walk.interrupted.set(cutIndex, first);
+          const leading: IAutoMovieIntent | undefined =
+            AutoMovieScheduleWalk.leading(part);
+          const own: number = walk.entries.findIndex(
+            (e: IAutoMovieScheduleEntry, i: number): boolean =>
+              i >= first && e.intent === leading,
+          );
+          if (cutIndex !== undefined && own >= 0)
+            walk.interrupted.set(cutIndex, own);
           cutIndex =
             part.kind === "intent" &&
-            walk.entries.length === first + 1 &&
-            walk.entries[first]!.cut !== undefined
-              ? first
+            walk.last !== undefined &&
+            walk.entries[walk.last]!.intent === part.intent &&
+            walk.entries[walk.last]!.cut !== undefined
+              ? walk.last
               : undefined;
           return end;
         },
         start,
       );
     }
-    if (node.kind === "parallel")
-      return node.parts.reduce(
-        (end: number, part: IAutoMovieComposition): number =>
-          Math.max(end, place(part, start)),
+    if (node.kind === "parallel") {
+      const group: IAutoMovieSchedulePart[] = node.parts.map(
+        (part: IAutoMovieComposition): IAutoMovieSchedulePart => {
+          const record: IAutoMovieSchedulePart = {
+            node: part,
+            start,
+            end: start,
+            status: "pending",
+            subjects: subjects(part),
+          };
+          waiting.push(record);
+          return record;
+        },
+      );
+      return group.reduce(
+        (end: number, part: IAutoMovieSchedulePart): number =>
+          Math.max(end, part.status === "placed" ? part.end : placePart(part)),
         start,
       );
+    }
     return AutoMovieSchedulePlace.at(walk, node, start, place);
   };
   const end: number = place(composition, 0);
@@ -101,4 +163,37 @@ export function resolveAutoMovieSchedule(
     ),
     duration,
   });
+}
+
+/** A part of a parallel group: where it starts, its placing state and end, and the subjects whose actions it holds. */
+interface IAutoMovieSchedulePart {
+  /** The part. */
+  node: IAutoMovieComposition;
+
+  /** Its group's start, film seconds. */
+  start: number;
+
+  /** Its end once placed, film seconds. */
+  end: number;
+
+  /** Whether it waits, is being placed, or is placed. */
+  status: AutoMovieSchedulePartStatus;
+
+  /** The subjects of its intents. */
+  subjects: ReadonlySet<string>;
+}
+
+/** A parallel part's placing state. */
+type AutoMovieSchedulePartStatus = "pending" | "placing" | "placed";
+
+/** The subjects of a composition's intents. */
+function subjects(node: IAutoMovieComposition): Set<string> {
+  const out: Set<string> = new Set();
+  const visit = (n: IAutoMovieComposition): void => {
+    if (n.kind === "intent") out.add(n.intent.subject);
+    else if (n.kind === "at") visit(n.part);
+    else n.parts.forEach(visit);
+  };
+  visit(node);
+  return out;
 }

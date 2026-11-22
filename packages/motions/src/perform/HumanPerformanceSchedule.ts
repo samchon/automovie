@@ -64,6 +64,12 @@ export namespace HumanPerformanceSchedule {
             self,
             intent,
           );
+          // A read of a person whose actions a later part of an open group
+          // holds places that part first, through the resolver's demand;
+          // the previous timing's demand comes back after a nested one.
+          const outer: IAutoMovieMotionHumanPerformanceState["demand"] =
+            self.demand;
+          self.demand = context.demand;
           try {
             return HumanPerformancePlace.place(
               self,
@@ -74,6 +80,8 @@ export namespace HumanPerformanceSchedule {
             );
           } catch (error) {
             throw error instanceof HumanRefusal ? error.locate(where) : error;
+          } finally {
+            self.demand = outer;
           }
         },
         until: (

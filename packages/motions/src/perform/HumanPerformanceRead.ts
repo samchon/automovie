@@ -14,6 +14,7 @@ import type {
 
 import type { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionHumanBendRepeat";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { placeDemandedHumanPerformer } from "./placeDemandedHumanPerformer";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceHold } from "./HumanPerformanceHold";
@@ -350,6 +351,8 @@ export namespace HumanPerformanceRead {
   function available(self: IAutoMovieMotionHumanPerformanceState, subject: string, seconds: number,
     axis: string | (() => string)): IAutoMovieMotionHumanSegment.IPerson {
     const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
+    // A person a later part of an open group holds is placed first.
+    placeDemandedHumanPerformer(self, person, subject, seconds, axis);
     const last: IAutoMovieMotionHumanSegment | undefined = person.segments.at(-1);
     const left: number =
       (self.intended.get(subject)?.length ?? 0) - person.segments.length;

@@ -127,16 +127,16 @@ export function fitHingedChainAt(
   };
 }
 
-/** Companion types of `fitHingedChainAt`. */
+/**
+ * Companion types of `fitHingedChainAt`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The placed record states each member's meaning and unit.
+ * @evidence contracts/development/design.md#principled-representation The fit's own result with the facts that tell whether the end joint reached the target, cleared the obstruction and stayed off the range's clamp.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by its callers to decide whether the placement stands.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends the seeded fit record rather than restating it.
+ */
 export namespace fitHingedChainAt {
-  /**
-   * A chain placed at a swivel.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The fit's own result with the two facts that tell whether the end joint reached the target.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by its callers to decide whether the placement stands.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends the seeded fit record.
-   */
+  /** A chain placed at a swivel. */
   export interface IPlaced extends IAutoMovieSeededChainFit {
     /** How far the target lies beyond the branch's legal shell, metres. */
     shortfall: number;

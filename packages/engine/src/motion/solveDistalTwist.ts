@@ -47,6 +47,12 @@ import { prepareJointRotationProjection } from "./prepareJointRotationProjection
  * hand rotation prefers a nearby forearm twist. The bounded candidate law is
  * retained; it does not globally minimize over both joints. Every candidate
  * is ranked through the same effector projection that final orientation uses.
+ * A continued solve (`reference`, the twist a fit of a nearby pose chose)
+ * starts from the alias nearest that twist and keeps the start's basin,
+ * descending over the candidates in twist order while a neighbour misses
+ * less: the feasible value nearest the previous solution (Tolani, Goswami
+ * and Badler 2000), where the least miss over all candidates jumps between
+ * the range's ends as an unreachable request moves.
  *
  * @param props The mid joint's and the effector's current clinical angles;
  *   `above`, the world rotation the mid joint's articulation composes after
@@ -77,7 +83,7 @@ import { prepareJointRotationProjection } from "./prepareJointRotationProjection
  * @returns The mid joint with its twist solved, clamped to the rig's range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the degree-valued lower/effector articulations, model/local rotation frames, bounded roots/range/start law and tie. withProjection's child documentation defines the selected lower joint plus copied actual effector joint/raw quaternion/local demand, exact-demand reuse condition and caller ownership; prepare documents lazy unchanged fixed-frame readings.
- * @evidence contracts/development/implementation.md#principled-implementation Rodrigues' formula makes the clinical-zero twist condition a first-order trigonometric equation. Its at most two roots, range ends and reference are ranked by the actual rotation from prepareJointRotationProjection, the same effector owner final display uses; this finite outer law is not a global combined-joint optimizer.
+ * @evidence contracts/development/implementation.md#principled-implementation Rodrigues' formula makes the clinical-zero twist condition a first-order trigonometric equation. Its at most two roots, range ends and reference are ranked by the actual rotation from prepareJointRotationProjection, the same effector owner final display uses; this finite outer law is not a global combined-joint optimizer. A continued solve keeps the start's basin (Tolani, Goswami and Badler 2000, nearest feasible to the previous solution), so the twist is continuous where the least miss would cross between the range's ends.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Both ordinary and withProjection entries use one private bounded search; only paired mode retains the actual winning projection. prepare delegates fixed axis/clinical-zero readers to prepareDistalTwistEffector, leaving one equation/root/ranking owner here.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every lower twist is clamped to actual ROM, and every miss is read from actual projected articulation. The existing angular TIE policy chooses nearer starts among small differences; it is not a roundoff proof or a claim that the residual is zero. The chosen twist always owns its stored score.
  * @evidence contracts/development/implementation.md#efficient-algorithms Setup is O(B) without shared clamps/projector. At most five distinct clamped twists query the projector; eligible queries score at most nineteen unique articulations and generic queries keep their bounded refinement. Paired mode additionally copies one fixed-size actual reading per query, retaining only current/selected readings, so matching immediate consumers avoid another complete query. Original TIE stopping and all candidate counts remain, with unmeasured speedup.
@@ -221,13 +227,20 @@ function solve(
     )),
     props.lowerBasis.twist,
   );
+  const turned: number =
+    decomposeJointRotationOnBasis(
+      Quaternion.normalize(Quaternion.multiply(articulated, twist)),
+      props.lowerBasis,
+      props.lowerFrame,
+    ).twist ?? 0;
+  // A continued solve starts from the alias of that twist nearest the twist
+  // it continues, so a request whose twist share passes half a turn keeps
+  // its side instead of wrapping to the other.
   const start: number =
     at(
-      decomposeJointRotationOnBasis(
-        Quaternion.normalize(Quaternion.multiply(articulated, twist)),
-        props.lowerBasis,
-        props.lowerFrame,
-      ).twist ?? 0,
+      props.reference === undefined
+        ? turned
+        : turned - 360 * Math.round((turned - props.reference) / 360),
     ).twist ?? 0;
 
   // K: the request seen from the mid bone's articulation before its twist.
@@ -325,6 +338,36 @@ function solve(
   if (least <= TIE && at(start).twist === start)
     return { joint: at(start), projection: chosenProjection };
 
+  // A continued solve keeps the start's basin (Tolani, Goswami and Badler
+  // 2000: the feasible value nearest the previous solution): from the start
+  // it descends over the candidates in the order of their twists while a
+  // neighbour misses less, and stops at the first that no neighbour beats.
+  // The least miss over every candidate jumps from one end of the range to
+  // the other where an unreachable request's two ends cross, between two
+  // frames; the basin moves with the request instead.
+  if (props.reference !== undefined) {
+    const twists: number[] = [
+      ...new Set<number>([
+        at(start).twist ?? 0,
+        ...candidates.map((t: number): number => at(t).twist ?? 0),
+      ]),
+    ].sort((a: number, b: number): number => a - b);
+    const scored: IScored[] = twists.map((t: number): IScored => {
+      const miss: number = missed(t);
+      return { twist: t, miss, projection: latestProjection };
+    });
+    let i: number = twists.indexOf(at(start).twist ?? 0);
+    for (;;) {
+      const here: number = scored[i]!.miss;
+      const left: number = i > 0 ? scored[i - 1]!.miss : Infinity;
+      const right: number = i + 1 < scored.length ? scored[i + 1]!.miss : Infinity;
+      if (left < here - TIE && left <= right) --i;
+      else if (right < here - TIE) ++i;
+      else break;
+    }
+    return { joint: at(scored[i]!.twist), projection: scored[i]!.projection };
+  }
+
   // A candidate that clamps to a twist already read is the same pose: the
   // same miss, never strictly nearer, so it is not read again.
   const read: Set<number> = new Set([at(start).twist ?? 0]);
@@ -359,6 +402,18 @@ function solve(
 
 /** Existing distal-candidate angular tie policy, radians; this is not a numerical-roundoff bound or a reached-target threshold. */
 const TIE: number = 1e-6;
+
+/** One candidate twist of a continued solve, with its miss and its projection. */
+interface IScored {
+  /** The clamped mid twist, clinical degrees. */
+  twist: number;
+
+  /** The effector's miss of the request there, radians. */
+  miss: number;
+
+  /** The projection read with it, in paired mode. */
+  projection: solveDistalTwist.IProjection | undefined;
+}
 
 /** Internal joint-only and paired modes share one candidate search. */
 interface ISolution {

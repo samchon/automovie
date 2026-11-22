@@ -211,6 +211,7 @@ export function fitHingedRotationError(
           effectorFrame,
           rotation,
           skeleton: props.skeleton,
+          ...(props.near?.twist === undefined ? {} : { reference: props.near.twist }),
           clamps,
           projectEffector: project,
           projectEffectorWithQuaternion: project.withQuaternion,

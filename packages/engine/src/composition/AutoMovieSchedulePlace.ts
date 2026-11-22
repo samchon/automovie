@@ -52,6 +52,7 @@ export namespace AutoMovieSchedulePlace {
     const context: IAutoMovieScheduleContext = {
       start,
       entries: walk.entries,
+      ...(walk.demand === undefined ? {} : { demand: walk.demand }),
     };
     const timing: IAutoMovieIntentTiming = walk.laws.timing(intent, context);
     const who: Pick<IAutoMovieScheduleError.IProps, "subject" | "capability"> =
@@ -83,6 +84,8 @@ export namespace AutoMovieSchedulePlace {
     );
     const length: number =
       cut === undefined ? timing.duration : cut.share * timing.duration;
+    // The index is read after the timing, since a law's demand may have
+    // placed another part's entries meanwhile (`IAutoMovieScheduleContext.demand`).
     const draft: IAutoMovieScheduleEntry = {
       index: walk.entries.length,
       subject: intent.subject,
@@ -113,6 +116,7 @@ export namespace AutoMovieSchedulePlace {
       ...(outcome === undefined ? {} : { outcome }),
       ...(state === undefined ? {} : { state }),
     });
+    walk.last = draft.index;
     if (intent.anchor !== undefined) {
       if (walk.anchors.has(intent.anchor) || walk.tracks.has(intent.anchor))
         throw new AutoMovieScheduleError(

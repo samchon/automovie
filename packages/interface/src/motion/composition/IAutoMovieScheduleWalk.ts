@@ -1,3 +1,4 @@
+import type { IAutoMovieScheduleContext } from "./IAutoMovieScheduleContext";
 import type { IAutoMovieScheduleCue } from "./IAutoMovieScheduleCue";
 import type { IAutoMovieScheduleEntry } from "./IAutoMovieScheduleEntry";
 import type { IAutoMovieScheduleLaws } from "./IAutoMovieScheduleLaws";
@@ -37,5 +38,11 @@ export namespace IAutoMovieScheduleWalk {
 
     /** The cue tracks of the laws. */
     tracks: Map<string, readonly IAutoMovieScheduleCue[]>;
+
+    /** Places a subject's waiting parallel part on a law's read (`IAutoMovieScheduleContext.demand`); absent where the walk places in declaration order only. */
+    demand?: (subject: string) => IAutoMovieScheduleContext.Demand;
+
+    /** The index of the entry the last placed intent pushed. */
+    last?: number;
   }
 }

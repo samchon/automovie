@@ -3,6 +3,7 @@ import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigid
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieIntent } from "../../composition/IAutoMovieIntent";
 import type { IAutoMovieSchedule } from "../../composition/IAutoMovieSchedule";
+import type { IAutoMovieScheduleContext } from "../../composition/IAutoMovieScheduleContext";
 import type { IAutoMovieScheduleCue } from "../../composition/IAutoMovieScheduleCue";
 import type { IAutoMovieMotionMeeting } from "../compose/IAutoMovieMotionMeeting";
 import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotionHumanActionContext";
@@ -110,6 +111,9 @@ export interface IAutoMovieMotionHumanPerformanceState {
 
   /** Whether the schedule is still being resolved: until every action is placed, a pose may read people not placed yet, so nothing is kept. */
   resolving: boolean;
+
+  /** While an action is timed, the resolver's placement of a subject's waiting parallel part (`IAutoMovieScheduleContext.demand`), so a read of a person not placed yet places them first; absent outside a timing. */
+  demand: IAutoMovieScheduleContext["demand"];
 
   /** The performance's resolved flight policy (`IAutoMovieMotionHumanPerformance.IInput.flight`), captured once for this input. */
   readonly flight: NonNullable<

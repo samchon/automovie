@@ -26,7 +26,9 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * the effector. The existing solveDistalTwist candidate law starts from the
  * current articulation, clamps the mid joint and ranks the effector rotation
  * its shared projector will actually show. It is not a global solve over both
- * joints. Bones without distal twist return unchanged.
+ * joints. Bones without distal twist return unchanged. A fit continued from
+ * a seed (`near`) that carries a twist continues it (`solveDistalTwist`'s
+ * `reference`), so the twist keeps its basin from frame to frame.
  *
  * The fixed effector frame includes intermediate rests and articulations.
  * Twisting leaves the effector point unchanged when the lower-to-effector
@@ -159,6 +161,8 @@ function split(
     effectorFrame: props.restFrames?.[props.chain.effector],
     rotation,
     skeleton: props.skeleton,
+    // A fit continued from a nearby pose's seed continues its twist.
+    ...(props.near?.twist === undefined ? {} : { reference: props.near.twist }),
     ...(rig === undefined
       ? {}
       : {

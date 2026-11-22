@@ -14,4 +14,20 @@ export interface IAutoMovieScheduleContext {
 
   /** Borrowed live walk-order array, excluding the entry currently being timed or decided; take an explicit copy for a snapshot. */
   entries: readonly IAutoMovieScheduleEntry[];
+
+  /**
+   * Place a subject's actions that a parallel group declares but has not
+   * placed yet, so a law that reads that subject at a later second finds it
+   * placed: "placed" when a waiting part was placed, "cycle" when the only
+   * part holding the subject's actions is itself waiting on this read (two
+   * parts that read each other), "none" when no part holds any. Absent
+   * where the walk places in declaration order only.
+   */
+  demand?: (subject: string) => IAutoMovieScheduleContext.Demand;
+}
+
+/** Companion types of `IAutoMovieScheduleContext`. */
+export namespace IAutoMovieScheduleContext {
+  /** What a demand for a subject's placement found (`IAutoMovieScheduleContext.demand`). */
+  export type Demand = "placed" | "cycle" | "none";
 }
