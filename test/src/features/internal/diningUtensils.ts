@@ -28,9 +28,9 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 
-import { everydayTake } from "../internal/everydayTake";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { everydayTake } from "./everydayTake";
+import { motionComplaints } from "./motionComplaints";
+import { motionHumanBody } from "./motionHumanBody";
 
 /** A utensil's working point stays on the food within this, metres. */
 const ON: number = 0.01;
@@ -41,45 +41,6 @@ const MOUTH: number = 0.06;
 
 /** The seated diner's chair. */
 const CHAIR: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-
-/**
- * Two-utensil eating and serving (#4005), seated at a table.
- *
- * Scenarios, right-handed on m-average and left-handed on f-small:
- * 1. Knife and fork, continental: the fork's tines pin the steak while the
- *    knife saws across it, its working point crossing the food; the fork
- *    takes the cut piece, a food of its own, which follows the fork to the
- *    mouth. A plate beyond the seated reach is refused.
- * 2. Chopsticks: the tips close on a morsel, which stays between them to
- *    the mouth while the fixed stick stays still in the hand; the other
- *    hand lifts the rice bowl to the chin.
- * 3. Serving: a spoon takes food from the platter and leaves it on the
- *    neighbour's plate, where it rests.
- * Every take passes the shipped verdicts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each scenario, the bodies, the handedness and the refusal.
- * @evidence contracts/development/testing.md#behavioral-verification Composes pickUp, write with a steadying fork and a take, workHeld, eatWith and reads displayed utensils, food and bones.
- * @evidence contracts/development/testing.md#independent-expectations The food's places are the archetypes' contacts; tolerances are named.
- * @evidence contracts/development/testing.md#distinguishing-cases Right- against left-handed diners, cut against take, a plate within against beyond reach.
- * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
- */
-export function test_human_motion_dining_utensils(): void {
-  const checks: motionComplaints.IGatherer = motionComplaints();
-  for (const name of ["m-average", "f-small"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const side: AutoMovieHumanSide = name === "m-average" ? "right" : "left";
-    for (const scene of SCENES)
-      try {
-        scene.run(body, `${name} ${scene.label}`, side, checks);
-      } catch (error: unknown) {
-        checks.check(
-          `${name} ${scene.label} refused: ${everydayTake.describe(error)}`,
-          false,
-        );
-      }
-  }
-  checks.assert("dining utensils");
-}
 
 /** The seated scene at a table. */
 function stage(): IStage {
@@ -145,7 +106,7 @@ function mouth(take: HumanPerformance, t: number): IAutoMovieVector3 {
 }
 
 /** Knife and fork: pin, saw, take the piece and bite. */
-function cut(
+export function diningCut(
   body: IAutoMovieMotionHumanBody,
   label: string,
   side: AutoMovieHumanSide,
@@ -326,7 +287,7 @@ function cut(
 }
 
 /** Chopsticks: pinch a morsel to the mouth with the bowl raised to the chin. */
-function chopsticks(
+export function diningChopsticks(
   body: IAutoMovieMotionHumanBody,
   label: string,
   side: AutoMovieHumanSide,
@@ -444,7 +405,7 @@ function chopsticks(
 }
 
 /** Serving: a spoon carries food from the platter to the neighbour's plate. */
-function serve(
+export function diningServe(
   body: IAutoMovieMotionHumanBody,
   label: string,
   side: AutoMovieHumanSide,
@@ -534,27 +495,6 @@ function serve(
   );
 }
 
-/** One scenario of the spec. */
-interface IScene {
-  /** Its name. */
-  label: string;
-
-  /** Its run on one body with the dominant hand. */
-  run: (
-    body: IAutoMovieMotionHumanBody,
-    label: string,
-    side: AutoMovieHumanSide,
-    checks: motionComplaints.IGatherer,
-  ) => void;
-}
-
-/** The scenarios. */
-const SCENES: readonly IScene[] = [
-  { label: "knife and fork", run: cut },
-  { label: "chopsticks", run: chopsticks },
-  { label: "serving", run: serve },
-];
-
 /** The seated scene. */
 interface IStage {
   /** The chair's seat. */
@@ -568,4 +508,36 @@ interface IStage {
 
   /** The table's near edge, world `z`. */
   near: number;
+}
+
+/** One dining scenario on one body with its dominant hand. */
+export type DiningScene = (
+  body: IAutoMovieMotionHumanBody,
+  label: string,
+  side: AutoMovieHumanSide,
+  checks: motionComplaints.IGatherer,
+) => void;
+
+/**
+ * Run one dining scenario right-handed on m-average and left-handed on
+ * f-small, gathering every check, and assert them under one name.
+ *
+ * @param name The scenario's name, in each check and the assertion.
+ * @param scene The scenario.
+ */
+export function diningRun(name: string, scene: DiningScene): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
+  for (const label of ["m-average", "f-small"] as const) {
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(label);
+    const side: AutoMovieHumanSide = label === "m-average" ? "right" : "left";
+    try {
+      scene(body, `${label} ${name}`, side, checks);
+    } catch (error: unknown) {
+      checks.check(
+        `${label} ${name} refused: ${everydayTake.describe(error)}`,
+        false,
+      );
+    }
+  }
+  checks.assert(`dining utensils ${name}`);
 }
