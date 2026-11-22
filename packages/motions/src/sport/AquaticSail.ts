@@ -11,6 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { unloadedFoot } from "../carrier/unloadedFoot";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
@@ -140,6 +141,17 @@ export namespace AquaticSail {
     const trailStart: number = aborted ? 0.58 : leadEnd + 0.02;
     const trailEnd: number = trailStart + 0.19;
     const clearance: number = body.measure.stature * 0.075;
+    // The sailor's own forward in the hull frame, level, and how far a
+    // crossing foot passes in front of the standing shank: two shank radii
+    // (the two shanks' surfaces meet) and the skin's give the audits allow.
+    const facing: IAutoMovieVector3 = AquaticCrew.direction(context, hull, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
+    const ahead: IAutoMovieVector3 = Vector3.normalize({ ...facing, y: 0 });
+    const passing: number =
+      2 * body.measure.shankRadius + AutoMovieMotionHumanAuditSkin.BUILT;
 
     const plants: IAutoMovieMotionHumanContactWindow[] = [
       AquaticCrew.bear(hull.id, `${lead}Foot`, "plant", 0, leadStart),
@@ -420,22 +432,30 @@ export namespace AquaticSail {
         const trailX: number = aborted ? 0 : second;
         const leadBase: IAutoMovieVector3 = hull.feet[lead];
         const trailBase: IAutoMovieVector3 = hull.feet[trail];
-        const footA: IAutoMovieVector3 = {
-          ...leadBase,
-          x: leadBase.x + cross * leadX,
-          y:
-            leadBase.y +
-            clearance *
-              (swing(u, leadStart, leadEnd) +
-                (aborted ? swing(u, trailStart, trailEnd) : 0)),
-        };
-        const footB: IAutoMovieVector3 = {
-          ...trailBase,
-          x: trailBase.x + cross * trailX,
-          y:
-            trailBase.y +
-            (aborted ? 0 : clearance * swing(u, trailStart, trailEnd)),
-        };
+        const leadSwing: number =
+          swing(u, leadStart, leadEnd) +
+          (aborted ? swing(u, trailStart, trailEnd) : 0);
+        const trailSwing: number = aborted ? 0 : swing(u, trailStart, trailEnd);
+        // Both feet cross the cockpit by the same `cross`, so each swing
+        // passes the standing foot's place: it steps across in front of the
+        // standing shank, out by two shank radii and the skin's give at its
+        // swing's middle, never through it.
+        const footA: IAutoMovieVector3 = Vector3.add(
+          {
+            ...leadBase,
+            x: leadBase.x + cross * leadX,
+            y: leadBase.y + clearance * leadSwing,
+          },
+          Vector3.scale(ahead, passing * leadSwing),
+        );
+        const footB: IAutoMovieVector3 = Vector3.add(
+          {
+            ...trailBase,
+            x: trailBase.x + cross * trailX,
+            y: trailBase.y + clearance * trailSwing,
+          },
+          Vector3.scale(ahead, passing * trailSwing),
+        );
         const carriedHips: IAutoMovieVector3 = {
           ...hips,
           x: hips.x + cross * (aborted ? 0.48 : 1) * stride,
