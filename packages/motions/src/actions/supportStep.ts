@@ -1,13 +1,25 @@
-import { Vector3 } from "@automovie/engine";
+import {
+  ANKLE_DORSIFLEXION,
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupport,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { shankTilt } from "../carrier/shankTilt";
 import { crawl } from "../floor/crawl";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { supportContact } from "./supportContact";
 import { supportCourse } from "./supportCourse";
 import { supportKey } from "./supportKey";
@@ -22,7 +34,10 @@ import type { supportPlan } from "./supportPlan";
  * before it travels and sets down from above its new place: one lift key
  * over its old place and one over its new, each a stepping limb's rise
  * (`crawl.LIFT`) up, so its sole leaves and meets the floor vertically and
- * never travels within the floor band. A swing that only rose over the
+ * never travels within the floor band. Its heel leaves first, risen as far
+ * as keeps the ankle within a weightless ankle's dorsiflexion, and comes
+ * down above where the set-down key lays it, so the foot does not turn on
+ * the floor. A swing that only rose over the
  * middle of the step carried the sole across the floor at lift-off and
  * set-down (the staged clinch's 1.3 m/s skates). Any other step keeps the
  * single mid-step lift.
@@ -139,6 +154,57 @@ export function supportStep(props: supportStep.IProps): number {
     }
     return above.get(crossing);
   };
+  // A cleared foot's heel over its old place leaves first, as the forefoot
+  // rocker lifts it: risen as far as keeps its ankle within a weightless
+  // ankle's dorsiflexion over the shank the foot stood on. Over its new
+  // place the heel is above where the set-down key lays it, so the foot
+  // lowers onto its place without turning there.
+  const heelOver = (
+    crossing: supportCourse.ICrossing,
+    l: number,
+    start: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanBodyFitTypes.ITarget => {
+    const side: AutoMovieHumanSide =
+      crossing.contact.part === "leftFoot" ? "left" : "right";
+    const socket: IAutoMovieHumanoidSurfaces.IFrame =
+      body.surfaces.sockets[side === "left" ? "heelLeft" : "heelRight"];
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      resolveHumanPosture(body, l === 0 ? start : landed!),
+    );
+    const heel: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
+      socket,
+      bones.get(socket.bone)!,
+    );
+    let rise: number = crawl.LIFT;
+    if (l === 0) {
+      const toe: IAutoMovieVector3 = oldPlace(crossing.previous)!;
+      const facing: IAutoMovieVector3 = Vector3.normalize({
+        x: toe.x - heel.x,
+        y: 0,
+        z: toe.z - heel.z,
+      });
+      const lean: number = shankTilt(
+        body,
+        bones.get(`${side}UpperLeg`)!.worldPosition,
+        bones.get(`${side}Foot`)!.worldPosition,
+        facing,
+      );
+      const excess: number = Math.max(
+        0,
+        lean - (ANKLE_DORSIFLEXION.unloaded - supportStep.DORSAL_MARGIN),
+      );
+      rise +=
+        Math.hypot(toe.x - heel.x, toe.z - heel.z) *
+        Math.sin(excess * Quaternion.DEG2RAD);
+    }
+    return {
+      bone: socket.bone,
+      point: socket.point,
+      goal: { x: heel.x, y: heel.y + rise, z: heel.z },
+      axes: ["x", "y", "z"],
+    };
+  };
   for (let l: number = 0; l < steps; l++) {
     route(l);
     const start: IAutoMovieMotionHumanPosture = keys.at(-1)!.posture;
@@ -148,7 +214,14 @@ export function supportStep(props: supportStep.IProps): number {
     push({
       posture: supportKey.solved(
         body,
-        props.preference(props.leaving, start, oldPlace),
+        // Over the old place the body still stands in the stance it leaves;
+        // over a cleared foot's new place it already takes the one it
+        // arrives at, as the set-down does.
+        props.preference(
+          l > 0 && cleared.length > 0 ? props.stance : props.leaving,
+          start,
+          oldPlace,
+        ),
         start,
         kept,
         oldPlace,
@@ -170,6 +243,8 @@ export function supportStep(props: supportStep.IProps): number {
                   over(crossing, l),
                 );
               if (top === null) return [];
+              if (cleared.includes(crossing))
+                return [top, heelOver(crossing, l, start)];
               if (!crossing.contact.part.endsWith("Foot")) return [top];
               // The toe joint's elevation alone leaves the ankle free to
               // point the heel into the floor; level the rigid hindfoot
@@ -210,6 +285,9 @@ export function supportStep(props: supportStep.IProps): number {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the support law's contact, stance, key and course types.
  */
 export namespace supportStep {
+  /** How far short of a weightless ankle's dorsiflexion a lifting foot's heel rise keeps it, degrees: the closed-form shank differs from the fitted one by a few degrees (provisional, as `unloadedFoot`'s margin). */
+  export const DORSAL_MARGIN: number = 3;
+
   /** A contact to read on a posture, with its target or null for an unnamed floor place (`supportContact.points`). */
   export type Anchor = Parameters<typeof supportContact.points>[2][number];
 

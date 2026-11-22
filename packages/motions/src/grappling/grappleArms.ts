@@ -121,6 +121,18 @@ export function grappleArms(
       ),
       needed,
     );
+  // The horizontal tangent of a thigh at its normal, the way a hand's
+  // fingers wrap it with the thumb up: one way for each hand.
+  const around = (
+    side: AutoMovieHumanSide,
+    normal: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
+    Vector3.normalize(
+      Vector3.scale(
+        Vector3.cross({ x: 0, y: 1, z: 0 }, normal),
+        side === "left" ? 1 : -1,
+      ),
+    );
   const goal = (
     side: AutoMovieHumanSide,
     posture: IAutoMovieMotionHumanPosture,
@@ -154,8 +166,15 @@ export function grappleArms(
         surface: "palm",
         shape: "flat",
         bend: "forward",
-        // The palm lies open on the region: curled fingers folded the thumb and tips into the partner's thigh or chest. On a shoulder its fingers point up.
-        ...(shoulder(side) ? { forward: { x: 0, y: 1, z: 0 } } : {}),
+        // The palm lies open on the region: curled fingers folded the thumb
+        // and tips into the partner's thigh or chest. On a shoulder its
+        // fingers point up. On a thigh they wrap around it, so the thumb
+        // lies along the cylinder, up the thigh, instead of across it.
+        ...(shoulder(side)
+          ? { forward: { x: 0, y: 1, z: 0 } }
+          : region.startsWith("thigh")
+            ? { forward: around(side, contact.normal) }
+            : {}),
       }),
     );
     if (seconds >= take && seconds <= release) {
