@@ -103,8 +103,10 @@ export namespace courseLimbSwivels {
    * The swivel-and-branch course of a plan's limb goals, for a display that
    * keeps the goals and places each limb in closed form at the course's
    * swivel (`IAutoMovieSwivelNear.prescribed`): each knot, at the span's
-   * ends and the plan's instants, is the cold fit the display would show
-   * there, so the course never drifts from it; between two knots of one
+   * ends and the plan's instants, is a full fit there, the first cold and
+   * each later one continuing the knot before it (the middle of an interval
+   * continues its start), so the course keeps a branch until it turns
+   * infeasible and depends on the span alone; between two knots of one
    * branch the swivel is interpolated, the interval split at its middle
    * where placing the limbs at the interpolated swivel puts an end joint
    * farther than the solver's tolerance from the middle's own fit, where
@@ -120,7 +122,7 @@ export namespace courseLimbSwivels {
    * @evidence contracts/development/common.md#meaningful-documentation States what is coursed, how it is read and judged, and why the goals stay.
    * @evidence contracts/development/implementation.md#principled-implementation The swivel is the one free coordinate of a two-bone limb on its goal; coursing it keeps the branch coherent while the closed form keeps the goal exact.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Root knots in order, a recursive judgement, a descending read.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every knot is a full resolve; interpolation is admitted against the solver's tolerance and only where the display's closed form places it as given.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every knot is a full resolve, cold or continued from the knot before it; interpolation is admitted against the solver's tolerance and only where the display's closed form places it as given.
    * @evidence contracts/development/implementation.md#efficient-algorithms Knots only where the swivel path bends away from its interpolation.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Knots and judgements are kept.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the reader and the knots.
@@ -169,15 +171,20 @@ export namespace courseLimbSwivels {
         };
       return out;
     };
-    const fit = (seconds: number): ISwivelKnot => {
+    const fit = (seconds: number, from?: ISwivelKnot): ISwivelKnot => {
       const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
         resolveHumanPosture.seeded(
           body,
           goals(seconds),
           undefined,
-          // Every knot is the cold fit the display would show there, so the
-          // course never drifts from it; between knots it is interpolated.
-          {},
+          // The knots are chained from the span's start: the first is the
+          // cold fit, and each later one continues the knot before it (its
+          // branch and swivel, refined, where they stay legal), the warm
+          // start a display holds a limb's branch by, so the course changes
+          // branch only where the continued one turns infeasible. The chain
+          // is fixed by the span and its instants, so no knot depends on the
+          // order the course is read in.
+          from === undefined ? {} : near(from.seeds, false),
         );
       const seeds: Map<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = new Map();
       for (const limb of limbs) {
@@ -265,7 +272,8 @@ export namespace courseLimbSwivels {
     ].sort((x: number, y: number): number => x - y);
     const roots: ISwivelKnot[] = [];
     const root = (i: number): ISwivelKnot => {
-      while (roots.length <= i) roots.push(fit(times[roots.length]!));
+      while (roots.length <= i)
+        roots.push(fit(times[roots.length]!, roots[roots.length - 1]));
       return roots[i]!;
     };
     const intervals: Map<number, ISwivelInterval> = new Map();
@@ -279,7 +287,7 @@ export namespace courseLimbSwivels {
         return null;
       }
       const middle: number = (a.seconds + b.seconds) / 2;
-      const knot: ISwivelKnot = fit(middle);
+      const knot: ISwivelKnot = fit(middle, a);
       let split: boolean = [...a.seeds].some(
         ([limb, seed]: [AutoMovieHumanLimb, IAutoMovieSwivelSeed]): boolean =>
           b.seeds.get(limb)?.branch !== seed.branch,
