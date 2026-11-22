@@ -18,6 +18,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { GymnasticsPalmRise } from "./GymnasticsPalmRise";
 
 /**
  * The bearing limbs of a wheel (`GymnasticsWheel`): a rigid turn carries the
@@ -173,6 +174,9 @@ export namespace GymnasticsWheelPlants {
       seconds: number,
     ): IAutoMovieMotionHumanPosture => {
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {
+        ...posture.joints,
+      };
       for (const l of laid) {
         // The limb reaches its laid place by the contact and leaves it after
         // the lift, over a lead before and after the window, so it is laid
@@ -228,7 +232,18 @@ export namespace GymnasticsWheelPlants {
             body,
             resolveHumanPosture(body, free),
             undefined,
-            new Set<AutoMovieHumanoidBone>([l.bone, middle]),
+            new Set<AutoMovieHumanoidBone>([
+              l.bone,
+              middle,
+              ...(l.hand
+                ? ([
+                    l.side === "left" ? "leftUpperArm" : "rightUpperArm",
+                    l.side === "left"
+                      ? "leftMiddleProximal"
+                      : "rightMiddleProximal",
+                  ] as const)
+                : []),
+            ]),
           );
         const carriedEnd: IAutoMovieResolvedBone = carriedBones.get(l.bone)!;
         const elbow: IAutoMovieVector3 =
@@ -243,7 +258,33 @@ export namespace GymnasticsWheelPlants {
               elbow,
             )
           : elbow;
-        const goal: IAutoMovieHumanLimbGoal = { ...l.goal(posture), bend };
+        // A palm whose wrist cannot extend so far rises about its knuckles.
+        const risen: GymnasticsPalmRise.IRise = l.hand
+          ? GymnasticsPalmRise.of(
+              l.side,
+              { ...l.goal(posture), bend },
+              carriedBones.get(
+                l.side === "left" ? "leftUpperArm" : "rightUpperArm",
+              )!.worldPosition,
+              GymnasticsPalmRise.knuckle(
+                carriedEnd,
+                carriedBones.get(
+                  l.side === "left"
+                    ? "leftMiddleProximal"
+                    : "rightMiddleProximal",
+                )!,
+              ),
+              forward,
+            )
+          : { goal: { ...l.goal(posture), bend }, joints: {} };
+        const goal: IAutoMovieHumanLimbGoal = risen.goal;
+        for (const [bone, angles] of Object.entries(risen.joints))
+          if (angles !== undefined)
+            joints[bone as AutoMovieHumanoidBone] = [
+              angles[0] * w,
+              angles[1],
+              angles[2],
+            ];
         if (w >= 1) {
           limbs[key] = goal;
           continue;
@@ -273,7 +314,7 @@ export namespace GymnasticsWheelPlants {
               }),
         };
       }
-      return { ...posture, limbs };
+      return { ...posture, joints, limbs };
     };
   }
 }
