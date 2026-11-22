@@ -64,7 +64,7 @@ const WALL: number = 0.012;
  *
  * @param params An optional identity and authored dimensions in metres.
  * @param seed Selects dimensions left unbound by the author.
- * @returns A model with separate hold, wear, sleeve, exit and closure contacts.
+ * @returns A model with separate front and back collar holds, wear, sleeve, exit and closure contacts.
  * @throws {AutoMovieArchetypeRefusal} When an authored dimension is outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names model origin, axes, empty sleeve passages, and zipper geometry.
@@ -233,6 +233,29 @@ export function createStageJacket(
     symmetry: "round",
     extent: null,
   });
+
+  // The same handle on the back panel's collar edge, for a dresser standing behind the wearer.
+  builder.rod(
+    "back-collar-stripe",
+    0.018,
+    v(-0.035, panelTop, -(back + 0.035)),
+    v(0.035, panelTop, -(back + 0.035)),
+    { color: "#e4a344" },
+  );
+  builder.affordance({
+    id: "backCollar",
+    kind: "handle",
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, panelTop, -(back + 0.035)),
+      v(0, 0, -1),
+      v(1, 0, 0),
+    ),
+    aperture: 0.036,
+    length: 0.07,
+    grip: "power",
+    symmetry: "round",
+    extent: null,
+  });
   builder.affordance({
     id: "wear",
     kind: "socket",
@@ -251,13 +274,14 @@ export function createStageJacket(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The wearer is a separate model with an independently resolved skeleton.
  */
 export namespace createStageJacket {
-  /** Distinct sleeve opening/exit sites and the two custody and closure contacts. */
+  /** Distinct sleeve opening/exit sites, the front collar hold, the back collar hold a dresser behind the wearer takes, the wear site and the zip. */
   export type Affordance =
     | "leftSleeveOpening"
     | "leftSleeveExit"
     | "rightSleeveOpening"
     | "rightSleeveExit"
     | "hold"
+    | "backCollar"
     | "wear"
     | "zip";
 
