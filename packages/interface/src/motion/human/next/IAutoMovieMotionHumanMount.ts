@@ -1,12 +1,12 @@
 import type { IAutoMovieMotionHumanLeadHorse } from "../lexicon/IAutoMovieMotionHumanLeadHorse";
-import type { IAutoMovieMotionHumanTendHorse } from "../lexicon/IAutoMovieMotionHumanTendHorse";
 import type { IAutoMovieMotionHumanLunge } from "../lexicon/IAutoMovieMotionHumanLunge";
-import type { IAutoMovieMotionHumanUnseat } from "../lexicon/IAutoMovieMotionHumanUnseat";
 import type { IAutoMovieMotionHumanMounted } from "../lexicon/IAutoMovieMotionHumanMounted";
+import type { IAutoMovieMotionHumanTendHorse } from "../lexicon/IAutoMovieMotionHumanTendHorse";
+import type { IAutoMovieMotionHumanUnseat } from "../lexicon/IAutoMovieMotionHumanUnseat";
 import type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 
 /**
- * Living mounts: riding a horse.
+ * Living mounts: riding a horse, handling it from the ground and leaving its saddle. The horse prop owns the carrier's contacts and course, and every method here reads them at the film second it acts.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -16,7 +16,7 @@ import type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
  */
 export interface IAutoMovieMotionHumanMount<Chain> {
   /**
-   * Riding: a seated person carried by a support that moves by itself, such as a car, a bicycle or a horse given to the performance as a moving prop (`HumanObject.prop` with a motion).
+   * Riding a horse: a seated person carried by a support that moves by itself, such as a horse given to the performance as a moving prop (`HumanObject.prop` with a motion).
    *
    * @param params The `on`, `seconds`, `rising`, `feet`, `placeFeet`, `seat`, `hands` and `equestrian` of `IAutoMovieMotionHumanRide.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
@@ -90,10 +90,7 @@ export interface IAutoMovieMotionHumanMount<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanMount.lunge is provided by the chain that implements IAutoMovieMotionHumanMount.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanMount.lunge is provided by the chain that implements IAutoMovieMotionHumanMount.
    */
-  lunge(
-    params: IAutoMovieMotionHumanMount.ILunge,
-    anchor?: string,
-  ): Chain;
+  lunge(params: IAutoMovieMotionHumanMount.ILunge, anchor?: string): Chain;
 
   /**
    * A rider leaving a moving saddle against their will: thrown, pulled down, dragged by a stirrup, stepping clear or slumped over the neck, released at an authored instant or on a hit.
@@ -110,10 +107,7 @@ export interface IAutoMovieMotionHumanMount<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanMount.unseat is provided by the chain that implements IAutoMovieMotionHumanMount.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanMount.unseat is provided by the chain that implements IAutoMovieMotionHumanMount.
    */
-  unseat(
-    params: IAutoMovieMotionHumanMount.IUnseat,
-    anchor?: string,
-  ): Chain;
+  unseat(params: IAutoMovieMotionHumanMount.IUnseat, anchor?: string): Chain;
 
   /**
    * A mounted performance on a moving carrier: an ordered list of seat figures, each planned in the frame of one of the carrier's own contacts and carried with it.
@@ -130,10 +124,7 @@ export interface IAutoMovieMotionHumanMount<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanMount.mounted is provided by the chain that implements IAutoMovieMotionHumanMount.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanMount.mounted is provided by the chain that implements IAutoMovieMotionHumanMount.
    */
-  mounted(
-    params: IAutoMovieMotionHumanMount.IMounted,
-    anchor?: string,
-  ): Chain;
+  mounted(params: IAutoMovieMotionHumanMount.IMounted, anchor?: string): Chain;
 }
 
 /**
