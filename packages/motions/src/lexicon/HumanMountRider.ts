@@ -77,7 +77,7 @@ export namespace HumanMountRider {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what turns, about what, how far and when nothing changes.
    * @evidence contracts/development/implementation.md#principled-implementation The ball stays where the goal puts it and the ankle moves on its circle about the ball's lateral axis; the least turn that reaches is found by bisection, the distance being monotonic in the turn up to `ANKLING`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The rider's bounds handed to the search, which nkleRidePedalFoot owns so this file stays within its size.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The rider's bounds handed to the search, which `ankleRidePedalFoot` owns so this file stays within its size.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pedal beyond even `ANKLING` leaves the foot short of it, which the contact audit reports; a refusal with the saddle height that fits is owed.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four distance trials (none, the two signs and `ANKLING`) and twenty-four bisections, which narrow the `ANKLING` span to about two millionths of a degree; each trial is one rotation about the ball's prepared axis.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The ball, the axis and the contact are read once per call and shared by every trial; the returned goal is placed by the same function the trials measure.
