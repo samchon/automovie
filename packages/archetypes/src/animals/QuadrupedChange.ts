@@ -1,7 +1,7 @@
 import { AutoMovieGravity } from "@automovie/engine";
 
-import type { QuadrupedBody } from "./QuadrupedBody";
-import { QuadrupedGait } from "./QuadrupedGait";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import type { createQuadruped } from "./createQuadruped";
 
 /**
@@ -18,7 +18,7 @@ export namespace QuadrupedChange {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each rule and its members' units.
    * @evidence contracts/development/design.md#principled-representation A closed union of the change rules the sources give, with their own variables.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; a gait's `QuadrupedGait.IGait.change`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; a gait's `AutoMovieArchetypeQuadrupedGait.IGait.change`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed kinds, not free text.
    */
   export type Rule =
@@ -42,36 +42,47 @@ export namespace QuadrupedChange {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per rule.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `QuadrupedGait.range`; the hip's height is the caller's, read off the animal.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieArchetypeQuadrupedGait.range`; the hip's height is the caller's, read off the animal.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function point(
     species: createQuadruped.ISpecies,
-    low: QuadrupedGait.Gait,
-    high: QuadrupedGait.Gait,
-    dimensions: Readonly<Partial<Record<QuadrupedBody.Dimension, number>>>,
+    low: AutoMovieArchetypeQuadrupedGait.Gait,
+    high: AutoMovieArchetypeQuadrupedGait.Gait,
+    dimensions: Readonly<
+      Partial<Record<AutoMovieArchetypeQuadrupedBody.Dimension, number>>
+    >,
     hip: number,
   ): number {
     // Every gait but the slowest states how it is changed into.
-    const rule: Rule = QuadrupedGait.of(species, high).change!;
+    const rule: Rule = AutoMovieArchetypeQuadrupedGait.of(
+      species,
+      high,
+    ).change!;
     if (rule.kind === "froude")
       return Math.sqrt(rule.froude * AutoMovieGravity.STANDARD * hip);
     if (rule.kind === "mass")
       return rule.speed * (dimensions.mass! / rule.mass) ** rule.exponent;
     if (rule.kind === "speed")
       return (
-        rule.speed * QuadrupedGait.scale(species, dimensions.withersHeight!)
+        rule.speed *
+        AutoMovieArchetypeQuadrupedGait.scale(
+          species,
+          dimensions.withersHeight!,
+        )
       );
-    const a: { minimum: number; maximum: number } = QuadrupedGait.range(
-      species,
-      low,
-      dimensions.withersHeight!,
-    );
-    const b: { minimum: number; maximum: number } = QuadrupedGait.range(
-      species,
-      high,
-      dimensions.withersHeight!,
-    );
+    const a: { minimum: number; maximum: number } =
+      AutoMovieArchetypeQuadrupedGait.range(
+        species,
+        low,
+        dimensions.withersHeight!,
+      );
+    const b: { minimum: number; maximum: number } =
+      AutoMovieArchetypeQuadrupedGait.range(
+        species,
+        high,
+        dimensions.withersHeight!,
+      );
     return (
       (Math.max(a.minimum, b.minimum) + Math.min(a.maximum, b.maximum)) / 2
     );
@@ -98,19 +109,25 @@ export namespace QuadrupedChange {
   export function called(
     species: createQuadruped.ISpecies,
     speed: number,
-    from: QuadrupedGait.Gait,
-    dimensions: Readonly<Partial<Record<QuadrupedBody.Dimension, number>>>,
+    from: AutoMovieArchetypeQuadrupedGait.Gait,
+    dimensions: Readonly<
+      Partial<Record<AutoMovieArchetypeQuadrupedBody.Dimension, number>>
+    >,
     hip: number,
-  ): QuadrupedGait.Gait {
-    const order: readonly QuadrupedGait.Gait[] = species.table.order;
+  ): AutoMovieArchetypeQuadrupedGait.Gait {
+    const order: readonly AutoMovieArchetypeQuadrupedGait.Gait[] =
+      species.table.order;
     const gap: number =
       species.table.hysteresis *
-      QuadrupedGait.scale(species, dimensions.withersHeight!);
+      AutoMovieArchetypeQuadrupedGait.scale(species, dimensions.withersHeight!);
     let k: number = order.indexOf(from);
     while (k < order.length - 1) {
-      const higher: QuadrupedGait.Gait = order[k + 1]!;
-      const boundary: number = point(species, order[k]!, higher, dimensions, hip) + gap;
-      const inclusive: boolean = QuadrupedGait.of(species, higher).change!.kind === "speed";
+      const higher: AutoMovieArchetypeQuadrupedGait.Gait = order[k + 1]!;
+      const boundary: number =
+        point(species, order[k]!, higher, dimensions, hip) + gap;
+      const inclusive: boolean =
+        AutoMovieArchetypeQuadrupedGait.of(species, higher).change!.kind ===
+        "speed";
       if (!(inclusive ? speed >= boundary : speed > boundary)) break;
       k++;
     }

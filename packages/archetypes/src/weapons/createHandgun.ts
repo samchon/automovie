@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { HANDGUN_BANDS } from "./HANDGUN_BANDS";
 import { HANDGUN_MODELS } from "./HANDGUN_MODELS";
@@ -21,7 +21,7 @@ import { HandgunActions } from "./HandgunActions";
  * @param params The frame size, the model and a GLOCK's sights, whether it is loaded and any dimension the author fixes.
  * @param seed The seed that picks the model and the sights left free and draws every dimension left free inside its band; absent, the first model, the first sights and the middle of each band.
  * @returns The handgun.
- * @throws {ArchetypeRefusal} For a model not of the frame, sights on a pistol without them, a fixed dimension outside its band, or one the model or the sights give.
+ * @throws {AutoMovieArchetypeRefusal} For a model not of the frame, sights on a pistol without them, a fixed dimension outside its band, or one the model or the sights give.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is and is not modelled, how the pistol stands and what each contact is.
  * @evidence contracts/development/implementation.md#principled-implementation Three boxes from the picked pistol's published outside sizes; the trigger face stands at the published reach from the backstrap and moves by the published travel; a loaded pistol adds the difference between the makers' loaded and unloaded masses. A revolver and a flintlock pistol are `HandgunActions`'s, their sight radius derived where no maker gives it.
@@ -34,9 +34,9 @@ import { HandgunActions } from "./HandgunActions";
 export function createHandgun(
   params: createHandgun.IParams,
   seed?: number | string,
-): Archetype<createHandgun.Affordance, createHandgun.Dimension> {
-  const draw: ArchetypeDrawSession<createHandgun.Dimension> =
-    new ArchetypeDrawSession<createHandgun.Dimension>(
+): AutoMovieArchetype<createHandgun.Affordance, createHandgun.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createHandgun.Dimension> =
+    new AutoMovieArchetypeDrawSession<createHandgun.Dimension>(
       "handgun",
       createHandgun.UNITS,
       seed,
@@ -70,10 +70,10 @@ export function createHandgun(
   const d: Partial<Record<createHandgun.Dimension, number>> = {
     ...draw.values,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createHandgun.Affordance,
     createHandgun.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: createHandgun.NAMES[frame],
@@ -116,7 +116,7 @@ export function createHandgun(
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, under / 2, d.gripDepth! / 2),
       v(0, 0, -1),
       v(0, 1, 0),
@@ -129,7 +129,7 @@ export function createHandgun(
   builder.affordance({
     id: "trigger",
     kind: "trigger",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, under - 0.02, d.triggerReach!),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -141,7 +141,7 @@ export function createHandgun(
   builder.affordance({
     id: "slide",
     kind: "slider",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, top - slide / 2, 0.01),
       v(0, 1, 0),
       v(0, 0, -1),
@@ -159,7 +159,7 @@ export function createHandgun(
     builder.affordance({
       id,
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, top, z)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, top, z)),
       extent: null,
       rides: "slide",
     });
@@ -167,7 +167,7 @@ export function createHandgun(
     id: "muzzle",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, top - slide / 2, muzzle),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -177,7 +177,7 @@ export function createHandgun(
   builder.affordance({
     id: "magazine",
     kind: "socket",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, 0, d.gripDepth! / 2),
       v(0, -1, 0),
       v(1, 0, 0),
@@ -219,7 +219,7 @@ export namespace createHandgun {
   export const AMMUNITION: Readonly<Record<Frame, number>> = {
     fullSize: 0.237,
     compact: 0.185,
-    revolver: (46.02 - 40.8) * ArchetypeUnits.OUNCE,
+    revolver: (46.02 - 40.8) * AutoMovieArchetypeUnits.OUNCE,
     flintlock: 0.01445 + 0.005,
   };
 
@@ -289,7 +289,9 @@ export namespace createHandgun {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     height: "m",
     width: "m",
@@ -380,6 +382,6 @@ export namespace createHandgun {
 
   /** The band of each free dimension a model leaves, by frame. */
   export const BANDS: Readonly<
-    Record<Frame, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Frame, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = HANDGUN_BANDS;
 }

@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  HorseDraggedLoad,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeEquineDraggedLoad,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createDragged,
   createHorse,
   rideHorse,
@@ -38,9 +38,11 @@ const LIFT: number = 0.05;
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name.
  */
 export function test_archetype_equine_draft_ground(): void {
-  const horse: Archetype<createHorse.Affordance, createHorse.Dimension> =
-    createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, 1);
-  const ride: ArchetypeRide.IRide<
+  const horse: AutoMovieArchetype<
+    createHorse.Affordance,
+    createHorse.Dimension
+  > = createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, 1);
+  const ride: AutoMovieArchetypeRide.IRide<
     createHorse.Affordance,
     createHorse.Dimension
   > = rideHorse(
@@ -61,21 +63,25 @@ export function test_archetype_equine_draft_ground(): void {
   const issues: string[] = [];
   const from: number = ride.plan.when(10) - 1;
   const to: number = ride.plan.when(10 + 3 * Math.PI) + 1;
-  const base: HorseDraggedLoad.IParams = {
+  const base: AutoMovieArchetypeEquineDraggedLoad.IParams = {
     length: 2.5,
     draught: 800,
     capacity: 1200,
   };
-  const plough: HorseDraggedLoad.IRide = HorseDraggedLoad(
-    ride,
-    horse,
-    createDragged({ kind: "plough" }),
-    { ...base, depth: DEPTH, lift: LIFT, raise: 1, lifts: [{ from, to }] },
-  );
+  const plough: AutoMovieArchetypeEquineDraggedLoad.IRide =
+    AutoMovieArchetypeEquineDraggedLoad(
+      ride,
+      horse,
+      createDragged({ kind: "plough" }),
+      { ...base, depth: DEPTH, lift: LIFT, raise: 1, lifts: [{ from, to }] },
+    );
   inspect(
     "plough",
     plough,
-    (seconds: number, sample: HorseDraggedLoad.ISample): void => {
+    (
+      seconds: number,
+      sample: AutoMovieArchetypeEquineDraggedLoad.ISample,
+    ): void => {
       const share: number = lowest(sample, "share");
       if (seconds < from - 0.01 || seconds > to + 0.01) {
         if (Math.abs(share + DEPTH) > 1e-9)
@@ -96,8 +102,16 @@ export function test_archetype_equine_draft_ground(): void {
   for (const kind of ["log", "sledge"] as const)
     inspect(
       kind,
-      HorseDraggedLoad(ride, horse, createDragged({ kind }), base),
-      (seconds: number, sample: HorseDraggedLoad.ISample): void => {
+      AutoMovieArchetypeEquineDraggedLoad(
+        ride,
+        horse,
+        createDragged({ kind }),
+        base,
+      ),
+      (
+        seconds: number,
+        sample: AutoMovieArchetypeEquineDraggedLoad.ISample,
+      ): void => {
         const least: number = Math.min(
           ...sample.archetype.parts.map((part: IAutoMovieModelPart): number =>
             lowest(sample, part.id),
@@ -111,18 +125,27 @@ export function test_archetype_equine_draft_ground(): void {
     );
   let refused: unknown = null;
   try {
-    HorseDraggedLoad(ride, horse, createDragged({ kind: "log" }), {
-      ...base,
-      draught: 2000,
-    });
+    AutoMovieArchetypeEquineDraggedLoad(
+      ride,
+      horse,
+      createDragged({ kind: "log" }),
+      {
+        ...base,
+        draught: 2000,
+      },
+    );
   } catch (error) {
     refused = error;
   }
-  if (!(refused instanceof ArchetypeRefusal && refused.axis === "draught"))
+  if (
+    !(
+      refused instanceof AutoMovieArchetypeRefusal && refused.axis === "draught"
+    )
+  )
     issues.push(`an overload was not refused: ${String(refused)}`);
 
   // 6. The horse leans into the collar under its draught.
-  const leaned: ArchetypeRide.IRide<
+  const leaned: AutoMovieArchetypeRide.IRide<
     createHorse.Affordance,
     createHorse.Dimension
   > = rideHorse(
@@ -133,11 +156,11 @@ export function test_archetype_equine_draft_ground(): void {
       cruise: 1.3,
       acceleration: 0.6,
       deceleration: 0.6,
-      lean: HorseDraggedLoad.lean(800, 1200),
+      lean: AutoMovieArchetypeEquineDraggedLoad.lean(800, 1200),
     },
     "walk",
   );
-  const upright: ArchetypeRide.IRide<
+  const upright: AutoMovieArchetypeRide.IRide<
     createHorse.Affordance,
     createHorse.Dimension
   > = rideHorse(
@@ -153,13 +176,13 @@ export function test_archetype_equine_draft_ground(): void {
   );
   for (const seconds of [2, 4, 6]) {
     const axis = (
-      sample: ArchetypeRide.ISample<
+      sample: AutoMovieArchetypeRide.ISample<
         createHorse.Affordance,
         createHorse.Dimension
       >,
     ): IAutoMovieVector3 =>
       Quaternion.rotateVector(
-        ArchetypeFrame.compose(
+        AutoMovieArchetypeFrame.compose(
           sample.placement,
           sample.archetype.parts.find(
             (part: IAutoMovieModelPart): boolean => part.id === "trunk",
@@ -185,19 +208,23 @@ export function test_archetype_equine_draft_ground(): void {
   /** Trace line, trace ends and the load's own check at every sampled second. */
   function inspect(
     label: string,
-    load: HorseDraggedLoad.IRide,
-    own: (seconds: number, sample: HorseDraggedLoad.ISample) => void,
+    load: AutoMovieArchetypeEquineDraggedLoad.IRide,
+    own: (
+      seconds: number,
+      sample: AutoMovieArchetypeEquineDraggedLoad.ISample,
+    ) => void,
   ): void {
     const fixed: Map<string, IAutoMovieVector3> = new Map();
     for (let seconds: number = 0.25; seconds < load.duration; seconds += 0.25) {
-      const sample: HorseDraggedLoad.ISample = load.at(seconds);
-      const horseSample: ArchetypeRide.ISample<
+      const sample: AutoMovieArchetypeEquineDraggedLoad.ISample =
+        load.at(seconds);
+      const horseSample: AutoMovieArchetypeRide.ISample<
         createHorse.Affordance,
         createHorse.Dimension
       > = ride.at(seconds);
       const balls: IAutoMovieVector3[] = ["draft-left", "draft-right"].map(
         (id: string): IAutoMovieVector3 =>
-          ArchetypeFrame.compose(
+          AutoMovieArchetypeFrame.compose(
             horseSample.placement,
             horseSample.archetype.parts.find(
               (p: IAutoMovieModelPart): boolean => p.id === id,
@@ -205,7 +232,7 @@ export function test_archetype_equine_draft_ground(): void {
           ).translation,
       );
       const middle: IAutoMovieVector3 = Vector3.lerp(balls[0]!, balls[1]!, 0.5);
-      const coupling: IAutoMovieVector3 = ArchetypeFrame.compose(
+      const coupling: IAutoMovieVector3 = AutoMovieArchetypeFrame.compose(
         sample.placement,
         sample.archetype.affordance("coupling").frame,
       ).translation;
@@ -214,7 +241,7 @@ export function test_archetype_equine_draft_ground(): void {
         y: 0,
         z: middle.z - coupling.z,
       };
-      const forward: IAutoMovieVector3 = ArchetypeFrame.axis(
+      const forward: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
         sample.placement,
         "z",
       );
@@ -239,7 +266,7 @@ export function test_archetype_equine_draft_ground(): void {
           `${label} ${seconds}: coupling ${Vector3.length(line)} m behind`,
         );
       sample.traces.forEach(
-        (trace: ArchetypeRide.ILineState, k: number): void => {
+        (trace: AutoMovieArchetypeRide.ILineState, k: number): void => {
           if (Vector3.distance(trace.points[0]!, balls[k]!) > 1e-9)
             issues.push(
               `${label} ${seconds}: ${trace.id} leaves its point of draft`,
@@ -260,14 +287,17 @@ export function test_archetype_equine_draft_ground(): void {
 }
 
 /** An emitted part's lowest world surface. */
-function lowest(sample: HorseDraggedLoad.ISample, id: string): number {
+function lowest(
+  sample: AutoMovieArchetypeEquineDraggedLoad.ISample,
+  id: string,
+): number {
   const part: IAutoMovieModelPart = sample.archetype.parts.find(
     (p: IAutoMovieModelPart): boolean => p.id === id,
   )!;
   if (part.geometry.type !== "primitive")
     throw new Error(`${id} is not a primitive`);
   const shape: typeof part.geometry.shape = part.geometry.shape;
-  const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+  const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     sample.placement,
     part.transform!,
   );

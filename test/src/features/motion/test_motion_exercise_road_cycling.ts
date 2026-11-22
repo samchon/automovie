@@ -1,6 +1,6 @@
 import {
-  ArchetypeCourse,
-  ArchetypeFrame,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
   createBicycle,
   rideBicycle,
 } from "@automovie/archetypes";
@@ -81,20 +81,23 @@ function take(key: BodyKey, failures: string[]): void {
   const straight: number = 8;
   const arc: number = (Math.PI * radius) / 3;
   const coastStart: number = 5;
-  const route: ArchetypeCourse.IPlan = ArchetypeCourse.plan("bicycle", {
-    start: { x: 0, z: 0, heading: 0 },
-    legs: [
-      { kind: "straight", length: coastStart },
-      { kind: "straight", length: straight - coastStart },
-      { kind: "turn", radius, angle: 60 },
-      { kind: "straight", length: 2 },
-    ],
-    startSpeed,
-    cruise,
-    acceleration,
-    deceleration,
-    speeds: [cruise, turnSpeed, turnSpeed, 0],
-  });
+  const route: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+    "bicycle",
+    {
+      start: { x: 0, z: 0, heading: 0 },
+      legs: [
+        { kind: "straight", length: coastStart },
+        { kind: "straight", length: straight - coastStart },
+        { kind: "turn", radius, angle: 60 },
+        { kind: "straight", length: 2 },
+      ],
+      startSpeed,
+      cruise,
+      acceleration,
+      deceleration,
+      speeds: [cruise, turnSpeed, turnSpeed, 0],
+    },
+  );
   const ride: ReturnType<typeof rideBicycle> = rideBicycle(bicycle, route, {
     chainring: 34,
     sprocket: 17,
@@ -285,7 +288,10 @@ function take(key: BodyKey, failures: string[]): void {
           Math.abs(height) <= 0.005,
       );
     }
-    const up: IAutoMovieVector3 = ArchetypeFrame.axis(sample.placement, "y");
+    const up: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+      sample.placement,
+      "y",
+    );
     const turning: boolean = straight < distance && distance < straight + arc;
     const inward: IAutoMovieVector3 = Vector3.subtract(
       { x: radius, y: 0, z: straight },
@@ -367,11 +373,11 @@ function tireBottom(
     part.transform === null
   )
     throw new Error("The bicycle tire must be a placed cylinder.");
-  const world: IAutoMovieTransform = ArchetypeFrame.compose(
+  const world: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     placement,
     part.transform,
   );
-  const axis: IAutoMovieVector3 = ArchetypeFrame.axis(world, "y");
+  const axis: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(world, "y");
   const { radius, height }: typeof part.geometry.shape = part.geometry.shape;
   return (
     world.translation.y -

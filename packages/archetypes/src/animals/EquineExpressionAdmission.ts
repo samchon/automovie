@@ -4,12 +4,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeRefusal, type ArchetypeRide } from "../core";
-import type { EquineExpressionCue } from "./EquineExpressionCue";
+import {
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
+} from "../core";
+import type { AutoMovieArchetypeEquineExpressionCue } from "./AutoMovieArchetypeEquineExpressionCue";
 
 /** Acts whose muzzle touches its target. */
-const TOUCHING: ReadonlySet<EquineExpressionCue.Act> =
-  new Set<EquineExpressionCue.Act>([
+const TOUCHING: ReadonlySet<AutoMovieArchetypeEquineExpressionCue.Act> =
+  new Set<AutoMovieArchetypeEquineExpressionCue.Act>([
     "greet",
     "graze",
     "hay",
@@ -21,14 +24,16 @@ const TOUCHING: ReadonlySet<EquineExpressionCue.Act> =
   ]);
 
 /** A cue that poses nothing and only marks an instant. */
-type Marked = EquineExpressionCue.IVocalize | EquineExpressionCue.ITwitch;
+type Marked =
+  | AutoMovieArchetypeEquineExpressionCue.IVocalize
+  | AutoMovieArchetypeEquineExpressionCue.ITwitch;
 
 /**
  * The expression layer's cue admission and the readers its channels share: each cue's eased share, a target's world point and a world point in a sample's model space.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is admitted and what is read.
  * @evidence contracts/development/design.md#principled-representation The held cue types and pure readers.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `EquineExpression` only.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `AutoMovieArchetypeEquineExpression` only.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace EquineExpressionAdmission {
@@ -40,7 +45,7 @@ export namespace EquineExpressionAdmission {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the expression layer.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export type Held = Exclude<EquineExpressionCue.Cue, Marked>;
+  export type Held = Exclude<AutoMovieArchetypeEquineExpressionCue.Cue, Marked>;
 
   /**
    * A cue on the head channel that faces a target.
@@ -50,7 +55,9 @@ export namespace EquineExpressionAdmission {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the expression layer.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export type Facing = EquineExpressionCue.IAttend | EquineExpressionCue.IReach;
+  export type Facing =
+    | AutoMovieArchetypeEquineExpressionCue.IAttend
+    | AutoMovieArchetypeEquineExpressionCue.IReach;
 
   /**
    * Any cue on the head channel.
@@ -60,7 +67,9 @@ export namespace EquineExpressionAdmission {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the expression layer.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export type Heading = Facing | EquineExpressionCue.ICarriage;
+  export type Heading =
+    | Facing
+    | AutoMovieArchetypeEquineExpressionCue.ICarriage;
 
   /**
    * A cue's minimum-jerk share at a second: zero outside its window, one when fully held.
@@ -125,7 +134,7 @@ export namespace EquineExpressionAdmission {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function local(
-    sample: ArchetypeRide.IPose<string, string>,
+    sample: AutoMovieArchetypeRide.IPose<string, string>,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
@@ -143,7 +152,7 @@ export namespace EquineExpressionAdmission {
    * @param archetype The animal's producer name, for a refusal.
    * @param cues The cues.
    * @returns The held cues.
-   * @throws {ArchetypeRefusal} For a malformed window, overlapping cues on a channel or a clearance its act contradicts.
+   * @throws {AutoMovieArchetypeRefusal} For a malformed window, overlapping cues on a channel or a clearance its act contradicts.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the checks and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation One pass for windows and clearances, one ordered pass for overlaps per channel.
@@ -155,10 +164,10 @@ export namespace EquineExpressionAdmission {
    */
   export function admit(
     archetype: string,
-    cues: readonly EquineExpressionCue.Cue[],
+    cues: readonly AutoMovieArchetypeEquineExpressionCue.Cue[],
   ): readonly Held[] {
     const refuse = (axis: string, value: unknown, reason: string): never => {
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
         axis,

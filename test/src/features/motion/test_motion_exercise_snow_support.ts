@@ -1,8 +1,8 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
   createSki,
   createSnowboard,
 } from "@automovie/archetypes";
@@ -12,6 +12,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSupport,
   IAutoMovieMotionHumanSurface,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -20,6 +21,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanFoot,
   HumanHand,
   HumanObject,
   HumanPerformance,
@@ -30,6 +32,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { collectTakeClean } from "../internal/collectTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanStance } from "../internal/motionHumanStance";
 import { vclose } from "../internal/vclose";
 
 /** The Nordic pole model's planted tip and held grip. */
@@ -49,7 +52,8 @@ const Z: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  *    changing lean and chest rotation at each edge and recovering at rest.
  * 2. A Nordic pole grip follows the placed shaft while its tip is planted
  *    and the opposite ski moves rearward before recovering. An absent grip is refused.
- * 3. An independently posed snowboard's edge contacts change while the
+ * 3. The rider steps onto a still snowboard's bindings one foot at a time;
+ *    the independently posed board's edge contacts then change while the
  *    rider remains attached to the deck throughout and reaches stillness.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the snow planes, equipment and movement branches.
@@ -236,36 +240,38 @@ function take(key: BodyKey, failures: string[]): void {
   // The model's pole rotates around the planted tip through the stroke.
   const tip: IAutoMovieVector3 = { x: 0.3, y: 0, z: 0.42 };
   const grip: IAutoMovieVector3 = { x: 0, y: 1.06, z: 0 };
-  const model: Archetype<PoleAffordance, never> = new ArchetypeBuilder<
-    PoleAffordance,
-    never
-  >({
-    material: "composite",
-    name: "Nordic pole",
-    draw: new ArchetypeDrawSession<never>("nordic-pole", {}, undefined),
-  })
-    .rod("shaft", 0.009, Vector3.create(0, 0, 0), { ...grip, y: 1.12 })
-    .affordance({
-      id: "tip",
-      kind: "surface",
-      frame: ArchetypeFrame.facing(Vector3.create(0, 0, 0), {
-        x: 0,
-        y: -1,
-        z: 0,
-      }),
-      extent: null,
+  const model: AutoMovieArchetype<PoleAffordance, never> =
+    new AutoMovieArchetypeBuilder<PoleAffordance, never>({
+      material: "composite",
+      name: "Nordic pole",
+      draw: new AutoMovieArchetypeDrawSession<never>(
+        "nordic-pole",
+        {},
+        undefined,
+      ),
     })
-    .affordance({
-      id: "grip",
-      kind: "handle",
-      frame: ArchetypeFrame.facing(grip, X, Y),
-      extent: null,
-      symmetry: "round",
-      grip: "power",
-      aperture: 0.018,
-      length: 0.12,
-    })
-    .build(0.2);
+      .rod("shaft", 0.009, Vector3.create(0, 0, 0), { ...grip, y: 1.12 })
+      .affordance({
+        id: "tip",
+        kind: "surface",
+        frame: AutoMovieArchetypeFrame.facing(Vector3.create(0, 0, 0), {
+          x: 0,
+          y: -1,
+          z: 0,
+        }),
+        extent: null,
+      })
+      .affordance({
+        id: "grip",
+        kind: "handle",
+        frame: AutoMovieArchetypeFrame.facing(grip, X, Y),
+        extent: null,
+        symmetry: "round",
+        grip: "power",
+        aperture: 0.018,
+        length: 0.12,
+      })
+      .build(0.2);
   const poleAt = (at: number): IAutoMovieRigidTransform => ({
     position: tip,
     rotation: Quaternion.fromAxisAngle(
@@ -369,8 +375,13 @@ function snowboard(
   const binding: number = board.affordance("frontBinding").frame.translation.y;
   const grade: IAutoMovieQuaternion = Quaternion.fromAxisAngle(X, 4);
   const normal: IAutoMovieVector3 = Quaternion.rotateVector(grade, Y);
+  // The rider stands beside the bindings and steps onto them one foot at a
+  // time, the board still, before it starts to run.
+  const entered: number = 0.2;
+  const stepOn: number = 0.6;
+  const mounted: number = entered + 2 * stepOn;
   const frame = (time: number): IAutoMovieRigidTransform => {
-    const share: number = Math.min(1, Math.max(0, (time - 0.5) / 2.6));
+    const share: number = Math.min(1, Math.max(0, (time - mounted) / 2.6));
     const travel: number = 2.2 * minimumJerk.share(share);
     const first: boolean = share <= 0.5;
     const phase: number = first ? 2 * share : 2 * share - 1;
@@ -398,6 +409,31 @@ function snowboard(
     }),
     normal: Y,
   });
+  // Where each sole stands on the deck before stepping onto its binding: the
+  // performer's own quiet stance, in the still board's frame.
+  const ready: IAutoMovieVector3 = { x: 0, y: binding, z: 0 };
+  const neutral: ReturnType<typeof motionHumanStance> = motionHumanStance(
+    performer.body,
+    ready,
+    90,
+  );
+  const standing = (
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanProp["points"][string] => {
+    const foot: IAutoMovieResolvedBone = neutral.get(`${side}Foot`)!;
+    const placed: IAutoMovieRigidTransform = frame(0);
+    const sole: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(placed.rotation),
+      Vector3.subtract(
+        HumanFoot.point(performer.body, side, "sole", {
+          ankle: foot.worldPosition,
+          rotation: foot.worldRotation,
+        }),
+        placed.position,
+      ),
+    );
+    return { point: { ...sole, y: binding }, normal: Y };
+  };
   const prop: IAutoMovieMotionHumanProp = {
     subject: "board",
     frame: frame(0),
@@ -405,6 +441,8 @@ function snowboard(
     points: {
       front: footInPad("frontBinding", 0.035),
       rear: footInPad("rearBinding", -0.035),
+      leftStand: standing("left"),
+      rightStand: standing("right"),
     },
   };
   const performed: HumanPerformance = new HumanPerformance({
@@ -414,19 +452,55 @@ function snowboard(
     laws: [HumanSurface.boardRide],
     composition: HumanChain.subject("snow")
       .support({
+        // A bearing foot never slides onto its binding: the feet first bear
+        // where the rider stands, then each steps onto its pad in turn.
         stances: [
           {
-            seconds: 0.5,
-            prefer: {
-              pitch: 6,
-              roll: 0,
-              joints: {
-                leftUpperLeg: [20, 0, 0],
-                rightUpperLeg: [20, 0, 0],
-                leftLowerLeg: [30, 0, 0],
-                rightLowerLeg: [30, 0, 0],
+            seconds: entered,
+            contacts: [
+              {
+                part: "leftFoot",
+                kind: "bear",
+                target: { kind: "prop", subject: "board", point: "leftStand" },
               },
-            },
+              {
+                part: "rightFoot",
+                kind: "bear",
+                target: {
+                  kind: "prop",
+                  subject: "board",
+                  point: "rightStand",
+                },
+              },
+            ],
+          },
+          {
+            seconds: stepOn,
+            prefer: CROUCH,
+            contacts: [
+              {
+                part: "leftFoot",
+                kind: "bear",
+                target: {
+                  kind: "prop",
+                  subject: "board",
+                  point: "front",
+                },
+              },
+              {
+                part: "rightFoot",
+                kind: "bear",
+                target: {
+                  kind: "prop",
+                  subject: "board",
+                  point: "rightStand",
+                },
+              },
+            ],
+          },
+          {
+            seconds: stepOn,
+            prefer: CROUCH,
             contacts: [
               {
                 part: "leftFoot",
@@ -507,6 +581,18 @@ function snowboard(
     ) < 0.013,
   );
 }
+
+/** The snowboarder's ready crouch on the deck: knees and hips bent, the trunk a little forward. */
+const CROUCH: IAutoMovieMotionHumanSupport.IStance["prefer"] = {
+  pitch: 6,
+  roll: 0,
+  joints: {
+    leftUpperLeg: [20, 0, 0],
+    rightUpperLeg: [20, 0, 0],
+    leftLowerLeg: [30, 0, 0],
+    rightLowerLeg: [30, 0, 0],
+  },
+};
 
 /** Locate the physical contact in the displayed skeletal frame. */
 function point(

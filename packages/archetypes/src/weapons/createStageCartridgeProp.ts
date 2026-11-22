@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { StageTokenConstruction } from "./StageTokenConstruction";
 import type { createProjectile } from "./createProjectile";
 
@@ -12,7 +12,7 @@ import type { createProjectile } from "./createProjectile";
  * @param params The scene id and this digital form's catalogue or sizing options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the inert display form and its actor contact.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the existing stage form's actual visible silhouette and model-space contact.
@@ -25,7 +25,7 @@ import type { createProjectile } from "./createProjectile";
 export function createStageCartridgeProp(
   params: createStageCartridgeProp.IParams = {},
   seed?: number | string,
-): Archetype<
+): AutoMovieArchetype<
   createStageCartridgeProp.Affordance,
   createStageCartridgeProp.Dimension
 > {
@@ -39,7 +39,7 @@ export function createStageCartridgeProp(
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, d.length! / 2, 0),
         v(0, 0, -1),
         v(0, 1, 0),
@@ -52,7 +52,7 @@ export function createStageCartridgeProp(
       id: "end",
       kind: "surface",
       direction: "along",
-      frame: ArchetypeFrame.upright(v(0, d.length!, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, d.length!, 0)),
       extent: null,
     });
     return builder.build(d.mass!);

@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
 } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
@@ -49,15 +49,18 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/common.md#meaningful-documentation Defines the four scenarios and their geometric and physical premises.
  */
 export function test_human_motion_prop_fracture_staging(): void {
-  type Piece = Archetype<never, never>;
-  const builder: ArchetypeBuilder<never, never> = new ArchetypeBuilder<
-    never,
-    never
-  >({
-    draw: new ArchetypeDrawSession<never>("stage-panel", {}, undefined, {}),
-    name: "stage panel",
-    material: "wood",
-  });
+  type Piece = AutoMovieArchetype<never, never>;
+  const builder: AutoMovieArchetypeBuilder<never, never> =
+    new AutoMovieArchetypeBuilder<never, never>({
+      draw: new AutoMovieArchetypeDrawSession<never>(
+        "stage-panel",
+        {},
+        undefined,
+        {},
+      ),
+      name: "stage panel",
+      material: "wood",
+    });
   builder.box("frame", { x: 1, y: 2, z: 1 }, { x: 0, y: 1, z: 0 });
   builder.box("panel", { x: 1, y: 2, z: 1 }, { x: 1, y: 1, z: 0 });
   builder.fracture([{ id: "panel", parts: ["panel"] }]);

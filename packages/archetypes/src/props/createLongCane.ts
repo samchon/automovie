@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** A rigid long cane's lengths, read at a maker's listing. */
@@ -34,7 +34,7 @@ const MASS: string =
  * @param params Any dimension the author fixes inside its band, and an optional scene id.
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
  * @returns The cane.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, its frame and its two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The length is the maker's range; the grip lies a grip's length below the top.
@@ -47,9 +47,9 @@ const MASS: string =
 export function createLongCane(
   params: createLongCane.IParams = {},
   seed?: number | string,
-): Archetype<createLongCane.Affordance, createLongCane.Dimension> {
-  const draw: ArchetypeDrawSession<createLongCane.Dimension> =
-    new ArchetypeDrawSession<createLongCane.Dimension>(
+): AutoMovieArchetype<createLongCane.Affordance, createLongCane.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createLongCane.Dimension> =
+    new AutoMovieArchetypeDrawSession<createLongCane.Dimension>(
       "longCane",
       createLongCane.UNITS,
       seed,
@@ -58,10 +58,10 @@ export function createLongCane(
   const d: Record<createLongCane.Dimension, number> = draw.dimensions(
     createLongCane.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createLongCane.Affordance,
     createLongCane.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "long cane",
@@ -90,7 +90,7 @@ export function createLongCane(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, grip, 0),
       Vector3.create(0, 0, 1),
       Vector3.create(0, 1, 0),
@@ -103,7 +103,7 @@ export function createLongCane(
   builder.affordance({
     id: "tip",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, -1, 0),
       Vector3.create(1, 0, 0),
@@ -132,7 +132,9 @@ export namespace createLongCane {
   export const GRIP: number = 0.2;
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     diameter: "m",
     mass: "kg",
@@ -145,13 +147,13 @@ export namespace createLongCane {
   }
 
   /** The sourced bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(
-      36 * ArchetypeUnits.INCH,
-      60 * ArchetypeUnits.INCH,
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(
+      36 * AutoMovieArchetypeUnits.INCH,
+      60 * AutoMovieArchetypeUnits.INCH,
       LENGTH,
     ),
-    diameter: ArchetypeBand.metres(0.013, 0.013, SHAFT),
-    mass: ArchetypeBand.of("kg", 0.2, 0.2, MASS),
+    diameter: AutoMovieArchetypeBand.metres(0.013, 0.013, SHAFT),
+    mass: AutoMovieArchetypeBand.of("kg", 0.2, 0.2, MASS),
   };
 }

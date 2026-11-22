@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { PracticalLightConstruction } from "./PracticalLightConstruction";
 import type { createLight } from "./createLight";
 
@@ -8,7 +8,7 @@ import type { createLight } from "./createLight";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A standing or hung lantern with a raised bail and a burner light binding.
  * @evidence contracts/development/implementation.md#principled-implementation The bail top supplies both the hand grip and hook. The light frame sits at the globe's foot.
@@ -21,7 +21,7 @@ import type { createLight } from "./createLight";
 export function createLantern(
   params: createLantern.IParams = {},
   seed?: number | string,
-): Archetype<createLantern.Affordance, createLantern.Dimension> {
+): AutoMovieArchetype<createLantern.Affordance, createLantern.Dimension> {
   return PracticalLightConstruction.lantern(params, seed);
 }
 

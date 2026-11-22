@@ -1,8 +1,11 @@
-import { ArchetypeCourse, ArchetypeRefusal } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /** A 200 m straight entered and left at its 10 m/s cruise, with no rate: it never changes speed. */
-const STEADY: ArchetypeCourse.ICourse = {
+const STEADY: AutoMovieArchetypeCourse.ICourse = {
   start: { x: 0, z: 0, heading: 0 },
   legs: [{ kind: "straight", length: 200 }],
   cruise: 10,
@@ -29,16 +32,22 @@ export function test_archetype_ride_course_steady(): void {
   const findings: string[] = [];
 
   // 1. One speed throughout, with no rates and with both.
-  const plan: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", STEADY);
-  const rated: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", {
-    ...STEADY,
-    acceleration: 2,
-    deceleration: 3,
-  });
+  const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+    "test",
+    STEADY,
+  );
+  const rated: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+    "test",
+    {
+      ...STEADY,
+      acceleration: 2,
+      deceleration: 3,
+    },
+  );
   if (Math.abs(plan.duration - 200 / 10) > 1e-9)
     findings.push(`the steady course runs ${plan.duration} s, 20 s expected`);
   for (let t: number = 0; t <= plan.duration; t += 0.37) {
-    const state: ArchetypeCourse.IState = plan.at(t);
+    const state: AutoMovieArchetypeCourse.IState = plan.at(t);
     if (
       Math.abs(state.speed - 10) > 1e-9 ||
       Math.abs(state.distance - 10 * t) > 1e-9
@@ -46,7 +55,7 @@ export function test_archetype_ride_course_steady(): void {
       findings.push(
         `at ${t} s the steady course is at ${state.speed} m/s after ${state.distance} m`,
       );
-    const other: ArchetypeCourse.IState = rated.at(t);
+    const other: AutoMovieArchetypeCourse.IState = rated.at(t);
     if (other.distance !== state.distance || other.speed !== state.speed)
       findings.push(
         `at ${t} s the rates a steady course never reads changed it`,
@@ -54,16 +63,19 @@ export function test_archetype_ride_course_steady(): void {
   }
 
   // 1b. Two legs marked at the cruise, entered at it: steady with marks, no rate read.
-  const marked: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", {
-    start: { x: 0, z: 0, heading: 0 },
-    legs: [
-      { kind: "straight", length: 100 },
-      { kind: "straight", length: 100 },
-    ],
-    cruise: 10,
-    startSpeed: 10,
-    speeds: [10, 10],
-  });
+  const marked: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+    "test",
+    {
+      start: { x: 0, z: 0, heading: 0 },
+      legs: [
+        { kind: "straight", length: 100 },
+        { kind: "straight", length: 100 },
+      ],
+      cruise: 10,
+      startSpeed: 10,
+      speeds: [10, 10],
+    },
+  );
   if (
     Math.abs(marked.duration - 20) > 1e-9 ||
     Math.abs(marked.at(13).distance - 130) > 1e-9
@@ -73,11 +85,12 @@ export function test_archetype_ride_course_steady(): void {
     );
 
   // 2. Slowing to a stop needs only the braking.
-  const stopping: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", {
-    ...STEADY,
-    endSpeed: 0,
-    deceleration: 2,
-  });
+  const stopping: AutoMovieArchetypeCourse.IPlan =
+    AutoMovieArchetypeCourse.plan("test", {
+      ...STEADY,
+      endSpeed: 0,
+      deceleration: 2,
+    });
   const braking: number = (10 * 10) / (2 * 2);
   if (
     Math.abs(stopping.at(stopping.duration).distance - 200) > 1e-9 ||
@@ -94,9 +107,10 @@ export function test_archetype_ride_course_steady(): void {
   ] as const) {
     let refused: string | null = null;
     try {
-      ArchetypeCourse.plan("test", course);
+      AutoMovieArchetypeCourse.plan("test", course);
     } catch (error) {
-      refused = error instanceof ArchetypeRefusal ? error.axis : String(error);
+      refused =
+        error instanceof AutoMovieArchetypeRefusal ? error.axis : String(error);
     }
     if (refused !== field)
       findings.push(`a course missing its ${field} was refused at ${refused}`);

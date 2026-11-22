@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
 } from "../core";
 import { STORAGE_MODELS } from "./STORAGE_MODELS";
 import { StorageConstruction } from "./StorageConstruction";
@@ -17,7 +17,7 @@ const NAMES: Readonly<Record<createStorage.Kind, string>> = {
 };
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createStorage.Affordance> = ArchetypeBuilder<
+type Builder<Id extends createStorage.Affordance> = AutoMovieArchetypeBuilder<
   Id,
   createStorage.Dimension
 >;
@@ -40,8 +40,8 @@ function draw<Id extends createStorage.Affordance>(
   params: Omit<createStorage.IParams, "kind">,
   seed?: number | string,
 ): IDrawn<Id> {
-  const session: ArchetypeDrawSession<createStorage.Dimension> =
-    new ArchetypeDrawSession<createStorage.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<createStorage.Dimension> =
+    new AutoMovieArchetypeDrawSession<createStorage.Dimension>(
       "storage",
       createStorage.UNITS,
       seed,
@@ -57,7 +57,7 @@ function draw<Id extends createStorage.Affordance>(
     ...session.dimensions(createStorage.BANDS[kind], createStorage.BANDS),
     ...model,
   };
-  const builder: Builder<Id> = new ArchetypeBuilder({
+  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: NAMES[kind],
@@ -118,7 +118,7 @@ export namespace StorageMechanisms {
     kind: HingedKind,
     params: Omit<createStorage.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<HingedContact, createStorage.Dimension> {
+  ): AutoMovieArchetype<HingedContact, createStorage.Dimension> {
     const { builder, d }: ReturnType<typeof draw<HingedContact>> =
       draw<HingedContact>(kind, params, seed);
     StorageConstruction[kind](builder, d);
@@ -164,7 +164,7 @@ export namespace StorageMechanisms {
     kind: SlidingKind,
     params: Omit<createStorage.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<SlidingContact, createStorage.Dimension> {
+  ): AutoMovieArchetype<SlidingContact, createStorage.Dimension> {
     const { builder, d }: ReturnType<typeof draw<SlidingContact>> =
       draw<SlidingContact>(kind, params, seed);
     StorageConstruction.drawers(builder, d, StorageConstruction.DRAWERS[kind]);
@@ -195,7 +195,7 @@ export namespace StorageMechanisms {
   export function bookcase(
     params: Omit<createStorage.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<BookcaseContact, createStorage.Dimension> {
+  ): AutoMovieArchetype<BookcaseContact, createStorage.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BookcaseContact>> =
       draw<BookcaseContact>("bookcase", params, seed);
     StorageConstruction.bookcase(builder, d);

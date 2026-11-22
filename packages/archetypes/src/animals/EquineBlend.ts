@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
 /**
@@ -31,12 +31,12 @@ import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh model.
  */
 export function EquineBlend<Id extends string, D extends string>(
-  from: Archetype<Id, D>,
+  from: AutoMovieArchetype<Id, D>,
   fromPlacement: IAutoMovieTransform,
-  to: Archetype<Id, D>,
+  to: AutoMovieArchetype<Id, D>,
   toPlacement: IAutoMovieTransform,
   share: number,
-): Archetype<Id, D> {
+): AutoMovieArchetype<Id, D> {
   const inverse: IAutoMovieQuaternion = Quaternion.inverse(
     toPlacement.rotation,
   );
@@ -78,8 +78,8 @@ export function EquineBlend<Id extends string, D extends string>(
       return {
         ...part,
         transform: mix(
-          ArchetypeFrame.compose(fromPlacement, was.transform),
-          ArchetypeFrame.compose(toPlacement, part.transform),
+          AutoMovieArchetypeFrame.compose(fromPlacement, was.transform),
+          AutoMovieArchetypeFrame.compose(toPlacement, part.transform),
         ),
       };
     },
@@ -95,7 +95,10 @@ export function EquineBlend<Id extends string, D extends string>(
       .map((part: IAutoMovieModelPart): number =>
         QuadrupedRestFloor({
           ...part,
-          transform: ArchetypeFrame.compose(toPlacement, part.transform!),
+          transform: AutoMovieArchetypeFrame.compose(
+            toPlacement,
+            part.transform!,
+          ),
         }),
       ),
   );
@@ -132,8 +135,8 @@ export function EquineBlend<Id extends string, D extends string>(
           const was: IAutoMovieTransform =
             contacts.get(contact.id) ?? contact.frame;
           const frame: IAutoMovieTransform = mix(
-            ArchetypeFrame.compose(fromPlacement, was),
-            ArchetypeFrame.compose(toPlacement, contact.frame),
+            AutoMovieArchetypeFrame.compose(fromPlacement, was),
+            AutoMovieArchetypeFrame.compose(toPlacement, contact.frame),
           );
           return [
             contact.id,

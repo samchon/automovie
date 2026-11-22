@@ -1,5 +1,5 @@
 import {
-  type Archetype,
+  type AutoMovieArchetype,
   createStageFootwear,
   createStageJacket,
 } from "@automovie/archetypes";
@@ -69,7 +69,7 @@ function jacket(cast: motionHumanBody.Name, hand: AutoMovieHumanSide): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody(cast);
   const sign: number = hand === "left" ? 1 : -1;
   const other: AutoMovieHumanSide = hand === "left" ? "right" : "left";
-  const model: Archetype<
+  const model: AutoMovieArchetype<
     createStageJacket.Affordance,
     createStageJacket.Dimension
   > = createStageJacket({
@@ -213,7 +213,7 @@ function jacket(cast: motionHumanBody.Name, hand: AutoMovieHumanSide): void {
 
 /** Verify unavailable clothing geometry produces a named refusal. */
 function unavailable(): void {
-  const shoe: Archetype<
+  const shoe: AutoMovieArchetype<
     createStageFootwear.Affordance,
     createStageFootwear.Dimension
   > = createStageFootwear({

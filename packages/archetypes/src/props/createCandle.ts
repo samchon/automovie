@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { PracticalLightConstruction } from "./PracticalLightConstruction";
 import type { createLight } from "./createLight";
 
@@ -8,7 +8,7 @@ import type { createLight } from "./createLight";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A candle with a precision grasp on its taper and a light frame at its top.
  * @evidence contracts/development/implementation.md#principled-implementation The grasp aperture uses the taper diameter and the light binds to its tip.
@@ -21,7 +21,7 @@ import type { createLight } from "./createLight";
 export function createCandle(
   params: createCandle.IParams = {},
   seed?: number | string,
-): Archetype<createCandle.Affordance, createCandle.Dimension> {
+): AutoMovieArchetype<createCandle.Affordance, createCandle.Dimension> {
   return PracticalLightConstruction.wick("candle", params, seed);
 }
 

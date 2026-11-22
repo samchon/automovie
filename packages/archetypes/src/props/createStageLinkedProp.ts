@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { StageShaftConstruction } from "./StageShaftConstruction";
 import type { createStageWeaponProp } from "./createStageWeaponProp";
 
@@ -13,7 +13,7 @@ import type { createStageWeaponProp } from "./createStageWeaponProp";
  * @param params The scene identity and optional total display height in metres.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names this inert form's silhouette and actor-facing display contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Uses this form's authored ornament, grip and any articulated or fixed display contacts.
@@ -26,7 +26,7 @@ import type { createStageWeaponProp } from "./createStageWeaponProp";
 export function createStageLinkedProp(
   params: createStageLinkedProp.IParams = {},
   seed?: number | string,
-): Archetype<
+): AutoMovieArchetype<
   createStageLinkedProp.Affordance,
   createStageLinkedProp.Dimension
 > {
@@ -49,7 +49,7 @@ export function createStageLinkedProp(
       builder.affordance({
         id: "link",
         kind: "hinge",
-        frame: ArchetypeFrame.facing(pivot, v(0, 0, 1), v(1, 0, 0)),
+        frame: AutoMovieArchetypeFrame.facing(pivot, v(0, 0, 1), v(1, 0, 0)),
         extent: null,
         travel: 180,
         parts: ["connector", "ornament"],
@@ -58,7 +58,7 @@ export function createStageLinkedProp(
         id: "end",
         kind: "surface",
         direction: "along",
-        frame: ArchetypeFrame.upright(v(0, height, 0)),
+        frame: AutoMovieArchetypeFrame.upright(v(0, height, 0)),
         extent: null,
         rides: "link",
       });

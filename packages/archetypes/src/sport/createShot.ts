@@ -2,13 +2,13 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The World Athletics rule as read. */
@@ -23,7 +23,7 @@ const RULE: string =
  * @param params The category and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The shot.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the shot rests and its contact.
  * @evidence contracts/development/implementation.md#principled-implementation One sphere of the drawn diameter whose mass is the drawn mass, the rule's two measures.
@@ -36,9 +36,9 @@ const RULE: string =
 export function createShot(
   params: createShot.IParams,
   seed?: number | string,
-): Archetype<createShot.Affordance, createShot.Dimension> {
-  const draw: ArchetypeDrawSession<createShot.Dimension> =
-    new ArchetypeDrawSession<createShot.Dimension>(
+): AutoMovieArchetype<createShot.Affordance, createShot.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createShot.Dimension> =
+    new AutoMovieArchetypeDrawSession<createShot.Dimension>(
       "shot",
       createShot.UNITS,
       seed,
@@ -53,20 +53,22 @@ export function createShot(
   const d: Record<createShot.Dimension, number> = draw.dimensions(
     createShot.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<createShot.Affordance, createShot.Dimension> =
-    new ArchetypeBuilder({
-      material: "iron",
-      id: params.id,
-      name: `${kind}'s shot`,
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createShot.Affordance,
+    createShot.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "iron",
+    id: params.id,
+    name: `${kind}'s shot`,
+    draw,
+  });
   const centre: IAutoMovieVector3 = Vector3.create(0, d.diameter / 2, 0);
   builder.ball("shot", d.diameter / 2, centre, { color: "#4a4d52" });
   builder.affordance({
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       centre,
       Vector3.create(0, 1, 0),
       Vector3.create(1, 0, 0),
@@ -105,7 +107,9 @@ export namespace createShot {
   export type Dimension = "diameter" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     diameter: "m",
     mass: "kg",
   };
@@ -121,16 +125,16 @@ export namespace createShot {
 
   /** A band of the rule. */
   const band = (
-    unit: IArchetypeBand["unit"],
+    unit: IAutoMovieArchetypeBand["unit"],
     minimum: number,
     maximum: number,
     what: string,
-  ): IArchetypeBand =>
-    ArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`);
+  ): IAutoMovieArchetypeBand =>
+    AutoMovieArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`);
 
   /** The band of each free dimension, by category. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
       diameter: band("m", 0.11, 0.13, "the men's 110 to 130 mm across"),

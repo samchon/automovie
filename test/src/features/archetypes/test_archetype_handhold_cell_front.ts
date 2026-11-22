@@ -1,6 +1,6 @@
 import {
-  ArchetypeRefusal,
-  ArchetypeUnits,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeUnits,
   createCellFront,
   createHandhold,
 } from "@automovie/archetypes";
@@ -33,7 +33,7 @@ export function test_archetype_handhold_cell_front(): void {
     if (!(Math.abs(got - wanted) <= MM))
       findings.push(`${what}: ${got}, ${wanted} expected`);
   };
-  const inch: number = ArchetypeUnits.INCH;
+  const inch: number = AutoMovieArchetypeUnits.INCH;
 
   // 1. and 2. The handholds.
   findings.push(
@@ -100,7 +100,7 @@ export function test_archetype_handhold_cell_front(): void {
     Math.floor((width - (7 / 8) * inch) / (4 * inch)) + 1;
   for (const [label, width, count] of [
     ["the reference", 28 * inch, 7],
-    ["an 8 ft cell", 8 * ArchetypeUnits.FOOT, 24],
+    ["an 8 ft cell", 8 * AutoMovieArchetypeUnits.FOOT, 24],
   ] as const) {
     const built: ReturnType<typeof createCellFront> = createCellFront(
       { width },
@@ -119,7 +119,7 @@ export function test_archetype_handhold_cell_front(): void {
   near(
     "the grille's height",
     archetypeExtent(front, "y").high,
-    8 * ArchetypeUnits.FOOT,
+    8 * AutoMovieArchetypeUnits.FOOT,
   );
   near(
     "a bar's diameter",
@@ -135,13 +135,13 @@ export function test_archetype_handhold_cell_front(): void {
   near(
     "a bar's length",
     front.affordance("bar7").length!,
-    8 * ArchetypeUnits.FOOT,
+    8 * AutoMovieArchetypeUnits.FOOT,
   );
   try {
     createCellFront({ width: 4 * inch });
     findings.push("a cell front too narrow for two bars was built");
   } catch (error) {
-    if (!(error instanceof ArchetypeRefusal) || error.axis !== "width")
+    if (!(error instanceof AutoMovieArchetypeRefusal) || error.axis !== "width")
       findings.push("a too-narrow cell front was not refused on width");
   }
   TestValidator.equals(

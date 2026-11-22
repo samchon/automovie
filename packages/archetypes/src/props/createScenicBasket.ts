@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { ScenicContainerConstruction } from "./ScenicContainerConstruction";
 import type { createScenicContainer } from "./createScenicContainer";
 
@@ -8,7 +8,7 @@ import type { createScenicContainer } from "./createScenicContainer";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A closed coil basket or open fish basket, with a supported placement surface.
  * @evidence contracts/development/implementation.md#principled-implementation The closed silhouette carries a footprint on its lid; the open one carries it on its real floor.
@@ -21,7 +21,10 @@ import type { createScenicContainer } from "./createScenicContainer";
 export function createScenicBasket(
   params: createScenicBasket.IParams,
   seed?: number | string,
-): Archetype<createScenicBasket.Affordance, createScenicBasket.Dimension> {
+): AutoMovieArchetype<
+  createScenicBasket.Affordance,
+  createScenicBasket.Dimension
+> {
   return ScenicContainerConstruction.baskets(
     ArchetypeDraw.choice(
       "scenicContainer",

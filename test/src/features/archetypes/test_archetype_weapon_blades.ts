@@ -1,5 +1,5 @@
 import {
-  ArchetypeUnits,
+  AutoMovieArchetypeUnits,
   createPell,
   createPolearm,
   createShield,
@@ -139,8 +139,8 @@ export function test_archetype_weapon_blades(): void {
     ),
     row(
       "buckler diameter",
-      17.5 * ArchetypeUnits.INCH,
-      20.75 * ArchetypeUnits.INCH,
+      17.5 * AutoMovieArchetypeUnits.INCH,
+      20.75 * AutoMovieArchetypeUnits.INCH,
       "Wallace Collection A315, A316",
       (seed: number): number =>
         archetypeExtent(createShield({ kind: "buckler" }, seed), "y", ["board"])
@@ -148,8 +148,8 @@ export function test_archetype_weapon_blades(): void {
     ),
     row(
       "buckler mass",
-      3 * ArchetypeUnits.POUND + 7 * ArchetypeUnits.OUNCE,
-      3 * ArchetypeUnits.POUND + 13 * ArchetypeUnits.OUNCE,
+      3 * AutoMovieArchetypeUnits.POUND + 7 * AutoMovieArchetypeUnits.OUNCE,
+      3 * AutoMovieArchetypeUnits.POUND + 13 * AutoMovieArchetypeUnits.OUNCE,
       "Wallace Collection A315, A316",
       (seed: number): number =>
         createShield({ kind: "buckler" }, seed).body.mass,

@@ -1,11 +1,11 @@
 import { srgbHexToLinearColor } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -16,7 +16,7 @@ import {
  * @param params Optional fixed surface dimensions, in metres, and model id.
  * @param seed The seed for omitted dimensions. With no seed, use each band's midpoint.
  * @returns A visual archetype with water geometry, dimensions and a placement reference.
- * @throws {ArchetypeRefusal} When a fixed dimension is nonfinite or outside its band.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed dimension is nonfinite or outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the local plane, dimensions, material and water reference.
  * @evidence contracts/development/implementation.md#principled-implementation Both the two upward-facing triangles and the water affordance derive from the same rectangular dimensions.
@@ -29,15 +29,20 @@ import {
 export function createPoolWater(
   params: createPoolWater.IParams = {},
   seed?: number | string,
-): Archetype<"water", createPoolWater.Dimension, null> {
-  const draw: ArchetypeDrawSession<createPoolWater.Dimension> =
-    new ArchetypeDrawSession("poolWater", createPoolWater.UNITS, seed, params);
+): AutoMovieArchetype<"water", createPoolWater.Dimension, null> {
+  const draw: AutoMovieArchetypeDrawSession<createPoolWater.Dimension> =
+    new AutoMovieArchetypeDrawSession(
+      "poolWater",
+      createPoolWater.UNITS,
+      seed,
+      params,
+    );
   const { width, length }: Record<createPoolWater.Dimension, number> =
     draw.dimensions(createPoolWater.BANDS);
   const x: number = width / 2;
   const z: number = length / 2;
 
-  return new Archetype<"water", createPoolWater.Dimension, null>({
+  return new AutoMovieArchetype<"water", createPoolWater.Dimension, null>({
     archetype: draw.archetype,
     id: params.id ?? draw.archetype,
     name: "Pool water",
@@ -64,7 +69,7 @@ export function createPoolWater(
       {
         id: "water",
         kind: "surface",
-        frame: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+        frame: AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
         extent: null,
         width,
         depth: length,
@@ -122,14 +127,26 @@ export namespace createPoolWater {
   }
 
   /** Both horizontal spans are measured in metres. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     length: "m",
   };
 
   /** Provisional authoring spans from one lane to a full pool surface. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.metres(2.5, 25, "Pool water staging span", true),
-    length: ArchetypeBand.metres(5, 50, "Pool water staging span", true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    width: AutoMovieArchetypeBand.metres(
+      2.5,
+      25,
+      "Pool water staging span",
+      true,
+    ),
+    length: AutoMovieArchetypeBand.metres(
+      5,
+      50,
+      "Pool water staging span",
+      true,
+    ),
   };
 }

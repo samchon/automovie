@@ -2,11 +2,11 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
 } from "../core";
 import { createStageTwoHandedSwordProp } from "./createStageTwoHandedSwordProp";
 
@@ -29,7 +29,7 @@ const MASS: number = 0.25;
  *
  * @param params A generated padded display model and optional carrier id.
  * @returns The carrier and its model-space contact frames, in metres.
- * @throws {ArchetypeRefusal} If the display model or the proposed identity cannot be fitted.
+ * @throws {AutoMovieArchetypeRefusal} If the display model or the proposed identity cannot be fitted.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the carrier axes, display dependency and four contact frames.
  * @evidence contracts/development/implementation.md#principled-implementation Derives a rectangular channel from the actual spherical cap and shaft of the digital producer. Separate boxes represent the channel walls and closed bottom.
@@ -41,7 +41,7 @@ const MASS: number = 0.25;
  */
 export function createStageFittedCarrier(
   params: createStageFittedCarrier.IParams,
-): Archetype<
+): AutoMovieArchetype<
   createStageFittedCarrier.Affordance,
   createStageFittedCarrier.Dimension
 > {
@@ -50,7 +50,7 @@ export function createStageFittedCarrier(
     id = "stageFittedCarrier",
   }: createStageFittedCarrier.IParams = params;
   if (
-    !(display instanceof Archetype) ||
+    !(display instanceof AutoMovieArchetype) ||
     display.archetype !== "stageBladeProp" ||
     display.name !== "padded longsword stage prop" ||
     id === display.id
@@ -63,18 +63,18 @@ export function createStageFittedCarrier(
   const mouthY: number = WALL + tip - guardTop;
   const seatedY: number = mouthY + guardTop + GAP;
   const openingY: number = mouthY + tip + GAP;
-  const draw: ArchetypeDrawSession<createStageFittedCarrier.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createStageFittedCarrier.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "stageFittedCarrier",
       { length: "m", opening: "m" },
       undefined,
     );
   draw.derive("length", mouthY);
   draw.derive("opening", inner);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createStageFittedCarrier.Affordance,
     createStageFittedCarrier.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id,
     name: "fitted padded display carrier",
     material: "foam",
@@ -114,7 +114,7 @@ export function createStageFittedCarrier(
   builder.affordance({
     id: "mouth",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, mouthY, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, mouthY, 0)),
     extent: null,
   });
   for (const [site, y] of [
@@ -124,13 +124,17 @@ export function createStageFittedCarrier(
     builder.affordance({
       id: site,
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(0, y, 0), v(0, -1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, y, 0),
+        v(0, -1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
   builder.affordance({
     id: "belt",
     kind: "hook",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(-outer / 2, mouthY - outer / 2, 0),
       v(-1, 0, 0),
       v(0, 0, 1),
@@ -228,8 +232,10 @@ function envelope(
 }
 
 /** Describe a duplicate or incompatible padded display. */
-function invalidEnvelope(displayId: string | undefined): ArchetypeRefusal {
-  return new ArchetypeRefusal({
+function invalidEnvelope(
+  displayId: string | undefined,
+): AutoMovieArchetypeRefusal {
+  return new AutoMovieArchetypeRefusal({
     kind: "parameter",
     archetype: "stageFittedCarrier",
     axis: "display",

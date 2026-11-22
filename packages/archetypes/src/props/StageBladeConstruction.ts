@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import type { createStageBladeProp } from "./createStageBladeProp";
 
@@ -16,7 +16,7 @@ const UNITS: Readonly<Record<createStageBladeProp.Dimension, "m">> = {
 };
 
 /** Admitted digital display lengths. */
-const LENGTH: IArchetypeBand = ArchetypeBand.metres(
+const LENGTH: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   0.55,
   1.45,
   "Authored digital display scale for padded blade props.",
@@ -86,7 +86,7 @@ const PROFILES = {
  * @param params The scene identifier and display length in metres.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames: the grip, the point and any edge.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes its shared digital parts, the guard ownership and the contact regions.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the named display length and shaft coordinates. The selected producer owns the decoration and grip type.
@@ -103,20 +103,23 @@ export function StageBladeConstruction(
   twoHand: boolean,
   decorate: StageBladeConstruction.Decorate,
   edge?: StageBladeConstruction.Span,
-): Archetype<createStageBladeProp.Affordance, createStageBladeProp.Dimension> {
+): AutoMovieArchetype<
+  createStageBladeProp.Affordance,
+  createStageBladeProp.Dimension
+> {
   const profile: (typeof PROFILES)[createStageBladeProp.Kind] = PROFILES[kind];
-  const draw: ArchetypeDrawSession<createStageBladeProp.Dimension> =
-    new ArchetypeDrawSession("stageBladeProp", UNITS, seed, {
+  const draw: AutoMovieArchetypeDrawSession<createStageBladeProp.Dimension> =
+    new AutoMovieArchetypeDrawSession("stageBladeProp", UNITS, seed, {
       length: params.length,
     });
   const length: number =
     params.length === undefined
       ? draw.derive("length", profile.length)
       : draw.dimensions({ length: LENGTH }).length;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createStageBladeProp.Affordance,
     createStageBladeProp.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     draw,
     id: params.id,
     name: `padded ${kind} stage prop`,
@@ -151,7 +154,7 @@ export function StageBladeConstruction(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, gripLength / 2, 0),
       v(0, 0, -1),
       v(0, 1, 0),
@@ -169,7 +172,11 @@ export function StageBladeConstruction(
     id: "point",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(v(0, length, 0), v(0, 1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, length, 0),
+      v(0, 1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
   });
   if (edge !== undefined) {
@@ -179,7 +186,7 @@ export function StageBladeConstruction(
       id: "edge",
       kind: "ledge",
       direction: "normal",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, (from + to) / 2, shaftRadius),
         v(0, 0, 1),
         v(0, 1, 0),
@@ -216,7 +223,7 @@ export namespace StageBladeConstruction {
 
   /** The builder and measurements of the chosen display prop. */
   export type Decorate = (
-    builder: ArchetypeBuilder<
+    builder: AutoMovieArchetypeBuilder<
       createStageBladeProp.Affordance,
       createStageBladeProp.Dimension
     >,

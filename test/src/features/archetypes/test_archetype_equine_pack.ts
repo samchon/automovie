@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  HorsePackLoad,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeEquinePackLoad,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -31,16 +31,19 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name.
  */
 export function test_archetype_equine_pack(): void {
-  const horse: Archetype<createHorse.Affordance, createHorse.Dimension> =
-    createHorse({ tack: "pack", withersHeight: 1.6, tempo: 0 }, 2);
-  const load: HorsePackLoad.ILoad = {
+  const horse: AutoMovieArchetype<
+    createHorse.Affordance,
+    createHorse.Dimension
+  > = createHorse({ tack: "pack", withersHeight: 1.6, tempo: 0 }, 2);
+  const load: AutoMovieArchetypeEquinePackLoad.ILoad = {
     length: 0.4,
     height: 0.3,
     thickness: 0.25,
     mass: 35,
   };
-  const loads: HorsePackLoad.IPrepared = HorsePackLoad(horse, load);
-  const ride: ArchetypeRide.IRide<
+  const loads: AutoMovieArchetypeEquinePackLoad.IPrepared =
+    AutoMovieArchetypeEquinePackLoad(horse, load);
+  const ride: AutoMovieArchetypeRide.IRide<
     createHorse.Affordance,
     createHorse.Dimension
   > = rideHorse(horse, {
@@ -52,12 +55,14 @@ export function test_archetype_equine_pack(): void {
   });
   const issues: string[] = [];
   for (let seconds: number = 0; seconds <= ride.duration; seconds += 0.4) {
-    const sample: ArchetypeRide.ISample<
+    const sample: AutoMovieArchetypeRide.ISample<
       createHorse.Affordance,
       createHorse.Dimension
     > = ride.at(seconds);
-    const placed: Record<HorsePackLoad.Side, IAutoMovieTransform> =
-      loads.at(sample);
+    const placed: Record<
+      AutoMovieArchetypeEquinePackLoad.Side,
+      IAutoMovieTransform
+    > = loads.at(sample);
     const trunk: IAutoMovieModelPart = sample.archetype.parts.find(
       (part: IAutoMovieModelPart): boolean => part.id === "trunk",
     )!;
@@ -66,7 +71,7 @@ export function test_archetype_equine_pack(): void {
       trunk.geometry.shape.type !== "capsule"
     )
       throw new Error("The pack horse's trunk is not its capsule");
-    const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+    const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
       sample.placement,
       trunk.transform!,
     );
@@ -77,7 +82,7 @@ export function test_archetype_equine_pack(): void {
     });
     const radius: number = trunk.geometry.shape.radius;
     for (const side of ["leftLoad", "rightLoad"] as const) {
-      const contact: IAutoMovieTransform = ArchetypeFrame.compose(
+      const contact: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
         sample.placement,
         sample.archetype.affordance(side).frame,
       );
@@ -87,7 +92,7 @@ export function test_archetype_equine_pack(): void {
         box.geometry.shape.type !== "box"
       )
         throw new Error("A pack load is not its box");
-      const world: IAutoMovieTransform = ArchetypeFrame.compose(
+      const world: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
         placed[side],
         box.transform!,
       );
@@ -104,7 +109,9 @@ export function test_archetype_equine_pack(): void {
         issues.push(
           `${seconds} s: the ${side} box's face is ${Vector3.distance(face, contact.translation)} m off its pad`,
         );
-      if (Vector3.distance(out, ArchetypeFrame.axis(contact, "y")) > 1e-9)
+      if (
+        Vector3.distance(out, AutoMovieArchetypeFrame.axis(contact, "y")) > 1e-9
+      )
         issues.push(
           `${seconds} s: the ${side} box does not face out of its pad`,
         );
@@ -139,13 +146,22 @@ export function test_archetype_equine_pack(): void {
 
   const pad: IAutoMovieAffordance = horse.affordance("leftLoad");
   refuses("too long", "load.length", () =>
-    HorsePackLoad(horse, { ...load, length: pad.width! + 0.01 }),
+    AutoMovieArchetypeEquinePackLoad(horse, {
+      ...load,
+      length: pad.width! + 0.01,
+    }),
   );
   refuses("too tall", "load.height", () =>
-    HorsePackLoad(horse, { ...load, height: pad.depth! + 0.01 }),
+    AutoMovieArchetypeEquinePackLoad(horse, {
+      ...load,
+      height: pad.depth! + 0.01,
+    }),
   );
   refuses("no pack saddle", "tack", () =>
-    HorsePackLoad(createHorse({ tack: "saddle", withersHeight: 1.6 }, 2), load),
+    AutoMovieArchetypeEquinePackLoad(
+      createHorse({ tack: "saddle", withersHeight: 1.6 }, 2),
+      load,
+    ),
   );
   TestValidator.equals("the pack loads sit on their pads", issues, []);
 
@@ -157,7 +173,7 @@ export function test_archetype_equine_pack(): void {
     } catch (caught) {
       error = caught;
     }
-    if (!(error instanceof ArchetypeRefusal && error.axis === axis))
+    if (!(error instanceof AutoMovieArchetypeRefusal && error.axis === axis))
       issues.push(
         `${label}: expected a refusal on ${axis}, got ${String(error)}`,
       );

@@ -1,7 +1,7 @@
 import {
-  ArchetypeFrame,
-  QuadrupedBody,
-  type QuadrupedFooting,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeQuadrupedFooting,
   type createHorse,
   rideHorse,
   type rideQuadruped,
@@ -60,7 +60,9 @@ export namespace equineBankStage {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by both specs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh planes.
    */
-  export function planes(face: IFace): QuadrupedFooting.IPlane[] {
+  export function planes(
+    face: IFace,
+  ): AutoMovieArchetypeQuadrupedFooting.IPlane[] {
     const end: number = APPROACH + face.run;
     return [
       {
@@ -151,9 +153,12 @@ export namespace equineBankStage {
     /** The film second of a named cue. */
     cue: (label: string) => number;
     /** A hoof bar's world centre at a film second. */
-    hoof: (at: number, limb: QuadrupedBody.Limb) => IAutoMovieVector3;
+    hoof: (
+      at: number,
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+    ) => IAutoMovieVector3;
     /** A hoof bar's lowest surface over the authored plane under it, metres, negative inside. */
-    sole: (at: number, limb: QuadrupedBody.Limb) => number;
+    sole: (at: number, limb: AutoMovieArchetypeQuadrupedBody.Limb) => number;
     /** An emitted part at a film second. */
     part: (at: number, id: string) => IAutoMovieModelPart;
   }
@@ -174,17 +179,20 @@ export namespace equineBankStage {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the ride.
    */
   export function read(ride: Ride, face: IFace): IReader {
-    const surfaces: QuadrupedFooting.IPlane[] = planes(face);
+    const surfaces: AutoMovieArchetypeQuadrupedFooting.IPlane[] = planes(face);
     const part = (at: number, id: string): IAutoMovieModelPart =>
       ride
         .at(at)
         .archetype.parts.find(
           (p: IAutoMovieModelPart): boolean => p.id === id,
         )!;
-    const hoof = (at: number, limb: QuadrupedBody.Limb): IAutoMovieVector3 =>
-      ArchetypeFrame.compose(
+    const hoof = (
+      at: number,
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+    ): IAutoMovieVector3 =>
+      AutoMovieArchetypeFrame.compose(
         ride.at(at).placement,
-        part(at, QuadrupedBody.BONES[limb][3]).transform!,
+        part(at, AutoMovieArchetypeQuadrupedBody.BONES[limb][3]).transform!,
       ).translation;
     return {
       cue: (label: string): number => {
@@ -194,13 +202,17 @@ export namespace equineBankStage {
       },
       hoof,
       part,
-      sole: (at: number, limb: QuadrupedBody.Limb): number => {
+      sole: (
+        at: number,
+        limb: AutoMovieArchetypeQuadrupedBody.Limb,
+      ): number => {
         const z: number = hoof(at, limb).z;
         return equineFordScene.separation(
-          part(at, QuadrupedBody.BONES[limb][3]),
+          part(at, AutoMovieArchetypeQuadrupedBody.BONES[limb][3]),
           ride.at(at).placement,
           surfaces.find(
-            (p: QuadrupedFooting.IPlane): boolean => z >= p.z[0] && z < p.z[1],
+            (p: AutoMovieArchetypeQuadrupedFooting.IPlane): boolean =>
+              z >= p.z[0] && z < p.z[1],
           )!,
         );
       },

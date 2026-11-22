@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -46,10 +46,13 @@ const SIZE: Readonly<createFoldingKnife.ISize> = {
  */
 export function createFoldingKnife(
   params: createFoldingKnife.IParams = {},
-): Archetype<createFoldingKnife.Affordance, createFoldingKnife.Dimension> {
+): AutoMovieArchetype<
+  createFoldingKnife.Affordance,
+  createFoldingKnife.Dimension
+> {
   const v: typeof Vector3.create = Vector3.create;
-  const draw: ArchetypeDrawSession<createFoldingKnife.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createFoldingKnife.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "foldingKnife",
       { blade: "m", handle: "m", mass: "kg" },
       undefined,
@@ -57,10 +60,10 @@ export function createFoldingKnife(
   draw.derive("blade", SIZE.blade);
   draw.derive("handle", SIZE.handle);
   draw.derive("mass", SIZE.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createFoldingKnife.Affordance,
     createFoldingKnife.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? "foldingKnife",
     name: "folding knife",
     material: "steel",
@@ -86,13 +89,17 @@ export function createFoldingKnife(
     extent: null,
     travel: 180,
     parts: ["blade"],
-    frame: ArchetypeFrame.facing(v(0, 0, pivot), v(1, 0, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, 0, pivot),
+      v(1, 0, 0),
+      v(0, 0, 1),
+    ),
   });
   builder.affordance({
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, -SIZE.width / 2, SIZE.handle / 2),
       v(0, -1, 0),
       v(0, 0, 1),
@@ -106,14 +113,16 @@ export function createFoldingKnife(
     id: "stud",
     kind: "button",
     rides: "blade",
-    frame: ArchetypeFrame.upright(v(0, SIZE.width * 0.35, pivot - 0.012)),
+    frame: AutoMovieArchetypeFrame.upright(
+      v(0, SIZE.width * 0.35, pivot - 0.012),
+    ),
     extent: null,
   });
   builder.affordance({
     id: "point",
     kind: "socket",
     rides: "blade",
-    frame: ArchetypeFrame.upright(v(0, 0, pivot - SIZE.blade)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, pivot - SIZE.blade)),
     extent: null,
   });
   return builder.build(SIZE.mass);

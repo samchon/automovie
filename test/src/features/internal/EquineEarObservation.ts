@@ -1,6 +1,6 @@
 import {
-  type ArchetypeRide,
-  type QuadrupedGait,
+  type AutoMovieArchetypeQuadrupedGait,
+  type AutoMovieArchetypeRide,
   type createHorse,
   createQuadruped,
   rideQuadruped,
@@ -170,11 +170,11 @@ export namespace EquineEarObservation {
     label: string,
     findings: string[],
   ): void {
-    const table: QuadrupedGait.ITable = structuredClone(
+    const table: AutoMovieArchetypeQuadrupedGait.ITable = structuredClone(
       createQuadruped.species(model).table,
     );
     table.gaits.walk!.nod = { range: 10, timing: "support" };
-    const ride: ArchetypeRide.IRide<
+    const ride: AutoMovieArchetypeRide.IRide<
       createQuadruped.Affordance,
       createQuadruped.Dimension
     > = rideQuadruped(

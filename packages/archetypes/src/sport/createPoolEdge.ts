@@ -1,14 +1,14 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The facilities rules, read. */
@@ -28,7 +28,7 @@ const FR: string =
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The pool edge.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only the other kind has.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or one only the other kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States where the deck, the wall and the water are, which way a swimmer faces, each contact, and how a ladder and the missing law stand.
  * @evidence contracts/development/implementation.md#principled-implementation The end wall as one block from the deck down to the pool's floor at the rules' least depth, the rest ledge a box on its face at the rules' depth below the water, and a platform as a pedestal set back from the wall under a top slab tilted by the drawn slope, the slab as thick as the 0.04 m FR 2.7 names, its front on the wall's line.
@@ -41,9 +41,9 @@ const FR: string =
 export function createPoolEdge(
   params: createPoolEdge.IParams,
   seed?: number | string,
-): Archetype<createPoolEdge.Affordance, createPoolEdge.Dimension> {
-  const draw: ArchetypeDrawSession<createPoolEdge.Dimension> =
-    new ArchetypeDrawSession<createPoolEdge.Dimension>(
+): AutoMovieArchetype<createPoolEdge.Affordance, createPoolEdge.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createPoolEdge.Dimension> =
+    new AutoMovieArchetypeDrawSession<createPoolEdge.Dimension>(
       "poolEdge",
       createPoolEdge.UNITS,
       seed,
@@ -59,10 +59,10 @@ export function createPoolEdge(
     createPoolEdge.BANDS[kind],
     createPoolEdge.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createPoolEdge.Affordance,
     createPoolEdge.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: kind === "deckEdge" ? "pool edge" : "starting platform",
@@ -88,28 +88,28 @@ export function createPoolEdge(
   builder.affordance({
     id: "deck",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
     width,
   });
   builder.affordance({
     id: "edge",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, 1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, 1, 0), v(1, 0, 0)),
     extent: null,
     length: width,
   });
   builder.affordance({
     id: "water",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, water, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, water, 0)),
     extent: null,
     width,
   });
   builder.affordance({
     id: "restLedge",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, ledge, d.ledgeWidth!),
       v(0, 1, 0),
       v(1, 0, 0),
@@ -122,7 +122,7 @@ export function createPoolEdge(
   // The platform: a pedestal set back from the wall's line, the top slab over it sloping down toward the water, its front on the wall's line. The pedestal's level top meets the slab's underside at its own middle, so the slab neither floats over it nor is pierced by it: the slope moves the underside by less than the slab's thickness across the pedestal.
   const size: number = d.platformSize!;
   const top: number = water + d.platformHeight!;
-  const slope: number = d.slope! * ArchetypeUnits.DEGREE;
+  const slope: number = d.slope! * AutoMovieArchetypeUnits.DEGREE;
   const pedestal: number =
     top + (Math.tan(slope) * E.recess) / 2 - E.slab / Math.cos(slope);
   builder.box(
@@ -143,7 +143,11 @@ export function createPoolEdge(
   builder.affordance({
     id: "platform",
     kind: "surface",
-    frame: ArchetypeFrame.facing(v(0, top, -size / 2), normal, v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, top, -size / 2),
+      normal,
+      v(1, 0, 0),
+    ),
     extent: null,
     width: size,
     depth: size,
@@ -160,7 +164,7 @@ export function createPoolEdge(
     id: "backstrokeGrip",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, grip, -E.grip / 2),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -172,7 +176,7 @@ export function createPoolEdge(
   builder.affordance({
     id: "front",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(
         0,
         top - (size / 2) * Math.sin(slope),
@@ -243,7 +247,9 @@ export namespace createPoolEdge {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     freeboard: "m",
     poolDepth: "m",
@@ -283,28 +289,28 @@ export namespace createPoolEdge {
   };
 
   /** The bands every segment shares. */
-  const WALL: Readonly<Partial<Record<Dimension, IArchetypeBand>>> = {
-    width: ArchetypeBand.metres(
+  const WALL: Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>> = {
+    width: AutoMovieArchetypeBand.metres(
       2.5,
       2.5,
       `${FR} FR 2.5: lanes at least 2.5 m wide; the model takes the least`,
     ),
-    freeboard: ArchetypeBand.metres(
+    freeboard: AutoMovieArchetypeBand.metres(
       0.3,
       0.3,
       `${FR} FR 2.4.3 and FR 2.15: the end wall to 0.3 m above the water for the touch panels`,
     ),
-    poolDepth: ArchetypeBand.metres(
+    poolDepth: AutoMovieArchetypeBand.metres(
       1.35,
       1.35,
       `${FR} FR 2.3: at least 1.35 m where starting platforms stand; the model takes the least`,
     ),
-    ledgeDepth: ArchetypeBand.metres(
+    ledgeDepth: AutoMovieArchetypeBand.metres(
       1.2,
       1.2,
       `${FR} FR 2.4.2: rest ledges not less than 1.2 m below the water; the model takes the least`,
     ),
-    ledgeWidth: ArchetypeBand.metres(
+    ledgeWidth: AutoMovieArchetypeBand.metres(
       0.1,
       0.15,
       `${FR} FR 2.4.2: rest ledges 0.1 to 0.15 m wide`,
@@ -313,46 +319,46 @@ export namespace createPoolEdge {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     deckEdge: {
       ...WALL,
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         3000,
         6000,
-        `${ArchetypeBand.TYPICAL_MASS}: a concrete wall segment of this size`,
+        `${AutoMovieArchetypeBand.TYPICAL_MASS}: a concrete wall segment of this size`,
         true,
       ),
     },
     startingPlatform: {
       ...WALL,
-      platformHeight: ArchetypeBand.metres(
+      platformHeight: AutoMovieArchetypeBand.metres(
         0.5,
         0.75,
         `${FR} FR 2.7: the platform 0.5 to 0.75 m above the water`,
       ),
-      platformSize: ArchetypeBand.metres(
+      platformSize: AutoMovieArchetypeBand.metres(
         0.5,
         0.5,
         `${FR} FR 2.7: the top at least 0.5 x 0.5 m; the model takes the least`,
       ),
-      slope: ArchetypeBand.of(
+      slope: AutoMovieArchetypeBand.of(
         "degrees",
         0,
         10,
         `${FR} FR 2.7: the slope not more than 10 degrees`,
       ),
-      gripHeight: ArchetypeBand.metres(
+      gripHeight: AutoMovieArchetypeBand.metres(
         0.3,
         0.41,
         `${FR} FR 2.7: backstroke grips 0.3 to 0.6 m above the water, parallel to the end wall and not protruding beyond it; the model keeps them under the least platform's front, 0.5 m less half its 0.5 m top's fall at 10 degrees and the 0.04 m slab`,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         3050,
         6100,
-        `${ArchetypeBand.TYPICAL_MASS}: a concrete wall segment with a platform of some 50 to 100 kg`,
+        `${AutoMovieArchetypeBand.TYPICAL_MASS}: a concrete wall segment with a platform of some 50 to 100 kg`,
         true,
       ),
     },

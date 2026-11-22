@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** A cloth, read. */
@@ -27,7 +27,7 @@ const SPONGE: string =
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The thing.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it lies and its two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation One box of the drawn width, length and thickness.
@@ -40,9 +40,9 @@ const SPONGE: string =
 export function createCleaning(
   params: createCleaning.IParams,
   seed?: number | string,
-): Archetype<createCleaning.Affordance, createCleaning.Dimension> {
-  const draw: ArchetypeDrawSession<createCleaning.Dimension> =
-    new ArchetypeDrawSession<createCleaning.Dimension>(
+): AutoMovieArchetype<createCleaning.Affordance, createCleaning.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createCleaning.Dimension> =
+    new AutoMovieArchetypeDrawSession<createCleaning.Dimension>(
       "cleaning",
       createCleaning.UNITS,
       seed,
@@ -57,10 +57,10 @@ export function createCleaning(
   const d: Record<createCleaning.Dimension, number> = draw.dimensions(
     createCleaning.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createCleaning.Affordance,
     createCleaning.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: kind === "cloth" ? "fabric" : "foam",
     id: params.id,
     name: kind,
@@ -76,7 +76,9 @@ export function createCleaning(
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.upright(Vector3.create(0, d.thickness / 2, 0)),
+    frame: AutoMovieArchetypeFrame.upright(
+      Vector3.create(0, d.thickness / 2, 0),
+    ),
     extent: null,
     grip: kind === "cloth" ? "precision" : "power",
     aperture: d.thickness,
@@ -85,7 +87,7 @@ export function createCleaning(
     id: "face",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, -1, 0),
       Vector3.create(1, 0, 0),
@@ -129,7 +131,9 @@ export namespace createCleaning {
   export type Dimension = "width" | "length" | "thickness" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     length: "m",
     thickness: "m",
@@ -147,31 +151,43 @@ export namespace createCleaning {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     cloth: {
-      width: ArchetypeBand.metres(0.15875, 0.16, `${CLOTH}: folded in four`),
-      length: ArchetypeBand.metres(0.15875, 0.16, `${CLOTH}: folded in four`),
-      thickness: ArchetypeBand.metres(0.012, 0.012, `${CLOTH}: four layers`),
-      mass: ArchetypeBand.of("kg", 0.019, 0.019, CLOTH),
+      width: AutoMovieArchetypeBand.metres(
+        0.15875,
+        0.16,
+        `${CLOTH}: folded in four`,
+      ),
+      length: AutoMovieArchetypeBand.metres(
+        0.15875,
+        0.16,
+        `${CLOTH}: folded in four`,
+      ),
+      thickness: AutoMovieArchetypeBand.metres(
+        0.012,
+        0.012,
+        `${CLOTH}: four layers`,
+      ),
+      mass: AutoMovieArchetypeBand.of("kg", 0.019, 0.019, CLOTH),
     },
     sponge: {
-      width: ArchetypeBand.metres(
-        2.6 * ArchetypeUnits.INCH,
-        2.6 * ArchetypeUnits.INCH,
+      width: AutoMovieArchetypeBand.metres(
+        2.6 * AutoMovieArchetypeUnits.INCH,
+        2.6 * AutoMovieArchetypeUnits.INCH,
         SPONGE,
       ),
-      length: ArchetypeBand.metres(
-        4.4 * ArchetypeUnits.INCH,
-        4.4 * ArchetypeUnits.INCH,
+      length: AutoMovieArchetypeBand.metres(
+        4.4 * AutoMovieArchetypeUnits.INCH,
+        4.4 * AutoMovieArchetypeUnits.INCH,
         SPONGE,
       ),
-      thickness: ArchetypeBand.metres(
-        0.6 * ArchetypeUnits.INCH,
-        0.7 * ArchetypeUnits.INCH,
+      thickness: AutoMovieArchetypeBand.metres(
+        0.6 * AutoMovieArchetypeUnits.INCH,
+        0.7 * AutoMovieArchetypeUnits.INCH,
         SPONGE,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.005,
         0.02,

@@ -1,6 +1,6 @@
-import type { ArchetypeCourse } from "../core";
+import type { AutoMovieArchetypeCourse } from "../core";
+import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import type { QuadrupedChange } from "./QuadrupedChange";
-import { QuadrupedGait } from "./QuadrupedGait";
 import { QuadrupedRideAdmission } from "./QuadrupedRideAdmission";
 import type { createQuadruped } from "./createQuadruped";
 import type { rideQuadruped } from "./rideQuadruped";
@@ -12,7 +12,7 @@ import type { rideQuadruped } from "./rideQuadruped";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Separates admitted requests, boundary support clocks and committed legacy handovers, and states which spatial samples remain untouched.
  * @evidence contracts/development/design.md#principled-representation A clock reads the actual course's temporal domain and declared neighbouring gait domains; neither a held path nor a retained gait invents a new observed speed row.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Internal to rideQuadruped; table interpolation and transition selection remain with QuadrupedGait and QuadrupedChange.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Internal to rideQuadruped; table interpolation and transition selection remain with AutoMovieArchetypeQuadrupedGait and QuadrupedChange.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No species case, arbitrary tolerance, global speed clamp, mutable registry or scene-specific exception decides a continuation.
  */
 export namespace QuadrupedRideClock {
@@ -67,7 +67,7 @@ export namespace QuadrupedRideClock {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Every phase, support and nod clock reads the same prepared temporal domain and existing plan.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains the already owned plan and two scalar bounds; returned states are not cached and no external resource is acquired.
      */
-    at: (seconds: number) => ArchetypeCourse.IState;
+    at: (seconds: number) => AutoMovieArchetypeCourse.IState;
     /**
      * Read an already committed gait's clock at a film second.
      * Unsupported gaps and speed-availability handover gaps remain refusals.
@@ -81,9 +81,9 @@ export namespace QuadrupedRideClock {
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the prepared plan/table references and bounded G/C context; timings are fresh results with no growing cache, frame history or external handle.
      */
     timing: (
-      gait: QuadrupedGait.Gait,
+      gait: AutoMovieArchetypeQuadrupedGait.Gait,
       seconds: number,
-    ) => QuadrupedGait.ITiming;
+    ) => AutoMovieArchetypeQuadrupedGait.ITiming;
   }
 
   /**
@@ -105,7 +105,7 @@ export namespace QuadrupedRideClock {
    * @param withers The animal's withers height, metres.
    * @param holds Explicit hoof-clock holds, such as a jump's flight and its approach's stride adjustment, merged with the route pauses.
    * @returns A prepared continuation reader; requested-speed admission is unchanged.
-   * @throws {ArchetypeRefusal} Through strict timing when no declared continuation supports the actual speed, or timing inputs are malformed.
+   * @throws {AutoMovieArchetypeRefusal} Through strict timing when no declared continuation supports the actual speed, or timing inputs are malformed.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States units, boundary-only temporal sampling, spatial preservation, legacy adjacent-domain continuation and the separately retained genuine-zero ramp bridge.
    * @evidence contracts/development/implementation.md#principled-implementation Clamp clock query time to the actual profile interval, then read raw timing in range. Outside it, retain an endpoint only for a declared zero-speed ramp or an already committed gait with actual adjacent-domain support across a non-speed transition.
@@ -118,7 +118,7 @@ export namespace QuadrupedRideClock {
   export function create(
     species: createQuadruped.ISpecies,
     course: rideQuadruped.ICourse,
-    plan: ArchetypeCourse.IPlan,
+    plan: AutoMovieArchetypeCourse.IPlan,
     tempo: number,
     withers: number,
     holds: readonly IHold[] = [],
@@ -130,7 +130,7 @@ export namespace QuadrupedRideClock {
     const paused: IPause[] = [];
     if (
       course.legs.some(
-        (leg: ArchetypeCourse.Leg): boolean => leg.pause !== undefined,
+        (leg: AutoMovieArchetypeCourse.Leg): boolean => leg.pause !== undefined,
       )
     ) {
       const markers: ReadonlyMap<string, number> = new Map(
@@ -141,25 +141,29 @@ export namespace QuadrupedRideClock {
           ],
         ),
       );
-      course.legs.forEach((leg: ArchetypeCourse.Leg, index: number): void => {
-        if (leg.pause === undefined) return;
-        const arrival: number | undefined = markers.get(`stop${index + 1}`);
-        const departure: number | undefined = markers.get(`depart${index + 1}`);
-        if (
-          arrival === undefined ||
-          departure === undefined ||
-          !(departure > arrival)
-        )
-          throw new RangeError(
-            "A quadruped pause requires admitted stop and departure events",
+      course.legs.forEach(
+        (leg: AutoMovieArchetypeCourse.Leg, index: number): void => {
+          if (leg.pause === undefined) return;
+          const arrival: number | undefined = markers.get(`stop${index + 1}`);
+          const departure: number | undefined = markers.get(
+            `depart${index + 1}`,
           );
-        paused.push({
-          start: arrival,
-          duration: departure - arrival,
-          over: departure - arrival,
-          moving: 0,
-        });
-      });
+          if (
+            arrival === undefined ||
+            departure === undefined ||
+            !(departure > arrival)
+          )
+            throw new RangeError(
+              "A quadruped pause requires admitted stop and departure events",
+            );
+          paused.push({
+            start: arrival,
+            duration: departure - arrival,
+            over: departure - arrival,
+            moving: 0,
+          });
+        },
+      );
     }
     for (const hold of holds) {
       const over: number = hold.over ?? hold.duration;
@@ -190,10 +194,13 @@ export namespace QuadrupedRideClock {
       pause.moving = pause.start - held;
       held += pause.duration;
     }
-    const order: readonly QuadrupedGait.Gait[] = species.table.order;
+    const order: readonly AutoMovieArchetypeQuadrupedGait.Gait[] =
+      species.table.order;
     const ranges: readonly { minimum: number; maximum: number }[] = order.map(
-      (gait: QuadrupedGait.Gait): { minimum: number; maximum: number } =>
-        QuadrupedGait.range(species, gait, withers),
+      (
+        gait: AutoMovieArchetypeQuadrupedGait.Gait,
+      ): { minimum: number; maximum: number } =>
+        AutoMovieArchetypeQuadrupedGait.range(species, gait, withers),
     );
     const boundaries: (pattern: RegExp) => number[] = (
       pattern: RegExp,
@@ -209,9 +216,9 @@ export namespace QuadrupedRideClock {
         );
     const departures: number[] = boundaries(/^depart\d*$/);
     const arrivals: number[] = boundaries(/^stop\d*$/);
-    const at: (seconds: number) => ArchetypeCourse.IState = (
+    const at: (seconds: number) => AutoMovieArchetypeCourse.IState = (
       seconds: number,
-    ): ArchetypeCourse.IState =>
+    ): AutoMovieArchetypeCourse.IState =>
       plan.at(Math.max(start, Math.min(end, seconds)));
     return {
       start,
@@ -244,15 +251,15 @@ export namespace QuadrupedRideClock {
       },
       at,
       timing: (
-        gait: QuadrupedGait.Gait,
+        gait: AutoMovieArchetypeQuadrupedGait.Gait,
         seconds: number,
-      ): QuadrupedGait.ITiming => {
-        const state: ArchetypeCourse.IState = at(seconds);
+      ): AutoMovieArchetypeQuadrupedGait.ITiming => {
+        const state: AutoMovieArchetypeCourse.IState = at(seconds);
         const index: number = order.indexOf(gait);
 
         // Keep unsupported-gait refusals owned by the strict table reader.
         if (index < 0 && species.table.gaits[gait] === undefined)
-          return QuadrupedGait.timing(
+          return AutoMovieArchetypeQuadrupedGait.timing(
             species,
             gait,
             state.speed,
@@ -262,7 +269,7 @@ export namespace QuadrupedRideClock {
 
         // A collected gait entered from its parent's speeds holds its fastest declared clock.
         if (index < 0)
-          return QuadrupedGait.timing(
+          return AutoMovieArchetypeQuadrupedGait.timing(
             species,
             gait,
             collectedSpeed(species, gait, state.speed, withers),
@@ -270,7 +277,8 @@ export namespace QuadrupedRideClock {
             withers,
           );
         const limits: { minimum: number; maximum: number } =
-          ranges[index] ?? QuadrupedGait.range(species, gait, withers);
+          ranges[index] ??
+          AutoMovieArchetypeQuadrupedGait.range(species, gait, withers);
         let speed: number = state.speed;
         if (speed < limits.minimum) {
           const departing: boolean =
@@ -313,12 +321,12 @@ export namespace QuadrupedRideClock {
                   (range: { minimum: number; maximum: number }): boolean =>
                     speed >= range.minimum && speed <= range.maximum,
                 );
-          const high: QuadrupedGait.Gait | undefined =
+          const high: AutoMovieArchetypeQuadrupedGait.Gait | undefined =
             order[Math.max(index, adjacent)];
           const change: QuadrupedChange.Rule | undefined =
             high === undefined
               ? undefined
-              : QuadrupedGait.of(species, high).change;
+              : AutoMovieArchetypeQuadrupedGait.of(species, high).change;
           if (
             neighbour !== undefined &&
             change !== undefined &&
@@ -328,7 +336,13 @@ export namespace QuadrupedRideClock {
           )
             speed = speed < limits.minimum ? limits.minimum : limits.maximum;
         }
-        return QuadrupedGait.timing(species, gait, speed, tempo, withers);
+        return AutoMovieArchetypeQuadrupedGait.timing(
+          species,
+          gait,
+          speed,
+          tempo,
+          withers,
+        );
       },
     };
   }
@@ -347,28 +361,22 @@ export namespace QuadrupedRideClock {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two range reads and one comparison.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A speed above the parent's domain, or a gait without a declared parent, is passed through for the strict refusal.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work over the two ranges' end rows.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `QuadrupedGait.range` for both domains.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieArchetypeQuadrupedGait.range` for both domains.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function collectedSpeed(
     species: createQuadruped.ISpecies,
-    gait: QuadrupedGait.Gait,
+    gait: AutoMovieArchetypeQuadrupedGait.Gait,
     speed: number,
     withers: number,
   ): number {
-    const parent: QuadrupedGait.Gait | undefined =
+    const parent: AutoMovieArchetypeQuadrupedGait.Gait | undefined =
       species.table.collected?.[gait];
     if (parent === undefined) return speed;
-    const own: { minimum: number; maximum: number } = QuadrupedGait.range(
-      species,
-      gait,
-      withers,
-    );
-    const from: { minimum: number; maximum: number } = QuadrupedGait.range(
-      species,
-      parent,
-      withers,
-    );
+    const own: { minimum: number; maximum: number } =
+      AutoMovieArchetypeQuadrupedGait.range(species, gait, withers);
+    const from: { minimum: number; maximum: number } =
+      AutoMovieArchetypeQuadrupedGait.range(species, parent, withers);
     return speed > own.maximum && speed <= from.maximum ? own.maximum : speed;
   }
 

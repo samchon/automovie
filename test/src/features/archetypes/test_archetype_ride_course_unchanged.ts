@@ -1,10 +1,16 @@
-import { ArchetypeCourse, ArchetypeUnits } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeUnits,
+} from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** The courses the ride tests drove before speed marks, grades, reversing and start seconds existed. */
-const COURSES: readonly (readonly [string, ArchetypeCourse.ICourse])[] = [
+const COURSES: readonly (readonly [
+  string,
+  AutoMovieArchetypeCourse.ICourse,
+])[] = [
   [
     "the ride test's left turn",
     {
@@ -81,7 +87,7 @@ const COURSES: readonly (readonly [string, ArchetypeCourse.ICourse])[] = [
  * 4. At 400 distances across and beyond the path, the second each is reached is identical.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Plans each course and compares every number it publishes with the closed form; a reordered operation, an extra scaling or a different root that moves any result by one unit in the last place is caught.
- * @evidence contracts/development/testing.md#independent-expectations The expectation is the trapezoid of `ArchetypeCourse` before #3493, worked in this file as its closed form: a constant acceleration from rest to the peak (the cruise, or the square root of 2 L a b over (a + b) when shorter), the cruise, and a constant braking to rest, with each leg advanced along its line or about its centre. The promise is #3493's "a course written today plans to the same instants and states bit for bit".
+ * @evidence contracts/development/testing.md#independent-expectations The expectation is the trapezoid of `AutoMovieArchetypeCourse` before #3493, worked in this file as its closed form: a constant acceleration from rest to the peak (the cruise, or the square root of 2 L a b over (a + b) when shorter), the cruise, and a constant braking to rest, with each leg advanced along its line or about its centre. The promise is #3493's "a course written today plans to the same instants and states bit for bit".
  * @evidence contracts/development/testing.md#distinguishing-cases A course that cruises and one too short to, left and right turns, and a start away from the origin and turned; courses using the new members belong to their own tests.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory plans, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
@@ -89,7 +95,10 @@ const COURSES: readonly (readonly [string, ArchetypeCourse.ICourse])[] = [
 export function test_archetype_ride_course_unchanged(): void {
   const findings: string[] = [];
   for (const [name, course] of COURSES) {
-    const plan: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", course);
+    const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+      "test",
+      course,
+    );
     const expected: ITrapezoid = trapezoid(course);
     if (
       plan.length !== expected.length ||
@@ -101,7 +110,7 @@ export function test_archetype_ride_course_unchanged(): void {
       findings.push(`${name}: instants ${JSON.stringify(plan.instants)}`);
     for (let k: number = 0; k < 400; k++) {
       const seconds: number = ((k - 10) / 380) * expected.duration;
-      const got: ArchetypeCourse.IState = plan.at(seconds);
+      const got: AutoMovieArchetypeCourse.IState = plan.at(seconds);
       const want: IExpectedState = expected.at(seconds);
       const r: IAutoMovieQuaternion = got.placement.rotation;
       if (
@@ -174,7 +183,7 @@ interface IExpectedState {
 /** One leg and where it starts. */
 interface IRow {
   /** The leg. */
-  leg: ArchetypeCourse.Leg;
+  leg: AutoMovieArchetypeCourse.Leg;
 
   /** Its start along the path, metres. */
   from: number;
@@ -198,7 +207,7 @@ interface IRow {
  * @param course The course, with none of the members #3493 added.
  * @returns Its closed form.
  */
-function trapezoid(course: ArchetypeCourse.ICourse): ITrapezoid {
+function trapezoid(course: AutoMovieArchetypeCourse.ICourse): ITrapezoid {
   const rows: IRow[] = [];
   let x: number = course.start.x;
   let z: number = course.start.z;
@@ -208,7 +217,7 @@ function trapezoid(course: ArchetypeCourse.ICourse): ITrapezoid {
     const span: number =
       leg.kind === "straight"
         ? leg.length
-        : leg.radius * Math.abs(leg.angle) * ArchetypeUnits.DEGREE;
+        : leg.radius * Math.abs(leg.angle) * AutoMovieArchetypeUnits.DEGREE;
     const row: IRow = { leg, from: length, span, x, z, heading };
     rows.push(row);
     const end: { x: number; z: number; heading: number } = advance(row, span);
@@ -306,7 +315,7 @@ function advance(
   row: IRow,
   distance: number,
 ): { x: number; z: number; heading: number } {
-  const h: number = row.heading * ArchetypeUnits.DEGREE;
+  const h: number = row.heading * AutoMovieArchetypeUnits.DEGREE;
   if (row.leg.kind === "straight")
     return {
       x: row.x + distance * Math.sin(h),
@@ -320,6 +329,6 @@ function advance(
   return {
     x: cx - side * row.leg.radius * Math.cos(h + swept),
     z: cz + side * row.leg.radius * Math.sin(h + swept),
-    heading: row.heading + swept / ArchetypeUnits.DEGREE,
+    heading: row.heading + swept / AutoMovieArchetypeUnits.DEGREE,
   };
 }

@@ -13,7 +13,7 @@ import { motionHumanBody } from "./motionHumanBody";
  * @param body The rider.
  * @param seed The bicycle's seed.
  * @returns The bicycle.
- * @throws {ArchetypeRefusal} When the rider's saddle height or reach lies outside its band.
+ * @throws {AutoMovieArchetypeRefusal} When the rider's saddle height or reach lies outside its band.
  */
 export function fittedBicycle(
   body: IAutoMovieMotionHumanBody,

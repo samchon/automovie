@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The two body brushes read: Kerbl's Covalliero, 17 x 8 cm with 3 cm bristles (kerbl.com product 13839), and Shires' EZI-Groom Premium, 200 x 85 mm with 25 mm bristles (equusnow.com listing). */
@@ -27,7 +27,7 @@ const MASS: number = 0.2;
  * @param params Any dimension the author fixes, and the model's id.
  * @param seed The seed that draws each free dimension inside its band; absent, each takes its band's middle.
  * @returns The brush.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the brush lies, how it is held, its two contacts and which values are read and authored.
  * @evidence contracts/development/implementation.md#principled-implementation Two boxes from the drawn dimensions: the back above the bristles; the grip on the back's top and the working face on the bristles' bottom.
@@ -40,9 +40,12 @@ const MASS: number = 0.2;
 export function createGroomingBrush(
   params: createGroomingBrush.IParams = {},
   seed?: number | string,
-): Archetype<createGroomingBrush.Affordance, createGroomingBrush.Dimension> {
-  const draw: ArchetypeDrawSession<createGroomingBrush.Dimension> =
-    new ArchetypeDrawSession<createGroomingBrush.Dimension>(
+): AutoMovieArchetype<
+  createGroomingBrush.Affordance,
+  createGroomingBrush.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createGroomingBrush.Dimension> =
+    new AutoMovieArchetypeDrawSession<createGroomingBrush.Dimension>(
       "groomingBrush",
       createGroomingBrush.UNITS,
       seed,
@@ -53,10 +56,10 @@ export function createGroomingBrush(
   const length: number = d.length!;
   const width: number = d.width!;
   const bristle: number = d.bristle!;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createGroomingBrush.Affordance,
     createGroomingBrush.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "wood",
     id: params.id,
     name: "body brush",
@@ -78,7 +81,7 @@ export function createGroomingBrush(
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, bristle + BACK, 0),
       Vector3.create(0, 1, 0),
       Vector3.create(1, 0, 0),
@@ -91,7 +94,7 @@ export function createGroomingBrush(
     id: "face",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, -1, 0),
       Vector3.create(0, 0, 1),
@@ -123,16 +126,18 @@ export namespace createGroomingBrush {
   }
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     bristle: "m",
   };
 
   /** Each dimension's band, between the two brushes read. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(0.17, 0.2, SOURCE),
-    width: ArchetypeBand.metres(0.08, 0.085, SOURCE),
-    bristle: ArchetypeBand.metres(0.025, 0.03, SOURCE),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(0.17, 0.2, SOURCE),
+    width: AutoMovieArchetypeBand.metres(0.08, 0.085, SOURCE),
+    bristle: AutoMovieArchetypeBand.metres(0.025, 0.03, SOURCE),
   };
 }

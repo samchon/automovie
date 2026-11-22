@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  EquineFord,
-  type EquineFordPlan,
-  type QuadrupedFooting,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeEquineFord,
+  type AutoMovieArchetypeEquineFordPlan,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeQuadrupedFooting,
   createHorse,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
@@ -88,7 +88,7 @@ export namespace equineFordRider {
     placement: IAutoMovieTransform;
 
     /** The posed horse. */
-    archetype: Archetype<string, string>;
+    archetype: AutoMovieArchetype<string, string>;
   }
 
   /**
@@ -179,7 +179,7 @@ export namespace equineFordRider {
     };
     const part = (id: string, film: number): IAutoMovieTransform => {
       const instant: IInstant = at(film);
-      return ArchetypeFrame.compose(
+      return AutoMovieArchetypeFrame.compose(
         instant.placement,
         instant.archetype.affordance(id).frame,
       );
@@ -225,38 +225,40 @@ export namespace equineFordRider {
       from: number,
       to: number,
       slope: number,
-    ): QuadrupedFooting.IPlane => ({
+    ): AutoMovieArchetypeQuadrupedFooting.IPlane => ({
       id,
       origin: { x: 0, y, z: from },
       x: [-6, 6],
       z: [from, to],
       slope: { x: 0, z: slope },
     });
-    const authored: EquineFordPlan.IParams = equineFordScene.params(shelf);
-    const crossing: EquineFordPlan.IClip<string, string> = EquineFord(horse, {
-      ...authored,
-      water: WATER,
-      footing: {
-        planes: [
-          plane("bank", BED, -6, BANK, 0),
-          plane("ford", BED, BANK, float + 1.5, -DESCENT),
-          plane("channel", -3, float + 1.5, float + 3, 0),
-          plane("shelf", shelf, float + 3, float + SWIM + 30, 0),
-        ],
-      },
-      entry: {
-        ...authored.entry,
-        legs: [
-          { kind: "straight", length: BANK },
-          { kind: "straight", length: wade, rise: -DESCENT * wade },
-        ],
-      },
-      swim: { ...authored.swim, length: SWIM },
-      recovery: {
-        ...authored.recovery,
-        legs: [{ kind: "straight", length: SHORE }],
-      },
-    });
+    const authored: AutoMovieArchetypeEquineFordPlan.IParams =
+      equineFordScene.params(shelf);
+    const crossing: AutoMovieArchetypeEquineFordPlan.IClip<string, string> =
+      AutoMovieArchetypeEquineFord(horse, {
+        ...authored,
+        water: WATER,
+        footing: {
+          planes: [
+            plane("bank", BED, -6, BANK, 0),
+            plane("ford", BED, BANK, float + 1.5, -DESCENT),
+            plane("channel", -3, float + 1.5, float + 3, 0),
+            plane("shelf", shelf, float + 3, float + SWIM + 30, 0),
+          ],
+        },
+        entry: {
+          ...authored.entry,
+          legs: [
+            { kind: "straight", length: BANK },
+            { kind: "straight", length: wade, rise: -DESCENT * wade },
+          ],
+        },
+        swim: { ...authored.swim, length: SWIM },
+        recovery: {
+          ...authored.recovery,
+          legs: [{ kind: "straight", length: SHORE }],
+        },
+      });
     return {
       ...carry(
         horse,

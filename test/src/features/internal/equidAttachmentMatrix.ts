@@ -1,6 +1,6 @@
 import {
-  type ArchetypeRide,
-  type QuadrupedBody,
+  type AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeRide,
   type createHorse,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -21,9 +21,9 @@ type Gait = "walk" | "trot" | "canter" | "gallop";
 type Animal = ReturnType<typeof createHorse>;
 
 /** Complete public ride type; the shared law adds its body dimensions. */
-type Ride = ArchetypeRide.IRide<
+type Ride = AutoMovieArchetypeRide.IRide<
   createHorse.Affordance,
-  createHorse.Dimension | QuadrupedBody.Dimension
+  createHorse.Dimension | AutoMovieArchetypeQuadrupedBody.Dimension
 >;
 
 /**

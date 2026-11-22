@@ -1,4 +1,7 @@
-import { type Archetype, ArchetypeRefusal } from "@automovie/archetypes";
+import {
+  type AutoMovieArchetype,
+  AutoMovieArchetypeRefusal,
+} from "@automovie/archetypes";
 import {
   createInstrument,
   createUprightPiano,
@@ -207,7 +210,7 @@ export function test_archetype_catalogue_music_sports(): void {
 
 /** Shoot from in front of the court plane into a fixed staged prop. */
 function inbound(
-  model: Archetype,
+  model: AutoMovieArchetype,
   x: number,
   y: number,
   radius: number,
@@ -238,7 +241,7 @@ function inbound(
 }
 
 /** Drop the ball from 1.8 m measured at its underside, then read its rebound apex. */
-function rebound(ball: Archetype, radius: number): number {
+function rebound(ball: AutoMovieArchetype, radius: number): number {
   const projectile: IAutoMovieProjectile = {
     origin: { x: 0, y: 1.8 + radius, z: 0 },
     velocity: ORIGIN,
@@ -276,7 +279,7 @@ interface IHeldAxis {
  * Pick an oval ball up by its grip, hold it still, and read its long `+X`
  * axis in the frame of the hand nearer the ball through the hold.
  */
-function heldLongAxis(model: Archetype): IHeldAxis {
+function heldLongAxis(model: AutoMovieArchetype): IHeldAxis {
   const performance: HumanPerformance = new HumanPerformance({
     seed: "oval-hold",
     performers: [
@@ -346,11 +349,11 @@ function unsignedAxis(axis: IAutoMovieVector3): IAutoMovieVector3 {
 }
 
 /** Require the named runtime diagnostic for an invalid saved recipe. */
-function refusal(produce: () => Archetype, axis: string): void {
+function refusal(produce: () => AutoMovieArchetype, axis: string): void {
   assert.throws(
     produce,
     (error: unknown): boolean =>
-      error instanceof ArchetypeRefusal &&
+      error instanceof AutoMovieArchetypeRefusal &&
       error.kind === "parameter" &&
       error.axis === axis,
   );

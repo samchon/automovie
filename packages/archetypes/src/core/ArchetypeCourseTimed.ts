@@ -4,16 +4,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { ArchetypeCourse } from "./ArchetypeCourse";
-import { ArchetypeFrame } from "./ArchetypeFrame";
-import { ArchetypeRefusal } from "./ArchetypeRefusal";
-import { ArchetypeUnits } from "./ArchetypeUnits";
+import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
+import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
+import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
+import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
 import { limitMonotoneTangents } from "./limitMonotoneTangents";
 
 /**
  * A timed course interpolates the samples with continuous position and velocity. Equal consecutive marks keep a constant position and the arrival facing, or the departure facing at the start. A moving root faces along its velocity. A dwell admits a restart when its one-sided directions agree.
  *
- * `ArchetypeCourse.timed` is its one caller.
+ * `AutoMovieArchetypeCourse.timed` is its one caller.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the interpolation, what it keeps continuous and who calls it.
  * @evidence contracts/development/design.md#principled-representation The samples use one shared tangent per knot and an arc-length table. Exactly coincident positions set both boundary tangents to zero. A stationary run uses one facing derived from the adjoining curve.
@@ -46,12 +46,12 @@ export namespace ArchetypeCourseTimed {
   ];
 
   /**
-   * A timed course made ready to sample, as `ArchetypeCourse.timed` documents it.
+   * A timed course made ready to sample, as `AutoMovieArchetypeCourse.timed` documents it.
    *
    * @param archetype The name a refusal carries.
    * @param samples The samples.
    * @returns The plan: `depart` at the first sample's second and `stop` at the last, a bend per sample interval where the path turns hardest and one where its balance is worst, and the samplers.
-   * @throws {ArchetypeRefusal} As `ArchetypeCourse.timed` states.
+   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeCourse.timed` states.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the instants and bends it gives, pointing to the documented caller for the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation Cubic Hermite interpolation of each coordinate in time with the tangent of the parabola through each sample and its two neighbours (one-sided at the ends, a chord between two samples), which is C1 and passes through every sample, each knot's tangent limited to Fritsch and Carlson's monotone region along the adjacent chords (limitMonotoneTangents) so no interval runs back along its chord, as a cubic out of a hold otherwise would. Speed is the velocity's length, heading its direction seen from above, and curvature (x' z'' - z' x'') over the horizontal speed cubed, positive to the left. Distance is the arc length, integrated by five-point Gauss-Legendre quadrature over `PIECES` pieces per interval, and inverted by Newton's method on the speed, kept inside its piece by bisection where the speed vanishes. Consecutive equal points use a constant position with zero shared endpoint tangents. One adjoining one-sided direction provides facing for the whole hold. A hold with incompatible directions at arrival and restart refuses because the same standing orientation cannot continue onto both moving cubics.
@@ -63,15 +63,15 @@ export namespace ArchetypeCourseTimed {
    */
   export function plan(
     archetype: string,
-    samples: readonly ArchetypeCourse.ISample[],
-  ): ArchetypeCourse.IPlan {
+    samples: readonly AutoMovieArchetypeCourse.ISample[],
+  ): AutoMovieArchetypeCourse.IPlan {
     const refuse = (
       axis: string,
       value: unknown,
       reason: string,
       fix: string = "give at least two samples of finite points at strictly increasing seconds",
     ): never => {
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
         axis,
@@ -83,31 +83,33 @@ export namespace ArchetypeCourseTimed {
     };
     if (samples.length < 2)
       refuse("samples", samples.length, "a timed course needs two samples");
-    samples.forEach((sample: ArchetypeCourse.ISample, i: number): void => {
-      for (const name of ["seconds", "x", "z"] as const)
-        if (!Number.isFinite(sample[name]))
+    samples.forEach(
+      (sample: AutoMovieArchetypeCourse.ISample, i: number): void => {
+        for (const name of ["seconds", "x", "z"] as const)
+          if (!Number.isFinite(sample[name]))
+            refuse(
+              `samples[${i}].${name}`,
+              sample[name],
+              "a sample must be finite",
+            );
+        if (sample.y !== undefined && !Number.isFinite(sample.y))
+          refuse(`samples[${i}].y`, sample.y, "a sample must be finite");
+        if (i > 0 && !(sample.seconds > samples[i - 1]!.seconds))
           refuse(
-            `samples[${i}].${name}`,
-            sample[name],
-            "a sample must be finite",
+            `samples[${i}].seconds`,
+            sample.seconds,
+            `a sample's second must come after ${samples[i - 1]!.seconds}`,
           );
-      if (sample.y !== undefined && !Number.isFinite(sample.y))
-        refuse(`samples[${i}].y`, sample.y, "a sample must be finite");
-      if (i > 0 && !(sample.seconds > samples[i - 1]!.seconds))
-        refuse(
-          `samples[${i}].seconds`,
-          sample.seconds,
-          `a sample's second must come after ${samples[i - 1]!.seconds}`,
-        );
-    });
+      },
+    );
 
     // Each sample's point and the tangent of the parabola through it and its neighbours.
     const n: number = samples.length;
     const times: number[] = samples.map(
-      (s: ArchetypeCourse.ISample): number => s.seconds,
+      (s: AutoMovieArchetypeCourse.ISample): number => s.seconds,
     );
     const points: IAutoMovieVector3[] = samples.map(
-      (s: ArchetypeCourse.ISample): IAutoMovieVector3 => ({
+      (s: AutoMovieArchetypeCourse.ISample): IAutoMovieVector3 => ({
         x: s.x,
         y: s.y ?? 0,
         z: s.z,
@@ -278,7 +280,7 @@ export namespace ArchetypeCourseTimed {
             points[j]!,
           );
           if (Math.hypot(d.x, d.z) > 1e-9)
-            return Math.atan2(d.x, d.z) / ArchetypeUnits.DEGREE;
+            return Math.atan2(d.x, d.z) / AutoMovieArchetypeUnits.DEGREE;
         }
       return null;
     };
@@ -300,7 +302,8 @@ export namespace ArchetypeCourseTimed {
       if (Math.hypot(limit.x, limit.z) > 1e-9) return limit;
       if (Math.hypot(displacement.x, displacement.z) > 1e-9)
         return displacement;
-      const heading: number = (chordHeading(i) ?? 0) * ArchetypeUnits.DEGREE;
+      const heading: number =
+        (chordHeading(i) ?? 0) * AutoMovieArchetypeUnits.DEGREE;
       return { x: Math.sin(heading), y: 0, z: Math.cos(heading) };
     };
     const firstMotion: number = held.findIndex(
@@ -337,13 +340,14 @@ export namespace ArchetypeCourseTimed {
     const facingOf: (direction: IAutoMovieVector3) => IFacing = (
       direction: IAutoMovieVector3,
     ): IFacing => ({
-      heading: Math.atan2(direction.x, direction.z) / ArchetypeUnits.DEGREE,
+      heading:
+        Math.atan2(direction.x, direction.z) / AutoMovieArchetypeUnits.DEGREE,
       climb:
         Math.atan2(direction.y, Math.hypot(direction.x, direction.z)) /
-        ArchetypeUnits.DEGREE,
+        AutoMovieArchetypeUnits.DEGREE,
     });
 
-    const state = (seconds: number): ArchetypeCourse.IState => {
+    const state = (seconds: number): AutoMovieArchetypeCourse.IState => {
       const at: ReturnType<typeof evaluate> = evaluate(seconds);
       const v: IAutoMovieVector3 = at.velocity;
       const a: IAutoMovieVector3 = at.acceleration;
@@ -388,23 +392,23 @@ export namespace ArchetypeCourseTimed {
                     Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -climb),
                   ),
                 ),
-          scale: { ...ArchetypeFrame.UNIT },
+          scale: { ...AutoMovieArchetypeFrame.UNIT },
         },
       };
     };
 
     // Each interval's hardest bend and worst balance on the piece grid, and the fastest speed.
-    const bends: ArchetypeCourse.IBend[] = [];
+    const bends: AutoMovieArchetypeCourse.IBend[] = [];
     let peak: number = 0;
     for (let i: number = 0; i < n - 1; i++) {
-      let sharpest: ArchetypeCourse.IState | null = null;
+      let sharpest: AutoMovieArchetypeCourse.IState | null = null;
       let sharpestAt: number = times[i]!;
-      let pulling: ArchetypeCourse.IState | null = null;
+      let pulling: AutoMovieArchetypeCourse.IState | null = null;
       let pullingAt: number = times[i]!;
       for (let k: number = 0; k <= PIECES; k++) {
         const seconds: number =
           times[i]! + ((times[i + 1]! - times[i]!) * k) / PIECES;
-        const s: ArchetypeCourse.IState = state(seconds);
+        const s: AutoMovieArchetypeCourse.IState = state(seconds);
         peak = Math.max(peak, s.speed);
         if (
           sharpest === null ||

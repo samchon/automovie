@@ -4,7 +4,7 @@ import type {
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 
 /**
  * Make a coarse single-seat amusement ride car with a level side threshold.
@@ -44,7 +44,7 @@ export function createCoasterCar(id: string = "coaster-car"): IAutoMovieModel {
       type: "primitive",
       shape: { type: "box", width, height, depth },
     },
-    transform: ArchetypeFrame.upright({ x, y, z }),
+    transform: AutoMovieArchetypeFrame.upright({ x, y, z }),
   });
 
   /** The boarding and seating heights are the tops of the floor and cushion. */
@@ -91,7 +91,7 @@ export function createCoasterCar(id: string = "coaster-car"): IAutoMovieModel {
         id: "seat",
         kind: "seat",
         extent: null,
-        frame: ArchetypeFrame.upright({ x: -0.04, y: seat, z: 0.025 }),
+        frame: AutoMovieArchetypeFrame.upright({ x: -0.04, y: seat, z: 0.025 }),
         width: 0.58,
         depth: 0.45,
         back: 0.445,
@@ -100,7 +100,7 @@ export function createCoasterCar(id: string = "coaster-car"): IAutoMovieModel {
         id: "boarding",
         kind: "surface",
         extent: null,
-        frame: ArchetypeFrame.upright({ x: 0.48, y: floor, z: 0.16 }),
+        frame: AutoMovieArchetypeFrame.upright({ x: 0.48, y: floor, z: 0.16 }),
         width: 0.2,
         depth: 0.8,
       },

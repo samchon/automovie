@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { FIELD_IMPLEMENTS } from "./FIELD_IMPLEMENTS";
 import { ForestAxe } from "./ForestAxe";
@@ -139,7 +139,9 @@ export namespace LongImplementDraw {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     shaftDiameter: "m",
     edge: "m",
@@ -217,7 +219,7 @@ export namespace LongImplementDraw {
 
   /** The band of each free dimension, by kind; an axe and a handspike have no drawn shaft diameter, a broom, a mop, a shovel, a fishing rod and a field gun's implements no head of their own sizes. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     sling: Throwers.BANDS.sling,
     atlatl: Throwers.BANDS.atlatl,
@@ -226,7 +228,7 @@ export namespace LongImplementDraw {
     trailHandspike: FIELD_IMPLEMENTS.BANDS.trailHandspike,
     forestAxe: ForestAxe.BANDS,
     fishingRod: {
-      shaftDiameter: ArchetypeBand.metres(
+      shaftDiameter: AutoMovieArchetypeBand.metres(
         0.032,
         0.038,
         "no rod grip diameter was found; the lower end of the 32 to 51 mm power grip band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a rod's grip",
@@ -234,52 +236,64 @@ export namespace LongImplementDraw {
       ),
     },
     broom: {
-      length: ArchetypeBand.metres(
-        60 * ArchetypeUnits.INCH,
-        60 * ArchetypeUnits.INCH + 0.08,
+      length: AutoMovieArchetypeBand.metres(
+        60 * AutoMovieArchetypeUnits.INCH,
+        60 * AutoMovieArchetypeUnits.INCH + 0.08,
         `${HANDLES}; the head adds 8 cm`,
         true,
       ),
-      shaftDiameter: ArchetypeBand.metres(
-        (15 / 16) * ArchetypeUnits.INCH,
-        ArchetypeUnits.INCH,
+      shaftDiameter: AutoMovieArchetypeBand.metres(
+        (15 / 16) * AutoMovieArchetypeUnits.INCH,
+        AutoMovieArchetypeUnits.INCH,
         HANDLES,
         true,
       ),
-      mass: ArchetypeBand.of("kg", 0.5, 0.9, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        0.5,
+        0.9,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     mop: {
-      length: ArchetypeBand.metres(
-        54 * ArchetypeUnits.INCH,
-        54 * ArchetypeUnits.INCH + 0.03,
+      length: AutoMovieArchetypeBand.metres(
+        54 * AutoMovieArchetypeUnits.INCH,
+        54 * AutoMovieArchetypeUnits.INCH + 0.03,
         `${HANDLES}; the head adds 3 cm`,
         true,
       ),
-      shaftDiameter: ArchetypeBand.metres(
-        (15 / 16) * ArchetypeUnits.INCH,
-        ArchetypeUnits.INCH,
+      shaftDiameter: AutoMovieArchetypeBand.metres(
+        (15 / 16) * AutoMovieArchetypeUnits.INCH,
+        AutoMovieArchetypeUnits.INCH,
         HANDLES,
         true,
       ),
-      mass: ArchetypeBand.of("kg", 0.5, 0.9, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        0.5,
+        0.9,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     shovel: {
-      length: ArchetypeBand.metres(
-        41.5 * ArchetypeUnits.INCH,
-        46 * ArchetypeUnits.INCH,
+      length: AutoMovieArchetypeBand.metres(
+        41.5 * AutoMovieArchetypeUnits.INCH,
+        46 * AutoMovieArchetypeUnits.INCH,
         SHOVEL,
         true,
       ),
-      shaftDiameter: ArchetypeBand.metres(
+      shaftDiameter: AutoMovieArchetypeBand.metres(
         0.032,
         0.038,
         "no shovel shaft diameter was found; the lower end of the 32 to 51 mm power grip band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf)",
         true,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
-        4.5 * ArchetypeUnits.POUND,
-        5.6 * ArchetypeUnits.POUND,
+        4.5 * AutoMovieArchetypeUnits.POUND,
+        5.6 * AutoMovieArchetypeUnits.POUND,
         SHOVEL,
         true,
       ),
@@ -296,7 +310,7 @@ export namespace LongImplementDraw {
    */
   export interface IPrepareResult<Id extends Affordance> {
     /** The prepared `builder` this call returns. */
-    builder: ArchetypeBuilder<Id, Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
     /** The prepared `d` this call returns. */
     d: Partial<Record<Dimension, number>>;
@@ -309,7 +323,7 @@ export namespace LongImplementDraw {
    * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
    * @param kind The saved kind whose recipe is used.
    * @returns The builder and dimensions the named producer reads.
-   * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Prepare an empty builder and the previously recorded longTool dimensions.
    * @evidence contracts/development/implementation.md#principled-implementation The `longTool` draw session uses the original seeds, model table, and bands in their original order.
@@ -324,8 +338,13 @@ export namespace LongImplementDraw {
     params: Omit<IParams, "kind">,
     seed?: number | string,
   ): IPrepareResult<Id> {
-    const draw: ArchetypeDrawSession<Dimension> =
-      new ArchetypeDrawSession<Dimension>("longTool", UNITS, seed, params);
+    const draw: AutoMovieArchetypeDrawSession<Dimension> =
+      new AutoMovieArchetypeDrawSession<Dimension>(
+        "longTool",
+        UNITS,
+        seed,
+        params,
+      );
     const drawn: Partial<Record<Dimension, number>> = draw.dimensions(
       BANDS[kind],
       BANDS,
@@ -339,12 +358,13 @@ export namespace LongImplementDraw {
       ...drawn,
       ...model.figures,
     };
-    const builder: ArchetypeBuilder<Id, Dimension> = new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: kind,
-      draw,
-    });
+    const builder: AutoMovieArchetypeBuilder<Id, Dimension> =
+      new AutoMovieArchetypeBuilder({
+        material: "composite",
+        id: params.id,
+        name: kind,
+        draw,
+      });
     return { builder, d };
   }
 
@@ -425,7 +445,7 @@ export namespace LongImplementDraw {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
    */
   export function groundTool<Contact extends string>(
-    builder: ArchetypeBuilder<Contact | GroundToolBuilt, Dimension>,
+    builder: AutoMovieArchetypeBuilder<Contact | GroundToolBuilt, Dimension>,
     head: IGroundHead,
     shaft: IGroundShaft,
   ): void {
@@ -442,7 +462,7 @@ export namespace LongImplementDraw {
       id: "face",
       kind: "surface",
       direction: "normal",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, 0, 0),
         Vector3.create(0, -1, 0),
         Vector3.create(1, 0, 0),
@@ -461,7 +481,7 @@ export namespace LongImplementDraw {
       id: "shaft",
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, (height + top) / 2, 0),
         Vector3.create(0, 0, -1),
         Vector3.create(0, 1, 0),

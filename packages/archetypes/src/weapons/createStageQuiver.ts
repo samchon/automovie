@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { StageCarrierConstruction } from "./StageCarrierConstruction";
 import type { createHolster } from "./createHolster";
 
@@ -12,7 +12,7 @@ import type { createHolster } from "./createHolster";
  * @param params The scene id, optional display dimensions and this carrier's own fit options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the wearable model origin and the model-space stage contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Preserves the original silhouette geometry and the costume contact required by this form.
@@ -25,7 +25,10 @@ import type { createHolster } from "./createHolster";
 export function createStageQuiver(
   params: createStageQuiver.IParams = {},
   seed?: number | string,
-): Archetype<createStageQuiver.Affordance, createStageQuiver.Dimension> {
+): AutoMovieArchetype<
+  createStageQuiver.Affordance,
+  createStageQuiver.Dimension
+> {
   return StageCarrierConstruction(
     "quiver",
     params,
@@ -39,7 +42,7 @@ export function createStageQuiver(
       builder.affordance({
         id: "socket",
         kind: "socket",
-        frame: ArchetypeFrame.upright(v(0, length, 0)),
+        frame: AutoMovieArchetypeFrame.upright(v(0, length, 0)),
         extent: null,
       });
 
@@ -50,7 +53,7 @@ export function createStageQuiver(
         builder.affordance({
           id: `slot${k + 1}`,
           kind: "socket",
-          frame: ArchetypeFrame.upright(
+          frame: AutoMovieArchetypeFrame.upright(
             v(
               radius * Math.cos(golden * k),
               length,

@@ -1,9 +1,9 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { QuadrupedBody } from "./QuadrupedBody";
-import type { QuadrupedFooting } from "./QuadrupedFooting";
-import { QuadrupedLimb } from "./QuadrupedLimb";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
+import { AutoMovieArchetypeQuadrupedLimb } from "./AutoMovieArchetypeQuadrupedLimb";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 
 /**
@@ -43,7 +43,7 @@ export namespace EquineTuck {
    * @param fold The tuck's greatest fold, degrees.
    * @param fore Whether the chain is a fore's.
    * @returns The tuck reader.
-   * @throws {RangeError} Through `QuadrupedLimb.prepare` for an unsupported chain.
+   * @throws {RangeError} Through `AutoMovieArchetypeQuadrupedLimb.prepare` for an unsupported chain.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame and the failure.
    * @evidence contracts/development/implementation.md#principled-implementation The fold grows with the weight to `FOLD`, the hoof is drawn back by the same weight to under the limb's second joint (elbow or stifle), where a folded limb carries it, and raised to where the folded limb hangs from its neutral attachment, its distance the chain's greatest reach at that fold, so the solve stays inside the limb's reach while the body is at or below its neutral height. The swing's own lift and fold are kept where they are larger. That hang is in the body's frame: a swing borne on a support plane (terrain, or the level ground seen from a pitched body) blends the plane toward the body's floor by the same weight, and the hang's lift is measured from that plane's height under the hoof.
@@ -58,7 +58,8 @@ export namespace EquineTuck {
     fold: number = FOLD,
     fore: boolean = true,
   ): Tuck {
-    const limb: QuadrupedLimb.IPrepared = QuadrupedLimb.prepare(chain, fore);
+    const limb: AutoMovieArchetypeQuadrupedLimb.IPrepared =
+      AutoMovieArchetypeQuadrupedLimb.prepare(chain, fore);
     const top: IAutoMovieVector3 = chain[0]!;
     return (
       goal: QuadrupedRidePose.IGoal,
@@ -74,7 +75,7 @@ export namespace EquineTuck {
       const hanging: number =
         top.y - Math.sqrt(reach * reach - across * across);
       // The hang is the body's own: the swing's ground plane yields, by the same weight, to the body's floor, so a pitched or terrain-borne swing hangs under the shoulder and lands back on its plane.
-      const surface: QuadrupedFooting.ISurface | undefined =
+      const surface: AutoMovieArchetypeQuadrupedFooting.ISurface | undefined =
         goal.surface === undefined
           ? undefined
           : {
@@ -101,10 +102,7 @@ export namespace EquineTuck {
         ...(surface === undefined ? {} : { surface }),
         z,
         fold: folded,
-        lift: Math.max(
-          goal.lift,
-          (hanging - base) / (surface?.normal.y ?? 1),
-        ),
+        lift: Math.max(goal.lift, (hanging - base) / (surface?.normal.y ?? 1)),
       };
     };
   }
@@ -164,7 +162,9 @@ export namespace EquineTuck {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains four prepared chains.
    */
   export function fores(
-    limbs: Readonly<Record<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>>,
+    limbs: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, readonly IAutoMovieVector3[]>
+    >,
     withers: number,
   ): IFores {
     return {
@@ -194,7 +194,8 @@ export namespace EquineTuck {
     chain: readonly IAutoMovieVector3[],
     withers: number,
   ): Tuck {
-    const limb: QuadrupedLimb.IPrepared = QuadrupedLimb.prepare(chain, false);
+    const limb: AutoMovieArchetypeQuadrupedLimb.IPrepared =
+      AutoMovieArchetypeQuadrupedLimb.prepare(chain, false);
     const target: number =
       Math.hypot(
         chain[4]!.x - chain[0]!.x,

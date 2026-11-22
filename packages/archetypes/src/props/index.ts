@@ -21,7 +21,7 @@ export * from "./createFoldingKnife";
 export * from "./createPalette";
 export * from "./createPotteryWheel";
 export * from "./createScissors";
-export * from "./UmbrellaRunner";
+export * from "./AutoMovieArchetypeUmbrellaRunner";
 export * from "./createRemote";
 export * from "./createTablet";
 export * from "./createRadio";

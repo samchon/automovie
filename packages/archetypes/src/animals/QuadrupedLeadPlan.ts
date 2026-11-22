@@ -5,19 +5,19 @@ import type {
 } from "@automovie/interface";
 
 import {
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
 } from "../core";
-import type { QuadrupedBody } from "./QuadrupedBody";
-import type { QuadrupedLead } from "./QuadrupedLead";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedLead } from "./AutoMovieArchetypeQuadrupedLead";
 
 /**
  * One admitted collar/lead assembly, prepared without changing a model builder.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States actual-neck admission, authored metre inputs, bounded private geometry and the separate emission boundary.
  * @evidence contracts/development/design.md#principled-representation Actual neck landmarks and four complete physical lengths determine two real rods and their midpoint grasp frame before any builder mutation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface QuadrupedLead and the whole-cohort factory share this current non-emitting planning owner; emit retains their existing contact vocabulary.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieArchetypeQuadrupedLead and the whole-cohort factory share this current non-emitting planning owner; emit retains their existing contact vocabulary.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No guessed body, probability, geometry substitution, patched builder or contact-only fitting proxy admits an assembly.
  */
 export class QuadrupedLeadPlan {
@@ -37,8 +37,8 @@ export class QuadrupedLeadPlan {
 
   /** Admit one actual neck and retain its independent fixed-size assembly plan. */
   public constructor(
-    rig: QuadrupedBody.IRig,
-    tack: QuadrupedLead.IParams,
+    rig: AutoMovieArchetypeQuadrupedBody.IRig,
+    tack: AutoMovieArchetypeQuadrupedLead.IParams,
     archetype: string,
   ) {
     const axis: IAutoMovieVector3 = Vector3.subtract(rig.poll, rig.neck);
@@ -67,7 +67,7 @@ export class QuadrupedLeadPlan {
           (key !== "width" || tack[key] <= length)
         )
       )
-        throw new ArchetypeRefusal({
+        throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
           archetype,
           axis: `collar.${key}`,
@@ -97,7 +97,7 @@ export class QuadrupedLeadPlan {
     this.#end = { ...this.#attached, x: this.#attached.x + tack.leadLength };
     this.#radius = tack.leadRadius;
     this.#length = tack.leadLength;
-    this.#frame = ArchetypeFrame.facing(
+    this.#frame = AutoMovieArchetypeFrame.facing(
       Vector3.scale(Vector3.add(this.#attached, this.#end), 0.5),
       Vector3.create(0, 1, 0),
       Vector3.create(1, 0, 0),
@@ -137,7 +137,7 @@ export class QuadrupedLeadPlan {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder owns emitted data; each contact gets a fresh frame and the plan retains only its bounded private scalar/vector records without a builder or external handle.
    */
   public emit<Id extends string, Dimension extends string>(
-    builder: ArchetypeBuilder<Id, Dimension>,
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>,
     id: Id,
   ): void {
     builder.rod("collar", this.#collarRadius, this.#from, this.#to, {

@@ -1,4 +1,7 @@
-import { ArchetypeRefusal, createProjectile } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeRefusal,
+  createProjectile,
+} from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -115,7 +118,8 @@ export function test_archetype_projectile_stone(): void {
     try {
       createProjectile(params);
     } catch (error) {
-      refused = error instanceof ArchetypeRefusal ? error.axis : String(error);
+      refused =
+        error instanceof AutoMovieArchetypeRefusal ? error.axis : String(error);
     }
     if (refused !== axis)
       findings.push(`${JSON.stringify(params)} was refused at ${refused}`);

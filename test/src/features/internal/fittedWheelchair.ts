@@ -1,7 +1,7 @@
 import {
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
   createWheelchair,
 } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
@@ -17,16 +17,16 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 export function fittedWheelchair(
   depth: number,
 ): ReturnType<typeof createWheelchair> {
-  const draw: ArchetypeDrawSession<createWheelchair.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createWheelchair.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "fittedWheelchair",
       createWheelchair.UNITS,
       undefined,
     );
-  const chair: ArchetypeBuilder<
+  const chair: AutoMovieArchetypeBuilder<
     createWheelchair.Affordance,
     createWheelchair.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     name: "fitted wheelchair",
     draw,
@@ -45,7 +45,7 @@ export function fittedWheelchair(
   chair.affordance({
     id: "seat",
     kind: "seat",
-    frame: ArchetypeFrame.upright(v(0, seat, depth)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, seat, depth)),
     extent: null,
     width: breadth,
     depth,
@@ -95,7 +95,7 @@ export function fittedWheelchair(
     chair.affordance({
       id: `${side}Spin`,
       kind: "knob",
-      frame: ArchetypeFrame.facing(hub, v(1, 0, 0), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(hub, v(1, 0, 0), v(0, 1, 0)),
       extent: null,
       travel: 360,
       parts: [wheelPart, ...ringParts],
@@ -103,7 +103,7 @@ export function fittedWheelchair(
     chair.affordance({
       id: `${side}Rim`,
       kind: "wheel",
-      frame: ArchetypeFrame.facing(rim, v(-sign, 0, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(rim, v(-sign, 0, 0), v(0, 0, 1)),
       extent: null,
       grip: "power",
       radius: rimRadius,

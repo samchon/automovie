@@ -1,20 +1,20 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  type ArchetypeBuilder,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeRefusal,
 } from "../core";
-import { DeerBody } from "./DeerBody";
-import type { QuadrupedBody } from "./QuadrupedBody";
-import { QuadrupedHeadAttachment } from "./QuadrupedHeadAttachment";
+import { AutoMovieArchetypeDeerBody } from "./AutoMovieArchetypeDeerBody";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import { AutoMovieArchetypeQuadrupedHeadAttachment } from "./AutoMovieArchetypeQuadrupedHeadAttachment";
 import { createCohortQuadruped } from "./createCohortQuadruped";
 
 /**
  * A coarse adult Boso sika reference with sex-matched controls and male antlers.
  *
  * Body and antler means come from the 1995 study's October 1992/1993
- * sample, with different trait counts. DeerBody separately declares the
+ * sample, with different trait counts. AutoMovieArchetypeDeerBody separately declares the
  * older animals in the 1997 skull/limb study; these are not paired specimens.
  * The actual main-beam base disk is seated inside the actual head capsule.
  * Source tip width remains the coarse beam-axis tip spacing; the finite tube
@@ -23,9 +23,9 @@ import { createCohortQuadruped } from "./createCohortQuadruped";
  * @param params Optional fixed adult cohort, authored mass, antler presence, timing coordinate and lead.
  * @param seed Without a fixed cohort, draws whole adult references uniformly; seedless construction retains the male reference. An explicit antler request admits only the sourced male reference.
  * @returns The actual model; bare selected male/female references use their respective 60.4/39.5 kg means.
- * @throws {ArchetypeRefusal} For unsupported cohorts, female antlers, invalid mass/lead, or a lead without explicitly authored whole-model mass.
+ * @throws {AutoMovieArchetypeRefusal} For unsupported cohorts, female antlers, invalid mass/lead, or a lead without explicitly authored whole-model mass.
  * @evidence contracts/development/common.md#meaningful-documentation Separates sex/age-specific 1995 body/antler observations from older same-sex 1997 skeletal samples, authored catalogue frequencies and coarse branching; equipment requires explicit total mass.
- * @evidence contracts/development/implementation.md#principled-implementation DeerBody owns the cited Boso means and real bone lengths. Seat the complete beam base disk inside the actual head through the common capsule erosion, then preserve the source curve-length control and existing axis-tip spacing by a right triangle. Branch origins follow that same beam and retain their authored lengths; no source head measure changes.
+ * @evidence contracts/development/implementation.md#principled-implementation AutoMovieArchetypeDeerBody owns the cited Boso means and real bone lengths. Seat the complete beam base disk inside the actual head through the common capsule erosion, then preserve the source curve-length control and existing axis-tip spacing by a right triangle. Branch origins follow that same beam and retain their authored lengths; no source head measure changes.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit equipment mass ownership, let the shared factory pick one whole adult reference and add sourced male antlers only when its cohort and request admit them.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Different trait counts and separate skeletal specimens are not asserted paired. Straight beam controls and two tines are construction proxies, not recovered antler surfaces, and no measured body mass silently includes newly authored equipment.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most two fixed-size profile/rig/addition plans establish seed-independent admission, then only one actual body and its optional fixed-size antlers are emitted without mesh fitting.
@@ -35,9 +35,12 @@ import { createCohortQuadruped } from "./createCohortQuadruped";
 export function createDeer(
   params: createDeer.IParams = {},
   seed?: number | string,
-): Archetype<createCohortQuadruped.Affordance, QuadrupedBody.Dimension> {
+): AutoMovieArchetype<
+  createCohortQuadruped.Affordance,
+  AutoMovieArchetypeQuadrupedBody.Dimension
+> {
   if (params.antlers !== undefined && typeof params.antlers !== "boolean")
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "deer",
       axis: "antlers",
@@ -47,7 +50,7 @@ export function createDeer(
       fix: "supply true, false or leave the cohort's default",
     });
   if (params.lead !== undefined && params.mass === undefined)
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "deer",
       axis: "mass",
@@ -57,28 +60,33 @@ export function createDeer(
         "the bare animal's cohort mean does not measure authored lead equipment",
       fix: "supply the complete authored model mass when adding equipment",
     });
-  return createCohortQuadruped<DeerBody.Cohort>({
+  return createCohortQuadruped<AutoMovieArchetypeDeerBody.Cohort>({
     archetype: "deer",
-    name: (cohort: DeerBody.Cohort): string =>
+    name: (cohort: AutoMovieArchetypeDeerBody.Cohort): string =>
       cohort === "boso-adult-male"
         ? "adult male Boso sika prototype"
         : "adult female Boso sika prototype",
-    names: DeerBody.COHORTS,
-    choices: params.antlers === true ? ["boso-adult-male"] : DeerBody.COHORTS,
+    names: AutoMovieArchetypeDeerBody.COHORTS,
+    choices:
+      params.antlers === true
+        ? ["boso-adult-male"]
+        : AutoMovieArchetypeDeerBody.COHORTS,
     reference: "boso-adult-male",
     cohort: params.cohort,
-    references: DeerBody.REFERENCES,
-    body: (cohort: DeerBody.Cohort): QuadrupedBody.IBody =>
-      DeerBody(undefined, cohort),
+    references: AutoMovieArchetypeDeerBody.REFERENCES,
+    body: (
+      cohort: AutoMovieArchetypeDeerBody.Cohort,
+    ): AutoMovieArchetypeQuadrupedBody.IBody =>
+      AutoMovieArchetypeDeerBody(undefined, cohort),
     params,
     seed,
     prepare: (
-      rig: QuadrupedBody.IRig,
-      cohort: DeerBody.Cohort,
+      rig: AutoMovieArchetypeQuadrupedBody.IRig,
+      cohort: AutoMovieArchetypeDeerBody.Cohort,
     ): createCohortQuadruped.Addition | undefined => {
       if (cohort === "boso-adult-female") {
         if (params.antlers === true)
-          throw new ArchetypeRefusal({
+          throw new AutoMovieArchetypeRefusal({
             kind: "parameter",
             archetype: "deer",
             axis: "antlers",
@@ -92,7 +100,7 @@ export function createDeer(
       if (params.antlers === false) return;
       const a: typeof createDeer.ANTLERS = createDeer.ANTLERS;
       const radius: number = (a.baseLong + a.baseShort) / 4;
-      const base: IAutoMovieVector3 = QuadrupedHeadAttachment(
+      const base: IAutoMovieVector3 = AutoMovieArchetypeQuadrupedHeadAttachment(
         rig,
         {
           x: rig.poll.x + rig.headRadius,
@@ -109,9 +117,9 @@ export function createDeer(
           "The seated antler must preserve a positive beam rise at its declared length and tip spacing",
         );
       return (
-        builder: ArchetypeBuilder<
+        builder: AutoMovieArchetypeBuilder<
           createCohortQuadruped.Affordance,
-          QuadrupedBody.Dimension
+          AutoMovieArchetypeQuadrupedBody.Dimension
         >,
       ): void => {
         for (const [side, sign] of [
@@ -157,7 +165,7 @@ export function createDeer(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names optional reference mass, antler presence, exact source dimensions and explicitly constructed branching.
  * @evidence contracts/development/design.md#principled-representation The shared authored contract separates a bare measured mean from equipment mass; source beam dimensions and estimated tines remain distinct records.
- * @evidence contracts/development/design.md#minimal-and-owned-surface DeerBody owns the body and skull references while this producer owns only its actual antler addition.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieArchetypeDeerBody owns the body and skull references while this producer owns only its actual antler addition.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Source curve length is a coarse beam control, not a claim of recovered curvature or exact branching anatomy.
  */
 export namespace createDeer {
@@ -169,7 +177,7 @@ export namespace createDeer {
   /** Bare reference mass may be omitted; authored equipment requires explicit complete mass. */
   export interface IParams extends createCohortQuadruped.IParams {
     /** Fix male4+ or female2+; seeded omission draws adults and equipment must fit the whole unfixed palette. */
-    cohort?: DeerBody.Cohort;
+    cohort?: AutoMovieArchetypeDeerBody.Cohort;
 
     /** Optional complete kilograms; the bare cohort mean when absent. */
     mass?: number;
@@ -186,7 +194,7 @@ export namespace createDeer {
    * Curve length follows the antler, not a straight root-to-tip distance.
    * http://www.chiba-muse.or.jp/NATURAL/cms/wp-content/uploads/2024/01/journal_03-2_11ochiai.pdf
    * This is the body study's population with different trait counts; the
-   * separate 1997 skull/limb references remain explicitly owned by DeerBody.
+   * separate 1997 skull/limb references remain explicitly owned by AutoMovieArchetypeDeerBody.
    */
   export const ANTLERS: Readonly<{
     curve: number;

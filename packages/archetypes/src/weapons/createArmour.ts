@@ -1,12 +1,12 @@
 import type { IAutoMovieBodyMeasure } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
   ArchetypeDraw,
-  type ArchetypeDrawSession,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  type AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { armourBone } from "./armourBone";
 import { createCostumeCuirass } from "./createCostumeCuirass";
@@ -38,7 +38,7 @@ import { createCostumeVambrace } from "./createCostumeVambrace";
  * @param params The kind, the read piece, the body's measure, and any dimension the author fixes.
  * @param seed The seed that picks the read piece left free and draws every dimension left free inside its band; absent, the first piece and the middle of each band.
  * @returns The piece.
- * @throws {ArchetypeRefusal} For an unsupported piece/dimension, invalid used body measures, inverted cuirass heights or a mail mass/coverage that cannot contain a positive wall and cavity.
+ * @throws {AutoMovieArchetypeRefusal} For an unsupported piece/dimension, invalid used body measures, inverted cuirass heights or a mail mass/coverage that cannot contain a positive wall and cavity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each kind covers, how it is fitted or left as read, where it is centred and how it rides its bone.
  * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
@@ -51,7 +51,7 @@ import { createCostumeVambrace } from "./createCostumeVambrace";
 export function createArmour(
   params: createArmour.IParams,
   seed?: number | string,
-): Archetype<createArmour.Affordance, createArmour.Dimension> {
+): AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension> {
   const kind: createArmour.Kind = ArchetypeDraw.choice(
     "armour",
     "kind",
@@ -63,7 +63,7 @@ export function createArmour(
     build(
       params: createArmour.IParams,
       seed?: number | string,
-    ): Archetype<createArmour.Affordance, createArmour.Dimension>;
+    ): AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension>;
   }["build"];
   // The selected producer validates its options from the saved parameter union.
   const produce: Producer = createArmour.PRODUCERS[kind] as Producer;
@@ -158,7 +158,9 @@ export namespace createArmour {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     width: "m",
     depth: "m",
@@ -196,9 +198,9 @@ export namespace createArmour {
     depth: number,
     grams: number,
   ): Readonly<Partial<Record<Dimension, number>>> => ({
-    height: height * ArchetypeUnits.CENTIMETRE,
-    width: width * ArchetypeUnits.CENTIMETRE,
-    depth: depth * ArchetypeUnits.CENTIMETRE,
+    height: height * AutoMovieArchetypeUnits.CENTIMETRE,
+    width: width * AutoMovieArchetypeUnits.CENTIMETRE,
+    depth: depth * AutoMovieArchetypeUnits.CENTIMETRE,
     mass: grams / 1000,
   });
 
@@ -263,19 +265,23 @@ export namespace createArmour {
   export const GLANCE: number = 60;
 
   /** The plate's thickness band. */
-  const thickness: IArchetypeBand = ArchetypeBand.metres(0.0015, 0.003, PLATE);
+  const thickness: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
+    0.0015,
+    0.003,
+    PLATE,
+  );
 
   /** A helmet's padding. */
-  const pad: IArchetypeBand = ArchetypeBand.metres(
-    0.75 * ArchetypeUnits.INCH,
-    0.75 * ArchetypeUnits.INCH,
+  const pad: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
+    0.75 * AutoMovieArchetypeUnits.INCH,
+    0.75 * AutoMovieArchetypeUnits.INCH,
     PAD,
     true,
   );
 
   /** The band of each free dimension a piece's record leaves, by kind: the plate's thickness, a breastplate's band applied to the thinner limb plates, provisional for them, and a helmet's padding. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     openHelmet: { thickness, pad },
     closedHelmet: { thickness, pad },

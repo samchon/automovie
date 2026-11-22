@@ -1,4 +1,4 @@
-import { ArchetypeCourse, createDinghy } from "@automovie/archetypes";
+import { AutoMovieArchetypeCourse, createDinghy } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -76,24 +76,25 @@ export function test_motion_exercise_dinghy_tack(): void {
   );
   for (const kind of ["sailTack", "sailAbort"] as const) {
     const complete: boolean = kind === "sailTack";
-    const course: ArchetypeCourse.IPlan = ArchetypeCourse.plan("dinghy", {
-      start: { x: 0, z: 0, heading: 45 },
-      legs: complete
-        ? [
-            { kind: "straight", length: 1.2 },
-            { kind: "turn", radius: 3, angle: -90 },
-            { kind: "straight", length: 3 },
-          ]
-        : [
-            { kind: "straight", length: 1.2 },
-            { kind: "turn", radius: 3, angle: -30 },
-            { kind: "turn", radius: 3, angle: 30 },
-            { kind: "straight", length: 3 },
-          ],
-      cruise: 1.4,
-      acceleration: 0.8,
-      deceleration: 0.6,
-    });
+    const course: AutoMovieArchetypeCourse.IPlan =
+      AutoMovieArchetypeCourse.plan("dinghy", {
+        start: { x: 0, z: 0, heading: 45 },
+        legs: complete
+          ? [
+              { kind: "straight", length: 1.2 },
+              { kind: "turn", radius: 3, angle: -90 },
+              { kind: "straight", length: 3 },
+            ]
+          : [
+              { kind: "straight", length: 1.2 },
+              { kind: "turn", radius: 3, angle: -30 },
+              { kind: "turn", radius: 3, angle: 30 },
+              { kind: "straight", length: 3 },
+            ],
+        cruise: 1.4,
+        acceleration: 0.8,
+        deceleration: 0.6,
+      });
     const motion = (seconds: number): IAutoMovieRigidTransform => ({
       position: course.at(seconds).placement.translation,
       rotation: course.at(seconds).placement.rotation,

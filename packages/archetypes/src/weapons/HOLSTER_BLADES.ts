@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../core";
 import type { createHolster } from "./createHolster";
 import { createSword } from "./createSword";
 
@@ -17,12 +17,12 @@ const madeTo = (
   name: string,
   sword: Readonly<Partial<Record<createSword.Dimension, number>>>,
 ): createHolster.Fitted => ({
-  length: ArchetypeBand.metres(
+  length: AutoMovieArchetypeBand.metres(
     sword.bladeLength! + FIT.length,
     sword.bladeLength! + FIT.length,
     `${WULFLUND}, on the ${name}'s read ${sword.bladeLength} m blade`,
   ),
-  width: ArchetypeBand.metres(
+  width: AutoMovieArchetypeBand.metres(
     sword.bladeWidth! + FIT.width,
     sword.bladeWidth! + FIT.width,
     `${WULFLUND}, on the ${name}'s read ${sword.bladeWidth} m blade width`,
@@ -32,18 +32,18 @@ const madeTo = (
 /** A scabbard's or a sheath's length and width made to a blade of one of `createSword`'s kinds, its bands moved out by the fit, provisional where the blade's are. */
 const madeFor = (kind: createSword.Kind): createHolster.Fitted => {
   const blade: Readonly<
-    Partial<Record<createSword.Dimension, IArchetypeBand>>
+    Partial<Record<createSword.Dimension, IAutoMovieArchetypeBand>>
   > = createSword.BANDS[kind];
-  const length: IArchetypeBand = blade.bladeLength!;
-  const width: IArchetypeBand = blade.bladeWidth!;
+  const length: IAutoMovieArchetypeBand = blade.bladeLength!;
+  const width: IAutoMovieArchetypeBand = blade.bladeWidth!;
   return {
-    length: ArchetypeBand.metres(
+    length: AutoMovieArchetypeBand.metres(
       length.minimum + FIT.length,
       length.maximum + FIT.length,
       `${WULFLUND}, on ${length.source}`,
       length.provisional,
     ),
-    width: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(
       width.minimum + FIT.width,
       width.maximum + FIT.width,
       `${WULFLUND}, on ${width.source}`,

@@ -1,5 +1,5 @@
 import {
-  ArchetypeFrame,
+  AutoMovieArchetypeFrame,
   createAppliance,
   createCymbal,
   createDrumstick,
@@ -54,7 +54,7 @@ export function test_archetype_catalogue_contacts(): void {
       gap > 0 &&
       gap <= 3 * 0.0254 &&
       nclose(platform.affordance("platform").width!, 11 * 0.3048) &&
-      vclose(ArchetypeFrame.axis(platform.site("platformEdge"), "x"), {
+      vclose(AutoMovieArchetypeFrame.axis(platform.site("platformEdge"), "x"), {
         x: 0,
         y: 0,
         z: 1,
@@ -109,12 +109,12 @@ export function test_archetype_catalogue_contacts(): void {
       nclose(hairTip.x, ribbon.high) &&
       nclose(hairFrog.y, hairTip.y) &&
       nclose(hairTip.y, archetypeExtent(bow, "y", ["ribbon"]).low) &&
-      vclose(ArchetypeFrame.axis(bow.site("hairFrog"), "y"), {
+      vclose(AutoMovieArchetypeFrame.axis(bow.site("hairFrog"), "y"), {
         x: 0,
         y: -1,
         z: 0,
       }) &&
-      vclose(ArchetypeFrame.axis(bow.site("hairTip"), "y"), {
+      vclose(AutoMovieArchetypeFrame.axis(bow.site("hairTip"), "y"), {
         x: 0,
         y: -1,
         z: 0,
@@ -193,7 +193,7 @@ export function test_archetype_catalogue_contacts(): void {
   TestValidator.predicate(
     "the upper pull runs vertically on the free side and follows its own hinge",
     pull.x < hinge.x &&
-      vclose(ArchetypeFrame.axis(fridge.site("fridgeHandle"), "x"), {
+      vclose(AutoMovieArchetypeFrame.axis(fridge.site("fridgeHandle"), "x"), {
         x: 0,
         y: 1,
         z: 0,

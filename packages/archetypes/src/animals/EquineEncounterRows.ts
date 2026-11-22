@@ -4,13 +4,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core";
+import { AutoMovieArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeEquineEncounterCue } from "./AutoMovieArchetypeEquineEncounterCue";
+import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineBodyPose } from "./EquineBodyPose";
-import type { EquineEncounterCue } from "./EquineEncounterCue";
-import type { EquineStanceCue } from "./EquineStanceCue";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
-import type { QuadrupedBody } from "./QuadrupedBody";
 
 /** A limb end of the body. */
 type End = "Fore" | "Hind";
@@ -31,10 +31,9 @@ const LIFT: number = 0.08;
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /** The kinds of the encounter rows. */
-const KINDS: ReadonlySet<string> = new Set<EquineEncounterCue.Row["kind"]>([
-  "strike",
-  "kick",
-]);
+const KINDS: ReadonlySet<string> = new Set<
+  AutoMovieArchetypeEquineEncounterCue.Row["kind"]
+>(["strike", "kick"]);
 
 /**
  * The encounter's stance rows: a rearing foreleg strike and a double-barrel kick, each bringing hooves onto a point on the other horse.
@@ -62,8 +61,8 @@ export namespace EquineEncounterRows {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function owns(
-    cue: EquineStanceCue.Cue,
-  ): cue is EquineEncounterCue.Row {
+    cue: AutoMovieArchetypeEquineStanceCue.Cue,
+  ): cue is AutoMovieArchetypeEquineEncounterCue.Row {
     return KINDS.has(cue.kind);
   }
 
@@ -86,7 +85,7 @@ export namespace EquineEncounterRows {
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineEncounterCue.Row,
+    cue: AutoMovieArchetypeEquineEncounterCue.Row,
   ): EquineStanceRows.IPlan {
     const heading: IAutoMovieQuaternion = EquineStanceSupport.heading(
       start.trunk,
@@ -105,13 +104,16 @@ export namespace EquineEncounterRows {
     const strike: boolean = cue.kind === "strike";
     const pivot: IAutoMovieVector3 = middle(strike ? "Hind" : "Fore");
     const pitch: number = strike ? STRIKE_PITCH : -KICK_PITCH;
-    const moving: QuadrupedBody.Limb[] = [];
+    const moving: AutoMovieArchetypeQuadrupedBody.Limb[] = [];
     const targets: Partial<
-      Record<QuadrupedBody.Limb, EquineEncounterCue.IContact>
+      Record<
+        AutoMovieArchetypeQuadrupedBody.Limb,
+        AutoMovieArchetypeEquineEncounterCue.IContact
+      >
     > = {};
-    let folded: QuadrupedBody.Limb | undefined;
+    let folded: AutoMovieArchetypeQuadrupedBody.Limb | undefined;
     if (cue.kind === "strike") {
-      const limb: QuadrupedBody.Limb = `${cue.side}Fore`;
+      const limb: AutoMovieArchetypeQuadrupedBody.Limb = `${cue.side}Fore`;
       moving.push(limb);
       targets[limb] = cue;
       folded = cue.side === "left" ? "rightFore" : "leftFore";
@@ -135,7 +137,9 @@ export namespace EquineEncounterRows {
       keys: [0.5, 1],
       events: [
         ...moving.map(
-          (limb: QuadrupedBody.Limb): EquineStanceRows.IEvent => ({
+          (
+            limb: AutoMovieArchetypeQuadrupedBody.Limb,
+          ): EquineStanceRows.IEvent => ({
             label: `${limb}Off`,
             entry: true,
             time: 0,
@@ -145,8 +149,10 @@ export namespace EquineEncounterRows {
       ],
       goal: (share: number): EquineBodyPose.IGoal => {
         const s: number = minimumJerk.share(Math.max(0, Math.min(1, share)));
-        const limbs: Record<QuadrupedBody.Limb, EquineBodyPose.Limb> =
-          EquineStanceSupport.placed(start.anchors);
+        const limbs: Record<
+          AutoMovieArchetypeQuadrupedBody.Limb,
+          EquineBodyPose.Limb
+        > = EquineStanceSupport.placed(start.anchors);
         for (const limb of moving)
           limbs[limb] = {
             kind: "placed",
@@ -169,7 +175,7 @@ export namespace EquineEncounterRows {
         if (folded !== undefined && chain !== undefined)
           limbs[folded] = EquineStanceSupport.folded(chain, TUCK, s);
         return {
-          trunk: ArchetypeFrame.chain(
+          trunk: AutoMovieArchetypeFrame.chain(
             EquineBodyPose.turn(pitch * s, 0, pivot, ZERO, heading),
             start.trunk,
           ),

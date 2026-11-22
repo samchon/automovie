@@ -1,7 +1,7 @@
 import {
-  ArchetypeCourse,
-  ArchetypeRefusal,
-  QuadrupedGait,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeQuadrupedGait,
+  AutoMovieArchetypeRefusal,
   createHorse,
   createQuadruped,
   rideQuadruped,
@@ -33,7 +33,7 @@ interface IStretch {
  *
  * Scenarios:
  * 1. A 1.6 m mare stands for a second, accelerates to 3 m/s, trots, slows to 0.8 m/s, below the 1.077 m/s floor of the measured walk at her height, walks there for two seconds and speeds up again: every 20 ms samples, a `gait:walk-trot` and a later `gait:trot-walk` change appear, and no planted hoof slides.
- * 2. The same slow stretch named as a trot refuses with an ArchetypeRefusal naming the trot.
+ * 2. The same slow stretch named as a trot refuses with an AutoMovieArchetypeRefusal naming the trot.
  * 3. A crowd-sampled start, equal marks until it moves and marks every 0.5 s of a 3 m/s^2 start to 3 m/s, never runs back along its line and rides every 20 ms.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the profile, the floor and the refusal.
@@ -44,7 +44,7 @@ interface IStretch {
  */
 export function test_archetype_equine_timed_walk_floor(): void {
   const horse = createHorse({ withersHeight: 1.6, tempo: 0 }, "mare");
-  const floor: number = QuadrupedGait.range(
+  const floor: number = AutoMovieArchetypeQuadrupedGait.range(
     createQuadruped.species(horse),
     "walk",
     1.6,
@@ -79,7 +79,10 @@ export function test_archetype_equine_timed_walk_floor(): void {
     z += speed * 0.1;
     marks.push({ seconds, x: 0, z });
   }
-  const ride = rideQuadruped(horse, ArchetypeCourse.timed("mare", marks));
+  const ride = rideQuadruped(
+    horse,
+    AutoMovieArchetypeCourse.timed("mare", marks),
+  );
   for (let at: number = 0; at <= ride.duration; at += 0.02)
     try {
       ride.at(at);
@@ -101,11 +104,16 @@ export function test_archetype_equine_timed_walk_floor(): void {
   if (!(slide <= 1e-9)) issues.push(`a planted hoof slides ${slide} m`);
   let refusal: unknown;
   try {
-    rideQuadruped(horse, ArchetypeCourse.timed("mare", marks), "trot");
+    rideQuadruped(horse, AutoMovieArchetypeCourse.timed("mare", marks), "trot");
   } catch (error) {
     refusal = error;
   }
-  if (!(refusal instanceof ArchetypeRefusal && /trot/.test(refusal.message)))
+  if (
+    !(
+      refusal instanceof AutoMovieArchetypeRefusal &&
+      /trot/.test(refusal.message)
+    )
+  )
     issues.push(`a named trot below its floor raises ${String(refusal)}`);
 
   // 3. A crowd-sampled departure: equal marks to 2 s, then marks every 0.5 s of a 3 m/s^2 start to 3 m/s.
@@ -119,11 +127,14 @@ export function test_archetype_equine_timed_walk_floor(): void {
       return { seconds, x: 0.26 * along, z: 0.966 * along };
     },
   );
-  const plan: ArchetypeCourse.IPlan = ArchetypeCourse.timed("mare", crowd);
+  const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.timed(
+    "mare",
+    crowd,
+  );
   let back: number = 0;
   for (let at: number = 2; at <= 3.5; at += 0.01) {
-    const before: ArchetypeCourse.IState = plan.at(at);
-    const after: ArchetypeCourse.IState = plan.at(at + 0.01);
+    const before: AutoMovieArchetypeCourse.IState = plan.at(at);
+    const after: AutoMovieArchetypeCourse.IState = plan.at(at + 0.01);
     back = Math.max(
       back,
       -(

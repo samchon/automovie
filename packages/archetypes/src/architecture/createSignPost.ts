@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
 /** The estimated thickness of the sign blank, metres. */
@@ -15,7 +15,7 @@ const BLANK_THICKNESS: number = 0.003;
  * @param params The scene identifier, model choice and supported dimension overrides.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The sign faces +Z, and its measured lower edge bounds the upright post contact.
@@ -28,7 +28,7 @@ const BLANK_THICKNESS: number = 0.003;
 export function createSignPost(
   params: createSignPost.IParams = {},
   seed?: number | string,
-): Archetype<createSignPost.Affordance, createSignPost.Dimension> {
+): AutoMovieArchetype<createSignPost.Affordance, createSignPost.Dimension> {
   const { builder, d }: StreetFixtureDraw.IFixture<createSignPost.Affordance> =
     StreetFixtureDraw.begin("signPost", "sign post", "composite", params, seed);
   const v: typeof Vector3.create = Vector3.create;
@@ -53,7 +53,11 @@ export function createSignPost(
     id: "post",
     kind: "bar",
     symmetry: "half",
-    frame: ArchetypeFrame.facing(v(0, bottom / 2, 0), v(0, 0, 1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, bottom / 2, 0),
+      v(0, 0, 1),
+      v(0, 1, 0),
+    ),
     extent: null,
     grip: "power",
     aperture: side,

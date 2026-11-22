@@ -1,5 +1,5 @@
 import {
-  QuadrupedLocomotion,
+  AutoMovieArchetypeQuadrupedLocomotion,
   createCamel,
   createDeer,
   createDog,
@@ -34,8 +34,10 @@ export function test_archetype_motion_stride_clock(): void {
     foreStance: stride / 2,
     hindStance: stride / 2,
   });
-  const camels = QuadrupedLocomotion.camel({ pace: [clock(3, 1)] });
-  const deerGaits = QuadrupedLocomotion.deer({
+  const camels = AutoMovieArchetypeQuadrupedLocomotion.camel({
+    pace: [clock(3, 1)],
+  });
+  const deerGaits = AutoMovieArchetypeQuadrupedLocomotion.deer({
     trot: [clock(2, 0.6)],
     gallop: [clock(4, 0.5)],
   });

@@ -1,4 +1,8 @@
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import { FlintLock } from "./FlintLock";
 import { HANDGUN_MODELS } from "./HANDGUN_MODELS";
 import { LockTimes } from "./LockTimes";
@@ -15,8 +19,11 @@ const GRAZ_PISTOL: string =
  * @param what What is borrowed.
  * @returns The same range, provisional, labelled with its lender and the search.
  */
-function borrowed(band: IArchetypeBand, what: string): IArchetypeBand {
-  return ArchetypeBand.of(
+function borrowed(
+  band: IAutoMovieArchetypeBand,
+  what: string,
+): IAutoMovieArchetypeBand {
+  return AutoMovieArchetypeBand.of(
     band.unit,
     band.minimum,
     band.maximum,
@@ -45,37 +52,37 @@ const SHARED: Readonly<
     | "gripDepth"
     | "muzzleVelocity"
     | "lockTime",
-    IArchetypeBand
+    IAutoMovieArchetypeBand
   >
 > = {
-  width: ArchetypeBand.metres(
+  width: AutoMovieArchetypeBand.metres(
     0.0255,
     0.0255,
     "slide width: SIG SAUER publishes only the overall width; the one slide width read, GLOCK's 25.5 mm on the G17 and G19 Gen5 (https://eu.glock.com/en/products/pistols/g17-gen5), applied",
     true,
   ),
-  triggerReach: ArchetypeBand.metres(
+  triggerReach: AutoMovieArchetypeBand.metres(
     0.07,
     0.074,
     `${TRIGGER}: SIG SAUER publishes no trigger distance; the GLOCKs' read range applied`,
     true,
   ),
-  triggerTravel: ArchetypeBand.metres(
+  triggerTravel: AutoMovieArchetypeBand.metres(
     0.0125,
     0.0125,
     `${TRIGGER}: no Gen5 or SIG SAUER figure is published; the Gen4 figure applied`,
     true,
   ),
-  gripDepth: ArchetypeBand.metres(
+  gripDepth: AutoMovieArchetypeBand.metres(
     0.048,
     0.055,
     `grip depth from front strap to backstrap, ${UNPUBLISHED}`,
     true,
   ),
-  muzzleVelocity: ArchetypeBand.of(
+  muzzleVelocity: AutoMovieArchetypeBand.of(
     "m/s",
-    1198 * ArchetypeUnits.FOOT,
-    1198 * ArchetypeUnits.FOOT,
+    1198 * AutoMovieArchetypeUnits.FOOT,
+    1198 * AutoMovieArchetypeUnits.FOOT,
     "SIG SAUER's 9mm +P 124 gr Elite Ball M17 FMJ, 1,198 fps from its 4.0 in test barrel (https://www.sigsauer.com/9mm-p-124gr-elite-ball-m17-fmj-box-50.html); the GLOCKs' borrowed from it because GLOCK publishes no velocity (searched: GLOCK's product pages and Gen4 guide; records-firearms-rifles.md)",
     true,
   ),
@@ -86,36 +93,36 @@ const SHARED: Readonly<
 export const HANDGUN_BANDS: Readonly<
   Record<
     createHandgun.Frame,
-    Readonly<Partial<Record<createHandgun.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createHandgun.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   fullSize: SHARED,
   compact: SHARED,
   revolver: {
-    height: ArchetypeBand.metres(
-      5.5 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      5.5 * AutoMovieArchetypeUnits.INCH,
       HANDGUN_MODELS.revolver!.saa75!.height!,
       `borrowed from ${GP100} and the Single Action Army's, because Ruger's Vaquero 5104 sheet gives none (searched: Ruger's spec sheets and manual; records-firearms-revolver.md)`,
       true,
     ),
-    width: ArchetypeBand.metres(
-      1.55 * ArchetypeUnits.INCH,
+    width: AutoMovieArchetypeBand.metres(
+      1.55 * AutoMovieArchetypeUnits.INCH,
       HANDGUN_MODELS.revolver!.saa75!.width!,
       `borrowed from ${GP100} and the Single Action Army's, because Ruger's Vaquero 5104 sheet gives none (searched: Ruger's spec sheets and manual; records-firearms-revolver.md)`,
       true,
     ),
-    triggerReach: ArchetypeBand.metres(
+    triggerReach: AutoMovieArchetypeBand.metres(
       HANDGUN_MODELS.revolver!.saa75!.triggerReach!,
-      3.5 * ArchetypeUnits.INCH,
+      3.5 * AutoMovieArchetypeUnits.INCH,
       `borrowed from ${GP100} and the Single Action Army's, because Ruger's Vaquero 5104 sheet gives none (searched: Ruger's spec sheets and manual; records-firearms-revolver.md)`,
       true,
     ),
     triggerTravel: borrowed(SHARED.triggerTravel, "trigger travel"),
     gripDepth: borrowed(SHARED.gripDepth, "grip depth estimate"),
-    muzzleVelocity: ArchetypeBand.of(
+    muzzleVelocity: AutoMovieArchetypeBand.of(
       "m/s",
-      725 * ArchetypeUnits.FOOT,
-      725 * ArchetypeUnits.FOOT,
+      725 * AutoMovieArchetypeUnits.FOOT,
+      725 * AutoMovieArchetypeUnits.FOOT,
       "borrowed from Hornady's .45 Colt 255 gr Cowboy, 725 fps from a 4.75 in barrel (https://www.hornady.com/ammunition/handgun/45-colt-255-gr-cowboy), because no velocity from the Single Action Army's 7.5 in or the Vaquero's 5.5 in barrel was found (searched: Colt, Ruger, Gun Tests' load tables; records-firearms-revolver.md)",
       true,
     ),
@@ -125,14 +132,14 @@ export const HANDGUN_BANDS: Readonly<
     triggerReach: borrowed(SHARED.triggerReach, "trigger reach"),
     triggerTravel: borrowed(SHARED.triggerTravel, "trigger travel"),
     gripDepth: borrowed(SHARED.gripDepth, "grip depth estimate"),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       1.16,
       1.16,
       `${GRAZ_PISTOL}, because no record weighs a Light Dragoon or Sea Service pistol (searched: Museums Victoria, Royal Museums Greenwich; records-firearms-flintlock.md)`,
       true,
     ),
-    muzzleVelocity: ArchetypeBand.of(
+    muzzleVelocity: AutoMovieArchetypeBand.of(
       "m/s",
       385,
       385,
@@ -140,7 +147,7 @@ export const HANDGUN_BANDS: Readonly<
       true,
     ),
     lockTime: FlintLock.TIME,
-    ball: ArchetypeBand.metres(
+    ball: AutoMovieArchetypeBand.metres(
       0.0135,
       0.0135,
       `${GRAZ_PISTOL}, because no record gives the British pistols' ball (searched: Museums Victoria, Royal Museums Greenwich; records-firearms-flintlock.md)`,

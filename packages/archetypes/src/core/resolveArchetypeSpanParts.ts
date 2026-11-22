@@ -4,8 +4,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeRefusal } from "./ArchetypeRefusal";
-import type { ArchetypeSpan } from "./ArchetypeSpan";
+import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
+import type { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
 
 /**
  * Resolve flexible line parts in attachment order, including lines on lines.
@@ -15,7 +15,7 @@ import type { ArchetypeSpan } from "./ArchetypeSpan";
  * @param parts Current model parts before flexible lines are rebuilt.
  * @param read Shared endpoint-state owner, reading the current dependency pose.
  * @returns Current line geometry and states in declaration order.
- * @throws {ArchetypeRefusal} For missing/non-cylinder line parts, duplicate declarations or cyclic line attachments.
+ * @throws {AutoMovieArchetypeRefusal} For missing/non-cylinder line parts, duplicate declarations or cyclic line attachments.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines dependency order, same-pose endpoint lookup, original declaration ordering, rigid cylinder ownership and unsupported cycles.
  * @evidence contracts/development/implementation.md#principled-implementation Kahn's topological traversal resolves a line only after every line carrying one of its endpoints. The shared endpoint reader sees an array whose predecessor cylinders already have their current transforms and lengths.
@@ -27,13 +27,13 @@ import type { ArchetypeSpan } from "./ArchetypeSpan";
  */
 export function resolveArchetypeSpanParts(
   archetype: string,
-  spans: readonly ArchetypeSpan.ISpan[],
+  spans: readonly AutoMovieArchetypeSpan.ISpan[],
   parts: IAutoMovieModelPart[],
   read: (
-    span: ArchetypeSpan.ISpan,
+    span: AutoMovieArchetypeSpan.ISpan,
     current: readonly IAutoMovieModelPart[],
-  ) => ArchetypeSpan.IState,
-): { parts: IAutoMovieModelPart[]; states: ArchetypeSpan.IState[] } {
+  ) => AutoMovieArchetypeSpan.IState,
+): { parts: IAutoMovieModelPart[]; states: AutoMovieArchetypeSpan.IState[] } {
   const indices: Map<string, number> = new Map();
   const partIndices: Map<string, number> = new Map(
     parts.map((part: IAutoMovieModelPart, index: number): [string, number] => [
@@ -42,7 +42,7 @@ export function resolveArchetypeSpanParts(
     ]),
   );
   for (let index: number = 0; index < spans.length; index++) {
-    const span: ArchetypeSpan.ISpan = spans[index]!;
+    const span: AutoMovieArchetypeSpan.ISpan = spans[index]!;
     if (indices.has(span.id))
       refuse(span.id, "a span id must be declared only once");
     const partIndex: number | undefined = partIndices.get(span.id);
@@ -71,11 +71,11 @@ export function resolveArchetypeSpanParts(
   for (let index: number = 0; index < spans.length; index++)
     if (incoming[index] === 0) ready.push(index);
   const current: IAutoMovieModelPart[] = [...parts];
-  const states: Map<string, ArchetypeSpan.IState> = new Map();
+  const states: Map<string, AutoMovieArchetypeSpan.IState> = new Map();
   for (let cursor: number = 0; cursor < ready.length; cursor++) {
     const index: number = ready[cursor]!;
-    const span: ArchetypeSpan.ISpan = spans[index]!;
-    const state: ArchetypeSpan.IState = read(span, current);
+    const span: AutoMovieArchetypeSpan.ISpan = spans[index]!;
+    const state: AutoMovieArchetypeSpan.IState = read(span, current);
     const partIndex: number = partIndices.get(span.id)!;
     const part: IAutoMovieModelPart = current[partIndex]!;
     if (
@@ -129,7 +129,8 @@ export function resolveArchetypeSpanParts(
   return {
     parts: current,
     states: spans.map(
-      (span: ArchetypeSpan.ISpan): ArchetypeSpan.IState => states.get(span.id)!,
+      (span: AutoMovieArchetypeSpan.ISpan): AutoMovieArchetypeSpan.IState =>
+        states.get(span.id)!,
     ),
   };
 
@@ -141,7 +142,7 @@ export function resolveArchetypeSpanParts(
 
   /** A malformed physical dependency is a producer/request error, never a fallback pose. */
   function refuse(id: string, reason: string): never {
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,
       axis: id,

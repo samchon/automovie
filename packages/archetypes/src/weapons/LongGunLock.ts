@@ -1,12 +1,15 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { FlintLock } from "./FlintLock";
 import type { createLongGun } from "./createLongGun";
 
 /** A long gun under construction. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createLongGun.Affordance,
   createLongGun.Dimension
 >;
@@ -180,7 +183,7 @@ export namespace LongGunLock {
     builder.affordance({
       id: "ramrod",
       kind: "slider",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, below, length),
         v(0, -1, 0),
         v(0, 0, 1),
@@ -192,13 +195,21 @@ export namespace LongGunLock {
     builder.affordance({
       id: "pipe",
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(0, below, mouth), v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, below, mouth),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
     builder.affordance({
       id: "bayonet",
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(0, 0, length), v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, 0, length),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
 
@@ -207,7 +218,7 @@ export namespace LongGunLock {
     builder.affordance({
       id: "bayonetEntry",
       kind: "socket",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, 0, length + BAYONET_APPROACH),
         v(0, 0, 1),
         v(1, 0, 0),
@@ -248,14 +259,18 @@ export namespace LongGunLock {
     builder.affordance({
       id: "bolt",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, 0, knob), v(0, 0, -1), v(-1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, 0, knob),
+        v(0, 0, -1),
+        v(-1, 0, 0),
+      ),
       extent: null,
       travel: e.bolt.lift,
     });
     builder.affordance({
       id: "boltSlide",
       kind: "slider",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(-e.bolt.reach, 0, knob),
         v(0, 1, 0),
         v(0, 0, -1),
@@ -268,7 +283,7 @@ export namespace LongGunLock {
     builder.affordance({
       id: "magazine",
       kind: "socket",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, e.bolt.well, breech - e.bolt.stroke / 2),
         v(0, 1, 0),
         v(0, 0, 1),
@@ -316,7 +331,7 @@ export namespace LongGunLock {
     builder.affordance({
       id: "lever",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(pivot, v(-1, 0, 0), v(0, 0, -1)),
+      frame: AutoMovieArchetypeFrame.facing(pivot, v(-1, 0, 0), v(0, 0, -1)),
       extent: null,
       travel: e.lever.swing,
       parts: ["lever"],
@@ -324,7 +339,7 @@ export namespace LongGunLock {
     builder.affordance({
       id: "hammer",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(hammer, v(-1, 0, 0), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(hammer, v(-1, 0, 0), v(0, 1, 0)),
       extent: null,
       travel: e.lever.hammer,
       parts: ["hammer"],

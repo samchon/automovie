@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The Euro container, from a secondary source. */
@@ -27,7 +27,7 @@ const SACK: string =
  * @param params The kind, the crate's contents and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The load.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, contents heavier than `createLoad.CONTENTS`, or any contents in a sack.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, contents heavier than `createLoad.CONTENTS`, or any contents in a sack.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the load lies and where it is held.
  * @evidence contracts/development/implementation.md#principled-implementation One dimensioned box; a crate's contents add to its own mass, and are bounded so the heaviest crate stays at the 25 kg HSE gives for a man's lift close to the body between knuckle and elbow height (INDG143, Figure 1, https://www.hse.gov.uk/pubns/indg143.pdf).
@@ -40,9 +40,9 @@ const SACK: string =
 export function createLoad(
   params: createLoad.IParams,
   seed?: number | string,
-): Archetype<createLoad.Affordance, createLoad.Dimension> {
-  const draw: ArchetypeDrawSession<createLoad.Dimension> =
-    new ArchetypeDrawSession<createLoad.Dimension>(
+): AutoMovieArchetype<createLoad.Affordance, createLoad.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createLoad.Dimension> =
+    new AutoMovieArchetypeDrawSession<createLoad.Dimension>(
       "load",
       createLoad.UNITS,
       seed,
@@ -61,7 +61,7 @@ export function createLoad(
   const load: number = params.load ?? 0;
   const most: number = kind === "sack" ? 0 : createLoad.CONTENTS;
   if (!(load >= 0 && load <= most))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "load",
       axis: "load",
@@ -79,13 +79,15 @@ export function createLoad(
       fix: "give contents that keep the load within what a person lifts",
     });
   const { length, height, depth }: Record<createLoad.Dimension, number> = d;
-  const builder: ArchetypeBuilder<createLoad.Affordance, createLoad.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: kind,
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createLoad.Affordance,
+    createLoad.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: kind,
+    draw,
+  });
   builder.box(
     kind,
     Vector3.create(length, height, depth),
@@ -103,7 +105,7 @@ export function createLoad(
       id,
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create((sign * length) / 2, hold, 0),
         Vector3.create(sign, 0, 0),
         Vector3.create(0, 0, 1),
@@ -115,7 +117,7 @@ export function createLoad(
   builder.affordance({
     id: "top",
     kind: "stack-top",
-    frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
     extent: [
       Vector3.create(-length / 2, 0, -depth / 2),
       Vector3.create(length / 2, 0, -depth / 2),
@@ -164,7 +166,9 @@ export namespace createLoad {
   export type Dimension = "length" | "height" | "depth" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     height: "m",
     depth: "m",
@@ -185,19 +189,25 @@ export namespace createLoad {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     crate: {
-      length: ArchetypeBand.metres(0.6, 0.6, EURO, true),
-      depth: ArchetypeBand.metres(0.4, 0.4, EURO, true),
-      height: ArchetypeBand.metres(0.1475, 0.28, EURO, true),
-      mass: ArchetypeBand.of("kg", 1.5, 2.5, ArchetypeBand.TYPICAL_MASS, true),
+      length: AutoMovieArchetypeBand.metres(0.6, 0.6, EURO, true),
+      depth: AutoMovieArchetypeBand.metres(0.4, 0.4, EURO, true),
+      height: AutoMovieArchetypeBand.metres(0.1475, 0.28, EURO, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        1.5,
+        2.5,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     sack: {
-      length: ArchetypeBand.metres(0.41, 0.413, SACK, true),
-      depth: ArchetypeBand.metres(0.41, 0.413, SACK, true),
-      height: ArchetypeBand.metres(0.15, 0.15, SACK, true),
-      mass: ArchetypeBand.of("kg", 25, 25, SACK, true),
+      length: AutoMovieArchetypeBand.metres(0.41, 0.413, SACK, true),
+      depth: AutoMovieArchetypeBand.metres(0.41, 0.413, SACK, true),
+      height: AutoMovieArchetypeBand.metres(0.15, 0.15, SACK, true),
+      mass: AutoMovieArchetypeBand.of("kg", 25, 25, SACK, true),
     },
   };
 }

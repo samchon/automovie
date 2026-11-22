@@ -1,11 +1,17 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { BED_BANDS } from "./BED_BANDS";
 import type { createBed } from "./createBed";
 
 /** The builder every construction fills. */
-type Builder = ArchetypeBuilder<createBed.Affordance, createBed.Dimension>;
+type Builder = AutoMovieArchetypeBuilder<
+  createBed.Affordance,
+  createBed.Dimension
+>;
 
 /** The drawn dimensions. */
 type Drawn = Partial<Record<createBed.Dimension, number>>;
@@ -43,7 +49,7 @@ function sides(
     builder.affordance({
       id,
       kind: "seat",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v((sign * width) / 2, height, 0),
         v(0, 1, 0),
         v(0, 0, -sign),
@@ -160,7 +166,7 @@ export namespace CareBedConstruction {
         id,
         kind: "bar",
         symmetry: "half",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(x, railTop, 0),
           v(sign, 0, 0),
           v(0, 0, 1),
@@ -173,7 +179,7 @@ export namespace CareBedConstruction {
     builder.affordance({
       id: "surface",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, top, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, top, 0)),
       extent: null,
       width,
       depth: length,
@@ -234,7 +240,7 @@ export namespace CareBedConstruction {
     builder.affordance({
       id: "surface",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, top, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, top, 0)),
       extent: null,
       width,
       depth: length,
@@ -301,7 +307,7 @@ export namespace CareBedConstruction {
         id,
         kind: "bar",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(sign * x, rail - r, 0),
           v(sign, 0, 0),
           v(0, 0, 1),
@@ -342,7 +348,7 @@ export namespace CareBedConstruction {
     builder.affordance({
       id: "surface",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, support + thick, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, support + thick, 0)),
       extent: null,
       width,
       depth: length,
@@ -420,7 +426,7 @@ export namespace CareBedConstruction {
       id: "guard",
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(-x, guard - r, 0),
         v(-1, 0, 0),
         v(0, 0, 1),
@@ -432,7 +438,7 @@ export namespace CareBedConstruction {
     builder.affordance({
       id: "upper",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, upper + thick, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, upper + thick, 0)),
       extent: null,
       width,
       depth: length,
@@ -440,7 +446,7 @@ export namespace CareBedConstruction {
     builder.affordance({
       id: "surface",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, lower + thick, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, lower + thick, 0)),
       extent: null,
       width,
       depth: length,

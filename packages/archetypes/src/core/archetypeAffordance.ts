@@ -1,7 +1,7 @@
 import type { IAutoMovieAffordance } from "@automovie/interface";
 
-import type { Archetype } from "./Archetype";
-import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import type { AutoMovieArchetype } from "./AutoMovieArchetype";
+import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
 /**
  * Locate a model contact or report its complete alternatives.
@@ -15,7 +15,7 @@ import { ArchetypeRefusal } from "./ArchetypeRefusal";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The lookup retains nothing.
  */
 export function archetypeAffordance(
-  model: Pick<Archetype, "id" | "name" | "affordances">,
+  model: Pick<AutoMovieArchetype, "id" | "name" | "affordances">,
   id: string,
   archetype: string,
 ): IAutoMovieAffordance {
@@ -23,7 +23,7 @@ export function archetypeAffordance(
     (a: IAutoMovieAffordance): boolean => a.id === id,
   );
   if (found !== undefined) return found;
-  throw new ArchetypeRefusal({
+  throw new AutoMovieArchetypeRefusal({
     kind: "affordance",
     archetype,
     axis: "affordance",

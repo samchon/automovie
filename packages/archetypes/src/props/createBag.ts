@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { BAG_BANDS } from "./BAG_BANDS";
 
@@ -33,7 +33,7 @@ const LOADS: Readonly<Record<createBag.Kind, number>> = {
  * @param params The kind, the load and any dimension the author fixes.
  * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The bag.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a load the kind does not carry.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or a load the kind does not carry.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, how the bag stands and what the telescope moves.
  * @evidence contracts/development/implementation.md#principled-implementation A dimensioned box with each handle or strap a bar on two risers; the load adds to the cited empty mass up to the bound `LOADS` cites for the kind, which keeps a loaded suitcase within IATA's 32 kg.
@@ -46,9 +46,9 @@ const LOADS: Readonly<Record<createBag.Kind, number>> = {
 export function createBag(
   params: createBag.IParams,
   seed?: number | string,
-): Archetype<createBag.Affordance, createBag.Dimension> {
-  const draw: ArchetypeDrawSession<createBag.Dimension> =
-    new ArchetypeDrawSession<createBag.Dimension>(
+): AutoMovieArchetype<createBag.Affordance, createBag.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createBag.Dimension> =
+    new AutoMovieArchetypeDrawSession<createBag.Dimension>(
       "bag",
       createBag.UNITS,
       seed,
@@ -62,7 +62,7 @@ export function createBag(
   );
   const load: number = params.load ?? 0;
   if (!(load >= 0 && load <= LOADS[kind]))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "bag",
       axis: "load",
@@ -94,13 +94,15 @@ export function createBag(
   const width: number = d.width!;
   const height: number = d.height!;
   const depth: number = d.depth!;
-  const builder: ArchetypeBuilder<createBag.Affordance, createBag.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: kind,
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createBag.Affordance,
+    createBag.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: kind,
+    draw,
+  });
   const color: string =
     kind === "suitcase" || kind === "briefcase"
       ? "#3d4a5c"
@@ -140,7 +142,7 @@ export function createBag(
     builder.affordance({
       id: "opening",
       kind: "aperture",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, height, 0),
         Vector3.create(0, -1, 0),
         Vector3.create(1, 0, 0),
@@ -152,7 +154,7 @@ export function createBag(
     builder.affordance({
       id: "inside",
       kind: "surface",
-      frame: ArchetypeFrame.upright(Vector3.create(0, wall, 0)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, wall, 0)),
       extent: null,
       width: width - 2 * wall,
       depth: depth - 2 * wall,
@@ -191,7 +193,7 @@ export function createBag(
       id,
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.upright(Vector3.create(0, y, 0)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, y, 0)),
       extent: null,
       grip: id === "strap" ? "hook" : "power",
       aperture: 2 * bar,
@@ -222,7 +224,7 @@ export function createBag(
         id: `${side}Strap`,
         kind: "handle",
         symmetry: "none",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           Vector3.create(x, height * 0.55, z),
           Vector3.create(0, 0, -1),
           Vector3.create(0, 1, 0),
@@ -264,7 +266,7 @@ export function createBag(
     builder.affordance({
       id: "telescope",
       kind: "slider",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, height + 0.02, z),
         Vector3.create(0, 0, -1),
         Vector3.create(0, 1, 0),
@@ -277,7 +279,9 @@ export function createBag(
       id: "pull",
       kind: "bar",
       symmetry: "none",
-      frame: ArchetypeFrame.upright(Vector3.create(0, height + 0.02, z)),
+      frame: AutoMovieArchetypeFrame.upright(
+        Vector3.create(0, height + 0.02, z),
+      ),
       extent: null,
       grip: "power",
       aperture: 2 * bar,
@@ -367,7 +371,9 @@ export namespace createBag {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     height: "m",
     depth: "m",
@@ -427,6 +433,6 @@ export namespace createBag {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = BAG_BANDS;
 }

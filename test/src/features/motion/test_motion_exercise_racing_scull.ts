@@ -1,4 +1,7 @@
-import { ArchetypeCourse, createDoubleScull } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeCourse,
+  createDoubleScull,
+} from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
@@ -57,17 +60,20 @@ export function test_motion_exercise_racing_scull(): void {
 /** Use the same moving shell and signed station timings with one body profile. */
 function verifyCrew(body: IAutoMovieMotionHumanBody): void {
   const shell = createDoubleScull({ id: "shell" }, 4);
-  const course: ArchetypeCourse.IPlan = ArchetypeCourse.plan("doubleScull", {
-    start: { x: 0.4, z: 1.1, heading: -12 },
-    legs: [
-      { kind: "straight", length: 2 },
-      { kind: "turn", radius: 12, angle: 42 },
-      { kind: "straight", length: 10 },
-    ],
-    cruise: 2.3,
-    acceleration: 1.2,
-    deceleration: 0.7,
-  });
+  const course: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+    "doubleScull",
+    {
+      start: { x: 0.4, z: 1.1, heading: -12 },
+      legs: [
+        { kind: "straight", length: 2 },
+        { kind: "turn", radius: 12, angle: 42 },
+        { kind: "straight", length: 10 },
+      ],
+      cruise: 2.3,
+      acceleration: 1.2,
+      deceleration: 0.7,
+    },
+  );
   const motion = (t: number): IAutoMovieRigidTransform => {
     const { translation, rotation } = course.at(t).placement;
     return { position: translation, rotation };

@@ -1,4 +1,4 @@
-import { ArchetypeRefusal, createArmour } from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, createArmour } from "@automovie/archetypes";
 import { physicalHullFaces } from "@automovie/engine";
 import type {
   IAutoMovieBodyMeasure,
@@ -158,7 +158,11 @@ export function test_archetype_armour_joints(): void {
         model + " accepted a padded bowl whose base lies outside its brim rim",
       );
     } catch (error) {
-      if (!(error instanceof ArchetypeRefusal && error.axis === "measure"))
+      if (
+        !(
+          error instanceof AutoMovieArchetypeRefusal && error.axis === "measure"
+        )
+      )
         findings.push(
           model + " did not give a structured joint feasibility refusal",
         );

@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The bar grille read. */
@@ -32,7 +32,7 @@ const ESTIMATES: Readonly<{ flat: number }> = { flat: 0.05 };
  * @param params The cell's width and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The cell front.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a width too narrow for two bars at the drawn centres.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or a width too narrow for two bars at the drawn centres.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the grille stands, which side the cell is and how its bars are named.
  * @evidence contracts/development/implementation.md#principled-implementation The maker's bar diameter and centres, its flat bars every 12 in, the rule's least ceiling for the grille's height; the bars as many as fit the cell's width.
@@ -45,9 +45,9 @@ const ESTIMATES: Readonly<{ flat: number }> = { flat: 0.05 };
 export function createCellFront(
   params: createCellFront.IParams,
   seed?: number | string,
-): Archetype<createCellFront.Affordance, createCellFront.Dimension> {
-  const draw: ArchetypeDrawSession<createCellFront.Dimension> =
-    new ArchetypeDrawSession<createCellFront.Dimension>(
+): AutoMovieArchetype<createCellFront.Affordance, createCellFront.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createCellFront.Dimension> =
+    new AutoMovieArchetypeDrawSession<createCellFront.Dimension>(
       "cellFront",
       createCellFront.UNITS,
       seed,
@@ -61,7 +61,7 @@ export function createCellFront(
   const width: number = params.width;
   const narrowest: number = d.spacing + d.diameter;
   if (!Number.isFinite(width) || width < narrowest)
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "cellFront",
       axis: "width",
@@ -71,10 +71,10 @@ export function createCellFront(
       fix: `give the cell's width, at least ${narrowest} m`,
     });
   const bars: number = Math.floor((width - d.diameter) / d.spacing) + 1;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createCellFront.Affordance,
     createCellFront.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: "cell front",
@@ -92,7 +92,7 @@ export function createCellFront(
       id: `bar${k + 1}`,
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(x, d.height / 2, 0),
         v(0, 0, 1),
         v(0, 1, 0),
@@ -144,7 +144,9 @@ export namespace createCellFront {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     diameter: "m",
     spacing: "m",
@@ -164,36 +166,42 @@ export namespace createCellFront {
 
   /** The narrowest front the read code admits, for a caller that needs one without a cell: the cell's door alone, 20 Ill. Adm. Code 720.160(b)(3)(A), the door "a minimum of 6'8" high and 2'4" wide" (https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-20-SS-720.160). */
   export const REFERENCE: Readonly<IParams> = {
-    width: 2 * ArchetypeUnits.FOOT + 4 * ArchetypeUnits.INCH,
+    width: 2 * AutoMovieArchetypeUnits.FOOT + 4 * AutoMovieArchetypeUnits.INCH,
   };
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    height: ArchetypeBand.metres(
-      8 * ArchetypeUnits.FOOT,
-      8 * ArchetypeUnits.FOOT,
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    height: AutoMovieArchetypeBand.metres(
+      8 * AutoMovieArchetypeUnits.FOOT,
+      8 * AutoMovieArchetypeUnits.FOOT,
       CEILING,
     ),
-    diameter: ArchetypeBand.metres(
-      (7 / 8) * ArchetypeUnits.INCH,
-      (7 / 8) * ArchetypeUnits.INCH,
+    diameter: AutoMovieArchetypeBand.metres(
+      (7 / 8) * AutoMovieArchetypeUnits.INCH,
+      (7 / 8) * AutoMovieArchetypeUnits.INCH,
       GRILLE,
     ),
-    spacing: ArchetypeBand.metres(
-      4 * ArchetypeUnits.INCH,
-      4 * ArchetypeUnits.INCH,
+    spacing: AutoMovieArchetypeBand.metres(
+      4 * AutoMovieArchetypeUnits.INCH,
+      4 * AutoMovieArchetypeUnits.INCH,
       GRILLE,
     ),
-    brace: ArchetypeBand.metres(
-      12 * ArchetypeUnits.INCH,
-      12 * ArchetypeUnits.INCH,
+    brace: AutoMovieArchetypeBand.metres(
+      12 * AutoMovieArchetypeUnits.INCH,
+      12 * AutoMovieArchetypeUnits.INCH,
       GRILLE,
     ),
-    flat: ArchetypeBand.metres(
-      (3 / 16) * ArchetypeUnits.INCH,
-      (3 / 16) * ArchetypeUnits.INCH,
+    flat: AutoMovieArchetypeBand.metres(
+      (3 / 16) * AutoMovieArchetypeUnits.INCH,
+      (3 / 16) * AutoMovieArchetypeUnits.INCH,
       'Minnesota Rule 2900.0600 subp. 13: grillage bars with "lateral bar supports 3/16 inch thick" (https://www.revisor.mn.gov/rules/2900.0600/)',
     ),
-    mass: ArchetypeBand.of("kg", 6, 9, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      6,
+      9,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

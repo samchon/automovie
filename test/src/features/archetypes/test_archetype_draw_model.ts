@@ -1,11 +1,14 @@
-import { ArchetypeDrawSession, ArchetypeRefusal } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeRefusal,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /** A made-up producer's dimensions. */
 type Dimension = "length" | "mass" | "height";
 
 /** The made-up dimensions' units. */
-const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+const UNITS: Readonly<Record<Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
   length: "m",
   mass: "kg",
   height: "m",
@@ -50,8 +53,8 @@ function model<Name extends string>(
     | undefined,
   seed: number | string | undefined,
   fixed: Partial<Record<Dimension, number>> = {},
-): ArchetypeDrawSession.IModel<Name, Dimension> {
-  return new ArchetypeDrawSession<Dimension>(
+): AutoMovieArchetypeDrawSession.IModel<Name, Dimension> {
+  return new AutoMovieArchetypeDrawSession<Dimension>(
     archetype,
     UNITS,
     seed,
@@ -174,7 +177,7 @@ export function test_archetype_draw_model(): void {
       findings.push(`${label} was accepted`);
     } catch (error) {
       if (
-        !(error instanceof ArchetypeRefusal) ||
+        !(error instanceof AutoMovieArchetypeRefusal) ||
         error.kind !== "parameter" ||
         error.axis !== "size"
       )
@@ -194,7 +197,7 @@ export function test_archetype_draw_model(): void {
       findings.push(`${label}'s fixed length was accepted`);
     } catch (error) {
       if (
-        !(error instanceof ArchetypeRefusal) ||
+        !(error instanceof AutoMovieArchetypeRefusal) ||
         error.kind !== "parameter" ||
         error.axis !== "length"
       )

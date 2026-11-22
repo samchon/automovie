@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
   createCannon,
 } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
@@ -37,8 +37,10 @@ const G: number = 9.80665;
  */
 export function test_archetype_cannon_launch(): void {
   const findings: string[] = [];
-  const gun: Archetype<createCannon.Affordance, createCannon.Dimension> =
-    createCannon({ kind: "fieldGun" }, 1);
+  const gun: AutoMovieArchetype<
+    createCannon.Affordance,
+    createCannon.Dimension
+  > = createCannon({ kind: "fieldGun" }, 1);
   for (const elevation of [-8, 0, 5, 12]) {
     const shot: createCannon.ILaunch = createCannon.launch(gun, { elevation });
     const muzzle: IAutoMovieVector3 = gun
@@ -76,7 +78,9 @@ export function test_archetype_cannon_launch(): void {
   } catch (error) {
     refused = error;
   }
-  if (!(refused instanceof ArchetypeRefusal && refused.axis === "kind"))
+  if (
+    !(refused instanceof AutoMovieArchetypeRefusal && refused.axis === "kind")
+  )
     findings.push("a mortar's launch is not refused");
   const launch: createCannon.ILaunch = createCannon.launch(gun);
   const original: IAutoMovieVector3 = {
@@ -131,13 +135,18 @@ export function test_archetype_cannon_launch(): void {
     ball: number | undefined,
     speed: number = 1,
     bore: number = 2,
-  ): Archetype<createCannon.Affordance, createCannon.Dimension> {
-    const draw: ArchetypeDrawSession<createCannon.Dimension> =
-      new ArchetypeDrawSession("cannon", createCannon.UNITS, undefined, {});
+  ): AutoMovieArchetype<createCannon.Affordance, createCannon.Dimension> {
+    const draw: AutoMovieArchetypeDrawSession<createCannon.Dimension> =
+      new AutoMovieArchetypeDrawSession(
+        "cannon",
+        createCannon.UNITS,
+        undefined,
+        {},
+      );
     draw.derive("muzzleVelocity", speed);
     draw.derive("bore", bore);
     if (ball !== undefined) draw.derive("ball", ball);
-    return new ArchetypeBuilder<
+    return new AutoMovieArchetypeBuilder<
       createCannon.Affordance,
       createCannon.Dimension
     >({
@@ -151,20 +160,20 @@ export function test_archetype_cannon_launch(): void {
         kind: "socket",
         direction: "along",
         extent: null,
-        frame: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+        frame: AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
       })
       .build(1);
   }
 
   /** Observe the public structured repair axis, never replace a launch implementation. */
   function refuses(
-    model: Archetype<createCannon.Affordance, createCannon.Dimension>,
+    model: AutoMovieArchetype<createCannon.Affordance, createCannon.Dimension>,
     axis: string,
   ): boolean {
     try {
       createCannon.launch(model);
     } catch (error) {
-      return error instanceof ArchetypeRefusal && error.axis === axis;
+      return error instanceof AutoMovieArchetypeRefusal && error.axis === axis;
     }
     return false;
   }

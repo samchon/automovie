@@ -2,13 +2,13 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** Length, beam, draft and freeboard bands for fictional sets. All dimensions and masses are provisional scene estimates. */
@@ -76,7 +76,7 @@ const BENCH: Readonly<{
 
 /** SI units for the recorded staging dimensions. */
 const UNITS: Readonly<
-  Record<createScenicShip.Dimension, ArchetypeDrawSession.Unit>
+  Record<createScenicShip.Dimension, AutoMovieArchetypeDrawSession.Unit>
 > = {
   length: "m",
   beam: "m",
@@ -88,12 +88,12 @@ const UNITS: Readonly<
 /**
  * A rigid, fictional ship for people on deck. The root sits at the still-water line, with the bow toward +Z and +Y up. The boarding side and its passage are along +X. The deck and boarding frames lie on the actual deck top. Boarding faces inward along the frame's +Z. Each oared bench's seat frame points its +Z axis toward the ship's aft (−Z). Each kind has an unobstructed aft work area and helm standing position.
  *
- * Pair the ship with ArchetypeRide.along and optionally ArchetypeSea.float to carry the same contact frames through a turn or swell. Hull solids, fixed oars and sails, and a wheelhouse with an open aft entry model film silhouettes. The model has no interior below deck or propulsion simulation.
+ * Pair the ship with AutoMovieArchetypeRide.along and optionally AutoMovieArchetypeSea.float to carry the same contact frames through a turn or swell. Hull solids, fixed oars and sails, and a wheelhouse with an open aft entry model film silhouettes. The model has no interior below deck or propulsion simulation.
  *
  * @param params Profile, scene id and optional sizes within the profile's provisional staging band.
  * @param seed Optional number or text used to draw unfixed sizes.
  * @returns The ship and its deck, boarding and crew contacts.
- * @throws {ArchetypeRefusal} When the profile is unknown or a dimension falls outside its band.
+ * @throws {AutoMovieArchetypeRefusal} When the profile is unknown or a dimension falls outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the waterline, axes, physical contacts, scale controls and public ride owners.
  * @evidence contracts/development/implementation.md#principled-implementation Three longitudinal hull runs share deck-edge vertices with the rails. The centre rail is split at the physical boarding opening, and the bench tops position the seat frames.
@@ -106,7 +106,7 @@ const UNITS: Readonly<
 export function createScenicShip(
   params: createScenicShip.IParams,
   seed?: number | string,
-): Archetype<createScenicShip.Affordance, createScenicShip.Dimension> {
+): AutoMovieArchetype<createScenicShip.Affordance, createScenicShip.Dimension> {
   const kind: createScenicShip.Kind = ArchetypeDraw.choice(
     "scenic ship",
     "kind",
@@ -114,15 +114,15 @@ export function createScenicShip(
     createScenicShip.KINDS,
   );
   const profile: (typeof PROFILES)[createScenicShip.Kind] = PROFILES[kind];
-  const draw: ArchetypeDrawSession<createScenicShip.Dimension> =
-    new ArchetypeDrawSession("scenic ship", UNITS, seed, params);
+  const draw: AutoMovieArchetypeDrawSession<createScenicShip.Dimension> =
+    new AutoMovieArchetypeDrawSession("scenic ship", UNITS, seed, params);
   const d: Record<createScenicShip.Dimension, number> = draw.dimensions(
     profileBands(profile),
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createScenicShip.Affordance,
     createScenicShip.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name:
       kind === "oared"
@@ -211,7 +211,7 @@ export function createScenicShip(
   builder.affordance({
     id: "deck",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(walkwayX, deckY, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(walkwayX, deckY, 0)),
     extent: null,
     width: PASSAGE.width,
     depth: (2 * d.length) / 3,
@@ -219,7 +219,11 @@ export function createScenicShip(
   builder.affordance({
     id: "boarding",
     kind: "surface",
-    frame: ArchetypeFrame.facing(v(walkwayX, deckY, 0), v(0, 1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(walkwayX, deckY, 0),
+      v(0, 1, 0),
+      v(0, 0, 1),
+    ),
     extent: null,
     width: PASSAGE.gap - 2 * PASSAGE.radius,
     depth: PASSAGE.width,
@@ -235,7 +239,7 @@ export function createScenicShip(
     builder.affordance({
       id,
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, deckY, z)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, deckY, z)),
       extent: null,
       width: id === "helm" ? 0.85 : d.beam * 0.38,
       depth,
@@ -276,7 +280,7 @@ export function createScenicShip(
         builder.affordance({
           id,
           kind: "seat",
-          frame: ArchetypeFrame.facing(
+          frame: AutoMovieArchetypeFrame.facing(
             v(x, seatY, z - BENCH.depth / 2),
             v(0, 1, 0),
             v(0, 0, -1),
@@ -405,25 +409,35 @@ export function createScenicShip(
 /** Size intervals for scenery staging. The cited vessel establishes the reference silhouette and the interval describes the fictional set. */
 function profileBands(
   profile: (typeof PROFILES)[createScenicShip.Kind],
-): Record<createScenicShip.Dimension, IArchetypeBand> {
+): Record<createScenicShip.Dimension, IAutoMovieArchetypeBand> {
   const [length, beam, draft, freeboard, mass]: (typeof profile)["dimensions"] =
     profile.dimensions;
   return {
-    length: ArchetypeBand.metres(
+    length: AutoMovieArchetypeBand.metres(
       length * 0.9,
       length * 1.1,
       profile.source,
       true,
     ),
-    beam: ArchetypeBand.metres(beam * 0.94, beam * 1.06, profile.source, true),
-    draft: ArchetypeBand.metres(draft * 0.9, draft * 1.1, profile.source, true),
-    freeboard: ArchetypeBand.metres(
+    beam: AutoMovieArchetypeBand.metres(
+      beam * 0.94,
+      beam * 1.06,
+      profile.source,
+      true,
+    ),
+    draft: AutoMovieArchetypeBand.metres(
+      draft * 0.9,
+      draft * 1.1,
+      profile.source,
+      true,
+    ),
+    freeboard: AutoMovieArchetypeBand.metres(
       freeboard * 0.9,
       freeboard * 1.1,
       profile.source,
       true,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       mass * 0.75,
       mass * 1.25,

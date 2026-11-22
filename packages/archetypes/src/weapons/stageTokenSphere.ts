@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { ArchetypeFrame } from "../core";
+import { AutoMovieArchetypeFrame } from "../core";
 import type { StageTokenConstruction } from "./StageTokenConstruction";
 import { createProjectile } from "./createProjectile";
 
@@ -17,7 +17,7 @@ type StageTokenSphereKind = "ball" | "roundShot" | "grenade" | "stone";
  * @param kind One of the round digital silhouettes.
  * @param model The selected reference model if any.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the sphere origin, its shared surface and actor contact.
  * @evidence contracts/development/implementation.md#principled-implementation Reuses the same sphere and support placement across round digital silhouettes without redoing the model draw.
@@ -46,7 +46,7 @@ export function stageTokenSphere(
     id: "body",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, r, 0), v(-1, 0, 0), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, r, 0), v(-1, 0, 0), v(0, 1, 0)),
     extent: null,
     grip:
       kind === "ball"

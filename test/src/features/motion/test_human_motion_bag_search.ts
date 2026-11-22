@@ -1,5 +1,5 @@
 import {
-  type Archetype,
+  type AutoMovieArchetype,
   createBag,
   createPhone,
   createTable,
@@ -27,7 +27,6 @@ import { TestValidator } from "@nestia/e2e";
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
-
 /** How far ahead of the searcher the bag stands, metres (provisional: within a forearm's reach). */
 const AHEAD: number = 0.4;
 
@@ -49,14 +48,16 @@ const AHEAD: number = 0.4;
 export function test_human_motion_bag_search(): void {
   for (const fit of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
-    const tote: Archetype<createBag.Affordance, createBag.Dimension> =
+    const tote: AutoMovieArchetype<createBag.Affordance, createBag.Dimension> =
       createBag({ kind: "tote" });
     const width: number = tote.dimensions.width!;
     const depth: number = tote.dimensions.depth!;
     const height: number = tote.dimensions.height!;
     // The tote stands on a workbench's top, at the bench's own drawn height.
-    const table: Archetype<createTable.Affordance, createTable.Dimension> =
-      createTable({ kind: "workbench" });
+    const table: AutoMovieArchetype<
+      createTable.Affordance,
+      createTable.Dimension
+    > = createTable({ kind: "workbench" });
     const at: IAutoMovieVector3 = {
       x: 0,
       y: table.dimensions.height!,
@@ -109,12 +110,13 @@ export function test_human_motion_bag_search(): void {
         strokes.every((t: number): boolean => {
           const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
             film.bones("a", t);
-          const tip: IAutoMovieVector3 = AutoMovieMotionHumanTouchEffector.point(
-            body,
-            bones,
-            "right",
-            touchEffectors.TABLE.fingertips,
-          );
+          const tip: IAutoMovieVector3 =
+            AutoMovieMotionHumanTouchEffector.point(
+              body,
+              bones,
+              "right",
+              touchEffectors.TABLE.fingertips,
+            );
           return (
             Math.abs(tip.x - at.x) <= width / 2 &&
             Math.abs(tip.z - at.z) <= depth / 2 &&
@@ -132,7 +134,8 @@ export function test_human_motion_bag_search(): void {
     );
     TestValidator.predicate(
       `${fit}: the phone comes out in the hand above the opening (${(offset.x * 1000).toFixed(0)}, ${(offset.y * 1000).toFixed(0)}, ${(offset.z * 1000).toFixed(0)} mm from the wrist)`,
-      phone.position.y > at.y + height && Vector3.length(offset) <= body.measure.hand,
+      phone.position.y > at.y + height &&
+        Vector3.length(offset) <= body.measure.hand,
     );
   }
 }

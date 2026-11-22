@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { createMobilityAid } from "./createMobilityAid";
 
@@ -17,10 +17,8 @@ const NAMES: Readonly<Record<createMobilityAid.Kind, string>> = {
 };
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createMobilityAid.Affordance> = ArchetypeBuilder<
-  Id,
-  createMobilityAid.Dimension
->;
+type Builder<Id extends createMobilityAid.Affordance> =
+  AutoMovieArchetypeBuilder<Id, createMobilityAid.Dimension>;
 
 /** Model dimensions in the legacy family's recorded units. */
 type Dimensions = Partial<Record<createMobilityAid.Dimension, number>>;
@@ -46,8 +44,8 @@ function draw<Id extends createMobilityAid.Affordance>(
   params: Omit<createMobilityAid.IParams, "kind">,
   seed?: number | string,
 ): IDrawn<Id> {
-  const session: ArchetypeDrawSession<createMobilityAid.Dimension> =
-    new ArchetypeDrawSession<createMobilityAid.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<createMobilityAid.Dimension> =
+    new AutoMovieArchetypeDrawSession<createMobilityAid.Dimension>(
       "mobilityAid",
       createMobilityAid.UNITS,
       seed,
@@ -63,7 +61,7 @@ function draw<Id extends createMobilityAid.Affordance>(
     createMobilityAid.MODELS[kind],
   );
   // The model's own range bands its height, so the author's height is checked in it.
-  const range: IArchetypeBand | undefined =
+  const range: IAutoMovieArchetypeBand | undefined =
     model.name === undefined
       ? undefined
       : createMobilityAid.HANDLE_HEIGHTS[model.name];
@@ -76,7 +74,7 @@ function draw<Id extends createMobilityAid.Affordance>(
     ),
     ...model.figures,
   };
-  const builder: Builder<Id> = new ArchetypeBuilder({
+  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: NAMES[kind],
@@ -92,7 +90,7 @@ function tip(builder: {
   builder.affordance({
     id: "tip",
     kind: "surface",
-    frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
     extent: null,
   });
 }
@@ -130,7 +128,7 @@ export namespace MobilityAidConstruction {
   export function cane(
     params: Omit<createMobilityAid.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<CaneContact, createMobilityAid.Dimension> {
+  ): AutoMovieArchetype<CaneContact, createMobilityAid.Dimension> {
     const { builder, d }: ReturnType<typeof draw<CaneContact>> =
       draw<CaneContact>("cane", params, seed);
     const height: number = d.height!;
@@ -144,7 +142,7 @@ export namespace MobilityAidConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, height - r, (handle - r) / 2),
         v(0, 1, 0),
         v(0, 0, 1),
@@ -183,7 +181,7 @@ export namespace MobilityAidConstruction {
   export function walker(
     params: Omit<createMobilityAid.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<WalkerContact, createMobilityAid.Dimension> {
+  ): AutoMovieArchetype<WalkerContact, createMobilityAid.Dimension> {
     const { builder, d }: ReturnType<typeof draw<WalkerContact>> =
       draw<WalkerContact>("walker", params, seed);
     const height: number = d.height!;
@@ -213,7 +211,11 @@ export namespace MobilityAidConstruction {
         id,
         kind: "handle",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(v(sx * x, top, 0), v(0, 1, 0), v(0, 0, 1)),
+        frame: AutoMovieArchetypeFrame.facing(
+          v(sx * x, top, 0),
+          v(0, 1, 0),
+          v(0, 0, 1),
+        ),
         extent: null,
         grip: "power",
         aperture: 2 * r,
@@ -249,7 +251,7 @@ export namespace MobilityAidConstruction {
   export function infusionStand(
     params: Omit<createMobilityAid.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<InfusionStandContact, createMobilityAid.Dimension> {
+  ): AutoMovieArchetype<InfusionStandContact, createMobilityAid.Dimension> {
     const { builder, d }: ReturnType<typeof draw<InfusionStandContact>> =
       draw<InfusionStandContact>("infusionStand", params, seed);
     const height: number = d.height!;
@@ -297,7 +299,7 @@ export namespace MobilityAidConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, (hub + outer) / 2, 0),
         v(0, 0, -1),
         v(0, 1, 0),
@@ -310,7 +312,7 @@ export namespace MobilityAidConstruction {
     builder.affordance({
       id: "hook",
       kind: "hook",
-      frame: ArchetypeFrame.upright(v(0, height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, height, 0)),
       extent: null,
     });
 

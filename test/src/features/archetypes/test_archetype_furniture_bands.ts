@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
   createBed,
   createSeat,
   createStorage,
@@ -59,9 +59,11 @@ export function test_archetype_furniture_bands(): void {
   ): ReturnType<typeof createSeat> => createSeat({ kind }, seed);
 
   /** The angle of a frame's +Y from upright, degrees. */
-  const tilt = (frame: Parameters<typeof ArchetypeFrame.axis>[0]): number =>
-    Math.acos(Math.min(1, ArchetypeFrame.axis(frame, "y").y)) /
-    ArchetypeUnits.DEGREE;
+  const tilt = (
+    frame: Parameters<typeof AutoMovieArchetypeFrame.axis>[0],
+  ): number =>
+    Math.acos(Math.min(1, AutoMovieArchetypeFrame.axis(frame, "y").y)) /
+    AutoMovieArchetypeUnits.DEGREE;
   TestValidator.equals(
     "furniture stays in its cited bands",
     archetypeBandSweep([
@@ -152,8 +154,10 @@ export function test_archetype_furniture_bands(): void {
       ),
       row(
         "bar stool seat height",
-        createTable.BANDS.bar.height.maximum - 12 * ArchetypeUnits.INCH,
-        createTable.BANDS.bar.height.maximum - 10 * ArchetypeUnits.INCH,
+        createTable.BANDS.bar.height.maximum -
+          12 * AutoMovieArchetypeUnits.INCH,
+        createTable.BANDS.bar.height.maximum -
+          10 * AutoMovieArchetypeUnits.INCH,
         "NKBA Guideline 9's 42 in bar counter less 10 to 12 in",
         (seed: number): number =>
           archetypeExtent(seat("barStool", seed), "y", ["seat"]).high,
@@ -227,7 +231,7 @@ export function test_archetype_furniture_bands(): void {
       row(
         "dining table height",
         0.71,
-        30 * ArchetypeUnits.INCH,
+        30 * AutoMovieArchetypeUnits.INCH,
         "ADA 902.3 and NKBA Guideline 9",
         (seed: number): number =>
           createTable({ kind: "dining" }, seed).affordance("top").frame
@@ -307,7 +311,7 @@ export function test_archetype_furniture_bands(): void {
           createStorage({ kind: "chest" }, seed).affordance("drawer2").travel!,
         ],
         models: [[12], [14], [16]].map(([inches]: number[]): number[] => [
-          inches! * ArchetypeUnits.INCH,
+          inches! * AutoMovieArchetypeUnits.INCH,
         ]),
         source: "Accuride 3832E",
       },

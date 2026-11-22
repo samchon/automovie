@@ -6,13 +6,13 @@ import type {
 } from "@automovie/interface";
 
 import {
-  type ArchetypeCourse,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
 } from "../core";
-import type { QuadrupedFooting } from "./QuadrupedFooting";
-import type { QuadrupedGait } from "./QuadrupedGait";
-import { QuadrupedMotion } from "./QuadrupedMotion";
+import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
+import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
+import { AutoMovieArchetypeQuadrupedMotion } from "./AutoMovieArchetypeQuadrupedMotion";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
@@ -39,7 +39,7 @@ export namespace QuadrupedHoofTrack {
     /** Fraction of a stride between this hoof's landing and lifting. */
     duty: number;
     /** Body state at actual touchdown, including its rigid world placement. */
-    landed: ArchetypeCourse.IState;
+    landed: AutoMovieArchetypeCourse.IState;
     /** Signed metres the body travels over the entire stance. */
     travel: number;
 
@@ -92,11 +92,11 @@ export namespace QuadrupedHoofTrack {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the tiered course and clock readers stay with the returned sampler until the ride is released.
    */
   export function stances(
-    plan: ArchetypeCourse.IPlan,
+    plan: AutoMovieArchetypeCourse.IPlan,
     clock: QuadrupedRideClock.IClock,
     secondsAt: (phase: number) => number,
     body?: (
-      state: ArchetypeCourse.IState,
+      state: AutoMovieArchetypeCourse.IState,
       seconds: number,
       fore: boolean,
     ) => IAutoMovieTransform,
@@ -112,8 +112,11 @@ export namespace QuadrupedHoofTrack {
       fore: boolean,
     ): IStance => {
       const seconds: number = secondsAt(at);
-      const route: ArchetypeCourse.IState = onward(plan, seconds);
-      const timing: QuadrupedGait.ITiming = clock.timing(stride.gait, seconds);
+      const route: AutoMovieArchetypeCourse.IState = onward(plan, seconds);
+      const timing: AutoMovieArchetypeQuadrupedGait.ITiming = clock.timing(
+        stride.gait,
+        seconds,
+      );
       const observed: number = fore
         ? timing.duty
         : (timing.hindDuty ?? timing.duty);
@@ -153,11 +156,11 @@ export namespace QuadrupedHoofTrack {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one state.
    */
   export function onward(
-    plan: ArchetypeCourse.IPlan,
+    plan: AutoMovieArchetypeCourse.IPlan,
     seconds: number,
-  ): ArchetypeCourse.IState {
+  ): AutoMovieArchetypeCourse.IState {
     if (!(seconds > plan.duration)) return plan.at(seconds);
-    const last: ArchetypeCourse.IState = plan.at(plan.duration);
+    const last: AutoMovieArchetypeCourse.IState = plan.at(plan.duration);
     const over: number = (seconds - plan.duration) * last.speed;
     if (!(over > 0)) return last;
     return {
@@ -183,14 +186,14 @@ export namespace QuadrupedHoofTrack {
 
   /** The authored surface under a point, or none where no plane covers it. */
   function covered(
-    footing: QuadrupedFooting.IPlan,
+    footing: AutoMovieArchetypeQuadrupedFooting.IPlan,
     point: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
-  ): QuadrupedFooting.ILanding | undefined {
+  ): AutoMovieArchetypeQuadrupedFooting.ILanding | undefined {
     try {
       return footing.landing(point, rotation);
     } catch (error) {
-      if (error instanceof ArchetypeRefusal) return undefined;
+      if (error instanceof AutoMovieArchetypeRefusal) return undefined;
       throw error;
     }
   }
@@ -212,7 +215,7 @@ export namespace QuadrupedHoofTrack {
    */
   export function elevation(
     chain: readonly IAutoMovieVector3[],
-    landmark: QuadrupedGait.IElevation,
+    landmark: AutoMovieArchetypeQuadrupedGait.IElevation,
     fore: boolean,
   ): number {
     const share: number = fore ? landmark.fore : landmark.hind;
@@ -232,7 +235,7 @@ export namespace QuadrupedHoofTrack {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One rigid point or the mean of two.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; both forms read the stance's own placements.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ArchetypeFrame.point`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieArchetypeFrame.point`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function footprint(
@@ -250,15 +253,15 @@ export namespace QuadrupedHoofTrack {
         ? rest.x + support.across.toward * support.across.shift
         : rest.x;
     if (support.lifted === undefined)
-      return ArchetypeFrame.point(support.landed.placement, {
+      return AutoMovieArchetypeFrame.point(support.landed.placement, {
         x,
         y: 0,
         z: z + support.travel / 2,
       });
     const neutral: IAutoMovieVector3 = { x, y: 0, z };
     const point: IAutoMovieVector3 = Vector3.lerp(
-      ArchetypeFrame.point(support.landed.placement, neutral),
-      ArchetypeFrame.point(support.lifted, neutral),
+      AutoMovieArchetypeFrame.point(support.landed.placement, neutral),
+      AutoMovieArchetypeFrame.point(support.lifted, neutral),
       0.5,
     );
     return { ...point, y: support.landed.placement.translation.y };
@@ -271,7 +274,7 @@ export namespace QuadrupedHoofTrack {
    * @param requested The explicit flag for planting the initially neutral hooves.
    * @param archetype Owner printed in the typed course refusal.
    * @returns The initial course state for holding the actual neutral footprints, when requested.
-   * @throws {ArchetypeRefusal} If the explicit flag or starting speed cannot represent standing.
+   * @throws {AutoMovieArchetypeRefusal} If the explicit flag or starting speed cannot represent standing.
    * @evidence contracts/development/common.md#meaningful-documentation Names the actual course frame and admission rule without taking ownership of route math.
    * @evidence contracts/development/implementation.md#principled-implementation Evaluate the native course at its distance-zero time so delayed starts retain the right world placement.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure An absent request exits immediately. One initial state admits the explicit request or reports its conflict.
@@ -281,14 +284,14 @@ export namespace QuadrupedHoofTrack {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the requested state escapes. No viewer or external handle exists.
    */
   export function departure(
-    plan: ArchetypeCourse.IPlan,
+    plan: AutoMovieArchetypeCourse.IPlan,
     requested: true | undefined,
     archetype: string,
-  ): ArchetypeCourse.IState | undefined {
+  ): AutoMovieArchetypeCourse.IState | undefined {
     if (requested === undefined) return undefined;
-    const initial: ArchetypeCourse.IState = plan.at(plan.when(0));
+    const initial: AutoMovieArchetypeCourse.IState = plan.at(plan.when(0));
     if (requested === true && initial.speed === 0) return initial;
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,
       axis: "startFromStanding",
@@ -322,7 +325,7 @@ export namespace QuadrupedHoofTrack {
     landed: number,
     coming: number,
     current: IStance,
-    standing: ArchetypeCourse.IState | undefined,
+    standing: AutoMovieArchetypeCourse.IState | undefined,
   ): { from: IStance; planted: boolean; along: number; rise: number } {
     const initial: boolean = standing !== undefined && landed <= 0;
     const local: number = phase - landed;
@@ -336,7 +339,7 @@ export namespace QuadrupedHoofTrack {
     return {
       from: initial ? { ...current, landed: standing!, travel: 0 } : current,
       planted,
-      ...QuadrupedMotion.swing(swing),
+      ...AutoMovieArchetypeQuadrupedMotion.swing(swing),
     };
   }
 
@@ -363,13 +366,13 @@ export namespace QuadrupedHoofTrack {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh footprint and retains nothing between calls.
    */
   export function target(
-    state: ArchetypeCourse.IState,
+    state: AutoMovieArchetypeCourse.IState,
     rest: IAutoMovieVector3,
     from: IStance,
     to: IStance | undefined,
     amount: number,
     worldAnchors: boolean,
-    footing?: QuadrupedFooting.IPlan,
+    footing?: AutoMovieArchetypeQuadrupedFooting.IPlan,
     under?: number,
     clear?: (point: IAutoMovieVector3) => IAutoMovieVector3,
   ): Pick<QuadrupedRidePose.IGoal, "x" | "z" | "orientation" | "surface"> {
@@ -399,16 +402,14 @@ export namespace QuadrupedHoofTrack {
     };
     const foot: IAutoMovieVector3 = placed(from);
     const landed: IAutoMovieQuaternion = from.landed.placement.rotation;
-    const oldGround: QuadrupedFooting.ILanding | undefined = footing?.landing(
-      foot,
-      landed,
-    );
+    const oldGround: AutoMovieArchetypeQuadrupedFooting.ILanding | undefined =
+      footing?.landing(foot, landed);
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       state.placement.rotation,
     );
     const nextFoot: IAutoMovieVector3 | undefined =
       to === undefined ? undefined : placed(to);
-    const nextGround: QuadrupedFooting.ILanding | undefined =
+    const nextGround: AutoMovieArchetypeQuadrupedFooting.ILanding | undefined =
       nextFoot === undefined
         ? undefined
         : footing?.landing(nextFoot, to!.landed.placement.rotation);
@@ -429,7 +430,7 @@ export namespace QuadrupedHoofTrack {
             amount,
           );
     // A swinging hoof rises above the ground beneath it, not only above the chord between its footholds, which passes under a crest between them.
-    const beneath: QuadrupedFooting.ILanding | undefined =
+    const beneath: AutoMovieArchetypeQuadrupedFooting.ILanding | undefined =
       arrival === undefined || footing === undefined
         ? undefined
         : covered(footing, chord, landed);

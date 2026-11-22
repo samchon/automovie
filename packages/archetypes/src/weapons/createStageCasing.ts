@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -45,10 +45,13 @@ const CASE: Readonly<createStageCasing.ICase> = {
  */
 export function createStageCasing(
   params: createStageCasing.IParams = {},
-): Archetype<createStageCasing.Affordance, createStageCasing.Dimension> {
+): AutoMovieArchetype<
+  createStageCasing.Affordance,
+  createStageCasing.Dimension
+> {
   const v: typeof Vector3.create = Vector3.create;
-  const draw: ArchetypeDrawSession<createStageCasing.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createStageCasing.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "stageCasing",
       { length: "m", diameter: "m", mass: "kg" },
       undefined,
@@ -56,10 +59,10 @@ export function createStageCasing(
   draw.derive("length", CASE.length);
   draw.derive("diameter", CASE.rim);
   draw.derive("mass", CASE.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createStageCasing.Affordance,
     createStageCasing.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? "stageCasing",
     name: "spent .30-06 casing",
 
@@ -83,7 +86,11 @@ export function createStageCasing(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, body / 2, 0), v(0, 0, 1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, body / 2, 0),
+      v(0, 0, 1),
+      v(0, 1, 0),
+    ),
     extent: null,
     grip: "precision",
     aperture: CASE.base,
@@ -92,7 +99,7 @@ export function createStageCasing(
   builder.affordance({
     id: "mouth",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, CASE.length, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, CASE.length, 0)),
     extent: null,
   });
   return builder.build(CASE.mass);

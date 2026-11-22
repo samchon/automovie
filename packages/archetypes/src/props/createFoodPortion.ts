@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -32,7 +32,7 @@ const SIZES: Readonly<Record<createFoodPortion.Kind, createFoodPortion.ISize>> =
  *
  * @param params The kind and the optional scene id.
  * @returns The portion and its contacts, metres.
- * @throws {ArchetypeRefusal} For a kind outside the set.
+ * @throws {AutoMovieArchetypeRefusal} For a kind outside the set.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the kinds, the frame and each contact.
  * @evidence contracts/development/implementation.md#principled-implementation One slab with its upper face, its underside and its pick point.
@@ -44,7 +44,10 @@ const SIZES: Readonly<Record<createFoodPortion.Kind, createFoodPortion.ISize>> =
  */
 export function createFoodPortion(
   params: createFoodPortion.IParams,
-): Archetype<createFoodPortion.Affordance, createFoodPortion.Dimension> {
+): AutoMovieArchetype<
+  createFoodPortion.Affordance,
+  createFoodPortion.Dimension
+> {
   const kind: createFoodPortion.Kind = ArchetypeDraw.choice(
     "foodPortion",
     "kind",
@@ -53,8 +56,8 @@ export function createFoodPortion(
   );
   const size: createFoodPortion.ISize = SIZES[kind];
   const v: typeof Vector3.create = Vector3.create;
-  const draw: ArchetypeDrawSession<createFoodPortion.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createFoodPortion.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "foodPortion",
       { width: "m", height: "m", mass: "kg" },
       undefined,
@@ -62,10 +65,10 @@ export function createFoodPortion(
   draw.derive("width", size.width);
   draw.derive("height", size.height);
   draw.derive("mass", size.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createFoodPortion.Affordance,
     createFoodPortion.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? kind,
     name: kind,
     material: "foam",
@@ -80,7 +83,7 @@ export function createFoodPortion(
   builder.affordance({
     id: "top",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, size.height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, size.height, 0)),
     extent: null,
     width: size.width,
     depth: size.depth,
@@ -88,13 +91,13 @@ export function createFoodPortion(
   builder.affordance({
     id: "base",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
   });
   builder.affordance({
     id: "pick",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, size.height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, size.height, 0)),
     extent: null,
   });
   return builder.build(size.mass);

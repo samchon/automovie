@@ -1,4 +1,4 @@
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { StageTokenConstruction } from "./StageTokenConstruction";
 import type { createProjectile } from "./createProjectile";
 import { stageTokenSphere } from "./stageTokenSphere";
@@ -11,7 +11,7 @@ import { stageTokenSphere } from "./stageTokenSphere";
  * @param params The scene id and this digital form's catalogue or sizing options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the inert display form and its actor contact.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the existing stage form's actual visible silhouette and model-space contact.
@@ -24,7 +24,10 @@ import { stageTokenSphere } from "./stageTokenSphere";
 export function createStageRoundProp(
   params: createStageRoundProp.IParams = {},
   seed?: number | string,
-): Archetype<createStageRoundProp.Affordance, createStageRoundProp.Dimension> {
+): AutoMovieArchetype<
+  createStageRoundProp.Affordance,
+  createStageRoundProp.Dimension
+> {
   return StageTokenConstruction(
     "roundShot",
     params,

@@ -1,8 +1,8 @@
 import {
-  ArchetypeCourse,
-  ArchetypeManoeuvre,
-  ArchetypePassage,
-  type ArchetypeRide,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeManoeuvre,
+  AutoMovieArchetypePassage,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -42,9 +42,10 @@ const OPENING: number = 1.6;
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec.
  */
 export function test_world_herd_flight(): void {
-  const outline: readonly IAutoMovieVector3[] = ArchetypePassage.footprint(
-    createHorse({ withersHeight: 1.6 }, "mare"),
-  ).outline;
+  const outline: readonly IAutoMovieVector3[] =
+    AutoMovieArchetypePassage.footprint(
+      createHorse({ withersHeight: 1.6 }, "mare"),
+    ).outline;
   const radius: number =
     (Math.max(...outline.map((p: IAutoMovieVector3): number => p.x)) -
       Math.min(...outline.map((p: IAutoMovieVector3): number => p.x))) /
@@ -139,26 +140,27 @@ export function test_world_herd_flight(): void {
   // 5. The stallion drives from behind: it follows the rearmost mare's path a fixed distance back and never meets a mare.
   const DRIVE: number = 4;
   const rear: number = grazing.length - 1;
-  const stallion: ArchetypeCourse.IPlan = ArchetypeCourse.timed(
-    "stallion",
-    ArchetypeManoeuvre.follow(
-      ArchetypeCourse.timed(
-        "rear",
-        times.map(
-          (seconds: number): ArchetypeCourse.ISample => ({
-            seconds,
-            x: at(rear, seconds).x,
-            y: 0,
-            z: at(rear, seconds).z,
-          }),
+  const stallion: AutoMovieArchetypeCourse.IPlan =
+    AutoMovieArchetypeCourse.timed(
+      "stallion",
+      AutoMovieArchetypeManoeuvre.follow(
+        AutoMovieArchetypeCourse.timed(
+          "rear",
+          times.map(
+            (seconds: number): AutoMovieArchetypeCourse.ISample => ({
+              seconds,
+              x: at(rear, seconds).x,
+              y: 0,
+              z: at(rear, seconds).z,
+            }),
+          ),
         ),
+        DRIVE,
+        ALARM + REACTION + 2,
+        ALARM + 6,
+        0.2,
       ),
-      DRIVE,
-      ALARM + REACTION + 2,
-      ALARM + 6,
-      0.2,
-    ),
-  );
+    );
   const behind: boolean = Array.from(
     { length: 11 },
     (_: unknown, i: number): number => ALARM + REACTION + 2 + i * 0.3,
@@ -168,9 +170,8 @@ export function test_world_herd_flight(): void {
         stallion.at(seconds).placement.translation.z < at(k, seconds).z,
     ),
   );
-  const driven: ArchetypePassage.IConflict[] = ArchetypePassage.conflicts(
-    "drive",
-    {
+  const driven: AutoMovieArchetypePassage.IConflict[] =
+    AutoMovieArchetypePassage.conflicts("drive", {
       participants: [
         {
           id: "stallion",
@@ -179,12 +180,15 @@ export function test_world_herd_flight(): void {
           margin: 0,
         },
         ...grazing.map(
-          (_: IAutoMovieVector3, k: number): ArchetypePassage.IParticipant => ({
+          (
+            _: IAutoMovieVector3,
+            k: number,
+          ): AutoMovieArchetypePassage.IParticipant => ({
             id: `mare${k}`,
-            plan: ArchetypeCourse.timed(
+            plan: AutoMovieArchetypeCourse.timed(
               `mare${k}`,
               times.map(
-                (seconds: number): ArchetypeCourse.ISample => ({
+                (seconds: number): AutoMovieArchetypeCourse.ISample => ({
                   seconds,
                   x: at(k, seconds).x,
                   y: 0,
@@ -200,11 +204,10 @@ export function test_world_herd_flight(): void {
       from: ALARM + REACTION + 2,
       to: ALARM + 6,
       step: 0.1,
-    },
-  ).filter(
-    (found: ArchetypePassage.IConflict): boolean =>
-      found.subject === "stallion",
-  );
+    }).filter(
+      (found: AutoMovieArchetypePassage.IConflict): boolean =>
+        found.subject === "stallion",
+    );
   TestValidator.predicate(
     `the stallion drives from behind the band without meeting a mare: behind ${behind}, met ${JSON.stringify(driven.slice(0, 1))}`,
     behind && driven.length === 0,
@@ -214,15 +217,18 @@ export function test_world_herd_flight(): void {
     { withersHeight: 1.6, tempo: 0 },
     "mare",
   );
-  const rides: ArchetypeRide.IRide<string, string>[] = grazing.map(
-    (_: IAutoMovieVector3, k: number): ArchetypeRide.IRide<string, string> =>
+  const rides: AutoMovieArchetypeRide.IRide<string, string>[] = grazing.map(
+    (
+      _: IAutoMovieVector3,
+      k: number,
+    ): AutoMovieArchetypeRide.IRide<string, string> =>
       rideQuadruped(
         mare,
-        ArchetypeCourse.timed(
+        AutoMovieArchetypeCourse.timed(
           `mare${k}`,
           Array.from(
             { length: 41 },
-            (__: unknown, i: number): ArchetypeCourse.ISample => {
+            (__: unknown, i: number): AutoMovieArchetypeCourse.ISample => {
               const seconds: number = i * 0.5;
               return {
                 seconds,
@@ -250,15 +256,15 @@ export function test_world_herd_flight(): void {
   TestValidator.equals("every mare rides her course", refused, "none");
   TestValidator.equals(
     "no two mares' posed bodies meet",
-    ArchetypePassage.conflicts("band", {
+    AutoMovieArchetypePassage.conflicts("band", {
       participants: rides.map(
         (
-          ride: ArchetypeRide.IRide<string, string>,
+          ride: AutoMovieArchetypeRide.IRide<string, string>,
           k: number,
-        ): ArchetypePassage.IParticipant => ({
+        ): AutoMovieArchetypePassage.IParticipant => ({
           id: `mare${k}`,
           plan: ride.plan,
-          footprint: ArchetypePassage.envelope(ride, 0, 20, 0.25),
+          footprint: AutoMovieArchetypePassage.envelope(ride, 0, 20, 0.25),
           margin: 0,
         }),
       ),

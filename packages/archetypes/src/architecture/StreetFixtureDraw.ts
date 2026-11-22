@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type ArchetypeMaterial,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeMaterial,
 } from "../core";
 import { FixtureDraw } from "./FixtureDraw";
 import { STREET_FIXTURE_BANDS } from "./STREET_FIXTURE_BANDS";
@@ -30,7 +30,7 @@ export namespace StreetFixtureDraw {
    */
   export interface IFixture<Id extends string> {
     /** A fresh builder with the drawn identity and physical material. */
-    builder: ArchetypeBuilder<Id, createStreetFixture.Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, createStreetFixture.Dimension>;
 
     /** Recorded dimension values in metres or kilograms. */
     d: Partial<Record<createStreetFixture.Dimension, number>>;
@@ -45,7 +45,7 @@ export namespace StreetFixtureDraw {
    * @param params The scene identifier, dimension overrides and optional model.
    * @param seed The seed for unresolved choices.
    * @returns The dimensions and a builder for the selected fixture.
-   * @throws {ArchetypeRefusal} For a supplied model or dimension the fixed fixture cannot admit.
+   * @throws {AutoMovieArchetypeRefusal} For a supplied model or dimension the fixed fixture cannot admit.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Describes the common inputs and gives ownership of choices to the profile.
    * @evidence contracts/development/implementation.md#principled-implementation Pick the model first so its fixed dimensions are validated, then draw the designated bands.
@@ -58,18 +58,18 @@ export namespace StreetFixtureDraw {
   export function begin<Id extends string>(
     kind: createStreetFixture.Kind,
     name: string,
-    material: ArchetypeMaterial.Kind,
+    material: AutoMovieArchetypeMaterial.Kind,
     params: Omit<createStreetFixture.IParams, "kind">,
     seed?: number | string,
   ): IFixture<Id> {
-    const draw: ArchetypeDrawSession<createStreetFixture.Dimension> =
-      new ArchetypeDrawSession(
+    const draw: AutoMovieArchetypeDrawSession<createStreetFixture.Dimension> =
+      new AutoMovieArchetypeDrawSession(
         "streetFixture",
         FixtureDraw.streetFixture,
         seed,
         params,
       );
-    const model: ArchetypeDrawSession.IModel<
+    const model: AutoMovieArchetypeDrawSession.IModel<
       createStreetFixture.Model,
       createStreetFixture.Dimension
     > = draw.model("model", params.model, STREET_FIXTURE_MODELS[kind]);
@@ -77,13 +77,15 @@ export namespace StreetFixtureDraw {
       ...draw.dimensions(STREET_FIXTURE_BANDS[kind], STREET_FIXTURE_BANDS),
       ...model.figures,
     };
-    const builder: ArchetypeBuilder<Id, createStreetFixture.Dimension> =
-      new ArchetypeBuilder({
-        material,
-        id: params.id,
-        name: model.name === undefined ? name : `${name} ${model.name}`,
-        draw,
-      });
+    const builder: AutoMovieArchetypeBuilder<
+      Id,
+      createStreetFixture.Dimension
+    > = new AutoMovieArchetypeBuilder({
+      material,
+      id: params.id,
+      name: model.name === undefined ? name : `${name} ${model.name}`,
+      draw,
+    });
     return { builder, d };
   }
 
@@ -113,7 +115,7 @@ export namespace StreetFixtureDraw {
       id: "post",
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, (low + high) / 2, 0),
         Vector3.create(0, 0, 1),
         Vector3.create(0, 1, 0),

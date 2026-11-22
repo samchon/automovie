@@ -1,12 +1,12 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  type ArchetypeCourse,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeRide,
-  ArchetypeUnits,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeRide,
+  AutoMovieArchetypeUnits,
   createCart,
 } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
@@ -38,48 +38,50 @@ export function test_archetype_ride_towed_wagon(): void {
     Math.abs(a - b) <= tolerance;
   const gap = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Vector3.length(Vector3.subtract(a, b));
-  const wagon: Archetype<createCart.Affordance, createCart.Dimension> =
+  const wagon: AutoMovieArchetype<createCart.Affordance, createCart.Dimension> =
     createCart({ kind: "wagon" });
   const at = (
-    cart: Archetype<createCart.Affordance, createCart.Dimension>,
+    cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,
     id: createCart.Affordance,
   ): IAutoMovieVector3 => cart.affordance(id).frame.translation;
 
   // The wagon's running gear and body.
   const pivot: IAutoMovieVector3 = at(wagon, "frontAxle");
   if (
-    !close(at(wagon, "rearLeftSpin").y, 29 * ArchetypeUnits.INCH) ||
-    !close(at(wagon, "frontLeftSpin").y, 23 * ArchetypeUnits.INCH)
+    !close(at(wagon, "rearLeftSpin").y, 29 * AutoMovieArchetypeUnits.INCH) ||
+    !close(at(wagon, "frontLeftSpin").y, 23 * AutoMovieArchetypeUnits.INCH)
   )
     findings.push("the wagon's wheels are not the specification's");
   if (
     !close(
       at(wagon, "rearLeftSpin").x - at(wagon, "rearRightSpin").x,
-      60 * ArchetypeUnits.INCH,
+      60 * AutoMovieArchetypeUnits.INCH,
     )
   )
     findings.push("the wagon's track is not 5 ft");
-  if (!close(pivot.z, 73 * ArchetypeUnits.INCH))
+  if (!close(pivot.z, 73 * AutoMovieArchetypeUnits.INCH))
     findings.push(
-      `the wagon's pivot is ${pivot.z / ArchetypeUnits.INCH} in ahead of the hind axle`,
+      `the wagon's pivot is ${pivot.z / AutoMovieArchetypeUnits.INCH} in ahead of the hind axle`,
     );
   const tip: IAutoMovieVector3 = at(wagon, "coupling");
   if (
-    !close(tip.y, 24 * ArchetypeUnits.INCH) ||
-    !close(gap(tip, pivot), 128 * ArchetypeUnits.INCH)
+    !close(tip.y, 24 * AutoMovieArchetypeUnits.INCH) ||
+    !close(gap(tip, pivot), 128 * AutoMovieArchetypeUnits.INCH)
   )
     findings.push("the wagon's tongue is not 10 ft 8 in hanging to 2 ft");
   const bed: IAutoMovieAffordance = wagon.affordance("bed");
   if (
-    !close(bed.depth!, 120 * ArchetypeUnits.INCH) ||
-    !close(bed.width!, 42 * ArchetypeUnits.INCH)
+    !close(bed.depth!, 120 * AutoMovieArchetypeUnits.INCH) ||
+    !close(bed.width!, 42 * AutoMovieArchetypeUnits.INCH)
   )
     findings.push("the wagon's bed is not the body's inside");
 
   // The carriage.
   for (const seed of [0, 3, 7, 12]) {
-    const carriage: Archetype<createCart.Affordance, createCart.Dimension> =
-      createCart({ kind: "carriage" }, seed);
+    const carriage: AutoMovieArchetype<
+      createCart.Affordance,
+      createCart.Dimension
+    > = createCart({ kind: "carriage" }, seed);
     for (const id of [
       "leftDoor",
       "rightDoor",
@@ -105,7 +107,7 @@ export function test_archetype_ride_towed_wagon(): void {
   }
 
   // Towed through a quarter turn.
-  const course: ArchetypeCourse.ICourse = {
+  const course: AutoMovieArchetypeCourse.ICourse = {
     start: { x: 0, z: 0, heading: 0 },
     legs: [
       { kind: "straight", length: 20 },
@@ -116,14 +118,12 @@ export function test_archetype_ride_towed_wagon(): void {
     acceleration: 1,
     deceleration: 1,
   };
-  const leader: ArchetypeRide.IRide<"hitch", never> = ArchetypeRide.along(
-    hitched(),
-    course,
-  );
-  const towed: ArchetypeRide.IRide<
+  const leader: AutoMovieArchetypeRide.IRide<"hitch", never> =
+    AutoMovieArchetypeRide.along(hitched(), course);
+  const towed: AutoMovieArchetypeRide.IRide<
     createCart.Affordance,
     createCart.Dimension
-  > = ArchetypeRide.towed(leader, "hitch", wagon, "coupling", {
+  > = AutoMovieArchetypeRide.towed(leader, "hitch", wagon, "coupling", {
     support: createCart.towing(wagon),
     front: { pivot, turn: "frontAxle" },
   });
@@ -135,7 +135,7 @@ export function test_archetype_ride_towed_wagon(): void {
   let outside: number = 0;
   let straight: number = Number.POSITIVE_INFINITY;
   for (let seconds: number = 0; seconds <= towed.duration; seconds += 0.5) {
-    const sample: ArchetypeRide.ISample<
+    const sample: AutoMovieArchetypeRide.ISample<
       createCart.Affordance,
       createCart.Dimension
     > = towed.at(seconds);
@@ -151,9 +151,9 @@ export function test_archetype_ride_towed_wagon(): void {
     const hitch: IAutoMovieVector3 = leader.frame("hitch", seconds).translation;
     const placement: IAutoMovieTransform = sample.placement;
     const rear: IAutoMovieVector3 = placement.translation;
-    const front: IAutoMovieVector3 = ArchetypeFrame.compose(
+    const front: IAutoMovieVector3 = AutoMovieArchetypeFrame.compose(
       placement,
-      ArchetypeFrame.upright(pivot),
+      AutoMovieArchetypeFrame.upright(pivot),
     ).translation;
     const progress: number = sample.course.distance;
     if (
@@ -180,8 +180,8 @@ export function test_archetype_ride_towed_wagon(): void {
 
   // An over-tight turn.
   try {
-    ArchetypeRide.towed(
-      ArchetypeRide.along(hitched(), {
+    AutoMovieArchetypeRide.towed(
+      AutoMovieArchetypeRide.along(hitched(), {
         ...course,
         legs: [
           { kind: "straight", length: 5 },
@@ -199,7 +199,7 @@ export function test_archetype_ride_towed_wagon(): void {
     findings.push("a turn past the lock was admitted");
   } catch (error) {
     if (
-      !(error instanceof ArchetypeRefusal) ||
+      !(error instanceof AutoMovieArchetypeRefusal) ||
       error.axis !== "front" ||
       error.feasible?.kind !== "range" ||
       error.feasible.maximum !== createCart.WAGON.lock
@@ -218,17 +218,17 @@ export function test_archetype_ride_towed_wagon(): void {
  *
  * @returns The leader.
  */
-function hitched(): Archetype<"hitch", never> {
-  return new ArchetypeBuilder<"hitch", never>({
+function hitched(): AutoMovieArchetype<"hitch", never> {
+  return new AutoMovieArchetypeBuilder<"hitch", never>({
     material: "steel",
     name: "leader",
-    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
+    draw: new AutoMovieArchetypeDrawSession<never>("fixture", {}, undefined),
   })
     .box("body", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
     .affordance({
       id: "hitch",
       kind: "hook",
-      frame: ArchetypeFrame.upright(Vector3.create(0, 1, -1)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 1, -1)),
       extent: null,
     })
     .build(500);

@@ -1,4 +1,4 @@
-import type { ArchetypeCourse } from "../core";
+import type { AutoMovieArchetypeCourse } from "../core";
 import { EquineJump } from "./EquineJump";
 import { EquineObstacle } from "./EquineObstacle";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
@@ -11,7 +11,7 @@ import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
  * @param plan The course plan.
  * @param trial Assemble the ride with moved landings and, once known, the flight, skipping the footing check.
  * @returns The flight that clears every obstacle by the clearance.
- * @throws {ArchetypeRefusal} As `EquineJump.plan` refuses an approach.
+ * @throws {AutoMovieArchetypeRefusal} As `EquineJump.plan` refuses an approach.
  * @throws {RangeError} When the flight still falls short after the last round.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two stages and the failures.
@@ -25,7 +25,7 @@ import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
 export function planEquineFlight(
   archetype: string,
   request: EquineJump.IRequest,
-  plan: ArchetypeCourse.IPlan,
+  plan: AutoMovieArchetypeCourse.IPlan,
   trial: (
     moved: readonly QuadrupedStridePlan.IMoved[],
     flight: EquineJump.IFlight | undefined,

@@ -1,4 +1,7 @@
-import { ArchetypeRefusal, createQuadruped } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeRefusal,
+  createQuadruped,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";
@@ -136,7 +139,10 @@ export function test_archetype_animal_equids(): void {
     refused = error;
   }
   if (
-    !(refused instanceof ArchetypeRefusal && refused.axis === "withersHeight")
+    !(
+      refused instanceof AutoMovieArchetypeRefusal &&
+      refused.axis === "withersHeight"
+    )
   )
     findings.push(
       "a fixed height at the withers, a mule sex's own figure, is not refused",

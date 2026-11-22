@@ -7,10 +7,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeFrame, type ArchetypeRide } from "../core";
-import type { EquineExpressionCue } from "./EquineExpressionCue";
+import {
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeRide,
+} from "../core";
+import type { AutoMovieArchetypeEquineExpressionCue } from "./AutoMovieArchetypeEquineExpressionCue";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { EquineHeadReach } from "./EquineHeadReach";
-import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
@@ -22,8 +26,9 @@ const BONES: ReadonlySet<string> = new Set<string>([
   "head",
   "tail",
   ...Object.values(QuadrupedScapula.BONES),
-  ...QuadrupedBody.LIMBS.flatMap(
-    (limb: QuadrupedBody.Limb): readonly string[] => QuadrupedBody.BONES[limb],
+  ...AutoMovieArchetypeQuadrupedBody.LIMBS.flatMap(
+    (limb: AutoMovieArchetypeQuadrupedBody.Limb): readonly string[] =>
+      AutoMovieArchetypeQuadrupedBody.BONES[limb],
   ),
 ]);
 
@@ -33,11 +38,11 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 /**
  * Re-pose one sample of an equid's ride through its actual rig: the neck and head, each ear about its root, the jaw about its hinge, the upper lip about its root and the tail about its dock.
  *
- * The sample's own bone frames are read by the shared FK reader; the neck, head and tail get new frames and every other bone keeps its own, and a part or contact whose carrier keeps its frame keeps its own transform untouched, so the limbs, the trunk and everything they carry are the base sample's exactly. Each non-bone part rides its declared carrier (`QuadrupedSkeleton.apply`'s rigid delta), the head's tack, ears and jaw riding the head; an ear is then turned about its root and the jaw about its hinge. Spans such as the lead and the reins are laid again by the model between their ends, so a rope stays on its halter and its held point.
+ * The sample's own bone frames are read by the shared FK reader; the neck, head and tail get new frames and every other bone keeps its own, and a part or contact whose carrier keeps its frame keeps its own transform untouched, so the limbs, the trunk and everything they carry are the base sample's exactly. Each non-bone part rides its declared carrier (`AutoMovieArchetypeQuadrupedSkeleton.apply`'s rigid delta), the head's tack, ears and jaw riding the head; an ear is then turned about its root and the jaw about its hinge. Spans such as the lead and the reins are laid again by the model between their ends, so a rope stays on its halter and its held point.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is re-posed, what is kept exactly and how carried parts and spans follow.
  * @evidence contracts/development/design.md#principled-representation Channel values and the source's rest frames in, one re-posed sample out.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Called by `EquineExpression` for each sample; FK, carrier deltas and span laying stay with their owners.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Called by `AutoMovieArchetypeEquineExpression` for each sample; FK, carrier deltas and span laying stay with their owners.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No limb, trunk or contact is moved by this layer.
  */
 export namespace EquineExpressionPose {
@@ -54,7 +59,7 @@ export namespace EquineExpressionPose {
     head?: IHead;
 
     /** Each ear's target carriage, a direction in the rest model's space for the left ear (the right mirrors X), and its share. */
-    ears: Partial<Record<EquineExpressionCue.Side, IEar>>;
+    ears: Partial<Record<AutoMovieArchetypeEquineExpressionCue.Side, IEar>>;
 
     /** The jaw's opening about its hinge, degrees, ventral positive. */
     jaw: number;
@@ -133,10 +138,10 @@ export namespace EquineExpressionPose {
     head: IAutoMovieQuaternion;
 
     /** The carrier of each non-bone part. */
-    parts: Readonly<Record<string, QuadrupedBody.Bone>>;
+    parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
 
     /** The carrier of each contact. */
-    contacts: Readonly<Record<string, QuadrupedBody.Bone>>;
+    contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
   }
 
   /**
@@ -158,15 +163,19 @@ export namespace EquineExpressionPose {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned model owns its parts; nothing is retained.
    */
   export function pose<Id extends string, D extends string>(
-    sample: ArchetypeRide.IPose<Id, D>,
-    current: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
+    sample: AutoMovieArchetypeRide.IPose<Id, D>,
+    current: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    >,
     prepared: IPrepared,
     channels: IChannels,
-  ): ArchetypeRide.IPose<Id, D> {
-    const animal: Archetype<Id, D> = sample.archetype;
-    const posed: Map<QuadrupedBody.Bone, IAutoMovieTransform> = new Map(
-      current,
-    );
+  ): AutoMovieArchetypeRide.IPose<Id, D> {
+    const animal: AutoMovieArchetype<Id, D> = sample.archetype;
+    const posed: Map<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    > = new Map(current);
     const trunk: IAutoMovieTransform = current.get("trunk")!;
     const body: IAutoMovieQuaternion = Quaternion.multiply(
       trunk.rotation,
@@ -246,23 +255,27 @@ export namespace EquineExpressionPose {
       });
     }
 
-    const deltas: ReadonlyMap<QuadrupedBody.Bone, ArchetypeFrame.IMotion> =
-      QuadrupedRigDelta.between(current, posed);
+    const deltas: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      AutoMovieArchetypeFrame.IMotion
+    > = QuadrupedRigDelta.between(current, posed);
     const head: IAutoMovieQuaternion = Quaternion.multiply(
       posed.get("head")!.rotation,
       Quaternion.inverse(prepared.head),
     );
     const parts: IAutoMovieModelPart[] = animal.parts.map(
       (part: IAutoMovieModelPart): IAutoMovieModelPart => {
-        const carrier: QuadrupedBody.Bone | undefined = BONES.has(part.id)
-          ? (part.id as QuadrupedBody.Bone)
-          : prepared.parts[part.id];
+        const carrier: AutoMovieArchetypeQuadrupedBody.Bone | undefined =
+          BONES.has(part.id)
+            ? (part.id as AutoMovieArchetypeQuadrupedBody.Bone)
+            : prepared.parts[part.id];
         const source: IAutoMovieTransform =
-          part.transform ?? ArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
+          part.transform ??
+          AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
         let frame: IAutoMovieTransform =
           carrier !== undefined && posed.get(carrier) !== current.get(carrier)
             ? QuadrupedRigDelta.move(source, carrier, deltas, part.id)
-            : ArchetypeFrame.copy(source);
+            : AutoMovieArchetypeFrame.copy(source);
         if (part.id === "leftEar" || part.id === "rightEar")
           frame = ear(
             part,
@@ -295,7 +308,7 @@ export namespace EquineExpressionPose {
     const frames: Map<string, IAutoMovieTransform> = new Map(
       animal.affordances.map(
         (contact: IAutoMovieAffordance): [string, IAutoMovieTransform] => {
-          const carrier: QuadrupedBody.Bone | undefined =
+          const carrier: AutoMovieArchetypeQuadrupedBody.Bone | undefined =
             prepared.contacts[contact.id];
           return [
             contact.id,
@@ -306,14 +319,14 @@ export namespace EquineExpressionPose {
                   deltas,
                   contact.id,
                 )
-              : ArchetypeFrame.copy(contact.frame),
+              : AutoMovieArchetypeFrame.copy(contact.frame),
           ];
         },
       ),
     );
     return {
       archetype: animal.reposed(parts, frames),
-      placement: ArchetypeFrame.copy(sample.placement),
+      placement: AutoMovieArchetypeFrame.copy(sample.placement),
     };
   }
 
@@ -371,7 +384,7 @@ export namespace EquineExpressionPose {
     pivot: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
   ): IAutoMovieTransform {
-    return ArchetypeFrame.move(
+    return AutoMovieArchetypeFrame.move(
       {
         rotation,
         translation: Vector3.subtract(

@@ -1,7 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import { BOAT_MODELS } from "./BOAT_MODELS";
 import { createBoat } from "./createBoat";
 
@@ -21,7 +25,7 @@ export namespace BoatOars {
   export const AFT: number = 0.22;
 
   /** An oar's inboard length beyond half the span, metres: 2 in, Shaw and Tenney's rule, the inboard half the span plus 2 in, the whole oar 25/7 of the inboard (WoodenBoat, https://www.woodenboat.com/online-exclusives/choosing-proper-length-oars). */
-  export const INBOARD: number = 2 * ArchetypeUnits.INCH;
+  export const INBOARD: number = 2 * AutoMovieArchetypeUnits.INCH;
 
   /** An oar's whole length over its inboard length: 25/7, the same rule. */
   export const RATIO: number = 25 / 7;
@@ -59,7 +63,7 @@ export namespace BoatOars {
   export const LOOM: number = 0.044;
 
   /** The handle's diameter, metres: 1.25 in finished, Angus Rowboats' oar plan (https://cdn.shopify.com/s/files/1/1566/1423/files/oarplansfinalsmall.pdf). */
-  export const HANDLE: number = 1.25 * ArchetypeUnits.INCH;
+  export const HANDLE: number = 1.25 * AutoMovieArchetypeUnits.INCH;
 
   /** The handle's held run, metres: a construction estimate, one hand's breadth and a little. */
   export const GRIP: number = 0.12;
@@ -131,7 +135,7 @@ export namespace BoatOars {
     const half: number = d.bladeWidth! / 2;
     const root: number = outboard - d.bladeLength!;
     const degrees = (radians: number): number =>
-      radians / ArchetypeUnits.DEGREE;
+      radians / AutoMovieArchetypeUnits.DEGREE;
 
     // At rest the blade's upper root corner meets the water; lifted, its lower tip corner stands at a height above it.
     const rest: number = degrees(
@@ -169,12 +173,15 @@ export namespace BoatOars {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function build(
-    builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createBoat.Affordance,
+      createBoat.Dimension
+    >,
     d: Readonly<Partial<Record<createBoat.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const g: IGeometry = geometry(d);
-    const rest: number = g.rest * ArchetypeUnits.DEGREE;
+    const rest: number = g.rest * AutoMovieArchetypeUnits.DEGREE;
     for (const [side, sign] of [
       ["left", 1],
       ["right", -1],
@@ -216,14 +223,22 @@ export namespace BoatOars {
       builder.affordance({
         id: `${side}Oarlock`,
         kind: "wheel",
-        frame: ArchetypeFrame.facing(pivot, v(0, -sign, 0), v(0, 0, 1)),
+        frame: AutoMovieArchetypeFrame.facing(
+          pivot,
+          v(0, -sign, 0),
+          v(0, 0, 1),
+        ),
         extent: null,
         travel: ARC.catch,
       });
       builder.affordance({
         id: `${side}Oar`,
         kind: "hinge",
-        frame: ArchetypeFrame.facing(pivot, v(0, 0, sign), v(sign, 0, 0)),
+        frame: AutoMovieArchetypeFrame.facing(
+          pivot,
+          v(0, 0, sign),
+          v(sign, 0, 0),
+        ),
         extent: null,
         travel: g.clear,
         parts: [loom, grip, blade],
@@ -233,7 +248,7 @@ export namespace BoatOars {
         id: `${side}Handle`,
         kind: "handle",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           at(-g.inboard + GRIP / 2),
           v(sign * Math.sin(rest), Math.cos(rest), 0),
           out,

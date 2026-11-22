@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { SmokingPropDraw } from "./SmokingPropDraw";
 
 /**
@@ -9,7 +9,7 @@ import { SmokingPropDraw } from "./SmokingPropDraw";
  * @param params The optional scene ID and BIC model.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Digital pocket lighter with a grip, wheel, button and effect locator.
  * @evidence contracts/development/implementation.md#principled-implementation The model fixes the case dimensions and the wheel part follows its existing knob contact.
@@ -24,7 +24,7 @@ export function createLighter(
     model?: SmokingPropDraw.Model;
   } = {},
   seed?: number | string,
-): Archetype<createLighter.Affordance, createLighter.Dimension> {
+): AutoMovieArchetype<createLighter.Affordance, createLighter.Dimension> {
   const {
     builder,
     d,
@@ -51,7 +51,7 @@ export function createLighter(
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, (height - 2 * wheel) / 2, 0),
       Vector3.create(0, 0, -1),
       Vector3.create(0, 1, 0),
@@ -64,7 +64,7 @@ export function createLighter(
   builder.affordance({
     id: "wheel",
     kind: "knob",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, height - wheel, depth * 0.1),
       Vector3.create(1, 0, 0),
       Vector3.create(0, 1, 0),
@@ -76,7 +76,7 @@ export function createLighter(
   builder.affordance({
     id: "valve",
     kind: "button",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       Vector3.create(0, height - 2 * wheel, -depth * 0.25),
     ),
     extent: null,
@@ -86,7 +86,7 @@ export function createLighter(
     id: "flame",
     kind: "socket",
     direction: "along",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       Vector3.create(0, height + 0.015, depth * 0.3),
     ),
     extent: null,
@@ -99,7 +99,7 @@ export function createLighter(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
  * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createLighter {

@@ -1,7 +1,7 @@
 import {
-  ArchetypeRefusal,
-  type EquineScramble,
-  QuadrupedBody,
+  type AutoMovieArchetypeEquineScramble,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeRefusal,
   createHorse,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
@@ -36,7 +36,10 @@ const TRANSFER: number = 0.4;
 const FORWARD: number = 10;
 
 /** The scramble on the face, at a friction and a bound. */
-const scramble = (friction: number, bound: number): EquineScramble.IScramble => ({
+const scramble = (
+  friction: number,
+  bound: number,
+): AutoMovieArchetypeEquineScramble.IScramble => ({
   kind: "bank-scramble",
   friction,
   source: "authored",
@@ -90,18 +93,22 @@ export function test_archetype_equine_bank_scramble(): void {
       read.hoof(at, "rightHind").y,
     );
     if (!(fore > hind))
-      issues.push(`bound ${at.toFixed(2)}: the fores stand at ${fore} m, not above the hinds at ${hind} m`);
-    for (const limb of QuadrupedBody.LIMBS) {
+      issues.push(
+        `bound ${at.toFixed(2)}: the fores stand at ${fore} m, not above the hinds at ${hind} m`,
+      );
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const gap: number = read.sole(at, limb);
       if (Math.abs(gap) <= SURFACE || gap > 0.05) continue;
-      issues.push(`bound ${at.toFixed(2)}: ${limb} sole ${gap} m against the surface`);
+      issues.push(
+        `bound ${at.toFixed(2)}: ${limb} sole ${gap} m against the surface`,
+      );
     }
   }
 
   // 2. A standing hoof never slides.
   const step: number = 0.1;
   for (let at: number = start + 0.4; at + step <= end - 0.4; at += step)
-    for (const limb of QuadrupedBody.LIMBS)
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS)
       if (
         Math.abs(read.sole(at, limb)) <= SURFACE &&
         Math.abs(read.sole(at + step, limb)) <= SURFACE &&
@@ -140,18 +147,25 @@ export function test_archetype_equine_bank_scramble(): void {
     try {
       equineBankStage.walk(
         horse,
-        equineBankStage.course(face, scramble(friction, bound), runOut, footing),
+        equineBankStage.course(
+          face,
+          scramble(friction, bound),
+          runOut,
+          footing,
+        ),
       );
     } catch (error) {
       refusal = error;
     }
     if (
       !(
-        refusal instanceof ArchetypeRefusal &&
+        refusal instanceof AutoMovieArchetypeRefusal &&
         refusal.axis === "legs[1].equineFootwork"
       )
     )
-      issues.push(`${label} must be refused on legs[1]; got ${String(refusal)}`);
+      issues.push(
+        `${label} must be refused on legs[1]; got ${String(refusal)}`,
+      );
   }
 
   // 5. The carried rider.
@@ -214,7 +228,9 @@ export function test_archetype_equine_bank_scramble(): void {
       );
     const lean: number = HumanSignature.trunk(reader, at);
     if (!(lean >= FORWARD))
-      issues.push(`rider ${at.toFixed(2)}: trunk only ${lean} degrees forward in space`);
+      issues.push(
+        `rider ${at.toFixed(2)}: trunk only ${lean} degrees forward in space`,
+      );
   }
   TestValidator.equals(
     "the horse scrambles up the bank in bounds and carries its rider over the top",

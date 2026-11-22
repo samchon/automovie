@@ -1,11 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { PianoPedalConstruction } from "./PianoPedalConstruction";
 import type { createInstrument } from "./createInstrument";
 
 /** The builder the construction fills. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createInstrument.Affordance,
   createInstrument.Dimension
 >;
@@ -137,7 +140,9 @@ export namespace KeyboardConstruction {
         builder.affordance({
           id,
           kind: "button",
-          frame: ArchetypeFrame.upright(v(x, top + rise, back + run / 2)),
+          frame: AutoMovieArchetypeFrame.upright(
+            v(x, top + rise, back + run / 2),
+          ),
           extent: null,
           travel: d.dip!,
           parts: [`${id}-part`],
@@ -155,7 +160,7 @@ export namespace KeyboardConstruction {
       builder.affordance({
         id,
         kind: "button",
-        frame: ArchetypeFrame.upright(v(x, top, back + length / 2)),
+        frame: AutoMovieArchetypeFrame.upright(v(x, top, back + length / 2)),
         extent: null,
         travel: d.dip!,
         parts: [`${id}-part`],
@@ -172,7 +177,7 @@ export namespace KeyboardConstruction {
     builder.affordance({
       id: "lid",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, top + rise + E.fallboard, back),
         v(1, 0, 0),
         v(0, 1, 0),
@@ -184,7 +189,7 @@ export namespace KeyboardConstruction {
     builder.affordance({
       id: "keybed",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, top, back + length / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, top, back + length / 2)),
       extent: null,
       width: whites * white,
       depth: length,

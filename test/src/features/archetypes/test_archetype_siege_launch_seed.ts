@@ -1,4 +1,7 @@
-import { type Archetype, createSiegeEngine } from "@automovie/archetypes";
+import {
+  type AutoMovieArchetype,
+  createSiegeEngine,
+} from "@automovie/archetypes";
 import { projectileAt } from "@automovie/engine";
 import type { IAutoMovieProjectileState } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -24,7 +27,7 @@ export function test_archetype_siege_launch_seed(): void {
   const findings: string[] = [];
   for (const kind of createSiegeEngine.KINDS)
     for (const seed of [0, 5, 9]) {
-      const engine: Archetype<
+      const engine: AutoMovieArchetype<
         createSiegeEngine.Affordance,
         createSiegeEngine.Dimension
       > = createSiegeEngine({ kind }, seed);

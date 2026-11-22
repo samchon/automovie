@@ -2,12 +2,12 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** A band in kilograms. */
@@ -16,8 +16,8 @@ const kg = (
   maximum: number,
   source: string,
   provisional?: boolean,
-): IArchetypeBand =>
-  ArchetypeBand.of("kg", minimum, maximum, source, provisional);
+): IAutoMovieArchetypeBand =>
+  AutoMovieArchetypeBand.of("kg", minimum, maximum, source, provisional);
 
 /** Apple's phone specification pages; the smallest and largest rows were read on the comparison page by position. */
 const PHONE: string =
@@ -96,7 +96,9 @@ export namespace HandheldDevice {
   export type Dimension = "width" | "height" | "thickness" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     height: "m",
     thickness: "m",
@@ -203,19 +205,19 @@ export namespace HandheldDevice {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     phone: {
-      width: ArchetypeBand.metres(0.0642, 0.078, PHONE, true),
-      height: ArchetypeBand.metres(0.1315, 0.1634, PHONE, true),
-      thickness: ArchetypeBand.metres(0.00564, 0.00875, PHONE, true),
+      width: AutoMovieArchetypeBand.metres(0.0642, 0.078, PHONE, true),
+      height: AutoMovieArchetypeBand.metres(0.1315, 0.1634, PHONE, true),
+      thickness: AutoMovieArchetypeBand.metres(0.00564, 0.00875, PHONE, true),
       mass: kg(0.135, 0.249, PHONE, true),
     },
     camera: {},
     remote: {
-      width: ArchetypeBand.metres(0.035, 0.042, REMOTE, true),
-      height: ArchetypeBand.metres(0.136, 0.142, REMOTE, true),
-      thickness: ArchetypeBand.metres(0.00925, 0.02, REMOTE, true),
+      width: AutoMovieArchetypeBand.metres(0.035, 0.042, REMOTE, true),
+      height: AutoMovieArchetypeBand.metres(0.136, 0.142, REMOTE, true),
+      thickness: AutoMovieArchetypeBand.metres(0.00925, 0.02, REMOTE, true),
       mass: kg(0.0434, 0.085, REMOTE, true),
     },
     tablet: {},
@@ -232,7 +234,7 @@ export namespace HandheldDevice {
    */
   export interface IDrawResult<Id extends string> {
     /** The prepared `builder` this call returns. */
-    builder: ArchetypeBuilder<Id, Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
     /** The prepared `size` this call returns. */
     size: Record<Dimension, number>;
@@ -255,8 +257,13 @@ export namespace HandheldDevice {
     params: Omit<IParams, "kind">,
     seed: number | string | undefined,
   ): IDrawResult<Id> {
-    const draw: ArchetypeDrawSession<Dimension> =
-      new ArchetypeDrawSession<Dimension>("device", UNITS, seed, params);
+    const draw: AutoMovieArchetypeDrawSession<Dimension> =
+      new AutoMovieArchetypeDrawSession<Dimension>(
+        "device",
+        UNITS,
+        seed,
+        params,
+      );
     const drawn: Partial<Record<Dimension, number>> = draw.dimensions(
       BANDS[kind],
       BANDS,
@@ -268,7 +275,7 @@ export namespace HandheldDevice {
     ).figures;
     const size: Partial<Record<Dimension, number>> = { ...drawn, ...figures };
     return {
-      builder: new ArchetypeBuilder<Id, Dimension>({
+      builder: new AutoMovieArchetypeBuilder<Id, Dimension>({
         material: "composite",
         id: params.id,
         name,
@@ -295,7 +302,7 @@ export namespace HandheldDevice {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the constructed records and builder.
    */
   export function caseBody<Id extends string>(
-    builder: ArchetypeBuilder<Id, Dimension>,
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>,
     width: number,
     height: number,
     depth: number,
@@ -324,8 +331,8 @@ export namespace HandheldDevice {
   export function front(
     y: number,
     depth: number,
-  ): ReturnType<typeof ArchetypeFrame.facing> {
-    return ArchetypeFrame.facing(
+  ): ReturnType<typeof AutoMovieArchetypeFrame.facing> {
+    return AutoMovieArchetypeFrame.facing(
       Vector3.create(0, y, depth / 2),
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),
@@ -363,7 +370,7 @@ export namespace HandheldDevice {
         id: "grip",
         kind: "handle",
         symmetry: "none",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           Vector3.create(0, height * 0.4, 0),
           Vector3.create(0, 0, -1),
           Vector3.create(0, 1, 0),
@@ -377,7 +384,7 @@ export namespace HandheldDevice {
         id: "pinch",
         kind: "handle",
         symmetry: "none",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           Vector3.create(0, 0.02, 0),
           Vector3.create(0, 0, -1),
           Vector3.create(1, 0, 0),
@@ -437,7 +444,7 @@ export namespace HandheldDevice {
     params: Omit<IParams, "kind">,
     seed: number | string | undefined,
     face: Face,
-  ): Archetype<FaceAndGrip<Face>, Dimension> {
+  ): AutoMovieArchetype<FaceAndGrip<Face>, Dimension> {
     const { builder, size }: ReturnType<typeof draw<FaceAndGrip<Face>>> = draw<
       FaceAndGrip<Face>
     >(kind, name, params, seed);
@@ -447,7 +454,7 @@ export namespace HandheldDevice {
       id: "grip",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, height / 2, 0),
         Vector3.create(0, 0, -1),
         Vector3.create(0, 1, 0),

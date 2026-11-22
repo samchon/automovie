@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../core";
 import type { createSword } from "./createSword";
 
 /** The British light cavalry sabre, from a secondary source. */
@@ -25,8 +25,8 @@ const KNIFE: string =
 const ESTIMATE: string = "typical of the kind, not read at a source";
 
 /** A band in metres that is an estimate. */
-const guess = (minimum: number, maximum: number): IArchetypeBand =>
-  ArchetypeBand.metres(minimum, maximum, ESTIMATE, true);
+const guess = (minimum: number, maximum: number): IAutoMovieArchetypeBand =>
+  AutoMovieArchetypeBand.metres(minimum, maximum, ESTIMATE, true);
 
 /**
  * The band of each free dimension of a blade that its kind's read model leaves, by kind, with the source it was read at; `createSword.BANDS` is this table.
@@ -36,43 +36,43 @@ const guess = (minimum: number, maximum: number): IArchetypeBand =>
 export const SWORD_BANDS: Readonly<
   Record<
     createSword.Kind,
-    Readonly<Partial<Record<createSword.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createSword.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   longsword: {},
   armingSword: {},
   sabre: {
-    bladeLength: ArchetypeBand.metres(0.83, 0.84, SABRE, true),
+    bladeLength: AutoMovieArchetypeBand.metres(0.83, 0.84, SABRE, true),
     bladeWidth: guess(0.035, 0.038),
     hiltLength: guess(0.13, 0.14),
     balance: guess(0.12, 0.16),
   },
   katana: {
-    bladeLength: ArchetypeBand.metres(0.606, 0.8, KATANA, true),
+    bladeLength: AutoMovieArchetypeBand.metres(0.606, 0.8, KATANA, true),
     bladeWidth: guess(0.03, 0.032),
     hiltLength: guess(0.25, 0.28),
     balance: guess(0.1, 0.14),
-    mass: ArchetypeBand.of("kg", 0.9, 1.2, ESTIMATE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.9, 1.2, ESTIMATE, true),
   },
   rapier: {
-    bladeLength: ArchetypeBand.metres(1.04, 1.04, RAPIER, true),
-    bladeWidth: ArchetypeBand.metres(0.025, 0.025, RAPIER, true),
+    bladeLength: AutoMovieArchetypeBand.metres(1.04, 1.04, RAPIER, true),
+    bladeWidth: AutoMovieArchetypeBand.metres(0.025, 0.025, RAPIER, true),
     hiltLength: guess(0.15, 0.17),
     balance: guess(0.08, 0.12),
-    mass: ArchetypeBand.of("kg", 1, 1, RAPIER, true),
+    mass: AutoMovieArchetypeBand.of("kg", 1, 1, RAPIER, true),
   },
   dagger: {
-    bladeLength: ArchetypeBand.metres(0.3, 0.36, DAGGER, true),
+    bladeLength: AutoMovieArchetypeBand.metres(0.3, 0.36, DAGGER, true),
     bladeWidth: guess(0.02, 0.025),
     hiltLength: guess(0.14, 0.15),
     balance: guess(0, 0.03),
-    mass: ArchetypeBand.of("kg", 0.25, 0.45, ESTIMATE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.25, 0.45, ESTIMATE, true),
   },
   knife: {
-    bladeLength: ArchetypeBand.metres(0.178, 0.178, KNIFE, true),
+    bladeLength: AutoMovieArchetypeBand.metres(0.178, 0.178, KNIFE, true),
     bladeWidth: guess(0.03, 0.032),
-    hiltLength: ArchetypeBand.metres(0.1236, 0.1236, KNIFE, true),
+    hiltLength: AutoMovieArchetypeBand.metres(0.1236, 0.1236, KNIFE, true),
     balance: guess(0, 0.02),
-    mass: ArchetypeBand.of("kg", 0.32, 0.32, KNIFE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.32, 0.32, KNIFE, true),
   },
 };

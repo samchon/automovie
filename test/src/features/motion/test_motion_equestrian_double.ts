@@ -1,4 +1,8 @@
-import { EquineStance, createHorse, rideHorse } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeEquineStance,
+  createHorse,
+  rideHorse,
+} from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
@@ -363,16 +367,20 @@ export function test_motion_equestrian_double(): void {
     },
     "walk",
   );
-  const bronc: mountedHorseScene.Ride = EquineStance.after(saddled, halt, [
-    {
-      kind: "buck",
-      pitch: 15,
-      from: halt.duration + 1,
-      entry: 0.6,
-      hold: 0.3,
-      exit: 0.6,
-    },
-  ]);
+  const bronc: mountedHorseScene.Ride = AutoMovieArchetypeEquineStance.after(
+    saddled,
+    halt,
+    [
+      {
+        kind: "buck",
+        pitch: 15,
+        from: halt.duration + 1,
+        entry: 0.6,
+        hold: 0.3,
+        exit: 0.6,
+      },
+    ],
+  );
   const pickupHorse: mountedHorseScene.Horse = createHorse(
     { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0, tack: "double" },
     8,

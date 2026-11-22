@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The tower's sizes, metres, from Perlick's air-cooled tee tower EA2110 sheet: `height`, the counter to the top of the head, 12 15/16 in; `column`, 4 5/8 in across; `base`, 6 in across; `head`, the tee head's depth, 6 7/16 in; and `spacing`, the faucets' centres 5-1/2 in apart on a two-faucet tower (https://api.perlick.com/Data/PDFFiles//EA2110-6Bfba2768c662b1c0d5b52433686318804b7918c83_Z2459_Air_Cooled_Tee_Towers_Spec_Rev_07_12_24.pdf). */
@@ -18,11 +18,11 @@ const TOWER: Readonly<{
   head: number;
   spacing: number;
 }> = {
-  height: (12 + 15 / 16) * ArchetypeUnits.INCH,
-  column: (4 + 5 / 8) * ArchetypeUnits.INCH,
-  base: 6 * ArchetypeUnits.INCH,
-  head: (6 + 7 / 16) * ArchetypeUnits.INCH,
-  spacing: 5.5 * ArchetypeUnits.INCH,
+  height: (12 + 15 / 16) * AutoMovieArchetypeUnits.INCH,
+  column: (4 + 5 / 8) * AutoMovieArchetypeUnits.INCH,
+  base: 6 * AutoMovieArchetypeUnits.INCH,
+  head: (6 + 7 / 16) * AutoMovieArchetypeUnits.INCH,
+  spacing: 5.5 * AutoMovieArchetypeUnits.INCH,
 };
 
 /** A faucet's sizes, metres, from Micro Matic's 4933 standard faucet drawing: `length`, 62.67 mm from the shank's face; `spout`, the spout 44.03 mm out from the shank's face; `drop`, the spout's tip 42.15 mm under the shank's centre; and `stud`, the lever stud's top 97.64 mm over the spout's tip (https://res.katom.com/products/711/711-4933BR/711-4933BR.pdf). */
@@ -32,10 +32,10 @@ const FAUCET: Readonly<{
   drop: number;
   stud: number;
 }> = {
-  length: 62.67 * ArchetypeUnits.MILLIMETRE,
-  spout: 44.03 * ArchetypeUnits.MILLIMETRE,
-  drop: 42.15 * ArchetypeUnits.MILLIMETRE,
-  stud: 97.64 * ArchetypeUnits.MILLIMETRE,
+  length: 62.67 * AutoMovieArchetypeUnits.MILLIMETRE,
+  spout: 44.03 * AutoMovieArchetypeUnits.MILLIMETRE,
+  drop: 42.15 * AutoMovieArchetypeUnits.MILLIMETRE,
+  stud: 97.64 * AutoMovieArchetypeUnits.MILLIMETRE,
 };
 
 /** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `plate`, the base plate's thickness; `body`, a faucet body's diameter; `stud`, the lever stud's diameter. */
@@ -53,7 +53,7 @@ const ESTIMATES: Readonly<{ plate: number; body: number; stud: number }> = {
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The tower.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, where each faucet stands, what each contact is and what is left out.
  * @evidence contracts/development/implementation.md#principled-implementation Perlick's tower height, column, base, head depth and faucet spacing; Micro Matic's faucet length, spout, drop and lever stud, a standard faucet that fits a standard tower's shank.
@@ -66,9 +66,9 @@ const ESTIMATES: Readonly<{ plate: number; body: number; stud: number }> = {
 export function createBeerTap(
   params: createBeerTap.IParams = {},
   seed?: number | string,
-): Archetype<createBeerTap.Affordance, createBeerTap.Dimension> {
-  const draw: ArchetypeDrawSession<createBeerTap.Dimension> =
-    new ArchetypeDrawSession<createBeerTap.Dimension>(
+): AutoMovieArchetype<createBeerTap.Affordance, createBeerTap.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createBeerTap.Dimension> =
+    new AutoMovieArchetypeDrawSession<createBeerTap.Dimension>(
       "beerTap",
       createBeerTap.UNITS,
       seed,
@@ -77,10 +77,10 @@ export function createBeerTap(
   const d: Record<createBeerTap.Dimension, number> = draw.dimensions(
     createBeerTap.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createBeerTap.Affordance,
     createBeerTap.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "beer tower",
@@ -137,14 +137,22 @@ export function createBeerTap(
     builder.affordance({
       id: side === "left" ? "leftSpout" : "rightSpout",
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(x, tip, spout), v(0, -1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(x, tip, spout),
+        v(0, -1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
     builder.affordance({
       id: side === "left" ? "leftTap" : "rightTap",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(x, top, spout), v(0, 0, 1), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(x, top, spout),
+        v(0, 0, 1),
+        v(0, 1, 0),
+      ),
       extent: null,
       grip: "power",
     });
@@ -173,7 +181,9 @@ export namespace createBeerTap {
   export type Dimension = "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     mass: "kg",
   };
 
@@ -184,7 +194,13 @@ export namespace createBeerTap {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    mass: ArchetypeBand.of("kg", 3, 6, ArchetypeBand.TYPICAL_MASS, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      3,
+      6,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

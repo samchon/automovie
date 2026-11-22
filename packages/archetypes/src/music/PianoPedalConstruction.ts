@@ -1,10 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import type { createInstrument } from "./createInstrument";
 
 /** The upright piano builder that owns the cabinet and its pedal. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createInstrument.Affordance,
   createInstrument.Dimension
 >;
@@ -61,7 +64,7 @@ export function PianoPedalConstruction(builder: Builder, front: number): void {
   builder.affordance({
     id: "damperPedalHinge",
     kind: "hinge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(D.right, D.restHeight, front),
       v(1, 0, 0),
       v(0, 1, 0),
@@ -73,7 +76,7 @@ export function PianoPedalConstruction(builder: Builder, front: number): void {
   builder.affordance({
     id: "damperPedal",
     kind: "pedal",
-    frame: ArchetypeFrame.upright(v(D.right, D.restHeight, centre)),
+    frame: AutoMovieArchetypeFrame.upright(v(D.right, D.restHeight, centre)),
     extent: null,
     width: D.width,
     depth: D.depth,

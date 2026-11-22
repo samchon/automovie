@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** UNHCR's family tent, read in its specification. */
@@ -22,7 +22,7 @@ const UNHCR: string =
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The tent.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the tent is and is not, how it stands, its parts, its doors and its mass.
  * @evidence contracts/development/implementation.md#principled-implementation A walls box, two roof slabs and two vestibule boxes from the specification's read sizes, the vestibules reaching half the base length beyond the frame's centre; four apertures at the read door sizes.
@@ -35,9 +35,9 @@ const UNHCR: string =
 export function createTent(
   params: createTent.IParams,
   seed?: number | string,
-): Archetype<createTent.Affordance, createTent.Dimension> {
-  const draw: ArchetypeDrawSession<createTent.Dimension> =
-    new ArchetypeDrawSession<createTent.Dimension>(
+): AutoMovieArchetype<createTent.Affordance, createTent.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createTent.Dimension> =
+    new AutoMovieArchetypeDrawSession<createTent.Dimension>(
       "tent",
       createTent.UNITS,
       seed,
@@ -52,13 +52,15 @@ export function createTent(
   const d: Record<createTent.Dimension, number> = draw.dimensions(
     createTent.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<createTent.Affordance, createTent.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: "relief family tent",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createTent.Affordance,
+    createTent.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: "relief family tent",
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const canvas: string = "#c9c2a8";
 
@@ -113,7 +115,7 @@ export function createTent(
     builder.affordance({
       id,
       kind: "aperture",
-      frame: ArchetypeFrame.upright(v(0, 0, z)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, 0, z)),
       extent: null,
       width,
       height,
@@ -178,7 +180,9 @@ export namespace createTent {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     ridge: "m",
     centre: "m",
@@ -203,20 +207,20 @@ export namespace createTent {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     reliefFamily: {
-      width: ArchetypeBand.metres(4, 4, UNHCR),
-      ridge: ArchetypeBand.metres(4, 4, UNHCR),
-      centre: ArchetypeBand.metres(2.2, 2.2, UNHCR),
-      wall: ArchetypeBand.metres(1.25, 1.4, UNHCR),
-      base: ArchetypeBand.metres(6.6, 6.6, UNHCR),
-      endWidth: ArchetypeBand.metres(1.4, 1.4, UNHCR),
-      door: ArchetypeBand.metres(1.4, 1.4, UNHCR),
-      doorWidth: ArchetypeBand.metres(1.3, 1.3, UNHCR),
-      innerWidth: ArchetypeBand.metres(1, 1, UNHCR),
-      innerHeight: ArchetypeBand.metres(1.75, 1.75, UNHCR),
-      mass: ArchetypeBand.of("kg", 49, 53, UNHCR),
+      width: AutoMovieArchetypeBand.metres(4, 4, UNHCR),
+      ridge: AutoMovieArchetypeBand.metres(4, 4, UNHCR),
+      centre: AutoMovieArchetypeBand.metres(2.2, 2.2, UNHCR),
+      wall: AutoMovieArchetypeBand.metres(1.25, 1.4, UNHCR),
+      base: AutoMovieArchetypeBand.metres(6.6, 6.6, UNHCR),
+      endWidth: AutoMovieArchetypeBand.metres(1.4, 1.4, UNHCR),
+      door: AutoMovieArchetypeBand.metres(1.4, 1.4, UNHCR),
+      doorWidth: AutoMovieArchetypeBand.metres(1.3, 1.3, UNHCR),
+      innerWidth: AutoMovieArchetypeBand.metres(1, 1, UNHCR),
+      innerHeight: AutoMovieArchetypeBand.metres(1.75, 1.75, UNHCR),
+      mass: AutoMovieArchetypeBand.of("kg", 49, 53, UNHCR),
     },
   };
 }

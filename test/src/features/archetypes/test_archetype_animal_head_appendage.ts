@@ -1,7 +1,7 @@
 import {
-  type QuadrupedBody,
-  QuadrupedHeadAttachment,
-  QuadrupedSkeleton,
+  type AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeQuadrupedHeadAttachment,
+  AutoMovieArchetypeQuadrupedSkeleton,
   createDeer,
   createDog,
   createOx,
@@ -198,23 +198,28 @@ export function test_archetype_animal_head_appendage(): void {
     }
   }
 
-  const head: Parameters<typeof QuadrupedHeadAttachment>[0] = {
-    poll: { x: 0, y: 0, z: 0 },
-    nose: { x: 0, y: 0, z: 2 },
-    headRadius: 1,
-  };
+  const head: Parameters<typeof AutoMovieArchetypeQuadrupedHeadAttachment>[0] =
+    {
+      poll: { x: 0, y: 0, z: 0 },
+      nose: { x: 0, y: 0, z: 2 },
+      headRadius: 1,
+    };
   const hint: IAutoMovieVector3 = { x: 0.2, y: 0.3, z: 1 };
   const before: string = JSON.stringify({ head, hint });
-  const inside: IAutoMovieVector3 = QuadrupedHeadAttachment(head, hint, 0.1);
+  const inside: IAutoMovieVector3 = AutoMovieArchetypeQuadrupedHeadAttachment(
+    head,
+    hint,
+    0.1,
+  );
   if (JSON.stringify(inside) !== JSON.stringify(hint) || inside === hint)
     findings.push("already seated root was moved or aliased");
   inside.x += 5;
-  const side: IAutoMovieVector3 = QuadrupedHeadAttachment(
+  const side: IAutoMovieVector3 = AutoMovieArchetypeQuadrupedHeadAttachment(
     head,
     { x: 2, y: 0, z: 1 },
     0.25,
   );
-  const equal: IAutoMovieVector3 = QuadrupedHeadAttachment(
+  const equal: IAutoMovieVector3 = AutoMovieArchetypeQuadrupedHeadAttachment(
     head,
     { x: 2, y: 0, z: 1 },
     1,
@@ -232,7 +237,11 @@ export function test_archetype_animal_head_appendage(): void {
     [{ x: 2, y: 2, z: -2 }, head.poll],
     [{ x: 0, y: 2, z: 3 }, head.nose],
   ] as const) {
-    const root: IAutoMovieVector3 = QuadrupedHeadAttachment(head, at, 0.25);
+    const root: IAutoMovieVector3 = AutoMovieArchetypeQuadrupedHeadAttachment(
+      head,
+      at,
+      0.25,
+    );
     if (
       !nclose(
         Math.hypot(root.x - cap.x, root.y - cap.y, root.z - cap.z),
@@ -248,16 +257,28 @@ export function test_archetype_animal_head_appendage(): void {
     findings.push("root seating mutated caller geometry");
   for (const radius of [0, -1, Number.NaN, Infinity, 1.1, Number.MIN_VALUE])
     rejected(`radius/${radius}`, (): unknown =>
-      QuadrupedHeadAttachment(head, hint, radius),
+      AutoMovieArchetypeQuadrupedHeadAttachment(head, hint, radius),
     );
   rejected("degenerate head", (): unknown =>
-    QuadrupedHeadAttachment({ ...head, nose: { ...head.poll } }, hint, 0.1),
+    AutoMovieArchetypeQuadrupedHeadAttachment(
+      { ...head, nose: { ...head.poll } },
+      hint,
+      0.1,
+    ),
   );
   rejected("invalid actual head radius", (): unknown =>
-    QuadrupedHeadAttachment({ ...head, headRadius: NaN }, hint, 0.1),
+    AutoMovieArchetypeQuadrupedHeadAttachment(
+      { ...head, headRadius: NaN },
+      hint,
+      0.1,
+    ),
   );
   rejected("nonfinite hint", (): unknown =>
-    QuadrupedHeadAttachment(head, { ...hint, x: Infinity }, 0.1),
+    AutoMovieArchetypeQuadrupedHeadAttachment(
+      head,
+      { ...hint, x: Infinity },
+      0.1,
+    ),
   );
   TestValidator.equals(
     "actual complete head appendage attachment",
@@ -281,7 +302,9 @@ export function test_archetype_animal_head_appendage(): void {
     animal: ReturnType<typeof createQuadruped>,
     entry: ICase,
   ): void {
-    const carriers: Record<string, QuadrupedBody.Bone> = { withers: "trunk" };
+    const carriers: Record<string, AutoMovieArchetypeQuadrupedBody.Bone> = {
+      withers: "trunk",
+    };
     for (const id of Object.keys(entry.expected.lengths)) {
       if (!createQuadruped.SPECIES[entry.params.kind].nodding.includes(id))
         findings.push(
@@ -290,7 +313,7 @@ export function test_archetype_animal_head_appendage(): void {
       carriers[id] = "neck";
     }
     // Every declared contact rides as the producer's nod policy says: listed contacts with the neck, the rest with the trunk.
-    const contacts: Record<string, QuadrupedBody.Bone> = {};
+    const contacts: Record<string, AutoMovieArchetypeQuadrupedBody.Bone> = {};
     for (const contact of animal.affordances)
       contacts[contact.id] = (
         createQuadruped.SPECIES[entry.params.kind].noddingContacts ?? []
@@ -298,20 +321,21 @@ export function test_archetype_animal_head_appendage(): void {
         ? "neck"
         : "trunk";
     const joints: Map<
-      QuadrupedBody.Bone,
+      AutoMovieArchetypeQuadrupedBody.Bone,
       Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">
     > = new Map([["neck", { flexion: 17, abduction: -9, twist: 11 }]]);
-    const posed: ReturnType<typeof createQuadruped> = QuadrupedSkeleton.pose(
-      animal,
-      joints,
-      carriers,
-      contacts,
-      {
-        translation: { x: 2, y: 1, z: -3 },
-        rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 0.7),
-        scale: { x: 1, y: 1, z: 1 },
-      },
-    );
+    const posed: ReturnType<typeof createQuadruped> =
+      AutoMovieArchetypeQuadrupedSkeleton.pose(
+        animal,
+        joints,
+        carriers,
+        contacts,
+        {
+          translation: { x: 2, y: 1, z: -3 },
+          rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 0.7),
+          scale: { x: 1, y: 1, z: 1 },
+        },
+      );
     observation.observe(
       findings,
       `${entry.params.kind}/posed`,

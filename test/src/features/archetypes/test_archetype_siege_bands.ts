@@ -1,6 +1,6 @@
 import {
-  type Archetype,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  type IAutoMovieArchetypeBand,
   createSiegeEngine,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
@@ -84,19 +84,20 @@ export function test_archetype_siege_bands(): void {
   for (const kind of createSiegeEngine.KINDS) {
     const reached: Map<string, { low: number; high: number }> = new Map();
     for (let seed: number = 0; seed < archetypeBandSweep.SEEDS; seed++) {
-      const engine: Archetype<
+      const engine: AutoMovieArchetype<
         createSiegeEngine.Affordance,
         createSiegeEngine.Dimension
       > = createSiegeEngine({ kind }, seed);
       const d: Readonly<Partial<Record<createSiegeEngine.Dimension, number>>> =
         engine.dimensions;
-      const recorded: Readonly<Partial<Record<string, IArchetypeBand>>> =
-        engine.provenance.bands;
+      const recorded: Readonly<
+        Partial<Record<string, IAutoMovieArchetypeBand>>
+      > = engine.provenance.bands;
       for (const name of new Set([
         ...Object.keys(recorded),
         ...Object.keys(EXPECTED[kind]),
       ])) {
-        const band: IArchetypeBand | undefined = recorded[name];
+        const band: IAutoMovieArchetypeBand | undefined = recorded[name];
         const want: Expected | undefined = EXPECTED[kind][name];
         if (band === undefined || want === undefined) {
           findings.push(

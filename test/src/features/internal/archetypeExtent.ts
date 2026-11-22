@@ -1,4 +1,4 @@
-import type { Archetype } from "@automovie/archetypes";
+import type { AutoMovieArchetype } from "@automovie/archetypes";
 import { physicalShapeSpan } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
@@ -23,7 +23,7 @@ import type {
  * @returns The lowest and highest coordinate along the axis, metres.
  */
 export function archetypeExtent(
-  archetype: Archetype | readonly IAutoMoviePhysicalShape[],
+  archetype: AutoMovieArchetype | readonly IAutoMoviePhysicalShape[],
   axis: "x" | "y" | "z",
   parts?: readonly string[],
 ): { low: number; high: number; size: number } {

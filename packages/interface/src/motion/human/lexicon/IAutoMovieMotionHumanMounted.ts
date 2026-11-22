@@ -40,7 +40,7 @@ export interface IAutoMovieMotionHumanMounted {
    * refused. Nothing is read from a gait name: give the carrier's own stride
    * time. A horse of 1.4 m at the withers measured about 0.9 s at a walk
    * (1.5 m/s), 0.64 s at a trot (3 m/s), 0.5 s at a canter (5 m/s) and 0.4 s
-   * at a gallop (8 m/s) (`HorseGait.TABLE`, Robilliard et al. 2007);
+   * at a gallop (8 m/s) (`AutoMovieArchetypeEquineGait.TABLE`, Robilliard et al. 2007);
    * warmbloods are about 15 % slower, and the table's scaling to other
    * heights is provisional.
    */

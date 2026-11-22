@@ -1,6 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { createCart } from "./createCart";
 
 /**
@@ -27,7 +30,10 @@ export namespace CartPushed {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function trolley(
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCart.Affordance,
+      createCart.Dimension
+    >,
     d: Readonly<Partial<Record<createCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -105,7 +111,7 @@ export namespace CartPushed {
       id: "handle",
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.upright(v(0, handleHeight, bar)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, handleHeight, bar)),
       extent: null,
       grip: "power",
       aperture: d.gripDiameter!,
@@ -119,7 +125,9 @@ export namespace CartPushed {
         id,
         kind: "bar",
         symmetry: "round",
-        frame: ArchetypeFrame.upright(v((sign * width) / 4, handleHeight, bar)),
+        frame: AutoMovieArchetypeFrame.upright(
+          v((sign * width) / 4, handleHeight, bar),
+        ),
         extent: null,
         grip: "power",
         aperture: d.gripDiameter!,
@@ -128,7 +136,7 @@ export namespace CartPushed {
     builder.affordance({
       id: "load",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, floor, 0.075)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, floor, 0.075)),
       extent: null,
       width,
       depth: length - 0.15,
@@ -150,7 +158,10 @@ export namespace CartPushed {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function wheelbarrow(
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCart.Affordance,
+      createCart.Dimension
+    >,
     d: Readonly<Partial<Record<createCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -207,7 +218,7 @@ export namespace CartPushed {
         id: `${side}Handle`,
         kind: "handle",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(x, handleHeight, -length / 2 + createCart.GRIP / 2),
           v(0, 1, 0),
           v(0, 0, 1),
@@ -221,7 +232,7 @@ export namespace CartPushed {
     builder.affordance({
       id: "load",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, handleHeight - 0.2, middle)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, handleHeight - 0.2, middle)),
       extent: null,
       width: d.width!,
       depth: tray,

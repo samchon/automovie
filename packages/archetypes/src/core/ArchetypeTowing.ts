@@ -5,17 +5,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { Archetype } from "./Archetype";
-import { ArchetypeFrame } from "./ArchetypeFrame";
-import { ArchetypeRefusal } from "./ArchetypeRefusal";
-import { ArchetypeUnits } from "./ArchetypeUnits";
+import type { AutoMovieArchetype } from "./AutoMovieArchetype";
+import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
+import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
+import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
 
 /**
  * Declared wheel support and exact vertical coupling geometry for planar towing.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes axle-body pitch, level four-wheel support with an optional real drawbar hinge, and unsupported legacy height changes.
  * @evidence contracts/development/design.md#principled-representation Actual model-space wheel/pivot points and an existing articulation id describe mechanical freedoms; no vehicle kind or guessed part name enters the law.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Producer readers supply Support, and ArchetypeRide.towed consumes the prepared projected reach and rigid placement.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Producer readers supply Support, and AutoMovieArchetypeRide.towed consumes the prepared projected reach and rigid placement.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No contact tolerance, vehicle-specific height offset, synthetic suspension or invented shaft flexibility replaces declared geometry.
  */
 export namespace ArchetypeTowing {
@@ -140,7 +140,7 @@ export namespace ArchetypeTowing {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names each optional geometry declaration and its unit.
    * @evidence contracts/development/design.md#principled-representation Each member is an independent declaration; contradictions between them are refused at runtime by `prepare`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The subset of `ArchetypeRide.towed`'s options this owner reads.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The subset of `AutoMovieArchetypeRide.towed`'s options this owner reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Ground is admitted only with single-axle support, the one support whose body may pitch onto it.
    */
   export interface IOptions<Id extends string> {
@@ -161,7 +161,7 @@ export namespace ArchetypeTowing {
    * @param coupling Source coupling contact id.
    * @param options Existing explicit axle/front data plus optional actual support, and optional authored ground under a single axle.
    * @returns Shared height/projection/placement operations for this source.
-   * @throws {ArchetypeRefusal} For contradictory geometry, invalid points/axes, unsupported heights or an unreachable vertical hitch.
+   * @throws {AutoMovieArchetypeRefusal} For contradictory geometry, invalid points/axes, unsupported heights or an unreachable vertical hitch.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States actual support ownership, legacy level-only admission, duplicate-option contradictions, pitch freedoms and strict positive projected reach.
    * @evidence contracts/development/implementation.md#principled-implementation A rigid lever around an actual grounded axle/pivot satisfies h=qY*cos(pitch)-qZ*sin(pitch); its horizontal projection is sqrt(length²-h²). Both existing heading integration and pose emission share that lever, while fixed supports refuse unsupported height.
@@ -172,7 +172,7 @@ export namespace ArchetypeTowing {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only fixed scalar geometry and source articulation ids; returned frames/travels are independent and no model buffers, handles or sampled cache survive.
    */
   export function prepare<Id extends string, D extends string>(
-    trailer: Archetype<Id, D>,
+    trailer: AutoMovieArchetype<Id, D>,
     coupling: Id,
     options: IOptions<Id>,
   ): IPrepared<Id> {
@@ -282,7 +282,10 @@ export namespace ArchetypeTowing {
     if (front !== null) {
       const steering: ReturnType<typeof trailer.affordance> =
         trailer.affordance(front.turn);
-      const axis: IAutoMovieVector3 = ArchetypeFrame.axis(steering.frame, "y");
+      const axis: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+        steering.frame,
+        "y",
+      );
       if (
         steering.kind !== "wheel" ||
         !same(steering.frame.translation, pivot) ||
@@ -300,7 +303,10 @@ export namespace ArchetypeTowing {
     if (pitchId !== undefined) {
       const joint: ReturnType<typeof trailer.affordance> =
         trailer.affordance(pitchId);
-      const axis: IAutoMovieVector3 = ArchetypeFrame.axis(joint.frame, "y");
+      const axis: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+        joint.frame,
+        "y",
+      );
       if (
         joint.kind !== "hinge" ||
         trailer.affordance(coupling).rides !== pitchId ||
@@ -464,19 +470,20 @@ export namespace ArchetypeTowing {
         );
         const travels: Partial<Record<Id, number>> = {};
         if (front !== null)
-          travels[front.turn] = (theta - phi) / ArchetypeUnits.DEGREE;
+          travels[front.turn] = (theta - phi) / AutoMovieArchetypeUnits.DEGREE;
         if (pitchId !== undefined)
-          travels[pitchId] = solved.pitch / (pitchSign * ArchetypeUnits.DEGREE);
+          travels[pitchId] =
+            solved.pitch / (pitchSign * AutoMovieArchetypeUnits.DEGREE);
         const yaw: number =
           front === null ? theta + (forward < 0 ? Math.PI : 0) : phi;
         const rotation: IAutoMovieTransform["rotation"] = Quaternion.multiply(
           Quaternion.fromAxisAngle(
             { x: 0, y: 1, z: 0 },
-            yaw / ArchetypeUnits.DEGREE,
+            yaw / AutoMovieArchetypeUnits.DEGREE,
           ),
           Quaternion.fromAxisAngle(
             { x: 1, y: 0, z: 0 },
-            front === null ? solved.pitch / ArchetypeUnits.DEGREE : 0,
+            front === null ? solved.pitch / AutoMovieArchetypeUnits.DEGREE : 0,
           ),
         );
         const world: IAutoMovieVector3 = {
@@ -491,7 +498,7 @@ export namespace ArchetypeTowing {
               Quaternion.rotateVector(rotation, pivot),
             ),
             rotation,
-            scale: { ...ArchetypeFrame.UNIT },
+            scale: { ...AutoMovieArchetypeFrame.UNIT },
           },
           travels,
         };
@@ -516,7 +523,7 @@ export namespace ArchetypeTowing {
 
     /** A missing declared freedom is an actionable model/support refusal. */
     function refuse(axis: string, reason: string): never {
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: trailer.archetype,
         axis,
@@ -540,7 +547,7 @@ export namespace ArchetypeTowing {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous validation keeps only the current maximum.
    */
   export function checkSteering<Id extends string, D extends string>(
-    trailer: Archetype<Id, D>,
+    trailer: AutoMovieArchetype<Id, D>,
     front: IFront<Id> | null,
     heading: IAutoMovieIntegrateMotionTrajectory.ITrajectory,
   ): void {
@@ -554,11 +561,11 @@ export namespace ArchetypeTowing {
         ).x;
         most = Math.max(
           most,
-          Math.abs((x[0]! - x[1]!) / ArchetypeUnits.DEGREE),
+          Math.abs((x[0]! - x[1]!) / AutoMovieArchetypeUnits.DEGREE),
         );
       }
       if (most > lock)
-        throw new ArchetypeRefusal({
+        throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
           archetype: trailer.archetype,
           axis: "front",

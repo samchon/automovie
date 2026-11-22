@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { ServiceCabinet } from "./ServiceCabinet";
 
 /** A pay station's head on its body, metres: the StradaPAL's 90 mm spacer and its 475 x 226 x 379 mm top. */
@@ -20,7 +20,7 @@ const HEAD: Readonly<{
  * @param params The scene identifier and any dimensions to fix inside their bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The measured StradaPAL cabinet, spacer and head preserve the installation's dimensions. The measured contact set covers its exterior faces.
@@ -33,7 +33,7 @@ const HEAD: Readonly<{
 export function createPayStation(
   params: createPayStation.IParams = {},
   seed?: number | string,
-): Archetype<createPayStation.Affordance, createPayStation.Dimension> {
+): AutoMovieArchetype<createPayStation.Affordance, createPayStation.Dimension> {
   const cabinet: ServiceCabinet.ICabinet<createPayStation.Affordance> =
     ServiceCabinet.begin("payStation", "pay station", "#2b5797", params, seed);
   const {

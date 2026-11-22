@@ -1,6 +1,6 @@
 import {
-  type Archetype,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  type IAutoMovieArchetypeBand,
   createCannon,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
@@ -90,15 +90,18 @@ export function test_archetype_cannon_bands(): void {
       EXPECTED[kind];
     const reached: Map<string, { low: number; high: number }> = new Map();
     for (let seed: number = 0; seed < archetypeBandSweep.SEEDS; seed++) {
-      const gun: Archetype<createCannon.Affordance, createCannon.Dimension> =
-        createCannon({ kind }, seed);
-      const recorded: Readonly<Partial<Record<string, IArchetypeBand>>> =
-        gun.provenance.bands;
+      const gun: AutoMovieArchetype<
+        createCannon.Affordance,
+        createCannon.Dimension
+      > = createCannon({ kind }, seed);
+      const recorded: Readonly<
+        Partial<Record<string, IAutoMovieArchetypeBand>>
+      > = gun.provenance.bands;
       for (const name of new Set([
         ...Object.keys(recorded),
         ...Object.keys(expected),
       ])) {
-        const band: IArchetypeBand | undefined = recorded[name];
+        const band: IAutoMovieArchetypeBand | undefined = recorded[name];
         const want: Expected | undefined = expected[name];
         if (band === undefined || want === undefined) {
           findings.push(

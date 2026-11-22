@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** A ribbon medal's disc and weight: the recent Olympic medals. */
@@ -29,7 +29,7 @@ const RIBBON: string =
  * @param params Any dimension the author fixes inside its band, and an optional scene id.
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
  * @returns The medal.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, how it hangs and its contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A ribbon of the drawn hang and a disc of the drawn diameter and mass, with the hand's hold and the worn face.
@@ -42,24 +42,35 @@ const RIBBON: string =
 export function createMedal(
   params: createMedal.IParams = {},
   seed?: number | string,
-): Archetype<createMedal.Affordance, createMedal.Dimension> {
-  const draw: ArchetypeDrawSession<createMedal.Dimension> = new ArchetypeDrawSession<createMedal.Dimension>(
-    "medal",
-    createMedal.UNITS,
-    seed,
-    params,
+): AutoMovieArchetype<createMedal.Affordance, createMedal.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createMedal.Dimension> =
+    new AutoMovieArchetypeDrawSession<createMedal.Dimension>(
+      "medal",
+      createMedal.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createMedal.Dimension, number> = draw.dimensions(
+    createMedal.BANDS,
   );
-  const d: Record<createMedal.Dimension, number> = draw.dimensions(createMedal.BANDS);
-  const builder: ArchetypeBuilder<createMedal.Affordance, createMedal.Dimension> = new ArchetypeBuilder({
+  const builder: AutoMovieArchetypeBuilder<
+    createMedal.Affordance,
+    createMedal.Dimension
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: "medal",
     draw,
   });
   const thick: number = 0.008;
-  builder.box("ribbon", Vector3.create(0.035, d.ribbon, 0.002), Vector3.create(0, -d.ribbon / 2, 0), {
-    color: "#1f4fa3",
-  });
+  builder.box(
+    "ribbon",
+    Vector3.create(0.035, d.ribbon, 0.002),
+    Vector3.create(0, -d.ribbon / 2, 0),
+    {
+      color: "#1f4fa3",
+    },
+  );
   builder.rod(
     "disc",
     d.diameter / 2,
@@ -70,7 +81,7 @@ export function createMedal(
   builder.affordance({
     id: "hold",
     kind: "handle",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, -d.ribbon - 0.02, thick / 2),
       Vector3.create(0, 0, 1),
       Vector3.create(0, 1, 0),
@@ -82,7 +93,7 @@ export function createMedal(
   builder.affordance({
     id: "wear",
     kind: "socket",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, -d.ribbon - d.diameter / 2, -thick / 2),
       Vector3.create(0, 0, -1),
       Vector3.create(0, 1, 0),
@@ -108,7 +119,9 @@ export namespace createMedal {
   export type Dimension = "diameter" | "ribbon" | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     diameter: "m",
     ribbon: "m",
     mass: "kg",
@@ -121,9 +134,9 @@ export namespace createMedal {
   }
 
   /** The sourced bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    diameter: ArchetypeBand.metres(0.07, 0.085, MEDAL),
-    ribbon: ArchetypeBand.metres(0.4, 0.5, RIBBON),
-    mass: ArchetypeBand.of("kg", 0.45, 0.556, MEDAL),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    diameter: AutoMovieArchetypeBand.metres(0.07, 0.085, MEDAL),
+    ribbon: AutoMovieArchetypeBand.metres(0.4, 0.5, RIBBON),
+    mass: AutoMovieArchetypeBand.of("kg", 0.45, 0.556, MEDAL),
   };
 }

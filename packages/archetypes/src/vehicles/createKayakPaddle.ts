@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { PaddleBlade } from "./PaddleBlade";
 
@@ -32,9 +32,12 @@ const v: typeof Vector3.create = Vector3.create;
 export function createKayakPaddle(
   params: createKayakPaddle.IParams = {},
   seed?: number | string,
-): Archetype<createKayakPaddle.Affordance, createKayakPaddle.Dimension> {
-  const draw: ArchetypeDrawSession<createKayakPaddle.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createKayakPaddle.Affordance,
+  createKayakPaddle.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createKayakPaddle.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "kayakPaddle",
       createKayakPaddle.UNITS,
       seed,
@@ -43,10 +46,10 @@ export function createKayakPaddle(
   const d: Record<createKayakPaddle.Dimension, number> = draw.dimensions(
     createKayakPaddle.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createKayakPaddle.Affordance,
     createKayakPaddle.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     name: "kayak paddle",
     material: "composite",
     id: params.id,
@@ -104,17 +107,19 @@ export namespace createKayakPaddle {
     id?: string;
   }
   /** Units of the manufacturer's specifications. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     bladeLength: "m",
     bladeWidth: "m",
     mass: "kg",
   };
   /** Manufacturer figures for the adjustable straight-shaft model. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(2.2, 2.6, SOURCE),
-    bladeLength: ArchetypeBand.metres(0.49, 0.49, SOURCE),
-    bladeWidth: ArchetypeBand.metres(0.156, 0.156, SOURCE),
-    mass: ArchetypeBand.of("kg", 1.042, 1.042, SOURCE),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(2.2, 2.6, SOURCE),
+    bladeLength: AutoMovieArchetypeBand.metres(0.49, 0.49, SOURCE),
+    bladeWidth: AutoMovieArchetypeBand.metres(0.156, 0.156, SOURCE),
+    mass: AutoMovieArchetypeBand.of("kg", 1.042, 1.042, SOURCE),
   };
 }

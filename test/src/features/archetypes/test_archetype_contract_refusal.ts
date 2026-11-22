@@ -1,6 +1,6 @@
 import {
-  ArchetypeRefusal,
-  QuadrupedGait,
+  AutoMovieArchetypeQuadrupedGait,
+  AutoMovieArchetypeRefusal,
   createBag,
   createBicycle,
   createDoor,
@@ -15,17 +15,17 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /** Run an operation and return the refusal it raises, or null when it raises none or something else. */
-function refusal(operation: () => unknown): ArchetypeRefusal | null {
+function refusal(operation: () => unknown): AutoMovieArchetypeRefusal | null {
   try {
     operation();
   } catch (error) {
-    return error instanceof ArchetypeRefusal ? error : null;
+    return error instanceof AutoMovieArchetypeRefusal ? error : null;
   }
   return null;
 }
 
 /** A refusal's axis and feasible range as `axis: minimum..maximum unit`, or `none` when it is no refusal with a range. */
-function ranged(refused: ArchetypeRefusal | null): string {
+function ranged(refused: AutoMovieArchetypeRefusal | null): string {
   return refused === null ||
     refused.kind !== "parameter" ||
     refused.feasible?.kind !== "range"
@@ -59,7 +59,7 @@ export function test_archetype_contract_refusal(): void {
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
   });
-  const missing: ArchetypeRefusal | null = refusal(() =>
+  const missing: AutoMovieArchetypeRefusal | null = refusal(() =>
     glass.affordance("handle"),
   );
   TestValidator.equals(
@@ -68,7 +68,7 @@ export function test_archetype_contract_refusal(): void {
     ["affordance", { kind: "alternatives", values: ["body", "lip"] }],
   );
 
-  const high: ArchetypeRefusal | null = refusal(() =>
+  const high: AutoMovieArchetypeRefusal | null = refusal(() =>
     createSeat({ kind: "office", seatHeight: 0.7 }),
   );
   TestValidator.equals(
@@ -92,7 +92,7 @@ export function test_archetype_contract_refusal(): void {
     [true, true],
   );
 
-  const unknown: ArchetypeRefusal | null = refusal(() =>
+  const unknown: AutoMovieArchetypeRefusal | null = refusal(() =>
     createSeat({ kind: "throne" as createSeat.Kind }),
   );
   TestValidator.equals(
@@ -101,7 +101,7 @@ export function test_archetype_contract_refusal(): void {
     ["kind", { kind: "alternatives", values: [...createSeat.KINDS] }],
   );
 
-  const tall: ArchetypeRefusal | null = refusal(() =>
+  const tall: AutoMovieArchetypeRefusal | null = refusal(() =>
     createStairs({ steps: 30 }),
   );
   TestValidator.equals(
@@ -111,10 +111,10 @@ export function test_archetype_contract_refusal(): void {
   );
 
   const door: ReturnType<typeof createDoor> = createDoor();
-  const wide: ArchetypeRefusal | null = refusal(() =>
+  const wide: AutoMovieArchetypeRefusal | null = refusal(() =>
     door.articulate({ hinge: 120 }),
   );
-  const still: ArchetypeRefusal | null = refusal(() =>
+  const still: AutoMovieArchetypeRefusal | null = refusal(() =>
     door.articulate({ aperture: 1 }),
   );
   TestValidator.equals(
@@ -145,7 +145,7 @@ export function test_archetype_contract_refusal(): void {
     ["backHeight", () => createSeat({ kind: "stool", backHeight: 0.4 })],
     ["seatDepth", () => createSeat({ kind: "stool", seatDepth: 0.4 })],
   ] as const) {
-    const lacking: ArchetypeRefusal | null = refusal(operation);
+    const lacking: AutoMovieArchetypeRefusal | null = refusal(operation);
     TestValidator.equals(
       `a stool refuses a fixed ${name} with its own dimensions`,
       [
@@ -172,7 +172,7 @@ export function test_archetype_contract_refusal(): void {
     ],
     ["places: 1..1", "places: 1..4", "places: 1..4", "none", "none"],
   );
-  const short: ArchetypeRefusal | null = refusal(() =>
+  const short: AutoMovieArchetypeRefusal | null = refusal(() =>
     createLadder({ kind: "fixed", rungs: 1 }),
   );
   const most: number =
@@ -264,13 +264,78 @@ export function test_archetype_contract_refusal(): void {
   TestValidator.equals(
     "a tempo outside one standard deviation, and a height that is not positive",
     [
-      ranged(refusal(() => QuadrupedGait.timing(createQuadruped.SPECIES.horse, "trot", 4, 1.5))),
-      ranged(refusal(() => QuadrupedGait.timing(createQuadruped.SPECIES.horse, "trot", 4, -1.01))),
-      ranged(refusal(() => QuadrupedGait.timing(createQuadruped.SPECIES.horse, "trot", 4, Number.NaN))),
-      ranged(refusal(() => QuadrupedGait.timing(createQuadruped.SPECIES.horse, "trot", 4, 0, 0))),
-      ranged(refusal(() => QuadrupedGait.timing(createQuadruped.SPECIES.horse, "trot", 4, 0, -1.5))),
-      ranged(refusal(() => QuadrupedGait.timing(createQuadruped.SPECIES.horse, "trot", 4, 1))),
-      ranged(refusal(() => QuadrupedGait.timing(createQuadruped.SPECIES.horse, "trot", 4, -1))),
+      ranged(
+        refusal(() =>
+          AutoMovieArchetypeQuadrupedGait.timing(
+            createQuadruped.SPECIES.horse,
+            "trot",
+            4,
+            1.5,
+          ),
+        ),
+      ),
+      ranged(
+        refusal(() =>
+          AutoMovieArchetypeQuadrupedGait.timing(
+            createQuadruped.SPECIES.horse,
+            "trot",
+            4,
+            -1.01,
+          ),
+        ),
+      ),
+      ranged(
+        refusal(() =>
+          AutoMovieArchetypeQuadrupedGait.timing(
+            createQuadruped.SPECIES.horse,
+            "trot",
+            4,
+            Number.NaN,
+          ),
+        ),
+      ),
+      ranged(
+        refusal(() =>
+          AutoMovieArchetypeQuadrupedGait.timing(
+            createQuadruped.SPECIES.horse,
+            "trot",
+            4,
+            0,
+            0,
+          ),
+        ),
+      ),
+      ranged(
+        refusal(() =>
+          AutoMovieArchetypeQuadrupedGait.timing(
+            createQuadruped.SPECIES.horse,
+            "trot",
+            4,
+            0,
+            -1.5,
+          ),
+        ),
+      ),
+      ranged(
+        refusal(() =>
+          AutoMovieArchetypeQuadrupedGait.timing(
+            createQuadruped.SPECIES.horse,
+            "trot",
+            4,
+            1,
+          ),
+        ),
+      ),
+      ranged(
+        refusal(() =>
+          AutoMovieArchetypeQuadrupedGait.timing(
+            createQuadruped.SPECIES.horse,
+            "trot",
+            4,
+            -1,
+          ),
+        ),
+      ),
     ],
     [
       "tempo: -1..1",

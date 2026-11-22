@@ -1,6 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeDraw, ArchetypeFrame } from "../core";
+import {
+  ArchetypeDraw,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { StageBowConstruction } from "./StageBowConstruction";
 import { createBow } from "./createBow";
 
@@ -12,7 +16,7 @@ import { createBow } from "./createBow";
  * @param params An inert display model, its silhouette dimensions, and the scene id.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the seeded profile and actor-facing digital stage contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the authored digital limb profile and existing display attachment frames.
@@ -25,7 +29,7 @@ import { createBow } from "./createBow";
 export function createStageHandBowProp(
   params: createStageHandBowProp.IParams,
   seed?: number | string,
-): Archetype<
+): AutoMovieArchetype<
   createStageHandBowProp.Affordance,
   createStageHandBowProp.Dimension
 > {
@@ -62,7 +66,7 @@ export function createStageHandBowProp(
     builder.affordance({
       id: "string",
       kind: "slider",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, centre, string),
         v(0, 1, 0),
         v(0, 0, 1),
@@ -74,7 +78,7 @@ export function createStageHandBowProp(
     builder.affordance({
       id: "nock",
       kind: "socket",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, centre, string),
         v(0, 0, 1),
         v(0, 1, 0),
@@ -96,7 +100,7 @@ export function createStageHandBowProp(
       builder.affordance({
         id,
         kind: "hinge",
-        frame: ArchetypeFrame.facing(grip, v(sign, 0, 0), v(0, 0, 1)),
+        frame: AutoMovieArchetypeFrame.facing(grip, v(sign, 0, 0), v(0, 0, 1)),
         extent: null,
         travel: table[table.length - 1]![1],
         parts: [id],
@@ -119,7 +123,7 @@ export function createStageHandBowProp(
       id: "grip",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(grip, v(0, 0, 1), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(grip, v(0, 0, 1), v(0, 1, 0)),
       extent: null,
       grip: "power",
       aperture: d.depth!,
@@ -128,7 +132,7 @@ export function createStageHandBowProp(
     builder.affordance({
       id: "rest",
       kind: "surface",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(-r, centre - d.nockHeight!, 0),
         v(-1, 0, 0),
         v(0, 0, 1),

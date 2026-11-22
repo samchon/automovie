@@ -1,21 +1,23 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core";
-import { QuadrupedBody } from "./QuadrupedBody";
+import { AutoMovieArchetypeFrame } from "../core";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /** The actual closed rigid vocabulary; no body or species is reconstructed. */
-const BONES: readonly QuadrupedBody.Bone[] = [
+const BONES: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
   "trunk",
   "hindquarters",
   "neck",
   "head",
   "tail",
   ...Object.values(QuadrupedScapula.BONES),
-  ...QuadrupedBody.LIMBS.flatMap(
-    (limb: QuadrupedBody.Limb): QuadrupedBody.Bone[] => [
-      ...QuadrupedBody.BONES[limb],
+  ...AutoMovieArchetypeQuadrupedBody.LIMBS.flatMap(
+    (
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+    ): AutoMovieArchetypeQuadrupedBody.Bone[] => [
+      ...AutoMovieArchetypeQuadrupedBody.BONES[limb],
     ],
   ),
 ];
@@ -45,9 +47,18 @@ export namespace QuadrupedRigDelta {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned map owns scalar motion records; the operation retains no caller frame map, completed result or external resource.
    */
   export function between(
-    neutral: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
-    current: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
-  ): ReadonlyMap<QuadrupedBody.Bone, ArchetypeFrame.IMotion> {
+    neutral: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    >,
+    current: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    >,
+  ): ReadonlyMap<
+    AutoMovieArchetypeQuadrupedBody.Bone,
+    AutoMovieArchetypeFrame.IMotion
+  > {
     if (
       neutral === undefined ||
       neutral === null ||
@@ -56,14 +67,17 @@ export namespace QuadrupedRigDelta {
       neutral.size !== BONES.length ||
       current.size !== BONES.length ||
       BONES.some(
-        (bone: QuadrupedBody.Bone): boolean =>
+        (bone: AutoMovieArchetypeQuadrupedBody.Bone): boolean =>
           !neutral.has(bone) || !current.has(bone),
       )
     )
       throw new RangeError(
         "Quadruped deltas require both complete actual FK states",
       );
-    const deltas: Map<QuadrupedBody.Bone, ArchetypeFrame.IMotion> = new Map();
+    const deltas: Map<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      AutoMovieArchetypeFrame.IMotion
+    > = new Map();
     for (const bone of BONES) {
       const old: IAutoMovieTransform = neutral.get(bone)!;
       const now: IAutoMovieTransform = current.get(bone)!;
@@ -96,7 +110,7 @@ export namespace QuadrupedRigDelta {
    * @returns A new current rigid frame without retaining or changing its input.
    * @throws {RangeError} For missing carriers or invalid/unrepresentable frames.
    * @evidence contracts/development/common.md#meaningful-documentation Defines source/current metre frames, explicit binding, preserved diagnostic identity and independent output.
-   * @evidence contracts/development/implementation.md#principled-implementation The shared ArchetypeFrame.move applies the admitted current-times-inverse-neutral rigid map, preserving source carrier-local coordinates and unit scale.
+   * @evidence contracts/development/implementation.md#principled-implementation The shared AutoMovieArchetypeFrame.move applies the admitted current-times-inverse-neutral rigid map, preserving source carrier-local coordinates and unit scale.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the source frame, resolve the declared delta, move through the shared rigid owner and admit its finite result.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No absent binding is guessed, nonunit scale is not ignored and an overflowed transform cannot escape as current geometry.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work/storage per frame with one map lookup, one rigid placement and finite/unit checks.
@@ -105,16 +119,22 @@ export namespace QuadrupedRigDelta {
    */
   export function move(
     frame: IAutoMovieTransform,
-    bone: QuadrupedBody.Bone | undefined,
-    deltas: ReadonlyMap<QuadrupedBody.Bone, ArchetypeFrame.IMotion>,
+    bone: AutoMovieArchetypeQuadrupedBody.Bone | undefined,
+    deltas: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      AutoMovieArchetypeFrame.IMotion
+    >,
     id: string,
   ): IAutoMovieTransform {
     rigid(frame, id);
-    const delta: ArchetypeFrame.IMotion | undefined =
+    const delta: AutoMovieArchetypeFrame.IMotion | undefined =
       bone === undefined ? undefined : deltas.get(bone);
     if (delta === undefined)
       throw new RangeError(`Missing quadruped carrier for ${id}`);
-    const current: IAutoMovieTransform = ArchetypeFrame.move(delta, frame);
+    const current: IAutoMovieTransform = AutoMovieArchetypeFrame.move(
+      delta,
+      frame,
+    );
     rigid(current, id);
     return current;
   }

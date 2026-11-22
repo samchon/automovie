@@ -1,4 +1,4 @@
-import { type Archetype, createCannon } from "@automovie/archetypes";
+import { type AutoMovieArchetype, createCannon } from "@automovie/archetypes";
 import { Vector3, validateModel } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -35,8 +35,10 @@ export function test_archetype_cannon_service(): void {
     b: number,
     tolerance: number = 1e-9,
   ): boolean => Math.abs(a - b) <= tolerance;
-  const gun: Archetype<createCannon.Affordance, createCannon.Dimension> =
-    createCannon({ kind: "fieldGun" }, 1);
+  const gun: AutoMovieArchetype<
+    createCannon.Affordance,
+    createCannon.Dimension
+  > = createCannon({ kind: "fieldGun" }, 1);
   const d: Readonly<Partial<Record<createCannon.Dimension, number>>> =
     gun.dimensions;
   if (!close(d.muzzleVelocity!, 1439 * FT))
@@ -118,8 +120,10 @@ export function test_archetype_cannon_service(): void {
     ["lowered", { elevation: -8 }],
     ["fired", { lanyard: lanyard.travel! }],
   ] as const) {
-    const posed: Archetype<createCannon.Affordance, createCannon.Dimension> =
-      gun.articulate(state);
+    const posed: AutoMovieArchetype<
+      createCannon.Affordance,
+      createCannon.Dimension
+    > = gun.articulate(state);
     if (!validateModel({ model: posed }).success)
       findings.push(`the ${label} pose is refused`);
   }

@@ -1,8 +1,11 @@
-import { type ArchetypeCourse, ArchetypeRefusal } from "../core";
-import { QuadrupedBody } from "./QuadrupedBody";
+import {
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
+} from "../core";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
+import type { AutoMovieArchetypeQuadrupedJoints } from "./AutoMovieArchetypeQuadrupedJoints";
 import { QuadrupedChange } from "./QuadrupedChange";
-import { QuadrupedGait } from "./QuadrupedGait";
-import type { QuadrupedJoints } from "./QuadrupedJoints";
 import { QuadrupedRideClock } from "./QuadrupedRideClock";
 import type { createQuadruped } from "./createQuadruped";
 import type { rideQuadruped } from "./rideQuadruped";
@@ -20,13 +23,13 @@ export namespace QuadrupedRideAdmission {
    * One gait's declared speed domain for the ride's animal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the gait and its speed bounds in metres per second.
-   * @evidence contracts/development/design.md#principled-representation The closed interval `QuadrupedGait.range` returns, tagged by gait.
+   * @evidence contracts/development/design.md#principled-representation The closed interval `AutoMovieArchetypeQuadrupedGait.range` returns, tagged by gait.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the automatic-speed coverage check and its refusal text.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IDomain {
     /** The gait. */
-    gait: QuadrupedGait.Gait;
+    gait: AutoMovieArchetypeQuadrupedGait.Gait;
     /** Least declared speed, metres per second. */
     minimum: number;
     /** Greatest declared speed, metres per second. */
@@ -44,7 +47,7 @@ export namespace QuadrupedRideAdmission {
    * @param withers The animal's withers height, metres.
    * @param rig The actual limb chains, whose hip height sets the change points.
    * @param dimensions The animal's dimensions, for mass-scaled change points.
-   * @throws {ArchetypeRefusal} When a named gait is absent, a requested speed lies outside every applicable declared domain, or a yielding footing sinks a hoof as deep as its carpus or hock stands.
+   * @throws {AutoMovieArchetypeRefusal} When a named gait is absent, a requested speed lies outside every applicable declared domain, or a yielding footing sinks a hoof as deep as its carpus or hock stands.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States every input and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Cruise, each leg's fastest speed, positive speed marks and nonzero boundary speeds are each read against the gait the leg names, or against the union of declared domains when the speed chooses; a positive speed below the slowest gait's floor is the slowest gait's, at its slowest clock. A collected explicit gait also admits its parent's speeds it is decelerated from, where its clock holds its fastest row (`QuadrupedRideClock.collectedSpeed`).
@@ -57,21 +60,27 @@ export namespace QuadrupedRideAdmission {
   export function admit(
     species: createQuadruped.ISpecies,
     course: rideQuadruped.ICourse,
-    plan: ArchetypeCourse.IPlan,
-    gait: QuadrupedGait.Gait | undefined,
+    plan: AutoMovieArchetypeCourse.IPlan,
+    gait: AutoMovieArchetypeQuadrupedGait.Gait | undefined,
     tempo: number,
     withers: number,
-    rig: ReturnType<typeof QuadrupedJoints.read>,
+    rig: ReturnType<typeof AutoMovieArchetypeQuadrupedJoints.read>,
     dimensions: Readonly<Partial<Record<string, number>>>,
   ): void {
     const domains: readonly IDomain[] = species.table.order.map(
-      (which: QuadrupedGait.Gait): IDomain => ({
+      (which: AutoMovieArchetypeQuadrupedGait.Gait): IDomain => ({
         gait: which,
-        ...QuadrupedGait.range(species, which, withers),
+        ...AutoMovieArchetypeQuadrupedGait.range(species, which, withers),
       }),
     );
     if (gait !== undefined)
-      QuadrupedGait.timing(species, gait, course.cruise, tempo, withers);
+      AutoMovieArchetypeQuadrupedGait.timing(
+        species,
+        gait,
+        course.cruise,
+        tempo,
+        withers,
+      );
     if (
       gait === undefined &&
       course.legs.some(
@@ -81,7 +90,7 @@ export namespace QuadrupedRideAdmission {
       speed(undefined, course.cruise);
     course.legs.forEach((leg: rideQuadruped.ILeg, k: number): void => {
       const fastest: number = plan.legSpans[k]!.fastest;
-      const which: QuadrupedGait.Gait =
+      const which: AutoMovieArchetypeQuadrupedGait.Gait =
         leg.gait ??
         gait ??
         QuadrupedChange.called(
@@ -91,7 +100,10 @@ export namespace QuadrupedRideAdmission {
           dimensions,
           rig.limbs.leftHind[0]!.y,
         );
-      if (fastest >= QuadrupedGait.range(species, which, withers).minimum)
+      if (
+        fastest >=
+        AutoMovieArchetypeQuadrupedGait.range(species, which, withers).minimum
+      )
         speed(leg.gait ?? gait, fastest);
     });
     course.speeds?.forEach((value: number, index: number): void => {
@@ -106,14 +118,14 @@ export namespace QuadrupedRideAdmission {
 
     // A hoof sunk deeper than its carpus or hock stands above it cannot be lifted clear of the footing.
     const clear: number = Math.min(
-      ...QuadrupedBody.LIMBS.map(
-        (limb: QuadrupedBody.Limb): number =>
+      ...AutoMovieArchetypeQuadrupedBody.LIMBS.map(
+        (limb: AutoMovieArchetypeQuadrupedBody.Limb): number =>
           rig.limbs[limb][2]!.y - rig.limbs[limb][4]!.y,
       ),
     );
     for (const plane of course.footing?.planes ?? [])
       if ((plane.yield?.depth ?? 0) >= clear)
-        throw new ArchetypeRefusal({
+        throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
           archetype: species.archetype,
           axis: "footing",
@@ -124,7 +136,10 @@ export namespace QuadrupedRideAdmission {
         });
 
     /** Requested named gaits are strict; automatic requests need actual declared coverage. */
-    function speed(which: QuadrupedGait.Gait | undefined, value: number): void {
+    function speed(
+      which: AutoMovieArchetypeQuadrupedGait.Gait | undefined,
+      value: number,
+    ): void {
       // Below the slowest gait's floor and above zero the slowest gait walks on at its slowest clock (`QuadrupedRideClock`).
       if (
         (which === undefined || which === domains[0]!.gait) &&
@@ -133,7 +148,7 @@ export namespace QuadrupedRideAdmission {
       )
         return;
       if (which !== undefined) {
-        QuadrupedGait.timing(
+        AutoMovieArchetypeQuadrupedGait.timing(
           species,
           which,
           QuadrupedRideClock.collectedSpeed(species, which, value, withers),
@@ -149,7 +164,7 @@ export namespace QuadrupedRideAdmission {
         )
       )
         return;
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: species.archetype,
         axis: "speed",
@@ -177,7 +192,7 @@ export namespace QuadrupedRideAdmission {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function legIndex(
-    plan: ArchetypeCourse.IPlan,
+    plan: AutoMovieArchetypeCourse.IPlan,
     distance: number,
   ): number {
     let k: number = 0;

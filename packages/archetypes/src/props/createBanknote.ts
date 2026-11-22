@@ -1,9 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
 } from "../core";
 import { TabletopStack } from "./TabletopStack";
 
@@ -40,9 +40,9 @@ const NOTE: Readonly<createBanknote.INote> = {
  */
 export function createBanknote(
   params: createBanknote.IParams = {},
-): Archetype<createBanknote.Affordance, createBanknote.Dimension> {
-  const draw: ArchetypeDrawSession<createBanknote.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<createBanknote.Affordance, createBanknote.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createBanknote.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "banknote",
       { length: "m", width: "m", thickness: "m", mass: "kg" },
       undefined,
@@ -51,10 +51,10 @@ export function createBanknote(
   draw.derive("width", NOTE.width);
   draw.derive("thickness", NOTE.thickness);
   draw.derive("mass", NOTE.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createBanknote.Affordance,
     createBanknote.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? "banknote",
     name: "banknote",
     material: "paper",

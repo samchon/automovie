@@ -4,12 +4,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { WasherDrum } from "./WasherDrum";
 import type { createAppliance } from "./createAppliance";
 
 /** The builder every kind's construction fills. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createAppliance.Affordance,
   createAppliance.Dimension
 >;
@@ -53,7 +56,7 @@ function rectangle(width: number, depth: number): IAutoMovieVector3[] {
  * @returns The hinge frame, `+Y` along the line and `+X` toward the door.
  */
 function sideHinge(at: IAutoMovieVector3, side: 1 | -1): IAutoMovieTransform {
-  return ArchetypeFrame.facing(at, v(0, side, 0), v(-side, 0, 0));
+  return AutoMovieArchetypeFrame.facing(at, v(0, side, 0), v(-side, 0, 0));
 }
 
 /**
@@ -173,7 +176,9 @@ export namespace ApplianceConstruction {
       builder.affordance({
         id: `shelf${k}`,
         kind: "stack-top",
-        frame: ArchetypeFrame.upright(v(0, y, E.wall + shelfDepth / 2)),
+        frame: AutoMovieArchetypeFrame.upright(
+          v(0, y, E.wall + shelfDepth / 2),
+        ),
         extent: rectangle(inner, shelfDepth),
       });
     }
@@ -213,7 +218,7 @@ export namespace ApplianceConstruction {
         id: handle,
         kind: "handle",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(barX, grip, bar),
           v(0, 0, 1),
           v(0, 1, 0),
@@ -280,7 +285,7 @@ export namespace ApplianceConstruction {
     builder.affordance({
       id: "top",
       kind: "stack-top",
-      frame: ArchetypeFrame.upright(v(0, height, body / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, height, body / 2)),
       extent: rectangle(width, body),
     });
     ZONES.forEach((diameter: number, index: number): void => {
@@ -297,7 +302,7 @@ export namespace ApplianceConstruction {
       builder.affordance({
         id: `zone${k}`,
         kind: "stack-top",
-        frame: ArchetypeFrame.upright(v(x, height, z)),
+        frame: AutoMovieArchetypeFrame.upright(v(x, height, z)),
         extent: rectangle(diameter, diameter),
       });
       const knobX: number = width * (-0.3 + 0.2 * index);
@@ -383,13 +388,13 @@ export namespace ApplianceConstruction {
     builder.affordance({
       id: "floor",
       kind: "stack-top",
-      frame: ArchetypeFrame.upright(v(centre, wall, back + cd / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(centre, wall, back + cd / 2)),
       extent: rectangle(cw, cd),
     });
     builder.affordance({
       id: "top",
       kind: "stack-top",
-      frame: ArchetypeFrame.upright(v(0, height, depth / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, height, depth / 2)),
       extent: rectangle(width, depth),
     });
   }
@@ -450,7 +455,7 @@ export namespace ApplianceConstruction {
       kind: "handle",
       // The handle is a round bar wrapped alike from any side, like the fridge's.
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(radius - 0.04, centre, depth + 0.01),
         v(0, 0, 1),
         v(0, 1, 0),
@@ -464,7 +469,7 @@ export namespace ApplianceConstruction {
     builder.affordance({
       id: "top",
       kind: "stack-top",
-      frame: ArchetypeFrame.upright(v(0, height, depth / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, height, depth / 2)),
       extent: rectangle(width, depth),
     });
   }

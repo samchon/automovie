@@ -1,6 +1,6 @@
 import {
-  ArchetypeCourse,
-  ArchetypePassage,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypePassage,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -137,19 +137,18 @@ export function test_world_mounted_reset(): void {
     "a groom out of reach of the lead refuses with leadReach",
     bad instanceof HumanRefusal && bad.axis === "leadReach",
   );
-  const crossing: ArchetypePassage.IConflict[] = ArchetypePassage.conflicts(
-    "reset",
-    {
+  const crossing: AutoMovieArchetypePassage.IConflict[] =
+    AutoMovieArchetypePassage.conflicts("reset", {
       participants: [
         {
           id: "horseB",
           plan: take.rides.horseB.plan,
-          footprint: ArchetypePassage.footprint(take.horse),
+          footprint: AutoMovieArchetypePassage.footprint(take.horse),
           margin: 0.5,
         },
         {
           id: "groom",
-          plan: ArchetypeCourse.timed("groom", [
+          plan: AutoMovieArchetypeCourse.timed("groom", [
             { seconds: 0, x: -2, y: 0, z: 0 },
             { seconds: 2, x: LANES + 2, y: 0, z: 0 },
           ]),
@@ -158,8 +157,7 @@ export function test_world_mounted_reset(): void {
         },
       ],
       step: 0.1,
-    },
-  );
+    });
   TestValidator.predicate(
     "a groom route across the mounted pair's lane is refused with both named",
     crossing.length > 0 &&

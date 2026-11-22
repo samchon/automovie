@@ -10,13 +10,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeEquineLibertyCue } from "./AutoMovieArchetypeEquineLibertyCue";
+import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineBodyPose } from "./EquineBodyPose";
-import type { EquineLibertyCue } from "./EquineLibertyCue";
-import type { EquineStanceCue } from "./EquineStanceCue";
 import { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
-import { QuadrupedBody } from "./QuadrupedBody";
 
 /** A limb end of the body. */
 type End = "Fore" | "Hind";
@@ -31,11 +31,9 @@ const STRETCH: number = 0.9;
 const KNEEL_FOLD: number = 90;
 
 /** The kinds of the liberty rows. */
-const KINDS: ReadonlySet<string> = new Set<EquineLibertyCue.Row["kind"]>([
-  "bow",
-  "kneel",
-  "sit",
-]);
+const KINDS: ReadonlySet<string> = new Set<
+  AutoMovieArchetypeEquineLibertyCue.Row["kind"]
+>(["bow", "kneel", "sit"]);
 
 /** Closed-form passes settling a sitting hock's height against its tibia's slope: authored. */
 const SETTLE: number = 6;
@@ -44,10 +42,10 @@ const SETTLE: number = 6;
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /** The trunk's motion at a share of a pose. */
-type Trunk = (share: number) => ArchetypeFrame.IMotion;
+type Trunk = (share: number) => AutoMovieArchetypeFrame.IMotion;
 
 /** A fore limb. */
-type Fore = Extract<QuadrupedBody.Limb, `${string}Fore`>;
+type Fore = Extract<AutoMovieArchetypeQuadrupedBody.Limb, `${string}Fore`>;
 
 /**
  * The liberty cue poses as stance rows: the bow, the kneel and the sit.
@@ -74,7 +72,9 @@ export namespace EquineLibertyRows {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The kinds are built once.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function owns(cue: EquineStanceCue.Cue): cue is EquineLibertyCue.Row {
+  export function owns(
+    cue: AutoMovieArchetypeEquineStanceCue.Cue,
+  ): cue is AutoMovieArchetypeEquineLibertyCue.Row {
     return KINDS.has(cue.kind);
   }
 
@@ -97,11 +97,11 @@ export namespace EquineLibertyRows {
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineLibertyCue.Row,
+    cue: AutoMovieArchetypeEquineLibertyCue.Row,
   ): EquineStanceRows.IPlan {
-    const standing: Archetype<Id, D> = body.solve(
+    const standing: AutoMovieArchetype<Id, D> = body.solve(
       EquineStanceRows.still(start),
-      ArchetypeFrame.upright(ZERO),
+      AutoMovieArchetypeFrame.upright(ZERO),
     );
     const heading: IAutoMovieQuaternion = EquineStanceSupport.heading(
       start.trunk,
@@ -111,7 +111,9 @@ export namespace EquineLibertyRows {
       y: 0,
       z: 1,
     });
-    const flat = (limb: QuadrupedBody.Limb): IAutoMovieVector3 =>
+    const flat = (
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+    ): IAutoMovieVector3 =>
       Vector3.subtract(body.chains[limb][4]!, body.chains[limb][3]!);
     const floor: number =
       start.anchors.leftFore.y - body.sole("leftFore", flat("leftFore"));
@@ -129,13 +131,15 @@ export namespace EquineLibertyRows {
     const pitched = (
       degrees: number,
       pivot: IAutoMovieVector3,
-    ): ArchetypeFrame.IMotion =>
-      ArchetypeFrame.chain(
+    ): AutoMovieArchetypeFrame.IMotion =>
+      AutoMovieArchetypeFrame.chain(
         EquineBodyPose.turn(degrees, 0, pivot, ZERO, heading),
         start.trunk,
       );
-    const target: Record<QuadrupedBody.Limb, EquineBodyPose.Limb> =
-      EquineStanceSupport.placed(start.anchors);
+    const target: Record<
+      AutoMovieArchetypeQuadrupedBody.Limb,
+      EquineBodyPose.Limb
+    > = EquineStanceSupport.placed(start.anchors);
     let trunk: Trunk;
     let tail: number = 0;
     if (cue.kind === "sit") {
@@ -152,7 +156,7 @@ export namespace EquineLibertyRows {
         floor + radius(quarters) - shoulders.y,
         true,
       );
-      trunk = (share: number): ArchetypeFrame.IMotion =>
+      trunk = (share: number): AutoMovieArchetypeFrame.IMotion =>
         pitched(pitch * share, shoulders);
       tail = lifted(standing, start.trunk, trunk(1), forward, floor);
       for (const limb of ["leftHind", "rightHind"] as const)
@@ -170,8 +174,12 @@ export namespace EquineLibertyRows {
       const shoulders: IAutoMovieVector3 = middle("Fore");
       const lengths: readonly number[] = segments(body.chains.leftFore);
       const lying: number = Math.max(
-        radius(part(standing, QuadrupedBody.BONES.leftFore[2])),
-        radius(part(standing, QuadrupedBody.BONES.leftFore[3])),
+        radius(
+          part(standing, AutoMovieArchetypeQuadrupedBody.BONES.leftFore[2]),
+        ),
+        radius(
+          part(standing, AutoMovieArchetypeQuadrupedBody.BONES.leftFore[3]),
+        ),
       );
       const pitch: number = solvePitch(
         Vector3.subtract(shoulders, hips),
@@ -179,7 +187,7 @@ export namespace EquineLibertyRows {
         floor + lying + lengths[1]! + HUMERUS_DROP * lengths[0]! - hips.y,
         false,
       );
-      trunk = (share: number): ArchetypeFrame.IMotion =>
+      trunk = (share: number): AutoMovieArchetypeFrame.IMotion =>
         pitched(pitch * share, hips);
       const kneeling: readonly Fore[] =
         cue.kind === "kneel"
@@ -227,8 +235,8 @@ export namespace EquineLibertyRows {
   /** A knelt limb under a trunk: its middle joint (carpus or hock) on the floor under an upright second bar, the cannon and pastern lying along the floor back (`along` -1, a foreleg) or forward (`along` 1, a hind leg under a sit). */
   function kneel<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
-    trunk: ArchetypeFrame.IMotion,
-    limb: QuadrupedBody.Limb,
+    trunk: AutoMovieArchetypeFrame.IMotion,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
     forward: IAutoMovieVector3,
     height: number,
     along: number,
@@ -260,9 +268,9 @@ export namespace EquineLibertyRows {
 
   /** The least turn of the tail about its dock, degrees, that rests its tip on the floor once the trunk has moved from one motion to another: the tip circles the dock in the heading's sagittal plane, so its height is a cosine of the turn, solved in closed form. */
   function lifted<Id extends string, D extends string>(
-    standing: Archetype<Id, D>,
-    from: ArchetypeFrame.IMotion,
-    to: ArchetypeFrame.IMotion,
+    standing: AutoMovieArchetype<Id, D>,
+    from: AutoMovieArchetypeFrame.IMotion,
+    to: AutoMovieArchetypeFrame.IMotion,
     forward: IAutoMovieVector3,
     floor: number,
   ): number {
@@ -298,10 +306,10 @@ export namespace EquineLibertyRows {
    */
   function tucked<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
-    standing: Archetype<Id, D>,
+    standing: AutoMovieArchetype<Id, D>,
     start: EquineStanceRows.IState,
-    trunk: ArchetypeFrame.IMotion,
-    limb: QuadrupedBody.Limb,
+    trunk: AutoMovieArchetypeFrame.IMotion,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
     forward: IAutoMovieVector3,
     floor: number,
   ): EquineBodyPose.IFolded {
@@ -310,9 +318,11 @@ export namespace EquineLibertyRows {
       trunk,
       body.chains[limb][0]!,
     );
-    const bars: readonly IAutoMovieModelPart[] = QuadrupedBody.BONES[limb].map(
-      (id: QuadrupedBody.Bone): IAutoMovieModelPart => part(standing, id),
-    );
+    const bars: readonly IAutoMovieModelPart[] =
+      AutoMovieArchetypeQuadrupedBody.BONES[limb].map(
+        (id: AutoMovieArchetypeQuadrupedBody.Bone): IAutoMovieModelPart =>
+          part(standing, id),
+      );
 
     // The stifle over a hock at a height: the upper intersection of the femur's circle about the hip and the tibia's about the hock.
     const stifleAt = (height: number): IAutoMovieVector3 => {
@@ -373,14 +383,18 @@ export namespace EquineLibertyRows {
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
     trunk: Trunk,
-    target: Readonly<Record<QuadrupedBody.Limb, EquineBodyPose.Limb>>,
+    target: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, EquineBodyPose.Limb>
+    >,
     share: number,
     tail: number,
   ): EquineBodyPose.IGoal {
     const s: number = minimumJerk.share(Math.max(0, Math.min(1, share)));
-    const limbs: Record<QuadrupedBody.Limb, EquineBodyPose.Limb> =
-      EquineStanceSupport.placed(start.anchors);
-    for (const limb of QuadrupedBody.LIMBS) {
+    const limbs: Record<
+      AutoMovieArchetypeQuadrupedBody.Limb,
+      EquineBodyPose.Limb
+    > = EquineStanceSupport.placed(start.anchors);
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const goal: EquineBodyPose.Limb = target[limb];
       // A folded limb tucks over the first half, before the body comes down onto it.
       if (goal.kind === "folded")
@@ -436,7 +450,7 @@ export namespace EquineLibertyRows {
 
   /** A model's part by id. */
   function part<Id extends string, D extends string>(
-    model: Archetype<Id, D>,
+    model: AutoMovieArchetype<Id, D>,
     id: string,
   ): IAutoMovieModelPart {
     return model.parts.find(

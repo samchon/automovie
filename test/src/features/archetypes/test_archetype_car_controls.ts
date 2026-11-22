@@ -1,4 +1,8 @@
-import { ArchetypeUnits, ArchetypeFrame, createCar } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  createCar,
+} from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
@@ -38,9 +42,12 @@ export function test_archetype_car_controls(): void {
         const h30: number = car.dimensions.seatHeight!;
         const z: number = h30 * 100;
         const angle: number =
-          (78.96 - 0.15 * z - 0.0173 * z * z) * ArchetypeUnits.DEGREE;
+          (78.96 - 0.15 * z - 0.0173 * z * z) * AutoMovieArchetypeUnits.DEGREE;
         const pedal: IAutoMovieTransform = car.affordance("accelerator").frame;
-        const sole: IAutoMovieVector3 = ArchetypeFrame.axis(pedal, "y");
+        const sole: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+          pedal,
+          "y",
+        );
         if (!close(sole.y, Math.cos(angle)) || !close(sole.z, -Math.sin(angle)))
           findings.push(`${label}: the pedal plane is not J1516's`);
 
@@ -81,9 +88,16 @@ export function test_archetype_car_controls(): void {
         const wheelbase: number = car.dimensions.wheelbase!;
         const pillar: number =
           kind === "van"
-            ? wheelbase / 2 + 0.958 - car.dimensions.length! + 0.04 + car.dimensions.loadLength!
+            ? wheelbase / 2 +
+              0.958 -
+              car.dimensions.length! +
+              0.04 +
+              car.dimensions.loadLength!
             : hinge - 1.155;
-        if (!close(wheelbase / 2 - hinge, 0.5786) || !close(aperture.width!, hinge - pillar))
+        if (
+          !close(wheelbase / 2 - hinge, 0.5786) ||
+          !close(aperture.width!, hinge - pillar)
+        )
           findings.push(
             `${label}: the front door does not span from its hinge to its middle pillar`,
           );

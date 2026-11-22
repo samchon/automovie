@@ -1,12 +1,12 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { ArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeEquineComfortCue } from "./AutoMovieArchetypeEquineComfortCue";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { EquineBodyPose } from "./EquineBodyPose";
-import type { EquineComfortCue } from "./EquineComfortCue";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
-import type { QuadrupedBody } from "./QuadrupedBody";
 
 /** The share of a lifting row's entry spent moving the weight off the hoof before it leaves the floor: authored, as the stance rows' own. */
 const LOAD: number = 0.35;
@@ -71,12 +71,12 @@ export namespace EquineHoofRows {
   export function paw<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineComfortCue.IPaw,
+    cue: AutoMovieArchetypeEquineComfortCue.IPaw,
   ): EquineStanceRows.IPlan {
     if (!(Number.isInteger(cue.strokes) && cue.strokes > 0))
       throw new RangeError("Pawing takes a positive whole number of strokes");
-    const limb: QuadrupedBody.Limb = `${cue.side}Fore`;
-    const loaded: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
+    const limb: AutoMovieArchetypeQuadrupedBody.Limb = `${cue.side}Fore`;
+    const loaded: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(
       start.trunk,
       Vector3.add(EquineStanceSupport.transfer(body, start, limb), {
         x: 0,
@@ -175,9 +175,9 @@ export namespace EquineHoofRows {
   export function stamp<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineComfortCue.IStamp,
+    cue: AutoMovieArchetypeEquineComfortCue.IStamp,
   ): EquineStanceRows.IPlan {
-    const loaded: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
+    const loaded: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(
       start.trunk,
       EquineStanceSupport.transfer(body, start, cue.limb),
     );
@@ -244,10 +244,10 @@ export namespace EquineHoofRows {
   export function cowKick<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineComfortCue.ICowKick,
+    cue: AutoMovieArchetypeEquineComfortCue.ICowKick,
   ): EquineStanceRows.IPlan {
-    const limb: QuadrupedBody.Limb = `${cue.side}Hind`;
-    const loaded: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
+    const limb: AutoMovieArchetypeQuadrupedBody.Limb = `${cue.side}Hind`;
+    const loaded: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(
       start.trunk,
       EquineStanceSupport.transfer(body, start, limb),
     );

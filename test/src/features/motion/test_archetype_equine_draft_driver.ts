@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  type ArchetypeRide,
-  HorseTeam,
-  type HorseTeamPlan,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeEquineTeam,
+  type AutoMovieArchetypeEquineTeamPlan,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeRide,
   createCart,
   createHorse,
 } from "@automovie/archetypes";
@@ -63,7 +63,10 @@ const TOLERANCE: number = 0.01;
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name.
  */
 export function test_archetype_equine_draft_driver(): void {
-  const horses: Archetype<createHorse.Affordance, createHorse.Dimension>[] = [
+  const horses: AutoMovieArchetype<
+    createHorse.Affordance,
+    createHorse.Dimension
+  >[] = [
     createHorse({ tack: "both", withersHeight: 1.6, tempo: 0 }, 1),
     createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, 2),
     createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, 3),
@@ -73,7 +76,7 @@ export function test_archetype_equine_draft_driver(): void {
     { kind: "carriage" },
     1,
   );
-  const params: HorseTeamPlan.IParams = {
+  const params: AutoMovieArchetypeEquineTeamPlan.IParams = {
     hitch: "fourInHand",
     spacing: 0.8,
     length: 3,
@@ -90,8 +93,10 @@ export function test_archetype_equine_draft_driver(): void {
     stop: true,
     sag: 0.06,
   };
-  const team: HorseTeamPlan.ITeam<createCart.Affordance, createCart.Dimension> =
-    HorseTeam(horses, carriage, params);
+  const team: AutoMovieArchetypeEquineTeamPlan.ITeam<
+    createCart.Affordance,
+    createCart.Dimension
+  > = AutoMovieArchetypeEquineTeam(horses, carriage, params);
   const issues: string[] = [];
   const instants: readonly number[] = [
     WAIT + 0.5,
@@ -101,15 +106,19 @@ export function test_archetype_equine_draft_driver(): void {
 
   // 1. Every horse's two reins end at the box driver's hand on their side.
   const laid: Readonly<
-    HorseTeamPlan.ISample<createCart.Affordance, createCart.Dimension>
+    AutoMovieArchetypeEquineTeamPlan.ISample<
+      createCart.Affordance,
+      createCart.Dimension
+    >
   > = team.at(3);
   for (let k: number = 0; k < horses.length; k++)
     for (const side of ["left", "right"] as const) {
-      const rein: ArchetypeRide.ILineState | undefined = laid.lines.find(
-        (line: ArchetypeRide.ILineState): boolean =>
-          line.id === `rein-${k}-${side}`,
-      );
-      const hand: IAutoMovieVector3 = ArchetypeFrame.compose(
+      const rein: AutoMovieArchetypeRide.ILineState | undefined =
+        laid.lines.find(
+          (line: AutoMovieArchetypeRide.ILineState): boolean =>
+            line.id === `rein-${k}-${side}`,
+        );
+      const hand: IAutoMovieVector3 = AutoMovieArchetypeFrame.compose(
         laid.placement,
         laid.vehicle.affordance(`${side}LineGrip`).frame,
       ).translation;
@@ -163,10 +172,13 @@ export function test_archetype_equine_draft_driver(): void {
       seated(
         `driver ${seconds.toFixed(2)}`,
         bones,
-        ArchetypeFrame.compose(placement, carriage.affordance("box").frame),
+        AutoMovieArchetypeFrame.compose(
+          placement,
+          carriage.affordance("box").frame,
+        ),
         carriage.affordance("box"),
       );
-      const sample: HorseTeamPlan.ISample<
+      const sample: AutoMovieArchetypeEquineTeamPlan.ISample<
         createCart.Affordance,
         createCart.Dimension
       > = team.at(seconds - WAIT);
@@ -180,11 +192,11 @@ export function test_archetype_equine_draft_driver(): void {
         const gap: number = Math.min(
           ...sample.lines
             .filter(
-              (line: ArchetypeRide.ILineState): boolean =>
+              (line: AutoMovieArchetypeRide.ILineState): boolean =>
                 line.id.startsWith("rein-") && line.id.endsWith(`-${side}`),
             )
             .map(
-              (line: ArchetypeRide.ILineState): number =>
+              (line: AutoMovieArchetypeRide.ILineState): number =>
                 pointSegmentDistance(
                   palm,
                   line.points[0]!,
@@ -200,7 +212,7 @@ export function test_archetype_equine_draft_driver(): void {
     }
 
   // 3. The postilion on the near wheeler.
-  const ride: ArchetypeRide.IRide<
+  const ride: AutoMovieArchetypeRide.IRide<
     createHorse.Affordance,
     createHorse.Dimension
   > = team.rides[0]!;
@@ -233,14 +245,14 @@ export function test_archetype_equine_draft_driver(): void {
   );
   if (postilion !== undefined)
     for (const seconds of instants) {
-      const sample: ArchetypeRide.ISample<
+      const sample: AutoMovieArchetypeRide.ISample<
         createHorse.Affordance,
         createHorse.Dimension
       > = ride.at(seconds - WAIT);
       seated(
         `postilion ${seconds.toFixed(2)}`,
         postilion.bones("postilion", seconds),
-        ArchetypeFrame.compose(
+        AutoMovieArchetypeFrame.compose(
           sample.placement,
           sample.archetype.affordance("seat").frame,
         ),
@@ -252,11 +264,13 @@ export function test_archetype_equine_draft_driver(): void {
     { kind: "chariot", withersHeight: 1.6 },
     1,
   );
-  const pair: HorseTeamPlan.ITeam<createCart.Affordance, createCart.Dimension> =
-    HorseTeam([horses[1]!, horses[2]!], chariot, {
-      ...params,
-      hitch: "pair",
-    });
+  const pair: AutoMovieArchetypeEquineTeamPlan.ITeam<
+    createCart.Affordance,
+    createCart.Dimension
+  > = AutoMovieArchetypeEquineTeam([horses[1]!, horses[2]!], chariot, {
+    ...params,
+    hitch: "pair",
+  });
   const floorAt = (seconds: number): IAutoMovieTransform =>
     pair.vehicle.frame("floor", Math.max(0, seconds - WAIT));
   const chariotPlacement = (seconds: number): IAutoMovieRigidTransform => {
@@ -291,8 +305,8 @@ export function test_archetype_equine_draft_driver(): void {
           at: floorAt(0).translation,
           yaw:
             (Math.atan2(
-              ArchetypeFrame.axis(floorAt(0), "z").x,
-              ArchetypeFrame.axis(floorAt(0), "z").z,
+              AutoMovieArchetypeFrame.axis(floorAt(0), "z").x,
+              AutoMovieArchetypeFrame.axis(floorAt(0), "z").z,
             ) *
               180) /
             Math.PI,
@@ -351,7 +365,7 @@ export function test_archetype_equine_draft_driver(): void {
   /** Seat a performer from the ground beside its seat and ride the support for the take. */
   function perform<Id extends string, D extends string>(
     subject: string,
-    model: Archetype<Id, D> & IAutoMovieMotionHumanObject.IModel,
+    model: AutoMovieArchetype<Id, D> & IAutoMovieMotionHumanObject.IModel,
     seat: IAutoMovieMotionHumanSeated.ISeat,
     placement: (seconds: number) => IAutoMovieRigidTransform,
     part: (id: string, seconds: number) => IAutoMovieTransform,

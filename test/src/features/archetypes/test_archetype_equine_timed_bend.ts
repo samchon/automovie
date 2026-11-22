@@ -1,6 +1,6 @@
 import {
-  ArchetypeCourse,
-  ArchetypeRefusal,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
   createHorse,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -21,7 +21,7 @@ interface IMark {
  *
  * Scenarios:
  * 1. The mounted-passage lead route from a halt into a 3 m sidestep bend at a trot samples every 0.05 s without a reach failure.
- * 2. A route that doubles the sidestep in the same time, beyond the gaits' declared speeds, refuses with an ArchetypeRefusal rather than a raw RangeError.
+ * 2. A route that doubles the sidestep in the same time, beyond the gaits' declared speeds, refuses with an AutoMovieArchetypeRefusal rather than a raw RangeError.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the route, the sampling and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Samples the public ride over the bend and catches the refusal type.
@@ -43,7 +43,7 @@ export function test_archetype_equine_timed_bend(): void {
   ];
   const ride = rideQuadruped(
     createHorse({}, "hazel"),
-    ArchetypeCourse.timed("hazel", marks),
+    AutoMovieArchetypeCourse.timed("hazel", marks),
   );
   for (let at: number = 6; at <= 18; at += 0.05)
     try {
@@ -58,7 +58,7 @@ export function test_archetype_equine_timed_bend(): void {
   try {
     const wide = rideQuadruped(
       createHorse({}, "hazel"),
-      ArchetypeCourse.timed(
+      AutoMovieArchetypeCourse.timed(
         "hazel",
         marks.map(
           (mark: IMark): IMark => ({
@@ -72,7 +72,7 @@ export function test_archetype_equine_timed_bend(): void {
   } catch (error) {
     refusal = error;
   }
-  if (!(refusal instanceof ArchetypeRefusal))
+  if (!(refusal instanceof AutoMovieArchetypeRefusal))
     issues.push(`the infeasible route raises ${String(refusal)}`);
   TestValidator.equals("timed bend reach", issues, []);
 }

@@ -1,4 +1,4 @@
-import type { ArchetypeCourse } from "@automovie/archetypes";
+import type { AutoMovieArchetypeCourse } from "@automovie/archetypes";
 import type { IAutoMovieMotionHumanImpulse } from "@automovie/interface";
 
 /**
@@ -84,7 +84,7 @@ export namespace IPlaygroundComposition {
     fixed?: boolean;
 
     /** A native vehicle course starting at this placement. */
-    course?: Omit<ArchetypeCourse.ICourse, "start">;
+    course?: Omit<AutoMovieArchetypeCourse.ICourse, "start">;
 
     /** Native joint states named at film seconds, interpolated between keys. */
     joints?: Record<string, readonly IJointKey[]>;

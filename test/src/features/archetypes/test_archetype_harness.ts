@@ -1,8 +1,8 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  ArchetypeRide,
-  ArchetypeUnits,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRide,
+  AutoMovieArchetypeUnits,
   createCart,
   createHorse,
   rideHorse,
@@ -66,8 +66,10 @@ export function test_archetype_harness(): void {
       "pack",
       "bare",
     ] as const satisfies readonly createHorse.Tack[]) {
-      const horse: Archetype<createHorse.Affordance, createHorse.Dimension> =
-        createHorse({ tack }, seed);
+      const horse: AutoMovieArchetype<
+        createHorse.Affordance,
+        createHorse.Dimension
+      > = createHorse({ tack }, seed);
       const label: string = `${tack} ${seed}`;
       const d = horse.dimensions as Record<createHorse.Dimension, number>;
       const rig: createHorse.IRig = createHorse.rig(d);
@@ -136,8 +138,8 @@ export function test_archetype_harness(): void {
           ? 5.4
           : tack === "pack"
             ? 95 *
-              ArchetypeUnits.POUND *
-              (h / (((59 + 62) / 2) * ArchetypeUnits.INCH)) ** 3
+              AutoMovieArchetypeUnits.POUND *
+              (h / (((59 + 62) / 2) * AutoMovieArchetypeUnits.INCH)) ** 3
             : 0;
       if (!close(horse.properties.mass, d.mass + tackMass, 1e-6))
         findings.push(
@@ -175,8 +177,8 @@ export function test_archetype_harness(): void {
         if (
           !close(
             along,
-            (23 * ArchetypeUnits.INCH * h) /
-              (((59 + 62) / 2) * ArchetypeUnits.INCH),
+            (23 * AutoMovieArchetypeUnits.INCH * h) /
+              (((59 + 62) / 2) * AutoMovieArchetypeUnits.INCH),
             1e-6,
           )
         )
@@ -198,7 +200,7 @@ export function test_archetype_harness(): void {
                 physicalShapeSegmentDistance(ORIGIN, shape, quarters, quarters),
               ),
           ) - rig.barrel;
-        if (!close(clearance, ArchetypeUnits.INCH, 1e-9))
+        if (!close(clearance, AutoMovieArchetypeUnits.INCH, 1e-9))
           findings.push(
             `${label}: the breeching clears the buttocks by ${clearance} m, not an inch`,
           );
@@ -240,12 +242,12 @@ export function test_archetype_harness(): void {
       const drop: number = rig.buttock.y - seat;
       if (
         !(
-          drop >= 2 * ArchetypeUnits.INCH - 1e-9 &&
-          drop <= 4 * ArchetypeUnits.INCH + 1e-9
+          drop >= 2 * AutoMovieArchetypeUnits.INCH - 1e-9 &&
+          drop <= 4 * AutoMovieArchetypeUnits.INCH + 1e-9
         )
       )
         findings.push(
-          `${label}: the breeching lies ${drop / ArchetypeUnits.INCH} in below the point of buttock`,
+          `${label}: the breeching lies ${drop / AutoMovieArchetypeUnits.INCH} in below the point of buttock`,
         );
       const quarters: IAutoMovieVector3 = Vector3.create(
         0,
@@ -265,9 +267,11 @@ export function test_archetype_harness(): void {
     }
 
   // 3. The cart built for the horse, joined at the hitch.
-  const horse: Archetype<createHorse.Affordance, createHorse.Dimension> =
-    createHorse({ tack: "harness" }, 4);
-  const cart: Archetype<createCart.Affordance, createCart.Dimension> =
+  const horse: AutoMovieArchetype<
+    createHorse.Affordance,
+    createHorse.Dimension
+  > = createHorse({ tack: "harness" }, 4);
+  const cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension> =
     createCart(
       {
         kind: "cart",
@@ -308,7 +312,10 @@ export function test_archetype_harness(): void {
       gap(ball(`bit-${side}`), ball(`ring-${side}`)) +
       gap(ball(`ring-${side}`), ball(`terret-${side}`));
     const held = cart.affordance(`${side}Line`);
-    const forward: IAutoMovieVector3 = ArchetypeFrame.axis(held.frame, "x");
+    const forward: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+      held.frame,
+      "x",
+    );
     const near: IAutoMovieVector3 = Vector3.add(
       held.frame.translation,
       Vector3.scale(forward, held.length! / 2),
@@ -318,60 +325,66 @@ export function test_archetype_harness(): void {
       Vector3.create(0, coupling.y - hitch.y, coupling.z - hitch.z),
     );
     if (
-      !close(held.length!, 14 * 12 * ArchetypeUnits.INCH - used, 1e-9) ||
+      !close(
+        held.length!,
+        14 * 12 * AutoMovieArchetypeUnits.INCH - used,
+        1e-9,
+      ) ||
       gap(near, terret) > 1e-9
     )
       findings.push(
-        `the ${side} held run is ${held.length} m from ${JSON.stringify(near)}, not the 14 ft line's ${14 * 12 * ArchetypeUnits.INCH - used} m behind the terret at ${JSON.stringify(terret)}`,
+        `the ${side} held run is ${held.length} m from ${JSON.stringify(near)}, not the 14 ft line's ${14 * 12 * AutoMovieArchetypeUnits.INCH - used} m behind the terret at ${JSON.stringify(terret)}`,
       );
   }
 
   // 4. Drawn through a quarter turn.
-  const ride: ArchetypeRide.IRide<
+  const ride: AutoMovieArchetypeRide.IRide<
     createHorse.Affordance,
     createHorse.Dimension
   > = rideHorse(horse, COURSE);
-  const lines: ArchetypeRide.ILine[] = createCart.lines(cart);
-  const towedRide: ArchetypeRide.IRide<
+  const lines: AutoMovieArchetypeRide.ILine[] = createCart.lines(cart);
+  const towedRide: AutoMovieArchetypeRide.IRide<
     createCart.Affordance,
     createCart.Dimension
-  > = ArchetypeRide.towed(ride, "hitch", cart, "coupling", {
+  > = AutoMovieArchetypeRide.towed(ride, "hitch", cart, "coupling", {
     lines,
     support: createCart.towing(cart),
   });
   const world = <I extends string, D extends string>(
-    sample: ArchetypeRide.ISample<I, D>,
+    sample: AutoMovieArchetypeRide.ISample<I, D>,
     id: string,
     local: IAutoMovieVector3 = { x: 0, y: 0, z: 0 },
   ): IAutoMovieVector3 => {
     const part: IAutoMovieModelPart = sample.archetype.parts.find(
       (p: IAutoMovieModelPart): boolean => p.id === id,
     )!;
-    return ArchetypeFrame.point(
+    return AutoMovieArchetypeFrame.point(
       sample.placement,
-      ArchetypeFrame.point(part.transform!, local),
+      AutoMovieArchetypeFrame.point(part.transform!, local),
     );
   };
   const relative: number[] = [];
   for (const seconds of [0, 3, 6, 9, 12, 15]) {
-    const lead: ArchetypeRide.ISample<
+    const lead: AutoMovieArchetypeRide.ISample<
       createHorse.Affordance,
       createHorse.Dimension
     > = ride.at(seconds);
-    const sample: ArchetypeRide.ISample<
+    const sample: AutoMovieArchetypeRide.ISample<
       createCart.Affordance,
       createCart.Dimension
     > = towedRide.at(seconds);
-    const laid: readonly ArchetypeRide.ILineState[] = sample.lines ?? [];
+    const laid: readonly AutoMovieArchetypeRide.ILineState[] =
+      sample.lines ?? [];
     if (
-      laid.map((l: ArchetypeRide.ILineState): string => l.id).join(",") !==
-      "trace-left,trace-right,line-left,line-right"
+      laid
+        .map((l: AutoMovieArchetypeRide.ILineState): string => l.id)
+        .join(",") !== "trace-left,trace-right,line-left,line-right"
     )
       findings.push(
-        `${seconds} s: the lines laid are ${laid.map((l: ArchetypeRide.ILineState): string => l.id).join(", ")}`,
+        `${seconds} s: the lines laid are ${laid.map((l: AutoMovieArchetypeRide.ILineState): string => l.id).join(", ")}`,
       );
     for (const [k, side] of (["left", "right"] as const).entries()) {
-      const trace: ArchetypeRide.ILineState = laid[k]!;
+      const trace: AutoMovieArchetypeRide.ILineState = laid[k]!;
       const length: number = (k === 0 ? 1 : -1) * rig.draft.x;
       if (
         gap(trace.points[0]!, world(lead, `draft-${side}`)) > 1e-9 ||
@@ -383,7 +396,7 @@ export function test_archetype_harness(): void {
         findings.push(
           `${seconds} s: the ${side} trace leaves the collar or the single tree`,
         );
-      const line: ArchetypeRide.ILineState = laid[2 + k]!;
+      const line: AutoMovieArchetypeRide.ILineState = laid[2 + k]!;
       const expected: IAutoMovieVector3[] = [
         world(lead, `bit-${side}`),
         world(lead, `ring-${side}`),

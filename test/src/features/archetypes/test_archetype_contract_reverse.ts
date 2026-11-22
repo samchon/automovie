@@ -1,11 +1,11 @@
 import {
-  type Archetype,
-  ArchetypeArticulation,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeMarks,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeArticulation,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeMarks,
+  AutoMovieArchetypeRefusal,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3, validateModel } from "@automovie/engine";
 import type {
@@ -40,14 +40,14 @@ const TRAVEL: Readonly<Record<Id, { travel: number; reverse?: number }>> = {
  */
 function fixture(
   swing: { travel: number; reverse?: number } = TRAVEL.swing,
-): Archetype<Id, never> {
+): AutoMovieArchetype<Id, never> {
   const v: typeof Vector3.create = Vector3.create;
   const facing = (at: IAutoMovieVector3): IAutoMovieAffordance["frame"] =>
-    ArchetypeFrame.facing(at, v(0, 1, 0), v(1, 0, 0));
-  return new ArchetypeBuilder<Id, never>({
+    AutoMovieArchetypeFrame.facing(at, v(0, 1, 0), v(1, 0, 0));
+  return new AutoMovieArchetypeBuilder<Id, never>({
     material: "steel",
     name: "fixture",
-    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
+    draw: new AutoMovieArchetypeDrawSession<never>("fixture", {}, undefined),
   })
     .box("base", v(1, 0.1, 1), v(0, 0.05, 0))
     .box("leaf", v(0.4, 0.3, 0.02), v(0.3, 0.5, 0))
@@ -91,7 +91,7 @@ function fixture(
 
 /** Where a part's centre is in its model. */
 function centre(
-  archetype: Archetype<Id, never>,
+  archetype: AutoMovieArchetype<Id, never>,
   part: string,
 ): IAutoMovieVector3 {
   return archetype.parts.find(
@@ -100,11 +100,11 @@ function centre(
 }
 
 /** Run an operation and return the refusal it raises, or null when it raises none or something else. */
-function refused(operation: () => unknown): ArchetypeRefusal | null {
+function refused(operation: () => unknown): AutoMovieArchetypeRefusal | null {
   try {
     operation();
   } catch (error) {
-    return error instanceof ArchetypeRefusal ? error : null;
+    return error instanceof AutoMovieArchetypeRefusal ? error : null;
   }
   return null;
 }
@@ -136,7 +136,7 @@ function faults(model: IAutoMovieModel): string[] {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
  */
 export function test_archetype_contract_reverse(): void {
-  const model: Archetype<Id, never> = fixture();
+  const model: AutoMovieArchetype<Id, never> = fixture();
   const findings: string[] = [];
   const affordance = (id: Id): IAutoMovieAffordance => model.affordance(id);
 
@@ -148,7 +148,7 @@ export function test_archetype_contract_reverse(): void {
     ["press", 0, TRAVEL.press.travel],
   ] as const) {
     const range: { minimum: number | null; maximum: number | null } =
-      ArchetypeArticulation.range(affordance(id));
+      AutoMovieArchetypeArticulation.range(affordance(id));
     if (range.minimum !== minimum || range.maximum !== maximum)
       findings.push(
         `${id} ranges ${range.minimum} to ${range.maximum}, not ${minimum} to ${maximum}`,
@@ -185,7 +185,7 @@ export function test_archetype_contract_reverse(): void {
     !vclose(
       run,
       Vector3.scale(
-        ArchetypeFrame.axis(affordance("slide").frame, "x"),
+        AutoMovieArchetypeFrame.axis(affordance("slide").frame, "x"),
         -TRAVEL.slide.reverse!,
       ),
       1e-9,
@@ -201,7 +201,7 @@ export function test_archetype_contract_reverse(): void {
     ["press", -0.001, 0],
   ] as const) {
     const state: Partial<Record<Id, number>> = { [id]: travel };
-    const refusal: ArchetypeRefusal | null = refused(() =>
+    const refusal: AutoMovieArchetypeRefusal | null = refused(() =>
       model.articulate(state),
     );
     if (
@@ -226,13 +226,13 @@ export function test_archetype_contract_reverse(): void {
   }
 
   // 5. The slider's mark.
-  const points: readonly number[] = ArchetypeMarks.of("fixture", [
+  const points: readonly number[] = AutoMovieArchetypeMarks.of("fixture", [
     affordance("slide"),
   ]).flatMap((m: IAutoMovieMark): number[] =>
     m.shape.type === "segments" ? m.shape.points : [],
   );
   const frame: IAutoMovieAffordance["frame"] = affordance("slide").frame;
-  const along: IAutoMovieVector3 = ArchetypeFrame.axis(frame, "x");
+  const along: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(frame, "x");
   const ends: IAutoMovieVector3[] = [0, 3]
     .filter((k: number): boolean => k + 2 < points.length)
     .map(

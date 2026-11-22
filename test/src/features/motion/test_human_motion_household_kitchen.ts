@@ -1,5 +1,5 @@
 import {
-  type Archetype,
+  type AutoMovieArchetype,
   createTable,
   createTool,
   createTray,
@@ -76,13 +76,17 @@ export function test_human_motion_household_kitchen(): void {
 
 /** Read the spoon, saucepan, tray and actual palm in the complete kitchen take. */
 function kitchen(body: IAutoMovieMotionHumanBody, failures: string[]): void {
-  const counter: Archetype<createTable.Affordance, createTable.Dimension> =
-    createTable({ kind: "counter", height: TOP });
-  const pan: Archetype<createVessel.Affordance, createVessel.Dimension> =
-    createVessel({ kind: "saucepan" });
-  const spoon: Archetype<createTool.Affordance, createTool.Dimension> =
+  const counter: AutoMovieArchetype<
+    createTable.Affordance,
+    createTable.Dimension
+  > = createTable({ kind: "counter", height: TOP });
+  const pan: AutoMovieArchetype<
+    createVessel.Affordance,
+    createVessel.Dimension
+  > = createVessel({ kind: "saucepan" });
+  const spoon: AutoMovieArchetype<createTool.Affordance, createTool.Dimension> =
     createTool({ kind: "spoon", gripDiameter: 0.01, length: 0.15 });
-  const tray: Archetype<createTray.Affordance, createTray.Dimension> =
+  const tray: AutoMovieArchetype<createTray.Affordance, createTray.Dimension> =
     createTray({ kind: "tray" });
   const panAt: IAutoMovieVector3 = { x: 0.02, y: TOP, z: 0.39 };
   const trayAt: IAutoMovieVector3 = { x: -0.31, y: TOP, z: 0.42 };

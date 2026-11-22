@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -106,18 +106,24 @@ export namespace StagePeriodGunConstruction {
   export function lay<Id extends string>(
     profile: IProfile,
     id: string,
-  ): ArchetypeBuilder<Contact | Id, Dimension> {
+  ): AutoMovieArchetypeBuilder<Contact | Id, Dimension> {
     const v: typeof Vector3.create = Vector3.create;
-    const draw: ArchetypeDrawSession<Dimension> = new ArchetypeDrawSession(
-      profile.name,
-      { length: "m", barrel: "m", mass: "kg" },
-      undefined,
-    );
+    const draw: AutoMovieArchetypeDrawSession<Dimension> =
+      new AutoMovieArchetypeDrawSession(
+        profile.name,
+        { length: "m", barrel: "m", mass: "kg" },
+        undefined,
+      );
     draw.derive("length", profile.overall);
     draw.derive("barrel", profile.barrel);
     draw.derive("mass", profile.mass);
-    const builder: ArchetypeBuilder<Contact | Id, Dimension> =
-      new ArchetypeBuilder({ id, name: profile.name, material: "wood", draw });
+    const builder: AutoMovieArchetypeBuilder<Contact | Id, Dimension> =
+      new AutoMovieArchetypeBuilder({
+        id,
+        name: profile.name,
+        material: "wood",
+        draw,
+      });
 
     const breech: number = profile.overall - profile.barrel;
     const wrist: number = profile.pull - 0.12;
@@ -154,7 +160,7 @@ export namespace StagePeriodGunConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, -0.03, (wrist + breech) / 2),
         v(0, 0, -1),
         v(0, 1, 0),
@@ -167,7 +173,7 @@ export namespace StagePeriodGunConstruction {
     builder.affordance({
       id: "trigger",
       kind: "trigger",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, -0.045, profile.pull - 0.003),
         v(0, 0, -1),
         v(1, 0, 0),
@@ -178,7 +184,11 @@ export namespace StagePeriodGunConstruction {
       id: "foreEnd",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, -0.02, fore), v(0, -1, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, -0.02, fore),
+        v(0, -1, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       grip: "power",
       aperture: 0.04,
@@ -188,7 +198,7 @@ export namespace StagePeriodGunConstruction {
       id: "butt",
       kind: "surface",
       direction: "normal",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, -profile.depth / 2 + 0.02, 0),
         v(0, 0, -1),
         v(1, 0, 0),
@@ -198,7 +208,7 @@ export namespace StagePeriodGunConstruction {
     builder.affordance({
       id: "muzzle",
       kind: "socket",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, 0, profile.overall),
         v(0, 0, 1),
         v(1, 0, 0),
@@ -214,7 +224,11 @@ export namespace StagePeriodGunConstruction {
       builder.affordance({
         id: contact,
         kind: "socket",
-        frame: ArchetypeFrame.facing(v(0, y, z), v(0, -1, 0), v(0, 0, 1)),
+        frame: AutoMovieArchetypeFrame.facing(
+          v(0, y, z),
+          v(0, -1, 0),
+          v(0, 0, 1),
+        ),
         extent: null,
       });
     return builder;
@@ -236,9 +250,9 @@ export namespace StagePeriodGunConstruction {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function build<Id extends string>(
-    builder: ArchetypeBuilder<Contact | Id, Dimension>,
+    builder: AutoMovieArchetypeBuilder<Contact | Id, Dimension>,
     profile: IProfile,
-  ): Archetype<Contact | Id, Dimension> {
+  ): AutoMovieArchetype<Contact | Id, Dimension> {
     return builder.build(profile.mass);
   }
 }

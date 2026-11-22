@@ -1,9 +1,9 @@
 import {
-  ArchetypeCourse,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  QuadrupedBody,
-  QuadrupedGait,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeQuadrupedGait,
+  AutoMovieArchetypeRefusal,
   createHorse,
   createQuadruped,
   rideHorse,
@@ -33,7 +33,7 @@ function course(
   cruise: number,
   length: number = 40,
   rate: number = 3,
-): ArchetypeCourse.ICourse {
+): AutoMovieArchetypeCourse.ICourse {
   return {
     start: { x: 0, z: 0, heading: 0 },
     legs: [{ kind: "straight", length }],
@@ -46,7 +46,7 @@ function course(
 /** The seconds of every landing of a limb's hoof over the whole ride, in time order. */
 function footfalls(
   ride: ReturnType<typeof rideHorse>,
-  limb: QuadrupedBody.Limb,
+  limb: AutoMovieArchetypeQuadrupedBody.Limb,
 ): number[] {
   return ride.instants
     .filter((i: { label: string }): boolean => i.label === `${limb}On`)
@@ -56,7 +56,7 @@ function footfalls(
 /** The seconds of a hoof's landings while the course holds its cruising speed, a second after reaching it and half a second before braking. */
 function landings(
   ride: ReturnType<typeof rideHorse>,
-  limb: QuadrupedBody.Limb,
+  limb: AutoMovieArchetypeQuadrupedBody.Limb,
 ): number[] {
   const cruise: number = ride.plan.instants.find(
     (i: { label: string }): boolean => i.label === "cruise",
@@ -98,34 +98,34 @@ function ends(
 /** Where a limb's hoof joint, the lower end of its lowest bone, is in the world at a second of a ride. */
 function hoof(
   ride: ReturnType<typeof rideHorse>,
-  limb: QuadrupedBody.Limb,
+  limb: AutoMovieArchetypeQuadrupedBody.Limb,
   seconds: number,
 ): IAutoMovieVector3 {
   const sample: ReturnType<typeof ride.at> = ride.at(seconds);
-  return ArchetypeFrame.point(
+  return AutoMovieArchetypeFrame.point(
     sample.placement,
-    ends(sample.archetype, QuadrupedBody.BONES[limb][3])[1],
+    ends(sample.archetype, AutoMovieArchetypeQuadrupedBody.BONES[limb][3])[1],
   );
 }
 
 /** The lowest complete terminal surface, not its elevated distal cap centre. */
 function sole(
   ride: ReturnType<typeof rideHorse>,
-  limb: QuadrupedBody.Limb,
+  limb: AutoMovieArchetypeQuadrupedBody.Limb,
   seconds: number,
 ): number {
   const sample: ReturnType<typeof ride.at> = ride.at(seconds);
   const part: IAutoMovieModelPart = sample.archetype.parts.find(
     (candidate: IAutoMovieModelPart): boolean =>
-      candidate.id === QuadrupedBody.BONES[limb][3],
+      candidate.id === AutoMovieArchetypeQuadrupedBody.BONES[limb][3],
   )!;
   return animalTerminalSole(part, sample.placement);
 }
 
 /** How many hooves stand still on the ground over the four milliseconds after a second: a planted hoof does not move, and any other travels with or ahead of the body. */
 function planted(ride: ReturnType<typeof rideHorse>, seconds: number): number {
-  return QuadrupedBody.LIMBS.filter(
-    (limb: QuadrupedBody.Limb): boolean =>
+  return AutoMovieArchetypeQuadrupedBody.LIMBS.filter(
+    (limb: AutoMovieArchetypeQuadrupedBody.Limb): boolean =>
       Math.abs(
         hoof(ride, limb, seconds + 0.004).z - hoof(ride, limb, seconds).z,
       ) < MM,
@@ -158,7 +158,11 @@ export function test_archetype_ride_horse(): void {
   const withers: number = archetypeExtent(steady, "y", ["withers"]).high;
 
   // 1. The rows as measured, at the measured horses' height.
-  const rows: readonly (readonly [QuadrupedGait.Gait, number, number])[] = [
+  const rows: readonly (readonly [
+    AutoMovieArchetypeQuadrupedGait.Gait,
+    number,
+    number,
+  ])[] = [
     ["walk", 1, 1.121],
     ["trot", 2, 0.649],
     ["trot", 6.5, 0.482],
@@ -166,7 +170,10 @@ export function test_archetype_ride_horse(): void {
   ];
   for (const [gait, speed, stride] of rows)
     if (
-      Math.abs(QuadrupedGait.timing(HORSE, gait, speed).stride - stride) > 1e-9
+      Math.abs(
+        AutoMovieArchetypeQuadrupedGait.timing(HORSE, gait, speed).stride -
+          stride,
+      ) > 1e-9
     )
       findings.push(`${gait} at ${speed} m/s is not the paper's ${stride} s`);
 
@@ -208,7 +215,10 @@ export function test_archetype_ride_horse(): void {
   if (high - low < 1) findings.push("seeds do not vary the stride time");
 
   // 3. Footfall order: each hoof's first landing after a left fore landing, as a share of the stride.
-  const order = (gait: QuadrupedGait.Gait, speed: number): string => {
+  const order = (
+    gait: AutoMovieArchetypeQuadrupedGait.Gait,
+    speed: number,
+  ): string => {
     const ride: ReturnType<typeof rideHorse> = rideHorse(
       steady,
       course(speed),
@@ -217,8 +227,8 @@ export function test_archetype_ride_horse(): void {
     const fore: number[] = landings(ride, "leftFore");
     const start: number = fore[1]!;
     const stride: number = fore[2]! - fore[1]!;
-    return QuadrupedBody.LIMBS.map(
-      (limb: QuadrupedBody.Limb): [string, number] => [
+    return AutoMovieArchetypeQuadrupedBody.LIMBS.map(
+      (limb: AutoMovieArchetypeQuadrupedBody.Limb): [string, number] => [
         limb,
         Math.round(
           ((landings(ride, limb).find(
@@ -253,12 +263,12 @@ export function test_archetype_ride_horse(): void {
   // 4. Duty factor falls with speed.
   if (
     !(
-      QuadrupedGait.timing(HORSE, "walk", 1).duty >
-      QuadrupedGait.timing(HORSE, "walk", 3).duty
+      AutoMovieArchetypeQuadrupedGait.timing(HORSE, "walk", 1).duty >
+      AutoMovieArchetypeQuadrupedGait.timing(HORSE, "walk", 3).duty
     ) ||
     !(
-      QuadrupedGait.timing(HORSE, "trot", 2).duty >
-      QuadrupedGait.timing(HORSE, "trot", 6.5).duty
+      AutoMovieArchetypeQuadrupedGait.timing(HORSE, "trot", 2).duty >
+      AutoMovieArchetypeQuadrupedGait.timing(HORSE, "trot", 6.5).duty
     )
   )
     findings.push("duty factor does not fall with speed");
@@ -273,11 +283,8 @@ export function test_archetype_ride_horse(): void {
       course(speed),
       gait,
     );
-    const timing: QuadrupedGait.ITiming = QuadrupedGait.timing(
-      HORSE,
-      gait,
-      speed,
-    );
+    const timing: AutoMovieArchetypeQuadrupedGait.ITiming =
+      AutoMovieArchetypeQuadrupedGait.timing(HORSE, gait, speed);
     for (const limb of ["leftFore", "rightHind"] as const) {
       const on: number = landings(ride, limb)[1]!;
       const landed: IAutoMovieVector3 = hoof(
@@ -300,8 +307,9 @@ export function test_archetype_ride_horse(): void {
     for (let k: number = 0; k < 8; k++) {
       const seconds: number = start + (k * timing.stride) / 8;
       const sample: ReturnType<typeof ride.at> = ride.at(seconds);
-      for (const limb of QuadrupedBody.LIMBS) {
-        const chain: readonly string[] = QuadrupedBody.BONES[limb];
+      for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
+        const chain: readonly string[] =
+          AutoMovieArchetypeQuadrupedBody.BONES[limb];
         if (sole(ride, limb, seconds) < -0.01)
           findings.push(
             `${gait}: ${limb} hoof under the ground at phase ${k}/8`,
@@ -330,7 +338,7 @@ export function test_archetype_ride_horse(): void {
     refused = error;
   }
   if (
-    !(refused instanceof ArchetypeRefusal) ||
+    !(refused instanceof AutoMovieArchetypeRefusal) ||
     refused.feasible?.kind !== "range"
   )
     findings.push("a 5 m/s walk is not refused with the gait's range");
@@ -341,14 +349,14 @@ export function test_archetype_ride_horse(): void {
     course(1.5, 30, 0.5),
     "walk",
   );
-  const share: number = QuadrupedGait.timing(
+  const share: number = AutoMovieArchetypeQuadrupedGait.timing(
     HORSE,
     "walk",
     1.5,
     0,
     withers,
   ).duty;
-  for (const limb of QuadrupedBody.LIMBS) {
+  for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
     const on: number[] = footfalls(walk, limb);
     let worst: number = 0;
     let where: number = 0;

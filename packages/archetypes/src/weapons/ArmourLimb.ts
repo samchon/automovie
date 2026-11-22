@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeConvexCell } from "../core";
+import { AutoMovieArchetypeConvexCell } from "../core";
 import { ArmourCell } from "./ArmourCell";
 import type { ArmourProfile } from "./ArmourProfile";
 
@@ -77,7 +77,7 @@ export function ArmourLimb(
       );
       prepared.set(canonical, {
         ...cell,
-        prepared: ArchetypeConvexCell.of(cell.points),
+        prepared: AutoMovieArchetypeConvexCell.of(cell.points),
       });
     }
     cells.push({

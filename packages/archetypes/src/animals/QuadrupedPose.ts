@@ -1,6 +1,6 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { PrepareQuadrupedPose } from "./PrepareQuadrupedPose";
-import type { QuadrupedBody } from "./QuadrupedBody";
 import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
 
 /**
@@ -20,9 +20,9 @@ import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prepared owner retains O(B+P+A+V) independent source data for its lifetime; returned models/frames own their mutable geometry/transforms. No caller goal map, prior sample, process, file or global resource is retained.
  */
 export function QuadrupedPose<Id extends string, Dimension extends string>(
-  animal: Archetype<Id, Dimension>,
-  parts: Readonly<Record<string, QuadrupedBody.Bone>>,
-  contacts: Readonly<Record<string, QuadrupedBody.Bone>>,
+  animal: AutoMovieArchetype<Id, Dimension>,
+  parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
+  contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
 ): QuadrupedPosePlan.IPrepared<Id, Dimension> {
   return PrepareQuadrupedPose.ordinary(animal, parts, contacts);
 }

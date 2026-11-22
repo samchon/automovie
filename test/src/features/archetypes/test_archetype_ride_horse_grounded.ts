@@ -1,5 +1,5 @@
 import {
-  QuadrupedBody,
+  AutoMovieArchetypeQuadrupedBody,
   createHorse,
   rideHorse,
   type rideQuadruped,
@@ -95,7 +95,7 @@ export function test_archetype_ride_horse_grounded(): void {
     )
   )
     failures.push("touchdown during an authored halt");
-  for (const limb of QuadrupedBody.LIMBS) {
+  for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
     const times: readonly number[] = [stop + 0.25, depart - 0.25, stop + 0.85];
     const first: IAutoMovieVector3 = archetypeHorseRide.hoof(
       ride,
@@ -123,7 +123,7 @@ export function test_archetype_ride_horse_grounded(): void {
     to: number,
     label: string,
   ): void {
-    for (const limb of QuadrupedBody.LIMBS) {
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const instants: readonly number[] = archetypeHorseRide.footfalls(
         reader,
         limb,
@@ -156,13 +156,13 @@ export function test_archetype_ride_horse_grounded(): void {
   /** Read the actual terminal primitive's complete support against the level set. */
   function sole(
     reader: ReturnType<typeof rideHorse>,
-    limb: QuadrupedBody.Limb,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
     time: number,
   ): number {
     const sample: ReturnType<typeof reader.at> = reader.at(time);
     const terminal: IAutoMovieModelPart = sample.archetype.parts.find(
       (part: IAutoMovieModelPart): boolean =>
-        part.id === QuadrupedBody.BONES[limb][3],
+        part.id === AutoMovieArchetypeQuadrupedBody.BONES[limb][3],
     )!;
     return animalTerminalSole(terminal, sample.placement);
   }

@@ -1,4 +1,4 @@
-import { ArchetypeFrame, createTool } from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, createTool } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -91,7 +91,7 @@ export function test_archetype_props_tool_bands(): void {
     );
     const face: ReturnType<typeof ladle.affordance> = ladle.affordance("face");
     if (
-      Math.abs(ArchetypeFrame.axis(face.frame, "y").z - 1) > 1e-12 ||
+      Math.abs(AutoMovieArchetypeFrame.axis(face.frame, "y").z - 1) > 1e-12 ||
       Math.abs(
         face.frame.translation.z - archetypeExtent(ladle, "z", ["bowl"]).high,
       ) > 1e-9
@@ -103,7 +103,7 @@ export function test_archetype_props_tool_bands(): void {
     );
     const edge: ReturnType<typeof knife.affordance> = knife.affordance("face");
     if (
-      Math.abs(ArchetypeFrame.axis(edge.frame, "y").z - 1) > 1e-12 ||
+      Math.abs(AutoMovieArchetypeFrame.axis(edge.frame, "y").z - 1) > 1e-12 ||
       Math.abs(
         edge.frame.translation.z - archetypeExtent(knife, "z", ["blade"]).high,
       ) > 1e-9 ||

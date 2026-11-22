@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The ski's shape read. */
@@ -36,7 +36,7 @@ const STANCE: number = 0.02;
  * @param params The length LINE lists and any dimension the author fixes.
  * @param seed The seed that draws the length when it is not given and every dimension left free inside its band; absent, the first length and the middle of each band.
  * @returns The ski.
- * @throws {ArchetypeRefusal} For a length LINE does not list or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a length LINE does not list or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the ski lies, its outline, boot anchor and lower contact readings.
  * @evidence contracts/development/implementation.md#principled-implementation LINE's widths and one of its lengths whole, with the stance behind the centre by its 20 mm, Rossignol's patented thickness range for the middle.
@@ -49,9 +49,9 @@ const STANCE: number = 0.02;
 export function createSki(
   params: createSki.IParams = {},
   seed?: number | string,
-): Archetype<createSki.Affordance, createSki.Dimension> {
-  const draw: ArchetypeDrawSession<createSki.Dimension> =
-    new ArchetypeDrawSession<createSki.Dimension>(
+): AutoMovieArchetype<createSki.Affordance, createSki.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createSki.Dimension> =
+    new AutoMovieArchetypeDrawSession<createSki.Dimension>(
       "ski",
       createSki.UNITS,
       seed,
@@ -65,13 +65,15 @@ export function createSki(
     ...draw.dimensions(createSki.BANDS),
     ...length.figures,
   };
-  const builder: ArchetypeBuilder<createSki.Affordance, createSki.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: `ski ${length.name}`,
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createSki.Affordance,
+    createSki.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: `ski ${length.name}`,
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const half: number = d.length! / 2;
   const thick: number = d.thickness!;
@@ -92,14 +94,14 @@ export function createSki(
   builder.affordance({
     id: "stance",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, thick, STANCE)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, thick, STANCE)),
     extent: null,
     width: WIDTH.waist,
   });
   builder.affordance({
     id: "base",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, 0, STANCE)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, STANCE)),
     extent: null,
     width: contactWidth,
     depth: contactLength,
@@ -111,7 +113,7 @@ export function createSki(
     builder.affordance({
       id,
       kind: "ledge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v((sign * contactWidth) / 2, 0, STANCE),
         v(0, 1, 0),
         v(0, 0, -sign),
@@ -144,7 +146,9 @@ export namespace createSki {
   export type Dimension = "length" | "thickness" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     thickness: "m",
     mass: "kg",
@@ -157,10 +161,10 @@ export namespace createSki {
   export const LENGTHS: Readonly<
     Record<Length, Readonly<Partial<Record<Dimension, number>>>>
   > = {
-    "163cm": { length: 163 * ArchetypeUnits.CENTIMETRE },
-    "169cm": { length: 169 * ArchetypeUnits.CENTIMETRE },
-    "175cm": { length: 175 * ArchetypeUnits.CENTIMETRE },
-    "180cm": { length: 180 * ArchetypeUnits.CENTIMETRE },
+    "163cm": { length: 163 * AutoMovieArchetypeUnits.CENTIMETRE },
+    "169cm": { length: 169 * AutoMovieArchetypeUnits.CENTIMETRE },
+    "175cm": { length: 175 * AutoMovieArchetypeUnits.CENTIMETRE },
+    "180cm": { length: 180 * AutoMovieArchetypeUnits.CENTIMETRE },
   };
 
   /** The parameters: the length, and any free dimension fixed to a value inside its band. */
@@ -176,10 +180,10 @@ export namespace createSki {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<
-    Record<Exclude<Dimension, "length">, IArchetypeBand>
+    Record<Exclude<Dimension, "length">, IAutoMovieArchetypeBand>
   > = {
-    thickness: ArchetypeBand.metres(0.015, 0.03, ROSSIGNOL),
-    mass: ArchetypeBand.of(
+    thickness: AutoMovieArchetypeBand.metres(0.015, 0.03, ROSSIGNOL),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       1.84,
       1.84,

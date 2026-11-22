@@ -14,17 +14,22 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeFrame, ArchetypeSpan } from "../core";
+import {
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeSpan,
+} from "../core";
 import { ApplyQuadrupedCarrierPose } from "./ApplyQuadrupedCarrierPose";
-import { QuadrupedBody } from "./QuadrupedBody";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import { AutoMovieArchetypeQuadrupedSkeleton } from "./AutoMovieArchetypeQuadrupedSkeleton";
 import { QuadrupedPoseAngles } from "./QuadrupedPoseAngles";
 import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
-import { QuadrupedSkeleton } from "./QuadrupedSkeleton";
 
 /** Only the actual current public skeleton emitter authorizes private copying. */
-const NATIVE_APPLY: typeof QuadrupedSkeleton.apply = QuadrupedSkeleton.apply;
+const NATIVE_APPLY: typeof AutoMovieArchetypeQuadrupedSkeleton.apply =
+  AutoMovieArchetypeQuadrupedSkeleton.apply;
 
 /** A private actual part and its already admitted explicit carrier. */
 interface IBinding {
@@ -32,25 +37,25 @@ interface IBinding {
   part: IAutoMovieModelPart;
 
   /** Actual bone whose rigid delta carries this part. */
-  bone: QuadrupedBody.Bone;
+  bone: AutoMovieArchetypeQuadrupedBody.Bone;
 }
 
 /** Build the actual owned rig, source, floor and achieved output operations. */
 function prepare<Id extends string, Dimension extends string>(
-  animal: Archetype<Id, Dimension>,
-  parts: Readonly<Record<string, QuadrupedBody.Bone>>,
-  contacts: Readonly<Record<string, QuadrupedBody.Bone>>,
+  animal: AutoMovieArchetype<Id, Dimension>,
+  parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
+  contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
 ): QuadrupedPosePlan.IPrepared<Id, Dimension>;
 function prepare<Id extends string, Dimension extends string>(
-  animal: Archetype<Id, Dimension>,
-  parts: Readonly<Record<string, QuadrupedBody.Bone>>,
-  contacts: Readonly<Record<string, QuadrupedBody.Bone>>,
+  animal: AutoMovieArchetype<Id, Dimension>,
+  parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
+  contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
   nativeCourse: boolean,
 ): PrepareQuadrupedPose.IPrepared<Id, Dimension>;
 function prepare<Id extends string, Dimension extends string>(
-  animal: Archetype<Id, Dimension>,
-  parts: Readonly<Record<string, QuadrupedBody.Bone>>,
-  contacts: Readonly<Record<string, QuadrupedBody.Bone>>,
+  animal: AutoMovieArchetype<Id, Dimension>,
+  parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
+  contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
   nativeCourse?: boolean,
 ):
   | QuadrupedPosePlan.IPrepared<Id, Dimension>
@@ -68,23 +73,29 @@ function prepare<Id extends string, Dimension extends string>(
         )
         .join("; ")}`,
     );
-  const rig: IAutoMovieArticulatedRig<QuadrupedBody.Bone> =
-    QuadrupedSkeleton.of(animal);
-  const reader: IAutoMovieArticulatedRigReader<QuadrupedBody.Bone> =
+  const rig: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone> =
+    AutoMovieArchetypeQuadrupedSkeleton.of(animal);
+  const reader: IAutoMovieArticulatedRigReader<AutoMovieArchetypeQuadrupedBody.Bone> =
     prepareArticulatedRig(rig);
-  const neutral: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> =
-    reader.read();
-  const partCarriers: Readonly<Record<string, QuadrupedBody.Bone>> = {
+  const neutral: ReadonlyMap<
+    AutoMovieArchetypeQuadrupedBody.Bone,
+    IAutoMovieTransform
+  > = reader.read();
+  const partCarriers: Readonly<
+    Record<string, AutoMovieArchetypeQuadrupedBody.Bone>
+  > = {
     ...parts,
   };
-  const contactCarriers: Readonly<Record<string, QuadrupedBody.Bone>> = {
+  const contactCarriers: Readonly<
+    Record<string, AutoMovieArchetypeQuadrupedBody.Bone>
+  > = {
     ...contacts,
   };
 
   // Neutral emission admits all actual carrier bindings and makes a private
   // source geometry/frame snapshot before any caller-owned data can change.
   let nativeSource: boolean = false;
-  const source: Archetype<Id, Dimension> =
+  const source: AutoMovieArchetype<Id, Dimension> =
     nativeCourse === true && originalEmitter()
       ? ApplyQuadrupedCarrierPose.emit(
           animal,
@@ -97,7 +108,7 @@ function prepare<Id extends string, Dimension extends string>(
             nativeSource = owned;
           },
         )
-      : QuadrupedSkeleton.apply(
+      : AutoMovieArchetypeQuadrupedSkeleton.apply(
           animal,
           neutral,
           neutral,
@@ -113,14 +124,17 @@ function prepare<Id extends string, Dimension extends string>(
       ],
     ),
   );
-  const identities: ReadonlyMap<string, QuadrupedBody.Bone> = new Map(
-    reader.bones.map(
-      (bone: QuadrupedBody.Bone): [string, QuadrupedBody.Bone] => [bone, bone],
-    ),
-  );
+  const identities: ReadonlyMap<string, AutoMovieArchetypeQuadrupedBody.Bone> =
+    new Map(
+      reader.bones.map(
+        (
+          bone: AutoMovieArchetypeQuadrupedBody.Bone,
+        ): [string, AutoMovieArchetypeQuadrupedBody.Bone] => [bone, bone],
+      ),
+    );
   const bindings: readonly IBinding[] = source.parts.map(
     (part: IAutoMovieModelPart): IBinding => {
-      const bone: QuadrupedBody.Bone | undefined =
+      const bone: AutoMovieArchetypeQuadrupedBody.Bone | undefined =
         identities.get(part.id) ?? partCarriers[part.id];
       if (bone === undefined)
         throw new RangeError(`Missing quadruped carrier for ${part.id}`);
@@ -128,17 +142,19 @@ function prepare<Id extends string, Dimension extends string>(
     },
   );
   const limbParts: ReadonlySet<string> = new Set(
-    QuadrupedBody.LIMBS.flatMap(
-      (limb: QuadrupedBody.Limb): QuadrupedBody.Bone[] => [
-        ...QuadrupedBody.BONES[limb],
+    AutoMovieArchetypeQuadrupedBody.LIMBS.flatMap(
+      (
+        limb: AutoMovieArchetypeQuadrupedBody.Limb,
+      ): AutoMovieArchetypeQuadrupedBody.Bone[] => [
+        ...AutoMovieArchetypeQuadrupedBody.BONES[limb],
       ],
     ),
   );
   const bodyBindings: readonly IBinding[] = bindings.filter(
     (binding: IBinding): boolean => !limbParts.has(binding.part.id),
   );
-  const spans: readonly ArchetypeSpan.ISpan[] = source.spans;
-  const lengths: Map<QuadrupedBody.Bone, number> = new Map();
+  const spans: readonly AutoMovieArchetypeSpan.ISpan[] = source.spans;
+  const lengths: Map<AutoMovieArchetypeQuadrupedBody.Bone, number> = new Map();
   for (const bone of reader.bones) {
     const part: IAutoMovieModelPart | undefined = sourceParts.get(bone);
     if (
@@ -162,10 +178,11 @@ function prepare<Id extends string, Dimension extends string>(
     throw new RangeError(
       "Quadruped neutral geometry has an unrepresentable coordinate scale",
     );
-  for (const limb of QuadrupedBody.LIMBS) {
-    const chain: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
+  for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
+    const chain: readonly AutoMovieArchetypeQuadrupedBody.Bone[] =
+      AutoMovieArchetypeQuadrupedBody.BONES[limb];
     for (let index: number = 0; index < chain.length - 1; index++) {
-      const bone: QuadrupedBody.Bone = chain[index]!;
+      const bone: AutoMovieArchetypeQuadrupedBody.Bone = chain[index]!;
       const gap: number = magnitude(
         Vector3.subtract(
           endpoint(neutral.get(bone)!, lengths.get(bone)!),
@@ -192,10 +209,15 @@ function prepare<Id extends string, Dimension extends string>(
 
   /** Exact current body/accessory support reuses actual TRS and span owners, never another model sample. */
   function bodyFloor(
-    frames: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
+    frames: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    >,
   ): number {
-    const deltas: ReadonlyMap<QuadrupedBody.Bone, ArchetypeFrame.IMotion> =
-      QuadrupedRigDelta.between(neutral, frames);
+    const deltas: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      AutoMovieArchetypeFrame.IMotion
+    > = QuadrupedRigDelta.between(neutral, frames);
     const selected: readonly IBinding[] =
       spans.length === 0 ? bodyBindings : bindings;
     let current: IAutoMovieModelPart[] = selected.map(
@@ -203,7 +225,7 @@ function prepare<Id extends string, Dimension extends string>(
         ...binding.part,
         transform: QuadrupedRigDelta.move(
           binding.part.transform ??
-            ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+            AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
           binding.bone,
           deltas,
           binding.part.id,
@@ -223,7 +245,7 @@ function prepare<Id extends string, Dimension extends string>(
           ),
         }),
       );
-      current = ArchetypeSpan.lay(
+      current = AutoMovieArchetypeSpan.lay(
         source.archetype,
         spans,
         current,
@@ -255,7 +277,10 @@ function prepare<Id extends string, Dimension extends string>(
 
   /** Emit the admitted limbs and root as a fresh archetype. */
   function sample(
-    limbs: ReadonlyMap<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>,
+    limbs: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Limb,
+      readonly IAutoMovieVector3[]
+    >,
     root?: IAutoMovieTransform,
     axial?: ReadonlyMap<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal>,
   ): QuadrupedPosePlan.ISample<Id, Dimension> {
@@ -265,7 +290,10 @@ function prepare<Id extends string, Dimension extends string>(
 
   /** Complete actual FK must realize every supplied chain before model emission. */
   function position(
-    limbs: ReadonlyMap<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>,
+    limbs: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Limb,
+      readonly IAutoMovieVector3[]
+    >,
     root?: IAutoMovieTransform,
     axial?: ReadonlyMap<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal>,
   ): PrepareQuadrupedPose.IPosition<Id, Dimension> {
@@ -291,11 +319,12 @@ function prepare<Id extends string, Dimension extends string>(
     // This is the existing rest observation's coordinate-scaled budget; a
     // physical gap, changed source length or relocated root is not a tolerance.
     const roundoff: number = 256 * Number.EPSILON * scale;
-    for (const limb of QuadrupedBody.LIMBS) {
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const points: readonly IAutoMovieVector3[] = limbs.get(limb)!;
-      const chain: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
+      const chain: readonly AutoMovieArchetypeQuadrupedBody.Bone[] =
+        AutoMovieArchetypeQuadrupedBody.BONES[limb];
       for (let index: number = 0; index < chain.length; index++) {
-        const bone: QuadrupedBody.Bone = chain[index]!;
+        const bone: AutoMovieArchetypeQuadrupedBody.Bone = chain[index]!;
         const frame: IAutoMovieTransform = state.frames.get(bone)!;
         const originError: number = magnitude(
           Vector3.subtract(frame.translation, points[index]!),
@@ -319,16 +348,19 @@ function prepare<Id extends string, Dimension extends string>(
     }
     return {
       ...state,
-      emit: (ode?: boolean): Archetype<Id, Dimension> =>
+      emit: (ode?: boolean): AutoMovieArchetype<Id, Dimension> =>
         emit(state.frames, ode),
     };
   }
 
   /** Emit via the original public override or the exact native owner. */
   function emit(
-    frames: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
+    frames: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    >,
     ode?: boolean,
-  ): Archetype<Id, Dimension> {
+  ): AutoMovieArchetype<Id, Dimension> {
     if (
       nativeSource &&
       (!originalEmitter() ||
@@ -337,7 +369,7 @@ function prepare<Id extends string, Dimension extends string>(
     )
       retire();
     if (!nativeSource)
-      return QuadrupedSkeleton.apply(
+      return AutoMovieArchetypeQuadrupedSkeleton.apply(
         source,
         neutral,
         frames,
@@ -369,8 +401,10 @@ function prepare<Id extends string, Dimension extends string>(
 /** Read no changed method or accessor while deciding whether to use the native owner. */
 function originalEmitter(): boolean {
   return (
-    Object.getOwnPropertyDescriptor(QuadrupedSkeleton, "apply")?.value ===
-    NATIVE_APPLY
+    Object.getOwnPropertyDescriptor(
+      AutoMovieArchetypeQuadrupedSkeleton,
+      "apply",
+    )?.value === NATIVE_APPLY
   );
 }
 
@@ -416,9 +450,9 @@ export namespace PrepareQuadrupedPose {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prepared owner retains O(B+P+A+V) independent source data for its lifetime; returned models/frames own their mutable geometry/transforms. No caller goal map, prior sample, process, file or global resource is retained.
    */
   export function ordinary<Id extends string, D extends string>(
-    animal: Archetype<Id, D>,
-    parts: Readonly<Record<string, QuadrupedBody.Bone>>,
-    contacts: Readonly<Record<string, QuadrupedBody.Bone>>,
+    animal: AutoMovieArchetype<Id, D>,
+    parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
+    contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
   ): QuadrupedPosePlan.IPrepared<Id, D> {
     return prepare(animal, parts, contacts);
   }
@@ -435,9 +469,9 @@ export namespace PrepareQuadrupedPose {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The private prepared owner retains source data only for its lifetime.
    */
   export function ride<Id extends string, D extends string>(
-    animal: Archetype<Id, D>,
-    parts: Readonly<Record<string, QuadrupedBody.Bone>>,
-    contacts: Readonly<Record<string, QuadrupedBody.Bone>>,
+    animal: AutoMovieArchetype<Id, D>,
+    parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
+    contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
     nativeCourse: boolean,
   ): IPrepared<Id, D> {
     return prepare(animal, parts, contacts, nativeCourse);
@@ -467,7 +501,10 @@ export namespace PrepareQuadrupedPose {
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned capability keeps only its own FK state and prepared owner.
      */
     position(
-      limbs: ReadonlyMap<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>,
+      limbs: ReadonlyMap<
+        AutoMovieArchetypeQuadrupedBody.Limb,
+        readonly IAutoMovieVector3[]
+      >,
       root?: IAutoMovieTransform,
       axial?: ReadonlyMap<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal>,
     ): IPosition<Id, Dimension>;
@@ -494,6 +531,6 @@ export namespace PrepareQuadrupedPose {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuse the admitted FK and preparation while executing the original repose.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The capability retains its achieved frames, and each emitted model belongs to its caller.
      */
-    emit(ode?: boolean): Archetype<Id, Dimension>;
+    emit(ode?: boolean): AutoMovieArchetype<Id, Dimension>;
   }
 }

@@ -1,13 +1,13 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeTrack,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeTrack,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { SIEGE_BANDS } from "./SIEGE_BANDS";
 import { SiegeArm } from "./SiegeArm";
@@ -20,7 +20,7 @@ import { SiegeArm } from "./SiegeArm";
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
  * @returns The engine.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band or one the kind lacks.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or one the kind lacks.
  * @throws {RangeError} If no positive representable moving section or actual fitting clears its complete declared angular floor domain.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the engine stands, each contact and articulation, and what the throw does.
@@ -34,9 +34,12 @@ import { SiegeArm } from "./SiegeArm";
 export function createSiegeEngine(
   params: createSiegeEngine.IParams,
   seed?: number | string,
-): Archetype<createSiegeEngine.Affordance, createSiegeEngine.Dimension> {
-  const draw: ArchetypeDrawSession<createSiegeEngine.Dimension> =
-    new ArchetypeDrawSession<createSiegeEngine.Dimension>(
+): AutoMovieArchetype<
+  createSiegeEngine.Affordance,
+  createSiegeEngine.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createSiegeEngine.Dimension> =
+    new AutoMovieArchetypeDrawSession<createSiegeEngine.Dimension>(
       "siegeEngine",
       createSiegeEngine.UNITS,
       seed,
@@ -54,10 +57,10 @@ export function createSiegeEngine(
   const d: Partial<Record<createSiegeEngine.Dimension, number>> = {
     ...draw.values,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createSiegeEngine.Affordance,
     createSiegeEngine.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: kind,
@@ -126,7 +129,9 @@ export namespace createSiegeEngine {
     | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     armLength: "m",
     shortArm: "m",
     armMass: "kg",
@@ -153,13 +158,13 @@ export namespace createSiegeEngine {
 
   /** The band of each dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = SIEGE_BANDS;
 
   /** A throw: the arm's swing and the stone's launch from the pouch. */
   export interface IThrow {
     /** The arm's track from the pin's second. */
-    track: ArchetypeTrack.ITrack<Affordance>;
+    track: AutoMovieArchetypeTrack.ITrack<Affordance>;
 
     /** The film second the stone leaves. */
     second: number;
@@ -177,33 +182,31 @@ export namespace createSiegeEngine {
    * @param engine A siege engine.
    * @param start The film second the pin is pulled.
    * @returns The throw.
-   * @throws {ArchetypeRefusal} As `ArchetypeTrack.swing` refuses: a swing that leaves the arm's range, or a release it never passes.
+   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeTrack.swing` refuses: a swing that leaves the arm's range, or a release it never passes.
    */
   export function throwAt(
-    engine: Archetype<Affordance, Dimension>,
+    engine: AutoMovieArchetype<Affordance, Dimension>,
     start: number,
   ): IThrow {
     const d: Readonly<Partial<Record<Dimension, number>>> = engine.dimensions;
-    const track: ArchetypeTrack.ITrack<Affordance> = ArchetypeTrack.swing(
-      engine,
-      "arm",
-      {
+    const track: AutoMovieArchetypeTrack.ITrack<Affordance> =
+      AutoMovieArchetypeTrack.swing(engine, "arm", {
         start,
         release: -d.cocked!,
         seconds: SWING,
         pendulum: SiegeArm.pendulum(d),
         launch: d.release!,
-      },
-    );
-    const launch: ArchetypeTrack.ILaunch = track.launch!;
-    const posed: Archetype<Affordance, Dimension> = engine.articulate({
+      });
+    const launch: AutoMovieArchetypeTrack.ILaunch = track.launch!;
+    const posed: AutoMovieArchetype<Affordance, Dimension> = engine.articulate({
       arm: launch.travel,
     });
     const pouch: IAutoMovieVector3 =
       posed.affordance("pouch").frame.translation;
     // The long end at travel a stands at (0, L sin a, L cos a) from the axle, so its velocity is the rate times (0, L cos a, -L sin a).
-    const angle: number = launch.travel * ArchetypeUnits.DEGREE;
-    const rate: number = launch.rate * ArchetypeUnits.DEGREE * d.armLength!;
+    const angle: number = launch.travel * AutoMovieArchetypeUnits.DEGREE;
+    const rate: number =
+      launch.rate * AutoMovieArchetypeUnits.DEGREE * d.armLength!;
     return {
       track,
       second: launch.seconds,

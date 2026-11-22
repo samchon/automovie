@@ -1,8 +1,8 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  type ArchetypeRide,
-  HorseDraggedLoad,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeEquineDraggedLoad,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeRide,
   createDragged,
   createHorse,
   rideHorse,
@@ -43,7 +43,7 @@ interface IStaged {
   /** The film second the horse's course starts. */
   start: number;
   /** The dragged plough, once the horse's course is laid. */
-  plough?: HorseDraggedLoad.IRide;
+  plough?: AutoMovieArchetypeEquineDraggedLoad.IRide;
 }
 
 /** The fitted trapezoidal progress of a rehearsed walk. */
@@ -75,28 +75,31 @@ interface IMatched {
  */
 export function test_archetype_equine_draft_ploughman(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const horse: Archetype<createHorse.Affordance, createHorse.Dimension> =
-    createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, 1);
-  const load: Archetype<createDragged.Affordance, createDragged.Dimension> =
-    createDragged({ kind: "plough" });
+  const horse: AutoMovieArchetype<
+    createHorse.Affordance,
+    createHorse.Dimension
+  > = createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, 1);
+  const load: AutoMovieArchetype<
+    createDragged.Affordance,
+    createDragged.Dimension
+  > = createDragged({ kind: "plough" });
   const issues: string[] = [];
   const staged: IStaged = { start: 0 };
   const place = (seconds: number): IAutoMovieRigidTransform => {
     const frame: IAutoMovieTransform =
       staged.plough?.at(seconds - staged.start).placement ??
-      ArchetypeFrame.upright({ x: 0, y: 0, z: 30 });
+      AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 30 });
     return { position: frame.translation, rotation: frame.rotation };
   };
   const part = (id: string, seconds: number): IAutoMovieTransform => {
-    const sample: HorseDraggedLoad.ISample | undefined = staged.plough?.at(
-      seconds - staged.start,
-    );
+    const sample: AutoMovieArchetypeEquineDraggedLoad.ISample | undefined =
+      staged.plough?.at(seconds - staged.start);
     return sample === undefined
-      ? ArchetypeFrame.compose(
-          ArchetypeFrame.upright({ x: 0, y: 0, z: 30 }),
+      ? AutoMovieArchetypeFrame.compose(
+          AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 30 }),
           load.affordance(id as createDragged.Affordance).frame,
         )
-      : ArchetypeFrame.compose(
+      : AutoMovieArchetypeFrame.compose(
           sample.placement,
           sample.archetype.affordance(id as createDragged.Affordance).frame,
         );
@@ -143,7 +146,7 @@ export function test_archetype_equine_draft_ploughman(): void {
   const grips: number = load.affordance("leftHandle").frame.translation.z;
   const coupling: number = load.affordance("coupling").frame.translation.z;
   const trace: number = 2;
-  const ride: ArchetypeRide.IRide<
+  const ride: AutoMovieArchetypeRide.IRide<
     createHorse.Affordance,
     createHorse.Dimension
   > = rideHorse(
@@ -165,7 +168,7 @@ export function test_archetype_equine_draft_ploughman(): void {
     "walk",
   );
   staged.start = walking.start;
-  staged.plough = HorseDraggedLoad(ride, horse, load, {
+  staged.plough = AutoMovieArchetypeEquineDraggedLoad(ride, horse, load, {
     length: trace,
     depth: 0.15,
     draught: 900,
@@ -223,12 +226,12 @@ export function test_archetype_equine_draft_ploughman(): void {
       }
       const shoulder: IAutoMovieVector3 =
         bones.get("leftShoulder")!.worldPosition;
-      const horseAt: ArchetypeRide.ISample<
+      const horseAt: AutoMovieArchetypeRide.ISample<
         createHorse.Affordance,
         createHorse.Dimension
       > = ride.at(at - staged.start);
       for (const line of staged.plough.lines(at - staged.start, shoulder)) {
-        const bit: IAutoMovieVector3 = ArchetypeFrame.compose(
+        const bit: IAutoMovieVector3 = AutoMovieArchetypeFrame.compose(
           horseAt.placement,
           horseAt.archetype.parts.find(
             (p: IAutoMovieModelPart): boolean =>

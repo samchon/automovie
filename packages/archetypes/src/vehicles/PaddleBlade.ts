@@ -1,7 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 
 const v: typeof Vector3.create = Vector3.create;
 
@@ -27,7 +30,7 @@ export namespace PaddleBlade {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Construction state goes to the caller's builder.
    */
   export function draw<Id extends string, Dimension extends string>(
-    builder: ArchetypeBuilder<Id, Dimension>,
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>,
     name: string,
     start: number,
     direction: number,
@@ -74,7 +77,7 @@ export namespace PaddleBlade {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The builder owns the resulting contact data.
    */
   export function grip<Id extends string, Dimension extends string>(
-    builder: ArchetypeBuilder<Id, Dimension>,
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>,
     id: Id,
     at: IAutoMovieVector3,
     toward: IAutoMovieVector3,
@@ -86,7 +89,7 @@ export namespace PaddleBlade {
       id,
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(at, up, toward),
+      frame: AutoMovieArchetypeFrame.facing(at, up, toward),
       extent: null,
       grip: "power",
       aperture: diameter,
@@ -105,7 +108,7 @@ export namespace PaddleBlade {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The builder owns the resulting contact data.
    */
   export function tip<Id extends string, Dimension extends string>(
-    builder: ArchetypeBuilder<Id, Dimension>,
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>,
     id: Id,
     x: number,
     direction: number,
@@ -114,7 +117,11 @@ export namespace PaddleBlade {
     builder.affordance({
       id,
       kind: "surface",
-      frame: ArchetypeFrame.facing(v(x, 0, 0), v(direction, 0, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(x, 0, 0),
+        v(direction, 0, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       depth: 0.009,
       width: 0.66 * width,

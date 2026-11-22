@@ -2,11 +2,11 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import type { createStick } from "./createStick";
 
@@ -48,7 +48,7 @@ const v: typeof Vector3.create = Vector3.create;
 export namespace StickBuild {
   /** The units of the recorded stick dimensions. */
   export const UNITS: Readonly<
-    Record<createStick.Dimension, ArchetypeDrawSession.Unit>
+    Record<createStick.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     length: "m",
     head: "m",
@@ -62,93 +62,105 @@ export namespace StickBuild {
   export const BANDS: Readonly<
     Record<
       createStick.Kind,
-      Readonly<Partial<Record<createStick.Dimension, IArchetypeBand>>>
+      Readonly<Partial<Record<createStick.Dimension, IAutoMovieArchetypeBand>>>
     >
   > = {
     iceHockey: {
-      length: ArchetypeBand.metres(
+      length: AutoMovieArchetypeBand.metres(
         1.63,
         1.63,
         `${IIHF}; the model takes the limit`,
       ),
-      head: ArchetypeBand.metres(0.05, 0.076, IIHF),
-      reach: ArchetypeBand.metres(
+      head: AutoMovieArchetypeBand.metres(0.05, 0.076, IIHF),
+      reach: AutoMovieArchetypeBand.metres(
         0.32,
         0.32,
         `${IIHF}; the model takes the limit`,
       ),
-      width: ArchetypeBand.metres(
+      width: AutoMovieArchetypeBand.metres(
         0.03,
         0.03,
         `${IIHF}; the model takes the limit`,
       ),
-      depth: ArchetypeBand.metres(
+      depth: AutoMovieArchetypeBand.metres(
         0.025,
         0.025,
         `${IIHF}; the model takes the limit`,
       ),
-      mass: ArchetypeBand.of("kg", 0.4, 0.6, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        0.4,
+        0.6,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     fieldHockey: {
-      length: ArchetypeBand.metres(
+      length: AutoMovieArchetypeBand.metres(
         1.05,
         1.05,
         `${FIH}; the model takes the limit`,
       ),
-      head: ArchetypeBand.metres(0.1, 0.1, FIH),
-      width: ArchetypeBand.metres(
+      head: AutoMovieArchetypeBand.metres(0.1, 0.1, FIH),
+      width: AutoMovieArchetypeBand.metres(
         0.051,
         0.051,
         `${FIH}; the model takes the ring`,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.5,
         0.737,
-        `${FIH}: at most 737 g; the lower end is ${ArchetypeBand.TYPICAL_MASS}`,
+        `${FIH}: at most 737 g; the lower end is ${AutoMovieArchetypeBand.TYPICAL_MASS}`,
         true,
       ),
     },
     lacrosse: {
-      length: ArchetypeBand.metres(0.9, 1.1, SIXES),
-      head: ArchetypeBand.metres(0.254, 0.254, SIXES),
-      width: ArchetypeBand.metres(0.15, 0.15, SIXES),
-      depth: ArchetypeBand.metres(
+      length: AutoMovieArchetypeBand.metres(0.9, 1.1, SIXES),
+      head: AutoMovieArchetypeBand.metres(0.254, 0.254, SIXES),
+      width: AutoMovieArchetypeBand.metres(0.15, 0.15, SIXES),
+      depth: AutoMovieArchetypeBand.metres(
         0.025,
         0.03,
         "Coarse shaft diameter for grip placement",
         true,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.28,
         0.45,
-        ArchetypeBand.TYPICAL_MASS,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
         true,
       ),
     },
     cricketBat: {
-      length: ArchetypeBand.metres(
+      length: AutoMovieArchetypeBand.metres(
         0.9652,
         0.9652,
         `${MCC}; the model takes the limit`,
       ),
-      head: ArchetypeBand.metres(
+      head: AutoMovieArchetypeBand.metres(
         0.9652 * 0.48,
         0.9652 * 0.48,
         `${MCC}: the blade the length less the handle's greatest 52%`,
       ),
-      width: ArchetypeBand.metres(
+      width: AutoMovieArchetypeBand.metres(
         0.108,
         0.108,
         `${MCC}; the model takes the limit`,
       ),
-      depth: ArchetypeBand.metres(
+      depth: AutoMovieArchetypeBand.metres(
         0.067,
         0.067,
         `${MCC}; the model takes the limit`,
       ),
-      mass: ArchetypeBand.of("kg", 1.1, 1.4, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        1.1,
+        1.4,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
   };
 
@@ -162,7 +174,7 @@ export namespace StickBuild {
    */
   export interface IDrawResult<Id extends createStick.Affordance> {
     /** The prepared `builder` this call returns. */
-    builder: ArchetypeBuilder<Id, createStick.Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, createStick.Dimension>;
 
     /** The prepared `d` this call returns. */
     d: Partial<Record<createStick.Dimension, number>>;
@@ -184,14 +196,14 @@ export namespace StickBuild {
     params: Readonly<Omit<createStick.IParams, "kind">>,
     seed: number | string | undefined,
   ): IDrawResult<Id> {
-    const draw: ArchetypeDrawSession<createStick.Dimension> =
-      new ArchetypeDrawSession("stick", UNITS, seed, params);
+    const draw: AutoMovieArchetypeDrawSession<createStick.Dimension> =
+      new AutoMovieArchetypeDrawSession("stick", UNITS, seed, params);
     const d: Partial<Record<createStick.Dimension, number>> = draw.dimensions(
       BANDS[kind],
       BANDS,
     );
-    const builder: ArchetypeBuilder<Id, createStick.Dimension> =
-      new ArchetypeBuilder({
+    const builder: AutoMovieArchetypeBuilder<Id, createStick.Dimension> =
+      new AutoMovieArchetypeBuilder({
         material: "composite",
         id: params.id,
         name: NAMES[kind],
@@ -230,7 +242,10 @@ export namespace StickBuild {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or draw state between calls.
    */
   export function contacts(
-    builder: ArchetypeBuilder<createStick.Affordance, createStick.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createStick.Affordance,
+      createStick.Dimension
+    >,
     length: number,
     head: number,
     face: IAutoMovieVector3,
@@ -242,7 +257,7 @@ export namespace StickBuild {
       id: "grip",
       kind: "handle",
       symmetry: symmetry,
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, (length + head) / 2, 0),
         v(0, 0, 1),
         v(0, 1, 0),
@@ -256,7 +271,7 @@ export namespace StickBuild {
       id: "blade",
       kind: "surface",
       direction: "normal",
-      frame: ArchetypeFrame.facing(face, v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(face, v(0, 0, 1), v(1, 0, 0)),
       extent: null,
       width: faceWidth,
       depth: head,

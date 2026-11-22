@@ -4,9 +4,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "./ArchetypeFrame";
-import { ArchetypeRefusal } from "./ArchetypeRefusal";
-import type { ArchetypeSpan } from "./ArchetypeSpan";
+import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
+import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
+import type { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
 
 /**
  * Bind a model-space construction point to the actual part already built.
@@ -16,7 +16,7 @@ import type { ArchetypeSpan } from "./ArchetypeSpan";
  * @param id The real part carrying the anchor.
  * @param point Construction point in model metres.
  * @returns A part-local span endpoint derived from that actual part frame.
- * @throws {ArchetypeRefusal} For a missing carrier, nonfinite point or non-rigid frame.
+ * @throws {AutoMovieArchetypeRefusal} For a missing carrier, nonfinite point or non-rigid frame.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines construction versus part-local metres, actual builder ownership, rigid-frame premise and actionable refusal.
  * @evidence contracts/development/implementation.md#principled-implementation Invert the actual carrier's rigid transform once to store the point in its local coordinates; later span poses apply that same part's current transform.
@@ -31,12 +31,12 @@ export function archetypeSpanAnchor(
   parts: readonly IAutoMovieModelPart[],
   id: string,
   point: IAutoMovieVector3,
-): ArchetypeSpan.End {
+): AutoMovieArchetypeSpan.End {
   const part: IAutoMovieModelPart | undefined = parts.find(
     (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
   );
   if (part === undefined)
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,
       axis: "span.anchor",
@@ -51,7 +51,7 @@ export function archetypeSpanAnchor(
       fix: "name an existing carrier or build it before declaring the attachment",
     });
   const frame: IAutoMovieModelPart["transform"] =
-    part.transform ?? ArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
+    part.transform ?? AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
   const norm: number = Math.hypot(
     frame.rotation.x,
     frame.rotation.y,
@@ -72,7 +72,7 @@ export function archetypeSpanAnchor(
     ) ||
     !(Number.isFinite(norm) && Math.abs(norm - 1) <= 64 * Number.EPSILON)
   )
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,
       axis: "span.anchor",
@@ -87,7 +87,7 @@ export function archetypeSpanAnchor(
     Vector3.subtract(point, frame.translation),
   );
   if (![local.x, local.y, local.z].every(Number.isFinite))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,
       axis: "span.anchor",

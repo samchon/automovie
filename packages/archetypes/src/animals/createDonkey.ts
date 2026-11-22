@@ -1,11 +1,11 @@
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeDrawSession,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeDrawSession,
+  type IAutoMovieArchetypeBand,
 } from "../core";
-import { EquidEarProfiles } from "./EquidEarProfiles";
-import { EquidSegments } from "./EquidSegments";
+import { AutoMovieArchetypeEquineEarProfiles } from "./AutoMovieArchetypeEquineEarProfiles";
+import { EquineSegments } from "./EquineSegments";
 import { HORSE_BANDS } from "./HORSE_BANDS";
 import { createHorse } from "./createHorse";
 
@@ -16,20 +16,20 @@ const VERACRUZ: string =
 /**
  * A donkey with its tack: the horse's build (`createHorse.equid`) at a donkey's size and proportions, under a riding saddle, in a driving harness or under a pack saddle, with the horse's contacts.
  *
- * Its height at the withers is drawn over the range of 200 weighed working donkeys (López-Yáñez et al. 2025); its heart girth is that height in the sample's mean proportion, the paper giving no relation between its measures, and its mass follows the two by the equids' one law (`createHorse.mass`). Its bones are the horse's fractions of the height, each measured one scaled by the American Mammoth Jackstock's surface measure against the Thoroughbred's (`EquidSegments.lengths`), the one donkey breed Brooks et al. 2010 measure in number, standing for the donkey. It rides the horse's measured gaits scaled to its height (`createQuadruped.SPECIES`).
+ * Its height at the withers is drawn over the range of 200 weighed working donkeys (López-Yáñez et al. 2025); its heart girth is that height in the sample's mean proportion, the paper giving no relation between its measures, and its mass follows the two by the equids' one law (`createHorse.mass`). Its bones are the horse's fractions of the height, each measured one scaled by the American Mammoth Jackstock's surface measure against the Thoroughbred's (`EquineSegments.lengths`), the one donkey breed Brooks et al. 2010 measure in number, standing for the donkey. It rides the horse's measured gaits scaled to its height (`createQuadruped.SPECIES`).
  * Ear L/W transfer the separate male Halari reference through the explicitly
- * provisional height ratios in EquidEarProfiles. Plate thickness and diagonal
+ * provisional height ratios in AutoMovieArchetypeEquineEarProfiles. Plate thickness and diagonal
  * neutral pose are authored coarse geometry, not Veracruz measurements.
  *
  * @param params The tack and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The donkey.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a tack that is not one of `createHorse.TACKS`.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or a tack that is not one of `createHorse.TACKS`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the donkey shares with the horse, and how its size, proportions and mass are derived.
  * @evidence contracts/development/implementation.md#principled-implementation One drawn height over the weighed sample's stated range, the girth at the sample's mean ratio to it and the mass by the equids' one law, so the three measures of one donkey agree: the law gives 148 kg at the sample's mean height against its weighed 151.4 kg. Bone fractions from the jackstock's measures (Brooks et al. 2010).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `createHorse.equid` on `PROFILE`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Height, girth and mass are never drawn as three independent bands. The humerus and femur keep the horse's fractions, provisional as EquidSegments states; standing controls, mass shares and head/neck/tail stay unchanged. Optional ear L/W use EquidEarProfiles' separate male Halari reference under an explicit provisional height transfer; plate thickness and pose are authored geometry, not Veracruz measurements.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Height, girth and mass are never drawn as three independent bands. The humerus and femur keep the horse's fractions, provisional as EquineSegments states; standing controls, mass shares and head/neck/tail stay unchanged. Optional ear L/W use AutoMovieArchetypeEquineEarProfiles' separate male Halari reference under an explicit provisional height transfer; plate thickness and pose are authored geometry, not Veracruz measurements.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The equid builder's own.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the horse's builder, tack and gait table.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -37,11 +37,11 @@ const VERACRUZ: string =
 export function createDonkey(
   params: Omit<createHorse.IParams, "breed"> = {},
   seed?: number | string,
-): Archetype<createHorse.Affordance, createHorse.Dimension> {
+): AutoMovieArchetype<createHorse.Affordance, createHorse.Dimension> {
   return createHorse.equid(
     createDonkey.PROFILE,
     params,
-    new ArchetypeDrawSession<createHorse.Dimension>(
+    new AutoMovieArchetypeDrawSession<createHorse.Dimension>(
       createDonkey.ARCHETYPE,
       createHorse.UNITS,
       seed,
@@ -67,9 +67,9 @@ export namespace createDonkey {
 
   /** The band of each dimension a donkey draws: its height over the weighed sample's range, and the horse's tack and tempo, which the rider's hand and foot and the gait's spread set, not the donkey's size. */
   export const BANDS: Readonly<
-    Partial<Record<createHorse.Free, IArchetypeBand>>
+    Partial<Record<createHorse.Free, IAutoMovieArchetypeBand>>
   > = {
-    withersHeight: ArchetypeBand.metres(0.93, 1.27, VERACRUZ),
+    withersHeight: AutoMovieArchetypeBand.metres(0.93, 1.27, VERACRUZ),
     stirrupDrop: HORSE_BANDS.stirrupDrop,
     stirrupWidth: HORSE_BANDS.stirrupWidth,
     tempo: HORSE_BANDS.tempo,
@@ -89,10 +89,10 @@ export namespace createDonkey {
     girth: (withers: number): number => withers * GIRTH,
     body: {
       ...createHorse.BODY,
-      lengths: EquidSegments.lengths(EquidSegments.BREEDS.mammothJackstock),
+      lengths: EquineSegments.lengths(EquineSegments.BREEDS.mammothJackstock),
       head: {
         ...createHorse.BODY.head,
-        ears: EquidEarProfiles.donkey(),
+        ears: AutoMovieArchetypeEquineEarProfiles.donkey(),
       },
     },
   };

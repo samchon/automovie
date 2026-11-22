@@ -1,9 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { HorseHarness } from "../animals/HorseHarness";
+import { EquineHarness } from "../animals/EquineHarness";
 import { createHorse } from "../animals/createHorse";
-import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import { CartWheel } from "./CartWheel";
 import { createCart } from "./createCart";
 
@@ -23,7 +27,7 @@ export namespace CartDrawn {
    * @param d The drawn dimensions.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is built and where each place comes from.
-   * @evidence contracts/development/implementation.md#principled-implementation The shafts hang level at the horse's tugs, which sit on the saddle pad at the middle of the barrel, so their height is the horse's back less its barrel's radius (`createHorse.rig`, the girth over two pi), and they run either side of the barrel, a barrel's width apart (the girth over pi; In Harness's 23 to 24 in at 15 to 16 hh agrees). The shafts' tips stand at the point of the horse's shoulder (the Carriage Association of America's fitting guidance, seen only in search results), so the tugs, and the `coupling` between them, stand `createHorse.SADDLE` behind the tips. The tips stand `shaftLength` ahead of the single tree, a read cart's own shafts or, unread, the horse's point of shoulder to its point of buttock and the drawn `clearance` behind it (`createCart`), so the single tree stands clear of the horse; the single tree stands `SINGLE_TREE` ahead of the axle. The floor rests on the axle and the seat stands over it at `seatHeight`. The single tree stands across the front at the points of draft's height and spread (`createHorse.rig`'s `draft`), so the traces run straight back from the collar; it hangs from a bar between the shafts. The driving lines' held runs, `leftLine` and `rightLine`, are each line's length behind its terret: `createCart.LINES`, IVC Carriage's 14 ft stock single-horse lines, less the line's run from the bit ring through the neck strap's ring to the terret (`HorseHarness.passes`), laid from the terret on the horse's saddle at the coupling toward the line's rest point, `createCart.REST`'s elbow height over the seat. Where along a run the hands hold is the driving act's choice, as a grasp chooses within its bound.
+   * @evidence contracts/development/implementation.md#principled-implementation The shafts hang level at the horse's tugs, which sit on the saddle pad at the middle of the barrel, so their height is the horse's back less its barrel's radius (`createHorse.rig`, the girth over two pi), and they run either side of the barrel, a barrel's width apart (the girth over pi; In Harness's 23 to 24 in at 15 to 16 hh agrees). The shafts' tips stand at the point of the horse's shoulder (the Carriage Association of America's fitting guidance, seen only in search results), so the tugs, and the `coupling` between them, stand `createHorse.SADDLE` behind the tips. The tips stand `shaftLength` ahead of the single tree, a read cart's own shafts or, unread, the horse's point of shoulder to its point of buttock and the drawn `clearance` behind it (`createCart`), so the single tree stands clear of the horse; the single tree stands `SINGLE_TREE` ahead of the axle. The floor rests on the axle and the seat stands over it at `seatHeight`. The single tree stands across the front at the points of draft's height and spread (`createHorse.rig`'s `draft`), so the traces run straight back from the collar; it hangs from a bar between the shafts. The driving lines' held runs, `leftLine` and `rightLine`, are each line's length behind its terret: `createCart.LINES`, IVC Carriage's 14 ft stock single-horse lines, less the line's run from the bit ring through the neck strap's ring to the terret (`EquineHarness.passes`), laid from the terret on the horse's saddle at the coupling toward the line's rest point, `createCart.REST`'s elbow height over the seat. Where along a run the hands hold is the driving act's choice, as a grasp chooses within its bound.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The horse's places, then the body, the shafts and the wheels.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `SINGLE_TREE` is a named provisional value and the seat's height a band seen only in search results; the body's own boards, a construction no act reads, are sized from the track and the seat. The single tree's height, level with the points of draft so the traces run level, is a provisional value: the fitting guides read give the trace's angle to the hame, not the single tree's height; the lines' rest point over the seat is their rest geometry only, never where a hand is put.
    * @evidence contracts/development/implementation.md#efficient-algorithms About a dozen parts.
@@ -31,7 +35,10 @@ export namespace CartDrawn {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function cart(
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCart.Affordance,
+      createCart.Dimension
+    >,
     d: Readonly<Partial<Record<createCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -79,7 +86,7 @@ export namespace CartDrawn {
     builder.affordance({
       id: "seat",
       kind: "seat",
-      frame: ArchetypeFrame.upright(v(0, seat, edge)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, seat, edge)),
       extent: null,
       depth: 0.4,
       width: 2 * half - 0.1,
@@ -87,14 +94,16 @@ export namespace CartDrawn {
     builder.affordance({
       id: "footboard",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, radius + 0.04, (tree + 0.15) / 2)),
+      frame: AutoMovieArchetypeFrame.upright(
+        v(0, radius + 0.04, (tree + 0.15) / 2),
+      ),
       extent: null,
       width: 2 * half,
       depth: tree - 0.15,
     });
 
     // The shafts: level at the tugs either side of the barrel, from their tips back to the dash, each held up on a strut from the floor.
-    for (const [side, sign] of HorseHarness.SIDES) {
+    for (const [side, sign] of EquineHarness.SIDES) {
       const x: number = sign * (barrel + SHAFT);
       builder.rod(`shaft-${side}`, SHAFT, v(x, tug, tree), v(x, tug, tip), {
         color: WOOD,
@@ -110,7 +119,7 @@ export namespace CartDrawn {
     builder.affordance({
       id: "coupling",
       kind: "hook",
-      frame: ArchetypeFrame.upright(v(0, tug, coupling)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, tug, coupling)),
       extent: null,
     });
 
@@ -135,15 +144,15 @@ export namespace CartDrawn {
     );
 
     // The driving lines' held runs: each line's length behind its terret, IVC's 14 ft single-horse lines less their run from the bit through the ring to the terret, laid from the terret toward the line's rest point over the seat. The driving act's hands choose where along it they hold.
-    const pass: ReturnType<typeof HorseHarness.passes> =
-      HorseHarness.passes(horse);
+    const pass: ReturnType<typeof EquineHarness.passes> =
+      EquineHarness.passes(horse);
     const ahead: number = coupling - horse.hitch.z;
     const used: number =
       Vector3.length(Vector3.subtract(pass.ring, pass.bit)) +
       Vector3.length(Vector3.subtract(pass.terret, pass.ring));
     const run: number = createCart.LINES - used;
     const rest: IAutoMovieVector3 = v(0, seat + createCart.REST.elbow, edge);
-    for (const [side, sign] of HorseHarness.SIDES) {
+    for (const [side, sign] of EquineHarness.SIDES) {
       const terret: IAutoMovieVector3 = v(
         sign * pass.terret.x,
         pass.terret.y,
@@ -161,7 +170,7 @@ export namespace CartDrawn {
         kind: "rein",
         symmetry: "round",
         // `+X` runs forward along the run to the terret, `+Y` up, square to it.
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           Vector3.add(terret, Vector3.scale(along, run / 2)),
           up,
           Vector3.scale(along, -1),
@@ -200,7 +209,11 @@ export namespace CartDrawn {
         id: `${side}LineGrip`,
         kind: "rein",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(grip, handUp, Vector3.scale(toward, -1)),
+        frame: AutoMovieArchetypeFrame.facing(
+          grip,
+          handUp,
+          Vector3.scale(toward, -1),
+        ),
         extent: null,
         grip: "power",
         aperture: createCart.LINE,
@@ -209,7 +222,7 @@ export namespace CartDrawn {
         id: `${side}LineEnd`,
         kind: "rein",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           Vector3.addScaled(terret, toward, run),
           handUp,
           Vector3.scale(toward, -1),
@@ -242,7 +255,10 @@ export namespace CartDrawn {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rickshaw(
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCart.Affordance,
+      createCart.Dimension
+    >,
     d: Readonly<Partial<Record<createCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -285,7 +301,7 @@ export namespace CartDrawn {
     builder.affordance({
       id: "seat",
       kind: "seat",
-      frame: ArchetypeFrame.upright(v(0, seat, front)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, seat, front)),
       extent: null,
       depth: 0.45,
       width: 2 * half,
@@ -294,7 +310,9 @@ export namespace CartDrawn {
     builder.affordance({
       id: "footboard",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, radius + 0.04, (front + board) / 2)),
+      frame: AutoMovieArchetypeFrame.upright(
+        v(0, radius + 0.04, (front + board) / 2),
+      ),
       extent: null,
       width: 2 * half,
       depth: board - front,
@@ -318,7 +336,7 @@ export namespace CartDrawn {
         id: `${side}Shaft`,
         kind: "handle",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(x, grip, tip - GRIP / 2),
           v(0, 1, 0),
           v(0, 0, 1),
@@ -332,7 +350,7 @@ export namespace CartDrawn {
     builder.affordance({
       id: "coupling",
       kind: "hook",
-      frame: ArchetypeFrame.upright(v(0, grip, tip - GRIP / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, grip, tip - GRIP / 2)),
       extent: null,
     });
     CartWheel.pair(builder, {
@@ -360,7 +378,10 @@ export namespace CartDrawn {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function chariot(
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCart.Affordance,
+      createCart.Dimension
+    >,
     d: Readonly<Partial<Record<createCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -407,7 +428,7 @@ export namespace CartDrawn {
     builder.affordance({
       id: "floor",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, floor, depth / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, floor, depth / 2)),
       extent: null,
       width,
       depth,
@@ -416,7 +437,7 @@ export namespace CartDrawn {
       id: "rim",
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.upright(v(0, rail, depth)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, rail, depth)),
       extent: null,
       grip: "power",
       aperture: 0.03,
@@ -431,7 +452,7 @@ export namespace CartDrawn {
     builder.affordance({
       id: "coupling",
       kind: "hook",
-      frame: ArchetypeFrame.upright(v(0, yoke, reach)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, yoke, reach)),
       extent: null,
     });
     CartWheel.pair(builder, {
@@ -452,7 +473,7 @@ const SHAFT: number = 0.025;
 const GRIP: number = 0.12;
 
 /** A rickshaw's tyre width, metres: 1 in, the Hong Kong rules of 1882; the track is the overall width less it. */
-const TYRE: number = ArchetypeUnits.INCH;
+const TYRE: number = AutoMovieArchetypeUnits.INCH;
 
 /** The body's paint. */
 const BODY: string = "#2f4f3f";

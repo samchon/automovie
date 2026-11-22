@@ -1,4 +1,4 @@
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { StageBowConstruction } from "./StageBowConstruction";
 import { buildCrossbow } from "./buildCrossbow";
 import type { createBow } from "./createBow";
@@ -11,7 +11,7 @@ import type { createBow } from "./createBow";
  * @param params The scene identity and optional dimensions for the display silhouette.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the stock model and its posed stage contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Keeps the stock silhouette and matched scene frames in the existing geometry owner.
@@ -24,7 +24,7 @@ import type { createBow } from "./createBow";
 export function createStageStockBowProp(
   params: createStageStockBowProp.IParams = {},
   seed?: number | string,
-): Archetype<
+): AutoMovieArchetype<
   createStageStockBowProp.Affordance,
   createStageStockBowProp.Dimension
 > {

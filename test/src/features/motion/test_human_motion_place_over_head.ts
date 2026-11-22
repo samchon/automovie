@@ -1,4 +1,4 @@
-import { type Archetype, createNecklace } from "@automovie/archetypes";
+import { type AutoMovieArchetype, createNecklace } from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
@@ -47,7 +47,10 @@ type Pose = "front" | "behind" | "stand";
 type Chain = ReturnType<typeof HumanChain.subject>;
 
 /** A neck loop model. */
-type Loop = Archetype<createNecklace.Affordance, createNecklace.Dimension>;
+type Loop = AutoMovieArchetype<
+  createNecklace.Affordance,
+  createNecklace.Dimension
+>;
 
 /** One scene: the kind, who gives and who receives. */
 interface ICase {

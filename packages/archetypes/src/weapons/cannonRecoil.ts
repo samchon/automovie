@@ -1,4 +1,8 @@
-import { type Archetype, ArchetypeRefusal, type ArchetypeTrack } from "../core";
+import {
+  type AutoMovieArchetype,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeTrack,
+} from "../core";
 import { ArchetypeTrackTime } from "../core/ArchetypeTrackTime";
 import { FIELD_GUN } from "./FIELD_GUN";
 import type { createCannon } from "./createCannon";
@@ -11,7 +15,7 @@ import type { createCannon } from "./createCannon";
  * @param gun A field gun.
  * @param start The finite film second of the shot, at which the recoil's finite end must still be representably later.
  * @returns The recoil's track.
- * @throws {ArchetypeRefusal} For a gun without a recoil slider, non-finite start or sample time, or an unrepresentable recoil interval.
+ * @throws {AutoMovieArchetypeRefusal} For a gun without a recoil slider, non-finite start or sample time, or an unrepresentable recoil interval.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the start speed, the even slowing and the duration.
  * @evidence contracts/development/implementation.md#principled-implementation Conservation of momentum gives start speed v0 and duration T=2d/v0. Uniform deceleration gives x=d u(2-u), u=t/T, the same quadratic as v0 t-v0²t²/(4d) with exact held endpoints. ArchetypeTrackTime owns the same finite representable film interval and sample admission as swing/ease, selecting held endpoints before an offset.
@@ -22,11 +26,11 @@ import type { createCannon } from "./createCannon";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The track closes over four scalar values: run, duration, start and end; it retains no gun, sample history, handle or asynchronous work.
  */
 export function cannonRecoil(
-  gun: Archetype<createCannon.Affordance, createCannon.Dimension>,
+  gun: AutoMovieArchetype<createCannon.Affordance, createCannon.Dimension>,
   start: number,
-): ArchetypeTrack.ITrack<createCannon.Affordance> {
+): AutoMovieArchetypeTrack.ITrack<createCannon.Affordance> {
   if (!gun.affordances.some((a: { id: string }): boolean => a.id === "recoil"))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "cannon",
       axis: "kind",

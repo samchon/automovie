@@ -1,4 +1,4 @@
-import type { Archetype } from "@automovie/archetypes";
+import type { AutoMovieArchetype } from "@automovie/archetypes";
 import { physicalPrincipalAxes } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalMaterial,
@@ -7,7 +7,10 @@ import type {
 } from "@automovie/interface";
 
 /** The archetype members the conversion reads. */
-type RigidModel = Pick<Archetype<string, string>, "properties" | "shapes">;
+type RigidModel = Pick<
+  AutoMovieArchetype<string, string>,
+  "properties" | "shapes"
+>;
 
 /**
  * A one-segment rigid physical profile of an archetype model: its seeded

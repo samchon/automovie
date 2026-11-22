@@ -1,5 +1,5 @@
 import {
-  ArchetypeRefusal,
+  AutoMovieArchetypeRefusal,
   createHorse,
   createQuadruped,
 } from "@automovie/archetypes";
@@ -120,7 +120,10 @@ export function test_archetype_animal_quadruped_bands(): void {
     refused = error;
   }
   if (
-    !(refused instanceof ArchetypeRefusal && refused.axis === "withersHeight")
+    !(
+      refused instanceof AutoMovieArchetypeRefusal &&
+      refused.axis === "withersHeight"
+    )
   )
     findings.push(
       "a fixed height at the withers, a pony breed's own figure, is not refused",

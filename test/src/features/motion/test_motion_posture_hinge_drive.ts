@@ -1,8 +1,8 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
   createDoor,
   createStorage,
 } from "@automovie/archetypes";
@@ -180,13 +180,17 @@ export function test_motion_posture_hinge_drive(): void {
 /** The two knobs attached to the shared gear. */
 type Knob = "drive" | "follower";
 /** Two knob coordinates of the same degree, at a standing hand's height, with a two-to-one reversible ratio. */
-function coupled(): Archetype<Knob, never> {
-  const frame: ReturnType<typeof ArchetypeFrame.upright> =
-    ArchetypeFrame.upright(Vector3.create(0, 1, 0));
-  return new ArchetypeBuilder<Knob, never>({
+function coupled(): AutoMovieArchetype<Knob, never> {
+  const frame: ReturnType<typeof AutoMovieArchetypeFrame.upright> =
+    AutoMovieArchetypeFrame.upright(Vector3.create(0, 1, 0));
+  return new AutoMovieArchetypeBuilder<Knob, never>({
     material: "steel",
     name: "coupled-operation",
-    draw: new ArchetypeDrawSession<never>("coupled-operation", {}, undefined),
+    draw: new AutoMovieArchetypeDrawSession<never>(
+      "coupled-operation",
+      {},
+      undefined,
+    ),
   })
     .box("base", Vector3.create(0.05, 0.05, 0.05), Vector3.create(0, 0.025, 0))
     .affordance({

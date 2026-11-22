@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -70,7 +70,9 @@ export namespace KeyboardHardware {
   export type Dimension = "width" | "depth" | "height" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     depth: "m",
     height: "m",
@@ -149,7 +151,7 @@ export namespace KeyboardHardware {
 
   /** The band of each free dimension, by kind: none, every figure is a model's. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     keyboard: {},
     laptop: {},
@@ -175,7 +177,7 @@ export namespace KeyboardHardware {
    */
   export interface IDrawResult<Id extends string> {
     /** The prepared `builder` this call returns. */
-    builder: ArchetypeBuilder<DrawContact | Id, Dimension>;
+    builder: AutoMovieArchetypeBuilder<DrawContact | Id, Dimension>;
 
     /** The prepared `d` this call returns. */
     d: Record<Dimension, number>;
@@ -197,8 +199,13 @@ export namespace KeyboardHardware {
     params: Omit<IParams, "kind">,
     seed: number | string | undefined,
   ): IDrawResult<Id> {
-    const draw: ArchetypeDrawSession<Dimension> =
-      new ArchetypeDrawSession<Dimension>("keyboard", UNITS, seed, params);
+    const draw: AutoMovieArchetypeDrawSession<Dimension> =
+      new AutoMovieArchetypeDrawSession<Dimension>(
+        "keyboard",
+        UNITS,
+        seed,
+        params,
+      );
     const drawn: Partial<Record<Dimension, number>> = draw.dimensions(
       BANDS[kind],
     );
@@ -217,8 +224,8 @@ export namespace KeyboardHardware {
       height: read.height!,
       mass: read.mass!,
     };
-    const builder: ArchetypeBuilder<DrawContact | Id, Dimension> =
-      new ArchetypeBuilder({
+    const builder: AutoMovieArchetypeBuilder<DrawContact | Id, Dimension> =
+      new AutoMovieArchetypeBuilder({
         material: "composite",
         id: params.id,
         name: kind,
@@ -236,7 +243,7 @@ export namespace KeyboardHardware {
     builder.affordance({
       id: "keys",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, d.height, front - rows / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, d.height, front - rows / 2)),
       extent: null,
       width: d.width - 2 * MARGIN,
       depth: rows,
@@ -244,7 +251,9 @@ export namespace KeyboardHardware {
     builder.affordance({
       id: "homeRow",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, d.height, front - 2.5 * pitch)),
+      frame: AutoMovieArchetypeFrame.upright(
+        v(0, d.height, front - 2.5 * pitch),
+      ),
       extent: null,
       width: 10 * pitch,
       depth: pitch,

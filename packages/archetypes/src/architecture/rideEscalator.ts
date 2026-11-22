@@ -4,7 +4,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeFrame, ArchetypeRefusal } from "../core";
+import {
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+} from "../core";
 import { createEscalator } from "./createEscalator";
 
 /** A unit scale: the rides move rigid frames. */
@@ -38,14 +42,17 @@ const LEVEL: IAutoMovieTransform["rotation"] = { x: 0, y: 0, z: 0, w: 1 };
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the profile and placement while the caller keeps the ride.
  */
 export function rideEscalator(
-  escalator: Archetype<createEscalator.Affordance, createEscalator.Dimension>,
+  escalator: AutoMovieArchetype<
+    createEscalator.Affordance,
+    createEscalator.Dimension
+  >,
   placement: IAutoMovieTransform,
   direction: rideEscalator.Direction,
 ): rideEscalator.IRide {
   const profile: createEscalator.IProfile = createEscalator.profile(escalator);
   const sign: number = direction === "up" ? 1 : -1;
   const at = (offset: IAutoMovieVector3): IAutoMovieTransform =>
-    ArchetypeFrame.compose(placement, {
+    AutoMovieArchetypeFrame.compose(placement, {
       translation: offset,
       rotation: LEVEL,
       scale: ONE,
@@ -142,7 +149,7 @@ export namespace rideEscalator {
    * @param heading The climb's direction on the steps.
    * @param against Whether the author stages walking against the steps.
    * @returns The flight's world frame on the ride's clock.
-   * @throws {ArchetypeRefusal} When the climb runs against the steps and `against` is not set.
+   * @throws {AutoMovieArchetypeRefusal} When the climb runs against the steps and `against` is not set.
    */
   export function climb(
     ride: IRide,
@@ -150,7 +157,7 @@ export namespace rideEscalator {
     against?: boolean,
   ): (seconds: number) => IAutoMovieTransform {
     if (heading !== ride.direction && against !== true)
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "escalator",
         axis: "climb.heading",

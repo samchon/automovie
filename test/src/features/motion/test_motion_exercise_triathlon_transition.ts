@@ -1,5 +1,5 @@
 import {
-  ArchetypeCourse,
+  AutoMovieArchetypeCourse,
   createBicycle,
   createCyclingHelmet,
   createTransitionRack,
@@ -292,8 +292,8 @@ function scene(
 ): IScene {
   // The bicycle stands at the mount line from its arrival until the bike
   // leg departs; nothing before that stop depends on its length.
-  const course = (pause: number): ArchetypeCourse.IPlan =>
-    ArchetypeCourse.plan("bicycle", {
+  const course = (pause: number): AutoMovieArchetypeCourse.IPlan =>
+    AutoMovieArchetypeCourse.plan("bicycle", {
       start: { x: 0, z: 0, heading: 0 },
       legs:
         entry === "continuous"
@@ -326,7 +326,9 @@ function scene(
       at: start,
     });
   const arrive: number = course(1).when(LANE);
-  const plan: ArchetypeCourse.IPlan = course(Math.max(0.05, depart - arrive));
+  const plan: AutoMovieArchetypeCourse.IPlan = course(
+    Math.max(0.05, depart - arrive),
+  );
   const total: number = plan.length;
   const ride: ReturnType<typeof rideBicycle> = rideBicycle(bicycle, plan, {
     chainring: 34,
@@ -412,7 +414,7 @@ function take(
     yaw: -90,
     proficiency: { level: "trained" },
   };
-  const plan: ArchetypeCourse.IPlan = ride.plan;
+  const plan: AutoMovieArchetypeCourse.IPlan = ride.plan;
   const arrive: number = plan.when(LANE);
   const stop: number = plan.when(plan.length - RETURN);
   const prefix: ReturnType<typeof HumanChain.subject> = HumanChain.subject(

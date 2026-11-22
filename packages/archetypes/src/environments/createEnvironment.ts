@@ -24,7 +24,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
 import { requireEnvironmentFrame } from "./requireEnvironmentFrame";
 
 /**
@@ -136,7 +136,10 @@ export function createEnvironment(
         item.rotation ?? Quaternion.identity(),
       );
       requireEnvironmentFrame(local, `${path}.placement`);
-      const frame: IAutoMovieTransform = ArchetypeFrame.compose(parent, local);
+      const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
+        parent,
+        local,
+      );
       requireEnvironmentFrame(frame, `${path}.frame`);
       frames.set(key, frame);
       return frame;

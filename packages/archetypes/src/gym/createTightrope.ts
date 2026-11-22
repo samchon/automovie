@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -20,7 +20,7 @@ import {
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The rope.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it stands and the contact.
  * @evidence contracts/development/implementation.md#principled-implementation One wire at its height between two posts.
@@ -33,9 +33,9 @@ import {
 export function createTightrope(
   params: createTightrope.IParams = {},
   seed?: number | string,
-): Archetype<createTightrope.Affordance, createTightrope.Dimension> {
-  const draw: ArchetypeDrawSession<createTightrope.Dimension> =
-    new ArchetypeDrawSession<createTightrope.Dimension>(
+): AutoMovieArchetype<createTightrope.Affordance, createTightrope.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createTightrope.Dimension> =
+    new AutoMovieArchetypeDrawSession<createTightrope.Dimension>(
       "tightrope",
       createTightrope.UNITS,
       seed,
@@ -46,10 +46,10 @@ export function createTightrope(
   );
   const half: number = d.span / 2;
   const height: number = d.height;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createTightrope.Affordance,
     createTightrope.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: "tightrope",
@@ -74,7 +74,7 @@ export function createTightrope(
     id: "bar",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
     extent: null,
     length: d.span,
     aperture: d.diameter,
@@ -108,7 +108,9 @@ export namespace createTightrope {
   export type Dimension = "height" | "span" | "diameter" | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     span: "m",
     diameter: "m",
@@ -122,25 +124,31 @@ export namespace createTightrope {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    height: ArchetypeBand.metres(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    height: AutoMovieArchetypeBand.metres(
       0.3,
       3,
       "an estimate: from a park slackline to a circus low wire; no rigging sheet was read",
       true,
     ),
-    span: ArchetypeBand.metres(
+    span: AutoMovieArchetypeBand.metres(
       3,
       30,
       "an estimate: a training wire to a long slackline; no rigging sheet was read",
       true,
     ),
-    diameter: ArchetypeBand.metres(
+    diameter: AutoMovieArchetypeBand.metres(
       0.012,
       0.025,
       "an estimate: a walking cable's thickness, or a flat line's width; no rigging sheet was read",
       true,
     ),
-    mass: ArchetypeBand.of("kg", 20, 200, "an estimate, posts included", true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      20,
+      200,
+      "an estimate, posts included",
+      true,
+    ),
   };
 }

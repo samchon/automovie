@@ -4,7 +4,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeFrame, ArchetypeRefusal } from "../core";
+import {
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+} from "../core";
 import type { createSwing } from "./createSwing";
 
 /** A unit scale: the rides move rigid frames. */
@@ -33,7 +37,7 @@ const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * @param placement Its world placement.
  * @param ride The start, the pumped half swings and the angle each adds.
  * @returns The seat's frame and the turning points on the ride's clock.
- * @throws {ArchetypeRefusal} For a hanging length, start angle or increment out of range.
+ * @throws {AutoMovieArchetypeRefusal} For a hanging length, start angle or increment out of range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the clock, the pendulum, the pumping rule with its source and the smooth half swing.
  * @evidence contracts/development/implementation.md#principled-implementation The small-angle pendulum period with the seated-pumping amplitude increment per half swing.
@@ -44,14 +48,14 @@ const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one angle per half swing while the caller keeps the ride.
  */
 export function rideSwing(
-  swing: Archetype<"ground", createSwing.Dimension>,
+  swing: AutoMovieArchetype<"ground", createSwing.Dimension>,
   placement: IAutoMovieTransform,
   ride: rideSwing.IParams,
 ): rideSwing.IRide {
   const length: number = ride.length;
   const hanging: number = swing.dimensions.pivot! - swing.dimensions.clearance!;
   if (!(length > 0 && length <= hanging + 1))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "swing",
       axis: "length",
@@ -64,7 +68,7 @@ export function rideSwing(
   if (
     !(Math.abs(ride.start) < 60 && ride.increment >= 0 && ride.increment < 15)
   )
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "swing",
       axis: "increment",
@@ -102,7 +106,7 @@ export function rideSwing(
     turns,
     angle,
     seat: (seconds: number): IAutoMovieTransform =>
-      ArchetypeFrame.compose(placement, {
+      AutoMovieArchetypeFrame.compose(placement, {
         scale: ONE,
         translation: { x: 0, y: swing.dimensions.pivot!, z: 0 },
         rotation: Quaternion.fromAxisAngle(AXIS, -angle(seconds)),

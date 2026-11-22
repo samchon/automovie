@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { ObstacleDraw } from "./ObstacleDraw";
 import type { createObstacle } from "./createObstacle";
 
@@ -13,7 +13,7 @@ import type { createObstacle } from "./createObstacle";
  * @param params The scene identifier, optional section and length choices, and free mass.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The chosen section fixes the rise and depth and the chosen tie length fixes the X span.
@@ -26,7 +26,7 @@ import type { createObstacle } from "./createObstacle";
 export function createCrosstie(
   params: createCrosstie.IParams = {},
   seed?: number | string,
-): Archetype<createCrosstie.Affordance, createCrosstie.Dimension> {
+): AutoMovieArchetype<createCrosstie.Affordance, createCrosstie.Dimension> {
   const { builder, d }: ObstacleDraw.IObstacle<createCrosstie.Affordance> =
     ObstacleDraw.begin("crosstie", "railway crosstie", "wood", params, seed);
   const v: typeof Vector3.create = Vector3.create;

@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The wall of the loop or the sleeve round its opening, metres: an estimate. */
@@ -22,7 +22,7 @@ const WALL: number = 0.008;
  * @param params The kind, a belt loop's ring and any dimension the author fixes.
  * @param seed The seed that picks the ring left free and draws every dimension left free inside its band; absent, the first ring and the middle of each band.
  * @returns The carrier.
- * @throws {ArchetypeRefusal} For a ring not of the kind, a fixed dimension outside its band, or one the ring gives.
+ * @throws {AutoMovieArchetypeRefusal} For a ring not of the kind, a fixed dimension outside its band, or one the ring gives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the carrier stands, how a club sits in it and its two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Four wall boxes round a square opening of the drawn aperture, as tall as the drawn length, and a strap box from the walls' side toward the wearer.
@@ -35,9 +35,9 @@ const WALL: number = 0.008;
 export function createWeaponLoop(
   params: createWeaponLoop.IParams,
   seed?: number | string,
-): Archetype<createWeaponLoop.Affordance, createWeaponLoop.Dimension> {
-  const draw: ArchetypeDrawSession<createWeaponLoop.Dimension> =
-    new ArchetypeDrawSession<createWeaponLoop.Dimension>(
+): AutoMovieArchetype<createWeaponLoop.Affordance, createWeaponLoop.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createWeaponLoop.Dimension> =
+    new AutoMovieArchetypeDrawSession<createWeaponLoop.Dimension>(
       "weaponLoop",
       createWeaponLoop.UNITS,
       seed,
@@ -61,10 +61,10 @@ export function createWeaponLoop(
     ...draw.dimensions(createWeaponLoop.BANDS[kind], createWeaponLoop.BANDS),
     ...model.figures,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createWeaponLoop.Affordance,
     createWeaponLoop.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "leather",
     id: params.id,
     name: kind === "belt" ? "belt loop" : "back sleeve",
@@ -92,13 +92,13 @@ export function createWeaponLoop(
   builder.affordance({
     id: "socket",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, d.length!, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, d.length!, 0)),
     extent: null,
   });
   builder.affordance({
     id: "belt",
     kind: "hook",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(side - WALL / 2, kind === "belt" ? d.length! + strap : middle, 0),
       v(-1, 0, 0),
       v(0, 0, 1),
@@ -147,7 +147,9 @@ export namespace createWeaponLoop {
   export type Dimension = "aperture" | "length" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     aperture: "m",
     length: "m",
     mass: "kg",
@@ -167,8 +169,8 @@ export namespace createWeaponLoop {
   > = {
     belt: {
       safariland692s: { aperture: 0.035 },
-      rothco: { aperture: 1.5 * ArchetypeUnits.INCH },
-      highSpeedGear: { aperture: 1.5 * ArchetypeUnits.INCH },
+      rothco: { aperture: 1.5 * AutoMovieArchetypeUnits.INCH },
+      highSpeedGear: { aperture: 1.5 * AutoMovieArchetypeUnits.INCH },
     },
   };
 
@@ -186,16 +188,16 @@ export namespace createWeaponLoop {
 
   /** The band of each free dimension a ring leaves, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     belt: {
-      length: ArchetypeBand.metres(
+      length: AutoMovieArchetypeBand.metres(
         0.025,
         0.04,
         "a ring's depth; the rings' pages read do not give it",
         true,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.05,
         0.12,
@@ -204,19 +206,19 @@ export namespace createWeaponLoop {
       ),
     },
     back: {
-      aperture: ArchetypeBand.metres(
+      aperture: AutoMovieArchetypeBand.metres(
         0.075,
         0.09,
         "wider than a bat's barrel, at most 2.61 in across by the Official Baseball Rules 2024, 3.02(a); no bat sleeve's size was found",
         true,
       ),
-      length: ArchetypeBand.metres(
+      length: AutoMovieArchetypeBand.metres(
         0.25,
         0.35,
         "a sleeve holding a bat's barrel; no bat sleeve's size was found",
         true,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.2,
         0.5,

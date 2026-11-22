@@ -3,14 +3,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { Archetype, ArchetypeCourse } from "../core";
-import { EquineBank } from "./EquineBank";
+import type { AutoMovieArchetype, AutoMovieArchetypeCourse } from "../core";
+import { AutoMovieArchetypeEquineBank } from "./AutoMovieArchetypeEquineBank";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
+import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
+import type { AutoMovieArchetypeQuadrupedJoints } from "./AutoMovieArchetypeQuadrupedJoints";
 import { EquineFootwork } from "./EquineFootwork";
-import type { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedCorner } from "./QuadrupedCorner";
-import { QuadrupedFooting } from "./QuadrupedFooting";
-import type { QuadrupedGait } from "./QuadrupedGait";
-import type { QuadrupedJoints } from "./QuadrupedJoints";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 import { QuadrupedTail } from "./QuadrupedTail";
 import type { createQuadruped } from "./createQuadruped";
@@ -37,11 +37,11 @@ export namespace EquineRideTerrain {
     /** The admitted equine footwork. */
     footwork: EquineFootwork.IPlan;
     /** The authored footing, absent on level ground. */
-    ground: QuadrupedFooting.IPlan | undefined;
+    ground: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined;
     /** Each hoof's foothold mover, clear of the footing's concave edges by its pastern. */
     clear: Readonly<
       Record<
-        QuadrupedBody.Limb,
+        AutoMovieArchetypeQuadrupedBody.Limb,
         (point: IAutoMovieVector3) => IAutoMovieVector3
       >
     >;
@@ -57,7 +57,7 @@ export namespace EquineRideTerrain {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     goal: (
-      limb: QuadrupedBody.Limb,
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
       seconds: number,
       goal: QuadrupedRidePose.IGoal,
       placement: IAutoMovieTransform,
@@ -74,9 +74,9 @@ export namespace EquineRideTerrain {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh model and retains nothing.
      */
     tail: (
-      model: Archetype<Id, D>,
+      model: AutoMovieArchetype<Id, D>,
       placement: IAutoMovieTransform,
-    ) => Archetype<Id, D>;
+    ) => AutoMovieArchetype<Id, D>;
   }
 
   /**
@@ -89,23 +89,23 @@ export namespace EquineRideTerrain {
    * @param gait The ride's fixed gait, if any.
    * @param rig The animal's admitted joints.
    * @returns The terrain.
-   * @throws {ArchetypeRefusal} As `EquineFootwork.prepare` and `QuadrupedFooting.prepare` refuse.
+   * @throws {AutoMovieArchetypeRefusal} As `EquineFootwork.prepare` and `AutoMovieArchetypeQuadrupedFooting.prepare` refuse.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, result and refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The footwork reads the rig's neutral hooves, their stance centres under each attachment, the fore's reach and the tail; the footing is the course's own; the readers compose the techniques' and the footing's owners.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Footwork, footing, then the three readers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms Prepared once per ride; each reader is constant work outside a technique's window or an edge's reach.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `EquineFootwork`, `QuadrupedFooting`, `QuadrupedCorner` and `QuadrupedTail`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `EquineFootwork`, `AutoMovieArchetypeQuadrupedFooting`, `QuadrupedCorner` and `QuadrupedTail`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the plan and footing for the ride's lifetime.
    */
   export function prepare<Id extends string, D extends string>(
-    animal: Archetype<Id, D>,
+    animal: AutoMovieArchetype<Id, D>,
     species: createQuadruped.ISpecies,
     course: rideQuadruped.ICourse,
-    plan: ArchetypeCourse.IPlan,
-    gait: QuadrupedGait.Gait | undefined,
-    rig: ReturnType<typeof QuadrupedJoints.read>,
+    plan: AutoMovieArchetypeCourse.IPlan,
+    gait: AutoMovieArchetypeQuadrupedGait.Gait | undefined,
+    rig: ReturnType<typeof AutoMovieArchetypeQuadrupedJoints.read>,
   ): ITerrain<Id, D> {
     const footwork: EquineFootwork.IPlan = EquineFootwork.prepare(
       species.archetype,
@@ -125,16 +125,17 @@ export namespace EquineRideTerrain {
         rightHind: { ...rig.limbs.rightHind[4]!, z: rig.limbs.rightHind[0]!.z },
       },
       rig.limbs.leftFore[0]!.y - rig.limbs.leftFore[4]!.y,
-      EquineBank.tail(animal.parts),
+      AutoMovieArchetypeEquineBank.tail(animal.parts),
     );
-    const ground: QuadrupedFooting.IPlan | undefined = QuadrupedFooting.prepare(
-      species.archetype,
-      course.footing,
-      footwork.slide !== undefined,
-    );
+    const ground: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined =
+      AutoMovieArchetypeQuadrupedFooting.prepare(
+        species.archetype,
+        course.footing,
+        footwork.slide !== undefined,
+      );
     const corner: QuadrupedCorner.Clear = QuadrupedCorner.of(course.footing);
     const mover = (
-      limb: QuadrupedBody.Limb,
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
     ): ((point: IAutoMovieVector3) => IAutoMovieVector3) => {
       const chain: readonly IAutoMovieVector3[] = rig.limbs[limb];
       const pastern: number = Math.hypot(
@@ -158,7 +159,7 @@ export namespace EquineRideTerrain {
         rightHind: mover("rightHind"),
       },
       goal: (
-        limb: QuadrupedBody.Limb,
+        limb: AutoMovieArchetypeQuadrupedBody.Limb,
         seconds: number,
         goal: QuadrupedRidePose.IGoal,
         placement: IAutoMovieTransform,
@@ -174,9 +175,9 @@ export namespace EquineRideTerrain {
           ground,
         ),
       tail: (
-        model: Archetype<Id, D>,
+        model: AutoMovieArchetype<Id, D>,
         placement: IAutoMovieTransform,
-      ): Archetype<Id, D> =>
+      ): AutoMovieArchetype<Id, D> =>
         banked
           ? QuadrupedTail.carry(animal, species, model, placement, ground!)
           : model,

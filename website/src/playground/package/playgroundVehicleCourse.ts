@@ -1,7 +1,7 @@
 import {
-  type ArchetypeCourse,
-  ArchetypeFrame,
-  ArchetypeRide,
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRide,
   driveCar,
   rideBicycle,
   rideMotorcycle,
@@ -46,12 +46,12 @@ export function playgroundVehicleCourse(
     throw new Error(
       `The vehicle course of "${object.subject}" must start at a level moving prop's floor placement.`,
     );
-  const course: ArchetypeCourse.ICourse = {
+  const course: AutoMovieArchetypeCourse.ICourse = {
     ...object.course,
     start: { x: object.x, z: object.z, heading: object.yaw },
   };
   const ride: Pick<
-    ArchetypeRide.IRide<string, string>,
+    AutoMovieArchetypeRide.IRide<string, string>,
     "at" | "instants"
   > = (() => {
     switch (object.producer) {
@@ -71,8 +71,8 @@ export function playgroundVehicleCourse(
           course,
         );
       case "createCart":
-        return ArchetypeRide.along(
-          model as Parameters<typeof ArchetypeRide.along>[0],
+        return AutoMovieArchetypeRide.along(
+          model as Parameters<typeof AutoMovieArchetypeRide.along>[0],
           course,
         );
       default:
@@ -84,10 +84,12 @@ export function playgroundVehicleCourse(
 
   // Every reader of one film second shares one native ride sample.
   let previous: number | undefined;
-  let sample: ArchetypeRide.ISample<string, string>;
-  const at: (seconds: number) => ArchetypeRide.ISample<string, string> = (
+  let sample: AutoMovieArchetypeRide.ISample<string, string>;
+  const at: (
     seconds: number,
-  ): ArchetypeRide.ISample<string, string> => {
+  ) => AutoMovieArchetypeRide.ISample<string, string> = (
+    seconds: number,
+  ): AutoMovieArchetypeRide.ISample<string, string> => {
     if (seconds !== previous) {
       sample = ride.at(seconds);
       previous = seconds;
@@ -139,8 +141,8 @@ export function playgroundVehicleCourse(
       return { position: pose.translation, rotation: pose.rotation };
     },
     contact: (id: string, seconds: number): IAutoMovieTransform => {
-      const shown: ArchetypeRide.ISample<string, string> = at(seconds);
-      return ArchetypeFrame.compose(
+      const shown: AutoMovieArchetypeRide.ISample<string, string> = at(seconds);
+      return AutoMovieArchetypeFrame.compose(
         shown.placement,
         (keyed.length === 0
           ? shown.archetype
@@ -151,12 +153,18 @@ export function playgroundVehicleCourse(
     gaits: ride.instants
       .filter(
         (
-          instant: ArchetypeRide.IRide<string, string>["instants"][number],
+          instant: AutoMovieArchetypeRide.IRide<
+            string,
+            string
+          >["instants"][number],
         ): boolean => instant.label.startsWith("gait:"),
       )
       .map(
         (
-          instant: ArchetypeRide.IRide<string, string>["instants"][number],
+          instant: AutoMovieArchetypeRide.IRide<
+            string,
+            string
+          >["instants"][number],
         ): IPlaygroundComposition.ICue => ({
           name: instant.label,
           seconds: instant.seconds,

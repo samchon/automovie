@@ -1,7 +1,7 @@
-import type { ArchetypeCourse } from "../core";
+import type { AutoMovieArchetypeCourse } from "../core";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { EquineFootwork } from "./EquineFootwork";
-import type { QuadrupedBody } from "./QuadrupedBody";
-import { QuadrupedGait } from "./QuadrupedGait";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { admitQuadrupedPhase } from "./admitQuadrupedPhase";
 import type { createQuadruped } from "./createQuadruped";
@@ -26,7 +26,7 @@ export namespace QuadrupedStridePlan {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the landing reader and the stance reader.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export interface IStride extends QuadrupedGait.IStride {
+  export interface IStride extends AutoMovieArchetypeQuadrupedGait.IStride {
     /** Backing on alternating diagonals; absent otherwise. */
     reinBack?: true;
   }
@@ -40,7 +40,7 @@ export namespace QuadrupedStridePlan {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Decide = (
-    state: ArchetypeCourse.IState,
+    state: AutoMovieArchetypeCourse.IState,
     from: IStride,
   ) => IStride;
 
@@ -54,7 +54,7 @@ export namespace QuadrupedStridePlan {
    */
   export interface IMoved {
     /** The hoof. */
-    limb: QuadrupedBody.Limb;
+    limb: AutoMovieArchetypeQuadrupedBody.Limb;
     /** The landing's index, the stride it belongs to under the gait. */
     index: number;
     /** Its new absolute phase. */
@@ -120,10 +120,13 @@ export namespace QuadrupedStridePlan {
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One map lookup, else one table phase.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Moved landings were checked to keep each hoof's order.
      * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `QuadrupedGait.phase`.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieArchetypeQuadrupedGait.phase`.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
-    landing: (limb: QuadrupedBody.Limb, index: number) => number;
+    landing: (
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+      index: number,
+    ) => number;
 
     /**
      * The index of a hoof's latest landing at or before a phase.
@@ -136,7 +139,10 @@ export namespace QuadrupedStridePlan {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `landing`.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
-    latest: (limb: QuadrupedBody.Limb, phase: number) => number;
+    latest: (
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+      phase: number,
+    ) => number;
   }
 
   /**
@@ -148,7 +154,7 @@ export namespace QuadrupedStridePlan {
    * @param initial The stride assumed before the course.
    * @param moved Landings moved by technique planners.
    * @returns The plan.
-   * @throws {ArchetypeRefusal} Through `admitQuadrupedPhase` for an unrepresentable advance.
+   * @throws {AutoMovieArchetypeRefusal} Through `admitQuadrupedPhase` for an unrepresentable advance.
    * @throws {RangeError} When moved landings stop a hoof's landings increasing.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and failures.
@@ -199,14 +205,17 @@ export namespace QuadrupedStridePlan {
     );
     const strideOf = (index: number): IStride =>
       strides[Math.max(0, Math.min(strides.length - 1, index))]!;
-    const landing = (limb: QuadrupedBody.Limb, index: number): number => {
+    const landing = (
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+      index: number,
+    ): number => {
       const stride: IStride = strideOf(index);
       return (
         overrides.get(`${limb}:${index}`) ??
         index +
           (stride.reinBack
             ? EquineFootwork.reinBackPhase(limb)
-            : QuadrupedGait.phase(species, stride, limb))
+            : AutoMovieArchetypeQuadrupedGait.phase(species, stride, limb))
       );
     };
     for (const entry of moved)
@@ -245,7 +254,10 @@ export namespace QuadrupedStridePlan {
         );
       },
       landing,
-      latest: (limb: QuadrupedBody.Limb, phase: number): number => {
+      latest: (
+        limb: AutoMovieArchetypeQuadrupedBody.Limb,
+        phase: number,
+      ): number => {
         let m: number = Math.floor(phase);
         while (landing(limb, m + 1) <= phase) m++;
         while (landing(limb, m) > phase) m--;
@@ -293,7 +305,7 @@ export namespace QuadrupedStridePlan {
         });
       else if (
         was.lead !== will.lead &&
-        QuadrupedGait.LEADED.includes(will.gait)
+        AutoMovieArchetypeQuadrupedGait.LEADED.includes(will.gait)
       )
         result.push({
           seconds: plan.secondsAt(n),
@@ -319,7 +331,7 @@ export namespace QuadrupedStridePlan {
   }
 
   /** The four hooves in the body's order. */
-  const LIMBS: readonly QuadrupedBody.Limb[] = [
+  const LIMBS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
     "leftFore",
     "rightFore",
     "leftHind",

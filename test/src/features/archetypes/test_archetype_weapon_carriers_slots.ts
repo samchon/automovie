@@ -1,4 +1,7 @@
-import { ArchetypeRefusal, createHolster } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeRefusal,
+  createHolster,
+} from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -64,7 +67,9 @@ export function test_archetype_weapon_carriers_slots(): void {
             r / Math.sqrt(n)
           )
         )
-          findings.push(`quiver of ${n}: ${slots[i]!.id} crowds ${slots[j]!.id}`);
+          findings.push(
+            `quiver of ${n}: ${slots[i]!.id} crowds ${slots[j]!.id}`,
+          );
   }
 
   // 2. Counts out of range, malformed, or on a kind without slots.
@@ -74,11 +79,11 @@ export function test_archetype_weapon_carriers_slots(): void {
     ["quiver", 2.5],
     ["holster", 3],
   ] as const) {
-    let refused: ArchetypeRefusal | null = null;
+    let refused: AutoMovieArchetypeRefusal | null = null;
     try {
       createHolster({ kind, slots });
     } catch (error) {
-      refused = error instanceof ArchetypeRefusal ? error : null;
+      refused = error instanceof AutoMovieArchetypeRefusal ? error : null;
     }
     if (refused === null || refused.axis !== "slots")
       findings.push(`a ${kind} of ${slots} slots was not refused`);

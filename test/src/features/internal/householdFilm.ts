@@ -1,4 +1,4 @@
-import type { Archetype } from "@automovie/archetypes";
+import type { AutoMovieArchetype } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -102,7 +102,7 @@ export namespace householdFilm {
    */
   export function fixed(
     id: string,
-    model: Archetype,
+    model: AutoMovieArchetype,
     at: IAutoMovieVector3,
     yaw: number = 0,
   ): IAutoMovieMotionHumanProp {

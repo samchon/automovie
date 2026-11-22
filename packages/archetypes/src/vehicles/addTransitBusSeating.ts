@@ -1,10 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import type { createTransitBus } from "./createTransitBus";
 
 /** Bus geometry and affordances share the same builder. */
-type BusBuilder = ArchetypeBuilder<
+type BusBuilder = AutoMovieArchetypeBuilder<
   createTransitBus.Affordance,
   createTransitBus.Dimension
 >;
@@ -18,7 +21,7 @@ const SEAT_HEIGHT: number = 0.46;
 /** Passenger backrest height above the pad. */
 const BACK_HEIGHT: number = 0.46;
 /** Upholstery marking the seat contact surfaces. */
-const SEAT: ArchetypeBuilder.IOptions = { color: "#306f80" };
+const SEAT: AutoMovieArchetypeBuilder.IOptions = { color: "#306f80" };
 /** Vector constructor for metric bus-local dimensions. */
 const v: typeof Vector3.create = Vector3.create;
 
@@ -37,7 +40,7 @@ export function addTransitBusSeating(
   builder: BusBuilder,
   floor: number,
   aisle: number,
-  support: ArchetypeBuilder.IOptions,
+  support: AutoMovieArchetypeBuilder.IOptions,
 ): void {
   for (const z of [-2.42, -1.57, -0.72, 0.13, 0.98, 1.83, 2.68])
     addSeatRow(1, z);
@@ -45,7 +48,7 @@ export function addTransitBusSeating(
   builder.affordance({
     id: "seat",
     kind: "seat",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       v(aisle / 2 + SEAT_WIDTH / 2, floor + SEAT_HEIGHT, 0.98),
     ),
     extent: null,

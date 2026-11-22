@@ -1,8 +1,8 @@
 import {
-  Archetype,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeDrawSession,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { SCENIC_CONTAINER_BANDS } from "./SCENIC_CONTAINER_BANDS";
 import { ScenicContainerConstruction } from "./ScenicContainerConstruction";
@@ -15,7 +15,7 @@ import { createScenicBasket } from "./createScenicBasket";
 type Producer = (
   params: createScenicContainer.IParams,
   seed?: number | string,
-) => Archetype<
+) => AutoMovieArchetype<
   createScenicContainer.Affordance,
   createScenicContainer.Dimension
 >;
@@ -30,7 +30,7 @@ type Producer = (
  * @param params The historic selector and optional fixed settings in the original units.
  * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
  * @returns The original generated model and its local contacts.
- * @throws {ArchetypeRefusal} If the selector or any author setting is outside its admitted range.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Replay a saved scenicContainer variant with the original dimensions, identifier and model choices, and the cargo pod's retained contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the scenicContainer draw namespace. A saved cargo pod runs the shared pod construction without the added mount.
@@ -43,7 +43,7 @@ type Producer = (
 export function createScenicContainer(
   params: createScenicContainer.IParams,
   seed?: number | string,
-): Archetype<
+): AutoMovieArchetype<
   createScenicContainer.Affordance,
   createScenicContainer.Dimension
 > {
@@ -141,7 +141,9 @@ export namespace createScenicContainer {
   /**
    * Units used by the dimension draw.
    */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     depth: "m",
     height: "m",
@@ -163,6 +165,6 @@ export namespace createScenicContainer {
    * Illustrative sizing bands and their sources by kind.
    */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = SCENIC_CONTAINER_BANDS;
 }

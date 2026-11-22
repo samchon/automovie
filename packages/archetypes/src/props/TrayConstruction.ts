@@ -1,15 +1,15 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { createTray } from "./createTray";
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createTray.Affordance> = ArchetypeBuilder<
+type Builder<Id extends createTray.Affordance> = AutoMovieArchetypeBuilder<
   Id,
   createTray.Dimension
 >;
@@ -32,8 +32,8 @@ function draw<Id extends createTray.Affordance>(
   params: Omit<createTray.IParams, "kind">,
   seed?: number | string,
 ): IDrawResult<Id> {
-  const session: ArchetypeDrawSession<createTray.Dimension> =
-    new ArchetypeDrawSession<createTray.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<createTray.Dimension> =
+    new AutoMovieArchetypeDrawSession<createTray.Dimension>(
       "tray",
       createTray.UNITS,
       seed,
@@ -60,7 +60,7 @@ function draw<Id extends createTray.Affordance>(
     height: read.height!,
     mass: read.mass!,
   };
-  const builder: Builder<Id | "inside"> = new ArchetypeBuilder({
+  const builder: Builder<Id | "inside"> = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: kind,
@@ -83,7 +83,7 @@ function draw<Id extends createTray.Affordance>(
   builder.affordance({
     id: "inside",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, wall, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, wall, 0)),
     extent: null,
     width: d.width - 2 * wall,
     depth: d.depth - 2 * wall,
@@ -130,7 +130,7 @@ export namespace TrayConstruction {
   export function servingTray(
     params: Omit<createTray.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<ServingTrayContact, createTray.Dimension> {
+  ): AutoMovieArchetype<ServingTrayContact, createTray.Dimension> {
     const { builder, d }: ReturnType<typeof draw<ServingTrayContact>> =
       draw<ServingTrayContact>("tray", params, seed);
     const wall: number = createTray.WALL;
@@ -144,7 +144,7 @@ export namespace TrayConstruction {
         id,
         kind: "handle",
         symmetry: "none",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(sign * (hx - wall / 2), up, 0),
           v(sign, 0, 0),
           v(0, 0, 1),
@@ -160,7 +160,11 @@ export namespace TrayConstruction {
       id: "palm",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, 0, 0),
+        v(0, -1, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       grip: "hook",
       aperture: wall,
@@ -169,7 +173,7 @@ export namespace TrayConstruction {
     builder.affordance({
       id: "rest",
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(0, wall, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, wall, 0)),
       extent: null,
     });
     return builder.build(d.mass);
@@ -199,7 +203,7 @@ export namespace TrayConstruction {
   export function basket(
     params: Omit<createTray.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<BasketContact, createTray.Dimension> {
+  ): AutoMovieArchetype<BasketContact, createTray.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BasketContact>> =
       draw<BasketContact>("basket", params, seed);
     const wall: number = createTray.WALL;
@@ -228,7 +232,11 @@ export namespace TrayConstruction {
       id: "handle",
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, bar, 0), v(0, 1, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, bar, 0),
+        v(0, 1, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       grip: "power",
       aperture: grip,

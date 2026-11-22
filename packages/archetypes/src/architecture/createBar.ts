@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The gymnastics apparatus norms. */
@@ -25,7 +25,7 @@ const ADA: string = "2010 ADA Standards (https://www.access-board.gov/ada/)";
  * @param params The kind, a grab bar's wall and any dimension the author fixes.
  * @param seed The seed that draws a grab bar's wall when it is not given and every dimension left free inside its band; absent, the rear wall and the middle of each band.
  * @returns The bar.
- * @throws {ArchetypeRefusal} For a wall named for a bar that has none, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a wall named for a bar that has none, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bar's direction, how it is gripped and what is left out.
  * @evidence contracts/development/implementation.md#principled-implementation One rod at the drawn height with two supports; the `bar` frame lies on the rod's axis with the rod's diameter as its `aperture`, and a rail's or a grab bar's height is the top of its gripping surface, as the standard measures it.
@@ -38,9 +38,9 @@ const ADA: string = "2010 ADA Standards (https://www.access-board.gov/ada/)";
 export function createBar(
   params: createBar.IParams,
   seed?: number | string,
-): Archetype<createBar.Affordance, createBar.Dimension> {
-  const draw: ArchetypeDrawSession<createBar.Dimension> =
-    new ArchetypeDrawSession<createBar.Dimension>(
+): AutoMovieArchetype<createBar.Affordance, createBar.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createBar.Dimension> =
+    new AutoMovieArchetypeDrawSession<createBar.Dimension>(
       "bar",
       createBar.UNITS,
       seed,
@@ -66,14 +66,15 @@ export function createBar(
 
   // A high bar's height is its upper edge by the norm; the others' is the top of the gripping surface.
   const y: number = d.height! - radius;
-  const builder: ArchetypeBuilder<createBar.Affordance, createBar.Dimension> =
-    new ArchetypeBuilder({
-      material: "steel",
-      id: params.id,
-      name:
-        kind === "high" ? "high bar" : kind === "grab" ? "grab bar" : "rail",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createBar.Affordance,
+    createBar.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "steel",
+    id: params.id,
+    name: kind === "high" ? "high bar" : kind === "grab" ? "grab bar" : "rail",
+    draw,
+  });
   builder.rod(
     "bar",
     radius,
@@ -97,7 +98,7 @@ export function createBar(
     id: "bar",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.upright(Vector3.create(0, y, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, y, 0)),
     extent: null,
     grip: "power",
     aperture: d.diameter!,
@@ -138,7 +139,9 @@ export namespace createBar {
   export type Dimension = "height" | "diameter" | "length" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     diameter: "m",
     length: "m",
@@ -174,53 +177,75 @@ export namespace createBar {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     high: {
-      height: ArchetypeBand.metres(
+      height: AutoMovieArchetypeBand.metres(
         2.8,
         2.9,
         `${FIG}: upper edge 280 cm from the floor, adjustable to 290 cm`,
       ),
-      diameter: ArchetypeBand.metres(0.028, 0.028, `${FIG}: diameter 2.8 cm`),
-      length: ArchetypeBand.metres(
+      diameter: AutoMovieArchetypeBand.metres(
+        0.028,
+        0.028,
+        `${FIG}: diameter 2.8 cm`,
+      ),
+      length: AutoMovieArchetypeBand.metres(
         2.4,
         2.4,
         `${FIG}: 240 cm between the attachments`,
       ),
-      mass: ArchetypeBand.of("kg", 40, 80, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        40,
+        80,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     grab: {
-      height: ArchetypeBand.metres(
+      height: AutoMovieArchetypeBand.metres(
         0.84,
         0.915,
         `${ADA} 609.4, top of the gripping surface 33 to 36 in (840 to 915 mm) above the floor`,
       ),
-      diameter: ArchetypeBand.metres(
+      diameter: AutoMovieArchetypeBand.metres(
         0.032,
         0.051,
         `${ADA} 609.2.1, circular section 1-1/4 to 2 in (32 to 51 mm)`,
       ),
-      mass: ArchetypeBand.of("kg", 1.5, 4, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        1.5,
+        4,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     rail: {
-      height: ArchetypeBand.metres(
+      height: AutoMovieArchetypeBand.metres(
         0.865,
         0.965,
         `${ADA} 505.4, top of the gripping surface 34 to 38 in (865 to 965 mm) above the walking surface`,
       ),
-      diameter: ArchetypeBand.metres(
+      diameter: AutoMovieArchetypeBand.metres(
         0.032,
         0.051,
         `${ADA} 505.7.1, circular section 1-1/4 to 2 in (32 to 51 mm)`,
       ),
-      length: ArchetypeBand.metres(
+      length: AutoMovieArchetypeBand.metres(
         1.2,
         3,
         "a run of level rail, not read at a source",
         true,
       ),
-      mass: ArchetypeBand.of("kg", 8, 25, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        8,
+        25,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
   };
 }

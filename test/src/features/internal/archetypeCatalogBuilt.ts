@@ -1,5 +1,5 @@
 import {
-  type Archetype,
+  type AutoMovieArchetype,
   createAppliance,
   createBar,
   createBeerTap,
@@ -48,121 +48,150 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
   ] as const)
     add(
       `door-hinged-${hinge}-${hardware}`,
-      (seed?: number | string): Archetype =>
+      (seed?: number | string): AutoMovieArchetype =>
         createDoor({ kind: "hinged", hinge, hardware }, seed),
     );
   for (const hinge of ["left", "right"] as const)
     add(
       `door-sliding-${hinge}`,
-      (seed?: number | string): Archetype =>
+      (seed?: number | string): AutoMovieArchetype =>
         createDoor({ kind: "sliding", hinge }, seed),
     );
   for (const kind of createWindow.KINDS)
     add(
       `window-${kind}`,
-      (seed?: number | string): Archetype => createWindow({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype =>
+        createWindow({ kind }, seed),
     );
   for (const kind of createSwitch.KINDS)
     add(
       `switch-${kind}`,
-      (seed?: number | string): Archetype => createSwitch({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype =>
+        createSwitch({ kind }, seed),
     );
-  add("stairs", (seed?: number | string): Archetype => createStairs({}, seed));
-  add("ramp", (seed?: number | string): Archetype => createRamp({}, seed));
+  add(
+    "stairs",
+    (seed?: number | string): AutoMovieArchetype => createStairs({}, seed),
+  );
+  add(
+    "ramp",
+    (seed?: number | string): AutoMovieArchetype => createRamp({}, seed),
+  );
   for (const kind of createKerb.KINDS)
     add(
       `kerb-${kind}`,
-      (seed?: number | string): Archetype => createKerb({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype =>
+        createKerb({ kind }, seed),
     );
-  add("tap", (seed?: number | string): Archetype => createTap({}, seed));
+  add(
+    "tap",
+    (seed?: number | string): AutoMovieArchetype => createTap({}, seed),
+  );
   for (const kind of createSanitary.KINDS)
     add(
       `sanitary-${kind}`,
-      (seed?: number | string): Archetype => createSanitary({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype =>
+        createSanitary({ kind }, seed),
     );
   for (const kind of createAppliance.KINDS)
     add(
       `appliance-${kind}`,
-      (seed?: number | string): Archetype => createAppliance({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype =>
+        createAppliance({ kind }, seed),
     );
   for (const kind of createObstacle.KINDS)
     add(
       `obstacle-${kind}`,
-      (seed?: number | string): Archetype => createObstacle({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype =>
+        createObstacle({ kind }, seed),
     );
   for (const kind of createStreetFixture.KINDS)
     add(
       `streetFixture-${kind}`,
-      (seed?: number | string): Archetype =>
+      (seed?: number | string): AutoMovieArchetype =>
         createStreetFixture({ kind }, seed),
     );
   for (const kind of createBin.KINDS)
     add(
       `bin-${kind}`,
-      (seed?: number | string): Archetype => createBin({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype => createBin({ kind }, seed),
     );
   for (const kind of createGate.KINDS)
     add(
       `gate-${kind}`,
-      (seed?: number | string): Archetype => createGate({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype =>
+        createGate({ kind }, seed),
     );
   for (const kind of createMachine.KINDS)
     add(
       `machine-${kind}`,
-      (seed?: number | string): Archetype => createMachine({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype =>
+        createMachine({ kind }, seed),
     );
-  add("valve", (seed?: number | string): Archetype => createValve({}, seed));
+  add(
+    "valve",
+    (seed?: number | string): AutoMovieArchetype => createValve({}, seed),
+  );
   for (const kind of createHandhold.KINDS)
     add(
       `handhold-${kind}`,
-      (seed?: number | string): Archetype => createHandhold({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype =>
+        createHandhold({ kind }, seed),
     );
   for (const kind of createMirror.KINDS)
     add(
       `mirror-${kind}`,
-      (seed?: number | string): Archetype => createMirror({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype =>
+        createMirror({ kind }, seed),
     );
   for (const kind of createBoard.KINDS)
     add(
       `board-${kind}`,
-      (seed?: number | string): Archetype => createBoard({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype =>
+        createBoard({ kind }, seed),
     );
   add(
     "saloonDoor",
-    (seed?: number | string): Archetype => createSaloonDoor({}, seed),
+    (seed?: number | string): AutoMovieArchetype => createSaloonDoor({}, seed),
   );
   for (const kind of createControl.KINDS)
     add(
       `control-${kind}`,
-      (seed?: number | string): Archetype => createControl({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype =>
+        createControl({ kind }, seed),
     );
-  add("hatch", (seed?: number | string): Archetype => createHatch({}, seed));
+  add(
+    "hatch",
+    (seed?: number | string): AutoMovieArchetype => createHatch({}, seed),
+  );
   add(
     "beerTap",
-    (seed?: number | string): Archetype => createBeerTap({}, seed),
+    (seed?: number | string): AutoMovieArchetype => createBeerTap({}, seed),
   );
   add(
     "cellFront",
-    (seed?: number | string): Archetype =>
+    (seed?: number | string): AutoMovieArchetype =>
       createCellFront(createCellFront.REFERENCE, seed),
   );
   add(
     "elevator",
-    (seed?: number | string): Archetype => createElevator({}, seed),
+    (seed?: number | string): AutoMovieArchetype => createElevator({}, seed),
   );
   for (const kind of createWall.KINDS)
     add(
       `wall-${kind}`,
-      (seed?: number | string): Archetype => createWall({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype =>
+        createWall({ kind }, seed),
     );
   for (const kind of createBar.KINDS)
     add(
       `bar-${kind}`,
-      (seed?: number | string): Archetype => createBar({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype => createBar({ kind }, seed),
     );
   for (const kind of createLadder.KINDS)
     add(
       `ladder-${kind}`,
-      (seed?: number | string): Archetype => createLadder({ kind }, seed),
+      (seed?: number | string): AutoMovieArchetype =>
+        createLadder({ kind }, seed),
     );
 }

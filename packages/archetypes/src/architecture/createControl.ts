@@ -1,15 +1,15 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { ADA_RANGES } from "./ADA_RANGES";
 
@@ -27,7 +27,7 @@ const RISE: number = 20;
  * @param params The kind, a lever's model and any dimension the author fixes.
  * @param seed The seed that draws a lever's model when it is not given and every dimension left free inside its band; absent, the first lever and the middle of each band.
  * @returns The control.
- * @throws {ArchetypeRefusal} For a lever the sheet does not list, a lever named for a dial, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a lever the sheet does not list, a lever named for a dial, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States where the control stands, how each kind moves, why the lever states no travel, and each contact.
  * @evidence contracts/development/implementation.md#principled-implementation One of the maker's levers whole, its hub, arm, knob and mass as its row gives them, the knob at its length along an arm rising 20 degrees from the hub's centre half the hub out from the panel; the selector head at the maker's diameter, depth proud of the panel, turn and weight; the axis height in the ADA's reach range.
@@ -40,9 +40,9 @@ const RISE: number = 20;
 export function createControl(
   params: createControl.IParams,
   seed?: number | string,
-): Archetype<createControl.Affordance, createControl.Dimension> {
-  const draw: ArchetypeDrawSession<createControl.Dimension> =
-    new ArchetypeDrawSession<createControl.Dimension>(
+): AutoMovieArchetype<createControl.Affordance, createControl.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createControl.Dimension> =
+    new AutoMovieArchetypeDrawSession<createControl.Dimension>(
       "control",
       createControl.UNITS,
       seed,
@@ -55,7 +55,7 @@ export function createControl(
     createControl.KINDS,
   );
   if (kind === "dial" && params.lever !== undefined)
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "control",
       axis: "lever",
@@ -65,10 +65,10 @@ export function createControl(
       fix: "leave lever out for a dial",
     });
   const d: Record<"height", number> = draw.dimensions(createControl.BANDS);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createControl.Affordance,
     createControl.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: kind === "lever" ? "ball lever" : "selector dial",
@@ -84,7 +84,11 @@ export function createControl(
     builder.affordance({
       id: "dial",
       kind: "knob",
-      frame: ArchetypeFrame.facing(v(0, y, proud), v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, y, proud),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
       grip: "precision",
       travel: createControl.SELECTOR.turn,
@@ -109,7 +113,7 @@ export function createControl(
     bore: model.figures.bore!,
     mass: model.figures.mass!,
   };
-  const rise: number = RISE * ArchetypeUnits.DEGREE;
+  const rise: number = RISE * AutoMovieArchetypeUnits.DEGREE;
   const hub: ReturnType<typeof v> = v(0, y, lever.bore / 2);
   const knob: ReturnType<typeof v> = v(
     0,
@@ -125,7 +129,7 @@ export function createControl(
   builder.affordance({
     id: "shaft",
     kind: "knob",
-    frame: ArchetypeFrame.facing(v(0, y, 0), v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, y, 0), v(0, 0, 1), v(1, 0, 0)),
     extent: null,
     parts: ["hub", "arm", "ball"],
   });
@@ -133,7 +137,7 @@ export function createControl(
     id: "knob",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(knob, v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(knob, v(0, 0, 1), v(1, 0, 0)),
     extent: null,
     grip: "power",
     aperture: lever.knob,
@@ -161,7 +165,7 @@ function row(
   bore: number,
   grams: number,
 ): Readonly<Record<createControl.LeverDimension, number>> {
-  const mm: number = ArchetypeUnits.MILLIMETRE;
+  const mm: number = AutoMovieArchetypeUnits.MILLIMETRE;
   return {
     length: length * mm,
     knob: knob * mm,
@@ -217,8 +221,8 @@ export namespace createControl {
     turn: number;
     mass: number;
   }> = {
-    head: 28.5 * ArchetypeUnits.MILLIMETRE,
-    proud: 27 * ArchetypeUnits.MILLIMETRE,
+    head: 28.5 * AutoMovieArchetypeUnits.MILLIMETRE,
+    proud: 27 * AutoMovieArchetypeUnits.MILLIMETRE,
     turn: 45,
     mass: 0.04,
   };
@@ -236,7 +240,9 @@ export namespace createControl {
   export type Dimension = "height" | LeverDimension;
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     length: "m",
     knob: "m",
@@ -259,8 +265,8 @@ export namespace createControl {
   }
 
   /** The band of the free dimension. */
-  export const BANDS: Readonly<Record<"height", IArchetypeBand>> = {
-    height: ArchetypeBand.metres(
+  export const BANDS: Readonly<Record<"height", IAutoMovieArchetypeBand>> = {
+    height: AutoMovieArchetypeBand.metres(
       ADA_RANGES.reach.low,
       ADA_RANGES.reach.high,
       ADA_RANGES.reach.source,

@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** No maker's page was read. */
@@ -30,16 +30,21 @@ const STAGED: string =
 export function createScubaSet(
   params: createScubaSet.IParams = {},
   seed?: number | string,
-): Archetype<createScubaSet.Affordance, createScubaSet.Dimension> {
-  const draw: ArchetypeDrawSession<createScubaSet.Dimension> =
-    new ArchetypeDrawSession("scubaSet", createScubaSet.UNITS, seed, params);
+): AutoMovieArchetype<createScubaSet.Affordance, createScubaSet.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createScubaSet.Dimension> =
+    new AutoMovieArchetypeDrawSession(
+      "scubaSet",
+      createScubaSet.UNITS,
+      seed,
+      params,
+    );
   const d: Record<createScubaSet.Dimension, number> = draw.dimensions(
     createScubaSet.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createScubaSet.Affordance,
     createScubaSet.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "a scuba set",
     material: "steel",
@@ -67,13 +72,17 @@ export function createScubaSet(
   builder.affordance({
     id: "wear",
     kind: "socket",
-    frame: ArchetypeFrame.facing(v(0, 0, -0.06), v(0, 0, -1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, 0, -0.06),
+      v(0, 0, -1),
+      v(0, 1, 0),
+    ),
     extent: null,
   });
   builder.affordance({
     id: "regulator",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0.1, d.length / 2 + 0.05, -0.15)),
+    frame: AutoMovieArchetypeFrame.upright(v(0.1, d.length / 2 + 0.05, -0.15)),
     extent: null,
   });
   return builder.build(d.mass);
@@ -101,16 +110,18 @@ export namespace createScubaSet {
   }
 
   /** Units of each dimension. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     diameter: "m",
     mass: "kg",
   };
 
   /** Staged bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(0.6, 0.7, STAGED, true),
-    diameter: ArchetypeBand.metres(0.17, 0.19, STAGED, true),
-    mass: ArchetypeBand.of("kg", 15, 20, STAGED, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(0.6, 0.7, STAGED, true),
+    diameter: AutoMovieArchetypeBand.metres(0.17, 0.19, STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 15, 20, STAGED, true),
   };
 }

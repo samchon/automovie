@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -28,13 +28,14 @@ const KINDS: Readonly<Record<createCraftTool.Kind, createCraftTool.ISize>> = {
  * The tool runs along `+Z` from its butt at the origin to its tip at its
  * length. `grip` is where the hand holds it, a power grip round a baton's
  * bulb at the butt, a precision grip elsewhere; `tip` is its working point,
- * a brush's bristles, a baton's point, a needle's point; `stitch` is the
+ * a brush's bristles, a baton's point, a needle's point, touching over the
+ * rod's end of the shaft's radius (`radius`); `stitch` is the
  * flat just behind a knitting needle's tip where a stitch sits, the
  * surface the other needle's tip enters, facing `+Y`.
  *
  * @param params The kind and the optional scene id.
  * @returns The tool and its contacts, metres.
- * @throws {ArchetypeRefusal} For a kind outside the set.
+ * @throws {AutoMovieArchetypeRefusal} For a kind outside the set.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the kinds, the frame and each contact.
  * @evidence contracts/development/implementation.md#principled-implementation One rod of the kind's length and radius, the grip a third back from the middle of its held span and the tip at its end.
@@ -46,7 +47,7 @@ const KINDS: Readonly<Record<createCraftTool.Kind, createCraftTool.ISize>> = {
  */
 export function createCraftTool(
   params: createCraftTool.IParams,
-): Archetype<createCraftTool.Affordance, createCraftTool.Dimension> {
+): AutoMovieArchetype<createCraftTool.Affordance, createCraftTool.Dimension> {
   const kind: createCraftTool.Kind = ArchetypeDraw.choice(
     "craftTool",
     "kind",
@@ -55,8 +56,8 @@ export function createCraftTool(
   );
   const size: createCraftTool.ISize = KINDS[kind];
   const v: typeof Vector3.create = Vector3.create;
-  const draw: ArchetypeDrawSession<createCraftTool.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createCraftTool.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "craftTool",
       { length: "m", radius: "m", mass: "kg" },
       undefined,
@@ -64,10 +65,10 @@ export function createCraftTool(
   draw.derive("length", size.length);
   draw.derive("radius", size.radius);
   draw.derive("mass", size.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createCraftTool.Affordance,
     createCraftTool.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? kind,
     name: kind,
     material: kind === "needle" ? "steel" : "wood",
@@ -78,7 +79,7 @@ export function createCraftTool(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, 0, size.grip / 2),
       v(0, -1, 0),
       v(0, 0, 1),
@@ -88,17 +89,22 @@ export function createCraftTool(
     aperture: 2 * size.radius,
     length: size.grip,
   });
+  // The rod ends square at its tip, so the working point touches over the
+  // rod's own end: a disc of the shaft's radius.
   builder.affordance({
     id: "tip",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, 0, size.length)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, size.length)),
     extent: null,
+    radius: size.radius,
   });
   if (kind === "knittingNeedle")
     builder.affordance({
       id: "stitch",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, size.radius, size.length - 0.02)),
+      frame: AutoMovieArchetypeFrame.upright(
+        v(0, size.radius, size.length - 0.02),
+      ),
       extent: null,
       width: 0.01,
       depth: 0.03,

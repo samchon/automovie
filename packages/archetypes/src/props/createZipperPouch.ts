@@ -2,10 +2,10 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -32,7 +32,7 @@ import {
  */
 export function createZipperPouch(
   params: { id?: string } | string = {},
-): Archetype<string, never> {
+): AutoMovieArchetype<string, never> {
   const v: typeof Vector3.create = Vector3.create;
   const width: number = 0.21;
   const depth: number = 0.1;
@@ -43,12 +43,17 @@ export function createZipperPouch(
   const start: number = -0.09;
   const travel: number = 0.18;
   const tabY: number = height + 0.009;
-  const builder: ArchetypeBuilder<string, never> = new ArchetypeBuilder({
-    id: typeof params === "string" ? params : params.id,
-    name: "zipper pouch",
-    material: "fabric",
-    draw: new ArchetypeDrawSession<never>("zipper-pouch", {}, undefined),
-  });
+  const builder: AutoMovieArchetypeBuilder<string, never> =
+    new AutoMovieArchetypeBuilder({
+      id: typeof params === "string" ? params : params.id,
+      name: "zipper pouch",
+      material: "fabric",
+      draw: new AutoMovieArchetypeDrawSession<never>(
+        "zipper-pouch",
+        {},
+        undefined,
+      ),
+    });
 
   builder.box("bottom", v(width, skin, depth), v(0, skin / 2, 0));
   for (const sign of [-1, 1]) {
@@ -94,7 +99,7 @@ export function createZipperPouch(
     kind: "slider",
     extent: null,
     travel,
-    frame: ArchetypeFrame.upright(v(start, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(start, height, 0)),
     parts: ["slider-stem", "tab"],
   });
   for (const [contact, facing] of [
@@ -112,7 +117,7 @@ export function createZipperPouch(
       extent: null,
       rides: "zipper",
       frame: {
-        ...ArchetypeFrame.upright(point),
+        ...AutoMovieArchetypeFrame.upright(point),
         rotation: Quaternion.fromAxisAngle(v(1, 0, 0), facing > 0 ? 0 : 180),
       },
     });
@@ -121,7 +126,7 @@ export function createZipperPouch(
     id: "brace",
     kind: "surface",
     extent: null,
-    frame: ArchetypeFrame.upright(v(start - 0.008, height, -0.032)),
+    frame: AutoMovieArchetypeFrame.upright(v(start - 0.008, height, -0.032)),
   });
 
   // The near seam ends cover the plate-to-casing joint. Each coupled pair
@@ -148,7 +153,7 @@ export function createZipperPouch(
         parts: [lip],
         frame: {
           // Raise each lip about its underside so its thickness sweeps away from the seam.
-          ...ArchetypeFrame.upright(
+          ...AutoMovieArchetypeFrame.upright(
             v(edge - section / 2, height - skin, (side * depth) / 2),
           ),
           rotation: Quaternion.fromAxisAngle(v(0, 0, 1), -side * 90),

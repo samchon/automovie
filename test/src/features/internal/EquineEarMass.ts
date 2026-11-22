@@ -1,7 +1,7 @@
 import {
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  QuadrupedHead,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeQuadrupedHead,
   createHorse,
   type createQuadruped,
 } from "@automovie/archetypes";
@@ -83,16 +83,19 @@ export namespace EquineEarMass {
       tempo: 0,
     });
     for (const share of [undefined, 4.4]) {
-      const draw: ArchetypeDrawSession<never> = new ArchetypeDrawSession<never>(
-        "head-mass-observation",
-        {},
-        undefined,
-      );
-      const builder: ArchetypeBuilder<never, never> = new ArchetypeBuilder<
-        never,
-        never
-      >({ name: "actual head assembly", draw, material: "skin" });
-      QuadrupedHead(
+      const draw: AutoMovieArchetypeDrawSession<never> =
+        new AutoMovieArchetypeDrawSession<never>(
+          "head-mass-observation",
+          {},
+          undefined,
+        );
+      const builder: AutoMovieArchetypeBuilder<never, never> =
+        new AutoMovieArchetypeBuilder<never, never>({
+          name: "actual head assembly",
+          draw,
+          material: "skin",
+        });
+      AutoMovieArchetypeQuadrupedHead(
         builder,
         rig,
         1.6,

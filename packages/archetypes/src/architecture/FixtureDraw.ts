@@ -1,10 +1,10 @@
 import type { IAutoMovieAffordance } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import type { createAppliance } from "./createAppliance";
 import type { createMachine } from "./createMachine";
@@ -47,7 +47,7 @@ export namespace FixtureDraw {
 
   /** Units of the recorded appliance dimensions. */
   export const appliance: Readonly<
-    Record<createAppliance.Dimension, ArchetypeDrawSession.Unit>
+    Record<createAppliance.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     height: "m",
     width: "m",
@@ -62,7 +62,7 @@ export namespace FixtureDraw {
 
   /** Units of the recorded machine dimensions. */
   export const machine: Readonly<
-    Record<createMachine.Dimension, ArchetypeDrawSession.Unit>
+    Record<createMachine.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     width: "m",
     height: "m",
@@ -72,7 +72,7 @@ export namespace FixtureDraw {
 
   /** Units of the recorded sanitary dimensions. */
   export const sanitary: Readonly<
-    Record<createSanitary.Dimension, ArchetypeDrawSession.Unit>
+    Record<createSanitary.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     rim: "m",
     basinDepth: "m",
@@ -101,7 +101,7 @@ export namespace FixtureDraw {
 
   /** Units of the recorded streetFixture dimensions. */
   export const streetFixture: Readonly<
-    Record<createStreetFixture.Dimension, ArchetypeDrawSession.Unit>
+    Record<createStreetFixture.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     height: "m",
     diameter: "m",
@@ -117,7 +117,7 @@ export namespace FixtureDraw {
 
   /** Units of the recorded obstacle dimensions. */
   export const obstacle: Readonly<
-    Record<createObstacle.Dimension, ArchetypeDrawSession.Unit>
+    Record<createObstacle.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     length: "m",
     height: "m",
@@ -156,7 +156,7 @@ export namespace FixtureDraw {
    * @param seed The seed for unfixed dimensions.
    * @param construct The selected producer's construction.
    * @returns The fixture and its contact frames.
-   * @throws {ArchetypeRefusal} For a fixed dimension outside the selected fixture's bands.
+   * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside the selected fixture's bands.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Specifies the shared input setup and the selected construction.
    * @evidence contracts/development/implementation.md#principled-implementation Validate the selected bands with the original draw namespace before building its parts.
@@ -169,32 +169,29 @@ export namespace FixtureDraw {
   export function installed<Id extends string, D extends string>(
     family: InstalledFamily,
     name: string,
-    units: Readonly<Record<D, ArchetypeDrawSession.Unit>>,
-    bands: Readonly<Partial<Record<D, IArchetypeBand>>>,
+    units: Readonly<Record<D, AutoMovieArchetypeDrawSession.Unit>>,
+    bands: Readonly<Partial<Record<D, IAutoMovieArchetypeBand>>>,
     familyBands: Readonly<
-      Record<string, Readonly<Partial<Record<D, IArchetypeBand>>>>
+      Record<string, Readonly<Partial<Record<D, IAutoMovieArchetypeBand>>>>
     >,
     params: Partial<Record<D, number>> & { id?: string },
     seed: number | string | undefined,
     construct: (
-      builder: ArchetypeBuilder<Id, D>,
+      builder: AutoMovieArchetypeBuilder<Id, D>,
       dimensions: Partial<Record<D, number>>,
     ) => void,
-  ): Archetype<Id, D> {
-    const draw: ArchetypeDrawSession<D> = new ArchetypeDrawSession(
-      family,
-      units,
-      seed,
-      params,
-    );
+  ): AutoMovieArchetype<Id, D> {
+    const draw: AutoMovieArchetypeDrawSession<D> =
+      new AutoMovieArchetypeDrawSession(family, units, seed, params);
     const measured: Partial<Record<D, number>> & { mass?: number } =
       draw.dimensions(bands, familyBands);
-    const builder: ArchetypeBuilder<Id, D> = new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name,
-      draw,
-    });
+    const builder: AutoMovieArchetypeBuilder<Id, D> =
+      new AutoMovieArchetypeBuilder({
+        material: "composite",
+        id: params.id,
+        name,
+        draw,
+      });
     construct(builder, measured);
     return builder.build(measured.mass!);
   }

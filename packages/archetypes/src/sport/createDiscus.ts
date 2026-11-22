@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The World Athletics rule as read. */
@@ -22,7 +22,7 @@ const RULE: string =
  * @param params The category and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The discus.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the discus lies and its two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation One flat cylinder of the drawn diameter and the drawn thickness at its centre.
@@ -35,9 +35,9 @@ const RULE: string =
 export function createDiscus(
   params: createDiscus.IParams,
   seed?: number | string,
-): Archetype<createDiscus.Affordance, createDiscus.Dimension> {
-  const draw: ArchetypeDrawSession<createDiscus.Dimension> =
-    new ArchetypeDrawSession<createDiscus.Dimension>(
+): AutoMovieArchetype<createDiscus.Affordance, createDiscus.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createDiscus.Dimension> =
+    new AutoMovieArchetypeDrawSession<createDiscus.Dimension>(
       "discus",
       createDiscus.UNITS,
       seed,
@@ -52,10 +52,10 @@ export function createDiscus(
   const d: Record<createDiscus.Dimension, number> = draw.dimensions(
     createDiscus.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createDiscus.Affordance,
     createDiscus.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `${kind}'s discus`,
@@ -72,7 +72,9 @@ export function createDiscus(
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.upright(Vector3.create(0, d.thickness / 2, 0)),
+    frame: AutoMovieArchetypeFrame.upright(
+      Vector3.create(0, d.thickness / 2, 0),
+    ),
     extent: null,
     grip: "hook",
     aperture: d.thickness,
@@ -80,7 +82,7 @@ export function createDiscus(
   builder.affordance({
     id: "rim",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, d.thickness, d.diameter / 2),
       Vector3.create(0, 1, 0),
       Vector3.create(1, 0, 0),
@@ -124,7 +126,9 @@ export namespace createDiscus {
   export type Dimension = "diameter" | "thickness" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     diameter: "m",
     thickness: "m",
     mass: "kg",
@@ -141,16 +145,16 @@ export namespace createDiscus {
 
   /** A band of the rule. */
   const band = (
-    unit: IArchetypeBand["unit"],
+    unit: IAutoMovieArchetypeBand["unit"],
     minimum: number,
     maximum: number,
     what: string,
-  ): IArchetypeBand =>
-    ArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`);
+  ): IAutoMovieArchetypeBand =>
+    AutoMovieArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`);
 
   /** The band of each free dimension, by category. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
       diameter: band("m", 0.219, 0.221, "the men's 219 to 221 mm across"),

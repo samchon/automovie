@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { ArchetypeMass } from "./ArchetypeMass";
 import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
+import type { AutoMovieArchetypeMass } from "./AutoMovieArchetypeMass";
 
 /**
  * Admission and final reduction of a mass-property record.
@@ -41,10 +41,10 @@ export namespace ArchetypeMassRecord {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work combine, about and finish share this exact boundary.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No retained input or allocation beyond temporary scalar values.
    */
-  export function admit(properties: ArchetypeMass.IProperties): void {
+  export function admit(properties: AutoMovieArchetypeMass.IProperties): void {
     mass(properties.mass);
     const centre: IAutoMovieVector3 = properties.centerOfMass;
-    const inertia: ArchetypeMass.IInertia = properties.inertia;
+    const inertia: AutoMovieArchetypeMass.IInertia = properties.inertia;
     if (
       !(
         Number.isFinite(centre.x) &&
@@ -84,9 +84,9 @@ export namespace ArchetypeMassRecord {
   export function finish(
     value: number,
     centre: IAutoMovieVector3,
-    terms: Record<keyof ArchetypeMass.IInertia, readonly number[]>,
-  ): ArchetypeMass.IProperties {
-    const result: ArchetypeMass.IProperties = {
+    terms: Record<keyof AutoMovieArchetypeMass.IInertia, readonly number[]>,
+  ): AutoMovieArchetypeMass.IProperties {
+    const result: AutoMovieArchetypeMass.IProperties = {
       mass: value,
       centerOfMass: centre,
       inertia: {

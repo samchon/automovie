@@ -1,4 +1,7 @@
-import type { Archetype, QuadrupedBody } from "@automovie/archetypes";
+import type {
+  AutoMovieArchetype,
+  AutoMovieArchetypeQuadrupedBody,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -36,7 +39,10 @@ export function animalAttachmentObserver(
   label: string,
   findings: string[],
   handContacts: readonly string[] = [],
-): ReadonlyMap<QuadrupedBody.Limb, animalAttachmentObserver.IFoot> {
+): ReadonlyMap<
+  AutoMovieArchetypeQuadrupedBody.Limb,
+  animalAttachmentObserver.IFoot
+> {
   const original: Map<string, IAutoMovieModelPart> = index(source.parts);
   const current: Map<string, IAutoMovieModelPart> = index(
     sample.archetype.parts,
@@ -49,8 +55,10 @@ export function animalAttachmentObserver(
       ],
     ),
   );
-  const feet: Map<QuadrupedBody.Limb, animalAttachmentObserver.IFoot> =
-    new Map();
+  const feet: Map<
+    AutoMovieArchetypeQuadrupedBody.Limb,
+    animalAttachmentObserver.IFoot
+  > = new Map();
   rigid(sample.placement, "placement");
   truth("part count", current.size === original.size);
   for (const part of sample.archetype.parts) {
@@ -346,7 +354,7 @@ export function animalAttachmentObserver(
  */
 export namespace animalAttachmentObserver {
   /** Actual model geometry and source contact semantics. */
-  export type Model = Pick<Archetype, "parts" | "affordances">;
+  export type Model = Pick<AutoMovieArchetype, "parts" | "affordances">;
 
   /** Actual posed model and its complete world placement. */
   export interface Sample {

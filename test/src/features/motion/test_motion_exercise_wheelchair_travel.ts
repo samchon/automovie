@@ -1,5 +1,5 @@
 import {
-  ArchetypeRefusal,
+  AutoMovieArchetypeRefusal,
   createWheelchair,
   rideWheelchair,
   wheelchairHandrimFrame,
@@ -444,7 +444,7 @@ function take(key: BodyKey, failures: string[]): void {
         { ...holds[0]!, side: "left", degrees: 30 },
       ]),
     (error: unknown): boolean =>
-      error instanceof ArchetypeRefusal && error.axis === "handrims",
+      error instanceof AutoMovieArchetypeRefusal && error.axis === "handrims",
   );
   const separate: ReturnType<typeof rideWheelchair.handrimContacts> =
     rideWheelchair.handrimContacts(ride, [

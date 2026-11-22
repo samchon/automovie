@@ -22,7 +22,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import { buildingDoor } from "./buildingDoor";
 import { buildingModel } from "./buildingModel";
 import type { buildingPlans } from "./buildingPlans";
@@ -129,14 +129,16 @@ export function assembleBuilding(
     }
     for (const stair of plan.stairs) {
       emitBuildingStair(assembly.environment, ROOT, context.frame, stair);
-      assembly.anchors[`stairs/${stair.id}/from`] = ArchetypeFrame.compose(
-        context.frame,
-        frame(stair.endpoints[0]),
-      );
-      assembly.anchors[`stairs/${stair.id}/to`] = ArchetypeFrame.compose(
-        context.frame,
-        frame(stair.endpoints[1]),
-      );
+      assembly.anchors[`stairs/${stair.id}/from`] =
+        AutoMovieArchetypeFrame.compose(
+          context.frame,
+          frame(stair.endpoints[0]),
+        );
+      assembly.anchors[`stairs/${stair.id}/to`] =
+        AutoMovieArchetypeFrame.compose(
+          context.frame,
+          frame(stair.endpoints[1]),
+        );
     }
   }
   return {
@@ -166,7 +168,7 @@ function addWall(
       Math.atan2(-dz, dx) / Quaternion.DEG2RAD,
     ),
   );
-  const world: IAutoMovieTransform = ArchetypeFrame.compose(
+  const world: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     context.frame,
     local,
   );
@@ -193,7 +195,7 @@ function addWall(
     assembly.environment,
     id,
   );
-  const center: IAutoMovieTransform = ArchetypeFrame.compose(
+  const center: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     local,
     frame(Vector3.create(width / 2, level.height / 2, 0)),
   );
@@ -261,11 +263,11 @@ function addOpening(
   const facing: IAutoMovieQuaternion = turn
     ? Quaternion.fromAxisAngle(Vector3.create(0, 1, 0), 180)
     : Quaternion.identity();
-  const datum: IAutoMovieTransform = ArchetypeFrame.compose(
+  const datum: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     local,
     frame(Vector3.create(center, sill, 0), facing),
   );
-  const world: IAutoMovieTransform = ArchetypeFrame.compose(
+  const world: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     context.frame,
     datum,
   );
@@ -279,10 +281,8 @@ function addOpening(
       ["right", clearCenter + clearWidth / 2, 0],
       ["head", clearCenter, clearHeight],
     ] as const)
-      assembly.anchors[`${leafKey}/clear/${edge}`] = ArchetypeFrame.compose(
-        world,
-        frame(Vector3.create(x, y, 0)),
-      );
+      assembly.anchors[`${leafKey}/clear/${edge}`] =
+        AutoMovieArchetypeFrame.compose(world, frame(Vector3.create(x, y, 0)));
   assembly.environment.openings.push({
     id: leafKey,
     kind: opening.kind,
@@ -305,7 +305,7 @@ function addOpening(
       leafKey,
       "door leaf",
       room,
-      ArchetypeFrame.compose(datum, frame(door.pivot)),
+      AutoMovieArchetypeFrame.compose(datum, frame(door.pivot)),
       door.leaf,
     );
     assembly.props.push({ node: id, model: door.leaf, articulation: null });

@@ -1,7 +1,7 @@
-import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
 /**
- * The check a producer makes on a closed alternative it reads at run time, such as its kind; every seeded draw goes through an `ArchetypeDrawSession`.
+ * The check a producer makes on a closed alternative it reads at run time, such as its kind; every seeded draw goes through an `AutoMovieArchetypeDrawSession`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what it checks and where the draws went.
  * @evidence contracts/development/design.md#principled-representation Membership in a closed list, refused with the list.
@@ -19,7 +19,7 @@ export namespace ArchetypeDraw {
    * @param value The value given.
    * @param alternatives The accepted values.
    * @returns The value.
-   * @throws {ArchetypeRefusal} When the value is not one of the alternatives.
+   * @throws {AutoMovieArchetypeRefusal} When the value is not one of the alternatives.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States why a typed parameter is still checked.
    * @evidence contracts/development/implementation.md#principled-implementation Membership in the closed list.
@@ -36,7 +36,7 @@ export namespace ArchetypeDraw {
     alternatives: readonly Value[],
   ): Value {
     if (alternatives.includes(value)) return value;
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,
       axis,

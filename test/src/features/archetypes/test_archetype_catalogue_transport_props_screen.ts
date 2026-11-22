@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
   assembleCostumeArmour,
   createArmour,
   createBow,
@@ -85,7 +85,7 @@ export function test_archetype_catalogue_transport_props_screen(): void {
     serpentBlade: createStagePoleBladeProp({ id, kind: "serpentBlade" }, seed),
     offsetHammer: createStageHammerProp({ id }, seed),
     linked: createStageLinkedProp({ id }, seed),
-  } satisfies Record<createStageWeaponProp.Kind, Archetype>;
+  } satisfies Record<createStageWeaponProp.Kind, AutoMovieArchetype>;
   for (const kind of createStageWeaponProp.KINDS)
     sameModel(kind, variants[kind], createStageWeaponProp({ id, kind }, seed));
   const swords = {
@@ -94,7 +94,7 @@ export function test_archetype_catalogue_transport_props_screen(): void {
     sabre: createStageFencingProp({ id, kind: "sabre" }, seed),
     shinai: createStagePracticeSwordProp({ id }, seed),
     longsword: createStageTwoHandedSwordProp({ id }, seed),
-  } satisfies Record<createStageBladeProp.Kind, Archetype>;
+  } satisfies Record<createStageBladeProp.Kind, AutoMovieArchetype>;
   for (const kind of createStageBladeProp.KINDS)
     sameModel(kind, swords[kind], createStageBladeProp({ id, kind }, seed));
   for (const kind of createStageHandBowProp.KINDS)
@@ -114,7 +114,7 @@ export function test_archetype_catalogue_transport_props_screen(): void {
     sheath: createStageBladeCarrier({ id, kind: "sheath" }, seed),
     quiver: createStageQuiver({ id, slots: 2 }, seed),
     pouch: createStagePouch({ id }, seed),
-  } satisfies Record<createHolster.Kind, Archetype>;
+  } satisfies Record<createHolster.Kind, AutoMovieArchetype>;
   for (const kind of createHolster.KINDS)
     sameModel(
       kind,
@@ -132,7 +132,7 @@ export function test_archetype_catalogue_transport_props_screen(): void {
     grenade: createStageGrenadeProp({ id }, seed),
     cartridge: createStageCartridgeProp({ id }, seed),
     stone: createStageStoneProp({ id }, seed),
-  } satisfies Record<createProjectile.Kind, Archetype>;
+  } satisfies Record<createProjectile.Kind, AutoMovieArchetype>;
   for (const kind of createProjectile.KINDS)
     sameModel(kind, tokens[kind], createProjectile({ id, kind }, seed));
   TestValidator.equals(
@@ -225,8 +225,8 @@ export function test_archetype_catalogue_transport_props_screen(): void {
 /** Compare stable model bytes and explicit draw provenance on the two authoring paths. */
 function sameModel(
   label: string,
-  canonical: Archetype,
-  legacy: Archetype,
+  canonical: AutoMovieArchetype,
+  legacy: AutoMovieArchetype,
 ): void {
   TestValidator.equals(
     label,
@@ -285,7 +285,7 @@ function checkHollow(
   TestValidator.predicate(
     "the aligned root sites surround a clear motion interval",
     Quaternion.angle(seated.rotation, clear.rotation) <= 1e-9 &&
-      ArchetypeFrame.axis(seated, "y").y < -0.999 &&
+      AutoMovieArchetypeFrame.axis(seated, "y").y < -0.999 &&
       nclose(seated.translation.x, 0, 1e-12) &&
       nclose(seated.translation.z, 0, 1e-12) &&
       seated.translation.y - tip > floor &&
@@ -483,6 +483,6 @@ function refuses(label: string, axis: string, build: () => unknown): void {
   }
   TestValidator.predicate(
     label,
-    result instanceof ArchetypeRefusal && result.axis === axis,
+    result instanceof AutoMovieArchetypeRefusal && result.axis === axis,
   );
 }

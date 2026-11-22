@@ -1,5 +1,5 @@
 import {
-  QuadrupedGait,
+  AutoMovieArchetypeQuadrupedGait,
   createHorse,
   createQuadruped,
   rideHorse,
@@ -36,7 +36,7 @@ type Ride = ReturnType<typeof rideHorse>;
 type Stride = IAutoMovieMotionHumanRide.IEquestrianStride;
 
 /** A gait's admitted speed band, m/s. */
-type IGaitBand = ReturnType<typeof QuadrupedGait.range>;
+type IGaitBand = ReturnType<typeof AutoMovieArchetypeQuadrupedGait.range>;
 
 interface IWindow {
   /** Response and actual touchdown label used to publish the clock. */
@@ -87,12 +87,12 @@ export function test_motion_equestrian_timeline(): void {
         AutoMovieGravity.STANDARD *
         createHorse.rig(horse.dimensions).limbs.leftHind[0]!.y,
     );
-  const canterBand: IGaitBand = QuadrupedGait.range(
+  const canterBand: IGaitBand = AutoMovieArchetypeQuadrupedGait.range(
     reference,
     "canter",
     withers,
   );
-  const gallopBand: IGaitBand = QuadrupedGait.range(
+  const gallopBand: IGaitBand = AutoMovieArchetypeQuadrupedGait.range(
     reference,
     "gallop",
     withers,

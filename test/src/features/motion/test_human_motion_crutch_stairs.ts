@@ -1,4 +1,7 @@
-import { type Archetype, createAxillaryCrutch } from "@automovie/archetypes";
+import {
+  type AutoMovieArchetype,
+  createAxillaryCrutch,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -57,8 +60,8 @@ const INJURED: AutoMovieHumanSide = "left";
  * Climbing stairs on two crutches, "up with the good, down with the bad"
  * (#3994).
  *
- * Scenarios, on the average man and the small woman, up and down two
- * steps, each take clean:
+ * Scenarios, on the average man and the small woman, up two steps from the
+ * floor and down two steps from their top landing, each take clean:
  * 1. Going up, each step sets the sound foot on the next tread while both
  *    crutch tips stay planted, then moves both crutches onto that tread
  *    while the sound foot stays planted; going down, the crutches go down
@@ -130,6 +133,7 @@ function verify(
             (e: IAutoMovieMotionEvent): boolean => e.name === name,
           )!.share;
       const sign: number = direction === "up" ? 1 : -1;
+      const base: number = landing(direction);
       const sound: AutoMovieHumanSide = INJURED === "left" ? "right" : "left";
       const site = (
         side: AutoMovieHumanSide,
@@ -195,14 +199,14 @@ function verify(
           const front: number = START + (i - 1) * TREAD;
           checks.check(
             `${label}: the ${side} tip stands on tread ${i} (${(tip.y * 1000).toFixed(0)} mm, ${(ahead * 1000).toFixed(0)} mm ahead)`,
-            Math.abs(tip.y - sign * i * RISER) <= SUPPORT &&
+            Math.abs(tip.y - base - sign * i * RISER) <= SUPPORT &&
               ahead >= front &&
               ahead <= front + TREAD,
           );
         }
         checks.check(
           `${label}: the sound sole stands on tread ${i} (${(sole(sound, foot) * 1000).toFixed(0)} mm)`,
-          Math.abs(sole(sound, foot) - sign * i * RISER) <= SUPPORT,
+          Math.abs(sole(sound, foot) - base - sign * i * RISER) <= SUPPORT,
         );
 
         // 3. The hands on the grips.
@@ -254,7 +258,7 @@ interface IClimb {
 }
 
 /** An axillary crutch's model. */
-type CrutchModel = Archetype<
+type CrutchModel = AutoMovieArchetype<
   createAxillaryCrutch.Affordance,
   createAxillaryCrutch.Dimension
 >;
@@ -286,10 +290,13 @@ function climb(body: IAutoMovieMotionHumanBody, flight: Flight): IClimb {
     tread: TREAD,
     ...flight,
   };
+  // A descent starts on the top landing: the floor plane is the flight's
+  // foot, which no support goes below.
+  const height: number = landing(flight.direction ?? "up");
   const performer: IAutoMovieMotionHumanPerformer = {
     subject: "a",
     body,
-    at: { x: 0, y: 0, z: 0 },
+    at: { x: 0, y: height, z: 0 },
     yaw: 0,
     proficiency: { level: "trained" },
   };
@@ -297,7 +304,7 @@ function climb(body: IAutoMovieMotionHumanBody, flight: Flight): IClimb {
   // The toes, read on the standing body.
   const stand: HumanPerformance = new HumanPerformance({
     seed: "crutch stairs toes",
-    performers: [performer],
+    performers: [{ ...performer, at: { x: 0, y: 0, z: 0 } }],
     composition: HumanChain.subject("a").stand({ seconds: 0.1, sway: 0 }).node,
   });
   const toes: number = Math.max(
@@ -312,7 +319,7 @@ function climb(body: IAutoMovieMotionHumanBody, flight: Flight): IClimb {
     (side: AutoMovieHumanSide): IAutoMovieMotionHumanProp => {
       const x: number =
         body.rest.get(`${side}Foot`)!.x + (side === "left" ? TRIPOD : -TRIPOD);
-      const placed: IPlaced = { at: { x, y: 0, z: toes }, yaw: 0 };
+      const placed: IPlaced = { at: { x, y: height, z: toes }, yaw: 0 };
       return HumanObject.prop(
         side === "left" ? params.left : params.right,
         models[side],
@@ -335,6 +342,11 @@ function climb(body: IAutoMovieMotionHumanBody, flight: Flight): IClimb {
     models,
     params,
   };
+}
+
+/** The height of the landing a climb starts on, metres: the floor going up, the top of the `COUNT` steps going down. */
+function landing(direction: Direction): number {
+  return direction === "down" ? COUNT * RISER : 0;
 }
 
 /** Where a prop is staged: its floor point and heading. */

@@ -1,4 +1,4 @@
-import { ArchetypeRefusal, createDog } from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, createDog } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -150,7 +150,7 @@ export function test_archetype_animal_dog(): void {
     leadRadius: 0.004,
   };
 
-  // DogBody's explicit diagonal neck construction has length sqrt(2) times
+  // AutoMovieArchetypeDogBody's explicit diagonal neck construction has length sqrt(2) times
   // the circular radius from the source's neck circumference, not a measured
   // anatomical neck length. This is an independent geometric admission oracle.
   const shortest: number = (Math.sqrt(2) * 35.99) / (2 * Math.PI) / 100;
@@ -164,7 +164,7 @@ export function test_archetype_animal_dog(): void {
     }
     if (
       !(
-        error instanceof ArchetypeRefusal &&
+        error instanceof AutoMovieArchetypeRefusal &&
         error.axis === "collar.width" &&
         error.feasible?.kind === "range"
       )
@@ -229,7 +229,7 @@ export function test_archetype_animal_dog(): void {
     } catch (caught) {
       error = caught;
     }
-    if (!(error instanceof ArchetypeRefusal))
+    if (!(error instanceof AutoMovieArchetypeRefusal))
       findings.push("an unsupported dog input did not explicitly refuse");
   }
   TestValidator.equals(

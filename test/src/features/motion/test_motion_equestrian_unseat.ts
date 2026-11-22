@@ -1,6 +1,6 @@
 import {
-  EquineFall,
-  EquineStance,
+  AutoMovieArchetypeEquineFall,
+  AutoMovieArchetypeEquineStance,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -306,9 +306,11 @@ export function test_motion_equestrian_unseat(): void {
     "walk",
   );
   const buck: number = halt.duration + 2;
-  const bucking: mountedHorseScene.Ride = EquineStance.after(horse, halt, [
-    { kind: "buck", pitch: 15, from: buck, entry: 0.6, hold: 0.3, exit: 0.6 },
-  ]);
+  const bucking: mountedHorseScene.Ride = AutoMovieArchetypeEquineStance.after(
+    horse,
+    halt,
+    [{ kind: "buck", pitch: 15, from: buck, entry: 0.6, hold: 0.3, exit: 0.6 }],
+  );
   const lift: number =
     WAIT +
     bucking.instants.find(
@@ -338,36 +340,40 @@ export function test_motion_equestrian_unseat(): void {
   const trunk = horse.parts.find((part) => part.id === "trunk")!;
   const quarters = horse.parts.find((part) => part.id === "hindquarters")!;
   const down: number = canter.duration / 2;
-  const falling: mountedHorseScene.Ride = EquineFall.after(horse, canter, {
-    from: down,
-    drop: 0.6,
-    slide: 3,
-    prepared: true,
-    rest: {
-      loweringSeconds: 2,
-      restingSeconds: 1,
-      risingSeconds: 2,
-      restPitch:
-        (Math.atan2(
-          trunk.transform!.translation.y - quarters.transform!.translation.y,
-          trunk.transform!.translation.z - quarters.transform!.translation.z,
-        ) *
-          180) /
-        Math.PI,
-      tailDirection: -90,
-      folded: { fore: [90, 0], hind: [-90, 0] },
-      windows: { body: [0, 1], fore: [0, 1], hind: [0, 1] },
+  const falling: mountedHorseScene.Ride = AutoMovieArchetypeEquineFall.after(
+    horse,
+    canter,
+    {
+      from: down,
+      drop: 0.6,
+      slide: 3,
+      prepared: true,
+      rest: {
+        loweringSeconds: 2,
+        restingSeconds: 1,
+        risingSeconds: 2,
+        restPitch:
+          (Math.atan2(
+            trunk.transform!.translation.y - quarters.transform!.translation.y,
+            trunk.transform!.translation.z - quarters.transform!.translation.z,
+          ) *
+            180) /
+          Math.PI,
+        tailDirection: -90,
+        folded: { fore: [90, 0], hind: [-90, 0] },
+        windows: { body: [0, 1], fore: [0, 1], hind: [0, 1] },
+      },
+      lateral: {
+        side: "left",
+        rollDegrees: 90,
+        tuckDegrees: 35,
+        turnSeconds: 1,
+        holdSeconds: 0.8,
+        offset: 0.08,
+      },
+      away: { length: 2, speed: 1.2 },
     },
-    lateral: {
-      side: "left",
-      rollDegrees: 90,
-      tuckDegrees: 35,
-      turnSeconds: 1,
-      holdSeconds: 0.8,
-      offset: 0.08,
-    },
-    away: { length: 2, speed: 1.2 },
-  });
+  );
   const goingDown: number = WAIT + down;
   const clearOf: mountedHorseScene.IScene = stage(
     horse,

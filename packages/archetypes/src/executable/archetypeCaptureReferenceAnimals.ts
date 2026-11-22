@@ -1,18 +1,18 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  CamelBody,
-  DeerBody,
-  OxBody,
-  QuadrupedBody,
-  QuadrupedLocomotion,
+  AutoMovieArchetypeCamelBody,
+  AutoMovieArchetypeDeerBody,
+  AutoMovieArchetypeOxBody,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeQuadrupedLocomotion,
   createCamel,
   createDeer,
   createOx,
   rideQuadruped,
 } from "../animals";
-import type { QuadrupedEquipment } from "../animals/QuadrupedEquipment";
-import type { QuadrupedLead } from "../animals/QuadrupedLead";
+import type { AutoMovieArchetypeQuadrupedEquipment } from "../animals/AutoMovieArchetypeQuadrupedEquipment";
+import type { AutoMovieArchetypeQuadrupedLead } from "../animals/AutoMovieArchetypeQuadrupedLead";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
@@ -40,11 +40,16 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
     createDeer.REFERENCE,
     73,
   );
-  const oxRig: QuadrupedBody.IRig = QuadrupedBody.rig(OxBody(), ox.dimensions);
-  const camelRig: QuadrupedBody.IRig = QuadrupedBody.rig(
-    CamelBody(),
-    camel.dimensions,
-  );
+  const oxRig: AutoMovieArchetypeQuadrupedBody.IRig =
+    AutoMovieArchetypeQuadrupedBody.rig(
+      AutoMovieArchetypeOxBody(),
+      ox.dimensions,
+    );
+  const camelRig: AutoMovieArchetypeQuadrupedBody.IRig =
+    AutoMovieArchetypeQuadrupedBody.rig(
+      AutoMovieArchetypeCamelBody(),
+      camel.dimensions,
+    );
   const neckLength: number = Vector3.length(
     Vector3.subtract(oxRig.poll, oxRig.neck),
   );
@@ -86,7 +91,12 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
 
       // This number now declares complete authored model kilograms, rather than a measured bare/equipment sum.
       mass: deer.dimensions.mass!,
-      lead: lead(QuadrupedBody.rig(DeerBody(), deer.dimensions)),
+      lead: lead(
+        AutoMovieArchetypeQuadrupedBody.rig(
+          AutoMovieArchetypeDeerBody(),
+          deer.dimensions,
+        ),
+      ),
     },
     73,
   );
@@ -152,17 +162,18 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
         endSpeed: 3,
       },
       "pace",
-      QuadrupedLocomotion.camel({
+      AutoMovieArchetypeQuadrupedLocomotion.camel({
         pace: [{ speed: 3, stride: 1, foreStance: 0.45, hindStance: 0.45 }],
       }),
     ),
     camel,
   );
-  const authoredDeer: ReturnType<typeof QuadrupedLocomotion.deer> =
-    QuadrupedLocomotion.deer({
-      trot: [{ speed: 2, stride: 0.6, foreStance: 0.3, hindStance: 0.3 }],
-      gallop: [{ speed: 4, stride: 0.5, foreStance: 0.2, hindStance: 0.2 }],
-    });
+  const authoredDeer: ReturnType<
+    typeof AutoMovieArchetypeQuadrupedLocomotion.deer
+  > = AutoMovieArchetypeQuadrupedLocomotion.deer({
+    trot: [{ speed: 2, stride: 0.6, foreStance: 0.3, hindStance: 0.3 }],
+    gallop: [{ speed: 4, stride: 0.5, foreStance: 0.2, hindStance: 0.2 }],
+  });
   for (const [gait, speed] of [
     ["trot", 2],
     ["gallop", 4],
@@ -187,7 +198,9 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
 }
 
 /** Authored inspection collar/lead ratios fit the actual neck; they are not maker dimensions. */
-function lead(rig: QuadrupedBody.IRig): QuadrupedLead.IParams {
+function lead(
+  rig: AutoMovieArchetypeQuadrupedBody.IRig,
+): AutoMovieArchetypeQuadrupedLead.IParams {
   return {
     width: Vector3.length(Vector3.subtract(rig.poll, rig.neck)) / 8,
     thickness: rig.neckRadius / 16,
@@ -198,8 +211,8 @@ function lead(rig: QuadrupedBody.IRig): QuadrupedLead.IParams {
 
 /** Explicit gallery pack dimensions use the actual free trunk span, barrel and neck footprint. */
 function pack(
-  rig: QuadrupedBody.IRig,
-): NonNullable<QuadrupedEquipment.IParams["pack"]> {
+  rig: AutoMovieArchetypeQuadrupedBody.IRig,
+): NonNullable<AutoMovieArchetypeQuadrupedEquipment.IParams["pack"]> {
   const length: number = (rig.trunk - 2 * rig.neckRadius) / 2;
   const thickness: number = rig.barrel / 8;
   return {

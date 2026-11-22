@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** What the figures come from. */
@@ -21,7 +21,7 @@ const FIG: string =
  * @param params Any figure the author fixes.
  * @param seed The seed that draws each figure left free inside its band; absent, the middle of each band.
  * @returns The springboard.
- * @throws {ArchetypeRefusal} For a fixed figure outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed figure outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the layout, the frame, the contact and the first pass.
  * @evidence contracts/development/implementation.md#principled-implementation One box of the norm's length, width and front height and an upright surface contact at its top.
@@ -34,9 +34,12 @@ const FIG: string =
 export function createSpringboard(
   params: createSpringboard.IParams = {},
   seed?: number | string,
-): Archetype<createSpringboard.Affordance, createSpringboard.Dimension> {
-  const draw: ArchetypeDrawSession<createSpringboard.Dimension> =
-    new ArchetypeDrawSession<createSpringboard.Dimension>(
+): AutoMovieArchetype<
+  createSpringboard.Affordance,
+  createSpringboard.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createSpringboard.Dimension> =
+    new AutoMovieArchetypeDrawSession<createSpringboard.Dimension>(
       "springboard",
       createSpringboard.UNITS,
       seed,
@@ -45,10 +48,10 @@ export function createSpringboard(
   const d: Record<createSpringboard.Dimension, number> = draw.dimensions(
     createSpringboard.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createSpringboard.Affordance,
     createSpringboard.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "springboard",
@@ -63,7 +66,7 @@ export function createSpringboard(
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, d.height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, d.height, 0)),
     extent: null,
     width: d.width,
     depth: d.length,
@@ -94,7 +97,9 @@ export namespace createSpringboard {
   export type Dimension = "length" | "width" | "height" | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     height: "m",
@@ -108,11 +113,11 @@ export namespace createSpringboard {
   }
 
   /** The band of each figure. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(1.2, 1.2, FIG),
-    width: ArchetypeBand.metres(0.6, 0.6, FIG),
-    height: ArchetypeBand.metres(0.2, 0.2, FIG),
-    mass: ArchetypeBand.of(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(1.2, 1.2, FIG),
+    width: AutoMovieArchetypeBand.metres(0.6, 0.6, FIG),
+    height: AutoMovieArchetypeBand.metres(0.2, 0.2, FIG),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       15,
       25,

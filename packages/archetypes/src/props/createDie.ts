@@ -1,9 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
 } from "../core";
 import { TabletopStack } from "./TabletopStack";
 
@@ -34,18 +34,24 @@ const DIE: Readonly<createDie.IDie> = { side: 0.016, mass: 0.005 };
  */
 export function createDie(
   params: createDie.IParams = {},
-): Archetype<createDie.Affordance, createDie.Dimension> {
-  const draw: ArchetypeDrawSession<createDie.Dimension> =
-    new ArchetypeDrawSession("die", { side: "m", mass: "kg" }, undefined);
+): AutoMovieArchetype<createDie.Affordance, createDie.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createDie.Dimension> =
+    new AutoMovieArchetypeDrawSession(
+      "die",
+      { side: "m", mass: "kg" },
+      undefined,
+    );
   draw.derive("side", DIE.side);
   draw.derive("mass", DIE.mass);
-  const builder: ArchetypeBuilder<createDie.Affordance, createDie.Dimension> =
-    new ArchetypeBuilder({
-      id: params.id ?? "die",
-      name: "die",
-      material: "plastic",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createDie.Affordance,
+    createDie.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    id: params.id ?? "die",
+    name: "die",
+    material: "plastic",
+    draw,
+  });
   builder.box(
     "cube",
     Vector3.create(DIE.side, DIE.side, DIE.side),

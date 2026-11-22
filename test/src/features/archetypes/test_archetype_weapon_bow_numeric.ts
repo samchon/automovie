@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
   createBow,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
@@ -233,11 +233,14 @@ export function test_archetype_weapon_bow_numeric(): void {
   /** A public producer fixture isolates declared force without mutating a bow. */
   function metadata(
     force: number | undefined,
-  ): Archetype<createBow.Affordance, createBow.Dimension> {
-    const draw: ArchetypeDrawSession<createBow.Dimension> =
-      new ArchetypeDrawSession("bow", createBow.UNITS, undefined, {});
+  ): AutoMovieArchetype<createBow.Affordance, createBow.Dimension> {
+    const draw: AutoMovieArchetypeDrawSession<createBow.Dimension> =
+      new AutoMovieArchetypeDrawSession("bow", createBow.UNITS, undefined, {});
     if (force !== undefined) draw.derive("draw", force);
-    return new ArchetypeBuilder<createBow.Affordance, createBow.Dimension>({
+    return new AutoMovieArchetypeBuilder<
+      createBow.Affordance,
+      createBow.Dimension
+    >({
       name: "bow force fixture",
       material: "composite",
       draw,
@@ -249,7 +252,7 @@ export function test_archetype_weapon_bow_numeric(): void {
         extent: null,
         travel: 1,
         parts: ["body"],
-        frame: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+        frame: AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
       })
       .build(1);
   }
@@ -259,7 +262,7 @@ export function test_archetype_weapon_bow_numeric(): void {
     try {
       run();
     } catch (error) {
-      return error instanceof ArchetypeRefusal && error.axis === axis;
+      return error instanceof AutoMovieArchetypeRefusal && error.axis === axis;
     }
     return false;
   }

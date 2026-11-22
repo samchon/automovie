@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { FixtureDraw } from "./FixtureDraw";
 import type { createMachine } from "./createMachine";
@@ -57,25 +57,49 @@ export namespace ServiceCabinet {
   export const BANDS: Readonly<
     Record<
       createMachine.Kind,
-      Readonly<Partial<Record<createMachine.Dimension, IArchetypeBand>>>
+      Readonly<
+        Partial<Record<createMachine.Dimension, IAutoMovieArchetypeBand>>
+      >
     >
   > = {
     vendingMachine: {
-      height: ArchetypeBand.metres(1.83, 1.83, MERCHANT),
-      depth: ArchetypeBand.metres(0.813, 0.813, MERCHANT),
-      mass: ArchetypeBand.of("kg", 250, 350, ArchetypeBand.TYPICAL_MASS, true),
+      height: AutoMovieArchetypeBand.metres(1.83, 1.83, MERCHANT),
+      depth: AutoMovieArchetypeBand.metres(0.813, 0.813, MERCHANT),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        250,
+        350,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     atm: {
-      width: ArchetypeBand.metres(0.77, 0.77, `${NCR}: the fascia`),
-      height: ArchetypeBand.metres(1.575, 1.575, NCR),
-      depth: ArchetypeBand.metres(0.8, 0.8, NCR),
-      mass: ArchetypeBand.of("kg", 250, 400, ArchetypeBand.TYPICAL_MASS, true),
+      width: AutoMovieArchetypeBand.metres(0.77, 0.77, `${NCR}: the fascia`),
+      height: AutoMovieArchetypeBand.metres(1.575, 1.575, NCR),
+      depth: AutoMovieArchetypeBand.metres(0.8, 0.8, NCR),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        250,
+        400,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     payStation: {
-      width: ArchetypeBand.metres(0.29, 0.29, `${STRADA}: the body`),
-      height: ArchetypeBand.metres(1.488, 1.488, `${STRADA}: the body`),
-      depth: ArchetypeBand.metres(0.328, 0.328, `${STRADA}: the body`),
-      mass: ArchetypeBand.of("kg", 60, 90, ArchetypeBand.TYPICAL_MASS, true),
+      width: AutoMovieArchetypeBand.metres(0.29, 0.29, `${STRADA}: the body`),
+      height: AutoMovieArchetypeBand.metres(
+        1.488,
+        1.488,
+        `${STRADA}: the body`,
+      ),
+      depth: AutoMovieArchetypeBand.metres(0.328, 0.328, `${STRADA}: the body`),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        60,
+        90,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
   };
 
@@ -89,7 +113,7 @@ export namespace ServiceCabinet {
    */
   export interface ICabinet<Id extends string> {
     /** Builder carrying the exterior cabinet. */
-    builder: ArchetypeBuilder<Id, createMachine.Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, createMachine.Dimension>;
 
     /** Cabinet width along X, metres. */
     width: number;
@@ -113,7 +137,7 @@ export namespace ServiceCabinet {
    * @param params The scene identifier, possibly a model choice, and fixed dimensions.
    * @param seed The seed for the unresolved draws.
    * @returns The cabinet's builder, mass and external dimensions.
-   * @throws {ArchetypeRefusal} When a model or dimension does not fit the given profile.
+   * @throws {AutoMovieArchetypeRefusal} When a model or dimension does not fit the given profile.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the selected profile, dimensions and model admission.
    * @evidence contracts/development/implementation.md#principled-implementation Draw a whole model where available and lay its measured figures over the free ranges before drawing the cabinet.
@@ -130,9 +154,14 @@ export namespace ServiceCabinet {
     params: Omit<createMachine.IParams, "kind">,
     seed?: number | string,
   ): ICabinet<Id> {
-    const draw: ArchetypeDrawSession<createMachine.Dimension> =
-      new ArchetypeDrawSession("machine", FixtureDraw.machine, seed, params);
-    const model: ArchetypeDrawSession.IModel<
+    const draw: AutoMovieArchetypeDrawSession<createMachine.Dimension> =
+      new AutoMovieArchetypeDrawSession(
+        "machine",
+        FixtureDraw.machine,
+        seed,
+        params,
+      );
+    const model: AutoMovieArchetypeDrawSession.IModel<
       createMachine.Model,
       createMachine.Dimension
     > = draw.model("model", params.model, MODELS[kind]);
@@ -140,8 +169,8 @@ export namespace ServiceCabinet {
       ...draw.dimensions(BANDS[kind], BANDS),
       ...model.figures,
     };
-    const builder: ArchetypeBuilder<Id, createMachine.Dimension> =
-      new ArchetypeBuilder({
+    const builder: AutoMovieArchetypeBuilder<Id, createMachine.Dimension> =
+      new AutoMovieArchetypeBuilder({
         material: "composite",
         id: params.id,
         name: model.name === undefined ? name : `${name} ${model.name}`,
@@ -205,7 +234,7 @@ export namespace ServiceCabinet {
     builder.affordance({
       id: "front",
       kind: "surface",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, height / 2, depth / 2),
         v(0, 0, 1),
         v(1, 0, 0),
@@ -217,7 +246,7 @@ export namespace ServiceCabinet {
     builder.affordance({
       id: "side",
       kind: "surface",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(width / 2, height / 2, 0),
         v(1, 0, 0),
         v(0, 0, -1),

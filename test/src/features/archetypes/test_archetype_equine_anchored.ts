@@ -1,8 +1,8 @@
 import {
-  ArchetypeFrame,
-  type ArchetypeRide,
-  QuadrupedBody,
-  type QuadrupedGait,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeQuadrupedGait,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -13,12 +13,15 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /** A horse ride. */
-type Ride = ArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension>;
+type Ride = AutoMovieArchetypeRide.IRide<
+  createHorse.Affordance,
+  createHorse.Dimension
+>;
 
 /** One gait and its constant speed. */
 interface ICase {
   /** The gait. */
-  gait: QuadrupedGait.Gait;
+  gait: AutoMovieArchetypeQuadrupedGait.Gait;
 
   /** Metres per second. */
   speed: number;
@@ -65,8 +68,9 @@ export function test_archetype_equine_anchored(): void {
     const anchored: Ride = ride(true);
     const ids: readonly string[] = [
       "trunk",
-      ...QuadrupedBody.LIMBS.map(
-        (limb: QuadrupedBody.Limb): string => QuadrupedBody.BONES[limb][3],
+      ...AutoMovieArchetypeQuadrupedBody.LIMBS.map(
+        (limb: AutoMovieArchetypeQuadrupedBody.Limb): string =>
+          AutoMovieArchetypeQuadrupedBody.BONES[limb][3],
       ),
     ];
     let worst: number = 0;
@@ -92,14 +96,17 @@ export function test_archetype_equine_anchored(): void {
 
 /** A part's displayed world origin. */
 function point(ride: Ride, id: string, at: number): IAutoMovieVector3 {
-  const sample: ArchetypeRide.ISample<
+  const sample: AutoMovieArchetypeRide.ISample<
     createHorse.Affordance,
     createHorse.Dimension
   > = ride.at(at);
   const part: IAutoMovieModelPart = sample.archetype.parts.find(
     (each: IAutoMovieModelPart): boolean => each.id === id,
   )!;
-  return ArchetypeFrame.point(sample.placement, part.transform!.translation);
+  return AutoMovieArchetypeFrame.point(
+    sample.placement,
+    part.transform!.translation,
+  );
 }
 
 /** The componentwise difference of two points. */

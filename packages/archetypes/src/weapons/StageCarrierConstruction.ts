@@ -5,12 +5,12 @@ import type {
 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { createHolster } from "./createHolster";
 
@@ -33,7 +33,7 @@ const NAMES: Readonly<Record<createHolster.Kind, string>> = {
  * @param params The accepted dimensions and choices of the selected carrier.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names shared carrier fit and form-owned geometry.
  * @evidence contracts/development/implementation.md#principled-implementation Preserves seed, fit, slot admission and mass. The producer adds its own mesh and wearable frames.
@@ -48,9 +48,9 @@ export function StageCarrierConstruction(
   params: Omit<createHolster.IParams, "kind">,
   seed: number | string | undefined,
   build: StageCarrierConstruction.Build,
-): Archetype<createHolster.Affordance, createHolster.Dimension> {
-  const draw: ArchetypeDrawSession<createHolster.Dimension> =
-    new ArchetypeDrawSession<createHolster.Dimension>(
+): AutoMovieArchetype<createHolster.Affordance, createHolster.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createHolster.Dimension> =
+    new AutoMovieArchetypeDrawSession<createHolster.Dimension>(
       "holster",
       createHolster.UNITS,
       seed,
@@ -69,7 +69,7 @@ export function StageCarrierConstruction(
       params.slots < 1 ||
       params.slots > capacity)
   )
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "holster",
       axis: "slots",
@@ -125,7 +125,7 @@ export function StageCarrierConstruction(
           >),
     ).name;
   const fitted: Readonly<
-    Partial<Record<createHolster.Dimension, IArchetypeBand>>
+    Partial<Record<createHolster.Dimension, IAutoMovieArchetypeBand>>
   > = blade === undefined || blades === undefined ? {} : blades[blade]!;
   const d: Partial<Record<createHolster.Dimension, number>> = {
     ...draw.dimensions(
@@ -138,10 +138,10 @@ export function StageCarrierConstruction(
     ),
     ...ride.figures,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createHolster.Affordance,
     createHolster.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: NAMES[kind],
@@ -162,7 +162,7 @@ export function StageCarrierConstruction(
 export namespace StageCarrierConstruction {
   /** Draws one carrier in its own local wear frame. */
   export type Build = (
-    builder: ArchetypeBuilder<
+    builder: AutoMovieArchetypeBuilder<
       createHolster.Affordance,
       createHolster.Dimension
     >,
@@ -172,7 +172,7 @@ export namespace StageCarrierConstruction {
 
   /** Turn a wear site at the given metres x, y, z toward the actor. */
   export function facingWearer(at: IAutoMovieVector3): IAutoMovieTransform {
-    return ArchetypeFrame.facing(
+    return AutoMovieArchetypeFrame.facing(
       at,
       Vector3.create(-1, 0, 0),
       Vector3.create(0, 0, 1),

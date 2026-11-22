@@ -4,7 +4,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeFrame, ArchetypeRefusal } from "../core";
+import {
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+} from "../core";
 import { createMovingWalkway } from "./createMovingWalkway";
 
 /** A unit scale: the rides move rigid frames. */
@@ -26,7 +30,7 @@ const MAXIMUM: number = 0.75;
  * @param placement Its world placement.
  * @param ride The band speed and running direction.
  * @returns The band and handrail frames on the ride's clock.
- * @throws {ArchetypeRefusal} For a speed that is not positive or exceeds EN 115-1's 0.75 m/s.
+ * @throws {AutoMovieArchetypeRefusal} For a speed that is not positive or exceeds EN 115-1's 0.75 m/s.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the clock, the band's rest pose, the direction and the speed limit with its source.
  * @evidence contracts/development/implementation.md#principled-implementation A rigid translation at constant speed along the walkway's axis composed with its placement.
@@ -37,7 +41,7 @@ const MAXIMUM: number = 0.75;
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the placement, speed and direction while the caller keeps the ride.
  */
 export function rideMovingWalkway(
-  walkway: Archetype<
+  walkway: AutoMovieArchetype<
     createMovingWalkway.Affordance,
     createMovingWalkway.Dimension
   >,
@@ -45,7 +49,7 @@ export function rideMovingWalkway(
   ride: rideMovingWalkway.IParams,
 ): rideMovingWalkway.IRide {
   if (!(ride.speed > 0 && ride.speed <= MAXIMUM))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "movingWalkway",
       axis: "speed",
@@ -61,7 +65,7 @@ export function rideMovingWalkway(
   return {
     velocity,
     belt: (seconds: number): IAutoMovieTransform =>
-      ArchetypeFrame.compose(placement, {
+      AutoMovieArchetypeFrame.compose(placement, {
         scale: ONE,
         translation: { x: 0, y: 0, z: velocity * seconds },
         rotation: LEVEL,
@@ -71,7 +75,7 @@ export function rideMovingWalkway(
       at: number,
       seconds: number,
     ): IAutoMovieTransform =>
-      ArchetypeFrame.compose(placement, {
+      AutoMovieArchetypeFrame.compose(placement, {
         scale: ONE,
         translation: {
           x: (side === "left" ? 1 : -1) * rail,

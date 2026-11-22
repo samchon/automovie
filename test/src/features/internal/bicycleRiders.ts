@@ -1,4 +1,4 @@
-import { ArchetypeRefusal } from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { fittedBicycle } from "./fittedBicycle";
@@ -41,7 +41,12 @@ export function bicycleRiders(
   } catch (error) {
     refusal = error;
   }
-  if (!(refusal instanceof ArchetypeRefusal && refusal.axis === "saddleHeight"))
+  if (
+    !(
+      refusal instanceof AutoMovieArchetypeRefusal &&
+      refusal.axis === "saddleHeight"
+    )
+  )
     failures.push(
       `f-small: the bicycle refuses a saddle below its band (${String(refusal)})`,
     );

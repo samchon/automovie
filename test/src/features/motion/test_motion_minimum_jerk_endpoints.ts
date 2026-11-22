@@ -1,4 +1,7 @@
-import { ArchetypeRefusal, createAppliance } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeRefusal,
+  createAppliance,
+} from "@automovie/archetypes";
 import { minimumJerk } from "@automovie/engine";
 import type { IAutoMovieMinimumJerk } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -97,7 +100,7 @@ export function test_motion_minimum_jerk_endpoints(): void {
   TestValidator.predicate(
     "minus one degree is still outside the washer's travel",
     belowStop === -1 &&
-      refused instanceof ArchetypeRefusal &&
+      refused instanceof AutoMovieArchetypeRefusal &&
       refused.axis === "door" &&
       refused.value === -1 &&
       refused.feasible?.kind === "range" &&

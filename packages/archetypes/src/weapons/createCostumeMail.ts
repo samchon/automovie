@@ -1,4 +1,4 @@
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { ArmourTorso } from "./ArmourTorso";
 import { CostumeConstruction } from "./CostumeConstruction";
 import type { createArmour } from "./createArmour";
@@ -11,7 +11,7 @@ import type { createArmour } from "./createArmour";
  * @param params The scene id and optional measurements and model choice of this costume.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names this independent costume form and what supports it.
  * @evidence contracts/development/implementation.md#principled-implementation Separates this costume cell generator from the common museum record and optional body fit.
@@ -24,7 +24,10 @@ import type { createArmour } from "./createArmour";
 export function createCostumeMail(
   params: createCostumeMail.IParams = {},
   seed?: number | string,
-): Archetype<createCostumeMail.Affordance, createCostumeMail.Dimension> {
+): AutoMovieArchetype<
+  createCostumeMail.Affordance,
+  createCostumeMail.Dimension
+> {
   return CostumeConstruction("mail", params, seed, ArmourTorso);
 }
 

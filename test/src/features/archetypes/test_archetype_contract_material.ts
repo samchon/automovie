@@ -1,13 +1,13 @@
 import {
-  type Archetype,
-  ArchetypeAssembly,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeFriction,
-  ArchetypeMaterial,
-  ArchetypeRefusal,
-  ArchetypeRestitution,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeAssembly,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeFriction,
+  AutoMovieArchetypeMaterial,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeRestitution,
 } from "@automovie/archetypes";
 import { Vector3, validateModel } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
@@ -41,16 +41,20 @@ export function test_archetype_contract_material(): void {
 
   /** Build one analytic body through the actual producer boundary. */
   const build: (
-    material: ArchetypeMaterial.Kind,
+    material: AutoMovieArchetypeMaterial.Kind,
     restitution?: number,
-  ) => Archetype = (
-    material: ArchetypeMaterial.Kind,
+  ) => AutoMovieArchetype = (
+    material: AutoMovieArchetypeMaterial.Kind,
     restitution?: number,
-  ): Archetype =>
-    new ArchetypeBuilder<never, never>({
+  ): AutoMovieArchetype =>
+    new AutoMovieArchetypeBuilder<never, never>({
       material,
       name: "material fixture",
-      draw: new ArchetypeDrawSession<never>("material fixture", {}, undefined),
+      draw: new AutoMovieArchetypeDrawSession<never>(
+        "material fixture",
+        {},
+        undefined,
+      ),
     })
       .box("body", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
       .build(1, { restitution });
@@ -64,18 +68,19 @@ export function test_archetype_contract_material(): void {
       action();
       findings.push(`${axis}: malformed declaration was admitted`);
     } catch (error) {
-      if (!(error instanceof ArchetypeRefusal) || error.axis !== axis)
+      if (!(error instanceof AutoMovieArchetypeRefusal) || error.axis !== axis)
         findings.push(`${axis}: wrong refusal ${String(error)}`);
     }
   };
-  const measured: readonly [ArchetypeMaterial.Kind, number, number][] = [
-    ["steel", 0.514, 0.6239],
-    ["concrete", 0.5858, 0.5981],
-    ["wood", 0.5334, 0.5797],
-  ];
+  const measured: readonly [AutoMovieArchetypeMaterial.Kind, number, number][] =
+    [
+      ["steel", 0.514, 0.6239],
+      ["concrete", 0.5858, 0.5981],
+      ["wood", 0.5334, 0.5797],
+    ];
   for (const [material, minimum, maximum] of measured) {
-    const row: ArchetypeRestitution.IMeasurement | null =
-      ArchetypeRestitution.measurement(material, material, 1);
+    const row: AutoMovieArchetypeRestitution.IMeasurement | null =
+      AutoMovieArchetypeRestitution.measurement(material, material, 1);
     if (
       row === null ||
       !nclose(row.range[0], minimum, 0) ||
@@ -93,36 +98,37 @@ export function test_archetype_contract_material(): void {
       );
   }
   if (
-    !Object.isFrozen(ArchetypeRestitution.MEASUREMENTS) ||
-    ArchetypeRestitution.measurement("wood", "wood", 1.01) !== null ||
-    ArchetypeRestitution.measurement("wood", "steel", 1) !== null ||
-    ArchetypeRestitution.measurement("skin", "skin", 1) !== null
+    !Object.isFrozen(AutoMovieArchetypeRestitution.MEASUREMENTS) ||
+    AutoMovieArchetypeRestitution.measurement("wood", "wood", 1.01) !== null ||
+    AutoMovieArchetypeRestitution.measurement("wood", "steel", 1) !== null ||
+    AutoMovieArchetypeRestitution.measurement("skin", "skin", 1) !== null
   )
     findings.push("an unmeasured contact or speed acquired a reference");
   // Deliberately represent untyped callers so runtime admission is exercised
   // independently of the required TypeScript material field.
   refused(
     "material",
-    (): Archetype =>
-      new ArchetypeBuilder<never, never>({
+    (): AutoMovieArchetype =>
+      new AutoMovieArchetypeBuilder<never, never>({
         name: "missing material",
-        draw: new ArchetypeDrawSession<never>(
+        draw: new AutoMovieArchetypeDrawSession<never>(
           "missing material",
           {},
           undefined,
         ),
-      } as ArchetypeBuilder.IProps<never>)
+      } as AutoMovieArchetypeBuilder.IProps<never>)
         .box("body", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
         .build(1),
   );
   refused(
     "material",
-    (): Archetype => build("not-a-material" as ArchetypeMaterial.Kind),
+    (): AutoMovieArchetype =>
+      build("not-a-material" as AutoMovieArchetypeMaterial.Kind),
   );
   for (const value of [NaN, Infinity, -Infinity, -0.01, 1.01])
-    refused("restitution", (): Archetype => build("steel", value));
+    refused("restitution", (): AutoMovieArchetype => build("steel", value));
   for (const material of ["steel", "wood", "composite"] as const) {
-    const body: Archetype = build(material);
+    const body: AutoMovieArchetype = build(material);
     if (
       body.physicalMaterial !== material ||
       "restitution" in body.body ||
@@ -136,28 +142,36 @@ export function test_archetype_contract_material(): void {
     if (build("steel", value).body.restitution !== value)
       findings.push(`explicit coefficient ${value} changed`);
   if (
-    ArchetypeFriction.PAIRS !== ArchetypeMaterial.FRICTION ||
-    !Object.isFrozen(ArchetypeMaterial.FRICTION) ||
-    !Object.isFrozen(ArchetypeMaterial.friction("wood", "wood", "fixture"))
+    AutoMovieArchetypeFriction.PAIRS !== AutoMovieArchetypeMaterial.FRICTION ||
+    !Object.isFrozen(AutoMovieArchetypeMaterial.FRICTION) ||
+    !Object.isFrozen(
+      AutoMovieArchetypeMaterial.friction("wood", "wood", "fixture"),
+    )
   )
     findings.push("friction ownership was copied or left mutable");
 
   /** Compare a real assembly with the explicit contact declarations of its members. */
-  const combine: (a: Archetype, b: Archetype) => Archetype = (
-    a: Archetype,
-    b: Archetype,
-  ): Archetype =>
-    ArchetypeAssembly.of("assembly", "material fixture", {
+  const combine: (
+    a: AutoMovieArchetype,
+    b: AutoMovieArchetype,
+  ) => AutoMovieArchetype = (
+    a: AutoMovieArchetype,
+    b: AutoMovieArchetype,
+  ): AutoMovieArchetype =>
+    AutoMovieArchetypeAssembly.of("assembly", "material fixture", {
       a: {
         archetype: a,
-        placement: ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+        placement: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
       },
       b: {
         archetype: b,
-        placement: ArchetypeFrame.upright(Vector3.create(2, 0, 0)),
+        placement: AutoMovieArchetypeFrame.upright(Vector3.create(2, 0, 0)),
       },
     });
-  const common: Archetype = combine(build("steel", 0), build("steel", -0));
+  const common: AutoMovieArchetype = combine(
+    build("steel", 0),
+    build("steel", -0),
+  );
   if (common.body.restitution !== 0 || common.physicalMaterial !== "steel")
     findings.push("a common material or explicit zero was lost");
   if (combine(build("steel", 0), build("wood", 0)).physicalMaterial !== null)

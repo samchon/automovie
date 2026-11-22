@@ -4,9 +4,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "./ArchetypeFrame";
-import { ArchetypeRefusal } from "./ArchetypeRefusal";
-import type { ArchetypeSpan } from "./ArchetypeSpan";
+import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
+import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
+import type { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
 
 /**
  * Align explicitly held span frames while keeping their carrier origins fixed.
@@ -16,7 +16,7 @@ import type { ArchetypeSpan } from "./ArchetypeSpan";
  * @param states The corresponding already computed actual endpoints.
  * @param affordances Current independent contact records before line alignment.
  * @returns Changed held frames and unchanged other contacts, without input mutation.
- * @throws {ArchetypeRefusal} For incompatible shared axes, non-rigid held frames or a rein whose complete held run does not fit its physical line.
+ * @throws {AutoMovieArchetypeRefusal} For incompatible shared axes, non-rigid held frames or a rein whose complete held run does not fit its physical line.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States fixed origins, explicit held-end ownership, unoriented +X tangent, full rein-run coverage and each refusal.
  * @evidence contracts/development/implementation.md#principled-implementation The actual segment defines its unit tangent. Choose the tangent sign nearest the current grip +X and apply the shortest rigid rotation, preserving an orthogonal outward normal. A rein's half-length must fit on both sides of its unchanged hand origin.
@@ -28,8 +28,8 @@ import type { ArchetypeSpan } from "./ArchetypeSpan";
  */
 export function poseArchetypeSpanGrips(
   archetype: string,
-  spans: readonly ArchetypeSpan.ISpan[],
-  states: readonly ArchetypeSpan.IState[],
+  spans: readonly AutoMovieArchetypeSpan.ISpan[],
+  states: readonly AutoMovieArchetypeSpan.IState[],
   affordances: IAutoMovieAffordance[],
 ): IAutoMovieAffordance[] {
   const contacts: Map<string, IAutoMovieAffordance> = new Map(
@@ -42,7 +42,7 @@ export function poseArchetypeSpanGrips(
   );
   const axes: Map<string, IAutoMovieVector3> = new Map();
   for (let index: number = 0; index < spans.length; index++) {
-    const current: ArchetypeSpan.IState = states[index]!;
+    const current: AutoMovieArchetypeSpan.IState = states[index]!;
     const axis: IAutoMovieVector3 = {
       x: (current.to.x - current.from.x) / current.length,
       y: (current.to.y - current.from.y) / current.length,
@@ -117,7 +117,10 @@ export function poseArchetypeSpanGrips(
           contact.frame,
           "a held span requires a unit-scale rigid grip frame",
         );
-      const old: IAutoMovieVector3 = ArchetypeFrame.axis(contact.frame, "x");
+      const old: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+        contact.frame,
+        "x",
+      );
       const next: IAutoMovieVector3 =
         Vector3.dot(old, line) < 0 ? Vector3.scale(line, -1) : line;
       return {
@@ -135,7 +138,7 @@ export function poseArchetypeSpanGrips(
 
   /** The original request identifies an unsupported physical held-line condition. */
   function refuse(id: string, value: unknown, reason: string): never {
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,
       axis: id,

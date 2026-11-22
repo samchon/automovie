@@ -1,6 +1,6 @@
 import {
-  type Archetype,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeRefusal,
   createAppliance,
   createCleaning,
   createTable,
@@ -41,10 +41,13 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
 /** The washer's model. */
-type Washer = Archetype<createAppliance.Affordance, createAppliance.Dimension>;
+type Washer = AutoMovieArchetype<
+  createAppliance.Affordance,
+  createAppliance.Dimension
+>;
 
 /** The basket's model. */
-type Basket = Archetype<createTray.Affordance, createTray.Dimension>;
+type Basket = AutoMovieArchetype<createTray.Affordance, createTray.Dimension>;
 
 /**
  * A folded cloth keeps its own scene identity from a basket through the real
@@ -85,12 +88,16 @@ export function test_human_motion_household_laundry(): void {
 
 /** Verify the carried load against both the real opening and the final close. */
 function laundry(body: IAutoMovieMotionHumanBody, failures: string[]): void {
-  const support: Archetype<createTable.Affordance, createTable.Dimension> =
-    createTable({ kind: "counter", height: TOP });
+  const support: AutoMovieArchetype<
+    createTable.Affordance,
+    createTable.Dimension
+  > = createTable({ kind: "counter", height: TOP });
   const machine: Washer = createAppliance({ kind: "washingMachine" });
   const basket: Basket = createTray({ kind: "basket", model: "risatorp42" });
-  const cloth: Archetype<createCleaning.Affordance, createCleaning.Dimension> =
-    createCleaning({ kind: "cloth" });
+  const cloth: AutoMovieArchetype<
+    createCleaning.Affordance,
+    createCleaning.Dimension
+  > = createCleaning({ kind: "cloth" });
   const basketAt: IAutoMovieVector3 = { x: -0.54, y: TOP, z: 0.38 };
   const basketFrame: IAutoMovieRigidTransform = {
     position: basketAt,
@@ -319,7 +326,7 @@ function load(aperture: string, lead: string): IAutoMovieMotionHumanChain {
 
 /** The least signed distance, metres, from the cloth to any piece of a placed model. */
 function clearance(
-  model: Archetype,
+  model: AutoMovieArchetype,
   frame: IAutoMovieRigidTransform,
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
@@ -363,6 +370,6 @@ function refusals(
     machine.articulate({ door: -1 });
     failures.push("the washer refuses a real stroke past its closed stop");
   } catch (error: unknown) {
-    if (!(error instanceof ArchetypeRefusal)) throw error;
+    if (!(error instanceof AutoMovieArchetypeRefusal)) throw error;
   }
 }

@@ -1,10 +1,13 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeCourse, ArchetypeRefusal } from "../core";
+import {
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
+} from "../core";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
+import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { EquineObstacle } from "./EquineObstacle";
-import type { QuadrupedBody } from "./QuadrupedBody";
-import type { QuadrupedFooting } from "./QuadrupedFooting";
-import { QuadrupedGait } from "./QuadrupedGait";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
 import type { rideQuadruped } from "./rideQuadruped";
@@ -199,7 +202,7 @@ export namespace EquineJump {
    * @param plan The admitted course plan.
    * @param footing The authored footing.
    * @returns The jump request, or undefined for an admitted baulk.
-   * @throws {ArchetypeRefusal} For a leg that is not a level forward straight, a jump without obstacles or beyond the FEI's height, spread or ditch width, a negative clearance, or a baulk that does not end at a halt with a pause.
+   * @throws {AutoMovieArchetypeRefusal} For a leg that is not a level forward straight, a jump without obstacles or beyond the FEI's height, spread or ditch width, a negative clearance, or a baulk that does not end at a halt with a pause.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation Intersect each pole's horizontal segment with the leg's line; its course interval is its radius over the sine of the crossing angle about the crossing, and its top the pole's higher end plus its radius above the leg's ground. A ditch is an interval of the line no authored plane covers, between covered ones.
@@ -214,8 +217,8 @@ export namespace EquineJump {
     index: number,
     leg: rideQuadruped.ILeg,
     technique: Technique,
-    plan: ArchetypeCourse.IPlan,
-    footing: QuadrupedFooting.IScene | undefined,
+    plan: AutoMovieArchetypeCourse.IPlan,
+    footing: AutoMovieArchetypeQuadrupedFooting.IScene | undefined,
   ): IRequest | undefined {
     if (
       leg.kind !== "straight" ||
@@ -223,7 +226,7 @@ export namespace EquineJump {
       (leg.rise ?? 0) !== 0
     )
       refuse("A jump or a baulk needs a level forward straight leg");
-    const span: ArchetypeCourse.ILegSpan = plan.legSpans[index]!;
+    const span: AutoMovieArchetypeCourse.ILegSpan = plan.legSpans[index]!;
     if (technique.kind === "baulk") {
       if (
         leg.pause === undefined ||
@@ -268,7 +271,7 @@ export namespace EquineJump {
 
     /** Report the leg that cannot carry the technique. */
     function refuse(reason: string): never {
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
         axis: `legs[${index}].equineFootwork`,
@@ -289,7 +292,7 @@ export namespace EquineJump {
    * @param species The ride's species.
    * @param trial Assemble the ride with moved landings, without a hold or with a flight's.
    * @returns The flight.
-   * @throws {ArchetypeRefusal} When no canter stride on the leg can take off before the obstacle and land within the leg at constant speed.
+   * @throws {AutoMovieArchetypeRefusal} When no canter stride on the leg can take off before the obstacle and land within the leg at constant speed.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Each candidate stride's best takeoff spot and least flight come from `spotEquineTakeoff`; the least over all candidates is kept.
@@ -302,7 +305,7 @@ export namespace EquineJump {
   export function plan(
     archetype: string,
     request: IRequest,
-    plan: ArchetypeCourse.IPlan,
+    plan: AutoMovieArchetypeCourse.IPlan,
     trial: (
       moved: readonly QuadrupedStridePlan.IMoved[],
       flight: IFlight | undefined,
@@ -318,7 +321,7 @@ export namespace EquineJump {
     ) {
       const stride: QuadrupedStridePlan.IStride = first.strides.strideOf(n);
       if (
-        !QuadrupedGait.LEADED.includes(stride.gait) ||
+        !AutoMovieArchetypeQuadrupedGait.LEADED.includes(stride.gait) ||
         [n - 1, n + 1, n + 2].some((k: number): boolean => {
           const other: QuadrupedStridePlan.IStride = first.strides.strideOf(k);
           return other.gait !== stride.gait || other.lead !== stride.lead;
@@ -346,7 +349,7 @@ export namespace EquineJump {
         best = spot;
     }
     if (best === undefined || !(best.flight.hold.duration > 0))
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
         axis: `legs[${request.index}].equineFootwork`,
@@ -408,20 +411,26 @@ export namespace EquineJump {
     stride: QuadrupedStridePlan.IStride,
   ): ICandidate | undefined {
     const strides: QuadrupedStridePlan.IPlan = trial.strides;
-    const lead: QuadrupedBody.Limb =
+    const lead: AutoMovieArchetypeQuadrupedBody.Limb =
       stride.lead === "left" ? "leftFore" : "rightFore";
-    const other: QuadrupedBody.Limb =
+    const other: AutoMovieArchetypeQuadrupedBody.Limb =
       stride.lead === "left" ? "rightFore" : "leftFore";
     const start: number = strides.landing(lead, n);
-    const next = (limb: QuadrupedBody.Limb): number =>
+    const next = (limb: AutoMovieArchetypeQuadrupedBody.Limb): number =>
       strides.latest(limb, start) + 1;
-    const hinds: readonly QuadrupedBody.Limb[] = ["leftHind", "rightHind"];
-    const [leading, trailing]: readonly QuadrupedBody.Limb[] = [...hinds].sort(
-      (a: QuadrupedBody.Limb, b: QuadrupedBody.Limb): number =>
-        strides.landing(a, next(a)) - strides.landing(b, next(b)),
-    );
+    const hinds: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
+      "leftHind",
+      "rightHind",
+    ];
+    const [leading, trailing]: readonly AutoMovieArchetypeQuadrupedBody.Limb[] =
+      [...hinds].sort(
+        (
+          a: AutoMovieArchetypeQuadrupedBody.Limb,
+          b: AutoMovieArchetypeQuadrupedBody.Limb,
+        ): number => strides.landing(a, next(a)) - strides.landing(b, next(b)),
+      );
     const first: number = strides.landing(leading!, next(leading!));
-    const timing: QuadrupedGait.ITiming = trial.clock.timing(
+    const timing: AutoMovieArchetypeQuadrupedGait.ITiming = trial.clock.timing(
       stride.gait,
       strides.secondsAt(first),
     );

@@ -1,4 +1,4 @@
-import { ArchetypeFrame } from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -85,11 +85,11 @@ export function test_archetype_equine_ford_rider(): void {
   const capsule: IAutoMovieCapsuleShape = geometry.shape;
   const barrel = (point: IAutoMovieVector3, at: number): number => {
     const placed: IAutoMovieRigidTransform = staged.place(at);
-    const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+    const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
       {
         translation: placed.position,
         rotation: placed.rotation,
-        scale: ArchetypeFrame.UNIT,
+        scale: AutoMovieArchetypeFrame.UNIT,
       },
       trunk.transform!,
     );
@@ -101,9 +101,7 @@ export function test_archetype_equine_ford_rider(): void {
       -capsule.height / 2,
       Math.min(capsule.height / 2, local.y),
     );
-    return (
-      Math.hypot(local.x, local.y - along, local.z) - capsule.radius
-    );
+    return Math.hypot(local.x, local.y - along, local.z) - capsule.radius;
   };
 
   // 1. Seated through the crossing.
@@ -149,7 +147,9 @@ export function test_archetype_equine_ford_rider(): void {
         ? Infinity
         : Vector3.distance(wrist, grasped);
     if (!(slip <= TOLERANCE))
-      issues.push(`${phase} ${at.toFixed(2)}: left hand ${slip} m off the mane`);
+      issues.push(
+        `${phase} ${at.toFixed(2)}: left hand ${slip} m off the mane`,
+      );
     const held: number = equineRiderContacts.rein(
       body,
       bones,
@@ -191,12 +191,10 @@ export function test_archetype_equine_ford_rider(): void {
         (contact: IAutoMovieMotionHumanContactWindow): boolean =>
           contact.part === `${side}Foot` && contact.support.kind === "prop",
       )
-      .map(
-        (contact: IAutoMovieMotionHumanContactWindow): [number, number] => [
-          mounted.start + contact.from * span,
-          mounted.start + contact.to * span,
-        ],
-      );
+      .map((contact: IAutoMovieMotionHumanContactWindow): [number, number] => [
+        mounted.start + contact.from * span,
+        mounted.start + contact.to * span,
+      ]);
     if (
       windows.some(
         ([from, to]: [number, number]): boolean =>

@@ -1,4 +1,7 @@
-import { ArchetypeRefusal, createSpacecraft } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeRefusal,
+  createSpacecraft,
+} from "@automovie/archetypes";
 import { Quaternion, validateModel } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -92,7 +95,7 @@ export function test_archetype_spacecraft(): void {
   } catch (error) {
     expect(
       "hatch-width refusal names its field",
-      error instanceof ArchetypeRefusal && error.axis === "hatchWidth",
+      error instanceof AutoMovieArchetypeRefusal && error.axis === "hatchWidth",
     );
   }
 

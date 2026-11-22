@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** No maker's page was read. */
@@ -33,20 +33,22 @@ const STAGED: string =
 export function createRake(
   params: createRake.IParams = {},
   seed?: number | string,
-): Archetype<createRake.Affordance, createRake.Dimension> {
-  const draw: ArchetypeDrawSession<createRake.Dimension> =
-    new ArchetypeDrawSession("rake", createRake.UNITS, seed, params);
+): AutoMovieArchetype<createRake.Affordance, createRake.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createRake.Dimension> =
+    new AutoMovieArchetypeDrawSession("rake", createRake.UNITS, seed, params);
   const d: Record<createRake.Dimension, number> = draw.dimensions(
     createRake.BANDS,
   );
   const hoe: boolean = params.kind === "hoe";
-  const builder: ArchetypeBuilder<createRake.Affordance, createRake.Dimension> =
-    new ArchetypeBuilder({
-      id: params.id,
-      name: hoe ? "a hoe" : "a garden rake",
-      material: "steel",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createRake.Affordance,
+    createRake.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    id: params.id,
+    name: hoe ? "a hoe" : "a garden rake",
+    material: "steel",
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const tines: number = 0.08;
   builder.box("head", v(d.width, 0.03, 0.03), v(0, 0.015, 0), {
@@ -63,7 +65,7 @@ export function createRake(
     id: "face",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, 0.005, tines + 0.015),
       v(0, 0, 1),
       v(0, 1, 0),
@@ -79,7 +81,7 @@ export function createRake(
     id: "shaft",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, (0.03 + d.length) / 2, 0),
       v(0, 0, -1),
       v(0, 1, 0),
@@ -120,16 +122,18 @@ export namespace createRake {
   }
 
   /** Units of each dimension. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     mass: "kg",
   };
 
   /** Staged bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(1.4, 1.65, STAGED, true),
-    width: ArchetypeBand.metres(0.3, 0.42, STAGED, true),
-    mass: ArchetypeBand.of("kg", 0.9, 1.6, STAGED, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(1.4, 1.65, STAGED, true),
+    width: AutoMovieArchetypeBand.metres(0.3, 0.42, STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.9, 1.6, STAGED, true),
   };
 }

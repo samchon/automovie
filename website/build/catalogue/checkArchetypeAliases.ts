@@ -1,6 +1,6 @@
 import {
-  Archetype,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
   createQuadruped,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -280,8 +280,8 @@ export function checkArchetypeAliases(): void {
       startSpeed: speed,
       endSpeed: speed,
     };
-    const oldRide = rideQuadruped(legacy as Archetype, course, gait);
-    const newRide = rideQuadruped(named as Archetype, course, gait);
+    const oldRide = rideQuadruped(legacy as AutoMovieArchetype, course, gait);
+    const newRide = rideQuadruped(named as AutoMovieArchetype, course, gait);
     assert.deepEqual(newRide.instants, oldRide.instants, `${kind} gait events`);
     const landings = newRide.instants.filter(
       (event) => event.label === "leftForeOn" && event.seconds > 0,
@@ -357,7 +357,10 @@ export function checkArchetypeAliases(): void {
     PlaygroundAddress.encode(canonical),
   )!.objects!;
   const placed = PlaygroundObjects.props(savedObjects, restored.performers)!;
-  const namedPlaced = PlaygroundObjects.props(namedObjects, restored.performers)!;
+  const namedPlaced = PlaygroundObjects.props(
+    namedObjects,
+    restored.performers,
+  )!;
   assert.deepEqual(
     placed.map((prop) => prop.subject),
     ["lens-fixture", "edit-laptop", "saved-phone"],
@@ -370,7 +373,7 @@ export function checkArchetypeAliases(): void {
   assert(Math.abs(placed[1]!.frame.rotation.y - 1) <= 1e-9);
   assert(Math.abs(placed[1]!.frame.rotation.w) <= 1e-9);
   const phone = SceneArchetype.model(savedObjects[2]!);
-  assert(phone instanceof Archetype);
+  assert(phone instanceof AutoMovieArchetype);
   assert.equal(phone.dimensions.width, 0.071);
   assert.equal(phone.dimensions.height, 0.151);
   assert.equal(phone.dimensions.thickness, 0.008);
@@ -401,7 +404,7 @@ function terminalSole(
     { x: 0, y: 1, z: 0 },
   );
   return (
-    ArchetypeFrame.point(frame, part.transform.translation).y -
+    AutoMovieArchetypeFrame.point(frame, part.transform.translation).y -
     (Math.abs(axis.y) * shape.height) / 2 -
     shape.radius * (shape.type === "capsule" ? 1 : Math.hypot(axis.x, axis.z))
   );

@@ -1,5 +1,5 @@
-import { ArchetypeUnits } from "../core";
-import type { QuadrupedBody } from "./QuadrupedBody";
+import { AutoMovieArchetypeUnits } from "../core";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
  * Map one declared coarse shape into the quadruped's shared rigid-bar format.
@@ -9,7 +9,7 @@ import type { QuadrupedBody } from "./QuadrupedBody";
  * owner only performs the common geometry: circular girth, trigonometric
  * control projections, an exact withers apex, a head capsule of the requested
  * total axial length, and a distinct hip-to-rump run behind the trunk.
- * Directions are the initial authored conformation. QuadrupedBody owns the
+ * Directions are the initial authored conformation. AutoMovieArchetypeQuadrupedBody owns the
  * subsequent explicit neutral connection to its actual parent solids; it does
  * not change these reference measurements or infer measured joint anatomy.
  *
@@ -26,7 +26,7 @@ import type { QuadrupedBody } from "./QuadrupedBody";
  */
 export function QuadrupedBodyProfile(
   props: QuadrupedBodyProfile.IProps,
-): QuadrupedBody.IBody {
+): AutoMovieArchetypeQuadrupedBody.IBody {
   const m: QuadrupedBodyProfile.IMeasures = props.measures;
   const c: QuadrupedBodyProfile.IConstruction = props.construction;
   const h: number = m.withers;
@@ -88,17 +88,17 @@ export function QuadrupedBodyProfile(
   const barrel: number = m.girth / (2 * Math.PI);
   const trunk: number = (m.body * (1 - c.pelvisRun) - barrel) / h;
   const buttock: number = m.body / h;
-  const neckPitch: number = c.neckPitch * ArchetypeUnits.DEGREE;
-  const headPitch: number = c.headPitch * ArchetypeUnits.DEGREE;
+  const neckPitch: number = c.neckPitch * AutoMovieArchetypeUnits.DEGREE;
+  const headPitch: number = c.headPitch * AutoMovieArchetypeUnits.DEGREE;
   const headControl: number = m.head - m.headDiameter;
-  const tailPitch: number = c.tailPitch * ArchetypeUnits.DEGREE;
-  const fore: QuadrupedBody.IBody["lengths"]["fore"] = [
+  const tailPitch: number = c.tailPitch * AutoMovieArchetypeUnits.DEGREE;
+  const fore: AutoMovieArchetypeQuadrupedBody.IBody["lengths"]["fore"] = [
     props.fore[0] / h,
     props.fore[1] / h,
     props.fore[2] / h,
     props.fore[3] / h,
   ];
-  const hind: QuadrupedBody.IBody["lengths"]["hind"] = [
+  const hind: AutoMovieArchetypeQuadrupedBody.IBody["lengths"]["hind"] = [
     props.hind[0] / h,
     props.hind[1] / h,
     props.hind[2] / h,
@@ -239,7 +239,7 @@ export namespace QuadrupedBodyProfile {
     construction: IConstruction;
 
     /** Authored display colors; no photometric measurement is implied. */
-    colors: QuadrupedBody.IBody["colors"];
+    colors: AutoMovieArchetypeQuadrupedBody.IBody["colors"];
 
     /** Admitted instance height in metres, defaulting to the reference height. */
     withersHeight?: number;

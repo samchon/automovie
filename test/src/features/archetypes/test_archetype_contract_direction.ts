@@ -1,4 +1,4 @@
-import type { Archetype } from "@automovie/archetypes";
+import type { AutoMovieArchetype } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -104,7 +104,7 @@ export function test_archetype_contract_direction(): void {
   ]);
   const complaints: string[] = [];
   for (const row of archetypeCatalog()) {
-    const model: Archetype = row.create();
+    const model: AutoMovieArchetype = row.create();
     const table: Table | undefined =
       KINDS[row.name] ?? PRODUCERS[row.name.split("-")[0]!];
     let declared: number = 0;

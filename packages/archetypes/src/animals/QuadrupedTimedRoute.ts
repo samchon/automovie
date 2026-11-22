@@ -1,5 +1,5 @@
-import { ArchetypeCourse } from "../core";
-import { QuadrupedGait } from "./QuadrupedGait";
+import { AutoMovieArchetypeCourse } from "../core";
+import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { QuadrupedTimedCues } from "./QuadrupedTimedCues";
 import type { createQuadruped } from "./createQuadruped";
@@ -24,7 +24,7 @@ export namespace QuadrupedTimedRoute {
    */
   export interface IRoute {
     /** The plan the ride samples. */
-    plan: ArchetypeCourse.IPlan;
+    plan: AutoMovieArchetypeCourse.IPlan;
     /** The course of legs its admission and clock read. */
     course: rideQuadruped.ICourse;
 
@@ -40,24 +40,24 @@ export namespace QuadrupedTimedRoute {
    * @param withers The animal's withers height, metres.
    * @param gait The ride's fixed gait, which names every leg naming none.
    * @returns The plan and its course of legs.
-   * @throws {ArchetypeRefusal} As ArchetypeCourse.plan refuses a malformed course.
+   * @throws {AutoMovieArchetypeRefusal} As AutoMovieArchetypeCourse.plan refuses a malformed course.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation A timed plan becomes one leg naming no gait at its peak speed; its zero-speed marks become stop and depart instants, and the shortest ramp through the slowest gait's least speed sets the rate of the clock's stop bridge.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the halts, then build the plan and the course.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; the plan is ridden as given.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(K) marks, each with a 10 ms scan of its ramp.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the plan's samplers and ArchetypeCourse.plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the plan's samplers and AutoMovieArchetypeCourse.plan.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the plan and a small course.
    */
   export function of(
     species: createQuadruped.ISpecies,
     route:
       | rideQuadruped.ICourse
-      | ArchetypeCourse.IPlan
+      | AutoMovieArchetypeCourse.IPlan
       | QuadrupedTimedCues.ICued,
     withers: number,
-    gait?: QuadrupedGait.Gait,
+    gait?: AutoMovieArchetypeQuadrupedGait.Gait,
   ): IRoute {
     // The ride's fixed gait names every leg that names none, so each leg states whether its gait is requested or chosen by speed.
     if (gait !== undefined) {
@@ -86,16 +86,16 @@ export namespace QuadrupedTimedRoute {
     // Its halts and restarts at zero-speed marks become `stop<k>` and
     // `depart<k>` instants, and its ramps through the slowest gait's least speed
     // set the rate whose vMin^2/(2a) bridge the clock already keeps for a stop.
-    const least: number = QuadrupedGait.range(
+    const least: number = AutoMovieArchetypeQuadrupedGait.range(
       species,
       species.table.order[0]!,
       withers,
     ).minimum;
-    const halts: ArchetypeCourse.IPlan["instants"][number][] = [];
+    const halts: AutoMovieArchetypeCourse.IPlan["instants"][number][] = [];
     let ramp: number = Infinity;
     if (route.kind === "plan" && route.course.kind === "timed")
       route.course.samples.forEach(
-        (mark: ArchetypeCourse.ISample, k: number): void => {
+        (mark: AutoMovieArchetypeCourse.ISample, k: number): void => {
           if (route.at(mark.seconds).speed !== 0) return;
           for (const [label, sign] of [
             ["stop", -1],
@@ -124,17 +124,19 @@ export namespace QuadrupedTimedRoute {
     const departs: number =
       route.kind === "plan" &&
       route.at(route.when(0) + 1e-6).speed === 0 &&
-      halts.some((halt: ArchetypeCourse.IPlan["instants"][number]): boolean =>
-        halt.label.startsWith("depart"),
+      halts.some(
+        (halt: AutoMovieArchetypeCourse.IPlan["instants"][number]): boolean =>
+          halt.label.startsWith("depart"),
       )
         ? halts.find(
-            (halt: ArchetypeCourse.IPlan["instants"][number]): boolean =>
-              halt.label.startsWith("depart"),
+            (
+              halt: AutoMovieArchetypeCourse.IPlan["instants"][number],
+            ): boolean => halt.label.startsWith("depart"),
           )!.seconds
         : route.kind === "plan"
           ? route.when(0)
           : 0;
-    const plan: ArchetypeCourse.IPlan =
+    const plan: AutoMovieArchetypeCourse.IPlan =
       route.kind === "plan"
         ? route.legSpans.length > 0
           ? route
@@ -142,8 +144,8 @@ export namespace QuadrupedTimedRoute {
               ...route,
               instants: [...route.instants, ...halts].sort(
                 (
-                  a: ArchetypeCourse.IPlan["instants"][number],
-                  b: ArchetypeCourse.IPlan["instants"][number],
+                  a: AutoMovieArchetypeCourse.IPlan["instants"][number],
+                  b: AutoMovieArchetypeCourse.IPlan["instants"][number],
                 ): number => a.seconds - b.seconds,
               ),
               legSpans: [{ from: 0, span: route.length, fastest: route.peak }],
@@ -157,7 +159,7 @@ export namespace QuadrupedTimedRoute {
                   }
                 : {}),
             }
-        : ArchetypeCourse.plan(species.archetype, route);
+        : AutoMovieArchetypeCourse.plan(species.archetype, route);
     const course: rideQuadruped.ICourse =
       route.kind === "plan"
         ? {
@@ -178,7 +180,10 @@ export namespace QuadrupedTimedRoute {
         : route;
     const holds: QuadrupedRideClock.IHold[] = [];
     halts.forEach(
-      (halt: ArchetypeCourse.IPlan["instants"][number], k: number): void => {
+      (
+        halt: AutoMovieArchetypeCourse.IPlan["instants"][number],
+        k: number,
+      ): void => {
         if (
           halt.label.startsWith("stop") &&
           k + 1 < halts.length &&

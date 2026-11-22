@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { FixtureDraw } from "./FixtureDraw";
 import { SANITARY_BANDS } from "./SANITARY_BANDS";
 import { SanitaryConstruction } from "./SanitaryConstruction";
@@ -13,7 +13,7 @@ import type { createSanitary } from "./createSanitary";
  * @param params The scene identifier and any dimensions to fix inside their bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The threshold, tray and seat retain their original support and the valve retains its location on the opposite wall.
@@ -26,7 +26,7 @@ import type { createSanitary } from "./createSanitary";
 export function createShower(
   params: createShower.IParams = {},
   seed?: number | string,
-): Archetype<createShower.Affordance, createShower.Dimension> {
+): AutoMovieArchetype<createShower.Affordance, createShower.Dimension> {
   return FixtureDraw.installed<
     createShower.Affordance,
     createSanitary.Dimension

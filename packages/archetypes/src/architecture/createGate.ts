@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The tripod turnstile read. */
@@ -34,7 +34,7 @@ const ESTIMATES: Readonly<{ wing: number }> = { wing: 0.02 };
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The gate.
- * @throws {ArchetypeRefusal} For a passage the kind's maker does not list, a fixed dimension outside its band, or one only another kind has.
+ * @throws {AutoMovieArchetypeRefusal} For a passage the kind's maker does not list, a fixed dimension outside its band, or one only another kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the lane's frame, each kind's parts, its contacts, and why the arm and wings are no contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The makers' cabinet sizes and barrier and wing heights, and one of each maker's read passage widths whole; the arm's reach and section from the Trilock drawing.
@@ -47,9 +47,9 @@ const ESTIMATES: Readonly<{ wing: number }> = { wing: 0.02 };
 export function createGate(
   params: createGate.IParams,
   seed?: number | string,
-): Archetype<createGate.Affordance, createGate.Dimension> {
-  const draw: ArchetypeDrawSession<createGate.Dimension> =
-    new ArchetypeDrawSession<createGate.Dimension>(
+): AutoMovieArchetype<createGate.Affordance, createGate.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createGate.Dimension> =
+    new AutoMovieArchetypeDrawSession<createGate.Dimension>(
       "gate",
       createGate.UNITS,
       seed,
@@ -73,13 +73,15 @@ export function createGate(
     ...draw.dimensions(createGate.BANDS[kind], createGate.BANDS),
     ...model.figures,
   };
-  const builder: ArchetypeBuilder<createGate.Affordance, createGate.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: `${kind === "turnstile" ? "turnstile" : "speed gate"} ${model.name} mm`,
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createGate.Affordance,
+    createGate.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: `${kind === "turnstile" ? "turnstile" : "speed gate"} ${model.name} mm`,
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const lane: number = d.passage!;
   const width: number = d.width!;
@@ -121,7 +123,7 @@ export function createGate(
   builder.affordance({
     id: "passage",
     kind: "aperture",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
     width: lane,
     height,
@@ -129,7 +131,7 @@ export function createGate(
   builder.affordance({
     id: "top",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(-x, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(-x, height, 0)),
     extent: null,
     width,
     depth: length,
@@ -200,7 +202,9 @@ export namespace createGate {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     passage: "m",
     width: "m",
     height: "m",
@@ -227,23 +231,35 @@ export namespace createGate {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     turnstile: {
-      width: ArchetypeBand.metres(0.178, 0.178, TRILOCK),
-      height: ArchetypeBand.metres(0.965, 0.965, TRILOCK),
-      length: ArchetypeBand.metres(0.686, 0.686, TRILOCK),
-      barrier: ArchetypeBand.metres(0.838, 0.838, TRILOCK),
-      reach: ArchetypeBand.metres(0.416, 0.416, TRILOCK),
-      arm: ArchetypeBand.metres(0.032, 0.032, TRILOCK),
-      mass: ArchetypeBand.of("kg", 60, 100, ArchetypeBand.TYPICAL_MASS, true),
+      width: AutoMovieArchetypeBand.metres(0.178, 0.178, TRILOCK),
+      height: AutoMovieArchetypeBand.metres(0.965, 0.965, TRILOCK),
+      length: AutoMovieArchetypeBand.metres(0.686, 0.686, TRILOCK),
+      barrier: AutoMovieArchetypeBand.metres(0.838, 0.838, TRILOCK),
+      reach: AutoMovieArchetypeBand.metres(0.416, 0.416, TRILOCK),
+      arm: AutoMovieArchetypeBand.metres(0.032, 0.032, TRILOCK),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        60,
+        100,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     speedGate: {
-      width: ArchetypeBand.metres(0.106, 0.106, SPEEDLANE),
-      height: ArchetypeBand.metres(1.035, 1.035, SPEEDLANE),
-      length: ArchetypeBand.metres(1.776, 1.776, SPEEDLANE),
-      barrier: ArchetypeBand.metres(0.94, 0.94, SPEEDLANE),
-      mass: ArchetypeBand.of("kg", 150, 250, ArchetypeBand.TYPICAL_MASS, true),
+      width: AutoMovieArchetypeBand.metres(0.106, 0.106, SPEEDLANE),
+      height: AutoMovieArchetypeBand.metres(1.035, 1.035, SPEEDLANE),
+      length: AutoMovieArchetypeBand.metres(1.776, 1.776, SPEEDLANE),
+      barrier: AutoMovieArchetypeBand.metres(0.94, 0.94, SPEEDLANE),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        150,
+        250,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
   };
 }

@@ -1,10 +1,10 @@
 import {
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type EquineBank,
-  QuadrupedBody,
-  type QuadrupedFooting,
-  QuadrupedJoints,
+  type AutoMovieArchetypeEquineBank,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeQuadrupedFooting,
+  AutoMovieArchetypeQuadrupedJoints,
+  AutoMovieArchetypeRefusal,
   createHorse,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
@@ -54,7 +54,7 @@ const TRANSFER: number = 0.4;
 const UPRIGHT: number = 10;
 
 /** The slide on the face, at a friction. */
-const slide = (friction: number): EquineBank.ISlide => ({
+const slide = (friction: number): AutoMovieArchetypeEquineBank.ISlide => ({
   kind: "bank-slide",
   friction,
   source: "authored",
@@ -98,7 +98,10 @@ export function test_archetype_equine_bank_slide(): void {
   // 1. The hinds slide on the face; the fores do not.
   const step: number = 0.1;
   /** A hoof on its surface through a read interval, at each of its fifths, that moves more than a sole's tolerance: a slide, not a liftoff or a touchdown. */
-  const slides = (at: number, limb: QuadrupedBody.Limb): boolean => {
+  const slides = (
+    at: number,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
+  ): boolean => {
     if (
       ![0, 0.25, 0.5, 0.75, 1].every(
         (share: number): boolean =>
@@ -108,9 +111,10 @@ export function test_archetype_equine_bank_slide(): void {
       return false;
     // A hoof rolling over its toe at breakover turns while its sole stays down; a slide carries it without turning.
     const turn = (when: number): IAutoMovieQuaternion =>
-      ArchetypeFrame.compose(
+      AutoMovieArchetypeFrame.compose(
         ride.at(when).placement,
-        read.part(when, QuadrupedBody.BONES[limb][3]).transform!,
+        read.part(when, AutoMovieArchetypeQuadrupedBody.BONES[limb][3])
+          .transform!,
       ).rotation;
     const a: IAutoMovieQuaternion = turn(at);
     const b: IAutoMovieQuaternion = turn(at + step);
@@ -121,11 +125,12 @@ export function test_archetype_equine_bank_slide(): void {
       );
     return (
       rolled < ROLL &&
-      Vector3.distance(read.hoof(at, limb), read.hoof(at + step, limb)) > SURFACE
+      Vector3.distance(read.hoof(at, limb), read.hoof(at + step, limb)) >
+        SURFACE
     );
   };
   for (let at: number = sat; at + step <= rise; at += step)
-    for (const limb of QuadrupedBody.LIMBS) {
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const here: number = read.sole(at, limb);
       if (!limb.endsWith("Fore")) {
         if (!(Math.abs(here) <= SURFACE))
@@ -142,24 +147,31 @@ export function test_archetype_equine_bank_slide(): void {
 
   // 6. No standing hoof within its pastern's length of the face's concave foot.
   const foot: number = equineBankStage.APPROACH + FACE.run;
-  const rig: ReturnType<typeof QuadrupedJoints.read> = QuadrupedJoints.read(
-    horse.parts,
-  );
-  const pasterns: Readonly<Record<QuadrupedBody.Limb, number>> = {
+  const rig: ReturnType<typeof AutoMovieArchetypeQuadrupedJoints.read> =
+    AutoMovieArchetypeQuadrupedJoints.read(horse.parts);
+  const pasterns: Readonly<
+    Record<AutoMovieArchetypeQuadrupedBody.Limb, number>
+  > = {
     leftFore: Vector3.distance(rig.limbs.leftFore[3]!, rig.limbs.leftFore[4]!),
-    rightFore: Vector3.distance(rig.limbs.rightFore[3]!, rig.limbs.rightFore[4]!),
+    rightFore: Vector3.distance(
+      rig.limbs.rightFore[3]!,
+      rig.limbs.rightFore[4]!,
+    ),
     leftHind: Vector3.distance(rig.limbs.leftHind[3]!, rig.limbs.leftHind[4]!),
-    rightHind: Vector3.distance(rig.limbs.rightHind[3]!, rig.limbs.rightHind[4]!),
+    rightHind: Vector3.distance(
+      rig.limbs.rightHind[3]!,
+      rig.limbs.rightHind[4]!,
+    ),
   };
   for (let at: number = 0.5; at <= ride.duration; at += step)
-    for (const limb of QuadrupedBody.LIMBS) {
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       if (!(Math.abs(read.sole(at, limb)) <= SURFACE)) continue;
       // The hoof's terminal endpoint lies its rig pastern along the bar from the fetlock.
       const [top, bottom] = equineFordScene.ends(
-        read.part(at, QuadrupedBody.BONES[limb][3]),
+        read.part(at, AutoMovieArchetypeQuadrupedBody.BONES[limb][3]),
       );
       const reach: number = pasterns[limb];
-      const endpoint: IAutoMovieVector3 = ArchetypeFrame.point(
+      const endpoint: IAutoMovieVector3 = AutoMovieArchetypeFrame.point(
         ride.at(at).placement,
         Vector3.addScaled(
           top,
@@ -168,10 +180,10 @@ export function test_archetype_equine_bank_slide(): void {
         ),
       );
       // Its foothold is the endpoint laid along its plane's normal onto the plane, where the hoof meets the footing.
-      const plane: QuadrupedFooting.IPlane = equineBankStage
+      const plane: AutoMovieArchetypeQuadrupedFooting.IPlane = equineBankStage
         .planes(FACE)
         .find(
-          (p: QuadrupedFooting.IPlane): boolean =>
+          (p: AutoMovieArchetypeQuadrupedFooting.IPlane): boolean =>
             endpoint.z >= p.z[0] && endpoint.z < p.z[1],
         )!;
       const normal: IAutoMovieVector3 = Vector3.normalize({
@@ -206,7 +218,7 @@ export function test_archetype_equine_bank_slide(): void {
   };
   const middle: number = (sat + rise) / 2;
   for (const limb of ["leftHind", "rightHind"] as const) {
-    const [femur, tibia, cannon] = QuadrupedBody.BONES[limb];
+    const [femur, tibia, cannon] = AutoMovieArchetypeQuadrupedBody.BONES[limb];
     for (const [joint, upper, lower] of [
       ["stifle", femur, tibia],
       ["hock", tibia, cannon],
@@ -216,7 +228,7 @@ export function test_archetype_equine_bank_slide(): void {
         issues.push(`${limb} ${joint} flexes only ${extra} degrees more sat`);
     }
   }
-  const trunk: IAutoMovieTransform = ArchetypeFrame.compose(
+  const trunk: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     ride.at(middle).placement,
     read.part(middle, "trunk").transform!,
   );
@@ -247,13 +259,18 @@ export function test_archetype_equine_bank_slide(): void {
   }
 
   // 4. Refusals.
-  const refused: readonly [string, equineBankStage.IFace, number, boolean, boolean][] =
-    [
-      ["an over-steep face", { ...FACE, grade: -1.2 }, FRICTION, true, true],
-      ["a face its friction holds", FACE, 0.7, true, true],
-      ["a slide without a run-out", FACE, FRICTION, false, true],
-      ["a slide without footing", FACE, FRICTION, true, false],
-    ];
+  const refused: readonly [
+    string,
+    equineBankStage.IFace,
+    number,
+    boolean,
+    boolean,
+  ][] = [
+    ["an over-steep face", { ...FACE, grade: -1.2 }, FRICTION, true, true],
+    ["a face its friction holds", FACE, 0.7, true, true],
+    ["a slide without a run-out", FACE, FRICTION, false, true],
+    ["a slide without footing", FACE, FRICTION, true, false],
+  ];
   for (const [label, face, friction, runOut, footing] of refused) {
     let refusal: unknown = null;
     try {
@@ -266,11 +283,13 @@ export function test_archetype_equine_bank_slide(): void {
     }
     if (
       !(
-        refusal instanceof ArchetypeRefusal &&
+        refusal instanceof AutoMovieArchetypeRefusal &&
         refusal.axis === "legs[1].equineFootwork"
       )
     )
-      issues.push(`${label} must be refused on legs[1]; got ${String(refusal)}`);
+      issues.push(
+        `${label} must be refused on legs[1]; got ${String(refusal)}`,
+      );
   }
 
   // 5. The carried rider.

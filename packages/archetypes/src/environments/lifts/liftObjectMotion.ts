@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import type { createElevator } from "../../architecture/createElevator";
-import { ArchetypeFrame } from "../../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import type { createLift } from "./createLift";
 import type { liftStopHeights } from "./liftStopHeights";
 
@@ -77,7 +77,10 @@ export function liftObjectMotion(
     firstPlacement.node,
     schedule.flatMap(({ stop }): number[] =>
       translation(
-        ArchetypeFrame.point(frame, Vector3.create(0, atHeight(stop), 0)),
+        AutoMovieArchetypeFrame.point(
+          frame,
+          Vector3.create(0, atHeight(stop), 0),
+        ),
       ),
     ),
   );
@@ -89,14 +92,14 @@ export function liftObjectMotion(
   for (const door of ["leftDoor", "rightDoor"] as const) {
     const slider = car.affordance(door);
     const sweep: IAutoMovieVector3 = Vector3.scale(
-      ArchetypeFrame.axis(slider.frame, "x"),
+      AutoMovieArchetypeFrame.axis(slider.frame, "x"),
       slider.travel!,
     );
     append(
       `${firstPlacement.node}/${door}`,
       schedule.flatMap(({ doors, stop }): number[] =>
         translation(
-          ArchetypeFrame.point(
+          AutoMovieArchetypeFrame.point(
             frame,
             Vector3.add(
               Vector3.create(0, atHeight(stop), 0),
@@ -112,7 +115,7 @@ export function liftObjectMotion(
         `${environment.id}/stops/${stop}/doors/${door}`,
         schedule.flatMap((key): number[] =>
           translation(
-            ArchetypeFrame.point(
+            AutoMovieArchetypeFrame.point(
               frame,
               Vector3.add(
                 rest,

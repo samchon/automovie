@@ -1,4 +1,4 @@
-import { ArchetypeBand, ArchetypeUnits } from "../core";
+import { AutoMovieArchetypeBand, AutoMovieArchetypeUnits } from "../core";
 import type { createTable } from "./createTable";
 
 /** The UK furniture schedule. */
@@ -36,154 +36,198 @@ const WOERNER: string =
 /** The band of each free dimension of `createTable`, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size. */
 export const TABLE_BANDS: typeof createTable.BANDS = {
   dining: {
-    height: ArchetypeBand.metres(
+    height: AutoMovieArchetypeBand.metres(
       0.71,
-      30 * ArchetypeUnits.INCH,
+      30 * AutoMovieArchetypeUnits.INCH,
       `2010 ADA Standards 902.3, dining surface at least 28 in (710 mm) high (https://www.access-board.gov/ada/), up to the 30 in table of ${NKBA}`,
     ),
-    length: ArchetypeBand.metres(
+    length: AutoMovieArchetypeBand.metres(
       0.8,
       1.65,
       `${ADM}: dining table 800 mm deep and 800 to 1650 mm long`,
     ),
-    depth: ArchetypeBand.metres(0.8, 0.8, `${ADM}: dining table 800 mm deep`),
-    mass: ArchetypeBand.of("kg", 20, 45, ArchetypeBand.TYPICAL_MASS, true),
+    depth: AutoMovieArchetypeBand.metres(
+      0.8,
+      0.8,
+      `${ADM}: dining table 800 mm deep`,
+    ),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      20,
+      45,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   desk: {
-    height: ArchetypeBand.metres(
+    height: AutoMovieArchetypeBand.metres(
       0.72,
       0.76,
       `${EN527}: fixed height desk, 740 mm plus or minus 20`,
     ),
-    length: ArchetypeBand.metres(
-      46 * ArchetypeUnits.INCH,
-      60 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      46 * AutoMovieArchetypeUnits.INCH,
+      60 * AutoMovieArchetypeUnits.INCH,
       "ANSI/HFES 100-2007, work surface at least 46 in wide and 60 in recommended, as quoted by the University of Washington furniture guide (https://facilities.uw.edu/files/media/uwf-ds-eh-and-s-office-ergonomics-furniture-design.pdf)",
       true,
     ),
-    depth: ArchetypeBand.metres(
+    depth: AutoMovieArchetypeBand.metres(
       0.6,
       0.8,
       `${EN527}: desk top at least 800 mm deep, 600 mm acceptable in some situations`,
     ),
-    mass: ArchetypeBand.of("kg", 20, 45, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      20,
+      45,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   counter: {
-    height: ArchetypeBand.metres(
+    height: AutoMovieArchetypeBand.metres(
       0.914,
       0.914,
       `${NKBA}: 36 in (914 mm) high counters`,
     ),
-    length: ArchetypeBand.metres(
+    length: AutoMovieArchetypeBand.metres(
       1.2,
       2.4,
       "counter run length, not read at a source",
       true,
     ),
-    depth: ArchetypeBand.metres(
+    depth: AutoMovieArchetypeBand.metres(
       0.508,
       0.635,
       `${NKBA}: 508 to 635 mm deep counter`,
     ),
-    mass: ArchetypeBand.of("kg", 40, 90, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      40,
+      90,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   coffee: {
-    height: ArchetypeBand.metres(
+    height: AutoMovieArchetypeBand.metres(
       0.4,
       0.45,
       "coffee table height, not read at a source",
       true,
     ),
-    length: ArchetypeBand.metres(
+    length: AutoMovieArchetypeBand.metres(
       1.05,
       1.05,
       `${ADM}: coffee table 500 x 1050 mm`,
     ),
-    depth: ArchetypeBand.metres(0.5, 0.5, `${ADM}: coffee table 500 x 1050 mm`),
-    mass: ArchetypeBand.of("kg", 8, 20, ArchetypeBand.TYPICAL_MASS, true),
+    depth: AutoMovieArchetypeBand.metres(
+      0.5,
+      0.5,
+      `${ADM}: coffee table 500 x 1050 mm`,
+    ),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      8,
+      20,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   bar: {
-    height: ArchetypeBand.metres(1.067, 1.067, SEATING),
-    length: ArchetypeBand.metres(
+    height: AutoMovieArchetypeBand.metres(1.067, 1.067, SEATING),
+    length: AutoMovieArchetypeBand.metres(
       1.2,
       2.4,
       "counter run length, not read at a source",
       true,
     ),
-    depth: ArchetypeBand.metres(
+    depth: AutoMovieArchetypeBand.metres(
       0.813,
       0.94,
       `${NKBA}: a 508 to 635 mm deep counter under the top, the top reaching the 305 mm knee space further over it; ${SEATING}`,
     ),
-    mass: ArchetypeBand.of("kg", 50, 110, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      50,
+      110,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   serviceCounter: {
-    height: ArchetypeBand.metres(0.91, 0.91, SERVICE),
-    depth: ArchetypeBand.metres(0.76, 0.76, SERVICE),
-    mass: ArchetypeBand.of("kg", 40, 90, ArchetypeBand.TYPICAL_MASS, true),
+    height: AutoMovieArchetypeBand.metres(0.91, 0.91, SERVICE),
+    depth: AutoMovieArchetypeBand.metres(0.76, 0.76, SERVICE),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      40,
+      90,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   workbench: {
-    height: ArchetypeBand.metres(
-      90 * ArchetypeUnits.CENTIMETRE,
-      94 * ArchetypeUnits.CENTIMETRE,
+    height: AutoMovieArchetypeBand.metres(
+      90 * AutoMovieArchetypeUnits.CENTIMETRE,
+      94 * AutoMovieArchetypeUnits.CENTIMETRE,
       `${RIMFORSA}: its adjustable height`,
     ),
-    length: ArchetypeBand.metres(
-      120 * ArchetypeUnits.CENTIMETRE,
-      120 * ArchetypeUnits.CENTIMETRE,
+    length: AutoMovieArchetypeBand.metres(
+      120 * AutoMovieArchetypeUnits.CENTIMETRE,
+      120 * AutoMovieArchetypeUnits.CENTIMETRE,
       RIMFORSA,
     ),
-    depth: ArchetypeBand.metres(
-      63.5 * ArchetypeUnits.CENTIMETRE,
-      63.5 * ArchetypeUnits.CENTIMETRE,
+    depth: AutoMovieArchetypeBand.metres(
+      63.5 * AutoMovieArchetypeUnits.CENTIMETRE,
+      63.5 * AutoMovieArchetypeUnits.CENTIMETRE,
       RIMFORSA,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       40,
       64,
-      `${ArchetypeBand.TYPICAL_MASS}; its three packages weigh 64.5 kg`,
+      `${AutoMovieArchetypeBand.TYPICAL_MASS}; its three packages weigh 64.5 kg`,
       true,
     ),
   },
   pupilDesk: {
-    length: ArchetypeBand.metres(
-      24 * ArchetypeUnits.INCH,
-      24 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      24 * AutoMovieArchetypeUnits.INCH,
+      24 * AutoMovieArchetypeUnits.INCH,
       SILHOUETTE,
     ),
-    depth: ArchetypeBand.metres(
-      18 * ArchetypeUnits.INCH,
-      18 * ArchetypeUnits.INCH,
+    depth: AutoMovieArchetypeBand.metres(
+      18 * AutoMovieArchetypeUnits.INCH,
+      18 * AutoMovieArchetypeUnits.INCH,
       SILHOUETTE,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      33 * ArchetypeUnits.POUND,
-      33 * ArchetypeUnits.POUND,
+      33 * AutoMovieArchetypeUnits.POUND,
+      33 * AutoMovieArchetypeUnits.POUND,
       SILHOUETTE,
     ),
   },
   altar: {
-    height: ArchetypeBand.metres(
-      40 * ArchetypeUnits.INCH,
-      40 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      40 * AutoMovieArchetypeUnits.INCH,
+      40 * AutoMovieArchetypeUnits.INCH,
       WOERNER,
     ),
-    length: ArchetypeBand.metres(
-      72 * ArchetypeUnits.INCH,
-      72 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      72 * AutoMovieArchetypeUnits.INCH,
+      72 * AutoMovieArchetypeUnits.INCH,
       WOERNER,
     ),
-    depth: ArchetypeBand.metres(
-      30 * ArchetypeUnits.INCH,
-      30 * ArchetypeUnits.INCH,
+    depth: AutoMovieArchetypeBand.metres(
+      30 * AutoMovieArchetypeUnits.INCH,
+      30 * AutoMovieArchetypeUnits.INCH,
       WOERNER,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      275 * ArchetypeUnits.POUND,
-      450 * ArchetypeUnits.POUND,
+      275 * AutoMovieArchetypeUnits.POUND,
+      450 * AutoMovieArchetypeUnits.POUND,
       "the Woerner catalog gives no mass; Cokesbury's listings of Woerner's 417 (60 x 28 x 39 in, 275 lb) and 656 (72 x 40 x 39 in, 450 lb) altars, seen only in search results, bound it",
       true,
     ),

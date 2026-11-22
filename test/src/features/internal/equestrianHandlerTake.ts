@@ -1,10 +1,10 @@
 import {
-  type ArchetypeRide,
-  EquineCare,
-  EquineExpression,
-  type EquineExpressionCue,
-  EquineStance,
-  HorseSaddleProp,
+  AutoMovieArchetypeEquineCare,
+  AutoMovieArchetypeEquineExpression,
+  type AutoMovieArchetypeEquineExpressionCue,
+  AutoMovieArchetypeEquineSaddleProp,
+  AutoMovieArchetypeEquineStance,
+  type AutoMovieArchetypeRide,
   createGroomingBrush,
   createHalter,
   createHorse,
@@ -59,7 +59,7 @@ export namespace equestrianHandlerTake {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the handler test.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export type Ride = ArchetypeRide.IRide<
+  export type Ride = AutoMovieArchetypeRide.IRide<
     createHorse.Affordance,
     createHorse.Dimension
   >;
@@ -108,7 +108,10 @@ export namespace equestrianHandlerTake {
     /** The horse as displayed, on the take's clock. */
     horse: (
       at: number,
-    ) => ArchetypeRide.ISample<createHorse.Affordance, createHorse.Dimension>;
+    ) => AutoMovieArchetypeRide.ISample<
+      createHorse.Affordance,
+      createHorse.Dimension
+    >;
 
     /** The horse's contact frames, care points included, at a take second. */
     part: (id: string, at: number) => IAutoMovieTransform;
@@ -156,10 +159,11 @@ export namespace equestrianHandlerTake {
       { tack: "bareback", withersHeight: 1.6, tempo: 0 },
       5,
     );
-    const saddle: ReturnType<typeof HorseSaddleProp.of> = HorseSaddleProp.of(
-      createHorse({ tack: "saddle", withersHeight: 1.6, tempo: 0 }, 5),
-      horse,
-    );
+    const saddle: ReturnType<typeof AutoMovieArchetypeEquineSaddleProp.of> =
+      AutoMovieArchetypeEquineSaddleProp.of(
+        createHorse({ tack: "saddle", withersHeight: 1.6, tempo: 0 }, 5),
+        horse,
+      );
     // The handler leads the horse in on a straight approach; its progress is matched to the handler's walk in the lead-in.
     const approach = (course: equineLeadOut.IMatchedCourse): Ride =>
       rideHorse(
@@ -182,8 +186,9 @@ export namespace equestrianHandlerTake {
       acceleration: 1,
       deceleration: 1,
     });
-    const care: EquineCare.IPoints = EquineCare.of(horse);
-    const halt: ArchetypeRide.ISample<
+    const care: AutoMovieArchetypeEquineCare.IPoints =
+      AutoMovieArchetypeEquineCare.of(horse);
+    const halt: AutoMovieArchetypeRide.ISample<
       createHorse.Affordance,
       createHorse.Dimension
     > = ride.at(ride.duration);
@@ -367,8 +372,10 @@ export namespace equestrianHandlerTake {
       film,
       horse: (
         at: number,
-      ): ArchetypeRide.ISample<createHorse.Affordance, createHorse.Dimension> =>
-        shown.at(at + offset),
+      ): AutoMovieArchetypeRide.ISample<
+        createHorse.Affordance,
+        createHorse.Dimension
+      > => shown.at(at + offset),
       part: prop(shown, offset).part,
       affordances: [...horse.affordances, ...care.affordances],
       halter,
@@ -402,7 +409,9 @@ export namespace equestrianHandlerTake {
       // While the handler puts the halter on, the horse holds its head lowered to the handler's chest.
       const shown: Ride =
         scene === "headgear"
-          ? EquineExpression.layer(horse, ride, [lowered(ride.duration, spot)])
+          ? AutoMovieArchetypeEquineExpression.layer(horse, ride, [
+              lowered(ride.duration, spot),
+            ])
           : ride;
       return finish(shown, offset, stage(shown, offset, null));
     }
@@ -411,7 +420,7 @@ export namespace equestrianHandlerTake {
     const rehearsal: HumanPerformance = stage(ride, offset, null);
     const hold: IAutoMovieMotionHumanSegment =
       rehearsal.overlays("handler")[0]!;
-    const stance: Ride = EquineStance.after(horse, ride, [
+    const stance: Ride = AutoMovieArchetypeEquineStance.after(horse, ride, [
       {
         kind: "hoof",
         limb: "leftFore",
@@ -428,24 +437,28 @@ export namespace equestrianHandlerTake {
         exit: 0.8,
       },
     ]);
-    const shown: Ride = EquineExpression.layer(horse, stance, [
-      {
-        kind: "ear",
-        side: "left",
-        carriage: "lateral",
-        from: offset + hold.start,
-        to: offset + hold.end,
-        ease: 0.3,
-      },
-      {
-        kind: "ear",
-        side: "right",
-        carriage: "forward",
-        from: offset + hold.end + 1.4,
-        to: offset + hold.end + 3,
-        ease: 0.2,
-      },
-    ]);
+    const shown: Ride = AutoMovieArchetypeEquineExpression.layer(
+      horse,
+      stance,
+      [
+        {
+          kind: "ear",
+          side: "left",
+          carriage: "lateral",
+          from: offset + hold.start,
+          to: offset + hold.end,
+          ease: 0.3,
+        },
+        {
+          kind: "ear",
+          side: "right",
+          carriage: "forward",
+          from: offset + hold.end + 1.4,
+          to: offset + hold.end + 3,
+          ease: 0.2,
+        },
+      ],
+    );
     return finish(shown, offset, stage(shown, offset, null));
   }
 
@@ -453,7 +466,7 @@ export namespace equestrianHandlerTake {
   function lowered(
     halt: number,
     spot: IAutoMovieVector3,
-  ): EquineExpressionCue.IReach {
+  ): AutoMovieArchetypeEquineExpressionCue.IReach {
     return {
       kind: "reach",
       act: "sniff",

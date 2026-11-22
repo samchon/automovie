@@ -1,5 +1,5 @@
 import {
-  ArchetypeRide,
+  AutoMovieArchetypeRide,
   createCart,
   createHorse,
   rideHorse,
@@ -85,7 +85,7 @@ export function test_towed_native_pose_witness(): void {
       : leader;
     return {
       leader,
-      tow: ArchetypeRide.towed(source, "hitch", cart, "coupling", {
+      tow: AutoMovieArchetypeRide.towed(source, "hitch", cart, "coupling", {
         lines: createCart.lines(cart),
         support: createCart.towing(cart),
       }),

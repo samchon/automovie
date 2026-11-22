@@ -1,12 +1,12 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  type ArchetypeCourse,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeRide,
-  ArchetypeUnits,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeRide,
+  AutoMovieArchetypeUnits,
 } from "@automovie/archetypes";
 import { Vector3, integrateMotionTrajectory } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
@@ -22,17 +22,20 @@ const REACH: number = 2;
  * @param z Where the hook stands along `Z`, metres.
  * @returns The fixture.
  */
-function hooked<Id extends string>(id: Id, z: number): Archetype<Id, never> {
-  return new ArchetypeBuilder<Id, never>({
+function hooked<Id extends string>(
+  id: Id,
+  z: number,
+): AutoMovieArchetype<Id, never> {
+  return new AutoMovieArchetypeBuilder<Id, never>({
     material: "steel",
     name: id,
-    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
+    draw: new AutoMovieArchetypeDrawSession<never>("fixture", {}, undefined),
   })
     .box("body", Vector3.create(1, 0.5, 1), Vector3.create(0, 0.25, 0))
     .affordance({
       id,
       kind: "hook",
-      frame: ArchetypeFrame.upright(Vector3.create(0, 0.5, z)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0.5, z)),
       extent: null,
     })
     .build(100);
@@ -56,7 +59,7 @@ function hooked<Id extends string>(id: Id, z: number): Archetype<Id, never> {
  */
 export function test_motion_archetype_towed_coupling(): void {
   const findings: string[] = [];
-  const course: ArchetypeCourse.ICourse = {
+  const course: AutoMovieArchetypeCourse.ICourse = {
     start: { x: 0, z: 0, heading: 0 },
     legs: [
       { kind: "straight", length: 20 },
@@ -67,22 +70,19 @@ export function test_motion_archetype_towed_coupling(): void {
     acceleration: 1,
     deceleration: 1,
   };
-  const leader: ArchetypeRide.IRide<"hitch", never> = ArchetypeRide.along(
-    hooked("hitch", -1.5),
-    course,
-  );
-  const trailer: Archetype<"coupling", never> = hooked("coupling", REACH);
-  const towed: ArchetypeRide.IRide<"coupling", never> = ArchetypeRide.towed(
-    leader,
-    "hitch",
-    trailer,
+  const leader: AutoMovieArchetypeRide.IRide<"hitch", never> =
+    AutoMovieArchetypeRide.along(hooked("hitch", -1.5), course);
+  const trailer: AutoMovieArchetype<"coupling", never> = hooked(
     "coupling",
+    REACH,
   );
+  const towed: AutoMovieArchetypeRide.IRide<"coupling", never> =
+    AutoMovieArchetypeRide.towed(leader, "hitch", trailer, "coupling");
   const headingOf = (
-    frame: Parameters<typeof ArchetypeFrame.axis>[0],
+    frame: Parameters<typeof AutoMovieArchetypeFrame.axis>[0],
   ): number => {
-    const z: IAutoMovieVector3 = ArchetypeFrame.axis(frame, "z");
-    return Math.atan2(z.x, z.z) / ArchetypeUnits.DEGREE;
+    const z: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(frame, "z");
+    return Math.atan2(z.x, z.z) / AutoMovieArchetypeUnits.DEGREE;
   };
   const turnStart: number = leader.plan.when(20);
   const turnEnd: number = leader.plan.when(20 + 5 * Math.PI);
@@ -142,11 +142,19 @@ export function test_motion_archetype_towed_coupling(): void {
   // 5. A pushed trailer.
   let thrown: unknown = null;
   try {
-    ArchetypeRide.towed(leader, "hitch", hooked("coupling", -1), "coupling");
+    AutoMovieArchetypeRide.towed(
+      leader,
+      "hitch",
+      hooked("coupling", -1),
+      "coupling",
+    );
   } catch (error) {
     thrown = error;
   }
-  if (!(thrown instanceof ArchetypeRefusal) || thrown.axis !== "coupling")
+  if (
+    !(thrown instanceof AutoMovieArchetypeRefusal) ||
+    thrown.axis !== "coupling"
+  )
     findings.push(`a coupling behind the axle: ${String(thrown)}`);
   TestValidator.equals("a towed trailer tracks its hitch", findings, []);
 }

@@ -8,9 +8,9 @@ import type {
 } from "@automovie/interface";
 
 import type { ArchetypeBuilderTypes } from "./ArchetypeBuilderTypes";
-import type { ArchetypeConvexCell } from "./ArchetypeConvexCell";
-import { ArchetypeFrame } from "./ArchetypeFrame";
-import type { ArchetypeFriction } from "./ArchetypeFriction";
+import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
+import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
+import type { AutoMovieArchetypeFriction } from "./AutoMovieArchetypeFriction";
 
 /**
  * One builder's actual parts and the shared material/mass records they use.
@@ -32,9 +32,13 @@ export class ArchetypeBuilderParts {
   /** Authored mass weights by part id. */
   public readonly shares: Record<string, number> = {};
   /** Declared physical surfaces by part id. */
-  public readonly surfaces: Record<string, ArchetypeFriction.Material> = {};
+  public readonly surfaces: Record<
+    string,
+    AutoMovieArchetypeFriction.Material
+  > = {};
   /** Explicit actual convex cells; primitive parts need no extra record. */
-  public readonly cells: Map<string, ArchetypeConvexCell.ICell> = new Map();
+  public readonly cells: Map<string, AutoMovieArchetypeConvexCell.ICell> =
+    new Map();
 
   /** @param archetype Producer name used only in duplicate-id diagnostics. */
   public constructor(private readonly archetype: string) {}
@@ -93,7 +97,7 @@ export class ArchetypeBuilderParts {
       transform: {
         translation: { ...at },
         rotation: rotation ?? { x: 0, y: 0, z: 0, w: 1 },
-        scale: { ...ArchetypeFrame.UNIT },
+        scale: { ...AutoMovieArchetypeFrame.UNIT },
       },
     });
   }

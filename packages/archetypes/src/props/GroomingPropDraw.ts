@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { CARE_ITEM_BANDS } from "./CARE_ITEM_BANDS";
 
@@ -113,7 +113,9 @@ export namespace GroomingPropDraw {
   export type Dimension = "length" | "width" | "thickness" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     thickness: "m",
@@ -189,68 +191,72 @@ export namespace GroomingPropDraw {
     },
     razor: {
       edwinJagger: { length: 0.129, mass: 0.087 },
-      gilletteMach3: { length: 5.4 * ArchetypeUnits.INCH, mass: 0.035 },
+      gilletteMach3: {
+        length: 5.4 * AutoMovieArchetypeUnits.INCH,
+        mass: 0.035,
+      },
     },
   };
 
   /** Each Alltub tube diameter's own range of lengths, metres, from the data sheet. */
-  export const TUBE_LENGTHS: Readonly<Partial<Record<Model, IArchetypeBand>>> =
-    {
-      alltub13_5: ArchetypeBand.metres(
-        0.045,
-        0.16,
-        `${ALLTUB}: the 13.5 mm tube's lengths`,
-      ),
-      alltub19: ArchetypeBand.metres(
-        0.045,
-        0.16,
-        `${ALLTUB}: the 19 mm tube's lengths`,
-      ),
-      alltub22: ArchetypeBand.metres(
-        0.075,
-        0.125,
-        `${ALLTUB}: the 22 mm tube's lengths`,
-      ),
-      alltub25: ArchetypeBand.metres(
-        0.075,
-        0.16,
-        `${ALLTUB}: the 25 mm tube's lengths`,
-      ),
-      alltub28: ArchetypeBand.metres(
-        0.075,
-        0.19,
-        `${ALLTUB}: the 28 mm tube's lengths`,
-      ),
-      alltub30: ArchetypeBand.metres(
-        0.075,
-        0.19,
-        `${ALLTUB}: the 30 mm tube's lengths`,
-      ),
-      alltub35: ArchetypeBand.metres(
-        0.075,
-        0.181,
-        `${ALLTUB}: the 35 mm tube's lengths`,
-      ),
-      alltub38: ArchetypeBand.metres(
-        0.075,
-        0.205,
-        `${ALLTUB}: the 38 mm tube's lengths`,
-      ),
-      alltub40: ArchetypeBand.metres(
-        0.06,
-        0.2,
-        `${ALLTUB}: the 40 mm tube's lengths`,
-      ),
-      alltub50: ArchetypeBand.metres(
-        0.06,
-        0.2,
-        `${ALLTUB}: the 50 mm tube's lengths`,
-      ),
-    };
+  export const TUBE_LENGTHS: Readonly<
+    Partial<Record<Model, IAutoMovieArchetypeBand>>
+  > = {
+    alltub13_5: AutoMovieArchetypeBand.metres(
+      0.045,
+      0.16,
+      `${ALLTUB}: the 13.5 mm tube's lengths`,
+    ),
+    alltub19: AutoMovieArchetypeBand.metres(
+      0.045,
+      0.16,
+      `${ALLTUB}: the 19 mm tube's lengths`,
+    ),
+    alltub22: AutoMovieArchetypeBand.metres(
+      0.075,
+      0.125,
+      `${ALLTUB}: the 22 mm tube's lengths`,
+    ),
+    alltub25: AutoMovieArchetypeBand.metres(
+      0.075,
+      0.16,
+      `${ALLTUB}: the 25 mm tube's lengths`,
+    ),
+    alltub28: AutoMovieArchetypeBand.metres(
+      0.075,
+      0.19,
+      `${ALLTUB}: the 28 mm tube's lengths`,
+    ),
+    alltub30: AutoMovieArchetypeBand.metres(
+      0.075,
+      0.19,
+      `${ALLTUB}: the 30 mm tube's lengths`,
+    ),
+    alltub35: AutoMovieArchetypeBand.metres(
+      0.075,
+      0.181,
+      `${ALLTUB}: the 35 mm tube's lengths`,
+    ),
+    alltub38: AutoMovieArchetypeBand.metres(
+      0.075,
+      0.205,
+      `${ALLTUB}: the 38 mm tube's lengths`,
+    ),
+    alltub40: AutoMovieArchetypeBand.metres(
+      0.06,
+      0.2,
+      `${ALLTUB}: the 40 mm tube's lengths`,
+    ),
+    alltub50: AutoMovieArchetypeBand.metres(
+      0.06,
+      0.2,
+      `${ALLTUB}: the 50 mm tube's lengths`,
+    ),
+  };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = CARE_ITEM_BANDS;
 
   /**
@@ -263,7 +269,7 @@ export namespace GroomingPropDraw {
    */
   export interface IPrepareResult<Id extends Affordance> {
     /** The prepared `builder` this call returns. */
-    builder: ArchetypeBuilder<Id, Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
     /** The prepared `d` this call returns. */
     d: Partial<Record<Dimension, number>>;
@@ -276,7 +282,7 @@ export namespace GroomingPropDraw {
    * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
    * @param kind The saved kind whose recipe is used.
    * @returns The builder and dimensions the named producer reads.
-   * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Prepare an empty builder and the previously recorded careItem dimensions.
    * @evidence contracts/development/implementation.md#principled-implementation The `careItem` draw session uses the original seeds, model table, and bands in their original order.
@@ -291,15 +297,20 @@ export namespace GroomingPropDraw {
     params: Omit<IParams, "kind">,
     seed?: number | string,
   ): IPrepareResult<Id> {
-    const draw: ArchetypeDrawSession<Dimension> =
-      new ArchetypeDrawSession<Dimension>("careItem", UNITS, seed, params);
+    const draw: AutoMovieArchetypeDrawSession<Dimension> =
+      new AutoMovieArchetypeDrawSession<Dimension>(
+        "careItem",
+        UNITS,
+        seed,
+        params,
+      );
     // A tube is one of Alltub's diameters, its length drawn in that diameter's own range; a razor one of the two razors read, whole.
     const model: {
       name: Model | undefined;
       figures: Figures;
     } = draw.model<Model>("model", params.model, MODELS[kind]);
     // The model's own range bands its length, so the author's length is checked in it.
-    const range: IArchetypeBand | undefined =
+    const range: IAutoMovieArchetypeBand | undefined =
       model.name === undefined ? undefined : TUBE_LENGTHS[model.name];
     const d: Partial<Record<Dimension, number>> = {
       ...draw.dimensions(
@@ -308,12 +319,13 @@ export namespace GroomingPropDraw {
       ),
       ...model.figures,
     };
-    const builder: ArchetypeBuilder<Id, Dimension> = new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: NAMES[kind],
-      draw,
-    });
+    const builder: AutoMovieArchetypeBuilder<Id, Dimension> =
+      new AutoMovieArchetypeBuilder({
+        material: "composite",
+        id: params.id,
+        name: NAMES[kind],
+        draw,
+      });
     return { builder, d };
   }
 
@@ -381,7 +393,7 @@ export namespace GroomingPropDraw {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
    */
   export function addHead(
-    builder: ArchetypeBuilder<AddHeadContact, Dimension>,
+    builder: AutoMovieArchetypeBuilder<AddHeadContact, Dimension>,
     dimensions: IHead,
     colors: IHeadColors,
   ): void {
@@ -403,7 +415,7 @@ export namespace GroomingPropDraw {
       id: "grip",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, width / 2, (length - head) / 2),
         Vector3.create(0, 1, 0),
         Vector3.create(0, 0, 1),
@@ -417,7 +429,7 @@ export namespace GroomingPropDraw {
       id: "face",
       kind: "surface",
       direction: "normal",
-      frame: ArchetypeFrame.upright(
+      frame: AutoMovieArchetypeFrame.upright(
         Vector3.create(0, width * 1.6, length - head / 2),
       ),
       extent: null,

@@ -1,4 +1,8 @@
-import { ArchetypeFrame, createBoat, rowBoat } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeFrame,
+  createBoat,
+  rowBoat,
+} from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
@@ -148,7 +152,7 @@ export function test_motion_posture_oar_handle_tracking(): void {
             leftOar: native.travel("leftOar"),
             rightOar: native.travel("rightOar"),
           });
-          return ArchetypeFrame.compose(
+          return AutoMovieArchetypeFrame.compose(
             instant.placement,
             posed.affordance(name).frame,
           );

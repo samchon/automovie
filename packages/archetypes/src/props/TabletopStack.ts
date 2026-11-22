@@ -1,6 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 
 /**
  * The shared contacts of a small flat tabletop prop that rests on, and
@@ -44,7 +47,7 @@ export namespace TabletopStack {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function contacts<Id extends string, D extends string>(
-    builder: ArchetypeBuilder<Contact | Id, D>,
+    builder: AutoMovieArchetypeBuilder<Contact | Id, D>,
     height: number,
     aperture: number,
   ): void {
@@ -53,7 +56,11 @@ export namespace TabletopStack {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, height, 0), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, height, 0),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       grip: "precision",
       aperture,
@@ -62,13 +69,13 @@ export namespace TabletopStack {
     builder.affordance({
       id: "base",
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(0, 0, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
       extent: null,
     });
     builder.affordance({
       id: "top",
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(0, height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, height, 0)),
       extent: null,
     });
   }

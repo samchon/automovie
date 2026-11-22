@@ -1,7 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import { createCar } from "./createCar";
 
 /**
@@ -133,7 +137,7 @@ export namespace CarBody {
 
     // SAE J1516: the ball of foot lies its tool reference distance ahead of the seating reference point, and the heel point 203 mm back down the pedal plane from it.
     const pedal: number = createCar.pedalPlane(d.seatHeight!);
-    const slope: number = pedal * ArchetypeUnits.DEGREE;
+    const slope: number = pedal * AutoMovieArchetypeUnits.DEGREE;
     const ball: IAutoMovieVector3 = Vector3.create(
       sx,
       floor + createCar.BALL * Math.sin(slope),
@@ -202,7 +206,10 @@ export namespace CarBody {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function shell(
-    builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCar.Affordance,
+      createCar.Dimension
+    >,
     l: ILayout,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -270,7 +277,7 @@ export namespace CarBody {
     builder.affordance({
       id: "bonnet",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, l.belt + 0.03, l.firewall),
         v(-1, 0, 0),
         v(0, 0, 1),
@@ -311,7 +318,10 @@ export namespace CarBody {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function wheels(
-    builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCar.Affordance,
+      createCar.Dimension
+    >,
     l: ILayout,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -355,7 +365,7 @@ export namespace CarBody {
         builder.affordance({
           id: steer,
           kind: "wheel",
-          frame: ArchetypeFrame.facing(centre, v(0, 1, 0), v(0, 0, 1)),
+          frame: AutoMovieArchetypeFrame.facing(centre, v(0, 1, 0), v(0, 0, 1)),
           extent: null,
           travel: createCar.ackermann(lock / ratio, wheelbase, track / 2),
           follows: {
@@ -378,7 +388,7 @@ export namespace CarBody {
       builder.affordance({
         id: SPIN[name],
         kind: "knob",
-        frame: ArchetypeFrame.facing(centre, v(1, 0, 0), v(0, 1, 0)),
+        frame: AutoMovieArchetypeFrame.facing(centre, v(1, 0, 0), v(0, 1, 0)),
         extent: null,
         travel: 360,
         parts: [`wheel-${name}`, `hub-${name}`],

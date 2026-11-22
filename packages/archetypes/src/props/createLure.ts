@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** A spinning lure's size and weight, from a maker's catalogue seen in search results. */
@@ -22,7 +22,7 @@ const LURE: string =
  * @param params Any dimension the author fixes inside its band, and an optional scene id.
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
  * @returns The lure.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, how it lies and its contact.
  * @evidence contracts/development/implementation.md#principled-implementation One block of the drawn length and mass with the eye at its front.
@@ -35,9 +35,9 @@ const LURE: string =
 export function createLure(
   params: createLure.IParams = {},
   seed?: number | string,
-): Archetype<createLure.Affordance, createLure.Dimension> {
-  const draw: ArchetypeDrawSession<createLure.Dimension> =
-    new ArchetypeDrawSession<createLure.Dimension>(
+): AutoMovieArchetype<createLure.Affordance, createLure.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createLure.Dimension> =
+    new AutoMovieArchetypeDrawSession<createLure.Dimension>(
       "lure",
       createLure.UNITS,
       seed,
@@ -46,13 +46,15 @@ export function createLure(
   const d: Record<createLure.Dimension, number> = draw.dimensions(
     createLure.BANDS,
   );
-  const builder: ArchetypeBuilder<createLure.Affordance, createLure.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: "lure",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createLure.Affordance,
+    createLure.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: "lure",
+    draw,
+  });
   const width: number = d.length / 4;
   builder.box(
     "body",
@@ -63,7 +65,7 @@ export function createLure(
   builder.affordance({
     id: "eye",
     kind: "socket",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, 0, d.length / 2),
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),
@@ -89,7 +91,9 @@ export namespace createLure {
   export type Dimension = "length" | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     mass: "kg",
   };
@@ -101,8 +105,8 @@ export namespace createLure {
   }
 
   /** The sourced bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(0.02, 0.05, LURE),
-    mass: ArchetypeBand.of("kg", 0.0025, 0.013, LURE),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(0.02, 0.05, LURE),
+    mass: AutoMovieArchetypeBand.of("kg", 0.0025, 0.013, LURE),
   };
 }

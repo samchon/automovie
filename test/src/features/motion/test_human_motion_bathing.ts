@@ -1,5 +1,5 @@
 import {
-  type Archetype,
+  type AutoMovieArchetype,
   createBathtub,
   createExerciseMat,
   createTap,
@@ -35,8 +35,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /** The touch contract's contact bound, metres. */
 const TOUCH: number = 0.01;
 
-/** How far ahead of the bather's ankles the tub's apron stands, metres: within a step. */
-const NEAR: number = 0.25;
+/** How far ahead of the bather's standing place the tub's apron stands, metres: past the toes (0.26 m ahead on the average man, whose toe the step-over refuses to start over the apron) and within a step. */
+const NEAR: number = 0.3;
 
 /** How far in from the well's end the bather's hips settle, metres (provisional: the back against the end wall). */
 const SIT_BACK: number = 0.25;
@@ -66,8 +66,10 @@ const MAT: number = 0.25;
 export function test_human_motion_bathing(): void {
   for (const fit of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
-    const tub: Archetype<createBathtub.Affordance, createBathtub.Dimension> =
-      createBathtub();
+    const tub: AutoMovieArchetype<
+      createBathtub.Affordance,
+      createBathtub.Dimension
+    > = createBathtub();
     // The tub turned to face the bather, its apron's outer edge `NEAR` ahead.
     const at: IAutoMovieVector3 = {
       x: 0,
@@ -145,7 +147,7 @@ export function test_human_motion_bathing(): void {
 
     // Out again: standing on the tub's floor facing the apron, the bather
     // steps over it from inside onto a mat on the floor outside.
-    const mat: Archetype<
+    const mat: AutoMovieArchetype<
       createExerciseMat.Affordance,
       createExerciseMat.Dimension
     > = createExerciseMat({ kind: "yoga" });
@@ -180,7 +182,7 @@ export function test_human_motion_bathing(): void {
       ),
     );
 
-    const tap: Archetype<createTap.Affordance, createTap.Dimension> =
+    const tap: AutoMovieArchetype<createTap.Affordance, createTap.Dimension> =
       createTap();
     const shower: HumanPerformance = stage(
       body,

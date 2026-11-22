@@ -1,10 +1,10 @@
-﻿import {
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  EquineStance,
-  type EquineStanceCue,
-  QuadrupedBody,
+import {
+  AutoMovieArchetypeEquineStance,
+  type AutoMovieArchetypeEquineStanceCue,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -23,10 +23,13 @@ import { equineExpressionObservation as Look } from "../internal/equineExpressio
 type Horse = ReturnType<typeof createHorse>;
 
 /** A horse ride. */
-type Ride = ArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension>;
+type Ride = AutoMovieArchetypeRide.IRide<
+  createHorse.Affordance,
+  createHorse.Dimension
+>;
 
 /** A sample of a horse ride. */
-type Sample = ArchetypeRide.ISample<
+type Sample = AutoMovieArchetypeRide.ISample<
   createHorse.Affordance,
   createHorse.Dimension
 >;
@@ -82,13 +85,13 @@ export function test_archetype_equine_reaction(): void {
     entry: number,
     hold: number,
     exit: number,
-  ): EquineStanceCue.IPhases => ({
+  ): AutoMovieArchetypeEquineStanceCue.IPhases => ({
     from,
     entry,
     hold,
     exit,
   });
-  const cues: readonly EquineStanceCue.Cue[] = [
+  const cues: readonly AutoMovieArchetypeEquineStanceCue.Cue[] = [
     { kind: "shift", x: 0.04, y: 0, z: 0.03, ...phases(t, 0.6, 0.4, 0.6) },
     { kind: "startle", ...phases(t + 2, 0.15, 0.6, 0.8) },
     { kind: "baulk", ...phases(t + 4, 0.5, 0.8, 0.6) },
@@ -103,9 +106,11 @@ export function test_archetype_equine_reaction(): void {
       ...phases(t + 22, 3.2, 0.4, 0.8),
     },
   ];
-  const stance: Ride = EquineStance.after(horse, ride, cues);
+  const stance: Ride = AutoMovieArchetypeEquineStance.after(horse, ride, cues);
   const halt: Sample = ride.at(ride.duration);
-  const anchors: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>> = {
+  const anchors: Readonly<
+    Record<AutoMovieArchetypeQuadrupedBody.Limb, IAutoMovieVector3>
+  > = {
     leftFore: hoof(halt, "leftFore").end,
     rightFore: hoof(halt, "rightFore").end,
     leftHind: hoof(halt, "leftHind").end,
@@ -132,7 +137,10 @@ export function test_archetype_equine_reaction(): void {
     );
 
   // 2. Planted hooves stay on their anchors through the returning responses.
-  const planted = (at: number, limbs: readonly QuadrupedBody.Limb[]): void => {
+  const planted = (
+    at: number,
+    limbs: readonly AutoMovieArchetypeQuadrupedBody.Limb[],
+  ): void => {
     const sample: Sample = stance.at(at);
     for (const limb of limbs) {
       const shown: IHoof = hoof(sample, limb);
@@ -144,7 +152,7 @@ export function test_archetype_equine_reaction(): void {
     }
   };
   for (const at of [t + 0.8, t + 2.4, t + 4.9])
-    planted(at, QuadrupedBody.LIMBS);
+    planted(at, AutoMovieArchetypeQuadrupedBody.LIMBS);
   planted(t + 8.2, ["rightFore", "leftHind", "rightHind"]);
   planted(t + 12.2, ["leftFore", "rightFore", "leftHind"]);
   planted(t + 16.6, ["leftHind", "rightHind"]);
@@ -161,11 +169,14 @@ export function test_archetype_equine_reaction(): void {
   ] as const) {
     const at: number = instant(`${limb}Off`, after);
     const sample: Sample = stance.at(at);
-    const others: IAutoMovieVector3[] = QuadrupedBody.LIMBS.filter(
-      (other: QuadrupedBody.Limb): boolean => other !== limb,
-    ).map(
-      (other: QuadrupedBody.Limb): IAutoMovieVector3 => hoof(sample, other).end,
-    );
+    const others: IAutoMovieVector3[] =
+      AutoMovieArchetypeQuadrupedBody.LIMBS.filter(
+        (other: AutoMovieArchetypeQuadrupedBody.Limb): boolean =>
+          other !== limb,
+      ).map(
+        (other: AutoMovieArchetypeQuadrupedBody.Limb): IAutoMovieVector3 =>
+          hoof(sample, other).end,
+      );
     TestValidator.predicate(
       `the weight is off the ${limb} when it lifts at ${at}`,
       inside(centre(horse, sample), others) >= 0,
@@ -198,8 +209,8 @@ export function test_archetype_equine_reaction(): void {
     TestValidator.predicate(
       `the ${limb} is folded in the rear`,
       Look.degrees(
-        Look.axis(rearing, QuadrupedBody.BONES[limb][1]),
-        Look.axis(rearing, QuadrupedBody.BONES[limb][2]),
+        Look.axis(rearing, AutoMovieArchetypeQuadrupedBody.BONES[limb][1]),
+        Look.axis(rearing, AutoMovieArchetypeQuadrupedBody.BONES[limb][2]),
       ) > 60,
     );
   }
@@ -216,7 +227,7 @@ export function test_archetype_equine_reaction(): void {
 
   // 5. The step aside ends displaced by its width to the right.
   const stepped: Sample = stance.at(t + 27);
-  for (const limb of QuadrupedBody.LIMBS) {
+  for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
     const shown: IHoof = hoof(stepped, limb);
     const right: IAutoMovieVector3 = Quaternion.rotateVector(
       halt.placement.rotation,
@@ -237,7 +248,7 @@ export function test_archetype_equine_reaction(): void {
   }
 
   // 6. Reproducible in any order, and refusals.
-  const again: Ride = EquineStance.after(horse, ride, cues);
+  const again: Ride = AutoMovieArchetypeEquineStance.after(horse, ride, cues);
   for (const at of [t + 26, t + 16, t + 2.3, t + 8])
     TestValidator.equals(
       `the stance replays at ${at}`,
@@ -246,18 +257,18 @@ export function test_archetype_equine_reaction(): void {
     );
   const refused = (
     label: string,
-    bad: readonly EquineStanceCue.Cue[],
+    bad: readonly AutoMovieArchetypeEquineStanceCue.Cue[],
     axis: string,
   ): void => {
     let caught: unknown = null;
     try {
-      EquineStance.after(horse, ride, bad);
+      AutoMovieArchetypeEquineStance.after(horse, ride, bad);
     } catch (error) {
       caught = error;
     }
     TestValidator.predicate(
       `${label} refuses on ${axis}`,
-      caught instanceof ArchetypeRefusal && caught.axis === axis,
+      caught instanceof AutoMovieArchetypeRefusal && caught.axis === axis,
     );
   };
   refused(
@@ -281,8 +292,11 @@ export function test_archetype_equine_reaction(): void {
 }
 
 /** A limb's displayed terminal bar: its lowest point and its far end. */
-function hoof(sample: Sample, limb: QuadrupedBody.Limb): IHoof {
-  const id: string = QuadrupedBody.BONES[limb][3];
+function hoof(
+  sample: Sample,
+  limb: AutoMovieArchetypeQuadrupedBody.Limb,
+): IHoof {
+  const id: string = AutoMovieArchetypeQuadrupedBody.BONES[limb][3];
   const bar: Look.IBar = Look.bar(sample, id);
   const part: IAutoMovieModelPart = sample.archetype.parts.find(
     (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
@@ -322,7 +336,7 @@ function centre(horse: Horse, sample: Sample): IAutoMovieVector3 {
     shown.rotation,
     Quaternion.inverse(rest.rotation),
   );
-  return ArchetypeFrame.point(
+  return AutoMovieArchetypeFrame.point(
     {
       translation: Vector3.subtract(
         shown.translation,

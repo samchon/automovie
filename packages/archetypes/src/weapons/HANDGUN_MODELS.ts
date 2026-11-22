@@ -1,4 +1,4 @@
-import { ArchetypeUnits } from "../core";
+import { AutoMovieArchetypeUnits } from "../core";
 import type { createHandgun } from "./createHandgun";
 
 /**
@@ -41,18 +41,18 @@ export const HANDGUN_MODELS: typeof createHandgun.MODELS = {
   },
   revolver: {
     saa75: {
-      length: 13 * ArchetypeUnits.INCH,
-      height: 5.5 * ArchetypeUnits.INCH,
-      width: 1.6 * ArchetypeUnits.INCH,
-      barrel: 7.5 * ArchetypeUnits.INCH,
-      sightRadius: 8.5 * ArchetypeUnits.INCH,
-      triggerReach: 2.8 * ArchetypeUnits.INCH,
-      mass: 40.8 * ArchetypeUnits.OUNCE,
+      length: 13 * AutoMovieArchetypeUnits.INCH,
+      height: 5.5 * AutoMovieArchetypeUnits.INCH,
+      width: 1.6 * AutoMovieArchetypeUnits.INCH,
+      barrel: 7.5 * AutoMovieArchetypeUnits.INCH,
+      sightRadius: 8.5 * AutoMovieArchetypeUnits.INCH,
+      triggerReach: 2.8 * AutoMovieArchetypeUnits.INCH,
+      mass: 40.8 * AutoMovieArchetypeUnits.OUNCE,
     },
     vaquero5104: {
-      length: 11.12 * ArchetypeUnits.INCH,
-      barrel: 5.5 * ArchetypeUnits.INCH,
-      mass: 41 * ArchetypeUnits.OUNCE,
+      length: 11.12 * AutoMovieArchetypeUnits.INCH,
+      barrel: 5.5 * AutoMovieArchetypeUnits.INCH,
+      mass: 41 * AutoMovieArchetypeUnits.OUNCE,
     },
   },
   flintlock: {
@@ -60,13 +60,13 @@ export const HANDGUN_MODELS: typeof createHandgun.MODELS = {
       length: 0.397,
       height: 0.14,
       width: 0.055,
-      barrel: 9 * ArchetypeUnits.INCH,
+      barrel: 9 * AutoMovieArchetypeUnits.INCH,
     },
     seaService: {
       length: 0.5,
       height: 0.18,
       width: 0.04,
-      barrel: 12 * ArchetypeUnits.INCH,
+      barrel: 12 * AutoMovieArchetypeUnits.INCH,
     },
   },
 };

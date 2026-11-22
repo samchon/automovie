@@ -2,14 +2,14 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** A chain long enough to pass over a head: the matinee to the lower opera lengths. */
@@ -55,7 +55,7 @@ const PIECES: number = 24;
  * @param params The kind, any dimension the author fixes inside its band, and an optional scene id.
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
  * @returns The loop.
- * @throws {ArchetypeRefusal} For an unknown kind or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, why it is one closed loop, its frame and its four contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The ellipse's front-to-back half-axis is solved so that its perimeter (Ramanujan's approximation) is the drawn length at the drawn breadth.
@@ -68,15 +68,15 @@ const PIECES: number = 24;
 export function createNecklace(
   params: createNecklace.IParams = {},
   seed?: number | string,
-): Archetype<createNecklace.Affordance, createNecklace.Dimension> {
+): AutoMovieArchetype<createNecklace.Affordance, createNecklace.Dimension> {
   const kind: createNecklace.Kind = ArchetypeDraw.choice(
     "necklace",
     "kind",
     params.kind ?? "chain",
     createNecklace.KINDS,
   );
-  const draw: ArchetypeDrawSession<createNecklace.Dimension> =
-    new ArchetypeDrawSession<createNecklace.Dimension>(
+  const draw: AutoMovieArchetypeDrawSession<createNecklace.Dimension> =
+    new AutoMovieArchetypeDrawSession<createNecklace.Dimension>(
       kind === "chain" ? "necklace" : "neckMedal",
       createNecklace.UNITS,
       seed,
@@ -85,10 +85,10 @@ export function createNecklace(
   const d: Record<createNecklace.Dimension, number> = draw.dimensions(
     createNecklace.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createNecklace.Affordance,
     createNecklace.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: kind === "chain" ? "steel" : "composite",
     id: params.id,
     name: kind === "chain" ? "necklace" : "neck medal",
@@ -122,7 +122,7 @@ export function createNecklace(
   builder.affordance({
     id: "wear",
     kind: "socket",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),
@@ -132,7 +132,7 @@ export function createNecklace(
   builder.affordance({
     id: "front",
     kind: "socket",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(front.x, 0, front.z + disc / 2),
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),
@@ -142,7 +142,7 @@ export function createNecklace(
   builder.affordance({
     id: "opening",
     kind: "aperture",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, 0, thread),
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),
@@ -165,7 +165,7 @@ export function createNecklace(
     builder.affordance({
       id,
       kind: "handle",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         p,
         Vector3.create(tangent.z, 0, -tangent.x),
         tangent,
@@ -211,7 +211,9 @@ export namespace createNecklace {
   export const SIDE: number = Math.PI / 2;
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     breadth: "m",
     disc: "m",
@@ -229,23 +231,23 @@ export namespace createNecklace {
 
   /** The sourced bands of each kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     chain: {
-      length: ArchetypeBand.metres(
-        26 * ArchetypeUnits.INCH,
-        30 * ArchetypeUnits.INCH,
+      length: AutoMovieArchetypeBand.metres(
+        26 * AutoMovieArchetypeUnits.INCH,
+        30 * AutoMovieArchetypeUnits.INCH,
         CHAIN,
       ),
-      breadth: ArchetypeBand.metres(0.2, 0.22, BREADTH),
-      disc: ArchetypeBand.metres(0.012, 0.012, CHAIN_MASS),
-      mass: ArchetypeBand.of("kg", 0.01, 0.04, CHAIN_MASS),
+      breadth: AutoMovieArchetypeBand.metres(0.2, 0.22, BREADTH),
+      disc: AutoMovieArchetypeBand.metres(0.012, 0.012, CHAIN_MASS),
+      mass: AutoMovieArchetypeBand.of("kg", 0.01, 0.04, CHAIN_MASS),
     },
     ribbon: {
-      length: ArchetypeBand.metres(0.8, 1.0, RIBBON),
-      breadth: ArchetypeBand.metres(0.2, 0.22, BREADTH),
-      disc: ArchetypeBand.metres(0.07, 0.085, DISC),
-      mass: ArchetypeBand.of("kg", 0.45, 0.556, DISC),
+      length: AutoMovieArchetypeBand.metres(0.8, 1.0, RIBBON),
+      breadth: AutoMovieArchetypeBand.metres(0.2, 0.22, BREADTH),
+      disc: AutoMovieArchetypeBand.metres(0.07, 0.085, DISC),
+      mass: AutoMovieArchetypeBand.of("kg", 0.45, 0.556, DISC),
     },
   };
 

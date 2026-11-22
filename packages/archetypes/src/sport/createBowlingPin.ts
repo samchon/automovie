@@ -2,12 +2,12 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
 } from "../core";
 
 /** Height and diameter pairs in inches, from the USBC Bowling Pin Dimensions table. */
@@ -52,24 +52,20 @@ const CROWN: readonly [number, number][] = [
 export function createBowlingPin(
   params: { id?: string } = {},
   seed?: number | string,
-): Archetype<"base" | "belly", "mass"> {
-  const inch: number = ArchetypeUnits.INCH;
-  const draw: ArchetypeDrawSession<"mass"> = new ArchetypeDrawSession(
-    "bowlingPin",
-    { mass: "kg" },
-    seed,
-    {},
-  );
+): AutoMovieArchetype<"base" | "belly", "mass"> {
+  const inch: number = AutoMovieArchetypeUnits.INCH;
+  const draw: AutoMovieArchetypeDrawSession<"mass"> =
+    new AutoMovieArchetypeDrawSession("bowlingPin", { mass: "kg" }, seed, {});
   const { mass }: Record<"mass", number> = draw.dimensions({
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      54 * ArchetypeUnits.OUNCE,
-      58 * ArchetypeUnits.OUNCE,
+      54 * AutoMovieArchetypeUnits.OUNCE,
+      58 * AutoMovieArchetypeUnits.OUNCE,
       "USBC Bowling Pin Measurements, 3 lb 6 oz to 3 lb 10 oz",
     ),
   });
-  const builder: ArchetypeBuilder<"base" | "belly", "mass"> =
-    new ArchetypeBuilder({
+  const builder: AutoMovieArchetypeBuilder<"base" | "belly", "mass"> =
+    new AutoMovieArchetypeBuilder({
       material: "wood",
       id: params.id,
       name: "ten-pin bowling pin",
@@ -102,13 +98,13 @@ export function createBowlingPin(
   builder.affordance({
     id: "base",
     kind: "socket",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
     extent: null,
   });
   builder.affordance({
     id: "belly",
     kind: "socket",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 4.5 * inch, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 4.5 * inch, 0)),
     extent: null,
   });
   return builder.build(mass);

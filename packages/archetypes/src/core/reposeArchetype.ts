@@ -4,8 +4,8 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import type { ArchetypeMass } from "./ArchetypeMass";
-import type { IArchetypeProps } from "./IArchetypeProps";
+import type { AutoMovieArchetypeMass } from "./AutoMovieArchetypeMass";
+import type { IAutoMovieArchetypeProps } from "./IAutoMovieArchetypeProps";
 
 /**
  * Replace posed parts and, when supplied, every declared contact's frame.
@@ -26,12 +26,12 @@ import type { IArchetypeProps } from "./IArchetypeProps";
 export function reposeArchetype<
   Id extends string,
   Dimension extends string,
-  Physical extends ArchetypeMass.IProperties | null,
+  Physical extends AutoMovieArchetypeMass.IProperties | null,
 >(
-  rest: IArchetypeProps<Id, Dimension, Physical>,
+  rest: IAutoMovieArchetypeProps<Id, Dimension, Physical>,
   parts: IAutoMovieModelPart[],
   frames?: ReadonlyMap<string, IAutoMovieTransform>,
-): IArchetypeProps<Id, Dimension, Physical> {
+): IAutoMovieArchetypeProps<Id, Dimension, Physical> {
   if (
     frames !== undefined &&
     (frames.size !== rest.affordances.length ||
@@ -42,7 +42,7 @@ export function reposeArchetype<
     throw new RangeError(
       "A reposed contact frame map must bind every declared contact exactly once",
     );
-  const affordances: IArchetypeProps<Id, Dimension>["affordances"] =
+  const affordances: IAutoMovieArchetypeProps<Id, Dimension>["affordances"] =
     frames === undefined
       ? rest.affordances
       : rest.affordances.map(

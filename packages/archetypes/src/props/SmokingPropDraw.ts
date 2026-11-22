@@ -1,8 +1,8 @@
 import {
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  type IArchetypeBand,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** Cigarette lengths and the 3R4F reference cigarette, neither read at a primary source. */
@@ -64,7 +64,9 @@ export namespace SmokingPropDraw {
   export type Dimension = "length" | "diameter" | "width" | "filter" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     diameter: "m",
     width: "m",
@@ -123,17 +125,17 @@ export namespace SmokingPropDraw {
 
   /** The band of each free dimension, by kind; a lighter's are its model's. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     cigarette: {
-      length: ArchetypeBand.metres(0.07, 0.1, CIGARETTE, true),
-      diameter: ArchetypeBand.metres(0.0079, 0.0079, CIGARETTE, true),
-      filter: ArchetypeBand.metres(0.02, 0.027, CIGARETTE, true),
-      mass: ArchetypeBand.of(
+      length: AutoMovieArchetypeBand.metres(0.07, 0.1, CIGARETTE, true),
+      diameter: AutoMovieArchetypeBand.metres(0.0079, 0.0079, CIGARETTE, true),
+      filter: AutoMovieArchetypeBand.metres(0.02, 0.027, CIGARETTE, true),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.0008,
         0.001,
-        ArchetypeBand.TYPICAL_MASS,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
         true,
       ),
     },
@@ -150,7 +152,7 @@ export namespace SmokingPropDraw {
    */
   export interface IPrepareResult<Id extends Affordance> {
     /** The prepared `builder` this call returns. */
-    builder: ArchetypeBuilder<Id, Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
     /** The prepared `d` this call returns. */
     d: Partial<Record<Dimension, number>>;
@@ -163,7 +165,7 @@ export namespace SmokingPropDraw {
    * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
    * @param kind The saved kind whose recipe is used.
    * @returns The builder and dimensions the named producer reads.
-   * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Prepare an empty builder and the previously recorded smoking dimensions.
    * @evidence contracts/development/implementation.md#principled-implementation The `smoking` draw session uses the original seeds, model table, and bands in their original order.
@@ -178,8 +180,13 @@ export namespace SmokingPropDraw {
     params: Omit<IParams, "kind">,
     seed?: number | string,
   ): IPrepareResult<Id> {
-    const draw: ArchetypeDrawSession<Dimension> =
-      new ArchetypeDrawSession<Dimension>("smoking", UNITS, seed, params);
+    const draw: AutoMovieArchetypeDrawSession<Dimension> =
+      new AutoMovieArchetypeDrawSession<Dimension>(
+        "smoking",
+        UNITS,
+        seed,
+        params,
+      );
     const drawn: Partial<Record<Dimension, number>> = draw.dimensions(
       BANDS[kind],
       BANDS,
@@ -193,12 +200,13 @@ export namespace SmokingPropDraw {
       ...drawn,
       ...model.figures,
     };
-    const builder: ArchetypeBuilder<Id, Dimension> = new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: model.name === undefined ? kind : ` ${model.name}`,
-      draw,
-    });
+    const builder: AutoMovieArchetypeBuilder<Id, Dimension> =
+      new AutoMovieArchetypeBuilder({
+        material: "composite",
+        id: params.id,
+        name: model.name === undefined ? kind : ` ${model.name}`,
+        draw,
+      });
     return { builder, d };
   }
 }

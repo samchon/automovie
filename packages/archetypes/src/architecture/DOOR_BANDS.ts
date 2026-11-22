@@ -1,4 +1,8 @@
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import { ADA_RANGES } from "./ADA_RANGES";
 import type { createDoor } from "./createDoor";
 
@@ -7,19 +11,27 @@ const ADA: string =
   "2010 ADA Standards (https://www.access-board.gov/ada/chapter/ch04/)";
 
 /** The bands every door shares. */
-const LEAF: Readonly<Partial<Record<createDoor.Dimension, IArchetypeBand>>> = {
-  force: ArchetypeBand.of(
+const LEAF: Readonly<
+  Partial<Record<createDoor.Dimension, IAutoMovieArchetypeBand>>
+> = {
+  force: AutoMovieArchetypeBand.of(
     "N",
     11,
     22.2,
     `${ADA} 404.2.9, interior hinged and sliding doors open with at most 5 lbf (22.2 N); the lower end is half of it, an estimate`,
     true,
   ),
-  mass: ArchetypeBand.of("kg", 25, 45, ArchetypeBand.TYPICAL_MASS, true),
+  mass: AutoMovieArchetypeBand.of(
+    "kg",
+    25,
+    45,
+    AutoMovieArchetypeBand.TYPICAL_MASS,
+    true,
+  ),
 };
 
 /** The bands of a hinged door's swing. */
-const SWING: IArchetypeBand = ArchetypeBand.of(
+const SWING: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
   "degrees",
   90,
   90,
@@ -33,18 +45,18 @@ const SWING: IArchetypeBand = ArchetypeBand.of(
 export const DOOR_BANDS: Readonly<
   Record<
     createDoor.Hardware | "sliding",
-    Readonly<Partial<Record<createDoor.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createDoor.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   lever: {
     ...LEAF,
     swing: SWING,
-    hardwareHeight: ArchetypeBand.metres(
+    hardwareHeight: AutoMovieArchetypeBand.metres(
       ADA_RANGES.hardware.low,
       ADA_RANGES.hardware.high,
       ADA_RANGES.hardware.source,
     ),
-    latchTurn: ArchetypeBand.of(
+    latchTurn: AutoMovieArchetypeBand.of(
       "degrees",
       45,
       78,
@@ -54,24 +66,24 @@ export const DOOR_BANDS: Readonly<
   knob: {
     ...LEAF,
     swing: SWING,
-    hardwareHeight: ArchetypeBand.metres(
+    hardwareHeight: AutoMovieArchetypeBand.metres(
       ADA_RANGES.hardware.low,
       ADA_RANGES.hardware.high,
       ADA_RANGES.hardware.source,
     ),
-    grip: ArchetypeBand.metres(
-      (2 + 1 / 8) * ArchetypeUnits.INCH,
-      (2 + 1 / 4) * ArchetypeUnits.INCH,
+    grip: AutoMovieArchetypeBand.metres(
+      (2 + 1 / 8) * AutoMovieArchetypeUnits.INCH,
+      (2 + 1 / 4) * AutoMovieArchetypeUnits.INCH,
       "door knob diameters of 2-1/8 and 2-1/4 in, retailer listings seen only in search results",
       true,
     ),
-    projection: ArchetypeBand.metres(
+    projection: AutoMovieArchetypeBand.metres(
       0.06,
       0.07,
       "door knob projection, not read at a source",
       true,
     ),
-    latchTurn: ArchetypeBand.of(
+    latchTurn: AutoMovieArchetypeBand.of(
       "degrees",
       45,
       78,
@@ -82,7 +94,7 @@ export const DOOR_BANDS: Readonly<
   plate: {
     ...LEAF,
     swing: SWING,
-    backset: ArchetypeBand.metres(
+    backset: AutoMovieArchetypeBand.metres(
       0.1,
       0.15,
       "push plate and pull bar set in from the latch edge, not read at a source",
@@ -91,7 +103,7 @@ export const DOOR_BANDS: Readonly<
   },
   sliding: {
     ...LEAF,
-    hardwareHeight: ArchetypeBand.metres(
+    hardwareHeight: AutoMovieArchetypeBand.metres(
       ADA_RANGES.hardware.low,
       ADA_RANGES.hardware.high,
       ADA_RANGES.hardware.source,

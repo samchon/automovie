@@ -1,4 +1,4 @@
-import { ArchetypeRefusal, createWindow } from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, createWindow } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -191,7 +191,7 @@ export function test_archetype_fracture_window(): void {
       try {
         createWindow({ kind, fractureEnergy });
       } catch (error) {
-        if (!(error instanceof ArchetypeRefusal)) throw error;
+        if (!(error instanceof AutoMovieArchetypeRefusal)) throw error;
         refused = error.axis === "fractureEnergy";
       }
       if (!refused)

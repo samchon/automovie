@@ -1,5 +1,5 @@
 import {
-  ArchetypeFrame,
+  AutoMovieArchetypeFrame,
   createBar,
   createBicycle,
   createCar,
@@ -32,7 +32,7 @@ import { nclose, vclose } from "../internal/predicates";
  * 8. Stirrup: a horse's stirrup sites at 0 and 1 are its tread's width apart along the frame's `+X` about the frame, and the second coordinate changes nothing.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Asks produced archetypes for sites and measures the returned frames against the affordance's own extent fields; a site off the extent, scaled wrongly, measured from an edge instead of the centre, a rim that runs the other way round, or a rim frame that does not follow the bar convention is caught.
- * @evidence contracts/development/testing.md#independent-expectations Expectations come from the kinds' definitions in `AutoMovieAffordanceKind` and `ArchetypeSite`'s table (a bar's line along `+X` centred on the frame, a seat running `depth` back along `-Z`, a surface's and a pedal's centred rectangle, a stirrup's line across, an aperture's `width` and `height`, a rim at `radius` turning about `+Y`, a crank's arm end at `radius`), from the bench's cited 610 mm place (NKBA Kitchen Planning Guideline 9), and from a crank arm ending at its pedal.
+ * @evidence contracts/development/testing.md#independent-expectations Expectations come from the kinds' definitions in `AutoMovieAffordanceKind` and `AutoMovieArchetypeSite`'s table (a bar's line along `+X` centred on the frame, a seat running `depth` back along `-Z`, a surface's and a pedal's centred rectangle, a stirrup's line across, an aperture's `width` and `height`, a rim at `radius` turning about `+Y`, a crank's arm end at `radius`), from the bench's cited 610 mm place (NKBA Kitchen Planning Guideline 9), and from a crank arm ending at its pedal.
  * @evidence contracts/development/testing.md#distinguishing-cases One kind of each extent shape: a line, a rectangle from an edge, a centred rectangle level and tilted, an upright rectangle, a circle, a single offset site, a point; coordinates outside 0 to 1 belong to `test_archetype_contract_refusal`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the eight scenarios and what each pins.
@@ -54,7 +54,7 @@ export function test_archetype_contract_site(): void {
   if (
     !vclose(
       Vector3.subtract(at(rail.site("bar", 1)), at(rail.site("bar", 0))),
-      Vector3.scale(ArchetypeFrame.axis(bar.frame, "x"), bar.length!),
+      Vector3.scale(AutoMovieArchetypeFrame.axis(bar.frame, "x"), bar.length!),
       1e-9,
     )
   )
@@ -116,7 +116,10 @@ export function test_archetype_contract_site(): void {
   // 4. A steering wheel's rim.
   const car: ReturnType<typeof createCar> = createCar({ kind: "sedan" }, 6);
   const wheel: IAutoMovieAffordance = car.affordance("wheel");
-  const axis: IAutoMovieVector3 = ArchetypeFrame.axis(wheel.frame, "y");
+  const axis: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+    wheel.frame,
+    "y",
+  );
   for (const u of [0, 0.25, 0.5, 0.75]) {
     const site: IAutoMovieTransform = car.site("wheel", u);
     const spoke: IAutoMovieVector3 = Vector3.subtract(
@@ -129,9 +132,21 @@ export function test_archetype_contract_site(): void {
     )
       findings.push(`rim site ${u} is off the rim`);
     if (
-      !vclose(ArchetypeFrame.axis(site, "y"), Vector3.normalize(spoke), 1e-9) ||
-      !nclose(Vector3.dot(ArchetypeFrame.axis(site, "x"), spoke), 0, 1e-9) ||
-      !nclose(Vector3.dot(ArchetypeFrame.axis(site, "x"), axis), 0, 1e-9)
+      !vclose(
+        AutoMovieArchetypeFrame.axis(site, "y"),
+        Vector3.normalize(spoke),
+        1e-9,
+      ) ||
+      !nclose(
+        Vector3.dot(AutoMovieArchetypeFrame.axis(site, "x"), spoke),
+        0,
+        1e-9,
+      ) ||
+      !nclose(
+        Vector3.dot(AutoMovieArchetypeFrame.axis(site, "x"), axis),
+        0,
+        1e-9,
+      )
     )
       findings.push(`rim site ${u} is not a grip on the rim`);
   }
@@ -161,7 +176,7 @@ export function test_archetype_contract_site(): void {
         1e-9,
       ) ||
       !vclose(
-        ArchetypeFrame.axis(car.site("wheel", u), "x"),
+        AutoMovieArchetypeFrame.axis(car.site("wheel", u), "x"),
         Vector3.normalize(Vector3.cross(axis, from)),
         1e-9,
       )
@@ -171,7 +186,10 @@ export function test_archetype_contract_site(): void {
   if (
     !vclose(
       Vector3.subtract(at(car.site("wheel", 0)), at(wheel.frame)),
-      Vector3.scale(ArchetypeFrame.axis(wheel.frame, "x"), wheel.radius!),
+      Vector3.scale(
+        AutoMovieArchetypeFrame.axis(wheel.frame, "x"),
+        wheel.radius!,
+      ),
       1e-9,
     ) ||
     !vclose(at(car.site("wheel", 0)), at(car.site("wheel", 1)), 1e-9)
@@ -209,7 +227,7 @@ export function test_archetype_contract_site(): void {
   ];
   for (const [name, affordance, site] of centred) {
     const corner = (x: number, z: number): IAutoMovieVector3 =>
-      ArchetypeFrame.point(affordance.frame, {
+      AutoMovieArchetypeFrame.point(affordance.frame, {
         x: x * affordance.width!,
         y: 0,
         z: z * affordance.depth!,
@@ -258,7 +276,10 @@ export function test_archetype_contract_site(): void {
         at(horse.site("leftStirrup", 1)),
         at(horse.site("leftStirrup", 0)),
       ),
-      Vector3.scale(ArchetypeFrame.axis(tread.frame, "x"), tread.width!),
+      Vector3.scale(
+        AutoMovieArchetypeFrame.axis(tread.frame, "x"),
+        tread.width!,
+      ),
       1e-9,
     ) ||
     !vclose(at(horse.site("leftStirrup", 0.5, 0)), at(tread.frame), 1e-12) ||

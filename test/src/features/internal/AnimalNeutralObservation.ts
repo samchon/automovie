@@ -1,4 +1,7 @@
-import { QuadrupedJoints, type createQuadruped } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeQuadrupedJoints,
+  type createQuadruped,
+} from "@automovie/archetypes";
 import { Quaternion, validateModel } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -24,7 +27,7 @@ export namespace AnimalNeutralObservation {
   export type Model = ReturnType<typeof createQuadruped>;
 
   /** Actual public query returned for subsequent output-isolation checks. */
-  export type Query = ReturnType<typeof QuadrupedJoints.read>;
+  export type Query = ReturnType<typeof AutoMovieArchetypeQuadrupedJoints.read>;
 
   /** In-memory identity root makes the source's declared floor exactly world Y=0. */
   const IDENTITY: IAutoMovieTransform = {
@@ -77,7 +80,7 @@ export namespace AnimalNeutralObservation {
       model.dimensions.girth!,
       1e-9,
     );
-    const query: Query = QuadrupedJoints.read(model.parts);
+    const query: Query = AutoMovieArchetypeQuadrupedJoints.read(model.parts);
     const feet: ReturnType<typeof animalAttachmentObserver> =
       animalAttachmentObserver(
         model,

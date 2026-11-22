@@ -1,8 +1,8 @@
 import type { IAutoMovieAffordance } from "@automovie/interface";
 
-import type { Archetype } from "./Archetype";
-import { ArchetypeArticulation } from "./ArchetypeArticulation";
-import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import type { AutoMovieArchetype } from "./AutoMovieArchetype";
+import { AutoMovieArchetypeArticulation } from "./AutoMovieArchetypeArticulation";
+import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
 /**
  * Admit the travels a mechanism track reaches against its own articulation.
@@ -13,7 +13,7 @@ import { ArchetypeRefusal } from "./ArchetypeRefusal";
  * @param value The author's input value.
  * @param travels Every travel reached by the track, in the articulation's unit.
  * @returns The neutral articulation record used for the range check.
- * @throws {ArchetypeRefusal} For a non-articulation or an unsupported travel.
+ * @throws {AutoMovieArchetypeRefusal} For a non-articulation or an unsupported travel.
  * @evidence contracts/development/common.md#meaningful-documentation States the real articulation owner, travel units, refusal axis and returned neutral record.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the existing articulation kinds and range owner. The prior 1e-9 numerical margin at both range ends is retained unchanged; every reached travel must also be finite.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the neutral articulation, obtain its range, admit the listed travels.
@@ -23,7 +23,7 @@ import { ArchetypeRefusal } from "./ArchetypeRefusal";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No cache, model history or external resource is retained.
  */
 export function ArchetypeTrackRange<Id extends string>(
-  archetype: Archetype<Id, string>,
+  archetype: AutoMovieArchetype<Id, string>,
   articulation: Id,
   axis: string,
   value: number,
@@ -32,8 +32,8 @@ export function ArchetypeTrackRange<Id extends string>(
   const affordance: IAutoMovieAffordance = archetype
     .articulate({})
     .affordance(articulation);
-  if (!ArchetypeArticulation.KINDS.has(affordance.kind))
-    throw new ArchetypeRefusal({
+  if (!AutoMovieArchetypeArticulation.KINDS.has(affordance.kind))
+    throw new AutoMovieArchetypeRefusal({
       kind: "articulation",
       archetype: archetype.archetype,
       axis: "articulation",
@@ -42,14 +42,14 @@ export function ArchetypeTrackRange<Id extends string>(
       fix: "name an articulation",
     });
   const range: { minimum: number | null; maximum: number | null } =
-    ArchetypeArticulation.range(affordance);
+    AutoMovieArchetypeArticulation.range(affordance);
   for (const travel of travels)
     if (
       !Number.isFinite(travel) ||
       (range.minimum !== null && travel < range.minimum - 1e-9) ||
       (range.maximum !== null && travel > range.maximum + 1e-9)
     )
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "articulation",
         archetype: archetype.archetype,
         axis,

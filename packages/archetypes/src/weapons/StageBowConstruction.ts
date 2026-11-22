@@ -1,8 +1,8 @@
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { createBow } from "./createBow";
 
@@ -16,7 +16,7 @@ import { createBow } from "./createBow";
  * @param params See the input options of the selected form.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the model-space digital silhouette and shared catalogue.
  * @evidence contracts/development/implementation.md#principled-implementation Preserves saved models, dimension precedence, identity and form names.
@@ -31,12 +31,15 @@ export function StageBowConstruction(
   params: Omit<createBow.IParams, "kind">,
   seed: number | string | undefined,
   build: (
-    builder: ArchetypeBuilder<createBow.Affordance, createBow.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createBow.Affordance,
+      createBow.Dimension
+    >,
     dimensions: Readonly<Partial<Record<createBow.Dimension, number>>>,
-  ) => Archetype<createBow.Affordance, createBow.Dimension>,
-): Archetype<createBow.Affordance, createBow.Dimension> {
-  const draw: ArchetypeDrawSession<createBow.Dimension> =
-    new ArchetypeDrawSession<createBow.Dimension>(
+  ) => AutoMovieArchetype<createBow.Affordance, createBow.Dimension>,
+): AutoMovieArchetype<createBow.Affordance, createBow.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createBow.Dimension> =
+    new AutoMovieArchetypeDrawSession<createBow.Dimension>(
       "bow",
       createBow.UNITS,
       seed,
@@ -59,29 +62,32 @@ export function StageBowConstruction(
     params.weight,
     createBow.WEIGHTS[kind],
   );
-  const bands: Readonly<Partial<Record<createBow.Dimension, IArchetypeBand>>> =
-    {
-      ...createBow.BANDS[kind],
-      ...(model.name === undefined ? {} : createBow.BRACES[model.name]),
-    };
+  const bands: Readonly<
+    Partial<Record<createBow.Dimension, IAutoMovieArchetypeBand>>
+  > = {
+    ...createBow.BANDS[kind],
+    ...(model.name === undefined ? {} : createBow.BRACES[model.name]),
+  };
   const d: Partial<Record<createBow.Dimension, number>> = {
     ...draw.dimensions(bands, createBow.BANDS),
     ...model.figures,
     ...weight.figures,
   };
-  const builder: ArchetypeBuilder<createBow.Affordance, createBow.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name:
-        kind === "longbow"
-          ? "longbow"
-          : kind === "recurve"
-            ? "recurve bow"
-            : kind === "crossbow"
-              ? "crossbow"
-              : "horse bow",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createBow.Affordance,
+    createBow.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name:
+      kind === "longbow"
+        ? "longbow"
+        : kind === "recurve"
+          ? "recurve bow"
+          : kind === "crossbow"
+            ? "crossbow"
+            : "horse bow",
+    draw,
+  });
   return build(builder, d);
 }

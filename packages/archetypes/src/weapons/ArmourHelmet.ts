@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeConvexCell } from "../core";
+import { AutoMovieArchetypeConvexCell } from "../core";
 import { ArmourCell } from "./ArmourCell";
 import type { ArmourProfile } from "./ArmourProfile";
 
@@ -110,11 +110,7 @@ export function ArmourHelmet(
         )
           continue;
       }
-      face(
-        `bowl-${row}-${index}`,
-        `bowl-${row}-${canonical}`,
-        rotation,
-      );
+      face(`bowl-${row}-${index}`, `bowl-${row}-${canonical}`, rotation);
     }
   }
   if (brimmed) {
@@ -183,11 +179,7 @@ export function ArmourHelmet(
   }
 
   /** Each actual planar face has one admitted inward wall boundary. */
-  function face(
-    id: string,
-    key: string,
-    rotation: IAutoMovieQuaternion,
-  ): void {
+  function face(id: string, key: string, rotation: IAutoMovieQuaternion): void {
     if (!prepared.has(key))
       place(
         id,
@@ -216,7 +208,7 @@ export function ArmourHelmet(
     if (!prepared.has(key))
       prepared.set(key, {
         ...cell,
-        prepared: ArchetypeConvexCell.of(cell.points),
+        prepared: AutoMovieArchetypeConvexCell.of(cell.points),
       });
     cells.push({ ...prepared.get(key)!, id, rotation });
   }

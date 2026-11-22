@@ -4,14 +4,15 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { Archetype } from "../core/Archetype";
-import { ArchetypeFrame } from "../core/ArchetypeFrame";
 import { ArchetypePartOwnership } from "../core/ArchetypePartOwnership";
-import type { QuadrupedBody } from "./QuadrupedBody";
+import { AutoMovieArchetype } from "../core/AutoMovieArchetype";
+import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 
 /** The built-in owners that normalized the private neutral source. */
-const REPOSE: typeof Archetype.prototype.reposed = Archetype.prototype.reposed;
+const REPOSE: typeof AutoMovieArchetype.prototype.reposed =
+  AutoMovieArchetype.prototype.reposed;
 const CLONE: typeof structuredClone = structuredClone;
 
 /**
@@ -35,34 +36,43 @@ export namespace ApplyQuadrupedCarrierPose {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation keeps no completed pose. The new model owns current records.
    */
   export function emit<Id extends string, D extends string>(
-    animal: Archetype<Id, D>,
-    rest: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
-    posed: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
-    parts: Readonly<Record<string, QuadrupedBody.Bone>>,
-    contacts: Readonly<Record<string, QuadrupedBody.Bone>>,
+    animal: AutoMovieArchetype<Id, D>,
+    rest: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    >,
+    posed: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    >,
+    parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
+    contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
     copy?: ApplyQuadrupedCarrierPose.CopyPart,
     neutral?: ApplyQuadrupedCarrierPose.ObserveNeutral,
     expose?: () => void,
-  ): Archetype<Id, D> {
-    const deltas: ReadonlyMap<QuadrupedBody.Bone, ArchetypeFrame.IMotion> =
-      QuadrupedRigDelta.between(rest, posed);
-    const identities: Map<string, QuadrupedBody.Bone> = new Map(
-      [...deltas.keys()].map(
-        (bone: QuadrupedBody.Bone): [string, QuadrupedBody.Bone] => [
-          bone,
-          bone,
-        ],
-      ),
-    );
+  ): AutoMovieArchetype<Id, D> {
+    const deltas: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      AutoMovieArchetypeFrame.IMotion
+    > = QuadrupedRigDelta.between(rest, posed);
+    const identities: Map<string, AutoMovieArchetypeQuadrupedBody.Bone> =
+      new Map(
+        [...deltas.keys()].map(
+          (
+            bone: AutoMovieArchetypeQuadrupedBody.Bone,
+          ): [string, AutoMovieArchetypeQuadrupedBody.Bone] => [bone, bone],
+        ),
+      );
     const original: readonly IAutoMovieModelPart[] = animal.parts;
     let owned: boolean =
       neutral !== undefined && ArchetypePartOwnership.owns(animal, original);
     const moved: IAutoMovieModelPart[] = original.map(
       (part: IAutoMovieModelPart): IAutoMovieModelPart => {
-        const bone: QuadrupedBody.Bone | undefined =
+        const bone: AutoMovieArchetypeQuadrupedBody.Bone | undefined =
           identities.get(part.id) ?? parts[part.id];
         const frame: IAutoMovieTransform =
-          part.transform ?? ArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
+          part.transform ??
+          AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
         if (owned) owned = ApplyQuadrupedCarrierPose.nativeClone();
         const current: IAutoMovieModelPart | undefined = copy?.(part);
         if (current === undefined)
@@ -99,11 +109,11 @@ export namespace ApplyQuadrupedCarrierPose {
       expose();
     const reposed: typeof animal.reposed = animal.reposed;
     if (reposed !== REPOSE) expose?.();
-    const construct = (): Archetype<Id, D> =>
+    const construct = (): AutoMovieArchetype<Id, D> =>
       Reflect.apply(reposed, animal, [moved, frames]);
     if (owned && reposed === REPOSE && neutral !== undefined)
       return ArchetypePartOwnership.observe(moved, construct, neutral);
-    const model: Archetype<Id, D> = construct();
+    const model: AutoMovieArchetype<Id, D> = construct();
     neutral?.(false);
     return model;
   }
@@ -161,8 +171,8 @@ export namespace ApplyQuadrupedCarrierPose {
    */
   export function nativeRepose(): boolean {
     return (
-      Object.getOwnPropertyDescriptor(Archetype.prototype, "reposed")?.value ===
-      REPOSE
+      Object.getOwnPropertyDescriptor(AutoMovieArchetype.prototype, "reposed")
+        ?.value === REPOSE
     );
   }
 

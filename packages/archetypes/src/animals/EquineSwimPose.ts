@@ -5,9 +5,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core";
+import { AutoMovieArchetypeFrame } from "../core";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineSwimStroke } from "./EquineSwimStroke";
-import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 import type { QuadrupedWorldPose } from "./QuadrupedWorldPose";
 
@@ -35,14 +35,18 @@ const LATERAL: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh pose and retains nothing.
  */
 export function EquineSwimPose(
-  neutral: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
+  neutral: ReadonlyMap<
+    AutoMovieArchetypeQuadrupedBody.Bone,
+    IAutoMovieTransform
+  >,
   placement: IAutoMovieTransform,
-  phases: Readonly<Record<QuadrupedBody.Limb, number>>,
+  phases: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>>,
   neck: number,
 ): QuadrupedWorldPose.IPose {
   if (!Number.isFinite(neck))
     throw new RangeError("A swimming neck raise must be finite degrees");
-  const frames: Map<QuadrupedBody.Bone, IAutoMovieTransform> = new Map(neutral);
+  const frames: Map<AutoMovieArchetypeQuadrupedBody.Bone, IAutoMovieTransform> =
+    new Map(neutral);
 
   // The neck turns about its root and the head rides it.
   const raise: IAutoMovieQuaternion = Quaternion.fromAxisAngle(LATERAL, -neck);
@@ -62,7 +66,7 @@ export function EquineSwimPose(
     });
   }
 
-  for (const limb of QuadrupedBody.LIMBS) {
+  for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
     const fore: boolean = limb.endsWith("Fore");
     const angles: EquineSwimStroke.IAngles = EquineSwimStroke(
       fore ? "fore" : "hind",
@@ -73,7 +77,8 @@ export function EquineSwimPose(
     const fronts: readonly number[] = fore
       ? [angles.upper, 360 - angles.middle, 360 - angles.lower]
       : [360 - angles.upper, angles.middle, 360 - angles.lower];
-    const chain: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
+    const chain: readonly AutoMovieArchetypeQuadrupedBody.Bone[] =
+      AutoMovieArchetypeQuadrupedBody.BONES[limb];
     let polar: number = angles.swing - 90;
     let origin: IAutoMovieVector3 = neutral.get(chain[0]!)!.translation;
     for (let k: number = 0; k < chain.length; k++) {
@@ -106,9 +111,10 @@ export function EquineSwimPose(
   }
 
   // Parent-local rotations of the posed model frames, the trunk placed in the world.
-  const local: Map<QuadrupedBody.Bone, IAutoMovieQuaternion> = new Map();
+  const local: Map<AutoMovieArchetypeQuadrupedBody.Bone, IAutoMovieQuaternion> =
+    new Map();
   for (const [bone, frame] of frames) {
-    const parent: QuadrupedBody.Bone | null = PARENTS(bone);
+    const parent: AutoMovieArchetypeQuadrupedBody.Bone | null = PARENTS(bone);
     if (parent !== null)
       local.set(
         bone,
@@ -119,20 +125,23 @@ export function EquineSwimPose(
       );
   }
   return {
-    root: ArchetypeFrame.compose(placement, frames.get("trunk")!),
+    root: AutoMovieArchetypeFrame.compose(placement, frames.get("trunk")!),
     local,
   };
 }
 
-/** The shared quadruped tree's parent of a bone, as `QuadrupedSkeleton.of` builds it. */
-function PARENTS(bone: QuadrupedBody.Bone): QuadrupedBody.Bone | null {
+/** The shared quadruped tree's parent of a bone, as `AutoMovieArchetypeQuadrupedSkeleton.of` builds it. */
+function PARENTS(
+  bone: AutoMovieArchetypeQuadrupedBody.Bone,
+): AutoMovieArchetypeQuadrupedBody.Bone | null {
   if (bone === "trunk") return null;
   if (bone === "hindquarters" || bone === "neck") return "trunk";
   if (bone === "head") return "neck";
   if (bone === "tail") return "hindquarters";
   if (bone === "leftForeScapula" || bone === "rightForeScapula") return "trunk";
-  for (const limb of QuadrupedBody.LIMBS) {
-    const chain: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
+  for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
+    const chain: readonly AutoMovieArchetypeQuadrupedBody.Bone[] =
+      AutoMovieArchetypeQuadrupedBody.BONES[limb];
     const index: number = chain.indexOf(bone);
     if (index > 0) return chain[index - 1]!;
     if (index === 0)

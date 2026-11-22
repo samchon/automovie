@@ -8,10 +8,10 @@ import type { IPlaygroundComposition } from "../../playground/structures/IPlaygr
  */
 export namespace SceneArchetype {
   /** A scene prop, including the native articulation of its generated model. */
-  export type Model = archetypes.Archetype<
+  export type Model = archetypes.AutoMovieArchetype<
     string,
     string,
-    archetypes.ArchetypeMass.IProperties | null
+    archetypes.AutoMovieArchetypeMass.IProperties | null
   >;
 
   /** A producer as the site calls it, with the variant list that names its selector. */

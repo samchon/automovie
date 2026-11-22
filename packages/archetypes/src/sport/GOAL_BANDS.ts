@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../core";
 import type { createGoal } from "./createGoal";
 
 /** The football goal read. */
@@ -39,79 +39,151 @@ const ITF: string =
 export const GOAL_BANDS: Readonly<
   Record<
     createGoal.Kind,
-    Readonly<Partial<Record<createGoal.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createGoal.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   footballGoal: {
-    width: ArchetypeBand.metres(7.32, 7.32, IFAB),
-    height: ArchetypeBand.metres(2.44, 2.44, IFAB),
-    bar: ArchetypeBand.metres(0.12, 0.12, `${IFAB}; the model takes the limit`),
-    mass: ArchetypeBand.of("kg", 100, 200, ArchetypeBand.TYPICAL_MASS, true),
+    width: AutoMovieArchetypeBand.metres(7.32, 7.32, IFAB),
+    height: AutoMovieArchetypeBand.metres(2.44, 2.44, IFAB),
+    bar: AutoMovieArchetypeBand.metres(
+      0.12,
+      0.12,
+      `${IFAB}; the model takes the limit`,
+    ),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      100,
+      200,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   fieldHockeyGoal: {
-    width: ArchetypeBand.metres(3.66, 3.66, FIH),
-    height: ArchetypeBand.metres(2.14, 2.14, FIH),
-    bar: ArchetypeBand.metres(0.05, 0.05, FIH),
-    mass: ArchetypeBand.of("kg", 50, 100, ArchetypeBand.TYPICAL_MASS, true),
+    width: AutoMovieArchetypeBand.metres(3.66, 3.66, FIH),
+    height: AutoMovieArchetypeBand.metres(2.14, 2.14, FIH),
+    bar: AutoMovieArchetypeBand.metres(0.05, 0.05, FIH),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      50,
+      100,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   iceHockeyGoal: {
-    width: ArchetypeBand.metres(1.83, 1.83, IIHF),
-    height: ArchetypeBand.metres(1.22, 1.22, IIHF),
-    bar: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(1.83, 1.83, IIHF),
+    height: AutoMovieArchetypeBand.metres(1.22, 1.22, IIHF),
+    bar: AutoMovieArchetypeBand.metres(
       0.05,
       0.05,
       "Coarse pipe diameter for the visual frame",
       true,
     ),
-    mass: ArchetypeBand.of("kg", 30, 60, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      30,
+      60,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   lacrosseGoal: {
-    width: ArchetypeBand.metres(1.83, 1.83, SIXES),
-    height: ArchetypeBand.metres(1.83, 1.83, SIXES),
-    bar: ArchetypeBand.metres(0.05, 0.05, SIXES),
-    mass: ArchetypeBand.of("kg", 20, 50, ArchetypeBand.TYPICAL_MASS, true),
+    width: AutoMovieArchetypeBand.metres(1.83, 1.83, SIXES),
+    height: AutoMovieArchetypeBand.metres(1.83, 1.83, SIXES),
+    bar: AutoMovieArchetypeBand.metres(0.05, 0.05, SIXES),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      20,
+      50,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   handballGoal: {
-    width: ArchetypeBand.metres(3, 3, IHF),
-    height: ArchetypeBand.metres(2, 2, IHF),
-    bar: ArchetypeBand.metres(0.08, 0.08, IHF),
-    mass: ArchetypeBand.of("kg", 30, 70, ArchetypeBand.TYPICAL_MASS, true),
+    width: AutoMovieArchetypeBand.metres(3, 3, IHF),
+    height: AutoMovieArchetypeBand.metres(2, 2, IHF),
+    bar: AutoMovieArchetypeBand.metres(0.08, 0.08, IHF),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      30,
+      70,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   basketballHoop: {
-    width: ArchetypeBand.metres(1.8, 1.8, `${FIBA}: the backboard`),
-    board: ArchetypeBand.metres(1.05, 1.05, `${FIBA}: the backboard`),
-    thickness: ArchetypeBand.metres(0.0118, 0.0135, FIBA),
-    height: ArchetypeBand.metres(3.05, 3.05, `${FIBA}: the ring's top`),
-    ring: ArchetypeBand.metres(0.45, 0.459, `${FIBA}: inside diameter`),
-    bar: ArchetypeBand.metres(0.016, 0.02, `${FIBA}: the ring's metal`),
-    offset: ArchetypeBand.metres(0.151, 0.151, FIBA),
-    mass: ArchetypeBand.of("kg", 40, 80, ArchetypeBand.TYPICAL_MASS, true),
+    width: AutoMovieArchetypeBand.metres(1.8, 1.8, `${FIBA}: the backboard`),
+    board: AutoMovieArchetypeBand.metres(1.05, 1.05, `${FIBA}: the backboard`),
+    thickness: AutoMovieArchetypeBand.metres(0.0118, 0.0135, FIBA),
+    height: AutoMovieArchetypeBand.metres(
+      3.05,
+      3.05,
+      `${FIBA}: the ring's top`,
+    ),
+    ring: AutoMovieArchetypeBand.metres(
+      0.45,
+      0.459,
+      `${FIBA}: inside diameter`,
+    ),
+    bar: AutoMovieArchetypeBand.metres(
+      0.016,
+      0.02,
+      `${FIBA}: the ring's metal`,
+    ),
+    offset: AutoMovieArchetypeBand.metres(0.151, 0.151, FIBA),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      40,
+      80,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   volleyballNet: {
-    width: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(
       9.5,
       10,
       `${FIVB}: the net's length; the side bands 9 m apart, as 9.50 m less two 25 cm or 10 m less two 50 cm`,
     ),
-    board: ArchetypeBand.metres(1, 1, `${FIVB}: the net's width`),
-    offset: ArchetypeBand.metres(
+    board: AutoMovieArchetypeBand.metres(1, 1, `${FIVB}: the net's width`),
+    offset: AutoMovieArchetypeBand.metres(
       0.5,
       1,
       `${FIVB}: posts outside the side lines`,
     ),
-    post: ArchetypeBand.metres(2.55, 2.55, FIVB),
-    mass: ArchetypeBand.of("kg", 40, 80, ArchetypeBand.TYPICAL_MASS, true),
+    post: AutoMovieArchetypeBand.metres(2.55, 2.55, FIVB),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      40,
+      80,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   tennisNet: {
-    width: ArchetypeBand.metres(10.97, 10.97, `${ITF}: the doubles court`),
-    height: ArchetypeBand.metres(0.914, 0.914, `${ITF}: at the centre`),
-    post: ArchetypeBand.metres(1.07, 1.07, `${ITF}: at the posts`),
-    offset: ArchetypeBand.metres(0.914, 0.914, ITF),
-    bar: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(
+      10.97,
+      10.97,
+      `${ITF}: the doubles court`,
+    ),
+    height: AutoMovieArchetypeBand.metres(
+      0.914,
+      0.914,
+      `${ITF}: at the centre`,
+    ),
+    post: AutoMovieArchetypeBand.metres(1.07, 1.07, `${ITF}: at the posts`),
+    offset: AutoMovieArchetypeBand.metres(0.914, 0.914, ITF),
+    bar: AutoMovieArchetypeBand.metres(
       0.15,
       0.15,
       `${ITF}: the post; the model takes the limit`,
     ),
-    mass: ArchetypeBand.of("kg", 30, 60, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      30,
+      60,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
 };

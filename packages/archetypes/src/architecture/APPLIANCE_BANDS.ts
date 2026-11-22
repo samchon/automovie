@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../core";
 import { ADA_RANGES } from "./ADA_RANGES";
 import type { createAppliance } from "./createAppliance";
 
@@ -28,39 +28,52 @@ const WASHER: string =
 export const APPLIANCE_BANDS: Readonly<
   Record<
     createAppliance.Kind,
-    Readonly<Partial<Record<createAppliance.Dimension, IArchetypeBand>>>
+    Readonly<
+      Partial<Record<createAppliance.Dimension, IAutoMovieArchetypeBand>>
+    >
   >
 > = {
   refrigerator: {
-    height: ArchetypeBand.metres(1.86, 2.03, `${FRIDGE}; ${TALL}`, true),
-    width: ArchetypeBand.metres(0.6, 0.6, FRIDGE),
-    depth: ArchetypeBand.metres(0.66, 0.66, FRIDGE),
-    pullHeight: ArchetypeBand.metres(
+    height: AutoMovieArchetypeBand.metres(
+      1.86,
+      2.03,
+      `${FRIDGE}; ${TALL}`,
+      true,
+    ),
+    width: AutoMovieArchetypeBand.metres(0.6, 0.6, FRIDGE),
+    depth: AutoMovieArchetypeBand.metres(0.66, 0.66, FRIDGE),
+    pullHeight: AutoMovieArchetypeBand.metres(
       ADA_RANGES.hardware.low,
       ADA_RANGES.hardware.high,
       `${ADA_RANGES.hardware.source}; a cabinet's pulls share door hardware's range within ${ADA_RANGES.reach.source}`,
     ),
-    mass: ArchetypeBand.of("kg", 62, 82, `${FRIDGE}; ${TALL}`, true),
+    mass: AutoMovieArchetypeBand.of("kg", 62, 82, `${FRIDGE}; ${TALL}`, true),
   },
   cooker: {
-    height: ArchetypeBand.metres(0.85, 0.92, COOKERS),
-    width: ArchetypeBand.metres(0.6, 0.6, COOKERS),
-    depth: ArchetypeBand.metres(
+    height: AutoMovieArchetypeBand.metres(0.85, 0.92, COOKERS),
+    width: AutoMovieArchetypeBand.metres(0.6, 0.6, COOKERS),
+    depth: AutoMovieArchetypeBand.metres(
       0.6,
       0.6,
       "Bosch HLS79R350A, 850 x 600 x 600 mm, as a search result gives Bosch's sheet; not read",
       true,
     ),
-    mass: ArchetypeBand.of("kg", 40, 60, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      40,
+      60,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   microwave: {
-    height: ArchetypeBand.metres(0.26, 0.26, MICROWAVE),
-    width: ArchetypeBand.metres(0.442, 0.442, MICROWAVE),
-    depth: ArchetypeBand.metres(0.345, 0.345, MICROWAVE),
-    cavityHeight: ArchetypeBand.metres(0.18, 0.18, MICROWAVE),
-    cavityWidth: ArchetypeBand.metres(0.28, 0.28, MICROWAVE),
-    cavityDepth: ArchetypeBand.metres(0.3, 0.3, MICROWAVE),
-    mass: ArchetypeBand.of(
+    height: AutoMovieArchetypeBand.metres(0.26, 0.26, MICROWAVE),
+    width: AutoMovieArchetypeBand.metres(0.442, 0.442, MICROWAVE),
+    depth: AutoMovieArchetypeBand.metres(0.345, 0.345, MICROWAVE),
+    cavityHeight: AutoMovieArchetypeBand.metres(0.18, 0.18, MICROWAVE),
+    cavityWidth: AutoMovieArchetypeBand.metres(0.28, 0.28, MICROWAVE),
+    cavityDepth: AutoMovieArchetypeBand.metres(0.3, 0.3, MICROWAVE),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       12.2,
       12.5,
@@ -69,20 +82,20 @@ export const APPLIANCE_BANDS: Readonly<
     ),
   },
   washingMachine: {
-    height: ArchetypeBand.metres(
+    height: AutoMovieArchetypeBand.metres(
       0.845,
       0.848,
       `${WASHER}; Bosch WAN28108GB at 848 mm, a search result only`,
       true,
     ),
-    width: ArchetypeBand.metres(0.598, 0.598, WASHER),
-    depth: ArchetypeBand.metres(0.59, 0.59, WASHER),
-    door: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(0.598, 0.598, WASHER),
+    depth: AutoMovieArchetypeBand.metres(0.59, 0.59, WASHER),
+    door: AutoMovieArchetypeBand.metres(
       0.459,
       0.459,
       `${WASHER}: the door opened square projects its own width, 1049 less 590 mm`,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       66.3,
       70.3,

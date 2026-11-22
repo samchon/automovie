@@ -1,11 +1,15 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import type { createCannon } from "./createCannon";
 
 /** A cannon under construction. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createCannon.Affordance,
   createCannon.Dimension
 >;
@@ -121,7 +125,11 @@ export namespace CannonPieces {
     builder.affordance({
       id: "traverse",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, e.pin, 0), v(0, 1, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, e.pin, 0),
+        v(0, 1, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       travel: 180,
       reverse: 180,
@@ -130,7 +138,11 @@ export namespace CannonPieces {
     builder.affordance({
       id: "elevation",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, axis, 0), v(-1, 0, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, axis, 0),
+        v(-1, 0, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       travel: e.tilt,
       reverse: e.tilt,
@@ -141,7 +153,7 @@ export namespace CannonPieces {
       id: "muzzle",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, axis, length / 2),
         v(0, 0, 1),
         v(1, 0, 0),
@@ -153,7 +165,7 @@ export namespace CannonPieces {
       id: "vent",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, axis + outer, -length / 2 + length * ESTIMATES.vent),
         v(0, 1, 0),
         v(1, 0, 0),
@@ -165,7 +177,7 @@ export namespace CannonPieces {
       id: "tiller",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, axis, -length / 2 - e.tiller / 2),
         v(0, 1, 0),
         v(0, 0, 1),
@@ -239,7 +251,7 @@ export namespace CannonPieces {
     builder.affordance({
       id: "elevation",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, axis, trunnions),
         v(-1, 0, 0),
         v(0, 0, 1),
@@ -253,7 +265,11 @@ export namespace CannonPieces {
       id: "muzzle",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(v(0, axis, muzzle), v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, axis, muzzle),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
       rides: "elevation",
     });
@@ -261,7 +277,7 @@ export namespace CannonPieces {
       id: "vent",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, axis + outer, breech + length * e.vent),
         v(0, 1, 0),
         v(1, 0, 0),
@@ -293,7 +309,7 @@ export namespace CannonPieces {
     const pivot: IAutoMovieVector3 = v(0, height + width * e.mortar, 0);
     const length: number = d.length!;
     const outer: number = (d.bore! / 2) * e.tube;
-    const angle: number = MORTAR_ELEVATION * ArchetypeUnits.DEGREE;
+    const angle: number = MORTAR_ELEVATION * AutoMovieArchetypeUnits.DEGREE;
     const along: IAutoMovieVector3 = v(0, Math.sin(angle), Math.cos(angle));
     const muzzle: IAutoMovieVector3 = Vector3.add(
       pivot,
@@ -311,14 +327,14 @@ export namespace CannonPieces {
       id: "muzzle",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(muzzle, along, v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(muzzle, along, v(1, 0, 0)),
       extent: null,
     });
     builder.affordance({
       id: "vent",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.add(breech, Vector3.scale(along, length * e.vent)),
         v(0, Math.cos(angle), -Math.sin(angle)),
         v(1, 0, 0),

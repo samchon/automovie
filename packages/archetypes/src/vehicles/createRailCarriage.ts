@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -27,7 +27,7 @@ import {
  * @param params Model id and floor-relative seat height. Also accepts a positional id.
  * @param options A gallery seed or, with a positional id, the seat height options.
  * @returns The carriage at rest with the door pairs closed.
- * @throws {ArchetypeRefusal} When the height is nonfinite or outside the 17–19 inch scenic contact band.
+ * @throws {AutoMovieArchetypeRefusal} When the height is nonfinite or outside the 17–19 inch scenic contact band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the model coordinates, paired door controls, fixed matching platform dimensions, seedless seat height and the accepted seat-height override.
  * @evidence contracts/development/implementation.md#principled-implementation The reference supplies the envelope, floor, door pitch and width, truck arrangement and seating widths. One validated height determines both seat geometry and contact. Paired leaves use opposite slider axes with a positive 1:1 coupling.
@@ -40,7 +40,10 @@ import {
 export function createRailCarriage(
   params: createRailCarriage.IParams | string = {},
   options?: number | string | Pick<createRailCarriage.IParams, "seatHeight">,
-): Archetype<createRailCarriage.Affordance, createRailCarriage.Dimension> {
+): AutoMovieArchetype<
+  createRailCarriage.Affordance,
+  createRailCarriage.Dimension
+> {
   const id: string =
     (typeof params === "string" ? params : params.id) ?? "railCarriage";
   const dimensionsInput: Pick<createRailCarriage.IParams, "seatHeight"> =
@@ -51,25 +54,25 @@ export function createRailCarriage(
         : {};
   const seed: number | string | undefined =
     typeof options === "object" ? undefined : options;
-  const draw: ArchetypeDrawSession<createRailCarriage.Dimension> =
-    new ArchetypeDrawSession("railCarriage", UNITS, seed, {
+  const draw: AutoMovieArchetypeDrawSession<createRailCarriage.Dimension> =
+    new AutoMovieArchetypeDrawSession("railCarriage", UNITS, seed, {
       seatHeight:
         dimensionsInput.seatHeight ?? (seed === undefined ? 0.45 : undefined),
     });
   const dimensions: Record<createRailCarriage.Dimension, number> =
     draw.dimensions(BANDS);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createRailCarriage.Affordance,
     createRailCarriage.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id,
     name: "metro carriage",
     material: "steel",
     draw,
   });
   const v: typeof Vector3.create = Vector3.create;
-  const inch: number = ArchetypeUnits.INCH;
-  const foot: number = ArchetypeUnits.FOOT;
+  const inch: number = AutoMovieArchetypeUnits.INCH;
+  const foot: number = AutoMovieArchetypeUnits.FOOT;
   const half: number = createRailCarriage.REFERENCE.width / 2;
   const floor: number = createRailCarriage.REFERENCE.floor;
   const end: number = (75 * foot) / 2 - ESTIMATES.coupler;
@@ -188,7 +191,7 @@ export function createRailCarriage(
         builder.affordance({
           id: slider,
           kind: "slider",
-          frame: ArchetypeFrame.facing(
+          frame: AutoMovieArchetypeFrame.facing(
             v(doorX, floor, centre),
             v(0, 1, 0),
             v(0, 0, direction),
@@ -291,7 +294,9 @@ export function createRailCarriage(
   builder.affordance({
     id: "seat",
     kind: "seat",
-    frame: ArchetypeFrame.upright(v(-seatX + seatWidth / 2, seatY, seatFront)),
+    frame: AutoMovieArchetypeFrame.upright(
+      v(-seatX + seatWidth / 2, seatY, seatFront),
+    ),
     extent: null,
     width: seatWidth,
     depth: seatDepth,
@@ -316,7 +321,7 @@ export function createRailCarriage(
     id: "grabRail",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(railX, (floor + ceiling) / 2, railZ),
       v(-1, 0, 0),
       v(0, 1, 0),
@@ -329,7 +334,7 @@ export function createRailCarriage(
   builder.affordance({
     id: "threshold",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(half - threshold / 2, floor, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(half - threshold / 2, floor, 0)),
     extent: null,
     width: threshold,
     depth: 2 * leaf,
@@ -337,7 +342,11 @@ export function createRailCarriage(
   builder.affordance({
     id: "doorway",
     kind: "aperture",
-    frame: ArchetypeFrame.facing(v(half, floor, 0), v(0, 1, 0), v(0, 0, -1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(half, floor, 0),
+      v(0, 1, 0),
+      v(0, 0, -1),
+    ),
     extent: null,
     width: 2 * leaf,
     height: doorHeight,
@@ -345,12 +354,12 @@ export function createRailCarriage(
   builder.affordance({
     id: "aisle",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, floor, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, floor, 0)),
     extent: null,
     width: aisle,
     depth: 2 * (end - 0.06),
   });
-  return builder.build(65_000 * ArchetypeUnits.POUND);
+  return builder.build(65_000 * AutoMovieArchetypeUnits.POUND);
 }
 
 /** All slider pairs from negative to positive Z on the two sides. */
@@ -414,23 +423,25 @@ export namespace createRailCarriage {
    * Outside width and floor height above rail in metres, reference §II.C.3.
    */
   export const REFERENCE: Readonly<{ width: number; floor: number }> = {
-    width: 126 * ArchetypeUnits.INCH,
-    floor: 40 * ArchetypeUnits.INCH,
+    width: 126 * AutoMovieArchetypeUnits.INCH,
+    floor: 40 * AutoMovieArchetypeUnits.INCH,
   };
 }
 
 /** Unit shared by the seat-height input, band and record. */
 const UNITS: Readonly<
-  Record<createRailCarriage.Dimension, ArchetypeDrawSession.Unit>
+  Record<createRailCarriage.Dimension, AutoMovieArchetypeDrawSession.Unit>
 > = {
   seatHeight: "m",
 };
 
 /** Rail transfer-seat guidance gives the scenic seat contact height above the finished floor. */
-const BANDS: Readonly<Record<createRailCarriage.Dimension, IArchetypeBand>> = {
-  seatHeight: ArchetypeBand.metres(
-    17 * ArchetypeUnits.INCH,
-    19 * ArchetypeUnits.INCH,
+const BANDS: Readonly<
+  Record<createRailCarriage.Dimension, IAutoMovieArchetypeBand>
+> = {
+  seatHeight: AutoMovieArchetypeBand.metres(
+    17 * AutoMovieArchetypeUnits.INCH,
+    19 * AutoMovieArchetypeUnits.INCH,
     "U.S. Access Board RVAA Committee Final Report, Appendix §V.1, Transfer Seat Details (https://www.access-board.gov/advisory-committee-reports/rail/rvaac-report/#v-transfer-seat-details)",
   ),
 };
@@ -454,13 +465,19 @@ const ESTIMATES: Readonly<{
 };
 
 /** Neutral stainless finish for the carriage shell and grab rails. */
-const STEEL: ArchetypeBuilder.IOptions = { color: "#bfc8ce", surface: "steel" };
+const STEEL: AutoMovieArchetypeBuilder.IOptions = {
+  color: "#bfc8ce",
+  surface: "steel",
+};
 
 /** Low-reflectance floor and underframe silhouette. */
-const DARK: ArchetypeBuilder.IOptions = { color: "#363d46" };
+const DARK: AutoMovieArchetypeBuilder.IOptions = { color: "#363d46" };
 
 /** Tinted fixed sash represented by a thin panel. */
-const GLASS: ArchetypeBuilder.IOptions = { color: "#526d7e", density: 0.4 };
+const GLASS: AutoMovieArchetypeBuilder.IOptions = {
+  color: "#526d7e",
+  density: 0.4,
+};
 
 /** Colored upholstery distinguishes the passenger supports from the shell. */
-const SEAT: ArchetypeBuilder.IOptions = { color: "#326878" };
+const SEAT: AutoMovieArchetypeBuilder.IOptions = { color: "#326878" };

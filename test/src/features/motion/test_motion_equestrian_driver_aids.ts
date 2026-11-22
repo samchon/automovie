@@ -1,5 +1,5 @@
 import {
-  ArchetypeRide,
+  AutoMovieArchetypeRide,
   createCart,
   createHorse,
   prepareTowedCartDriver,
@@ -67,10 +67,10 @@ export function test_motion_equestrian_driver_aids(): void {
     acceleration: 0.5,
     deceleration: 0.5,
   });
-  const ride: ArchetypeRide.ITowedRide<
+  const ride: AutoMovieArchetypeRide.ITowedRide<
     createCart.Affordance,
     createCart.Dimension
-  > = ArchetypeRide.towed(leader, "hitch", cart, "coupling", {
+  > = AutoMovieArchetypeRide.towed(leader, "hitch", cart, "coupling", {
     lines: createCart.lines(cart),
     support: createCart.towing(cart),
   });
@@ -215,10 +215,10 @@ export function test_motion_equestrian_driver_aids(): void {
   }
 
   // 3. The lines laid to the palms end at them.
-  const held: ArchetypeRide.ITowedRide<
+  const held: AutoMovieArchetypeRide.ITowedRide<
     createCart.Affordance,
     createCart.Dimension
-  > = ArchetypeRide.towed(leader, "hitch", cart, "coupling", {
+  > = AutoMovieArchetypeRide.towed(leader, "hitch", cart, "coupling", {
     lines: createCart.lines(cart, (side, at: number) => palm(side, at)),
     support: createCart.towing(cart),
   });
@@ -227,7 +227,8 @@ export function test_motion_equestrian_driver_aids(): void {
       const line = held
         .at(at)
         .lines!.find(
-          (l: ArchetypeRide.ILineState): boolean => l.id === `line-${side}`,
+          (l: AutoMovieArchetypeRide.ILineState): boolean =>
+            l.id === `line-${side}`,
         )!;
       if (Vector3.distance(line.points.at(-1)!, palm(side, at)) > 1e-6)
         findings.push(

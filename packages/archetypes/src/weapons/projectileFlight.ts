@@ -6,7 +6,7 @@ import { createProjectile } from "./createProjectile";
  * @param kind A launched kind; a cartridge, loaded and never launched, has no flight data.
  * @param model The read object, where the kind has one.
  * @param radius The sphere's or the shaft's radius, metres, whose cross-section is the drag's reference area.
- * @returns The body's flight data, for `ArchetypeBuilder.build`.
+ * @returns The body's flight data, for `AutoMovieArchetypeBuilder.build`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is given, the radius's unit and role, and that an unread datum is left out.
  * @evidence contracts/development/implementation.md#principled-implementation The read coefficient against the cross-section its source states (a sphere's) or that is taken provisionally (an arrow's); the read depth for the outcome `stick`, the read soil restitution for `bounce` and `roll`.

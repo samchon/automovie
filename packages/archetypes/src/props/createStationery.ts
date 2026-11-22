@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { StationeryDraw } from "./StationeryDraw";
 import { createBook } from "./createBook";
 import { createClipboard } from "./createClipboard";
@@ -11,7 +11,7 @@ import { createPen } from "./createPen";
  * @param params The saved kind, fixed values, optional identifier and model when applicable.
  * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
  * @returns The selected prop in its original frame.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Read a saved stationery recipe and call the producer for its kind.
  * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects the named producer that owns its geometry and contacts.
@@ -24,7 +24,7 @@ import { createPen } from "./createPen";
 export function createStationery(
   params: createStationery.IParams,
   seed?: number | string,
-): Archetype<createStationery.Affordance, createStationery.Dimension> {
+): AutoMovieArchetype<createStationery.Affordance, createStationery.Dimension> {
   const kind: createStationery.Kind = ArchetypeDraw.choice(
     "stationery",
     "kind",
@@ -41,8 +41,10 @@ export function createStationery(
   const produce: (
     params: createStationery.IParams,
     seed?: number | string,
-  ) => Archetype<createStationery.Affordance, createStationery.Dimension> =
-    createStationery.PRODUCERS[kind] as typeof produce;
+  ) => AutoMovieArchetype<
+    createStationery.Affordance,
+    createStationery.Dimension
+  > = createStationery.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);
 }
 

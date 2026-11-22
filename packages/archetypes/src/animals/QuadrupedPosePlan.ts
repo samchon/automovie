@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { Archetype } from "../core";
-import type { QuadrupedBody } from "./QuadrupedBody";
+import type { AutoMovieArchetype } from "../core";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { QuadrupedScapula } from "./QuadrupedScapula";
 
 /**
@@ -40,7 +40,7 @@ export namespace QuadrupedPosePlan {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No animal kind or humanoid joint determines carriage, and a free-text goal cannot override a solved limb.
    */
   export type Axial = Extract<
-    QuadrupedBody.Bone,
+    AutoMovieArchetypeQuadrupedBody.Bone,
     "trunk" | "hindquarters" | "neck" | "head" | "tail" | QuadrupedScapula.Bone
   >;
 
@@ -66,10 +66,13 @@ export namespace QuadrupedPosePlan {
    */
   export interface IState {
     /** Fresh local degree records; changing them cannot rewrite prepared metadata. */
-    joints: ReadonlyMap<QuadrupedBody.Bone, Rotation>;
+    joints: ReadonlyMap<AutoMovieArchetypeQuadrupedBody.Bone, Rotation>;
 
     /** Fresh achieved world joint transforms, one per actual bone. */
-    frames: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>;
+    frames: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    >;
   }
 
   /**
@@ -85,7 +88,7 @@ export namespace QuadrupedPosePlan {
     Dimension extends string,
   > extends IState {
     /** Actual posed model; root placement is already included. */
-    animal: Archetype<Id, Dimension>;
+    animal: AutoMovieArchetype<Id, Dimension>;
   }
 
   /**
@@ -98,7 +101,10 @@ export namespace QuadrupedPosePlan {
    */
   export type Lowering = (
     root?: IAutoMovieTransform,
-    limbs?: ReadonlyMap<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>,
+    limbs?: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Limb,
+      readonly IAutoMovieVector3[]
+    >,
     axial?: ReadonlyMap<Axial, Goal>,
   ) => IState;
 
@@ -133,13 +139,16 @@ export namespace QuadrupedPosePlan {
      * @evidence contracts/development/common.md#meaningful-documentation States complete achieved frames, metre/world convention, exact sixteen-part exclusion, included actual accessories/spans and refusal without a fallback bound.
      * @evidence contracts/development/implementation.md#principled-implementation Apply the same admitted current-times-inverse-neutral carrier deltas as model emission to private actual part transforms, relay actual spans from current endpoint/contact origins, and use the existing exact primitive support owner for minimum Y.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Reuse prepared bindings and geometry, transform non-limb parts only when there are no spans, or shallow-transform the actual endpoint parts/contacts required by the existing span owner before measuring the same non-limb set.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No whole temporary Archetype, deep geometry copy, second sample call, guessed bound, dropped tack/line or cloned rigid/span arithmetic supplies the result.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No whole temporary AutoMovieArchetype, deep geometry copy, second sample call, guessed bound, dropped tack/line or cloned rigid/span arithmetic supplies the result.
      * @evidence contracts/development/implementation.md#efficient-algorithms O(B+P) work without spans and O(B+P+A+S(P+A)) with the current span locator for B bones, P parts, A contacts and S spans. Temporary scalar frames/records and span-only shape records are call-local; full geometry buffers are never copied.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the prepared private source geometry, neutral frames, bindings and source span records; the same delta and exact-support owners serve every query with no completed-frame cache.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no supplied frame map or computed bound. Temporary transforms, contacts, delta map and span-only shape records end with the query; no model, handle or external resource is created.
      */
     bodyFloor(
-      frames: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
+      frames: ReadonlyMap<
+        AutoMovieArchetypeQuadrupedBody.Bone,
+        IAutoMovieTransform
+      >,
     ): number;
 
     /**
@@ -154,7 +163,10 @@ export namespace QuadrupedPosePlan {
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns each sample and prepared lifetime. No previous sample, global cache, file, process or other external handle is retained.
      */
     sample(
-      limbs: ReadonlyMap<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>,
+      limbs: ReadonlyMap<
+        AutoMovieArchetypeQuadrupedBody.Limb,
+        readonly IAutoMovieVector3[]
+      >,
       root?: IAutoMovieTransform,
       axial?: ReadonlyMap<Axial, Goal>,
     ): ISample<Id, Dimension>;

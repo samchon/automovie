@@ -194,7 +194,7 @@ export function formatSceneChain(
         const read =
           o.joints === undefined
             ? `${name}Ride.frame(id as Parameters<typeof ${name}Ride.frame>[0], seconds)`
-            : `archetypes.ArchetypeFrame.compose(${name}Ride.at(seconds).placement, ${name}.articulate(${state}).affordance(id as Parameters<typeof ${name}.affordance>[0]).frame)`;
+            : `archetypes.AutoMovieArchetypeFrame.compose(${name}Ride.at(seconds).placement, ${name}.articulate(${state}).affordance(id as Parameters<typeof ${name}.affordance>[0]).frame)`;
         const travel: string =
           aid !== undefined
             ? ", " +
@@ -357,7 +357,7 @@ function vehicleCourseCall(
     case "createMotorcycle":
       return `archetypes.rideMotorcycle(${name}, ${course})`;
     case "createCart":
-      return `archetypes.ArchetypeRide.along(${name}, ${course})`;
+      return `archetypes.AutoMovieArchetypeRide.along(${name}, ${course})`;
     default:
       throw new Error(`"${producer}" does not supply a vehicle course.`);
   }

@@ -1,4 +1,4 @@
-import { QuadrupedLimb } from "@automovie/archetypes";
+import { AutoMovieArchetypeQuadrupedLimb } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,19 +36,19 @@ export function test_archetype_animal_limb_oriented(): void {
   ];
   const original: string = JSON.stringify(source);
   for (const fore of [true, false]) {
-    const prepared: QuadrupedLimb.IPrepared = QuadrupedLimb.prepare(
-      source,
-      fore,
-    );
+    const prepared: AutoMovieArchetypeQuadrupedLimb.IPrepared =
+      AutoMovieArchetypeQuadrupedLimb.prepare(source, fore);
     const direction: IAutoMovieVector3 = { x: 0, y: -3, z: 0 };
-    const oriented: ReturnType<QuadrupedLimb.IPrepared["oriented"]> =
-      prepared.oriented(direction);
+    const oriented: ReturnType<
+      AutoMovieArchetypeQuadrupedLimb.IPrepared["oriented"]
+    > = prepared.oriented(direction);
     for (const [fold, minimum, maximum] of [
       [0, 5, 9],
       [90, 3, 7],
       [180, 1, 3],
     ] as const) {
-      const range: QuadrupedLimb.IRange = oriented.range(fold);
+      const range: AutoMovieArchetypeQuadrupedLimb.IRange =
+        oriented.range(fold);
       near(`${fore}/${fold} independent ankle minimum`, range.minimum, minimum);
       near(`${fore}/${fold} independent ankle maximum`, range.maximum, maximum);
     }
@@ -109,7 +109,7 @@ export function test_archetype_animal_limb_oriented(): void {
     const foot: IAutoMovieVector3 = { x: 2, y: -12, z: 1 };
     const target: IAutoMovieVector3 = oriented.target(foot);
     target.y += 100;
-    const range: QuadrupedLimb.IRange = oriented.range(0);
+    const range: AutoMovieArchetypeQuadrupedLimb.IRange = oriented.range(0);
     range.maximum = 100;
     const output: IAutoMovieVector3[] = oriented.solve(root, foot, 0);
     output[0]!.y += 100;

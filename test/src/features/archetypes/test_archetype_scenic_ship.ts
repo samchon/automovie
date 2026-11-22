@@ -1,8 +1,8 @@
 import {
-  type ArchetypeCourse,
-  ArchetypeFrame,
-  ArchetypeRide,
-  ArchetypeSea,
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRide,
+  AutoMovieArchetypeSea,
   createScenicShip,
 } from "@automovie/archetypes";
 import type {
@@ -101,7 +101,7 @@ export function test_archetype_scenic_ship(): void {
     if (
       boarding.width < 1 ||
       !nclose(boarding.frame.translation.x + boarding.depth / 2, beam / 2) ||
-      !vclose(ArchetypeFrame.axis(boarding.frame, "z"), {
+      !vclose(AutoMovieArchetypeFrame.axis(boarding.frame, "z"), {
         x: -1,
         y: 0,
         z: 0,
@@ -122,7 +122,7 @@ export function test_archetype_scenic_ship(): void {
         part.geometry.type === "primitive" &&
         part.geometry.shape.type === "cylinder"
       ) {
-        const axis: IAutoMovieVector3 = ArchetypeFrame.axis(
+        const axis: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
           part.transform,
           "y",
         );
@@ -166,7 +166,11 @@ export function test_archetype_scenic_ship(): void {
               bench.transform.translation.z - bench.geometry.shape.depth / 2,
             ) ||
             !nclose(seat.frame.translation.x, bench.transform.translation.x) ||
-            !vclose(ArchetypeFrame.axis(seat.frame, "x"), { x: 0, y: 0, z: -1 })
+            !vclose(AutoMovieArchetypeFrame.axis(seat.frame, "x"), {
+              x: 0,
+              y: 0,
+              z: -1,
+            })
           )
             findings.push(`oared: ${id} does not meet its aft bench edge`);
         }
@@ -216,23 +220,26 @@ export function test_archetype_scenic_ship(): void {
 
     // The passive ride carries a rigid hull regardless of its profile.
     if (kind !== "wheelhouse") continue;
-    const course: ArchetypeCourse.ICourse = {
+    const course: AutoMovieArchetypeCourse.ICourse = {
       start: { x: 0, z: 0, heading: 0 },
       legs: [{ kind: "turn", radius: 25, angle: 90 }],
       cruise: 2,
       startSpeed: 2,
       endSpeed: 2,
     };
-    const ride: ArchetypeRide.IRide<
+    const ride: AutoMovieArchetypeRide.IRide<
       createScenicShip.Affordance,
       createScenicShip.Dimension
-    > = ArchetypeRide.along(ship, course);
-    const calm: typeof ride = ArchetypeSea.float(
+    > = AutoMovieArchetypeRide.along(ship, course);
+    const calm: typeof ride = AutoMovieArchetypeSea.float(
       ride,
-      ArchetypeSea.of({ height: 0, seed: 31 }),
+      AutoMovieArchetypeSea.of({ height: 0, seed: 31 }),
     );
-    const sea: ArchetypeSea.ISea = ArchetypeSea.of({ height: 0.7, seed: 31 });
-    const floating: typeof ride = ArchetypeSea.float(ride, sea);
+    const sea: AutoMovieArchetypeSea.ISea = AutoMovieArchetypeSea.of({
+      height: 0.7,
+      seed: 31,
+    });
+    const floating: typeof ride = AutoMovieArchetypeSea.float(ride, sea);
     const end: IAutoMovieTransform = calm.frame("boarding", calm.duration);
     if (
       !vclose(end.translation, {
@@ -240,7 +247,7 @@ export function test_archetype_scenic_ship(): void {
         y: freeboard,
         z: 25 - boarding.frame.translation.x,
       }) ||
-      !vclose(ArchetypeFrame.axis(end, "z"), { x: 0, y: 0, z: 1 })
+      !vclose(AutoMovieArchetypeFrame.axis(end, "z"), { x: 0, y: 0, z: 1 })
     )
       findings.push(
         `${kind}: calm turn leaves boarding at the wrong heading or position`,
@@ -270,7 +277,7 @@ export function test_archetype_scenic_ship(): void {
         wetRoot.y - stillRoot.y,
         sea.elevation(stillRoot.x, stillRoot.z, seconds),
       ) ||
-      !vclose(ArchetypeFrame.axis(wetBoardingFrame, "y"), {
+      !vclose(AutoMovieArchetypeFrame.axis(wetBoardingFrame, "y"), {
         x: -slope.x / normalLength,
         y: 1 / normalLength,
         z: -slope.z / normalLength,

@@ -1,4 +1,4 @@
-import type { QuadrupedRootRange } from "./QuadrupedRootRange";
+import type { AutoMovieArchetypeQuadrupedRootRange } from "./AutoMovieArchetypeQuadrupedRootRange";
 
 /**
  * Select one whole-body height from its simultaneous physical constraints.
@@ -24,7 +24,7 @@ import type { QuadrupedRootRange } from "./QuadrupedRootRange";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no model, sample, buffer, callback or external resource.
  */
 export function chooseQuadrupedBodyRoot(
-  range: QuadrupedRootRange.IRange,
+  range: AutoMovieArchetypeQuadrupedRootRange.IRange,
   preferred: number,
   coordinateScale: number,
 ): number {

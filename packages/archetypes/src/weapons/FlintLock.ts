@@ -2,10 +2,10 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeBand,
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetypeBand,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -60,7 +60,7 @@ export namespace FlintLock {
   };
 
   /** A flintlock's lock time, from the lock's firing to the pan's flash: Pletcher, Flintlock Timing, Muzzle Blasts (January 1990), 80 trials of two locks fired electrically and timed to a photocell at the pan, 0.0312 to 0.0536 s (the article's chart, reprinted at https://www.blackpowdermag.com/flintlock-timing-muzzleblast-january-1990/): an experimenter's report, not peer-reviewed, and the main charge's ignition after the flash is a separate interval. */
-  export const TIME: IArchetypeBand = ArchetypeBand.of(
+  export const TIME: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
     "s",
     0.0312,
     0.0536,
@@ -84,7 +84,7 @@ export namespace FlintLock {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lay<Affordance extends string, Dimension extends string>(
-    builder: ArchetypeBuilder<Affordance, Dimension>,
+    builder: AutoMovieArchetypeBuilder<Affordance, Dimension>,
     hole: IAutoMovieVector3,
     ids: Readonly<{
       cock: Affordance;
@@ -124,13 +124,13 @@ export namespace FlintLock {
     builder.affordance({
       id: ids.pan,
       kind: "socket",
-      frame: ArchetypeFrame.facing(pan, v(0, 1, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(pan, v(0, 1, 0), v(0, 0, 1)),
       extent: null,
     });
     builder.affordance({
       id: ids.frizzen,
       kind: "hinge",
-      frame: ArchetypeFrame.facing(frizzen, v(1, 0, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(frizzen, v(1, 0, 0), v(0, 0, 1)),
       extent: null,
       travel: e.open,
       parts: ["frizzen"],
@@ -138,7 +138,7 @@ export namespace FlintLock {
     builder.affordance({
       id: ids.cock,
       kind: "hinge",
-      frame: ArchetypeFrame.facing(cock, v(-1, 0, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(cock, v(-1, 0, 0), v(0, 0, 1)),
       extent: null,
       travel: e.full,
       parts: ["cock", "spur"],
@@ -148,7 +148,7 @@ export namespace FlintLock {
       id: ids.spur,
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         jaw,
         Vector3.normalize(Vector3.subtract(jaw, cock)),
         v(1, 0, 0),

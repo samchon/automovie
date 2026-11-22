@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { QuadrupedBody } from "./QuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedPoseAngles } from "./QuadrupedPoseAngles";
 import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
 
@@ -32,12 +32,21 @@ import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Rig metadata, reader and goal map are call-local; only fresh angle records escape and no model, geometry buffer or external resource is retained.
  */
 export function QuadrupedRestPose(
-  rig: IAutoMovieArticulatedRig<QuadrupedBody.Bone>,
-  neutral: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
-  placed: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
-  limbs: ReadonlyMap<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>,
+  rig: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone>,
+  neutral: ReadonlyMap<
+    AutoMovieArchetypeQuadrupedBody.Bone,
+    IAutoMovieTransform
+  >,
+  placed: ReadonlyMap<
+    AutoMovieArchetypeQuadrupedBody.Bone,
+    IAutoMovieTransform
+  >,
+  limbs: ReadonlyMap<
+    AutoMovieArchetypeQuadrupedBody.Limb,
+    readonly IAutoMovieVector3[]
+  >,
   tail: IAutoMovieVector3,
-): Map<QuadrupedBody.Bone, QuadrupedPosePlan.Rotation> {
+): Map<AutoMovieArchetypeQuadrupedBody.Bone, QuadrupedPosePlan.Rotation> {
   if (neutral.size !== rig.bones.length || placed.size !== rig.bones.length)
     throw new RangeError(
       "Rest compatibility lowering requires complete actual frame maps",
@@ -64,10 +73,10 @@ export function QuadrupedRestPose(
             `Rest compatibility ${node.bone} needs a finite rigid frame`,
           );
     }
-  const roots: readonly IAutoMovieArticulatedRig<QuadrupedBody.Bone>["bones"][number][] =
+  const roots: readonly IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone>["bones"][number][] =
     rig.bones.filter(
       (
-        node: IAutoMovieArticulatedRig<QuadrupedBody.Bone>["bones"][number],
+        node: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone>["bones"][number],
       ): boolean => node.parent === null,
     );
   if (roots.length !== 1)

@@ -1,14 +1,14 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { HorseHarness } from "../animals/HorseHarness";
+import { EquineHarness } from "../animals/EquineHarness";
 import { createHorse } from "../animals/createHorse";
 import {
-  type Archetype,
-  type ArchetypeDrawSession,
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  type ArchetypeSpan,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
+  type AutoMovieArchetypeSpan,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { CART_MODELS } from "./CART_MODELS";
 import { createCart } from "./createCart";
@@ -63,7 +63,7 @@ export namespace CartFit {
     if (models === undefined || withers === undefined) return models;
     return Object.fromEntries(
       Object.entries(models).filter(([name]: [string, unknown]): boolean => {
-        const band: IArchetypeBand | undefined =
+        const band: IAutoMovieArchetypeBand | undefined =
           CART_MODELS.ranges[name as createCart.Model]?.withersHeight;
         return (
           band === undefined ||
@@ -87,7 +87,7 @@ export namespace CartFit {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function harness(
-    draw: ArchetypeDrawSession<createCart.Dimension>,
+    draw: AutoMovieArchetypeDrawSession<createCart.Dimension>,
   ): void {
     const drawn: Readonly<Partial<Record<createCart.Dimension, number>>> =
       draw.values;
@@ -107,12 +107,12 @@ export namespace CartFit {
   }
 
   /**
-   * The traces and the driving lines between a cart and the horse in harness that draws it, for `ArchetypeRide.towed`'s `lines`: a trace from each point of draft at the breast collar's end to its end of the cart's single tree, and a driving line from each bit ring through the neck strap's ring and the saddle's terret to the driver's held run (Harness Stuff: the reins pass from the bit through the rings on the breastplate's neck strap, then the saddle's terrets, to the driver).
+   * The traces and the driving lines between a cart and the horse in harness that draws it, for `AutoMovieArchetypeRide.towed`'s `lines`: a trace from each point of draft at the breast collar's end to its end of the cart's single tree, and a driving line from each bit ring through the neck strap's ring and the saddle's terret to the driver's held run (Harness Stuff: the reins pass from the bit through the rings on the breastplate's neck strap, then the saddle's terrets, to the driver).
    *
    * @param cart A `cart` kind, built for the horse that draws it.
    * @param held Optional reader of the driver's displayed palm on each side at a film second, world metres: when given, each driving line's held run ends at that palm instead of the fixed material end, so the hand can shake, take up and give the line while it stays connected.
    * @returns The four lines, the traces first, left before right.
-   * @throws {ArchetypeRefusal} When the cart is not a horse's two-wheeled cart.
+   * @throws {AutoMovieArchetypeRefusal} When the cart is not a horse's two-wheeled cart.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the four lines, where each runs and when it refuses.
    * @evidence contracts/development/implementation.md#principled-implementation Each trace goes from the collar's point of draft to the single tree at the horse's draft spread. Each driving line runs through the bit ring, the neck strap's ring and the terret to the material end behind the modeled hand station, or to the driver's displayed palm when a hand reader is given.
@@ -123,15 +123,15 @@ export namespace CartFit {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lines(
-    cart: Archetype<createCart.Affordance, createCart.Dimension>,
+    cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,
     held?: createCart.Held,
-  ): ArchetypeRide.ILine[] {
+  ): AutoMovieArchetypeRide.ILine[] {
     if (
       !cart.affordances.some(
         (a: { id: string }): boolean => a.id === "leftLine",
       )
     )
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "cart",
         axis: "kind",
@@ -141,19 +141,19 @@ export namespace CartFit {
         fix: "draw a cart kind built for a horse in harness",
       });
     const spread: number = createHorse.rig(cart.dimensions).draft.x;
-    const ball = (part: string): ArchetypeSpan.End => ({
+    const ball = (part: string): AutoMovieArchetypeSpan.End => ({
       part,
       at: { x: 0, y: 0, z: 0 },
     });
-    const traces: ArchetypeRide.ILine[] = HorseHarness.SIDES.map(
+    const traces: AutoMovieArchetypeRide.ILine[] = EquineHarness.SIDES.map(
       ([side, sign]: readonly [
         "left" | "right",
         number,
-      ]): ArchetypeRide.ILine => ({
+      ]): AutoMovieArchetypeRide.ILine => ({
         id: `trace-${side}`,
         radius: createCart.TRACE,
         points: [
-          { leader: ball(HorseHarness.ENDS.draft[side]) },
+          { leader: ball(EquineHarness.ENDS.draft[side]) },
           {
             trailer: {
               part: "single-tree",
@@ -163,14 +163,17 @@ export namespace CartFit {
         ],
       }),
     );
-    const driving: ArchetypeRide.ILine[] = HorseHarness.SIDES.map(
-      ([side]: readonly ["left" | "right", number]): ArchetypeRide.ILine => ({
+    const driving: AutoMovieArchetypeRide.ILine[] = EquineHarness.SIDES.map(
+      ([side]: readonly [
+        "left" | "right",
+        number,
+      ]): AutoMovieArchetypeRide.ILine => ({
         id: `line-${side}`,
         radius: createCart.LINE / 2,
         points: [
-          { leader: ball(HorseHarness.ENDS.bit[side]) },
-          { leader: ball(HorseHarness.ENDS.ring[side]) },
-          { leader: ball(HorseHarness.ENDS.terret[side]) },
+          { leader: ball(EquineHarness.ENDS.bit[side]) },
+          { leader: ball(EquineHarness.ENDS.ring[side]) },
+          { leader: ball(EquineHarness.ENDS.terret[side]) },
           held === undefined
             ? { trailer: { affordance: `${side}LineEnd` } }
             : {

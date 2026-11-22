@@ -2,12 +2,12 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 const HULL: string =
@@ -21,7 +21,10 @@ const SPARS: string = "#989c9e";
 const FLOOR: number = 0.02;
 const MAIN_AREA: number = 5.5;
 
-type Build = ArchetypeBuilder<createDinghy.Affordance, createDinghy.Dimension>;
+type Build = AutoMovieArchetypeBuilder<
+  createDinghy.Affordance,
+  createDinghy.Dimension
+>;
 
 /** One transverse hull section: its station along +Z, half-beam at the rim and keel height, metres. */
 interface ISection {
@@ -69,13 +72,18 @@ interface IRing {
 export function createDinghy(
   params: createDinghy.IParams = {},
   seed?: number | string,
-): Archetype<createDinghy.Affordance, createDinghy.Dimension> {
-  const draw: ArchetypeDrawSession<createDinghy.Dimension> =
-    new ArchetypeDrawSession("dinghy", createDinghy.UNITS, seed, params);
+): AutoMovieArchetype<createDinghy.Affordance, createDinghy.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createDinghy.Dimension> =
+    new AutoMovieArchetypeDrawSession(
+      "dinghy",
+      createDinghy.UNITS,
+      seed,
+      params,
+    );
   const dimensions: Record<createDinghy.Dimension, number> = draw.dimensions(
     createDinghy.BANDS,
   );
-  const builder: Build = new ArchetypeBuilder({
+  const builder: Build = new AutoMovieArchetypeBuilder({
     material: "composite",
     name: "two-person sailing dinghy",
     id: params.id,
@@ -158,7 +166,7 @@ function hull(builder: Build, length: number, beam: number): void {
     builder.affordance({
       id,
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, FLOOR, z)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, FLOOR, z)),
       extent: null,
       width,
       depth: 0.76,
@@ -203,7 +211,7 @@ function mainRig(builder: Build, length: number): void {
   builder.affordance({
     id: "boom",
     kind: "hinge",
-    frame: ArchetypeFrame.facing(tack, v(0, 1, 0), v(0, 0, -1)),
+    frame: AutoMovieArchetypeFrame.facing(tack, v(0, 1, 0), v(0, 0, -1)),
     extent: null,
     reverse: 65,
     travel: 65,
@@ -212,7 +220,7 @@ function mainRig(builder: Build, length: number): void {
   builder.affordance({
     id: "clew",
     kind: "socket",
-    frame: ArchetypeFrame.upright(clew),
+    frame: AutoMovieArchetypeFrame.upright(clew),
     extent: null,
     rides: "boom",
   });
@@ -224,7 +232,7 @@ function mainRig(builder: Build, length: number): void {
   builder.affordance({
     id: "sheetBlock",
     kind: "socket",
-    frame: ArchetypeFrame.upright(block),
+    frame: AutoMovieArchetypeFrame.upright(block),
     extent: null,
   });
   // The tail leaves the block wherever the hand leads it: it swings and
@@ -232,14 +240,14 @@ function mainRig(builder: Build, length: number): void {
   builder.affordance({
     id: "sheetSwing",
     kind: "wheel",
-    frame: ArchetypeFrame.facing(block, v(0, 1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(block, v(0, 1, 0), v(0, 0, 1)),
     extent: null,
     travel: 180,
   });
   builder.affordance({
     id: "sheetLift",
     kind: "hinge",
-    frame: ArchetypeFrame.facing(block, v(-1, 0, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(block, v(-1, 0, 0), v(0, 0, 1)),
     extent: null,
     reverse: 60,
     travel: 40,
@@ -249,7 +257,7 @@ function mainRig(builder: Build, length: number): void {
     id: "mainSheet",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       take,
       v(0, 0, -1),
       Vector3.subtract(take, block),
@@ -306,7 +314,7 @@ function helm(builder: Build, length: number): void {
   builder.affordance({
     id: "rudder",
     kind: "hinge",
-    frame: ArchetypeFrame.facing(pivot, v(0, 1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(pivot, v(0, 1, 0), v(0, 0, 1)),
     extent: null,
     reverse: 40,
     travel: 40,
@@ -315,14 +323,14 @@ function helm(builder: Build, length: number): void {
   builder.affordance({
     id: "tillerEnd",
     kind: "socket",
-    frame: ArchetypeFrame.upright(end),
+    frame: AutoMovieArchetypeFrame.upright(end),
     extent: null,
     rides: "rudder",
   });
   builder.affordance({
     id: "extensionSwing",
     kind: "wheel",
-    frame: ArchetypeFrame.facing(end, v(0, 1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(end, v(0, 1, 0), v(0, 0, 1)),
     extent: null,
     travel: 120,
     rides: "rudder",
@@ -330,7 +338,7 @@ function helm(builder: Build, length: number): void {
   builder.affordance({
     id: "extensionLift",
     kind: "hinge",
-    frame: ArchetypeFrame.facing(end, v(-1, 0, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(end, v(-1, 0, 0), v(0, 0, 1)),
     extent: null,
     reverse: 20,
     travel: 90,
@@ -341,7 +349,7 @@ function helm(builder: Build, length: number): void {
     id: "tiller",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(grip, v(0, 1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(grip, v(0, 1, 0), v(0, 0, 1)),
     extent: null,
     grip: "power",
     aperture: 0.025,
@@ -384,16 +392,18 @@ export namespace createDinghy {
     id?: string;
   }
   /** Units of fixed reference dimensions. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     beam: "m",
     mass: "kg",
   };
   /** Published hull and mainsail, plus an estimated complete mass. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(3.64, 3.64, HULL),
-    beam: ArchetypeBand.metres(1.42, 1.42, HULL),
-    mass: ArchetypeBand.of(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(3.64, 3.64, HULL),
+    beam: AutoMovieArchetypeBand.metres(1.42, 1.42, HULL),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       82,
       82,

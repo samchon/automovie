@@ -1,4 +1,4 @@
-import { ArchetypeUnits, createBall } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, createBall } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -44,15 +44,27 @@ export function test_archetype_ball_kinds(): void {
   findings.push(
     ...archetypeBandSweep([
       size("cricket", "x", 0.224 / Math.PI, 0.229 / Math.PI, "MCC Law 4"),
-      size("bowling", "y", 8.5 * ArchetypeUnits.INCH, 8.595 * ArchetypeUnits.INCH, "USBC"),
+      size(
+        "bowling",
+        "y",
+        8.5 * AutoMovieArchetypeUnits.INCH,
+        8.595 * AutoMovieArchetypeUnits.INCH,
+        "USBC",
+      ),
       size("rugby", "x", 0.28, 0.3, "World Rugby Law 2"),
       size("rugby", "z", 0.58 / Math.PI, 0.62 / Math.PI, "World Rugby Law 2"),
-      size("americanFootball", "x", 11 * ArchetypeUnits.INCH, 11.25 * ArchetypeUnits.INCH, "NFL Rule 2"),
+      size(
+        "americanFootball",
+        "x",
+        11 * AutoMovieArchetypeUnits.INCH,
+        11.25 * AutoMovieArchetypeUnits.INCH,
+        "NFL Rule 2",
+      ),
       size(
         "americanFootball",
         "y",
-        (21 * ArchetypeUnits.INCH) / Math.PI,
-        (21.25 * ArchetypeUnits.INCH) / Math.PI,
+        (21 * AutoMovieArchetypeUnits.INCH) / Math.PI,
+        (21.25 * AutoMovieArchetypeUnits.INCH) / Math.PI,
         "NFL Rule 2",
       ),
     ]),

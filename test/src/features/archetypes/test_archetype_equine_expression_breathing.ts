@@ -1,6 +1,6 @@
 import {
-  type ArchetypeRide,
-  EquineBreathing,
+  AutoMovieArchetypeEquineBreathing,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideHorse,
   type rideQuadruped,
@@ -13,16 +13,19 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /** A horse ride. */
-type Ride = ArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension>;
+type Ride = AutoMovieArchetypeRide.IRide<
+  createHorse.Affordance,
+  createHorse.Dimension
+>;
 
 /** A breathing horse ride. */
-type Breathing = EquineBreathing.IRide<
+type Breathing = AutoMovieArchetypeEquineBreathing.IRide<
   createHorse.Affordance,
   createHorse.Dimension
 >;
 
 /** A sample of a horse ride. */
-type Sample = ArchetypeRide.ISample<
+type Sample = AutoMovieArchetypeRide.ISample<
   createHorse.Affordance,
   createHorse.Dimension
 >;
@@ -79,7 +82,7 @@ export function test_archetype_equine_expression_breathing(): void {
   const rest: number = width(find(horse.parts, "trunk"));
 
   // 1. One breath per canter stride.
-  const canter: Breathing = EquineBreathing.layer(
+  const canter: Breathing = AutoMovieArchetypeEquineBreathing.layer(
     horse,
     rideHorse(horse, course(40, 6), "canter"),
     { gait: "canter" },
@@ -114,19 +117,27 @@ export function test_archetype_equine_expression_breathing(): void {
 
   // 2. Recovery after an effort, on a halted horse.
   const walk: Ride = rideHorse(horse, course(2, 1.2), "walk");
-  const effort: EquineBreathing.IEffort = {
+  const effort: AutoMovieArchetypeEquineBreathing.IEffort = {
     from: walk.duration + 1,
     seconds: 30,
     rate: 90,
     depth: 0.02,
   };
-  const recovering: Breathing = EquineBreathing.layer(horse, walk, {
-    gait: "walk",
-    efforts: [effort],
-  });
-  let previous: EquineBreathing.IBreath = recovering.breath(effort.from);
+  const recovering: Breathing = AutoMovieArchetypeEquineBreathing.layer(
+    horse,
+    walk,
+    {
+      gait: "walk",
+      efforts: [effort],
+    },
+  );
+  let previous: AutoMovieArchetypeEquineBreathing.IBreath = recovering.breath(
+    effort.from,
+  );
   for (let s: number = 1; s <= 31; s += 1) {
-    const now: EquineBreathing.IBreath = recovering.breath(effort.from + s);
+    const now: AutoMovieArchetypeEquineBreathing.IBreath = recovering.breath(
+      effort.from + s,
+    );
     TestValidator.predicate(
       `the recovery falls monotonically at ${s} s`,
       now.rate <= previous.rate + 1e-12 && now.depth <= previous.depth + 1e-12,
@@ -195,7 +206,9 @@ export function test_archetype_equine_expression_breathing(): void {
   );
 
   // 4. At rest without effort, and replay.
-  const calm: Breathing = EquineBreathing.layer(horse, walk, { gait: "walk" });
+  const calm: Breathing = AutoMovieArchetypeEquineBreathing.layer(horse, walk, {
+    gait: "walk",
+  });
   for (const at of [0.5, walk.duration, walk.duration + 5])
     TestValidator.predicate(
       `no effort breathes at rest at ${at}`,

@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeRefusal,
-  type ArchetypeTrack,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeTrack,
   createCannon,
 } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
@@ -35,10 +35,12 @@ const FT: number = 0.3048;
 export function test_archetype_cannon_recoil(): void {
   const findings: string[] = [];
   for (const seed of [0, 3, 7, 12]) {
-    const gun: Archetype<createCannon.Affordance, createCannon.Dimension> =
-      createCannon({ kind: "fieldGun" }, seed);
+    const gun: AutoMovieArchetype<
+      createCannon.Affordance,
+      createCannon.Dimension
+    > = createCannon({ kind: "fieldGun" }, seed);
     const run: number = gun.dimensions.recoil!;
-    const track: ArchetypeTrack.ITrack<createCannon.Affordance> =
+    const track: AutoMovieArchetypeTrack.ITrack<createCannon.Affordance> =
       createCannon.recoil(gun, 2);
     const speed: number = (6.1 * LB * 1439 * FT) / gun.dimensions.mass!;
     if (!(Math.abs(track.end - track.start - (2 * run) / speed) <= 1e-9))
@@ -77,9 +79,9 @@ export function test_archetype_cannon_recoil(): void {
         findings.push(`@${seed}: the run goes forward at step ${k}`);
       last = x;
     }
-    const again: ArchetypeTrack.ITrack<createCannon.Affordance> =
+    const again: AutoMovieArchetypeTrack.ITrack<createCannon.Affordance> =
       createCannon.recoil(gun, 2);
-    const later: ArchetypeTrack.ITrack<createCannon.Affordance> =
+    const later: AutoMovieArchetypeTrack.ITrack<createCannon.Affordance> =
       createCannon.recoil(gun, 5);
     for (const t of [2, 2.5, 3, track.end])
       if (
@@ -87,8 +89,10 @@ export function test_archetype_cannon_recoil(): void {
         !(Math.abs(later.travel(t + 3) - track.travel(t)) <= 1e-12)
       )
         findings.push(`@${seed}: the track is not the shot second's alone`);
-    const back: Archetype<createCannon.Affordance, createCannon.Dimension> =
-      gun.articulate({ recoil: track.travel(track.end) });
+    const back: AutoMovieArchetype<
+      createCannon.Affordance,
+      createCannon.Dimension
+    > = gun.articulate({ recoil: track.travel(track.end) });
     for (const part of ["trail", "chase"]) {
       const moved: number =
         archetypeExtent(gun, "z", [part]).low -
@@ -104,7 +108,8 @@ export function test_archetype_cannon_recoil(): void {
         track.travel(seconds);
       } catch (error) {
         rejected =
-          error instanceof ArchetypeRefusal && error.axis === "seconds";
+          error instanceof AutoMovieArchetypeRefusal &&
+          error.axis === "seconds";
       }
       if (!rejected)
         findings.push(`@${seed}: sample second ${seconds} was accepted`);
@@ -120,7 +125,8 @@ export function test_archetype_cannon_recoil(): void {
       try {
         createCannon.recoil(gun, start);
       } catch (error) {
-        rejected = error instanceof ArchetypeRefusal && error.axis === "start";
+        rejected =
+          error instanceof AutoMovieArchetypeRefusal && error.axis === "start";
       }
       if (!rejected)
         findings.push(
@@ -134,7 +140,9 @@ export function test_archetype_cannon_recoil(): void {
   } catch (error) {
     refused = error;
   }
-  if (!(refused instanceof ArchetypeRefusal && refused.axis === "kind"))
+  if (
+    !(refused instanceof AutoMovieArchetypeRefusal && refused.axis === "kind")
+  )
     findings.push("a naval gun's recoil is not refused");
   TestValidator.equals(
     "a field gun recoils by its track and comes to rest",

@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { InstrumentBuild } from "./InstrumentBuild";
 import { StringedConstruction } from "./StringedConstruction";
 import type { createInstrument } from "./createInstrument";
@@ -10,7 +10,7 @@ import type { createInstrument } from "./createInstrument";
  * @param params The optional identifier and dimensions fixed within their recorded bands.
  * @param seed The seed for free dimensions. The band midpoints apply without a seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Use equal-tempered fret placement and interpolate string positions between the nut and saddle.
@@ -23,7 +23,7 @@ import type { createInstrument } from "./createInstrument";
 export function createGuitar(
   params: createGuitar.IParams = {},
   seed?: number | string,
-): Archetype<createGuitar.Affordance, createGuitar.Dimension> {
+): AutoMovieArchetype<createGuitar.Affordance, createGuitar.Dimension> {
   return InstrumentBuild.create<createGuitar.Affordance>(
     "guitar",
     "guitar",

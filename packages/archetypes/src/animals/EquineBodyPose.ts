@@ -11,22 +11,22 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeFrame } from "../core";
-import { QuadrupedBody } from "./QuadrupedBody";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import { AutoMovieArchetypeQuadrupedLimb } from "./AutoMovieArchetypeQuadrupedLimb";
+import { AutoMovieArchetypeQuadrupedSkeleton } from "./AutoMovieArchetypeQuadrupedSkeleton";
 import { QuadrupedCarriage } from "./QuadrupedCarriage";
-import { QuadrupedLimb } from "./QuadrupedLimb";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
-import { QuadrupedSkeleton } from "./QuadrupedSkeleton";
 import { createQuadruped } from "./createQuadruped";
 
 /**
  * A whole-body pose of an equid on its own hooves: its trunk moved as one rigid body, each limb either placed with its hoof at a point or folded off the floor, solved through the actual rig.
  *
- * The trunk with the hindquarters, neck, head and tail is one rigid body moved from the rest model by `trunk`. A placed limb keeps its terminal endpoint on an anchor with the terminal bar's base direction in the world, so a flat hoof stays flat, and its proximal bars are solved by the shared exact limb owner (`QuadrupedLimb`) with a declared relative fold; an anchor on the floor is a planted support. A folded limb turns its joints from a given chain by declared angles, forward kinematics in the trunk's own frame. Each bar is then turned from its rest direction onto its posed one and every part and contact rides its declared carrier (`QuadrupedSkeleton.apply`). A limb that cannot reach its anchor, or a pose that puts any part under the floor, is refused. The centre of mass is approximated by the rest model's carried rigidly with the trunk, neglecting what the limbs, neck and head shift: a stated coarse proxy for weight transfer, not a load distribution.
+ * The trunk with the hindquarters, neck, head and tail is one rigid body moved from the rest model by `trunk`. A placed limb keeps its terminal endpoint on an anchor with the terminal bar's base direction in the world, so a flat hoof stays flat, and its proximal bars are solved by the shared exact limb owner (`AutoMovieArchetypeQuadrupedLimb`) with a declared relative fold; an anchor on the floor is a planted support. A folded limb turns its joints from a given chain by declared angles, forward kinematics in the trunk's own frame. Each bar is then turned from its rest direction onto its posed one and every part and contact rides its declared carrier (`AutoMovieArchetypeQuadrupedSkeleton.apply`). A limb that cannot reach its anchor, or a pose that puts any part under the floor, is refused. The centre of mass is approximated by the rest model's carried rigidly with the trunk, neglecting what the limbs, neck and head shift: a stated coarse proxy for weight transfer, not a load distribution.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the rigid trunk, the placed and folded limb rules, the solve and emission owners, the refusals and the centre-of-mass proxy with its limitation.
  * @evidence contracts/development/design.md#principled-representation A trunk motion and four limb states in metres and degrees in the base model's space; the placed/folded union separates the two limb rules.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One solver shared by every standing behaviour of `EquineStance`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One solver shared by every standing behaviour of `AutoMovieArchetypeEquineStance`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No stretched bar, moved attachment or clamped endpoint: an unreachable limb refuses.
  */
 export namespace EquineBodyPose {
@@ -91,10 +91,10 @@ export namespace EquineBodyPose {
    */
   export interface IGoal {
     /** The trunk's rigid motion. */
-    trunk: ArchetypeFrame.IMotion;
+    trunk: AutoMovieArchetypeFrame.IMotion;
 
     /** Each limb's state. */
-    limbs: Readonly<Record<QuadrupedBody.Limb, Limb>>;
+    limbs: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, Limb>>;
 
     /** The tail's turn about the trunk's lateral axis at its dock, degrees, positive raising a tail that hangs back; carried rigidly with the trunk when absent. */
     tail?: number;
@@ -110,7 +110,9 @@ export namespace EquineBodyPose {
    */
   export interface IPrepared<Id extends string, D extends string> {
     /** Each limb's five rest joints, shoulder or hip to terminal endpoint, rest model space. */
-    chains: Readonly<Record<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>>;
+    chains: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, readonly IAutoMovieVector3[]>
+    >;
 
     /** The rest model's centre of mass. */
     centre: IAutoMovieVector3;
@@ -130,8 +132,8 @@ export namespace EquineBodyPose {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh points and retains nothing.
      */
     chain(
-      limb: QuadrupedBody.Limb,
-      trunk: ArchetypeFrame.IMotion,
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+      trunk: AutoMovieArchetypeFrame.IMotion,
       state: Limb,
     ): readonly IAutoMovieVector3[];
 
@@ -146,7 +148,10 @@ export namespace EquineBodyPose {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work The terminal parts are read once when prepared.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
-    sole(limb: QuadrupedBody.Limb, direction: IAutoMovieVector3): number;
+    sole(
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+      direction: IAutoMovieVector3,
+    ): number;
 
     /**
      * The posed equid in the base model's space.
@@ -159,7 +164,10 @@ export namespace EquineBodyPose {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared chains, solvers and carriers serve every sample.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh model and retains nothing.
      */
-    solve(goal: IGoal, placement: IAutoMovieTransform): Archetype<Id, D>;
+    solve(
+      goal: IGoal,
+      placement: IAutoMovieTransform,
+    ): AutoMovieArchetype<Id, D>;
   }
 
   /**
@@ -178,10 +186,14 @@ export namespace EquineBodyPose {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the rest frames, chains, carriers and the source model for as long as the caller keeps the solver.
    */
   export function prepare<Id extends string, D extends string>(
-    animal: Archetype<Id, D>,
+    animal: AutoMovieArchetype<Id, D>,
   ): IPrepared<Id, D> {
-    const rest: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> =
-      prepareArticulatedRig(QuadrupedSkeleton.of(animal)).read();
+    const rest: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    > = prepareArticulatedRig(
+      AutoMovieArchetypeQuadrupedSkeleton.of(animal),
+    ).read();
     const lengths: Map<string, number> = new Map(
       animal.parts.map((part: IAutoMovieModelPart): [string, number] => [
         part.id,
@@ -192,12 +204,15 @@ export namespace EquineBodyPose {
           : NaN,
       ]),
     );
-    const read = (limb: QuadrupedBody.Limb): readonly IAutoMovieVector3[] => {
-      const bones: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
+    const read = (
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+    ): readonly IAutoMovieVector3[] => {
+      const bones: readonly AutoMovieArchetypeQuadrupedBody.Bone[] =
+        AutoMovieArchetypeQuadrupedBody.BONES[limb];
       const last: IAutoMovieTransform = rest.get(bones[3]!)!;
       return [
         ...bones.map(
-          (bone: QuadrupedBody.Bone): IAutoMovieVector3 =>
+          (bone: AutoMovieArchetypeQuadrupedBody.Bone): IAutoMovieVector3 =>
             rest.get(bone)!.translation,
         ),
         Vector3.add(
@@ -211,7 +226,7 @@ export namespace EquineBodyPose {
       ];
     };
     const chains: Readonly<
-      Record<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, readonly IAutoMovieVector3[]>
     > = {
       leftFore: read("leftFore"),
       rightFore: read("rightFore"),
@@ -219,19 +234,28 @@ export namespace EquineBodyPose {
       rightHind: read("rightHind"),
     };
     const solvers: Readonly<
-      Record<QuadrupedBody.Limb, QuadrupedLimb.IPrepared>
+      Record<
+        AutoMovieArchetypeQuadrupedBody.Limb,
+        AutoMovieArchetypeQuadrupedLimb.IPrepared
+      >
     > = {
-      leftFore: QuadrupedLimb.prepare(chains.leftFore, true),
-      rightFore: QuadrupedLimb.prepare(chains.rightFore, true),
-      leftHind: QuadrupedLimb.prepare(chains.leftHind, false),
-      rightHind: QuadrupedLimb.prepare(chains.rightHind, false),
+      leftFore: AutoMovieArchetypeQuadrupedLimb.prepare(chains.leftFore, true),
+      rightFore: AutoMovieArchetypeQuadrupedLimb.prepare(
+        chains.rightFore,
+        true,
+      ),
+      leftHind: AutoMovieArchetypeQuadrupedLimb.prepare(chains.leftHind, false),
+      rightHind: AutoMovieArchetypeQuadrupedLimb.prepare(
+        chains.rightHind,
+        false,
+      ),
     };
     const carriers: ReturnType<typeof QuadrupedCarriage.of> =
       QuadrupedCarriage.of(animal, createQuadruped.species(animal));
 
     const chain = (
-      limb: QuadrupedBody.Limb,
-      trunk: ArchetypeFrame.IMotion,
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+      trunk: AutoMovieArchetypeFrame.IMotion,
       state: Limb,
     ): readonly IAutoMovieVector3[] => {
       const source: readonly IAutoMovieVector3[] = chains[limb];
@@ -254,12 +278,16 @@ export namespace EquineBodyPose {
           state.fold,
         );
     };
-    const terminal = (limb: QuadrupedBody.Limb): IAutoMovieModelPart =>
+    const terminal = (
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+    ): IAutoMovieModelPart =>
       animal.parts.find(
         (part: IAutoMovieModelPart): boolean =>
-          part.id === QuadrupedBody.BONES[limb][3],
+          part.id === AutoMovieArchetypeQuadrupedBody.BONES[limb][3],
       )!;
-    const soles: Readonly<Record<QuadrupedBody.Limb, IAutoMovieModelPart>> = {
+    const soles: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, IAutoMovieModelPart>
+    > = {
       leftFore: terminal("leftFore"),
       rightFore: terminal("rightFore"),
       leftHind: terminal("leftHind"),
@@ -271,7 +299,7 @@ export namespace EquineBodyPose {
       trunk: rest.get("trunk")!,
       chain,
       sole: (
-        limb: QuadrupedBody.Limb,
+        limb: AutoMovieArchetypeQuadrupedBody.Limb,
         direction: IAutoMovieVector3,
       ): number => {
         const geometry: IAutoMovieModelPart["geometry"] = soles[limb].geometry;
@@ -289,10 +317,13 @@ export namespace EquineBodyPose {
       solve: (
         goal: IGoal,
         placement: IAutoMovieTransform,
-      ): Archetype<Id, D> => {
-        const posed: Map<QuadrupedBody.Bone, IAutoMovieTransform> = new Map();
+      ): AutoMovieArchetype<Id, D> => {
+        const posed: Map<
+          AutoMovieArchetypeQuadrupedBody.Bone,
+          IAutoMovieTransform
+        > = new Map();
         for (const [bone, frame] of rest)
-          posed.set(bone, ArchetypeFrame.move(goal.trunk, frame));
+          posed.set(bone, AutoMovieArchetypeFrame.move(goal.trunk, frame));
 
         // The tail turns about its dock on the trunk's lateral axis.
         if (goal.tail !== undefined && goal.tail !== 0) {
@@ -303,7 +334,7 @@ export namespace EquineBodyPose {
           );
           posed.set(
             "tail",
-            ArchetypeFrame.move(
+            AutoMovieArchetypeFrame.move(
               {
                 rotation: turn,
                 translation: Vector3.subtract(
@@ -315,15 +346,15 @@ export namespace EquineBodyPose {
             ),
           );
         }
-        for (const limb of QuadrupedBody.LIMBS) {
+        for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
           const source: readonly IAutoMovieVector3[] = chains[limb];
           const solved: readonly IAutoMovieVector3[] = chain(
             limb,
             goal.trunk,
             goal.limbs[limb],
           );
-          QuadrupedBody.BONES[limb].forEach(
-            (bone: QuadrupedBody.Bone, k: number): void => {
+          AutoMovieArchetypeQuadrupedBody.BONES[limb].forEach(
+            (bone: AutoMovieArchetypeQuadrupedBody.Bone, k: number): void => {
               const frame: IAutoMovieTransform = rest.get(bone)!;
               const turn: IAutoMovieQuaternion = rotationBetween(
                 Vector3.subtract(source[k + 1]!, source[k]!),
@@ -331,7 +362,7 @@ export namespace EquineBodyPose {
               );
               posed.set(
                 bone,
-                ArchetypeFrame.move(goal.trunk, {
+                AutoMovieArchetypeFrame.move(goal.trunk, {
                   ...frame,
                   translation: { ...solved[k]! },
                   rotation: Quaternion.normalize(
@@ -342,18 +373,22 @@ export namespace EquineBodyPose {
             },
           );
         }
-        const model: Archetype<Id, D> = QuadrupedSkeleton.apply(
-          animal,
-          rest,
-          posed,
-          carriers.parts,
-          carriers.contacts,
-        );
+        const model: AutoMovieArchetype<Id, D> =
+          AutoMovieArchetypeQuadrupedSkeleton.apply(
+            animal,
+            rest,
+            posed,
+            carriers.parts,
+            carriers.contacts,
+          );
         for (const part of model.parts) {
           if (part.transform === null || part.transform === undefined) continue;
           const lowest: number = QuadrupedRestFloor({
             ...part,
-            transform: ArchetypeFrame.compose(placement, part.transform),
+            transform: AutoMovieArchetypeFrame.compose(
+              placement,
+              part.transform,
+            ),
           });
           if (!(lowest >= -1e-9))
             throw new RangeError(
@@ -389,7 +424,7 @@ export namespace EquineBodyPose {
     pivot: IAutoMovieVector3,
     shift: IAutoMovieVector3,
     heading?: IAutoMovieQuaternion,
-  ): ArchetypeFrame.IMotion {
+  ): AutoMovieArchetypeFrame.IMotion {
     const local: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, roll),
       Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -pitch),
@@ -427,7 +462,7 @@ export namespace EquineBodyPose {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function point(
-    motion: ArchetypeFrame.IMotion,
+    motion: AutoMovieArchetypeFrame.IMotion,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     return Vector3.add(

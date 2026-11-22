@@ -1,5 +1,8 @@
-import { type ArchetypeCourse, ArchetypeRefusal } from "../core";
-import type { QuadrupedGait } from "./QuadrupedGait";
+import {
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
+} from "../core";
+import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import type { QuadrupedTimedRoute } from "./QuadrupedTimedRoute";
 import type { rideQuadruped } from "./rideQuadruped";
 
@@ -26,9 +29,9 @@ export namespace QuadrupedTimedCues {
     /** The film second it ends, after from. */
     to: number;
     /** The gait asked for. */
-    gait: QuadrupedGait.Gait;
+    gait: AutoMovieArchetypeQuadrupedGait.Gait;
     /** The lead of a leaded gait; the left when absent. */
-    lead?: QuadrupedGait.Lead;
+    lead?: AutoMovieArchetypeQuadrupedGait.Lead;
   }
 
   /**
@@ -40,8 +43,8 @@ export namespace QuadrupedTimedCues {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ICued {
-    /** The planned course, such as `ArchetypeCourse.timed`'s. */
-    plan: ArchetypeCourse.IPlan;
+    /** The planned course, such as `AutoMovieArchetypeCourse.timed`'s. */
+    plan: AutoMovieArchetypeCourse.IPlan;
     /** The requests, in order and not overlapping. */
     cues: readonly ICue[];
   }
@@ -53,7 +56,7 @@ export namespace QuadrupedTimedCues {
    * @param cues The requests.
    * @param archetype The archetype's name, for a refusal.
    * @returns The route with one leg per cued or uncued stretch, and its leg spans with each stretch's fastest speed.
-   * @throws {ArchetypeRefusal} For a cue that is not finite, is empty, runs backward or overlaps the one before.
+   * @throws {AutoMovieArchetypeRefusal} For a cue that is not finite, is empty, runs backward or overlaps the one before.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the split and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation A cue's seconds become the plan's distances there; the stretches between keep no gait, so the speed chooses there by the declared change rule; each stretch's span records its fastest speed for the admission.
@@ -68,7 +71,7 @@ export namespace QuadrupedTimedCues {
     cues: readonly ICue[],
     archetype: string,
   ): QuadrupedTimedRoute.IRoute {
-    const plan: ArchetypeCourse.IPlan = route.plan;
+    const plan: AutoMovieArchetypeCourse.IPlan = route.plan;
     const cuts: ICut[] = [];
     let last: number = -Infinity;
     for (const cue of cues) {
@@ -77,7 +80,7 @@ export namespace QuadrupedTimedCues {
         !(cue.to > cue.from) ||
         cue.from < last
       )
-        throw new ArchetypeRefusal({
+        throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
           archetype,
           axis: "course",
@@ -94,7 +97,7 @@ export namespace QuadrupedTimedCues {
       });
     }
     const legs: rideQuadruped.ILeg[] = [];
-    const spans: ArchetypeCourse.IPlan["legSpans"][number][] = [];
+    const spans: AutoMovieArchetypeCourse.IPlan["legSpans"][number][] = [];
     let at: number = 0;
     const add = (to: number, cue?: ICue): void => {
       if (!(to > at)) return;
@@ -130,13 +133,16 @@ export namespace QuadrupedTimedCues {
   }
 
   /** The plan's distance at a film second, within its length. */
-  function distance(plan: ArchetypeCourse.IPlan, seconds: number): number {
+  function distance(
+    plan: AutoMovieArchetypeCourse.IPlan,
+    seconds: number,
+  ): number {
     return Math.max(0, Math.min(plan.length, plan.at(seconds).distance));
   }
 
   /** The fastest speed over a stretch of the plan, scanned every 10 ms. */
   function fastest(
-    plan: ArchetypeCourse.IPlan,
+    plan: AutoMovieArchetypeCourse.IPlan,
     from: number,
     to: number,
   ): number {

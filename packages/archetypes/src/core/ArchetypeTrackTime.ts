@@ -1,4 +1,4 @@
-import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
 /**
  * Finite clock admission shared by mechanism tracks and their recoil consumer.
@@ -16,7 +16,7 @@ export namespace ArchetypeTrackTime {
    * @param start Finite film start, including negative seconds.
    * @param seconds Finite positive duration, seconds.
    * @returns The finite end strictly later than start.
-   * @throws {ArchetypeRefusal} At seconds for invalid duration or start for unsupported interval.
+   * @throws {AutoMovieArchetypeRefusal} At seconds for invalid duration or start for unsupported interval.
    * @evidence contracts/development/common.md#meaningful-documentation States units, negative-start support and end/duration admission.
    * @evidence contracts/development/implementation.md#principled-implementation The public end is start+duration under binary64 and must remain finite and strictly later so a represented interval exists.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit duration, compute end, admit interval.
@@ -31,7 +31,7 @@ export namespace ArchetypeTrackTime {
     seconds: number,
   ): number {
     if (!(Number.isFinite(seconds) && seconds > 0))
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
         axis: "seconds",
@@ -42,7 +42,7 @@ export namespace ArchetypeTrackTime {
       });
     const result: number = start + seconds;
     if (!(Number.isFinite(start) && Number.isFinite(result) && result > start))
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
         axis: "start",
@@ -64,7 +64,7 @@ export namespace ArchetypeTrackTime {
    * @param end Admitted finite end.
    * @param seconds Admitted positive duration.
    * @returns Zero before start, duration after end, or interior elapsed time.
-   * @throws {ArchetypeRefusal} At seconds for a nonfinite sample.
+   * @throws {AutoMovieArchetypeRefusal} At seconds for a nonfinite sample.
    * @evidence contracts/development/common.md#meaningful-documentation States admitted interval premises, sample domain and held offsets.
    * @evidence contracts/development/implementation.md#principled-implementation Boundary comparisons precede subtraction, so distant finite samples cannot overflow an offset before selecting the held endpoint.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit sample, hold boundaries, subtract inside.
@@ -81,7 +81,7 @@ export namespace ArchetypeTrackTime {
     seconds: number,
   ): number {
     if (!Number.isFinite(sample))
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
         axis: "seconds",
@@ -131,7 +131,7 @@ export namespace ArchetypeTrackTime {
    * @param fromEnd Offset is backward from end when true, forward from start otherwise.
    * @param error Prepared end residual for backward offsets.
    * @returns A held endpoint or a representably interior finite instant.
-   * @throws {ArchetypeRefusal} For unsupported offset or interior clock resolution.
+   * @throws {AutoMovieArchetypeRefusal} For unsupported offset or interior clock resolution.
    * @evidence contracts/development/common.md#meaningful-documentation States endpoint direction, residual and event representability.
    * @evidence contracts/development/implementation.md#principled-implementation End-relative events use end+(error-offset), preserving the end residual before final clock addition. A strict interior offset must remain strict on the represented clock; exact endpoint events use the prepared endpoints.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Compute the anchored instant, then admit offset and interior placement.
@@ -170,7 +170,7 @@ export namespace ArchetypeTrackTime {
         (offset === 0 || offset === seconds || (result > start && result < end))
       )
     )
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
         axis: "launch",

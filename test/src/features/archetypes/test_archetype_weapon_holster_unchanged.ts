@@ -1,4 +1,4 @@
-import { ArchetypeFrame, createHolster } from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, createHolster } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";
@@ -27,7 +27,8 @@ export function test_archetype_weapon_holster_unchanged(): void {
     )
       findings.push(`seed ${String(seed)}: the default is not the holster`);
   const holster: ReturnType<typeof createHolster> = createHolster();
-  const belt: ReturnType<typeof holster.affordance> = holster.affordance("belt");
+  const belt: ReturnType<typeof holster.affordance> =
+    holster.affordance("belt");
   if (Math.abs(holster.affordance("socket").frame.translation.y) > 1e-12)
     findings.push("the mouth is off the belt line at mid-ride");
   if (
@@ -36,7 +37,11 @@ export function test_archetype_weapon_holster_unchanged(): void {
       belt.frame.translation.y,
       belt.frame.translation.z,
     ) > 1e-12 ||
-    !vclose(ArchetypeFrame.axis(belt.frame, "y"), { x: -1, y: 0, z: 0 }, 1e-12)
+    !vclose(
+      AutoMovieArchetypeFrame.axis(belt.frame, "y"),
+      { x: -1, y: 0, z: 0 },
+      1e-12,
+    )
   )
     findings.push("the belt loop is off the origin or not facing the wearer");
   TestValidator.equals(

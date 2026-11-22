@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeDrawSession,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeRefusal,
 } from "../core";
 import { HORSE_BANDS } from "./HORSE_BANDS";
 import { createHorse } from "./createHorse";
@@ -35,7 +35,7 @@ interface IEnds {
  * @param params The age in days, the mature withers height in metres, the tack and the id; each is optional.
  * @param seed The seed that draws the horse's free dimensions other than the withers height, which the age fixes; absent, each takes the middle of its band.
  * @returns The foal, with the horse's affordances and dimensions.
- * @throws {ArchetypeRefusal} For an age below 0 or above 183 days.
+ * @throws {AutoMovieArchetypeRefusal} For an age below 0 or above 183 days.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each growth curve, its source or that it is authored and provisional, how the bone fractions follow and the age range.
  * @evidence contracts/development/implementation.md#principled-implementation The horse's equid builder on a foal profile whose height and bone fractions are the growth curves at the age.
@@ -48,10 +48,10 @@ interface IEnds {
 export function createFoal(
   params: createFoal.IParams = {},
   seed?: number | string,
-): Archetype<createHorse.Affordance, createHorse.Dimension> {
+): AutoMovieArchetype<createHorse.Affordance, createHorse.Dimension> {
   const age: number = params.age ?? 0;
   if (!(Number.isFinite(age) && age >= 0 && age <= createFoal.WEANING))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: createFoal.ARCHETYPE,
       axis: "age",
@@ -68,8 +68,8 @@ export function createFoal(
   const mature: number = params.mature ?? createFoal.MATURE;
   const growth: createFoal.IGrowth = createFoal.growth(age);
   const withers: number = mature * growth.withers;
-  const draw: ArchetypeDrawSession<createHorse.Dimension> =
-    new ArchetypeDrawSession<createHorse.Dimension>(
+  const draw: AutoMovieArchetypeDrawSession<createHorse.Dimension> =
+    new AutoMovieArchetypeDrawSession<createHorse.Dimension>(
       createHorse.PROFILE.archetype,
       createHorse.UNITS,
       seed,

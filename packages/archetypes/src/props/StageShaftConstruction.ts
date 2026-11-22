@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import type { createStageWeaponProp } from "./createStageWeaponProp";
 
@@ -16,7 +16,7 @@ const UNITS: Readonly<Record<createStageWeaponProp.Dimension, "m">> = {
 };
 
 /** A shared set scale for staging families of different apparent heights. */
-const HEIGHT: IArchetypeBand = ArchetypeBand.metres(
+const HEIGHT: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   0.55,
   2.4,
   "Authored digital stage prop scale.",
@@ -48,7 +48,7 @@ const DISPLAY_HEIGHTS: Readonly<Record<createStageWeaponProp.Kind, number>> = {
  * @param params An optional scene id and height in metres.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the digital base shape and the geometry builder contract.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the historical stage draw, shared grip and shaft, and a form-specific added shape.
@@ -64,12 +64,12 @@ export function StageShaftConstruction(
   seed: number | string | undefined,
   shaftRatio: number,
   decorate: StageShaftConstruction.Decorate,
-): Archetype<
+): AutoMovieArchetype<
   createStageWeaponProp.Affordance,
   createStageWeaponProp.Dimension
 > {
-  const draw: ArchetypeDrawSession<createStageWeaponProp.Dimension> =
-    new ArchetypeDrawSession("stageWeaponProp", UNITS, seed, {
+  const draw: AutoMovieArchetypeDrawSession<createStageWeaponProp.Dimension> =
+    new AutoMovieArchetypeDrawSession("stageWeaponProp", UNITS, seed, {
       height: params.height,
     });
   // The chosen silhouette fixes its display height unless the scene supplies one.
@@ -77,10 +77,10 @@ export function StageShaftConstruction(
     params.height === undefined
       ? draw.derive("height", DISPLAY_HEIGHTS[kind])
       : draw.dimensions({ height: HEIGHT }).height;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createStageWeaponProp.Affordance,
     createStageWeaponProp.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     draw,
     id: params.id,
     name: `padded ${kind} stage prop`,
@@ -100,7 +100,7 @@ export function StageShaftConstruction(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, shaftTop / 2, 0),
       v(0, 0, -1),
       v(0, 1, 0),
@@ -123,7 +123,7 @@ export function StageShaftConstruction(
  */
 export namespace StageShaftConstruction {
   /** Builder for named digital stage silhouette contacts. */
-  export type Builder = ArchetypeBuilder<
+  export type Builder = AutoMovieArchetypeBuilder<
     createStageWeaponProp.Affordance,
     createStageWeaponProp.Dimension
   >;

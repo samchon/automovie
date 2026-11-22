@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The high chair read. */
@@ -27,7 +27,7 @@ const ESTIMATES: Readonly<{ leg: number; shell: number }> = {
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The chair.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the chair stands, its contact, and what is left out with the missing law.
  * @evidence contracts/development/implementation.md#principled-implementation The maker's footprint, height, seat height and seat size; each leg a rod from a footprint corner to the matching seat corner.
@@ -40,9 +40,9 @@ const ESTIMATES: Readonly<{ leg: number; shell: number }> = {
 export function createHighChair(
   params: createHighChair.IParams = {},
   seed?: number | string,
-): Archetype<createHighChair.Affordance, createHighChair.Dimension> {
-  const draw: ArchetypeDrawSession<createHighChair.Dimension> =
-    new ArchetypeDrawSession<createHighChair.Dimension>(
+): AutoMovieArchetype<createHighChair.Affordance, createHighChair.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createHighChair.Dimension> =
+    new AutoMovieArchetypeDrawSession<createHighChair.Dimension>(
       "highChair",
       createHighChair.UNITS,
       seed,
@@ -51,10 +51,10 @@ export function createHighChair(
   const d: Record<createHighChair.Dimension, number> = draw.dimensions(
     createHighChair.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createHighChair.Affordance,
     createHighChair.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "high chair",
@@ -99,7 +99,11 @@ export function createHighChair(
   builder.affordance({
     id: "seat",
     kind: "seat",
-    frame: ArchetypeFrame.facing(v(0, seat, half.z), v(0, 1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, seat, half.z),
+      v(0, 1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
     width: d.seatWidth,
     depth: d.seatDepth,
@@ -137,7 +141,9 @@ export namespace createHighChair {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     depth: "m",
     height: "m",
@@ -154,13 +160,19 @@ export namespace createHighChair {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.metres(0.56, 0.56, ANTILOP),
-    depth: ArchetypeBand.metres(0.59, 0.59, ANTILOP),
-    height: ArchetypeBand.metres(0.9, 0.9, ANTILOP),
-    seatHeight: ArchetypeBand.metres(0.54, 0.54, ANTILOP),
-    seatWidth: ArchetypeBand.metres(0.25, 0.25, ANTILOP),
-    seatDepth: ArchetypeBand.metres(0.22, 0.22, ANTILOP),
-    mass: ArchetypeBand.of("kg", 2.5, 4, ArchetypeBand.TYPICAL_MASS, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    width: AutoMovieArchetypeBand.metres(0.56, 0.56, ANTILOP),
+    depth: AutoMovieArchetypeBand.metres(0.59, 0.59, ANTILOP),
+    height: AutoMovieArchetypeBand.metres(0.9, 0.9, ANTILOP),
+    seatHeight: AutoMovieArchetypeBand.metres(0.54, 0.54, ANTILOP),
+    seatWidth: AutoMovieArchetypeBand.metres(0.25, 0.25, ANTILOP),
+    seatDepth: AutoMovieArchetypeBand.metres(0.22, 0.22, ANTILOP),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      2.5,
+      4,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

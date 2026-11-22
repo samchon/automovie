@@ -1,4 +1,4 @@
-import type { EquineStanceCue } from "./EquineStanceCue";
+import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
 
 /**
  * The stance row of a hobbled equid: with its forelegs strapped together it moves by short hops, both fores lifted and set down ahead together, the hinds stepping up after them.
@@ -17,7 +17,7 @@ export namespace EquineHobbleCue {
    * @evidence contracts/development/design.md#minimal-and-owned-surface The hop row; it ends standing where it hopped.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export interface IHops extends EquineStanceCue.IPhases {
+  export interface IHops extends AutoMovieArchetypeEquineStanceCue.IPhases {
     /** Discriminator. */
     kind: "hops";
 
@@ -27,7 +27,7 @@ export namespace EquineHobbleCue {
     /** How far each hop carries the hooves forward, metres, positive. */
     length: number;
 
-    /** The most the hobble's cuffs' middles may stand apart on the fore cannons (`EquineHobble.ABOVE` over the fetlocks), metres, positive: the forelegs never stand farther apart there. */
+    /** The most the hobble's cuffs' middles may stand apart on the fore cannons (`AutoMovieArchetypeEquineHobble.ABOVE` over the fetlocks), metres, positive: the forelegs never stand farther apart there. */
     strap: number;
   }
 

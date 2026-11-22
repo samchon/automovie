@@ -1,5 +1,5 @@
-import type { ArchetypeCourse } from "./ArchetypeCourse";
-import { ArchetypeUnits } from "./ArchetypeUnits";
+import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
+import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
 
 /**
  * A course's path: its legs measured and laid end to end from its start, and the place and heading a distance along a leg reaches.
@@ -22,7 +22,7 @@ export namespace ArchetypeCoursePath {
    */
   export interface IRow {
     /** The leg. */
-    leg: ArchetypeCourse.Leg;
+    leg: AutoMovieArchetypeCourse.Leg;
 
     /** Distance along the path at which the leg starts, metres. */
     from: number;
@@ -83,7 +83,7 @@ export namespace ArchetypeCoursePath {
    * @param course The course.
    * @param refuse The plan's refusal, which names the course's field.
    * @returns One row per leg, and the path's whole length along its grades, metres.
-   * @throws {ArchetypeRefusal} Through `refuse`, for a leg whose length or radius is not positive, a turn of no angle, or a rise that is not finite.
+   * @throws {AutoMovieArchetypeRefusal} Through `refuse`, for a leg whose length or radius is not positive, a turn of no angle, or a rise that is not finite.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation Each leg's run on the ground is its length or its radius times its angle, and its length along the path that run times the square root of one plus the grade squared, the hypotenuse of a constant grade; each leg starts where `advance` leaves the one before it.
@@ -94,7 +94,7 @@ export namespace ArchetypeCoursePath {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The rows are handed to the plan, which keeps them as long as its caller keeps it.
    */
   export function lay(
-    course: ArchetypeCourse.ICourse,
+    course: AutoMovieArchetypeCourse.ICourse,
     refuse: (axis: string, value: unknown, reason: string) => never,
   ): { rows: IRow[]; length: number } {
     const rows: IRow[] = [];
@@ -104,54 +104,56 @@ export namespace ArchetypeCoursePath {
     let heading: number = course.start.heading;
     let length: number = 0;
     let progress: number = 0;
-    course.legs.forEach((leg: ArchetypeCourse.Leg, index: number): void => {
-      const size: number = leg.kind === "straight" ? leg.length : leg.radius;
-      if (!(Number.isFinite(size) && size > 0))
-        refuse(
-          `legs[${index}]`,
-          size,
-          "a leg's length or radius must be positive",
-        );
-      if (
-        leg.kind === "turn" &&
-        !(Number.isFinite(leg.angle) && leg.angle !== 0)
-      )
-        refuse(
-          `legs[${index}].angle`,
-          leg.angle,
-          "a turn must change the heading",
-        );
-      const rise: number = leg.rise ?? 0;
-      if (!Number.isFinite(rise))
-        refuse(`legs[${index}].rise`, rise, "a leg's rise must be finite");
-      const run: number =
-        leg.kind === "straight"
-          ? leg.length
-          : leg.radius * Math.abs(leg.angle) * ArchetypeUnits.DEGREE;
-      const span: number =
-        rise === 0 ? run : run * Math.sqrt(1 + (rise / run) * (rise / run));
-      const row: IRow = {
-        leg,
-        from: length,
-        span,
-        run,
-        rise,
-        reverse: leg.reverse === true,
-        progress,
-        x,
-        y,
-        z,
-        heading,
-      };
-      rows.push(row);
-      const end: IPose = advance(row, span);
-      x = end.x;
-      y = end.y;
-      z = end.z;
-      heading = end.heading;
-      length += span;
-      progress += leg.reverse === true ? -span : span;
-    });
+    course.legs.forEach(
+      (leg: AutoMovieArchetypeCourse.Leg, index: number): void => {
+        const size: number = leg.kind === "straight" ? leg.length : leg.radius;
+        if (!(Number.isFinite(size) && size > 0))
+          refuse(
+            `legs[${index}]`,
+            size,
+            "a leg's length or radius must be positive",
+          );
+        if (
+          leg.kind === "turn" &&
+          !(Number.isFinite(leg.angle) && leg.angle !== 0)
+        )
+          refuse(
+            `legs[${index}].angle`,
+            leg.angle,
+            "a turn must change the heading",
+          );
+        const rise: number = leg.rise ?? 0;
+        if (!Number.isFinite(rise))
+          refuse(`legs[${index}].rise`, rise, "a leg's rise must be finite");
+        const run: number =
+          leg.kind === "straight"
+            ? leg.length
+            : leg.radius * Math.abs(leg.angle) * AutoMovieArchetypeUnits.DEGREE;
+        const span: number =
+          rise === 0 ? run : run * Math.sqrt(1 + (rise / run) * (rise / run));
+        const row: IRow = {
+          leg,
+          from: length,
+          span,
+          run,
+          rise,
+          reverse: leg.reverse === true,
+          progress,
+          x,
+          y,
+          z,
+          heading,
+        };
+        rows.push(row);
+        const end: IPose = advance(row, span);
+        x = end.x;
+        y = end.y;
+        z = end.z;
+        heading = end.heading;
+        length += span;
+        progress += leg.reverse === true ? -span : span;
+      },
+    );
     return { rows, length };
   }
 
@@ -179,7 +181,7 @@ export namespace ArchetypeCoursePath {
 
     // A reversed leg travels opposite to the heading it faces.
     const travel: number = row.reverse ? row.heading + 180 : row.heading;
-    const h: number = travel * ArchetypeUnits.DEGREE;
+    const h: number = travel * AutoMovieArchetypeUnits.DEGREE;
     if (row.leg.kind === "straight")
       return {
         x: row.x + ground * Math.sin(h),
@@ -197,7 +199,7 @@ export namespace ArchetypeCoursePath {
       x: cx - side * row.leg.radius * Math.cos(h + swept),
       y: height,
       z: cz + side * row.leg.radius * Math.sin(h + swept),
-      heading: row.heading + swept / ArchetypeUnits.DEGREE,
+      heading: row.heading + swept / AutoMovieArchetypeUnits.DEGREE,
     };
   }
 }

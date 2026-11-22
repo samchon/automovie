@@ -1,6 +1,6 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
   createBow,
   createProjectile,
 } from "@automovie/archetypes";
@@ -39,14 +39,17 @@ export function test_archetype_weapon_bow_nocking(): void {
   const close = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-9;
   for (const kind of BOWS)
     for (const seed of [0, 1, 2]) {
-      const bow: Archetype<createBow.Affordance, createBow.Dimension> =
+      const bow: AutoMovieArchetype<createBow.Affordance, createBow.Dimension> =
         createBow({ kind }, seed);
       const label: string = `${kind}@${seed}`;
       const nock: ReturnType<typeof bow.affordance> = bow.affordance("nock");
       const string: ReturnType<typeof bow.affordance> =
         bow.affordance("string");
       const at: IAutoMovieVector3 = nock.frame.translation;
-      const out: IAutoMovieVector3 = ArchetypeFrame.axis(nock.frame, "y");
+      const out: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+        nock.frame,
+        "y",
+      );
       if (
         nock.kind !== "socket" ||
         nock.rides !== "string" ||
@@ -79,14 +82,17 @@ export function test_archetype_weapon_bow_nocking(): void {
         );
     }
   for (const seed of [0, 1, 2]) {
-    const arrow: Archetype<
+    const arrow: AutoMovieArchetype<
       createProjectile.Affordance,
       createProjectile.Dimension
     > = createProjectile({ kind: "arrow" }, seed);
     const nock: ReturnType<typeof arrow.affordance> = arrow.affordance("nock");
     const tip: IAutoMovieVector3 = arrow.affordance("tip").frame.translation;
     const rear: number = archetypeExtent(arrow, "y", ["shaft"]).low;
-    const back: IAutoMovieVector3 = ArchetypeFrame.axis(nock.frame, "y");
+    const back: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+      nock.frame,
+      "y",
+    );
     if (
       nock.kind !== "socket" ||
       !close(nock.frame.translation.y, rear) ||

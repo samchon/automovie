@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { LongImplementDraw } from "./LongImplementDraw";
 
 /** The pad block's height, metres. */
@@ -13,7 +13,7 @@ const PAD: number = 0.03;
  * @param params The optional scene ID and any fixed free dimension in metres or kilograms.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Mop with a wide pad and a two-hand shaft.
  * @evidence contracts/development/implementation.md#principled-implementation Its floor-facing contact starts at the bottom of the pad block.
@@ -29,7 +29,7 @@ export function createMop(
     "id" | "length" | "shaftDiameter" | "mass"
   > = {},
   seed?: number | string,
-): Archetype<createMop.Affordance, createMop.Dimension> {
+): AutoMovieArchetype<createMop.Affordance, createMop.Dimension> {
   const {
     builder,
     d,
@@ -59,7 +59,7 @@ export function createMop(
       id,
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, PAD + share * (d.length! - PAD), 0),
         Vector3.create(0, 0, -1),
         Vector3.create(0, 1, 0),
@@ -76,7 +76,7 @@ export function createMop(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
  * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createMop {

@@ -1,4 +1,4 @@
-import { ArchetypeUnits } from "../core";
+import { AutoMovieArchetypeUnits } from "../core";
 import type { createLongGun } from "./createLongGun";
 
 /**
@@ -12,21 +12,21 @@ export const LONG_GUN_MODELS: typeof createLongGun.MODELS = {
   },
   musket: {
     shortLand: {
-      length: 147.3 * ArchetypeUnits.CENTIMETRE,
-      barrel: 106.8 * ArchetypeUnits.CENTIMETRE,
+      length: 147.3 * AutoMovieArchetypeUnits.CENTIMETRE,
+      barrel: 106.8 * AutoMovieArchetypeUnits.CENTIMETRE,
     },
   },
   rifle: {
     m1903: {
-      length: 43.46 * ArchetypeUnits.INCH,
-      mass: 8.69 * ArchetypeUnits.POUND,
-      muzzleVelocity: 2647 * ArchetypeUnits.FOOT,
+      length: 43.46 * AutoMovieArchetypeUnits.INCH,
+      mass: 8.69 * AutoMovieArchetypeUnits.POUND,
+      muzzleVelocity: 2647 * AutoMovieArchetypeUnits.FOOT,
     },
     kar98k: {
-      length: 43.5 * ArchetypeUnits.INCH,
-      barrel: 23.4 * ArchetypeUnits.INCH,
-      mass: 9 * ArchetypeUnits.POUND,
-      muzzleVelocity: 2800 * ArchetypeUnits.FOOT,
+      length: 43.5 * AutoMovieArchetypeUnits.INCH,
+      barrel: 23.4 * AutoMovieArchetypeUnits.INCH,
+      mass: 9 * AutoMovieArchetypeUnits.POUND,
+      muzzleVelocity: 2800 * AutoMovieArchetypeUnits.FOOT,
     },
   },
 };

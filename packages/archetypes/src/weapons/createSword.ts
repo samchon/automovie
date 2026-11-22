@@ -2,11 +2,11 @@ import { Vector3, rotationBetween } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { SWORD_BANDS } from "./SWORD_BANDS";
 import { SWORD_MODELS } from "./SWORD_MODELS";
@@ -21,7 +21,7 @@ import { SWORD_MODELS } from "./SWORD_MODELS";
  * @param params The kind, the model where the kind has read models, and any dimension the author fixes.
  * @param seed The seed that picks the model left free and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The weapon.
- * @throws {ArchetypeRefusal} For a model not of the kind, a fixed dimension outside its band, or one the model gives.
+ * @throws {AutoMovieArchetypeRefusal} For a model not of the kind, a fixed dimension outside its band, or one the model gives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the weapon stands, where its edge and flats face, how a curved blade is measured, what the blade's parts are and where the mass properties come from.
  * @evidence contracts/development/implementation.md#principled-implementation The blade tapers in width and thickness to `TAPER` of its base at the point, so each segment's mass share is its length times its width times its thickness and the blade's own centre follows; the hilt's share is then the lever balance that puts the whole at the cited point of balance, (blade centre minus balance) over (blade centre minus hilt centre), split among guard, grip and pommel by `HILT`. A curved blade's points lie on a parabola whose chord is the blade length.
@@ -34,9 +34,9 @@ import { SWORD_MODELS } from "./SWORD_MODELS";
 export function createSword(
   params: createSword.IParams,
   seed?: number | string,
-): Archetype<createSword.Affordance, createSword.Dimension> {
-  const draw: ArchetypeDrawSession<createSword.Dimension> =
-    new ArchetypeDrawSession<createSword.Dimension>(
+): AutoMovieArchetype<createSword.Affordance, createSword.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createSword.Dimension> =
+    new AutoMovieArchetypeDrawSession<createSword.Dimension>(
       "sword",
       createSword.UNITS,
       seed,
@@ -67,10 +67,10 @@ export function createSword(
     balance: drawn.balance!,
     mass: drawn.mass!,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createSword.Affordance,
     createSword.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: createSword.NAMES[kind],
@@ -182,7 +182,11 @@ export function createSword(
       id,
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(hilt[1]!, v(0, 0, -1), v(0, sign, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        hilt[1]!,
+        v(0, 0, -1),
+        v(0, sign, 0),
+      ),
       extent: null,
       grip: shape.hands === 2 ? "two-hand" : "power",
       aperture: createSword.GRIP,
@@ -203,7 +207,7 @@ export function createSword(
       id,
       kind: "ledge",
       direction: "normal",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, middle.y, middle.z + sign * half),
         v(0, 0, sign),
         chord,
@@ -216,7 +220,7 @@ export function createSword(
     id: "flat",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v((createSword.THICKNESS * taper(0.5)) / 2, middle.y, middle.z),
       v(1, 0, 0),
       chord,
@@ -229,7 +233,7 @@ export function createSword(
     id: "point",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(along(1), chord, v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(along(1), chord, v(1, 0, 0)),
     extent: null,
   });
   return builder.build(d.mass);
@@ -429,7 +433,9 @@ export namespace createSword {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     bladeLength: "m",
     bladeWidth: "m",
     hiltLength: "m",

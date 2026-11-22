@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../core";
 
 /**
  * The firearms' measured lock times, the time from the sear's release to the firing pin's or hammer's fall, and the band a firearm borrows when its own was not found.
@@ -18,7 +18,7 @@ export namespace LockTimes {
   export const AR15: number = 0.01;
 
   /** The band a firearm whose own lock time was not found borrows: from the M1903's to the AR-15's. */
-  export const BORROWED: IArchetypeBand = ArchetypeBand.of(
+  export const BORROWED: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
     "s",
     M1903,
     AR15,

@@ -1,11 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import type { createInstrument } from "./createInstrument";
 
 /** The builder every construction fills. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createInstrument.Affordance,
   createInstrument.Dimension
 >;
@@ -53,7 +56,7 @@ function strings(
       id: `string${k}`,
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.scale(Vector3.add(from, to), 0.5),
         v(0, 1, 0),
         along,
@@ -163,17 +166,32 @@ export namespace StringedConstruction {
         id: `fret${n}`,
         kind: "bar",
         symmetry: "half",
-        frame: ArchetypeFrame.facing(v(x, top, 0), v(0, 1, 0), v(0, 0, 1)),
+        frame: AutoMovieArchetypeFrame.facing(
+          v(x, top, 0),
+          v(0, 1, 0),
+          v(0, 0, 1),
+        ),
         extent: null,
         length: boardWidth(x),
       });
     }
-    strings(builder, 6, v(nutX, top, 0), v(saddleX, top, 0), nutWidth, saddleWidth);
+    strings(
+      builder,
+      6,
+      v(nutX, top, 0),
+      v(saddleX, top, 0),
+      nutWidth,
+      saddleWidth,
+    );
     builder.affordance({
       id: "neck",
       kind: "bar",
       symmetry: "half",
-      frame: ArchetypeFrame.facing(v(nutX / 2, top, 0), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(nutX / 2, top, 0),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       grip: "power",
       length: nutX,
@@ -181,7 +199,7 @@ export namespace StringedConstruction {
     builder.affordance({
       id: "body",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(saddleX / 2, top, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(saddleX / 2, top, 0)),
       extent: null,
       width: -saddleX,
       depth: saddleWidth,
@@ -216,9 +234,14 @@ export namespace StringedConstruction {
       ["upper-bout", -0.4 * length, 0, d.upperBout!],
     ];
     for (const [id, from, to, width] of parts)
-      builder.box(id, v(to - from, rib, width), v((from + to) / 2, rib / 2, 0), {
-        color: WOOD,
-      });
+      builder.box(
+        id,
+        v(to - from, rib, width),
+        v((from + to) / 2, rib / 2, 0),
+        {
+          color: WOOD,
+        },
+      );
     const nutX: number = d.neck!;
     const thick: number = d.neckThickness!;
     const board: number = d.fingerboard!;
@@ -246,7 +269,7 @@ export namespace StringedConstruction {
       id: "neck",
       kind: "bar",
       symmetry: "half",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(nutX / 2, rib + thick / 2, 0),
         v(0, 1, 0),
         v(1, 0, 0),

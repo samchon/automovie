@@ -1,5 +1,5 @@
 import {
-  QuadrupedBody,
+  AutoMovieArchetypeQuadrupedBody,
   createHorse,
   rideHorse,
   type rideQuadruped,
@@ -49,8 +49,9 @@ export function test_archetype_equine_standing_departure(): void {
     "walk",
   );
   const first: number = Math.min(
-    ...QuadrupedBody.LIMBS.flatMap((limb: QuadrupedBody.Limb): number[] =>
-      archetypeHorseRide.footfalls(departure, limb),
+    ...AutoMovieArchetypeQuadrupedBody.LIMBS.flatMap(
+      (limb: AutoMovieArchetypeQuadrupedBody.Limb): number[] =>
+        archetypeHorseRide.footfalls(departure, limb),
     ),
   );
   TestValidator.predicate(
@@ -60,8 +61,9 @@ export function test_archetype_equine_standing_departure(): void {
   const swing: ReturnType<typeof departure.at> = departure.at(first / 2);
   const landed: ReturnType<typeof departure.at> = departure.at(first);
   const soles: number[] = [];
-  for (const limb of QuadrupedBody.LIMBS) {
-    const id: QuadrupedBody.Bone = QuadrupedBody.BONES[limb][3];
+  for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
+    const id: AutoMovieArchetypeQuadrupedBody.Bone =
+      AutoMovieArchetypeQuadrupedBody.BONES[limb][3];
     const neutral: IAutoMovieModelPart = horse.parts.find(
       (part: IAutoMovieModelPart): boolean => part.id === id,
     )!;

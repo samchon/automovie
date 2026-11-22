@@ -1,10 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import type { createInstrument } from "./createInstrument";
 
 /** The builder every construction fills. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createInstrument.Affordance,
   createInstrument.Dimension
 >;
@@ -63,7 +66,7 @@ export namespace MarchingConstruction {
     builder.affordance({
       id: "head",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, depth, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, depth, 0)),
       extent: null,
       width: 2 * radius,
       depth: 2 * radius,
@@ -71,9 +74,7 @@ export namespace MarchingConstruction {
     builder.affordance({
       id: "sling",
       kind: "hook",
-      frame: ArchetypeFrame.upright(
-        v(radius, depth, 0),
-      ),
+      frame: AutoMovieArchetypeFrame.upright(v(radius, depth, 0)),
       extent: null,
     });
   }
@@ -122,7 +123,7 @@ export namespace MarchingConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v((back + front) / 2, y, upper),
         v(0, 1, 0),
         v(1, 0, 0),
@@ -133,7 +134,11 @@ export namespace MarchingConstruction {
     builder.affordance({
       id: "mouthpiece",
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(back - r, y, upper), v(-1, 0, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(back - r, y, upper),
+        v(-1, 0, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
     });
   }

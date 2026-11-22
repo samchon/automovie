@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
 } from "@automovie/archetypes";
 import {
   Quaternion,
@@ -82,7 +82,7 @@ export function test_human_motion_button(): void {
     thickness: PANEL,
     seconds: 0.45,
   };
-  const run = (model: Archetype<Site, never>): HumanPerformance =>
+  const run = (model: AutoMovieArchetype<Site, never>): HumanPerformance =>
     new HumanPerformance({
       seed: "button through aperture",
       laws: [button],
@@ -106,7 +106,7 @@ export function test_human_motion_button(): void {
         .node,
     });
 
-  const model: Archetype<Site, never> = garment(side, 0);
+  const model: AutoMovieArchetype<Site, never> = garment(side, 0);
   const performance: HumanPerformance = run(model);
   const scene: IAutoMovieMotionHumanSegment = performance.segments("actor")[0]!;
   const event = (name: string): number =>
@@ -173,7 +173,10 @@ export function test_human_motion_button(): void {
 }
 
 /** Four fixed strips bound actual open space, with one separately articulated button. */
-function garment(side: number, offset: number): Archetype<Site, never> {
+function garment(
+  side: number,
+  offset: number,
+): AutoMovieArchetype<Site, never> {
   const x: number = side * 0.025;
   const v: typeof Vector3.create = Vector3.create;
   const aperture: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -181,10 +184,14 @@ function garment(side: number, offset: number): Archetype<Site, never> {
     90,
   );
   const slide: IAutoMovieQuaternion = Quaternion.fromAxisAngle(v(0, 0, 1), -90);
-  return new ArchetypeBuilder<Site, never>({
+  return new AutoMovieArchetypeBuilder<Site, never>({
     material: "fabric",
     name: "button crossing fixture",
-    draw: new ArchetypeDrawSession<never>("button-fixture", {}, undefined),
+    draw: new AutoMovieArchetypeDrawSession<never>(
+      "button-fixture",
+      {},
+      undefined,
+    ),
   })
     .box("left-panel", v(0.08, PANEL, 0.1), v(x - HALF - 0.04, 0, 0))
     .box("right-panel", v(0.08, PANEL, 0.1), v(x + HALF + 0.04, 0, 0))
@@ -239,7 +246,7 @@ function garment(side: number, offset: number): Archetype<Site, never> {
 
 /** Read the actual posed mesh part, using the performance's authored articulation state. */
 function center(
-  model: Archetype<Site, never>,
+  model: AutoMovieArchetype<Site, never>,
   performance: HumanPerformance,
   seconds: number,
 ): IAutoMovieVector3 {

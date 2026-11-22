@@ -6,8 +6,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type ArchetypeCourse, ArchetypeFrame } from "../core";
-import type { QuadrupedFooting } from "./QuadrupedFooting";
+import {
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+} from "../core";
+import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
 /**
@@ -53,11 +56,13 @@ export namespace EquineObstacle {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list.
    */
   export function read(
-    plan: ArchetypeCourse.IPlan,
-    span: ArchetypeCourse.ILegSpan,
-    footing: QuadrupedFooting.IScene | undefined,
+    plan: AutoMovieArchetypeCourse.IPlan,
+    span: AutoMovieArchetypeCourse.ILegSpan,
+    footing: AutoMovieArchetypeQuadrupedFooting.IScene | undefined,
   ): IObstacle[] {
-    const origin: ArchetypeCourse.IState = plan.at(plan.when(span.from));
+    const origin: AutoMovieArchetypeCourse.IState = plan.at(
+      plan.when(span.from),
+    );
     const start: IAutoMovieVector3 = origin.placement.translation;
     const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
       origin.placement.rotation,
@@ -140,7 +145,7 @@ export namespace EquineObstacle {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
    */
   export function shortfall(
-    plan: ArchetypeCourse.IPlan,
+    plan: AutoMovieArchetypeCourse.IPlan,
     start: number,
     obstacles: readonly IObstacle[],
     clearance: number,
@@ -155,12 +160,12 @@ export namespace EquineObstacle {
         Quaternion.inverse(leg.rotation),
         Vector3.scale(leg.translation, -1),
       ),
-      scale: ArchetypeFrame.UNIT,
+      scale: AutoMovieArchetypeFrame.UNIT,
     };
     let extra: number = -Infinity;
     for (let at: number = takeoff + STEP; at < landing; at += STEP) {
       const current: ISample = sample(at);
-      const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+      const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
         inverse,
         current.placement,
       );
@@ -177,13 +182,13 @@ export namespace EquineObstacle {
         ].map((rotation: IAutoMovieQuaternion): number =>
           QuadrupedRestFloor({
             ...part,
-            transform: ArchetypeFrame.compose(
+            transform: AutoMovieArchetypeFrame.compose(
               {
                 rotation,
                 translation: { x: 0, y: 0, z: 0 },
-                scale: ArchetypeFrame.UNIT,
+                scale: AutoMovieArchetypeFrame.UNIT,
               },
-              ArchetypeFrame.compose(frame, part.transform!),
+              AutoMovieArchetypeFrame.compose(frame, part.transform!),
             ),
           }),
         );

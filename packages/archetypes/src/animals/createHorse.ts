@@ -2,39 +2,39 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
-import { EquidEarProfiles } from "./EquidEarProfiles";
+import { AutoMovieArchetypeEquineEarProfiles } from "./AutoMovieArchetypeEquineEarProfiles";
+import { AutoMovieArchetypeEquineGaitedProfile } from "./AutoMovieArchetypeEquineGaitedProfile";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import { EquineIcelandicProfile } from "./EquineIcelandicProfile";
+import { EquinePack } from "./EquinePack";
+import { EquineTack } from "./EquineTack";
 import { HORSE_BANDS } from "./HORSE_BANDS";
-import { HorsePack } from "./HorsePack";
-import { HorseTack } from "./HorseTack";
-import { GaitedHorseProfile } from "./GaitedHorseProfile";
-import { IcelandicHorseProfile } from "./IcelandicHorseProfile";
-import { QuadrupedBody } from "./QuadrupedBody";
 
 /**
  * A horse with its tack: a coarse body of one bar per bone, under a riding saddle with stirrups, reins and a lead rope, in a driving harness, under a pack saddle with a lead rope, or without tack.
  *
- * The horse stands square on level ground, facing `+Z`, with the middle of its trunk over the origin. Its body is the shared quadruped's (`QuadrupedBody`) drawn by the horse's proportions, `BODY`: its parts are its bones, named by `QuadrupedBody.Bone`, a trunk, the hindquarters behind it, a neck, a head and a tail, and four bones down each limb. Each bone is a bar from joint to joint, so the horse is posed by moving joints; `createHorse.rig` gives the joints at rest and `rideHorse` poses the limbs through a gait. Bone lengths are fixed fractions of the height at the withers and each bone's share of the body's mass is the measured one. The trunk runs Kubo's shoulder to hip; the hindquarters carry the body on from the hip joint to the point of buttock, which Jensen et al. place behind the point of shoulder.
+ * The horse stands square on level ground, facing `+Z`, with the middle of its trunk over the origin. Its body is the shared quadruped's (`AutoMovieArchetypeQuadrupedBody`) drawn by the horse's proportions, `BODY`: its parts are its bones, named by `AutoMovieArchetypeQuadrupedBody.Bone`, a trunk, the hindquarters behind it, a neck, a head and a tail, and four bones down each limb. Each bone is a bar from joint to joint, so the horse is posed by moving joints; `createHorse.rig` gives the joints at rest and `rideHorse` poses the limbs through a gait. Bone lengths are fixed fractions of the height at the withers and each bone's share of the body's mass is the measured one. The trunk runs Kubo's shoulder to hip; the hindquarters carry the body on from the hip joint to the point of buttock, which Jensen et al. place behind the point of shoulder.
  *
- * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left. In harness (`tack` `harness`) the horse wears a breast collar, a driving saddle with its tugs, terrets, girth and backstrap, a breeching and a bridle with blinkers, as `HorseHarness` lays them; its one contact is the `hitch` between the tugs, which a cart's `coupling` is held on. The traces and the driving lines run between the horse and the vehicle, so the towing ride lays them (`createCart.lines`). A postilion's horse (`tack` `both`) wears the harness under the riding saddle and offers both's contacts. Under a pack saddle (`tack` `pack`) the horse wears FM 25-7's Phillips cargo saddle sized to it, with its cinch, breast collar, croup piece and breeching, as `HorsePack` lays them; its contacts are the `lead` and a load against each side, `leftLoad` and `rightLoad`. The alternative mounted supports keep the horse's body: a bareback bridle (`tack` `bareback`) offers only the two reins, the `lead` and a `seat` on the back itself; a side saddle (`tack` `sidesaddle`, `HorseSideSaddle`) offers a `seat` entered sideways from the near side, the `fixedHead` and `leapingHead`, the one `leftStirrup`, the reins and the `lead`; a vaulting surcingle (`tack` `surcingle`, `HorseSurcingle`) offers the `leftHandle` and `rightHandle`, the back `pad` and the basic `seat` astride on it; a double saddle (`tack` `double`) is the riding saddle with a pillion pad behind its cantle, whose `pillion` seat a passenger rides double on; a trick saddle (`tack` `trick`) adds a tall horn, two handholds, two side foot straps and a hippodrome strap to the riding saddle.
+ * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left. In harness (`tack` `harness`) the horse wears a breast collar, a driving saddle with its tugs, terrets, girth and backstrap, a breeching and a bridle with blinkers, as `EquineHarness` lays them; its one contact is the `hitch` between the tugs, which a cart's `coupling` is held on. The traces and the driving lines run between the horse and the vehicle, so the towing ride lays them (`createCart.lines`). A postilion's horse (`tack` `both`) wears the harness under the riding saddle and offers both's contacts. Under a pack saddle (`tack` `pack`) the horse wears FM 25-7's Phillips cargo saddle sized to it, with its cinch, breast collar, croup piece and breeching, as `EquinePack` lays them; its contacts are the `lead` and a load against each side, `leftLoad` and `rightLoad`. The alternative mounted supports keep the horse's body: a bareback bridle (`tack` `bareback`) offers only the two reins, the `lead` and a `seat` on the back itself; a side saddle (`tack` `sidesaddle`, `EquineSideSaddle`) offers a `seat` entered sideways from the near side, the `fixedHead` and `leapingHead`, the one `leftStirrup`, the reins and the `lead`; a vaulting surcingle (`tack` `surcingle`, `EquineSurcingle`) offers the `leftHandle` and `rightHandle`, the back `pad` and the basic `seat` astride on it; a double saddle (`tack` `double`) is the riding saddle with a pillion pad behind its cantle, whose `pillion` seat a passenger rides double on; a trick saddle (`tack` `trick`) adds a tall horn, two handholds, two side foot straps and a hippodrome strap to the riding saddle.
  *
  * The default horse draws from the warmblood height band. Its girth follows the cohort's mean proportion and its mass follows the girth-squared-times-length law anchored on that cohort's mean (`mass`). An explicit Icelandic horse uses its own sourced profile and enables the two alternate gaits. The seat and reins are selected from their read sizes.
  *
  * @param params The tack, the seat and reins by their read sizes, and any free dimension the author fixes.
  * @param seed The seed that draws every free dimension inside its band and the seat and the reins among their read sizes; absent, each dimension takes the middle of its band and each size the first listed.
  * @returns The horse.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, a tack that is not one of `TACKS`, or a seat or reins not among `SEATS` and `REINS`.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, a tack that is not one of `TACKS`, or a seat or reins not among `SEATS` and `REINS`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the horse stands, that its parts are the shared quadruped's bones, how it is posed, where the body ends and where each tack's contacts are.
- * @evidence contracts/development/implementation.md#principled-implementation The shared equid builder (`equid`) on the horse's profile, laying the shared body (`QuadrupedBody.lay`) from the horse's proportions: segment lengths as fractions of withers height from Kubo et al. 1992 and Matsuura et al. 2008, and segment mass shares from Kubo et al. 1992, Table 5, stated per part so the mass properties follow the measured distribution; the tack is placed on the rig's landmarks.
+ * @evidence contracts/development/implementation.md#principled-implementation The shared equid builder (`equid`) on the horse's profile, laying the shared body (`AutoMovieArchetypeQuadrupedBody.lay`) from the horse's proportions: segment lengths as fractions of withers height from Kubo et al. 1992 and Matsuura et al. 2008, and segment mass shares from Kubo et al. 1992, Table 5, stated per part so the mass properties follow the measured distribution; the tack is placed on the rig's landmarks.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `equid` on `PROFILE`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's simplifications are `QuadrupedBody.lay`'s and the tack's estimates `HorseSaddle`'s, `HorseHarness`'s, `HorsePack`'s, `HorseSideSaddle`'s and `HorseSurcingle`'s, stated there; `HorseTack` lays the selected tack.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's simplifications are `AutoMovieArchetypeQuadrupedBody.lay`'s and the tack's estimates `EquineSaddle`'s, `EquineHarness`'s, `EquinePack`'s, `EquineSideSaddle`'s and `EquineSurcingle`'s, stated there; `EquineTack` lays the selected tack.
  * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones, the withers and a few tens of tack parts.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `equid`, which the pony shares; each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -42,9 +42,9 @@ import { QuadrupedBody } from "./QuadrupedBody";
 export function createHorse(
   params: createHorse.IParams = {},
   seed?: number | string,
-): Archetype<createHorse.Affordance, createHorse.Dimension> {
-  const draw: ArchetypeDrawSession<createHorse.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<createHorse.Affordance, createHorse.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createHorse.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       createHorse.PROFILE.archetype,
       createHorse.UNITS,
       seed,
@@ -64,10 +64,10 @@ export function createHorse(
         }).name;
   const profile: createHorse.IProfile =
     breed === "icelandic"
-      ? IcelandicHorseProfile.shape(createHorse.PROFILE)
+      ? EquineIcelandicProfile.shape(createHorse.PROFILE)
       : breed === undefined || breed === "warmblood"
         ? createHorse.PROFILE
-        : GaitedHorseProfile.shape(createHorse.PROFILE);
+        : AutoMovieArchetypeEquineGaitedProfile.shape(createHorse.PROFILE);
   return createHorse.equid(profile, params, draw);
 }
 
@@ -76,7 +76,7 @@ export function createHorse(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each bone, affordance, dimension, proportion and band states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation The horse's proportions in the shared quadruped body's forms, segment lengths as fractions of withers height and segment masses as percentages of body mass, the two forms the equine studies report.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The horse's proportions, tack and bands; the bone vocabulary is `QuadrupedBody`'s, shared by every quadruped (#3373, #2805, #3496).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The horse's proportions, tack and bands; the bone vocabulary is `AutoMovieArchetypeQuadrupedBody`'s, shared by every quadruped (#3373, #2805, #3496).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No humanoid bone stands in for a horse's, the defect #2805 removed.
  */
 export namespace createHorse {
@@ -126,11 +126,11 @@ export namespace createHorse {
    * - `hitch`: in harness, the middle between the tugs at the driving saddle, where a cart's shafts are held and its `coupling` is drawn from.
    * - `leftLoad`, `rightLoad`: under a pack saddle, the middle of each side's pad, facing out, where a load rests.
    * - `tie`: under a pack saddle, the pads' back on the spine, where a following animal's lead is made fast in a pack string.
-   * - `fixedHead`, `leapingHead`: on a side saddle, the upper pommel the right thigh goes over and the lower one over the left thigh (`HorseSideSaddle`).
-   * - `leftHandle`, `rightHandle`, `pad`: on a vaulting surcingle, its two handles and the back pad's top (`HorseSurcingle`).
-   * - `mane`: under a riding saddle, a handful of mane on the crest a rider grips (`HorseMane`).
-   * - `pillion`: under a riding saddle with a pillion pad (`tack` `double`), the passenger's seat astride on the loins behind the cantle (`HorseSaddle.pillion`).
-   * - `horn`, `leftHandhold`, `rightHandhold`, `leftStrap`, `rightStrap`, `hippodrome`: on a trick saddle (`tack` `trick`), its tall horn, the handholds on each side of the pommel, the foot straps on each side for the drags and the hippodrome strap across the seat a standing rider's feet go under (`HorseSaddle.trick`).
+   * - `fixedHead`, `leapingHead`: on a side saddle, the upper pommel the right thigh goes over and the lower one over the left thigh (`EquineSideSaddle`).
+   * - `leftHandle`, `rightHandle`, `pad`: on a vaulting surcingle, its two handles and the back pad's top (`EquineSurcingle`).
+   * - `mane`: under a riding saddle, a handful of mane on the crest a rider grips (`EquineMane`).
+   * - `pillion`: under a riding saddle with a pillion pad (`tack` `double`), the passenger's seat astride on the loins behind the cantle (`EquineSaddle.pillion`).
+   * - `horn`, `leftHandhold`, `rightHandhold`, `leftStrap`, `rightStrap`, `hippodrome`: on a trick saddle (`tack` `trick`), its tall horn, the handholds on each side of the pommel, the foot straps on each side for the drags and the hippodrome strap across the seat a standing rider's feet go under (`EquineSaddle.trick`).
    *
    * A tack lacks the ids of the others; the `lead` is the riding saddle's and the pack saddle's.
    */
@@ -173,7 +173,7 @@ export namespace createHorse {
    * - `reinWidth`: a rein's width, one of `REINS`.
    * - `tempo`: how far this horse's stride time lies from the mean, in standard deviations.
    * - `breechingDrop`: in harness, the breeching's seat below the point of buttock.
-   * - `croupClearance`: under a pack saddle, the croup piece's end above the tail's root, a packer's hand's breadth (`HorsePack.BANDS`).
+   * - `croupClearance`: under a pack saddle, the croup piece's end above the tail's root, a packer's hand's breadth (`EquinePack.BANDS`).
    */
   export type Dimension =
     | "withersHeight"
@@ -188,7 +188,9 @@ export namespace createHorse {
     | "croupClearance";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     withersHeight: "m",
     mass: "kg",
     girth: "m",
@@ -209,8 +211,11 @@ export namespace createHorse {
 
   /** The parameters: the tack, the saddle's seat and the reins by their read sizes, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Free, number>> {
-    /** Explicit horse cohort. Icelandic admits tölt and flying pace; an ambling breed (`GaitedHorseProfile`) admits its own gait. The ordinary warmblood profile is used when absent. */
-    breed?: "warmblood" | "icelandic" | GaitedHorseProfile.Breed;
+    /** Explicit horse cohort. Icelandic admits tölt and flying pace; an ambling breed (`AutoMovieArchetypeEquineGaitedProfile`) admits its own gait. The ordinary warmblood profile is used when absent. */
+    breed?:
+      | "warmblood"
+      | "icelandic"
+      | AutoMovieArchetypeEquineGaitedProfile.Breed;
 
     /** The saddle's seat size; drawn from the seed when absent. */
     seat?: Seat;
@@ -282,7 +287,7 @@ export namespace createHorse {
   /**
    * The horse's body, the shared quadruped body's proportions: `LENGTHS`, `STANCE`, `BACK`, `BUTTOCK` and `MASS`, each with its source, and the shapes no source read gives, each an estimate the model is drawn by: the withers a ball of 0.05 of the withers height whose top stands at the withers (massless, a share of 0: the trunk's measured share holds it), the neck's root 0.06 below the back and its bar's radius 0.08, the poll 0.27 above the back and 0.27 ahead of the shoulder joints, the nose 0.31 below and 0.18 ahead of the poll, the head bar's radius 0.06 and the mouth's corners 0.03 above and behind the nose, the tail's bar 0.02 in radius reaching 0.4 down and 0.1 back from its root, its root 0.65 of the barrel's radius up and back from the hindquarters' rounded end's centre, the limb bones' radii 0.055 of the withers height for the humerus and the femur, 0.035 for the radius and the tibia, and 0.022 for the cannon and the pastern alike, and each limb 0.08 m inside the barrel's side. The feet are hooves, shod.
    */
-  export const BODY: QuadrupedBody.IBody = {
+  export const BODY: AutoMovieArchetypeQuadrupedBody.IBody = {
     lengths: LENGTHS,
     stance: STANCE,
     back: BACK,
@@ -295,8 +300,8 @@ export namespace createHorse {
       nose: { drop: 0.31, ahead: 0.18 },
       radius: 0.06,
       mouth: 0.03,
-      // Krebs et al. 2021's measured ear length with a transferred breadth (`EquidEarProfiles.horse`), an authored coarse jaw inside the head (half its radius, hinged 0.15 of the head's length below the poll) an authored coarse upper lip (0.4 of its radius from 0.75 of its length to the nose) and authored coarse nostrils (0.3 of its radius, set 0.4 back on the nose cap).
-      ears: EquidEarProfiles.horse(),
+      // Krebs et al. 2021's measured ear length with a transferred breadth (`AutoMovieArchetypeEquineEarProfiles.horse`), an authored coarse jaw inside the head (half its radius, hinged 0.15 of the head's length below the poll) an authored coarse upper lip (0.4 of its radius from 0.75 of its length to the nose) and authored coarse nostrils (0.3 of its radius, set 0.4 back on the nose cap).
+      ears: AutoMovieArchetypeEquineEarProfiles.horse(),
       jaw: { radius: 0.5, hinge: 0.15 },
       lip: { radius: 0.4, root: 0.75 },
       nostrils: { radius: 0.3, back: 0.4 },
@@ -309,10 +314,10 @@ export namespace createHorse {
   };
 
   /**
-   * The horse's joints and landmarks at rest, in the model's space: the shared quadruped's (`QuadrupedBody.IRig`) and the two places a harness is laid by.
+   * The horse's joints and landmarks at rest, in the model's space: the shared quadruped's (`AutoMovieArchetypeQuadrupedBody.IRig`) and the two places a harness is laid by.
    *
    */
-  export interface IRig extends QuadrupedBody.IRig {
+  export interface IRig extends AutoMovieArchetypeQuadrupedBody.IRig {
     /** The point of draft on the `+X` side: where the breast collar meets the barrel's side at the point of shoulder's height, just behind the elbow, as the IVC Carriage measuring chart takes the breast collar from the centre of the chest to just behind the elbow; the `-X` side's is its mirror. */
     draft: IAutoMovieVector3;
 
@@ -323,16 +328,17 @@ export namespace createHorse {
   /**
    * The horse's joints and landmarks at rest.
    *
-   * @param dimensions The horse's dimensions, as `Archetype.dimensions` gives them.
+   * @param dimensions The horse's dimensions, as `AutoMovieArchetype.dimensions` gives them.
    * @param body The body's proportions; the horse's `BODY` when absent, another equid's for that equid.
    * @returns The rest rig.
    *
    */
   export function rig(
     dimensions: Readonly<Partial<Record<Dimension, number>>>,
-    body: QuadrupedBody.IBody = BODY,
+    body: AutoMovieArchetypeQuadrupedBody.IBody = BODY,
   ): IRig {
-    const rest: QuadrupedBody.IRig = QuadrupedBody.rig(body, dimensions);
+    const rest: AutoMovieArchetypeQuadrupedBody.IRig =
+      AutoMovieArchetypeQuadrupedBody.rig(body, dimensions);
     const shoulder: IAutoMovieVector3 = rest.limbs.leftFore[0]!;
     const axis: number = rest.back - rest.barrel;
     const side: number = Math.sqrt(
@@ -352,14 +358,14 @@ export namespace createHorse {
    * @param params The tack, the seat and reins by their read sizes, and any free dimension the author fixes.
    * @param draw The equid's draw session, opened with its name, the seed and the dimensions the author fixed; a pony's has already picked its breed.
    * @returns The equid.
-   * @throws {ArchetypeRefusal} For a fixed dimension outside its band, a tack that is not one of `TACKS`, or a seat or reins not among `SEATS` and `REINS`.
+   * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, a tack that is not one of `TACKS`, or a seat or reins not among `SEATS` and `REINS`.
    *
    */
   export function equid(
     profile: IProfile,
     params: Omit<IParams, "breed">,
-    draw: ArchetypeDrawSession<Dimension>,
-  ): Archetype<Affordance, Dimension> {
+    draw: AutoMovieArchetypeDrawSession<Dimension>,
+  ): AutoMovieArchetype<Affordance, Dimension> {
     const tack: createHorse.Tack = ArchetypeDraw.choice(
       profile.archetype,
       "tack",
@@ -367,9 +373,11 @@ export namespace createHorse {
       createHorse.TACKS,
     );
     // A pack saddle draws its own dimension beside the equid's.
-    const bands: Readonly<Partial<Record<createHorse.Free, IArchetypeBand>>> =
+    const bands: Readonly<
+      Partial<Record<createHorse.Free, IAutoMovieArchetypeBand>>
+    > =
       tack === "pack"
-        ? { ...profile.bands, ...HorsePack.BANDS }
+        ? { ...profile.bands, ...EquinePack.BANDS }
         : profile.bands;
     const free: Record<createHorse.Free, number> = {
       ...draw.dimensions(bands),
@@ -390,10 +398,10 @@ export namespace createHorse {
       reinWidth: draw.model<Rein>("rein", params.rein, REINS).figures
         .reinWidth!,
     };
-    const builder: ArchetypeBuilder<
+    const builder: AutoMovieArchetypeBuilder<
       createHorse.Affordance,
       createHorse.Dimension
-    > = new ArchetypeBuilder({
+    > = new AutoMovieArchetypeBuilder({
       id: params.id,
       name: profile.names[tack] ?? profile.archetype,
       draw,
@@ -401,10 +409,10 @@ export namespace createHorse {
     });
     const h: number = d.withersHeight;
     const rig: createHorse.IRig = createHorse.rig(d, profile.body);
-    QuadrupedBody.lay(profile.body, builder, h, rig);
+    AutoMovieArchetypeQuadrupedBody.lay(profile.body, builder, h, rig);
 
-    // The tack's read weight is its own, beside the equid's (`HorseTack`).
-    return builder.build(d.mass + HorseTack(tack, builder, d, rig), {
+    // The tack's read weight is its own, beside the equid's (`EquineTack`).
+    return builder.build(d.mass + EquineTack(tack, builder, d, rig), {
       rests: profile.body.foot,
     });
   }
@@ -424,7 +432,7 @@ export namespace createHorse {
     >;
 
     /** The band of each free dimension the read figures do not give. */
-    bands: Readonly<Partial<Record<Free, IArchetypeBand>>>;
+    bands: Readonly<Partial<Record<Free, IAutoMovieArchetypeBand>>>;
 
     /** A read model's figures, such as a pony breed's height at the withers and girth, laid over the drawn dimensions; absent for the horse, whose height is drawn. */
     figures?: Readonly<Partial<Record<Dimension, number>>>;
@@ -436,7 +444,7 @@ export namespace createHorse {
     mass?: number;
 
     /** The body's proportions. */
-    body: QuadrupedBody.IBody;
+    body: AutoMovieArchetypeQuadrupedBody.IBody;
   }
 
   /**
@@ -475,11 +483,11 @@ export namespace createHorse {
   export const SEATS: Readonly<
     Record<Seat, Readonly<Partial<Record<Dimension, number>>>>
   > = {
-    "16in": { seatSize: 16 * ArchetypeUnits.INCH },
-    "16.5in": { seatSize: 16.5 * ArchetypeUnits.INCH },
-    "17in": { seatSize: 17 * ArchetypeUnits.INCH },
-    "17.5in": { seatSize: 17.5 * ArchetypeUnits.INCH },
-    "18in": { seatSize: 18 * ArchetypeUnits.INCH },
+    "16in": { seatSize: 16 * AutoMovieArchetypeUnits.INCH },
+    "16.5in": { seatSize: 16.5 * AutoMovieArchetypeUnits.INCH },
+    "17in": { seatSize: 17 * AutoMovieArchetypeUnits.INCH },
+    "17.5in": { seatSize: 17.5 * AutoMovieArchetypeUnits.INCH },
+    "18in": { seatSize: 18 * AutoMovieArchetypeUnits.INCH },
   };
 
   /** The rein widths: Dover Saddlery's snaffle reins, 5/8 and 3/4 in wide (https://www.doversaddlery.com/pages/reins-for-english-riding-disciplines). */
@@ -489,8 +497,8 @@ export namespace createHorse {
   export const REINS: Readonly<
     Record<Rein, Readonly<Partial<Record<Dimension, number>>>>
   > = {
-    "5/8in": { reinWidth: (5 / 8) * ArchetypeUnits.INCH },
-    "3/4in": { reinWidth: (3 / 4) * ArchetypeUnits.INCH },
+    "5/8in": { reinWidth: (5 / 8) * AutoMovieArchetypeUnits.INCH },
+    "3/4in": { reinWidth: (3 / 4) * AutoMovieArchetypeUnits.INCH },
   };
 
   /** The band of each free dimension. */

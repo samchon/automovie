@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { GroomingPropDraw } from "./GroomingPropDraw";
 
 /**
@@ -9,7 +9,7 @@ import { GroomingPropDraw } from "./GroomingPropDraw";
  * @param params The optional scene ID, tube length in metres, mass in kilograms, and diameter model.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Squeeze tube with a body grip and an operable cap.
  * @evidence contracts/development/implementation.md#principled-implementation The cap knob acts on the cap part and the front-facing outlet stays at the tube end.
@@ -24,7 +24,10 @@ export function createSqueezeTube(
     model?: Exclude<GroomingPropDraw.Model, "edwinJagger" | "gilletteMach3">;
   } = {},
   seed?: number | string,
-): Archetype<createSqueezeTube.Affordance, createSqueezeTube.Dimension> {
+): AutoMovieArchetype<
+  createSqueezeTube.Affordance,
+  createSqueezeTube.Dimension
+> {
   const {
     builder,
     d,
@@ -57,7 +60,7 @@ export function createSqueezeTube(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, width / 2, (length - cap) / 2),
       Vector3.create(0, 1, 0),
       Vector3.create(0, 0, 1),
@@ -70,7 +73,7 @@ export function createSqueezeTube(
   builder.affordance({
     id: "cap",
     kind: "knob",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, width / 2, length - cap / 2),
       Vector3.create(0, 0, 1),
     ),
@@ -84,7 +87,7 @@ export function createSqueezeTube(
     id: "face",
     kind: "socket",
     direction: "along",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, width / 2, length),
       Vector3.create(0, 0, 1),
     ),
@@ -98,7 +101,7 @@ export function createSqueezeTube(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
  * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createSqueezeTube {

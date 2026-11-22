@@ -58,7 +58,7 @@ const open = door.articulate({ hinge: 70 }); // the leaf, its lever and their co
 open.affordance("pull").frame; // the lever's grip on the open leaf
 ```
 
-With the source revision, dependencies and runtime fixed, the same parameters and seed give the same model. A producer's affordance ids and dimension names are closed types, so a misspelt one fails the type check. A request a producer cannot honour throws an `ArchetypeRefusal` that names the axis at fault and what would have been accepted.
+With the source revision, dependencies and runtime fixed, the same parameters and seed give the same model. A producer's affordance ids and dimension names are closed types, so a misspelt one fails the type check. A request a producer cannot honour throws an `AutoMovieArchetypeRefusal` that names the axis at fault and what would have been accepted.
 
 The producers are grouped in families, each also a subpath such as `@automovie/archetypes/furniture`:
 

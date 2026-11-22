@@ -2,10 +2,10 @@ import { AutoMovieGravity, projectileAt } from "@automovie/engine";
 import type { IAutoMovieProjectileState } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeAssembly,
-  type ArchetypeFracture,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeAssembly,
+  type AutoMovieArchetypeFracture,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { createDrinkware } from "../props";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
@@ -32,7 +32,7 @@ export function archetypeCaptureBreakage(): Readonly<
     kind: "beerBottle",
     fill: 0,
   });
-  const broken: ArchetypeFracture.IPieces<
+  const broken: AutoMovieArchetypeFracture.IPieces<
     createDrinkware.Affordance,
     createDrinkware.Dimension
   > | null = bottle.broken({ energy: 40, momentum: { x: 0.2, y: 0, z: 0 } });
@@ -41,22 +41,22 @@ export function archetypeCaptureBreakage(): Readonly<
       "The canonical empty bottle must expose its actual declared 40 J break",
     );
   const event: number = 1;
-  const placement: ReturnType<typeof ArchetypeFrame.upright> =
-    ArchetypeFrame.upright({ x: 0, y: 1.2, z: 0 });
+  const placement: ReturnType<typeof AutoMovieArchetypeFrame.upright> =
+    AutoMovieArchetypeFrame.upright({ x: 0, y: 1.2, z: 0 });
   const fragments: readonly {
-    piece: ArchetypeFracture.IPiece<
+    piece: AutoMovieArchetypeFracture.IPiece<
       createDrinkware.Dimension,
       createDrinkware.Affordance
     >;
     flight: Parameters<typeof projectileAt>[0];
   }[] = broken.fragments.map(
     (
-      piece: ArchetypeFracture.IPiece<
+      piece: AutoMovieArchetypeFracture.IPiece<
         createDrinkware.Dimension,
         createDrinkware.Affordance
       >,
     ): {
-      piece: ArchetypeFracture.IPiece<
+      piece: AutoMovieArchetypeFracture.IPiece<
         createDrinkware.Dimension,
         createDrinkware.Affordance
       >;
@@ -81,10 +81,10 @@ export function archetypeCaptureBreakage(): Readonly<
       members: [
         {
           name: "actual-bottle-fracture",
-          at: (seconds: number): { archetype: Archetype } => {
+          at: (seconds: number): { archetype: AutoMovieArchetype } => {
             if (seconds < event)
               return {
-                archetype: ArchetypeAssembly.of(
+                archetype: AutoMovieArchetypeAssembly.of(
                   "capture-intact-bottle",
                   "Intact empty bottle",
                   {
@@ -92,7 +92,8 @@ export function archetypeCaptureBreakage(): Readonly<
                   },
                 ),
               };
-            const members: Record<string, ArchetypeAssembly.IMember> = {};
+            const members: Record<string, AutoMovieArchetypeAssembly.IMember> =
+              {};
             if (broken.remainder !== null)
               members.remainder = { archetype: broken.remainder, placement };
             for (const fragment of fragments) {
@@ -102,11 +103,11 @@ export function archetypeCaptureBreakage(): Readonly<
               );
               members[`fragment-${fragment.piece.id}`] = {
                 archetype: fragment.piece.archetype,
-                placement: ArchetypeFrame.upright(state.position),
+                placement: AutoMovieArchetypeFrame.upright(state.position),
               };
             }
             return {
-              archetype: ArchetypeAssembly.of(
+              archetype: AutoMovieArchetypeAssembly.of(
                 "capture-broken-bottle",
                 "Actual declared bottle pieces",
                 members,

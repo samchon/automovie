@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { createStageHammerProp } from "./createStageHammerProp";
 import { createStageLinkedProp } from "./createStageLinkedProp";
 import { createStageMaceProp } from "./createStageMaceProp";
@@ -16,7 +16,7 @@ import { createStageShaftProp } from "./createStageShaftProp";
  * @param params The outline, scene id and optional overall display height in metres.
  * @param seed A seed for the builder's draw session.
  * @returns A foam model with a named grip for kinematic staging.
- * @throws {ArchetypeRefusal} When the outline or height is out of range.
+ * @throws {AutoMovieArchetypeRefusal} When the outline or height is out of range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names each catalogue outline, the fixed scale assigned by the outline, the optional height override, and the common grip approach.
  * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
@@ -29,7 +29,7 @@ import { createStageShaftProp } from "./createStageShaftProp";
 export function createStageWeaponProp(
   params: createStageWeaponProp.IParams,
   seed?: number | string,
-): Archetype<
+): AutoMovieArchetype<
   createStageWeaponProp.Affordance,
   createStageWeaponProp.Dimension
 > {
@@ -44,7 +44,7 @@ export function createStageWeaponProp(
     build(
       params: createStageWeaponProp.IParams,
       seed?: number | string,
-    ): Archetype<
+    ): AutoMovieArchetype<
       createStageWeaponProp.Affordance,
       createStageWeaponProp.Dimension
     >;

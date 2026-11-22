@@ -1,5 +1,5 @@
 import {
-  ArchetypeUnits,
+  AutoMovieArchetypeUnits,
   createBalanceBeam,
   createExerciseBike,
   createExerciseMat,
@@ -156,8 +156,8 @@ export function test_archetype_gym_placed(): void {
       ),
     ]),
   );
-  const inch: number = ArchetypeUnits.INCH;
-  const pound: number = ArchetypeUnits.POUND;
+  const inch: number = AutoMovieArchetypeUnits.INCH;
+  const pound: number = AutoMovieArchetypeUnits.POUND;
   findings.push(
     ...archetypeModelSweep([
       {

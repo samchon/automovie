@@ -1,11 +1,15 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { GoalBuild } from "./GoalBuild";
 import type { createGoal } from "./createGoal";
 
 /** The builder for this field or court apparatus. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createVolleyballNet.Affordance,
   createGoal.Dimension
 >;
@@ -48,7 +52,7 @@ const ESTIMATES: Readonly<IEstimates> = {
  * @param params The identifier, net class and optional dimensions. The class supplies the top height.
  * @param seed The seed draws the class and free dimensions. Without a seed, the men's class and band midpoints apply.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Use the chosen FIVB class height and the drawn net width and post offsets to place the net, posts and antennas.
@@ -61,7 +65,10 @@ const ESTIMATES: Readonly<IEstimates> = {
 export function createVolleyballNet(
   params: createVolleyballNet.IParams = {},
   seed?: number | string,
-): Archetype<createVolleyballNet.Affordance, createVolleyballNet.Dimension> {
+): AutoMovieArchetype<
+  createVolleyballNet.Affordance,
+  createVolleyballNet.Dimension
+> {
   const {
     builder,
     d,
@@ -117,7 +124,7 @@ function volleyball(builder: Builder, d: Drawn): void {
   builder.affordance({
     id: "top",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(v(0, top, 0), v(0, 1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, top, 0), v(0, 1, 0), v(1, 0, 0)),
     extent: null,
     length: d.width!,
   });

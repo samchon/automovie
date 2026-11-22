@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -20,7 +20,7 @@ import {
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The stilt.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it stands and its two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation One pole and one platform at its height.
@@ -33,9 +33,9 @@ import {
 export function createStilt(
   params: createStilt.IParams = {},
   seed?: number | string,
-): Archetype<createStilt.Affordance, createStilt.Dimension> {
-  const draw: ArchetypeDrawSession<createStilt.Dimension> =
-    new ArchetypeDrawSession<createStilt.Dimension>(
+): AutoMovieArchetype<createStilt.Affordance, createStilt.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createStilt.Dimension> =
+    new AutoMovieArchetypeDrawSession<createStilt.Dimension>(
       "stilt",
       createStilt.UNITS,
       seed,
@@ -44,10 +44,10 @@ export function createStilt(
   const d: Record<createStilt.Dimension, number> = draw.dimensions(
     createStilt.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createStilt.Affordance,
     createStilt.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "wood",
     id: params.id,
     name: "stilt",
@@ -69,7 +69,7 @@ export function createStilt(
   builder.affordance({
     id: "foot",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, d.height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, d.height, 0)),
     extent: null,
     width: 0.1,
     depth: d.length,
@@ -77,7 +77,7 @@ export function createStilt(
   builder.affordance({
     id: "tip",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
     extent: null,
     width: 2 * createStilt.POLE,
     depth: 2 * createStilt.POLE,
@@ -113,7 +113,9 @@ export namespace createStilt {
   export type Dimension = "height" | "length" | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     length: "m",
     mass: "kg",
@@ -126,20 +128,20 @@ export namespace createStilt {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    height: ArchetypeBand.metres(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    height: AutoMovieArchetypeBand.metres(
       0.3,
       1.2,
       "an estimate: from a child's peg stilt to a parade stilt; no maker's sheet was read",
       true,
     ),
-    length: ArchetypeBand.metres(
+    length: AutoMovieArchetypeBand.metres(
       0.22,
       0.3,
       "an estimate: a shoe's length",
       true,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       1,
       4,

@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
 /** The shape of {@link CONE}. */
@@ -34,7 +34,7 @@ const PLATE_RATIO: number = 0.04;
  * @param params The scene identifier, model choice and supported dimension overrides.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The Brimar proportions shape the cone after the chosen height class and its original mass draw.
@@ -47,7 +47,10 @@ const PLATE_RATIO: number = 0.04;
 export function createTrafficCone(
   params: createTrafficCone.IParams = {},
   seed?: number | string,
-): Archetype<createTrafficCone.Affordance, createTrafficCone.Dimension> {
+): AutoMovieArchetype<
+  createTrafficCone.Affordance,
+  createTrafficCone.Dimension
+> {
   const {
     builder,
     d,
@@ -83,7 +86,11 @@ export function createTrafficCone(
     id: "top",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, height, 0), v(0, 0, 1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, height, 0),
+      v(0, 0, 1),
+      v(0, 1, 0),
+    ),
     extent: null,
     grip: "power",
   });

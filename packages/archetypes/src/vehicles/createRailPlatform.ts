@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
 } from "../core";
 import { createRailCarriage } from "./createRailCarriage";
 
@@ -34,18 +34,22 @@ import { createRailCarriage } from "./createRailCarriage";
  */
 export function createRailPlatform(
   params: { id?: string } | string = {},
-): Archetype<"platform" | "platformEdge", never> {
-  const builder: ArchetypeBuilder<"platform" | "platformEdge", never> =
-    new ArchetypeBuilder({
+): AutoMovieArchetype<"platform" | "platformEdge", never> {
+  const builder: AutoMovieArchetypeBuilder<"platform" | "platformEdge", never> =
+    new AutoMovieArchetypeBuilder({
       id: (typeof params === "string" ? params : params.id) ?? "railPlatform",
       name: "rail platform",
       material: "concrete",
-      draw: new ArchetypeDrawSession<never>("railPlatform", {}, undefined),
+      draw: new AutoMovieArchetypeDrawSession<never>(
+        "railPlatform",
+        {},
+        undefined,
+      ),
     });
   const v: typeof Vector3.create = Vector3.create;
-  const depth: number = 11 * ArchetypeUnits.FOOT;
-  const strip: number = ArchetypeUnits.FOOT;
-  const length: number = 75 * ArchetypeUnits.FOOT;
+  const depth: number = 11 * AutoMovieArchetypeUnits.FOOT;
+  const strip: number = AutoMovieArchetypeUnits.FOOT;
+  const length: number = 75 * AutoMovieArchetypeUnits.FOOT;
   const height: number = createRailCarriage.REFERENCE.floor;
   const edge: number = createRailCarriage.REFERENCE.width / 2 + 0.075;
   builder.box(
@@ -67,7 +71,7 @@ export function createRailPlatform(
   builder.affordance({
     id: "platform",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(edge + depth / 2, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(edge + depth / 2, height, 0)),
     extent: null,
     width: depth,
     depth: length,
@@ -75,7 +79,11 @@ export function createRailPlatform(
   builder.affordance({
     id: "platformEdge",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(v(edge, height, 0), v(0, 1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(edge, height, 0),
+      v(0, 1, 0),
+      v(0, 0, 1),
+    ),
     extent: null,
     length,
   });

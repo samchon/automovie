@@ -1,4 +1,4 @@
-import { ArchetypeUnits, createBarrel } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, createBarrel } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -49,8 +49,8 @@ export function test_archetype_barrel(): void {
       sweep(
         "steelDrum",
         "x",
-        22.5 * ArchetypeUnits.INCH,
-        22.5 * ArchetypeUnits.INCH,
+        22.5 * AutoMovieArchetypeUnits.INCH,
+        22.5 * AutoMovieArchetypeUnits.INCH,
         "Pipeline Packaging, 22.5 in",
       ),
       sweep("keg", "x", 0.379, 0.383, "KegLand 50 L DIN, 381 +/- 2 mm"),
@@ -67,8 +67,14 @@ export function test_archetype_barrel(): void {
           return [archetypeExtent(drum, "y").size, drum.properties.mass];
         },
         models: [
-          [34.75 * ArchetypeUnits.INCH, 38.4 * ArchetypeUnits.POUND],
-          [35.25 * ArchetypeUnits.INCH, 43 * ArchetypeUnits.POUND],
+          [
+            34.75 * AutoMovieArchetypeUnits.INCH,
+            38.4 * AutoMovieArchetypeUnits.POUND,
+          ],
+          [
+            35.25 * AutoMovieArchetypeUnits.INCH,
+            43 * AutoMovieArchetypeUnits.POUND,
+          ],
         ],
         source: "Pipeline Packaging DWG20459 and DWG20443",
       },

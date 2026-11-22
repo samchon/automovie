@@ -1,4 +1,7 @@
-import { ArchetypeUnits, createProjectile } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeUnits,
+  createProjectile,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -47,20 +50,20 @@ export function test_archetype_weapon_projectile_bands(): void {
   const findings: string[] = archetypeBandSweep([
     row(
       "ball diameter",
-      0.66 * ArchetypeUnits.INCH,
-      0.72 * ArchetypeUnits.INCH,
+      0.66 * AutoMovieArchetypeUnits.INCH,
+      0.72 * AutoMovieArchetypeUnits.INCH,
       (s: number): number => archetypeExtent(ball(s), "x").size,
     ),
     row(
       "ball pinch",
-      0.66 * ArchetypeUnits.INCH,
-      0.72 * ArchetypeUnits.INCH,
+      0.66 * AutoMovieArchetypeUnits.INCH,
+      0.72 * AutoMovieArchetypeUnits.INCH,
       (s: number): number => ball(s).affordance("body").aperture!,
     ),
     row(
       "ball mass",
-      ArchetypeUnits.POUND / 14,
-      ArchetypeUnits.POUND / 14,
+      AutoMovieArchetypeUnits.POUND / 14,
+      AutoMovieArchetypeUnits.POUND / 14,
       (s: number): number => ball(s).body.mass,
     ),
     row(
@@ -99,28 +102,28 @@ export function test_archetype_weapon_projectile_bands(): void {
     ),
     row(
       "grenade body",
-      2.5 * ArchetypeUnits.INCH,
-      2.5 * ArchetypeUnits.INCH,
+      2.5 * AutoMovieArchetypeUnits.INCH,
+      2.5 * AutoMovieArchetypeUnits.INCH,
       (s: number): number =>
         archetypeExtent(createProjectile({ kind: "grenade" }, s), "x").size,
     ),
     row(
       "grenade length",
-      3.53 * ArchetypeUnits.INCH,
-      3.53 * ArchetypeUnits.INCH,
+      3.53 * AutoMovieArchetypeUnits.INCH,
+      3.53 * AutoMovieArchetypeUnits.INCH,
       (s: number): number =>
         archetypeExtent(createProjectile({ kind: "grenade" }, s), "y").size,
     ),
     row(
       "grenade mass",
-      14 * ArchetypeUnits.OUNCE,
-      14 * ArchetypeUnits.OUNCE,
+      14 * AutoMovieArchetypeUnits.OUNCE,
+      14 * AutoMovieArchetypeUnits.OUNCE,
       (s: number): number => createProjectile({ kind: "grenade" }, s).body.mass,
     ),
     row(
       "shot diameter",
-      3.58 * ArchetypeUnits.INCH,
-      4.52 * ArchetypeUnits.INCH,
+      3.58 * AutoMovieArchetypeUnits.INCH,
+      4.52 * AutoMovieArchetypeUnits.INCH,
       (s: number): number =>
         archetypeExtent(createProjectile({ kind: "roundShot" }, s), "x").size,
     ),
@@ -163,9 +166,11 @@ export function test_archetype_weapon_projectile_bands(): void {
     if (
       !(
         Math.abs(
-          archetypeExtent(shot, "x").size - diameter * ArchetypeUnits.INCH,
+          archetypeExtent(shot, "x").size -
+            diameter * AutoMovieArchetypeUnits.INCH,
         ) <= 1e-12 &&
-        Math.abs(shot.body.mass - pounds * ArchetypeUnits.POUND) <= 1e-12
+        Math.abs(shot.body.mass - pounds * AutoMovieArchetypeUnits.POUND) <=
+          1e-12
       )
     )
       findings.push(

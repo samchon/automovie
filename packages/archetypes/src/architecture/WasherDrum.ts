@@ -1,7 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import type { createAppliance } from "./createAppliance";
 
 /** One cross section of the elastomer opening or the drum, in metres. */
@@ -78,7 +81,7 @@ const LIP_SIDES: number = 12;
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no inputs.
  */
 export function WasherDrum(
-  builder: ArchetypeBuilder<
+  builder: AutoMovieArchetypeBuilder<
     createAppliance.Affordance,
     createAppliance.Dimension
   >,
@@ -128,7 +131,11 @@ export function WasherDrum(
   builder.affordance({
     id: "drumAperture",
     kind: "aperture",
-    frame: ArchetypeFrame.facing(v(0, centre, front), v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, centre, front),
+      v(0, 0, 1),
+      v(1, 0, 0),
+    ),
     extent: null,
     width: span,
     height: span,
@@ -147,14 +154,14 @@ export function WasherDrum(
     builder.affordance({
       id,
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(x, y, z)),
+      frame: AutoMovieArchetypeFrame.upright(v(x, y, z)),
       extent: null,
     });
 }
 
 /** Extrude one rectangular surround from exactly shared cross-section vertices. */
 function shell(
-  builder: ArchetypeBuilder<
+  builder: AutoMovieArchetypeBuilder<
     createAppliance.Affordance,
     createAppliance.Dimension
   >,

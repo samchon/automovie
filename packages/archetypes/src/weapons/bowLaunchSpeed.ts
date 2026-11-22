@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeRefusal } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeRefusal } from "../core";
 import { createBow } from "./createBow";
 
 /**
@@ -8,7 +8,7 @@ import { createBow } from "./createBow";
  * @param mass The arrow's finite positive mass, kilograms.
  * @param travel The finite string travel from brace, metres, inside its stroke; 0 gives no speed.
  * @returns The finite speed, metres per second; representational underflow can give zero.
- * @throws {ArchetypeRefusal} For invalid mass, draw weight, string stroke or travel, an unread draw weight, or unrepresentable launch arithmetic.
+ * @throws {AutoMovieArchetypeRefusal} For invalid mass, draw weight, string stroke or travel, an unread draw weight, or unrepresentable launch arithmetic.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the inputs' admitted ranges, units, brace zero, numerical underflow and explicit refusal cases.
  * @evidence contracts/development/implementation.md#principled-implementation Kooi's energy balance, `A = (m + K) v^2 / 2` (eq. 3.89, p. 77), with `A` the stored energy, the draw-force curve's integral from brace to the travel, and `K` the virtual mass of limbs and string, `m0 (1 - eta) / eta` from his efficiency `eta` at his arrow mass `m0` (eq. 3.90). The authored prototype curve is the one-parameter power law `F (x / X)^p` whose full-stroke energy is the prototype's stroke factor `q` times `F X`, `p = 1 / q - 1`, so `A(x) = q F X (x / X)^(1 / q)`; the source's native q instead normalizes by full draw D, so reusing its number for stroke X is an explicit uncalibrated prototype assumption. The curve and borrowed efficiency are provisional. If energy, squared speed or the travel ratio loses representability, the identical positive speed law is evaluated in logarithms of the original force, stroke, mass and travel, exponentiating only the final speed.
@@ -19,7 +19,7 @@ import { createBow } from "./createBow";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function bowLaunchSpeed(
-  bow: Archetype<createBow.Affordance, createBow.Dimension>,
+  bow: AutoMovieArchetype<createBow.Affordance, createBow.Dimension>,
   mass: number,
   travel: number,
 ): number {
@@ -32,7 +32,7 @@ export function bowLaunchSpeed(
     );
   const draw: number | undefined = bow.dimensions.draw;
   if (draw === undefined)
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: bow.archetype,
       axis: "draw",
@@ -56,7 +56,7 @@ export function bowLaunchSpeed(
       "declare the string's positive travel in metres",
     );
   if (!(Number.isFinite(travel) && travel >= 0 && travel <= stroke))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: bow.archetype,
       axis: "travel",
@@ -108,7 +108,7 @@ export function bowLaunchSpeed(
     reason: string,
     fix: string,
   ): never {
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: bow.archetype,
       axis,

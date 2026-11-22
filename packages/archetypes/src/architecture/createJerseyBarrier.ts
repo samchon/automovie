@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeUnits } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeUnits } from "../core";
 import { ObstacleDraw } from "./ObstacleDraw";
 
 /**
@@ -12,7 +12,7 @@ import { ObstacleDraw } from "./ObstacleDraw";
  * @param params The scene identifier and any dimensions to fix inside their bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The documented section fixes the high top and projected footprint. The barrier keeps the three-box approximation of the original sloped section.
@@ -25,7 +25,10 @@ import { ObstacleDraw } from "./ObstacleDraw";
 export function createJerseyBarrier(
   params: createJerseyBarrier.IParams = {},
   seed?: number | string,
-): Archetype<createJerseyBarrier.Affordance, createJerseyBarrier.Dimension> {
+): AutoMovieArchetype<
+  createJerseyBarrier.Affordance,
+  createJerseyBarrier.Dimension
+> {
   const { builder, d }: ObstacleDraw.IObstacle<createJerseyBarrier.Affordance> =
     ObstacleDraw.begin(
       "jerseyBarrier",
@@ -44,7 +47,7 @@ export function createJerseyBarrier(
   const middle: number =
     base -
     (2 * lower) /
-      Math.tan(createJerseyBarrier.LOWER_FACE * ArchetypeUnits.DEGREE);
+      Math.tan(createJerseyBarrier.LOWER_FACE * AutoMovieArchetypeUnits.DEGREE);
   const centre: number = base / 2;
   builder.box("curb", v(length, curb, base), v(0, curb / 2, centre), {
     color: "#b5b2aa",

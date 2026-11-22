@@ -5,13 +5,13 @@ import type {
 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** What no source read gives. */
@@ -26,7 +26,7 @@ const UNREAD: string =
  * @param params The block's model and any setting the author fixes.
  * @param seed The seed that draws the model when it is not given and every setting left free inside its band; absent, the first model and the middle of each band.
  * @returns The starting block.
- * @throws {ArchetypeRefusal} For a model Polanik does not list with its sizes, or a fixed setting outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a model Polanik does not list with its sizes, or a fixed setting outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the block lies, where each plate stands and how it is tilted, and its two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A rail box of one Polanik block's bar width, and two plate boxes of its footplates' size, each turned about `X` by the drawn angle so its face looks forward and up, its lowest edge on the rail's top.
@@ -39,9 +39,12 @@ const UNREAD: string =
 export function createStartingBlock(
   params: createStartingBlock.IParams = {},
   seed?: number | string,
-): Archetype<createStartingBlock.Affordance, createStartingBlock.Dimension> {
-  const draw: ArchetypeDrawSession<createStartingBlock.Dimension> =
-    new ArchetypeDrawSession<createStartingBlock.Dimension>(
+): AutoMovieArchetype<
+  createStartingBlock.Affordance,
+  createStartingBlock.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createStartingBlock.Dimension> =
+    new AutoMovieArchetypeDrawSession<createStartingBlock.Dimension>(
       "startingBlock",
       createStartingBlock.UNITS,
       seed,
@@ -62,10 +65,10 @@ export function createStartingBlock(
     plateHeight: model.figures.plateHeight!,
     mass: model.figures.mass!,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createStartingBlock.Affordance,
     createStartingBlock.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `starting block ${model.name}`,
@@ -82,7 +85,7 @@ export function createStartingBlock(
   builder.box("rail", v(rail, rail / 2, length), v(0, rail / 4, -length / 2), {
     color: "#8a8d91",
   });
-  const tilt: number = d.angle * ArchetypeUnits.DEGREE;
+  const tilt: number = d.angle * AutoMovieArchetypeUnits.DEGREE;
   // Turned about -X, the plate's top leans back toward -Z and its face
   // (+Z) looks forward and up.
   const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -117,7 +120,7 @@ export function createStartingBlock(
     builder.affordance({
       id,
       kind: "pedal",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.add(centre, Vector3.scale(normal, plate.thick / 2)),
         normal,
         v(1, 0, 0),
@@ -188,7 +191,9 @@ export namespace createStartingBlock {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     setback: "m",
     spacing: "m",
     angle: "degrees",
@@ -211,9 +216,9 @@ export namespace createStartingBlock {
   }
 
   /** The band of each setting. */
-  export const BANDS: Readonly<Record<Setting, IArchetypeBand>> = {
-    setback: ArchetypeBand.metres(0.1, 0.25, UNREAD, true),
-    spacing: ArchetypeBand.metres(0.25, 0.45, UNREAD, true),
-    angle: ArchetypeBand.of("degrees", 25, 50, UNREAD, true),
+  export const BANDS: Readonly<Record<Setting, IAutoMovieArchetypeBand>> = {
+    setback: AutoMovieArchetypeBand.metres(0.1, 0.25, UNREAD, true),
+    spacing: AutoMovieArchetypeBand.metres(0.25, 0.45, UNREAD, true),
+    angle: AutoMovieArchetypeBand.of("degrees", 25, 50, UNREAD, true),
   };
 }

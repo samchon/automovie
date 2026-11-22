@@ -1,4 +1,4 @@
-import { ArchetypeRefusal } from "../core";
+import { AutoMovieArchetypeRefusal } from "../core";
 
 /**
  * Admit one phase-cell advance before the ride enumerates stride boundaries.
@@ -19,7 +19,7 @@ import { ArchetypeRefusal } from "../core";
  * @param stride Positive finite effective period at the cell, seconds.
  * @param cells Positive safe-integer count of cells in the actual phase plan.
  * @returns The strictly advancing, finite cumulative phase within capacity.
- * @throws {ArchetypeRefusal} Before enumeration for nonrepresentable arithmetic or a plan requiring more than one complete cycle per cell.
+ * @throws {AutoMovieArchetypeRefusal} Before enumeration for nonrepresentable arithmetic or a plan requiring more than one complete cycle per cell.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States SI units, representability, the explicit one-decision-per-cell capacity policy and exact retained-record/event bounds without presenting capacity as physiology or mathematical interpolation necessity.
  * @evidence contracts/development/implementation.md#principled-implementation Divides the actual cell width by its effective period, then admits finite positive advance≤1, finite strictly increasing cumulative phase≤S and safe integer boundary indices/count≤1 before any stride allocation loop can use them.
@@ -64,7 +64,7 @@ export function admitQuadrupedPhase(
       crossed <= 1
     )
   )
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,
       axis: "gait.phasePlan",

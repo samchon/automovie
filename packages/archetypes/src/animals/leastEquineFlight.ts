@@ -5,11 +5,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type ArchetypeCourse, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+} from "../core";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { EquineJump } from "./EquineJump";
 import type { EquineObstacle } from "./EquineObstacle";
 import { EquinePitch } from "./EquinePitch";
-import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
 /** Rotations whose lowest Y reads a part's least X, greatest X, least Z and greatest Z. */
@@ -57,7 +60,7 @@ interface ILimit {
  */
 export function leastEquineFlight(
   request: EquineJump.IRequest,
-  plan: ArchetypeCourse.IPlan,
+  plan: AutoMovieArchetypeCourse.IPlan,
   unflown: EquineJump.ITrial,
   candidate: EquineJump.ICandidate,
   parts: readonly IAutoMovieModelPart[],
@@ -70,7 +73,7 @@ export function leastEquineFlight(
   const touch: number = at(candidate.landing) + shift;
   const push: number = at(candidate.takeoff) - at(candidate.push);
   const absorb: number = at(candidate.absorb) - at(candidate.landing);
-  const state: ArchetypeCourse.IState = plan.at(lift);
+  const state: AutoMovieArchetypeCourse.IState = plan.at(lift);
   const u: number = state.speed;
   if (
     !(u > 0) ||
@@ -92,11 +95,11 @@ export function leastEquineFlight(
       (rotation: IAutoMovieQuaternion): number =>
         QuadrupedRestFloor({
           ...part,
-          transform: ArchetypeFrame.compose(
+          transform: AutoMovieArchetypeFrame.compose(
             {
               rotation,
               translation: { x: 0, y: 0, z: 0 },
-              scale: ArchetypeFrame.UNIT,
+              scale: AutoMovieArchetypeFrame.UNIT,
             },
             part.transform!,
           ),
@@ -172,13 +175,15 @@ export function leastEquineFlight(
   if (gaps.length > 0 && landed !== undefined) {
     const hoof: IAutoMovieModelPart = landed.parts.find(
       (part: IAutoMovieModelPart): boolean =>
-        part.id === QuadrupedBody.BONES[candidate.moved[1]!.limb][3],
+        part.id ===
+        AutoMovieArchetypeQuadrupedBody.BONES[candidate.moved[1]!.limb][3],
     )!;
     const foothold: number =
       plan.at(touch).distance +
       Vector3.dot(
         Vector3.subtract(
-          ArchetypeFrame.compose(landed.placement, hoof.transform!).translation,
+          AutoMovieArchetypeFrame.compose(landed.placement, hoof.transform!)
+            .translation,
           landed.placement.translation,
         ),
         Quaternion.rotateVector(landed.placement.rotation, {

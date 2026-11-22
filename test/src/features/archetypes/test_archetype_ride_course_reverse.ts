@@ -1,8 +1,8 @@
 import {
-  ArchetypeCourse,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type ArchetypeRide,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createBicycle,
   createCar,
   driveCar,
@@ -14,7 +14,10 @@ import { TestValidator } from "@nestia/e2e";
 import { vclose } from "../internal/predicates";
 
 /** A car's ride sample. */
-type Sample = ArchetypeRide.ISample<createCar.Affordance, createCar.Dimension>;
+type Sample = AutoMovieArchetypeRide.ISample<
+  createCar.Affordance,
+  createCar.Dimension
+>;
 
 /**
  * A reversed leg drives its support backward along the leg with its facing kept: a car backing out keeps facing the way it faced, and steers the other way for the same bend of its path.
@@ -34,7 +37,7 @@ type Sample = ArchetypeRide.ISample<createCar.Affordance, createCar.Dimension>;
 export function test_archetype_ride_course_reverse(): void {
   const findings: string[] = [];
   const car: ReturnType<typeof createCar> = createCar({ kind: "sedan" }, 5);
-  const base: Omit<ArchetypeCourse.ICourse, "legs"> = {
+  const base: Omit<AutoMovieArchetypeCourse.ICourse, "legs"> = {
     start: { x: 0, z: 0, heading: 0 },
     cruise: 2,
     acceleration: 1,
@@ -48,13 +51,24 @@ export function test_archetype_ride_course_reverse(): void {
   });
   for (let k: number = 0; k <= 20; k++) {
     const sample: Sample = back.at((back.duration * k) / 20);
-    const forward: IAutoMovieVector3 = ArchetypeFrame.axis(sample.placement, "z");
+    const forward: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+      sample.placement,
+      "z",
+    );
     if (!vclose(forward, { x: 0, y: 0, z: 1 }, 1e-9))
-      findings.push(`the reversing car faces ${JSON.stringify(forward)} at sample ${k}`);
+      findings.push(
+        `the reversing car faces ${JSON.stringify(forward)} at sample ${k}`,
+      );
     if (sample.course.speed < 0 || (k > 0 && !sample.course.reverse))
       findings.push(`sample ${k} is not reversing at a positive speed`);
   }
-  if (!vclose(back.at(back.duration).placement.translation, { x: 0, y: 0, z: -6 }, 1e-9))
+  if (
+    !vclose(
+      back.at(back.duration).placement.translation,
+      { x: 0, y: 0, z: -6 },
+      1e-9,
+    )
+  )
     findings.push("the car does not end 6 m behind its start");
 
   // 2. Backing round a turn steers the other way.
@@ -73,19 +87,22 @@ export function test_archetype_ride_course_reverse(): void {
   const astern: number = middle(backward).archetype.travel("wheel");
   if (!(ahead > 0) || Math.abs(astern + ahead) > 1e-9)
     findings.push(`steering ${ahead} forward and ${astern} reversing`);
-  const facing: IAutoMovieVector3 = ArchetypeFrame.axis(
+  const facing: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
     backward.at(backward.duration).placement,
     "z",
   );
   if (!vclose(facing, { x: 1, y: 0, z: 0 }, 1e-9))
-    findings.push(`after backing round the turn the car faces ${JSON.stringify(facing)}`);
+    findings.push(
+      `after backing round the turn the car faces ${JSON.stringify(facing)}`,
+    );
 
   // 3. The lean of a reversed state is on the vehicle's other side.
-  const state: ArchetypeCourse.IState = middle(backward).course;
+  const state: AutoMovieArchetypeCourse.IState = middle(backward).course;
   if (
-    !(ArchetypeCourse.lean(state) < 0) ||
+    !(AutoMovieArchetypeCourse.lean(state) < 0) ||
     Math.abs(
-      ArchetypeCourse.lean(state) + ArchetypeCourse.lean({ ...state, reverse: false }),
+      AutoMovieArchetypeCourse.lean(state) +
+        AutoMovieArchetypeCourse.lean({ ...state, reverse: false }),
     ) > 1e-12
   )
     findings.push("a reversed lean is on the forward side");
@@ -103,7 +120,10 @@ export function test_archetype_ride_course_reverse(): void {
   } catch (error) {
     thrown = error;
   }
-  if (!(thrown instanceof ArchetypeRefusal) || thrown.axis !== "course.legs[1].reverse")
+  if (
+    !(thrown instanceof AutoMovieArchetypeRefusal) ||
+    thrown.axis !== "course.legs[1].reverse"
+  )
     findings.push(`a reversing bicycle: ${String(thrown)}`);
   TestValidator.equals("a reversed leg keeps its facing", findings, []);
 }

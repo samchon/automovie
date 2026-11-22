@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { QuadrupedFooting } from "./QuadrupedFooting";
+import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 
 /**
  * Footholds kept clear of a concave edge between authored footing planes: where a steeper plane meets a gentler one below it, at the foot of a bank or the bottom of a climb, a hoof landing within its pastern's length of the edge lays the pastern back over the rising plane and into it. A landing that falls within that reach moves away from the edge along its own plane until it is a pastern's length clear, the nearer of the two sides the stride could take; a convex edge, the top of a bank, keeps its landings.
@@ -44,11 +44,14 @@ export namespace QuadrupedCorner {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The scene's own planes and bounds.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the caller's scene.
    */
-  export function of(scene: QuadrupedFooting.IScene | undefined): Clear {
+  export function of(
+    scene: AutoMovieArchetypeQuadrupedFooting.IScene | undefined,
+  ): Clear {
     if (scene === undefined) return (point: IAutoMovieVector3) => point;
-    const planes: readonly QuadrupedFooting.IPlane[] = scene.planes;
+    const planes: readonly AutoMovieArchetypeQuadrupedFooting.IPlane[] =
+      scene.planes;
     const inside = (
-      plane: QuadrupedFooting.IPlane,
+      plane: AutoMovieArchetypeQuadrupedFooting.IPlane,
       point: IAutoMovieVector3,
     ): boolean =>
       point.x >= plane.x[0] &&
@@ -56,7 +59,7 @@ export namespace QuadrupedCorner {
       point.z >= plane.z[0] &&
       point.z < plane.z[1];
     const height = (
-      plane: QuadrupedFooting.IPlane,
+      plane: AutoMovieArchetypeQuadrupedFooting.IPlane,
       point: IAutoMovieVector3,
     ): number =>
       plane.origin.y +
@@ -66,20 +69,22 @@ export namespace QuadrupedCorner {
       let moved: IAutoMovieVector3 = point;
       for (const axis of AXES) {
         // The highest plane under the foothold carries it, as the footing's landing chooses.
-        const under: QuadrupedFooting.IPlane | undefined = planes
-          .filter((plane: QuadrupedFooting.IPlane): boolean =>
-            inside(plane, moved),
-          )
-          .reduce(
-            (
-              best: QuadrupedFooting.IPlane | undefined,
-              plane: QuadrupedFooting.IPlane,
-            ): QuadrupedFooting.IPlane =>
-              best === undefined || height(plane, moved) > height(best, moved)
-                ? plane
-                : best,
-            undefined,
-          );
+        const under: AutoMovieArchetypeQuadrupedFooting.IPlane | undefined =
+          planes
+            .filter(
+              (plane: AutoMovieArchetypeQuadrupedFooting.IPlane): boolean =>
+                inside(plane, moved),
+            )
+            .reduce(
+              (
+                best: AutoMovieArchetypeQuadrupedFooting.IPlane | undefined,
+                plane: AutoMovieArchetypeQuadrupedFooting.IPlane,
+              ): AutoMovieArchetypeQuadrupedFooting.IPlane =>
+                best === undefined || height(plane, moved) > height(best, moved)
+                  ? plane
+                  : best,
+              undefined,
+            );
         if (under === undefined) return moved;
         const across: Axis = axis === "x" ? "z" : "x";
         for (const other of planes) {
@@ -93,8 +98,10 @@ export namespace QuadrupedCorner {
             const edge: number = under[axis][side];
             if (other[axis][1 - side] !== edge) continue;
             if (!(Math.abs(moved[axis] - edge) < reach)) continue;
-            const low: QuadrupedFooting.IPlane = side === 0 ? other : under;
-            const high: QuadrupedFooting.IPlane = side === 0 ? under : other;
+            const low: AutoMovieArchetypeQuadrupedFooting.IPlane =
+              side === 0 ? other : under;
+            const high: AutoMovieArchetypeQuadrupedFooting.IPlane =
+              side === 0 ? under : other;
             if (!(low.slope[axis] < high.slope[axis])) continue;
             const clear: number = side === 0 ? edge + reach : edge - reach;
             if (clear < under[axis][0] || clear >= under[axis][1]) continue;

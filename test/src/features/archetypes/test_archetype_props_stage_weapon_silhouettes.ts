@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
   createStageWeaponProp,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
@@ -59,8 +59,8 @@ export function test_archetype_props_stage_weapon_silhouettes(): void {
         grip.length !== null &&
         grip.frame.translation.y - grip.length / 2 > shaft.low &&
         grip.frame.translation.y + grip.length / 2 < shaft.high &&
-        nclose(ArchetypeFrame.axis(grip.frame, "x").y, 1) &&
-        nclose(ArchetypeFrame.axis(grip.frame, "y").z, -1),
+        nclose(AutoMovieArchetypeFrame.axis(grip.frame, "x").y, 1) &&
+        nclose(AutoMovieArchetypeFrame.axis(grip.frame, "y").z, -1),
     );
   }
 
@@ -95,6 +95,6 @@ export function test_archetype_props_stage_weapon_silhouettes(): void {
   }
   TestValidator.predicate(
     "zero display height is refused",
-    refused instanceof ArchetypeRefusal && refused.axis === "height",
+    refused instanceof AutoMovieArchetypeRefusal && refused.axis === "height",
   );
 }

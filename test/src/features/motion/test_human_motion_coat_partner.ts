@@ -1,4 +1,7 @@
-import { type Archetype, createStageJacket } from "@automovie/archetypes";
+import {
+  type AutoMovieArchetype,
+  createStageJacket,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -45,7 +48,7 @@ const WAIT: number = 3;
 const HOLD: number = 4.5;
 
 /** A jacket model. */
-type JacketModel = Archetype<
+type JacketModel = AutoMovieArchetype<
   createStageJacket.Affordance,
   createStageJacket.Dimension
 >;
@@ -97,9 +100,16 @@ export function test_human_motion_coat_partner(): void {
       const sleeves: readonly IAutoMovieMotionHumanSegment[] = film
         .segments("b")
         .filter((segment: IAutoMovieMotionHumanSegment): boolean =>
-          segment.plan.events.some((event: IAutoMovieMotionEvent): boolean => event.name === "sleeveReady"),
+          segment.plan.events.some(
+            (event: IAutoMovieMotionEvent): boolean =>
+              event.name === "sleeveReady",
+          ),
         );
-      TestValidator.equals(`${label}: both sleeves are threaded`, sleeves.length, 2);
+      TestValidator.equals(
+        `${label}: both sleeves are threaded`,
+        sleeves.length,
+        2,
+      );
       const first: number = sleeves[0]!.start;
       const last: number = wardrobeFilm.mark(sleeves[1]!, "sleeveClear");
       TestValidator.predicate(
@@ -120,21 +130,29 @@ export function test_human_motion_coat_partner(): void {
           const site: IAutoMovieAffordance = model.affordance(
             side === "left" ? "leftSleeveOpening" : "rightSleeveOpening",
           );
-          const read: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 =>
+          const read: (t: number) => IAutoMovieVector3 = (
+            t: number,
+          ): IAutoMovieVector3 =>
             wardrobeFilm.localSite(
               film.prop("jacket", t),
               site,
               HumanHand.frame(b, film.bones("b", t), side, "grip").point,
             );
-          const from: IAutoMovieVector3 = read(wardrobeFilm.mark(span, "sleeveReady"));
-          const to: IAutoMovieVector3 = read(wardrobeFilm.mark(span, "sleeveClear"));
+          const from: IAutoMovieVector3 = read(
+            wardrobeFilm.mark(span, "sleeveReady"),
+          );
+          const to: IAutoMovieVector3 = read(
+            wardrobeFilm.mark(span, "sleeveClear"),
+          );
           TestValidator.predicate(
             `${label}: the ${side} hand passes through its sleeve ${JSON.stringify({ from, to })}`,
             from.z > 0.02 &&
               to.z < -0.05 &&
               [from, to].every(
                 (p: IAutoMovieVector3): boolean =>
-                  Math.abs(p.x) < site.width! / 2 && p.y > 0 && p.y < site.height!,
+                  Math.abs(p.x) < site.width! / 2 &&
+                  p.y > 0 &&
+                  p.y < site.height!,
               ),
           );
         },
@@ -160,10 +178,12 @@ export function test_human_motion_coat_partner(): void {
         seat <= MISS,
       );
       const start: IAutoMovieRigidTransform = chest(film, worn + 0.01);
-      const drifts: readonly number[] = [0.5, 1].map((share: number): number => {
-        const t: number = worn + share * (film.duration - worn);
-        return Vector3.distance(chest(film, t).position, start.position);
-      });
+      const drifts: readonly number[] = [0.5, 1].map(
+        (share: number): number => {
+          const t: number = worn + share * (film.duration - worn);
+          return Vector3.distance(chest(film, t).position, start.position);
+        },
+      );
       TestValidator.predicate(
         `${label}: the jacket rides the partner's chest (${drifts.map((d: number): string => (d * 1000).toFixed(2)).join(", ")} mm)`,
         drifts.every((d: number): boolean => d <= RIGID),
@@ -241,8 +261,18 @@ function stage(
     // the partner's own collar, without reading the dresser.
     composition: HumanChain.subject("b")
       .stand({ seconds: WAIT })
-      .registered("wardrobe", { kind: "sleeveIn", prop: "jacket", side: "left", held: true })
-      .registered("wardrobe", { kind: "sleeveIn", prop: "jacket", side: "right", held: true })
+      .registered("wardrobe", {
+        kind: "sleeveIn",
+        prop: "jacket",
+        side: "left",
+        held: true,
+      })
+      .registered("wardrobe", {
+        kind: "sleeveIn",
+        prop: "jacket",
+        side: "right",
+        held: true,
+      })
       .stand({ seconds: 2 })
       .walk({ to: { x: 0.3, y: 0, z: 0.8 }, face: 60 })
       .with(
@@ -268,14 +298,20 @@ function socket(
 
 /** The partner's displayed collar: mid-shoulders plus `wardrobe`'s collar offset in the partner's heading. */
 function collar(film: HumanPerformance, t: number): IAutoMovieVector3 {
-  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = film.bones("b", t);
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = film.bones(
+    "b",
+    t,
+  );
   const left: IAutoMovieVector3 = bones.get("leftUpperArm")!.worldPosition;
   const right: IAutoMovieVector3 = bones.get("rightUpperArm")!.worldPosition;
   const across: IAutoMovieVector3 = Vector3.subtract(left, right);
   const yaw: number = (Math.atan2(-across.z, across.x) * 180) / Math.PI;
   return Vector3.add(
     Vector3.lerp(left, right, 0.5),
-    Quaternion.rotateVector(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw), COLLAR),
+    Quaternion.rotateVector(
+      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+      COLLAR,
+    ),
   );
 }
 

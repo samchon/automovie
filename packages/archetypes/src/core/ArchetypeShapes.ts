@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { ArchetypeConvexCell } from "./ArchetypeConvexCell";
+import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
 
 /**
  * Actual primitive or declared convex-cell colliders in the model's space, using the engine's contact-query vocabulary.
@@ -43,7 +43,7 @@ export namespace ArchetypeShapes {
    */
   export function of(
     parts: readonly IAutoMovieModelPart[],
-    cells: ArchetypeConvexCell.Table = new Map(),
+    cells: AutoMovieArchetypeConvexCell.Table = new Map(),
   ): IAutoMoviePhysicalShape[] {
     const shapes: IAutoMoviePhysicalShape[] = [];
     for (const part of parts) {
@@ -59,7 +59,9 @@ export namespace ArchetypeShapes {
           rotation: part.transform?.rotation ?? { x: 0, y: 0, z: 0, w: 1 },
         },
       };
-      const cell: ArchetypeConvexCell.ICell | undefined = cells.get(part.id);
+      const cell: AutoMovieArchetypeConvexCell.ICell | undefined = cells.get(
+        part.id,
+      );
       if (cell !== undefined) {
         if (part.geometry !== cell.geometry)
           throw new Error(

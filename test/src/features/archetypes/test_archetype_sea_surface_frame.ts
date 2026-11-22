@@ -1,10 +1,10 @@
 import {
-  type Archetype,
-  type ArchetypeCourse,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  ArchetypeSea,
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
+  AutoMovieArchetypeSea,
   createBoat,
   rowBoat,
 } from "@automovie/archetypes";
@@ -41,23 +41,23 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_archetype_sea_surface_frame(): void {
   const findings: string[] = [];
-  const boat: Archetype<createBoat.Affordance, createBoat.Dimension> =
+  const boat: AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension> =
     createBoat({ kind: "rowboat" }, 19);
   const axes: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
   for (const heading of [0, 37, 90, -120]) {
-    const course: ArchetypeCourse.ICourse = {
+    const course: AutoMovieArchetypeCourse.ICourse = {
       start: { x: 1, z: -2, heading },
       legs: [{ kind: "straight", length: 6 }],
       cruise: 1.5,
       startSpeed: 1.5,
       endSpeed: 1.5,
     };
-    const source: ArchetypeRide.IRide<
+    const source: AutoMovieArchetypeRide.IRide<
       createBoat.Affordance,
       createBoat.Dimension
     > = rowBoat(boat, course);
-    const before: ArchetypeRide.ISample<
+    const before: AutoMovieArchetypeRide.ISample<
       createBoat.Affordance,
       createBoat.Dimension
     > = source.at(1);
@@ -68,7 +68,7 @@ export function test_archetype_sea_surface_frame(): void {
       [0.6, -0.8],
       [-0.6, 0.8],
     ] as const) {
-      const surface: ArchetypeSea.ISea = {
+      const surface: AutoMovieArchetypeSea.ISea = {
         heading: 0,
         components: [],
         crest: Infinity,
@@ -77,10 +77,10 @@ export function test_archetype_sea_surface_frame(): void {
           2 + dx * x + dz * z + seconds / 5,
         slope: (): { x: number; z: number } => ({ x: dx, z: dz }),
       };
-      const floating: ArchetypeRide.IRide<
+      const floating: AutoMovieArchetypeRide.IRide<
         createBoat.Affordance,
         createBoat.Dimension
-      > = ArchetypeSea.float(source, surface);
+      > = AutoMovieArchetypeSea.float(source, surface);
       const length: number = Math.hypot(dx, 1, dz);
       const normal: IAutoMovieVector3 = {
         x: -dx / length,
@@ -89,16 +89,22 @@ export function test_archetype_sea_surface_frame(): void {
       };
       for (const seconds of [2, 0, 1, 2]) {
         const base: IAutoMovieTransform = source.at(seconds).placement;
-        const sample: ArchetypeRide.ISample<
+        const sample: AutoMovieArchetypeRide.ISample<
           createBoat.Affordance,
           createBoat.Dimension
         > = floating.at(seconds);
         const moved: IAutoMovieTransform = sample.placement;
         const label: string = `${heading} degrees, (${dx},${dz}) at ${seconds}`;
-        if (!vector(ArchetypeFrame.axis(moved, "y"), normal))
+        if (!vector(AutoMovieArchetypeFrame.axis(moved, "y"), normal))
           findings.push(`${label}: the support misses the plane normal`);
-        const forward: IAutoMovieVector3 = ArchetypeFrame.axis(moved, "z");
-        const original: IAutoMovieVector3 = ArchetypeFrame.axis(base, "z");
+        const forward: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+          moved,
+          "z",
+        );
+        const original: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+          base,
+          "z",
+        );
         const horizontal: number = Math.hypot(forward.x, forward.z);
         if (
           !near(forward.x / horizontal, original.x) ||
@@ -142,25 +148,25 @@ export function test_archetype_sea_surface_frame(): void {
           findings.push(`${label}: the actual handle leaves the floating root`);
       }
     }
-    const after: ArchetypeRide.ISample<
+    const after: AutoMovieArchetypeRide.ISample<
       createBoat.Affordance,
       createBoat.Dimension
     > = source.at(1);
-    const calm: IAutoMovieTransform = ArchetypeSea.float(
+    const calm: IAutoMovieTransform = AutoMovieArchetypeSea.float(
       source,
-      ArchetypeSea.of({ height: 0, seed: 19 }),
+      AutoMovieArchetypeSea.of({ height: 0, seed: 19 }),
     ).at(1).placement;
     if (!vector(before.placement.translation, after.placement.translation))
       findings.push(`${heading}: floating mutated the source placement`);
     for (const axis of axes)
       if (
         !vector(
-          ArchetypeFrame.axis(before.placement, axis),
-          ArchetypeFrame.axis(after.placement, axis),
+          AutoMovieArchetypeFrame.axis(before.placement, axis),
+          AutoMovieArchetypeFrame.axis(after.placement, axis),
         ) ||
         !vector(
-          ArchetypeFrame.axis(before.placement, axis),
-          ArchetypeFrame.axis(calm, axis),
+          AutoMovieArchetypeFrame.axis(before.placement, axis),
+          AutoMovieArchetypeFrame.axis(calm, axis),
         )
       )
         findings.push(`${heading}: floating mutated a source or calm axis`);
@@ -168,13 +174,19 @@ export function test_archetype_sea_surface_frame(): void {
       findings.push(`${heading}: calm water translated the source`);
   }
 
-  const reference: ArchetypeSea.ISea = ArchetypeSea.of({ height: 1, seed: 9 });
+  const reference: AutoMovieArchetypeSea.ISea = AutoMovieArchetypeSea.of({
+    height: 1,
+    seed: 9,
+  });
   for (const height of [1e-200, 1.25, 1e200]) {
-    const sea: ArchetypeSea.ISea = ArchetypeSea.of({ height, seed: 9 });
+    const sea: AutoMovieArchetypeSea.ISea = AutoMovieArchetypeSea.of({
+      height,
+      seed: 9,
+    });
     const normalized: number[] = [];
     for (let k: number = 0; k < sea.components.length; k++) {
-      const c: ArchetypeSea.IComponent = sea.components[k]!;
-      const base: ArchetypeSea.IComponent = reference.components[k]!;
+      const c: AutoMovieArchetypeSea.IComponent = sea.components[k]!;
+      const base: AutoMovieArchetypeSea.IComponent = reference.components[k]!;
       if (
         ![c.frequency, c.wavenumber, c.amplitude].every(
           (value: number): boolean => Number.isFinite(value) && value > 0,
@@ -200,12 +212,12 @@ export function test_archetype_sea_surface_frame(): void {
   }
 
   for (const heading of [45, 405, -315, Number.MAX_VALUE]) {
-    const sea: ArchetypeSea.ISea = ArchetypeSea.of({
+    const sea: AutoMovieArchetypeSea.ISea = AutoMovieArchetypeSea.of({
       height: 1.25,
       heading,
       seed: 3,
     });
-    const reduced: ArchetypeSea.ISea = ArchetypeSea.of({
+    const reduced: AutoMovieArchetypeSea.ISea = AutoMovieArchetypeSea.of({
       height: 1.25,
       heading: heading % 360,
       seed: 3,
@@ -228,7 +240,7 @@ export function test_archetype_sea_surface_frame(): void {
     refused({ height, seed: 1 }, "height");
   for (const heading of [NaN, Infinity, -Infinity, null, "0"])
     refused(
-      { height: 1.25, heading, seed: 1 } as ArchetypeSea.IOptions,
+      { height: 1.25, heading, seed: 1 } as AutoMovieArchetypeSea.IOptions,
       "heading",
     );
   TestValidator.equals("floating roots match their sea surface", findings, []);
@@ -254,16 +266,16 @@ export function test_archetype_sea_surface_frame(): void {
 
   /** Every invalid scalar must identify its actual input axis through the public refusal. */
   function refused(
-    options: ArchetypeSea.IOptions,
+    options: AutoMovieArchetypeSea.IOptions,
     axis: "height" | "heading",
   ): void {
     try {
-      ArchetypeSea.of(options);
+      AutoMovieArchetypeSea.of(options);
       findings.push(`${axis} ${String(options[axis])} was accepted`);
     } catch (error) {
       if (
         !(
-          error instanceof ArchetypeRefusal &&
+          error instanceof AutoMovieArchetypeRefusal &&
           error.kind === "parameter" &&
           error.axis === axis
         )

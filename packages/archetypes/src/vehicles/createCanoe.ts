@@ -1,4 +1,4 @@
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { BoatConstruction } from "./BoatConstruction";
 import { BoatHull } from "./BoatHull";
 import { createBoat } from "./createBoat";
@@ -11,7 +11,7 @@ import { createBoat } from "./createBoat";
  * @param params The scene identity and this hull's accepted dimensions and catalogue choices.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the waterline frame and its working seats.
  * @evidence contracts/development/implementation.md#principled-implementation Builds the shared hull before fitting this boat's actual thwarts and model-space working contacts.
@@ -24,7 +24,7 @@ import { createBoat } from "./createBoat";
 export function createCanoe(
   params: createCanoe.IParams = {},
   seed?: number | string,
-): Archetype<createCanoe.Affordance, createCanoe.Dimension> {
+): AutoMovieArchetype<createCanoe.Affordance, createCanoe.Dimension> {
   return BoatConstruction("canoe", params, seed, outfit);
 }
 

@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { StageShaftConstruction } from "./StageShaftConstruction";
 import type { createStageWeaponProp } from "./createStageWeaponProp";
 
@@ -12,7 +12,7 @@ import type { createStageWeaponProp } from "./createStageWeaponProp";
  * @param params The scene identity and optional total display height in metres, with a choice of profile.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names this inert form's silhouette and actor-facing display contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Uses this form's authored ornament, grip and any articulated or fixed display contacts.
@@ -25,7 +25,10 @@ import type { createStageWeaponProp } from "./createStageWeaponProp";
 export function createStageShaftProp(
   params: createStageShaftProp.IParams,
   seed?: number | string,
-): Archetype<createStageShaftProp.Affordance, createStageShaftProp.Dimension> {
+): AutoMovieArchetype<
+  createStageShaftProp.Affordance,
+  createStageShaftProp.Dimension
+> {
   const kind: createStageShaftProp.Kind = ArchetypeDraw.choice(
     "stageWeaponProp",
     "kind",

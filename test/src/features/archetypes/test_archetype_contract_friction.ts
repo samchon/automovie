@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFriction,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFriction,
+  AutoMovieArchetypeRefusal,
   createBicycle,
   createCar,
   createCart,
@@ -39,10 +39,10 @@ export function test_archetype_contract_friction(): void {
     typeof v === "number" ? v : v[1];
 
   // The table.
-  for (const [key, row] of Object.entries(ArchetypeFriction.PAIRS)) {
+  for (const [key, row] of Object.entries(AutoMovieArchetypeFriction.PAIRS)) {
     const [a, b] = key.split("/") as [
-      ArchetypeFriction.Material,
-      ArchetypeFriction.Material,
+      AutoMovieArchetypeFriction.Material,
+      AutoMovieArchetypeFriction.Material,
     ];
     if (!(least(row.static) >= 0 && most(row.static) <= 1))
       findings.push(`${key}: static outside 0 to 1`);
@@ -52,19 +52,27 @@ export function test_archetype_contract_friction(): void {
     )
       findings.push(`${key}: kinetic exceeds static`);
     if (row.source.length === 0) findings.push(`${key}: no source`);
-    if (ArchetypeFriction.pair(b, a, "test") !== row)
+    if (AutoMovieArchetypeFriction.pair(b, a, "test") !== row)
       findings.push(`${key}: reads differently reversed`);
   }
   try {
-    ArchetypeFriction.pair("rubber", "ice", "test");
+    AutoMovieArchetypeFriction.pair("rubber", "ice", "test");
     findings.push("rubber on ice was admitted");
   } catch (error) {
-    if (!(error instanceof ArchetypeRefusal) || error.axis !== "friction")
+    if (
+      !(error instanceof AutoMovieArchetypeRefusal) ||
+      error.axis !== "friction"
+    )
       findings.push(`rubber on ice failed otherwise: ${String(error)}`);
   }
 
   // The producers' bodies.
-  const rows: readonly [string, Archetype, number, number | undefined][] = [
+  const rows: readonly [
+    string,
+    AutoMovieArchetype,
+    number,
+    number | undefined,
+  ][] = [
     ["car", createCar({ kind: "sedan" }, 1), 0.91, 0.72],
     ["bicycle", createBicycle({}, 1), 0.91, 0.72],
     ["motorcycle", createMotorcycle({ kind: "motorcycle" }, 1), 0.91, 0.72],
@@ -89,7 +97,7 @@ export function test_archetype_contract_friction(): void {
   }
 
   // A part's surface.
-  const car: Archetype = createCar({ kind: "sedan" }, 1);
+  const car: AutoMovieArchetype = createCar({ kind: "sedan" }, 1);
   const tyre: string =
     car.parts.find(
       (p: { id: string }): boolean => car.surface(p.id) === "rubber",
@@ -105,16 +113,21 @@ export function test_archetype_contract_friction(): void {
     );
     findings.push("an undeclared part's friction was given");
   } catch (error) {
-    if (!(error instanceof ArchetypeRefusal) || error.axis !== "surface")
+    if (
+      !(error instanceof AutoMovieArchetypeRefusal) ||
+      error.axis !== "surface"
+    )
       findings.push(`an undeclared part failed otherwise: ${String(error)}`);
   }
 
   // An unread rest.
-  const plain: Archetype = new ArchetypeBuilder<never, never>({
-    material: "steel",
-    name: "box",
-    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
-  })
+  const plain: AutoMovieArchetype = new AutoMovieArchetypeBuilder<never, never>(
+    {
+      material: "steel",
+      name: "box",
+      draw: new AutoMovieArchetypeDrawSession<never>("fixture", {}, undefined),
+    },
+  )
     .box("body", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
     .build(1);
   if ("friction" in plain.body || "kineticFriction" in plain.body)

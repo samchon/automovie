@@ -1,8 +1,8 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "@automovie/archetypes";
 import { Vector3, softBodySurfaceGeometry } from "@automovie/engine";
 import type {
@@ -56,7 +56,7 @@ const START_TRAVEL: number = 1 / 16;
  * @evidence contracts/development/testing.md#execution-ownership test_human_motion_span_cord uses an in-memory model and four soft steps, without a performer pose, action plan or visual host, plus the in-memory draw binding and CPU-only geometry.
  */
 export async function test_human_motion_span_cord(): Promise<void> {
-  const model: Archetype<"slide", never> = fixture();
+  const model: AutoMovieArchetype<"slide", never> = fixture();
   const placement = (
     seconds: number,
   ): IAutoMovieMotionHumanObject.Placement => ({
@@ -349,19 +349,23 @@ function place(
 }
 
 /** Two fixtures separated by the chord, with the second on a +X slider. */
-function fixture(): Archetype<"slide", never> {
+function fixture(): AutoMovieArchetype<"slide", never> {
   const v: typeof Vector3.create = Vector3.create;
-  return new ArchetypeBuilder<"slide", never>({
+  return new AutoMovieArchetypeBuilder<"slide", never>({
     material: "steel",
     name: "fixture",
-    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
+    draw: new AutoMovieArchetypeDrawSession<never>("fixture", {}, undefined),
   })
     .box("stand", v(1 / 8, 1 / 8, 1 / 8), v(0, 0, 0))
     .box("runner", v(1 / 8, 1 / 8, 1 / 8), v(SPAN, 0, 0))
     .affordance({
       id: "slide",
       kind: "slider",
-      frame: ArchetypeFrame.facing(v(SPAN, 0, 0), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(SPAN, 0, 0),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       travel: 1 / 2,
       parts: ["runner"],

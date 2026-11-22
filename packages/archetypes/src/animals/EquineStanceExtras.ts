@@ -1,13 +1,13 @@
+import type { AutoMovieArchetypeEquineComfortCue } from "./AutoMovieArchetypeEquineComfortCue";
+import type { AutoMovieArchetypeEquineEncounterCue } from "./AutoMovieArchetypeEquineEncounterCue";
+import type { AutoMovieArchetypeEquineLibertyCue } from "./AutoMovieArchetypeEquineLibertyCue";
+import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
 import type { EquineBodyPose } from "./EquineBodyPose";
-import type { EquineComfortCue } from "./EquineComfortCue";
 import { EquineComfortRows } from "./EquineComfortRows";
-import type { EquineEncounterCue } from "./EquineEncounterCue";
 import { EquineEncounterRows } from "./EquineEncounterRows";
 import type { EquineHobbleCue } from "./EquineHobbleCue";
 import { EquineHobbleRows } from "./EquineHobbleRows";
-import type { EquineLibertyCue } from "./EquineLibertyCue";
 import { EquineLibertyRows } from "./EquineLibertyRows";
-import type { EquineStanceCue } from "./EquineStanceCue";
 import type { EquineStanceRows } from "./EquineStanceRows";
 
 /**
@@ -28,9 +28,9 @@ export namespace EquineStanceExtras {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Row =
-    | EquineComfortCue.Row
-    | EquineLibertyCue.Row
-    | EquineEncounterCue.Row
+    | AutoMovieArchetypeEquineComfortCue.Row
+    | AutoMovieArchetypeEquineLibertyCue.Row
+    | AutoMovieArchetypeEquineEncounterCue.Row
     | EquineHobbleCue.Row;
 
   /**
@@ -47,7 +47,7 @@ export namespace EquineStanceExtras {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses each family's own test.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function owns(cue: EquineStanceCue.Cue): cue is Row {
+  export function owns(cue: AutoMovieArchetypeEquineStanceCue.Cue): cue is Row {
     return (
       EquineComfortRows.owns(cue) ||
       EquineLibertyRows.owns(cue) ||

@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import type { ArchetypeTowing } from "../core/ArchetypeTowing";
 import { towingAxle } from "../core/towingAxle";
 import type { createCannon } from "./createCannon";
@@ -9,7 +9,7 @@ import type { createCannon } from "./createCannon";
  * @param gun Actual neutral fieldGun output; its trail coupling is behind its own +Z.
  * @returns An independent model-space metre axle, permitting rigid pitch while its two wheels stay grounded.
  * @throws {RangeError} For another producer/kind or invalid actual wheel-axis geometry.
- * @throws {ArchetypeRefusal} If an actual required wheel-spin affordance is absent.
+ * @throws {AutoMovieArchetypeRefusal} If an actual required wheel-spin affordance is absent.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names field-gun wheel support, reverse towing at the real trail contact and independent model-space metre output.
  * @evidence contracts/development/implementation.md#principled-implementation The actual left/right wheel-spin frames define the axle; generic single-axle geometry derives reverse orientation from the source coupling's side of that axle.
@@ -20,7 +20,7 @@ import type { createCannon } from "./createCannon";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent scalar coordinates and retains no gun/frame reference.
  */
 export function cannonTowing(
-  gun: Archetype<createCannon.Affordance, createCannon.Dimension>,
+  gun: AutoMovieArchetype<createCannon.Affordance, createCannon.Dimension>,
 ): ArchetypeTowing.Support<createCannon.Affordance> {
   if (gun.archetype !== "cannon" || gun.name !== "fieldGun")
     throw new RangeError(

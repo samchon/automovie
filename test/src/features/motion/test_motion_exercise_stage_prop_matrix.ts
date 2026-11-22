@@ -1,6 +1,6 @@
 import {
-  type Archetype,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeRefusal,
   assembleCostumeArmour,
   createArmour,
   createLongGun,
@@ -58,7 +58,7 @@ interface IHoldCase {
   label: string;
 
   /** The inert stage model. */
-  model: Archetype;
+  model: AutoMovieArchetype;
 
   /** The contact the hand takes. */
   handle: string;
@@ -317,14 +317,14 @@ function paired(failures: string[]): void {
     body,
     /./,
   );
-  const swords: Archetype[] = ["a", "b"].map(
-    (id: string): Archetype => createStageTwoHandedSwordProp({ id }),
+  const swords: AutoMovieArchetype[] = ["a", "b"].map(
+    (id: string): AutoMovieArchetype => createStageTwoHandedSwordProp({ id }),
   );
   const performance: HumanPerformance = new HumanPerformance({
     seed: "stage-prop-pair",
     performers: [performer("a", body, 0), performer("b", body, 1.3)],
     props: swords.map(
-      (model: Archetype, i: number): IAutoMovieMotionHumanProp =>
+      (model: AutoMovieArchetype, i: number): IAutoMovieMotionHumanProp =>
         HumanObject.prop(model.id, model, {
           at: { x: -0.25 + 1.3 * i, y: 0.6, z: 0.35 },
           yaw: 0,
@@ -347,7 +347,9 @@ function paired(failures: string[]): void {
     const end: number = performance.duration;
     const gap: number = nearest(
       whole(performance.bones(partner, end)),
-      swords.find((model: Archetype): boolean => model.id === holder)!.shapes(),
+      swords
+        .find((model: AutoMovieArchetype): boolean => model.id === holder)!
+        .shapes(),
       performance.prop(holder, end),
     );
     if (!(gap >= PAIRED))
@@ -371,12 +373,12 @@ function worn(
   });
   const wear: (
     label: string,
-    model: Archetype,
+    model: AutoMovieArchetype,
     bone: AutoMovieHumanoidBone,
     offset: IAutoMovieRigidTransform,
   ) => IWornCase = (
     label: string,
-    model: Archetype,
+    model: AutoMovieArchetype,
     bone: AutoMovieHumanoidBone,
     offset: IAutoMovieRigidTransform,
   ): IWornCase => ({
@@ -523,7 +525,9 @@ function transfer(
 /** Binding, reach and fit refusals carry their named causes. */
 function refusals(failures: string[]): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const model: Archetype = createStageTwoHandedSwordProp({ id: "prop" });
+  const model: AutoMovieArchetype = createStageTwoHandedSwordProp({
+    id: "prop",
+  });
   for (const [label, handle, z, kind] of [
     ["a missing handle", "pommel", 0.35, "affordance"],
     ["an out-of-reach prop", "grip", 2.5, "reach"],
@@ -574,7 +578,7 @@ function refusals(failures: string[]): void {
       build();
       failures.push(`fit: ${label} was admitted`);
     } catch (error: unknown) {
-      if (!(error instanceof ArchetypeRefusal && error.axis === axis))
+      if (!(error instanceof AutoMovieArchetypeRefusal && error.axis === axis))
         failures.push(`fit: ${label} gave ${String(error)}`);
     }
   }

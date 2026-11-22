@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** Competition uneven bars dimensions. */
@@ -21,7 +21,7 @@ const NORMS: string =
  * @param params Fixed dimensions inside the admitted bands and its model id.
  * @param seed Draws unspecified dimensions inside their bands; absent selects midpoints.
  * @returns The uneven bars with both round grip surfaces.
- * @throws {ArchetypeRefusal} When a fixed dimension lies outside its band.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the bars' alignment, support frame and grip locations.
  * @evidence contracts/development/implementation.md#principled-implementation The two round rods are placed so that the centre distance minus their common diameter is the specified diagonal. The grip axes coincide with the rods.
@@ -34,9 +34,9 @@ const NORMS: string =
 export function createUnevenBars(
   params: createUnevenBars.IParams = {},
   seed?: number | string,
-): Archetype<createUnevenBars.Affordance, createUnevenBars.Dimension> {
-  const draw: ArchetypeDrawSession<createUnevenBars.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<createUnevenBars.Affordance, createUnevenBars.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createUnevenBars.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "unevenBars",
       createUnevenBars.UNITS,
       seed,
@@ -45,10 +45,10 @@ export function createUnevenBars(
   const values: Record<createUnevenBars.Dimension, number> = draw.dimensions(
     createUnevenBars.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createUnevenBars.Affordance,
     createUnevenBars.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "uneven bars",
@@ -105,7 +105,7 @@ export function createUnevenBars(
       id,
       kind: "bar",
       extent: null,
-      frame: ArchetypeFrame.upright(point(0, axisHeight, z)),
+      frame: AutoMovieArchetypeFrame.upright(point(0, axisHeight, z)),
       length: values.length,
       aperture: values.diameter,
       symmetry: "round",
@@ -142,7 +142,9 @@ export namespace createUnevenBars {
   }
 
   /** Metres for geometry and kilograms for model mass. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     diameter: "m",
     lowHeight: "m",
@@ -152,13 +154,13 @@ export namespace createUnevenBars {
   };
 
   /** The standard-height competition setup and a provisional model mass. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(2.39, 2.41, NORMS),
-    diameter: ArchetypeBand.metres(0.0392, 0.0404, NORMS),
-    lowHeight: ArchetypeBand.metres(1.74, 1.76, NORMS),
-    highHeight: ArchetypeBand.metres(2.54, 2.56, NORMS),
-    diagonal: ArchetypeBand.metres(1.3, 1.81, NORMS),
-    mass: ArchetypeBand.of(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(2.39, 2.41, NORMS),
+    diameter: AutoMovieArchetypeBand.metres(0.0392, 0.0404, NORMS),
+    lowHeight: AutoMovieArchetypeBand.metres(1.74, 1.76, NORMS),
+    highHeight: AutoMovieArchetypeBand.metres(2.54, 2.56, NORMS),
+    diagonal: AutoMovieArchetypeBand.metres(1.3, 1.81, NORMS),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       100,
       120,

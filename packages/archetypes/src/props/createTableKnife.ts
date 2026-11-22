@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { HandToolDraw } from "./HandToolDraw";
 
 /**
@@ -9,7 +9,7 @@ import { HandToolDraw } from "./HandToolDraw";
  * @param params The optional scene ID, grip diameter in metres and manufacturer model.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Table knife with a pinch grip and a food-side edge toward +Z.
  * @evidence contracts/development/implementation.md#principled-implementation The model fixes the blade and mass. The blade edge is a ledge in the +Z direction.
@@ -24,7 +24,7 @@ export function createTableKnife(
     model?: HandToolDraw.Model;
   } = {},
   seed?: number | string,
-): Archetype<createTableKnife.Affordance, createTableKnife.Dimension> {
+): AutoMovieArchetype<createTableKnife.Affordance, createTableKnife.Dimension> {
   const {
     builder,
     d,
@@ -48,7 +48,7 @@ export function createTableKnife(
     id: "face",
     kind: "ledge",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, handle + d.blade! / 2, width / 2),
       Vector3.create(0, 0, 1),
       Vector3.create(0, 1, 0),
@@ -64,7 +64,7 @@ export function createTableKnife(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
  * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createTableKnife {

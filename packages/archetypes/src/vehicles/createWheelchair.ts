@@ -2,14 +2,14 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { WHEELCHAIR_SHEET } from "./WHEELCHAIR_SHEET";
 
@@ -23,7 +23,7 @@ import { WHEELCHAIR_SHEET } from "./WHEELCHAIR_SHEET";
  * @param params The kind, its read model and any dimension the author fixes inside its model's ranges.
  * @param seed The seed that picks the model and draws the footrest's reach and any overall length its row gives as a range; absent, the first model and each range's middle.
  * @returns The wheelchair.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its model's range, or a model the kind does not offer.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its model's range, or a model the kind does not offer.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the chair's origin and front, the recognising parts, what turns, and which act has no law.
  * @evidence contracts/development/implementation.md#principled-implementation Boxes and rods from the maker's figures: the seat at its front-edge height and tilted back by the seat plane angle, the back at the backrest angle from upright, the armrests their height above the seat, the footplates their distance below it with their front edge at the overall length ahead of the rear wheels' back, the rear wheels at the overall width, the casters under the seat's front and the push handles at the overall height; grips state no aperture, so a grasp reads the drawn colliders; each armrest runs the seat's depth over the seat's side, each push handle's grip is on its top where it leaves the back, at the overall height, the handle's rearward length drawn as a construction estimate, and the two footplates share the seat's width, their front edge at the overall length; part thicknesses are construction estimates no act reads; and the handrim is not drawn (no ring primitive), so a hand on it closes on the wheel; the rim spins about the axle with the wheel's knob.
@@ -36,9 +36,9 @@ import { WHEELCHAIR_SHEET } from "./WHEELCHAIR_SHEET";
 export function createWheelchair(
   params: createWheelchair.IParams = {},
   seed?: number | string,
-): Archetype<createWheelchair.Affordance, createWheelchair.Dimension> {
-  const draw: ArchetypeDrawSession<createWheelchair.Dimension> =
-    new ArchetypeDrawSession<createWheelchair.Dimension>(
+): AutoMovieArchetype<createWheelchair.Affordance, createWheelchair.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createWheelchair.Dimension> =
+    new AutoMovieArchetypeDrawSession<createWheelchair.Dimension>(
       "wheelchair",
       createWheelchair.UNITS,
       seed,
@@ -63,10 +63,10 @@ export function createWheelchair(
     ...draw.dimensions(createWheelchair.ranges(kind, model.name!)),
     ...model.figures,
   } as Record<createWheelchair.Dimension, number>;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createWheelchair.Affordance,
     createWheelchair.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: kind === "selfPropelled" ? "wheelchair" : "transport wheelchair",
@@ -79,8 +79,9 @@ export function createWheelchair(
   const half: number = d.seatWidth / 2;
   const wheel: number = d.wheelDiameter / 2;
   const caster: number = d.casterDiameter / 2;
-  const tilt: number = createWheelchair.SEAT_PLANE * ArchetypeUnits.DEGREE;
-  const recline: number = d.backAngle * ArchetypeUnits.DEGREE;
+  const tilt: number =
+    createWheelchair.SEAT_PLANE * AutoMovieArchetypeUnits.DEGREE;
+  const recline: number = d.backAngle * AutoMovieArchetypeUnits.DEGREE;
 
   // The seat: its front edge at the seat height, the sling falling toward the back by the seat plane angle.
   const frontEdge: IAutoMovieVector3 = v(0, d.seatHeight, d.seatDepth);
@@ -95,7 +96,7 @@ export function createWheelchair(
     Vector3.scale(Vector3.add(frontEdge, rearEdge), 0.5),
     {
       color: cloth,
-      rotation: ArchetypeFrame.facing(
+      rotation: AutoMovieArchetypeFrame.facing(
         rearEdge,
         v(0, Math.cos(tilt), Math.sin(tilt)),
         v(1, 0, 0),
@@ -114,7 +115,7 @@ export function createWheelchair(
     Vector3.scale(Vector3.add(rearEdge, backTop), 0.5),
     {
       color: cloth,
-      rotation: ArchetypeFrame.facing(
+      rotation: AutoMovieArchetypeFrame.facing(
         rearEdge,
         v(0, Math.cos(recline), -Math.sin(recline)),
         v(1, 0, 0),
@@ -124,7 +125,7 @@ export function createWheelchair(
   builder.affordance({
     id: "seat",
     kind: "seat",
-    frame: ArchetypeFrame.upright(frontEdge),
+    frame: AutoMovieArchetypeFrame.upright(frontEdge),
     extent: null,
     depth: d.seatDepth,
     width: d.seatWidth,
@@ -154,7 +155,7 @@ export function createWheelchair(
       id: `${side}Handle`,
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.add(upright, v(0, 0.014, 0)),
         v(0, 1, 0),
         v(sign, 0, 0),
@@ -170,7 +171,7 @@ export function createWheelchair(
       id: `${side}Arm`,
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(x, arm + 0.015, d.seatDepth / 2),
         v(0, 1, 0),
         v(0, 0, 1),
@@ -200,7 +201,7 @@ export function createWheelchair(
     builder.affordance({
       id: `${side}Footplate`,
       kind: "pedal",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.add(plate, v(0, 0.005, 0)),
         v(0, 1, 0),
         v(1, 0, 0),
@@ -228,7 +229,7 @@ export function createWheelchair(
     builder.affordance({
       id: `${side}Spin`,
       kind: "knob",
-      frame: ArchetypeFrame.facing(centre, v(1, 0, 0), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(centre, v(1, 0, 0), v(0, 1, 0)),
       extent: null,
       travel: 360,
       parts: [`wheel-${side}`, `spoke-${side}`],
@@ -237,7 +238,7 @@ export function createWheelchair(
       builder.affordance({
         id: `${side}Rim`,
         kind: "wheel",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           Vector3.add(centre, v(sign * 0.02, 0, 0)),
           v(-sign, 0, 0),
           v(0, 0, 1),
@@ -340,7 +341,9 @@ export namespace createWheelchair {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     seatWidth: "m",
     seatDepth: "m",
     seatHeight: "m",
@@ -393,7 +396,7 @@ export namespace createWheelchair {
     kind: Kind,
     wheel: number,
   ): Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>> {
-    const mm: number = ArchetypeUnits.MILLIMETRE;
+    const mm: number = AutoMovieArchetypeUnits.MILLIMETRE;
     const out: Record<Model, Partial<Record<Dimension, number>>> = {};
     for (const r of WHEELCHAIR_SHEET.ROWS[kind])
       for (const [seat, width, mass] of r.widths)
@@ -404,8 +407,8 @@ export namespace createWheelchair {
           backHeight: r.back * mm,
           backAngle: r.angle,
           armHeight: r.arm * mm,
-          wheelDiameter: wheel * ArchetypeUnits.INCH,
-          casterDiameter: r.caster * ArchetypeUnits.INCH,
+          wheelDiameter: wheel * AutoMovieArchetypeUnits.INCH,
+          casterDiameter: r.caster * AutoMovieArchetypeUnits.INCH,
           width: width * mm,
           height: r.height * mm,
           mass,
@@ -424,14 +427,14 @@ export namespace createWheelchair {
   export function ranges(
     kind: Kind,
     model: Model,
-  ): Readonly<Partial<Record<Dimension, IArchetypeBand>>> {
+  ): Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>> {
     const r: WHEELCHAIR_SHEET.IRow = WHEELCHAIR_SHEET.ROWS[kind].find(
       (row: WHEELCHAIR_SHEET.IRow): boolean =>
         model.startsWith(`${row.series}-`) && model.endsWith(`-${row.caster}`),
     )!;
-    const mm: number = ArchetypeUnits.MILLIMETRE;
+    const mm: number = AutoMovieArchetypeUnits.MILLIMETRE;
     return {
-      footDrop: ArchetypeBand.metres(
+      footDrop: AutoMovieArchetypeBand.metres(
         r.foot[0] * mm,
         r.foot[1] * mm,
         `${WHEELCHAIR_SHEET.SOURCE}: footrest to seat distance, ${model}`,
@@ -439,7 +442,7 @@ export namespace createWheelchair {
       ...(r.length[0] === r.length[1]
         ? {}
         : {
-            length: ArchetypeBand.metres(
+            length: AutoMovieArchetypeBand.metres(
               r.length[0] * mm,
               r.length[1] * mm,
               `${WHEELCHAIR_SHEET.SOURCE}: overall length with legrest, ${model}`,

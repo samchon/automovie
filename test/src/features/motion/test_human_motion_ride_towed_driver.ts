@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeRide,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRide,
   createCart,
   createHorse,
   prepareTowedCartDriver,
@@ -82,10 +82,10 @@ export function test_human_motion_ride_towed_driver(): void {
     acceleration: 0.5,
     deceleration: 0.5,
   });
-  const ride: ArchetypeRide.ITowedRide<
+  const ride: AutoMovieArchetypeRide.ITowedRide<
     createCart.Affordance,
     createCart.Dimension
-  > = ArchetypeRide.towed(leader, "hitch", cart, "coupling", {
+  > = AutoMovieArchetypeRide.towed(leader, "hitch", cart, "coupling", {
     lines: createCart.lines(cart),
     support: createCart.towing(cart),
   });
@@ -124,10 +124,11 @@ export function test_human_motion_ride_towed_driver(): void {
     );
     if (id !== "leftLineGrip" && id !== "rightLineGrip") return nominal;
     const side: "left" | "right" = id === "leftLineGrip" ? "left" : "right";
-    const line: ArchetypeRide.ILineState = ride
+    const line: AutoMovieArchetypeRide.ILineState = ride
       .at(seconds)
       .lines!.find(
-        (laid: ArchetypeRide.ILineState): boolean => laid.id === `line-${side}`,
+        (laid: AutoMovieArchetypeRide.ILineState): boolean =>
+          laid.id === `line-${side}`,
       )!;
     const from: IAutoMovieVector3 = line.points.at(-1)!;
     const to: IAutoMovieVector3 = line.points.at(-2)!;
@@ -141,7 +142,7 @@ export function test_human_motion_ride_towed_driver(): void {
           Vector3.dot(span, span),
       ),
     );
-    return ArchetypeFrame.facing(
+    return AutoMovieArchetypeFrame.facing(
       Vector3.lerp(from, to, share),
       Vector3.addScaled({ x: 0, y: 1, z: 0 }, along, -along.y),
       along,
@@ -295,7 +296,7 @@ export function test_human_motion_ride_towed_driver(): void {
 
       // A seat's origin is the front edge. Its usable rectangle extends
       // behind that edge, with its normal along local +Y.
-      const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+      const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
         sample.placement,
         sample.archetype.affordance("seat").frame,
       );
@@ -322,7 +323,7 @@ export function test_human_motion_ride_towed_driver(): void {
 
       const board: IAutoMovieAffordance =
         sample.archetype.affordance("footboard");
-      const boardFrame: IAutoMovieTransform = ArchetypeFrame.compose(
+      const boardFrame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
         sample.placement,
         board.frame,
       );
@@ -357,10 +358,11 @@ export function test_human_motion_ride_towed_driver(): void {
           -Math.min(...sole.map((p: IAutoMovieVector3): number => p.y)),
         );
 
-        const line: ArchetypeRide.ILineState | undefined = sample.lines?.find(
-          (entry: ArchetypeRide.ILineState): boolean =>
-            entry.id === `line-${side}`,
-        );
+        const line: AutoMovieArchetypeRide.ILineState | undefined =
+          sample.lines?.find(
+            (entry: AutoMovieArchetypeRide.ILineState): boolean =>
+              entry.id === `line-${side}`,
+          );
         const from: IAutoMovieVector3 | undefined = line?.points.at(-2);
         const to: IAutoMovieVector3 | undefined = line?.points.at(-1);
         if (line === undefined || from === undefined || to === undefined) {

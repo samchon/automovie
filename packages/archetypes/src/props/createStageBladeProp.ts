@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { createStageFencingProp } from "./createStageFencingProp";
 import { createStagePracticeSwordProp } from "./createStagePracticeSwordProp";
 import { createStageTwoHandedSwordProp } from "./createStageTwoHandedSwordProp";
@@ -13,7 +13,7 @@ import { createStageTwoHandedSwordProp } from "./createStageTwoHandedSwordProp";
  * @param params The silhouette, scene id, and optional overall length in metres.
  * @param seed The optional draw seed.
  * @returns The padded model, its named grip approached from -Z, its point and any edge.
- * @throws {ArchetypeRefusal} When the silhouette or length is inadmissible.
+ * @throws {AutoMovieArchetypeRefusal} When the silhouette or length is inadmissible.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the visual frame, size and handle, and names the two admission failures.
  * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
@@ -26,7 +26,10 @@ import { createStageTwoHandedSwordProp } from "./createStageTwoHandedSwordProp";
 export function createStageBladeProp(
   params: createStageBladeProp.IParams,
   seed?: number | string,
-): Archetype<createStageBladeProp.Affordance, createStageBladeProp.Dimension> {
+): AutoMovieArchetype<
+  createStageBladeProp.Affordance,
+  createStageBladeProp.Dimension
+> {
   const kind: createStageBladeProp.Kind = ArchetypeDraw.choice(
     "stageBladeProp",
     "kind",
@@ -38,7 +41,7 @@ export function createStageBladeProp(
     build(
       params: createStageBladeProp.IParams,
       seed?: number | string,
-    ): Archetype<
+    ): AutoMovieArchetype<
       createStageBladeProp.Affordance,
       createStageBladeProp.Dimension
     >;

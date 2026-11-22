@@ -2,12 +2,12 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -18,7 +18,7 @@ import {
  * @param params The scene subject and optional fixed rule dimensions.
  * @param seed Draws omitted dimensions reproducibly inside their bands.
  * @returns The shuttlecock with rigid cork and separate feather volumes.
- * @throws {ArchetypeRefusal} On a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} On a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modeled, local frame, affordances, parameters and refusal.
  * @evidence contracts/development/implementation.md#principled-implementation BWF bounds control cork and skirt dimensions. Separate tapered convex vanes leave the air cavity open.
@@ -31,9 +31,12 @@ import {
 export function createShuttlecock(
   params: createShuttlecock.IParams = {},
   seed?: number | string,
-): Archetype<createShuttlecock.Affordance, createShuttlecock.Dimension> {
-  const draw: ArchetypeDrawSession<createShuttlecock.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createShuttlecock.Affordance,
+  createShuttlecock.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createShuttlecock.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "shuttlecock",
       createShuttlecock.UNITS,
       seed,
@@ -41,10 +44,10 @@ export function createShuttlecock(
     );
   const dimensions: Record<createShuttlecock.Dimension, number> =
     draw.dimensions(createShuttlecock.BANDS);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createShuttlecock.Affordance,
     createShuttlecock.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "badminton shuttlecock",
@@ -97,7 +100,7 @@ export function createShuttlecock(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       centre,
       Vector3.create(0, -1, 0),
       Vector3.create(1, 0, 0),
@@ -110,7 +113,7 @@ export function createShuttlecock(
     id: "strike",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, -1, 0),
       Vector3.create(1, 0, 0),
@@ -146,7 +149,9 @@ export namespace createShuttlecock {
   export type Affordance = "grip" | "strike";
 
   /** The units of the values a caller fixes or lets the draw choose. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     corkDiameter: "m",
     featherLength: "m",
     skirtDiameter: "m",
@@ -161,10 +166,10 @@ export namespace createShuttlecock {
   export const FEATHERS: number = 16;
 
   /** BWF Law 2.2's dimensions and mass limits. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    corkDiameter: ArchetypeBand.metres(0.025, 0.028, BWF),
-    featherLength: ArchetypeBand.metres(0.062, 0.07, BWF),
-    skirtDiameter: ArchetypeBand.metres(0.058, 0.068, BWF),
-    mass: ArchetypeBand.of("kg", 0.00474, 0.0055, BWF),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    corkDiameter: AutoMovieArchetypeBand.metres(0.025, 0.028, BWF),
+    featherLength: AutoMovieArchetypeBand.metres(0.062, 0.07, BWF),
+    skirtDiameter: AutoMovieArchetypeBand.metres(0.058, 0.068, BWF),
+    mass: AutoMovieArchetypeBand.of("kg", 0.00474, 0.0055, BWF),
   };
 }

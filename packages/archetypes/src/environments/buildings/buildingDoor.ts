@@ -11,8 +11,8 @@ import type {
 } from "@automovie/interface";
 
 import { createDoor } from "../../architecture/createDoor";
-import type { Archetype } from "../../core/Archetype";
-import { ArchetypeFrame } from "../../core/ArchetypeFrame";
+import type { AutoMovieArchetype } from "../../core/AutoMovieArchetype";
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import type { createBuilding } from "./createBuilding";
 
 /**
@@ -35,11 +35,14 @@ export function buildingDoor(
   opening: Extract<createBuilding.Opening, { kind: "door" }>,
   seed: string | undefined,
 ): buildingDoor.IDoor {
-  const door: Archetype<createDoor.Affordance, createDoor.Dimension> =
+  const door: AutoMovieArchetype<createDoor.Affordance, createDoor.Dimension> =
     createDoor({ ...opening.door, kind: "hinged", id }, seed);
   const hinge: IAutoMovieAffordance = door.affordance("hinge");
   const pivot: IAutoMovieVector3 = hinge.frame.translation;
-  const axis: IAutoMovieVector3 = ArchetypeFrame.axis(hinge.frame, "y");
+  const axis: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+    hinge.frame,
+    "y",
+  );
   const moving: Set<string> = new Set(hinge.parts);
   const parents: Map<string, string | undefined> = new Map(
     door.affordances.map(
@@ -82,7 +85,8 @@ export function buildingDoor(
         (part: IAutoMovieModelPart): IAutoMovieModelPart => ({
           ...part,
           transform: relativeToPivot(
-            part.transform ?? ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+            part.transform ??
+              AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
             pivot,
           ),
         }),

@@ -1,5 +1,5 @@
 import {
-  EquineStance,
+  AutoMovieArchetypeEquineStance,
   createHorse,
   createLariat,
   createOx,
@@ -150,10 +150,8 @@ export function test_motion_equestrian_cattle(): void {
     acceleration: 2,
     deceleration: 2.5,
   });
-  const tieCourse: mountedHorseScene.Ride = EquineStance.after(
-    horse,
-    stopping,
-    [
+  const tieCourse: mountedHorseScene.Ride =
+    AutoMovieArchetypeEquineStance.after(horse, stopping, [
       {
         kind: "setBack",
         pitch: 6,
@@ -162,8 +160,7 @@ export function test_motion_equestrian_cattle(): void {
         hold: 4,
         exit: 0.5,
       },
-    ],
-  );
+    ]);
   const fleeing = rideQuadruped(ox, {
     start: { x: -1.6, z: met(stopping), heading: 0 },
     legs: [{ kind: "straight", length: 40 }],

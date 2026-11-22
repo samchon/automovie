@@ -2,11 +2,11 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /** CCM 2016 men's size 6 chart, in metres. */
@@ -53,18 +53,20 @@ const GEOMETRY: Readonly<{
 export function createIceSkate(
   params: createIceSkate.IParams = {},
   seed?: number | string,
-): Archetype<createIceSkate.Affordance, "mass"> {
-  const draw: ArchetypeDrawSession<"mass"> = new ArchetypeDrawSession(
-    "iceSkate",
-    { mass: "kg" },
-    seed,
-    params,
-  );
+): AutoMovieArchetype<createIceSkate.Affordance, "mass"> {
+  const draw: AutoMovieArchetypeDrawSession<"mass"> =
+    new AutoMovieArchetypeDrawSession("iceSkate", { mass: "kg" }, seed, params);
   const { mass }: Record<"mass", number> = draw.dimensions({
-    mass: ArchetypeBand.of("kg", 0.7, 1.1, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      0.7,
+      1.1,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   });
-  const builder: ArchetypeBuilder<createIceSkate.Affordance, "mass"> =
-    new ArchetypeBuilder({
+  const builder: AutoMovieArchetypeBuilder<createIceSkate.Affordance, "mass"> =
+    new AutoMovieArchetypeBuilder({
       material: "composite",
       id: params.id,
       name: "hockey skate",
@@ -106,7 +108,7 @@ export function createIceSkate(
   builder.affordance({
     id: "boot",
     kind: "socket",
-    frame: ArchetypeFrame.upright(boot),
+    frame: AutoMovieArchetypeFrame.upright(boot),
     extent: null,
   });
   for (const [id, x] of [
@@ -117,7 +119,7 @@ export function createIceSkate(
     builder.affordance({
       id,
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(x, 0, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(x, 0, 0)),
       extent: null,
     });
   return builder.build(mass);

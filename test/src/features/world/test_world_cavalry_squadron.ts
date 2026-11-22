@@ -1,10 +1,10 @@
 import {
-  type Archetype,
-  ArchetypeCourse,
-  ArchetypeManoeuvre,
-  ArchetypePassage,
-  type ArchetypeRide,
-  QuadrupedGait,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeManoeuvre,
+  AutoMovieArchetypePassage,
+  AutoMovieArchetypeQuadrupedGait,
+  type AutoMovieArchetypeRide,
   createHorse,
   createQuadruped,
   rideQuadruped,
@@ -33,53 +33,59 @@ const STEP: number = 0.2;
  * 3. A second build of the same squadron reads the same poses.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the squadron, the wheel and the three scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Plans `ArchetypeManoeuvre.wheel`, rides each file with `rideQuadruped` and measures `ArchetypePassage` on each ride's posed envelope.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans `AutoMovieArchetypeManoeuvre.wheel`, rides each file with `rideQuadruped` and measures `AutoMovieArchetypePassage` on each ride's posed envelope.
  * @evidence contracts/development/testing.md#independent-expectations An even wheel's speed is radius times rate. Posed envelopes bound the displayed horses. A deterministic build repeats.
  * @evidence contracts/development/testing.md#distinguishing-cases Inner and outer files and both ranks. The wheel's speed refusal is pinned by test_world_mounted_manoeuvres and gait changes on cue by test_world_mounted_cues.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec over real rides.
  */
 export function test_world_cavalry_squadron(): void {
-  const horse: Archetype = createHorse(
+  const horse: AutoMovieArchetype = createHorse(
     { withersHeight: 1.62, tempo: 0 },
     "trooper",
   );
-  const trot: ArchetypeManoeuvre.ISpeedRange = QuadrupedGait.range(
-    createQuadruped.species(horse),
-    "trot",
-    1.62,
-  );
+  const trot: AutoMovieArchetypeManoeuvre.ISpeedRange =
+    AutoMovieArchetypeQuadrupedGait.range(
+      createQuadruped.species(horse),
+      "trot",
+      1.62,
+    );
   const inner: number = 8;
   const rate: number = (trot.minimum * 1.15) / inner;
-  const build: () => ArchetypeRide.IRide<
+  const build: () => AutoMovieArchetypeRide.IRide<
     string,
     string
-  >[] = (): ArchetypeRide.IRide<string, string>[] =>
-    [0, 1].flatMap((rank: number): ArchetypeRide.IRide<string, string>[] =>
-      ArchetypeManoeuvre.wheel(
-        "squadron",
-        {
-          centre: { x: 0, y: 0, z: 0 },
-          bearing: -90 - (rank * RANKS * 180) / (Math.PI * inner),
-          inner,
-          spacing: SPACING,
-          files: FILES,
-          sweep: 90,
-          start: 0,
-          end: Math.PI / 2 / rate,
-        },
-        trot,
-        STEP,
-      ).map(
-        (
-          samples: ArchetypeCourse.ISample[],
-        ): ArchetypeRide.IRide<string, string> =>
-          rideQuadruped(horse, ArchetypeCourse.timed("trooper", samples)),
-      ),
+  >[] = (): AutoMovieArchetypeRide.IRide<string, string>[] =>
+    [0, 1].flatMap(
+      (rank: number): AutoMovieArchetypeRide.IRide<string, string>[] =>
+        AutoMovieArchetypeManoeuvre.wheel(
+          "squadron",
+          {
+            centre: { x: 0, y: 0, z: 0 },
+            bearing: -90 - (rank * RANKS * 180) / (Math.PI * inner),
+            inner,
+            spacing: SPACING,
+            files: FILES,
+            sweep: 90,
+            start: 0,
+            end: Math.PI / 2 / rate,
+          },
+          trot,
+          STEP,
+        ).map(
+          (
+            samples: AutoMovieArchetypeCourse.ISample[],
+          ): AutoMovieArchetypeRide.IRide<string, string> =>
+            rideQuadruped(
+              horse,
+              AutoMovieArchetypeCourse.timed("trooper", samples),
+            ),
+        ),
     );
-  const rides: ArchetypeRide.IRide<string, string>[] = build();
+  const rides: AutoMovieArchetypeRide.IRide<string, string>[] = build();
   const end: number = Math.max(
     ...rides.map(
-      (ride: ArchetypeRide.IRide<string, string>): number => ride.duration,
+      (ride: AutoMovieArchetypeRide.IRide<string, string>): number =>
+        ride.duration,
     ),
   );
 
@@ -90,7 +96,10 @@ export function test_world_cavalry_squadron(): void {
     rides
       .slice(0, FILES)
       .every(
-        (ride: ArchetypeRide.IRide<string, string>, file: number): boolean =>
+        (
+          ride: AutoMovieArchetypeRide.IRide<string, string>,
+          file: number,
+        ): boolean =>
           Math.abs(
             ride.plan.at(middle).speed - (inner + file * SPACING) * rate,
           ) <=
@@ -99,24 +108,27 @@ export function test_world_cavalry_squadron(): void {
   );
 
   // 2. No two posed envelopes within the margin.
-  const conflicts: ArchetypePassage.IConflict[] = ArchetypePassage.conflicts(
-    "squadron",
-    {
+  const conflicts: AutoMovieArchetypePassage.IConflict[] =
+    AutoMovieArchetypePassage.conflicts("squadron", {
       participants: rides.map(
         (
-          ride: ArchetypeRide.IRide<string, string>,
+          ride: AutoMovieArchetypeRide.IRide<string, string>,
           k: number,
-        ): ArchetypePassage.IParticipant => ({
+        ): AutoMovieArchetypePassage.IParticipant => ({
           id: `trooper${k}`,
           plan: ride.plan,
-          footprint: ArchetypePassage.envelope(ride, 0, ride.duration, STEP),
+          footprint: AutoMovieArchetypePassage.envelope(
+            ride,
+            0,
+            ride.duration,
+            STEP,
+          ),
           margin: 0.1,
         }),
       ),
       step: STEP,
       to: end,
-    },
-  );
+    });
   TestValidator.equals(
     `no two troopers' bodies meet: ${JSON.stringify(conflicts.slice(0, 2))}`,
     conflicts,
@@ -124,10 +136,14 @@ export function test_world_cavalry_squadron(): void {
   );
 
   // 3. The replay repeats.
-  const again: ArchetypeRide.IRide<string, string>[] = build();
+  const again: AutoMovieArchetypeRide.IRide<string, string>[] = build();
   TestValidator.equals(
     "a second build reads the same poses",
-    again.map((ride: ArchetypeRide.IRide<string, string>) => ride.at(middle)),
-    rides.map((ride: ArchetypeRide.IRide<string, string>) => ride.at(middle)),
+    again.map((ride: AutoMovieArchetypeRide.IRide<string, string>) =>
+      ride.at(middle),
+    ),
+    rides.map((ride: AutoMovieArchetypeRide.IRide<string, string>) =>
+      ride.at(middle),
+    ),
   );
 }

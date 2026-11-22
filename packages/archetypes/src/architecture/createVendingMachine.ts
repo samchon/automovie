@@ -1,4 +1,4 @@
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { ServiceCabinet } from "./ServiceCabinet";
 import type { createMachine } from "./createMachine";
 
@@ -11,7 +11,7 @@ import type { createMachine } from "./createMachine";
  * @param params The scene identifier, measured model and inside-band dimension overrides.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The Merchant 4 and Merchant 6 figures choose the cabinet width as a whole model, while mass comes from the measured band.
@@ -24,7 +24,10 @@ import type { createMachine } from "./createMachine";
 export function createVendingMachine(
   params: createVendingMachine.IParams = {},
   seed?: number | string,
-): Archetype<createVendingMachine.Affordance, createVendingMachine.Dimension> {
+): AutoMovieArchetype<
+  createVendingMachine.Affordance,
+  createVendingMachine.Dimension
+> {
   const cabinet: ServiceCabinet.ICabinet<createVendingMachine.Affordance> =
     ServiceCabinet.begin(
       "vendingMachine",

@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -26,27 +26,30 @@ import {
 export function createCricketWicket(
   params: { id?: string } = {},
   seed?: number | string,
-): Archetype<createCricketWicket.Affordance, "diameter"> {
-  const draw: ArchetypeDrawSession<"diameter"> = new ArchetypeDrawSession(
-    "cricketWicket",
-    { diameter: "m" },
-    seed,
-    {},
-  );
+): AutoMovieArchetype<createCricketWicket.Affordance, "diameter"> {
+  const draw: AutoMovieArchetypeDrawSession<"diameter"> =
+    new AutoMovieArchetypeDrawSession(
+      "cricketWicket",
+      { diameter: "m" },
+      seed,
+      {},
+    );
   const { diameter }: Record<"diameter", number> = draw.dimensions({
-    diameter: ArchetypeBand.metres(
+    diameter: AutoMovieArchetypeBand.metres(
       0.035,
       0.0381,
       "MCC Laws of Cricket 2026, Law 8.2",
     ),
   });
-  const builder: ArchetypeBuilder<createCricketWicket.Affordance, "diameter"> =
-    new ArchetypeBuilder({
-      material: "wood",
-      id: params.id,
-      name: "cricket wicket",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createCricketWicket.Affordance,
+    "diameter"
+  > = new AutoMovieArchetypeBuilder({
+    material: "wood",
+    id: params.id,
+    name: "cricket wicket",
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const height: number = 0.7112;
   const offset: number = (0.2286 - diameter) / 2;
@@ -61,7 +64,7 @@ export function createCricketWicket(
     builder.affordance({
       id,
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(x, height / 2, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(x, height / 2, 0)),
       extent: null,
     });
   }
@@ -85,7 +88,7 @@ export function createCricketWicket(
     builder.affordance({
       id,
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(x, y, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(x, y, 0)),
       extent: null,
     });
   }

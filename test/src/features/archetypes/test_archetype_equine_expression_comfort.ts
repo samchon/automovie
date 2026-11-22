@@ -1,8 +1,8 @@
 import {
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  EquineComfort,
-  type EquineComfortCue,
+  AutoMovieArchetypeEquineComfort,
+  type AutoMovieArchetypeEquineComfortCue,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -19,10 +19,13 @@ import { equineExpressionObservation as Look } from "../internal/equineExpressio
 type Horse = ReturnType<typeof createHorse>;
 
 /** A horse ride. */
-type Ride = ArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension>;
+type Ride = AutoMovieArchetypeRide.IRide<
+  createHorse.Affordance,
+  createHorse.Dimension
+>;
 
 /** A sample of a horse ride. */
-type Sample = ArchetypeRide.ISample<
+type Sample = AutoMovieArchetypeRide.ISample<
   createHorse.Affordance,
   createHorse.Dimension
 >;
@@ -45,7 +48,7 @@ type Bounds = readonly [number, number];
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names every scenario and what it checks.
  * @evidence contracts/development/testing.md#behavioral-verification Plays the public comfort acts and idle cycles over the public horse ride and reads displayed bars and instants.
- * @evidence contracts/development/testing.md#independent-expectations Carriages are read as displayed bar angles against the halt; the idle bounds are the ones `EquineComfort` documents.
+ * @evidence contracts/development/testing.md#independent-expectations Carriages are read as displayed bar angles against the halt; the idle bounds are the ones `AutoMovieArchetypeEquineComfort` documents.
  * @evidence contracts/development/testing.md#distinguishing-cases Inside versus after each window, same versus different seeds, standing versus moving.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous in-memory scenario; the whole-body acts are `test_archetype_equine_reaction_comfort`'s.
  */
@@ -69,7 +72,7 @@ export function test_archetype_equine_expression_comfort(): void {
     "walk",
   );
   const t: number = ride.duration + 0.5;
-  const faces: Ride = EquineComfort.after(horse, ride, [
+  const faces: Ride = AutoMovieArchetypeEquineComfort.after(horse, ride, [
     { kind: "doze", from: t, seconds: 8 },
     { kind: "flehmen", from: t + 9, seconds: 4 },
     { kind: "yawn", from: t + 14, seconds: 3 },
@@ -154,20 +157,26 @@ export function test_archetype_equine_expression_comfort(): void {
 
   // 3. Seeded idle cycles.
   const end: number = t + 120;
-  const cycle: EquineComfortCue.Act[] = EquineComfort.idle(7, t, end);
+  const cycle: AutoMovieArchetypeEquineComfortCue.Act[] =
+    AutoMovieArchetypeEquineComfort.idle(7, t, end);
   TestValidator.equals(
     "the same seed draws the same cycle",
-    EquineComfort.idle(7, t, end),
+    AutoMovieArchetypeEquineComfort.idle(7, t, end),
     cycle,
   );
-  const other: EquineComfortCue.Act[] = EquineComfort.idle(8, t, end);
+  const other: AutoMovieArchetypeEquineComfortCue.Act[] =
+    AutoMovieArchetypeEquineComfort.idle(8, t, end);
   TestValidator.predicate(
     "another seed draws different timing",
     JSON.stringify(
-      other.map((act: EquineComfortCue.Act): number => act.from),
+      other.map(
+        (act: AutoMovieArchetypeEquineComfortCue.Act): number => act.from,
+      ),
     ) !==
       JSON.stringify(
-        cycle.map((act: EquineComfortCue.Act): number => act.from),
+        cycle.map(
+          (act: AutoMovieArchetypeEquineComfortCue.Act): number => act.from,
+        ),
       ),
   );
   const bounds: Readonly<Record<string, Bounds>> = {
@@ -209,7 +218,7 @@ export function test_archetype_equine_expression_comfort(): void {
   }
 
   // 4. A seeded cycle plays and is neutral between its acts.
-  const idle: Ride = EquineComfort.after(horse, ride, cycle);
+  const idle: Ride = AutoMovieArchetypeEquineComfort.after(horse, ride, cycle);
   for (let k: number = 1; k < cycle.length; k++) {
     const gap: number =
       (cycle[k - 1]!.from + cycle[k - 1]!.seconds + cycle[k]!.from) / 2;
@@ -223,7 +232,7 @@ export function test_archetype_equine_expression_comfort(): void {
   // 5. Refusal while moving.
   let caught: unknown = null;
   try {
-    EquineComfort.after(horse, ride, [
+    AutoMovieArchetypeEquineComfort.after(horse, ride, [
       { kind: "doze", from: ride.duration / 2, seconds: 4 },
     ]);
   } catch (error) {
@@ -231,6 +240,6 @@ export function test_archetype_equine_expression_comfort(): void {
   }
   TestValidator.predicate(
     "a doze at a walk refuses",
-    caught instanceof ArchetypeRefusal && caught.axis === "from",
+    caught instanceof AutoMovieArchetypeRefusal && caught.axis === "from",
   );
 }

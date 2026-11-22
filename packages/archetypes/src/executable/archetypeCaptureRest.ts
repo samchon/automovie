@@ -3,14 +3,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { QuadrupedBody } from "../animals/QuadrupedBody";
+import { AutoMovieArchetypeQuadrupedBody } from "../animals/AutoMovieArchetypeQuadrupedBody";
+import { AutoMovieArchetypeQuadrupedRest } from "../animals/AutoMovieArchetypeQuadrupedRest";
+import type { AutoMovieArchetypeQuadrupedRestPlan } from "../animals/AutoMovieArchetypeQuadrupedRestPlan";
 import { QuadrupedCarriage } from "../animals/QuadrupedCarriage";
-import { QuadrupedRest } from "../animals/QuadrupedRest";
-import type { QuadrupedRestPlan } from "../animals/QuadrupedRestPlan";
 import { createDog } from "../animals/createDog";
 import { createHorse } from "../animals/createHorse";
 import { createQuadruped } from "../animals/createQuadruped";
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 
 /**
@@ -26,7 +26,7 @@ import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
  *
  * @returns Actual dog/horse rest subjects with declared goals, current geometry and cycle events.
  * @evidence contracts/development/common.md#meaningful-documentation States actual canonical dog and saddle-horse sources, admitted minimum stirrup drop and reference withers height, geometric support pitch, authored clock/carriage, actual contact consumer and model-space placement rule; no horse clinical trajectory is claimed.
- * @evidence contracts/development/implementation.md#principled-implementation Public dog/horse producers supply actual bodies and tack. QuadrupedRest computes supported poses from actual bars and one explicit floor. Each sampled animal already includes the root placement; that same sample supplies terminal goals for independent geometry marks, without another root transform or sampler call.
+ * @evidence contracts/development/implementation.md#principled-implementation Public dog/horse producers supply actual bodies and tack. AutoMovieArchetypeQuadrupedRest computes supported poses from actual bars and one explicit floor. Each sampled animal already includes the root placement; that same sample supplies terminal goals for independent geometry marks, without another root transform or sampler call.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare two actual source/law pairs with explicit authoring values and complete carriers, then a shared adapter exposes their events, actual posed models and terminal targets to the existing instrument.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No static fallback, substituted geometry, fake readiness or measured-timing claim hides a failed sample; the law's ordinary refusals propagate to capture.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two bounded source/law preparations and one O(P+B+A) actual pose with four goal references per request; each event mapping contains four entries.
@@ -47,7 +47,7 @@ export function archetypeCaptureRest(): Readonly<
       leadRadius: 0.004,
     },
   });
-  const params: QuadrupedRestPlan.IParams = {
+  const params: AutoMovieArchetypeQuadrupedRestPlan.IParams = {
     floorY: 0,
     loweringSeconds: 2,
     restingSeconds: 1,
@@ -65,10 +65,10 @@ export function archetypeCaptureRest(): Readonly<
     },
     contacts: { lead: "neck" },
   };
-  const clip: QuadrupedRestPlan.IClip<
+  const clip: AutoMovieArchetypeQuadrupedRestPlan.IClip<
     createDog.Affordance,
-    QuadrupedBody.Dimension
-  > = QuadrupedRest(dog, params);
+    AutoMovieArchetypeQuadrupedBody.Dimension
+  > = AutoMovieArchetypeQuadrupedRest(dog, params);
   const horse: ReturnType<typeof createHorse> = createHorse({
     tack: "saddle",
     withersHeight: createHorse.JENSEN.withers,
@@ -79,10 +79,10 @@ export function archetypeCaptureRest(): Readonly<
   const rear: IAutoMovieVector3 = axisEnd(horse, "hindquarters");
   const carriers: ReturnType<typeof QuadrupedCarriage.of> =
     QuadrupedCarriage.of(horse, createQuadruped.species(horse));
-  const horseClip: QuadrupedRestPlan.IClip<
+  const horseClip: AutoMovieArchetypeQuadrupedRestPlan.IClip<
     createHorse.Affordance,
     createHorse.Dimension
-  > = QuadrupedRest(horse, {
+  > = AutoMovieArchetypeQuadrupedRest(horse, {
     ...params,
     ...carriers,
     restPitch: (Math.atan2(front.y - rear.y, front.z - rear.z) * 180) / Math.PI,
@@ -95,7 +95,7 @@ export function archetypeCaptureRest(): Readonly<
 
 /** Actual capsule-axis low end supplies a geometric torso-support pitch, without a species pose preset. */
 function axisEnd(
-  animal: Archetype,
+  animal: AutoMovieArchetype,
   id: "trunk" | "hindquarters",
 ): IAutoMovieVector3 {
   const part: IAutoMovieModelPart | undefined = animal.parts.find(
@@ -108,7 +108,7 @@ function axisEnd(
     part.geometry.shape.type !== "capsule"
   )
     throw new RangeError(`Rest capture requires the actual ${id} capsule`);
-  return ArchetypeFrame.point(part.transform, {
+  return AutoMovieArchetypeFrame.point(part.transform, {
     x: 0,
     y: part.geometry.shape.height / 2,
     z: 0,
@@ -118,8 +118,8 @@ function axisEnd(
 /** Preserve one actual sample for both drawing and its independently observable terminal goals. */
 function subject<Id extends string, Dimension extends string>(
   name: string,
-  animal: Archetype<Id, Dimension>,
-  clip: QuadrupedRestPlan.IClip<Id, Dimension>,
+  animal: AutoMovieArchetype<Id, Dimension>,
+  clip: AutoMovieArchetypeQuadrupedRestPlan.IClip<Id, Dimension>,
 ): archetypeCaptureCatalog.ISubject {
   return {
     members: [
@@ -129,16 +129,21 @@ function subject<Id extends string, Dimension extends string>(
         at: (
           seconds: number,
         ): ReturnType<archetypeCaptureCatalog.IMember["at"]> => {
-          const sample: QuadrupedRestPlan.ISample<Id, Dimension> =
-            clip.sample(seconds);
+          const sample: AutoMovieArchetypeQuadrupedRestPlan.ISample<
+            Id,
+            Dimension
+          > = clip.sample(seconds);
           return {
             archetype: sample.animal,
             goals: new Map(
               [...sample.feet].map(
-                ([limb, point]: [QuadrupedBody.Limb, IAutoMovieVector3]): [
-                  QuadrupedBody.Bone,
+                ([limb, point]: [
+                  AutoMovieArchetypeQuadrupedBody.Limb,
                   IAutoMovieVector3,
-                ] => [QuadrupedBody.BONES[limb][3]!, point],
+                ]): [
+                  AutoMovieArchetypeQuadrupedBody.Bone,
+                  IAutoMovieVector3,
+                ] => [AutoMovieArchetypeQuadrupedBody.BONES[limb][3]!, point],
               ),
             ),
           };

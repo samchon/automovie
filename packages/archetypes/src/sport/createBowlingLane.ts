@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
 } from "../core";
 
 /**
@@ -26,28 +26,26 @@ import {
 export function createBowlingLane(
   params: { id?: string } = {},
   seed?: number | string,
-): Archetype<createBowlingLane.Affordance, "width"> {
-  const inch: number = ArchetypeUnits.INCH;
-  const draw: ArchetypeDrawSession<"width"> = new ArchetypeDrawSession(
-    "bowlingLane",
-    { width: "m" },
-    seed,
-    {},
-  );
+): AutoMovieArchetype<createBowlingLane.Affordance, "width"> {
+  const inch: number = AutoMovieArchetypeUnits.INCH;
+  const draw: AutoMovieArchetypeDrawSession<"width"> =
+    new AutoMovieArchetypeDrawSession("bowlingLane", { width: "m" }, seed, {});
   const { width }: Record<"width", number> = draw.dimensions({
-    width: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(
       41 * inch,
       42 * inch,
       "USBC Equipment Specifications, lane width 41.5 ± 0.5 in",
     ),
   });
-  const builder: ArchetypeBuilder<createBowlingLane.Affordance, "width"> =
-    new ArchetypeBuilder({
-      material: "wood",
-      id: params.id,
-      name: "ten-pin bowling lane",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createBowlingLane.Affordance,
+    "width"
+  > = new AutoMovieArchetypeBuilder({
+    material: "wood",
+    id: params.id,
+    name: "ten-pin bowling lane",
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const spacing: number = 12 * inch;
   const head: number = 60 * spacing;
@@ -85,7 +83,7 @@ export function createBowlingLane(
     builder.affordance({
       id,
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(x, -0.11, length / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(x, -0.11, length / 2)),
       extent: null,
       width: gutter,
       depth: length,
@@ -94,7 +92,7 @@ export function createBowlingLane(
   builder.affordance({
     id: "approach",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, 0, -approach / 2)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, -approach / 2)),
     extent: null,
     width: width + 2 * gutter,
     depth: approach,
@@ -102,7 +100,7 @@ export function createBowlingLane(
   builder.affordance({
     id: "lane",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, 0, length / 2)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, length / 2)),
     extent: null,
     width,
     depth: length,
@@ -110,7 +108,7 @@ export function createBowlingLane(
   builder.affordance({
     id: "foulLine",
     kind: "socket",
-    frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, 0, 1), v(1, 0, 0)),
     extent: null,
   });
   for (let row: number = 0; row < 4; ++row)
@@ -128,7 +126,7 @@ export function createBowlingLane(
       builder.affordance({
         id,
         kind: "socket",
-        frame: ArchetypeFrame.upright(point),
+        frame: AutoMovieArchetypeFrame.upright(point),
         extent: null,
       });
     }

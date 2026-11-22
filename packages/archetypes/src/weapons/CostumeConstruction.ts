@@ -2,11 +2,11 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieBodyMeasure } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
 } from "../core";
 import { ArmourProfile } from "./ArmourProfile";
 import { createArmour } from "./createArmour";
@@ -21,7 +21,7 @@ import { createArmour } from "./createArmour";
  * @param params An optional body measure along with the corresponding costume record and dimensions.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the separate display envelope and fit contract.
  * @evidence contracts/development/implementation.md#principled-implementation Keeps source envelope and optional actor measure independent before building the piece's visible cells and wear frame.
@@ -36,16 +36,16 @@ export function CostumeConstruction(
   params: Omit<createArmour.IParams, "kind">,
   seed: number | string | undefined,
   cellsOf: (profile: ArmourProfile.IProfile) => readonly ArmourProfile.ICell[],
-): Archetype<createArmour.Affordance, createArmour.Dimension> {
-  const draw: ArchetypeDrawSession<createArmour.Dimension> =
-    new ArchetypeDrawSession<createArmour.Dimension>(
+): AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createArmour.Dimension> =
+    new AutoMovieArchetypeDrawSession<createArmour.Dimension>(
       "armour",
       createArmour.UNITS,
       seed,
       params,
     );
 
-  const model: ArchetypeDrawSession.IModel<
+  const model: AutoMovieArchetypeDrawSession.IModel<
     createArmour.Model,
     createArmour.Dimension
   > = draw.model<createArmour.Model>(
@@ -57,10 +57,10 @@ export function CostumeConstruction(
     ...draw.dimensions(createArmour.BANDS[kind], createArmour.BANDS),
     ...model.figures,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createArmour.Affordance,
     createArmour.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: kind,
     material: "steel",
@@ -84,7 +84,7 @@ export function CostumeConstruction(
     cells = cellsOf(profile);
   } catch (error) {
     if (!(error instanceof RangeError)) throw error;
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "armour",
       axis: "measure",
@@ -104,7 +104,7 @@ export function CostumeConstruction(
   builder.affordance({
     id: "wear",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
   });
 
@@ -135,7 +135,7 @@ function admitMeasure(
   for (const field of required[kind]) {
     const value: number | undefined = measure[field];
     if (!(value !== undefined && Number.isFinite(value) && value > 0))
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "armour",
         axis: `measure.${field}`,
@@ -146,7 +146,7 @@ function admitMeasure(
       });
   }
   if (kind === "cuirass" && !(measure.shoulderHeight! > measure.waistHeight!))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "armour",
       axis: "measure.shoulderHeight",

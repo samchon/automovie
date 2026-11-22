@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { InstrumentBuild } from "./InstrumentBuild";
 import { createBugle } from "./createBugle";
 import { createGuitar } from "./createGuitar";
@@ -12,7 +12,7 @@ import { createViolin } from "./createViolin";
  * @param params The saved kind, optional identifier and any dimensions or choices the author supplied.
  * @param seed The seed used by the selected producer.
  * @returns The original model and its contacts.
- * @throws {ArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the saved input and selected model.
  * @evidence contracts/development/implementation.md#principled-implementation Admit the saved kind and use its producer's bands and original seed domain.
@@ -25,7 +25,7 @@ import { createViolin } from "./createViolin";
 export function createInstrument(
   params: createInstrument.IParams,
   seed?: number | string,
-): Archetype<createInstrument.Affordance, createInstrument.Dimension> {
+): AutoMovieArchetype<createInstrument.Affordance, createInstrument.Dimension> {
   const kind: createInstrument.Kind = ArchetypeDraw.choice(
     "instrument",
     "kind",

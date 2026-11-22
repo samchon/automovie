@@ -1,5 +1,5 @@
 import {
-  ArchetypeRefusal,
+  AutoMovieArchetypeRefusal,
   createEscalator,
   createMovingWalkway,
   rideEscalator,
@@ -99,7 +99,10 @@ export function test_motion_exercise_escalator_ride(): void {
     refusal = error;
   }
   if (
-    !(refusal instanceof ArchetypeRefusal && refusal.axis === "climb.heading")
+    !(
+      refusal instanceof AutoMovieArchetypeRefusal &&
+      refusal.axis === "climb.heading"
+    )
   )
     failures.push("climbing up a down escalator is not refused");
   if (rideEscalator.climb(down, "up", true) !== down.flight)

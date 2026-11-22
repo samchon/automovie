@@ -1,4 +1,4 @@
-import { type Archetype, createWearable } from "@automovie/archetypes";
+import { type AutoMovieArchetype, createWearable } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -67,7 +67,7 @@ export function test_human_motion_dress_partner(): void {
     for (const item of cases) {
       const a: IAutoMovieMotionHumanBody = motionHumanBody(dresser);
       const b: IAutoMovieMotionHumanBody = motionHumanBody(dressed);
-      const model: Archetype<
+      const model: AutoMovieArchetype<
         createWearable.Affordance,
         createWearable.Dimension
       > = createWearable({ kind: item.kind });
@@ -136,7 +136,10 @@ export function test_human_motion_dress_partner(): void {
 function stage(
   a: IAutoMovieMotionHumanBody,
   b: IAutoMovieMotionHumanBody,
-  model: Archetype<createWearable.Affordance, createWearable.Dimension>,
+  model: AutoMovieArchetype<
+    createWearable.Affordance,
+    createWearable.Dimension
+  >,
   item: ICase,
   partner: string,
 ): HumanPerformance {
@@ -173,7 +176,11 @@ function stage(
           kind: "both",
           hold: 4,
           rise: true,
-          at: { kind: "point", frame: "world", at: { x: -b.rest.get("rightFoot")!.x, y: 0, z: 0.55 } },
+          at: {
+            kind: "point",
+            frame: "world",
+            at: { x: -b.rest.get("rightFoot")!.x, y: 0, z: 0.55 },
+          },
         })
       : HumanChain.subject("b")
           .stand({ seconds: 4 })

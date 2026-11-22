@@ -4,10 +4,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { ArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeFrame } from "../core";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineBodyPose } from "./EquineBodyPose";
 import type { EquineStanceRows } from "./EquineStanceRows";
-import { QuadrupedBody } from "./QuadrupedBody";
 
 /** The proxy centre of mass's least distance inside the remaining supports before a hoof leaves the floor, metres: authored. */
 const MARGIN: number = 0.03;
@@ -38,9 +38,13 @@ export namespace EquineStanceSupport {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function placed(
-    anchors: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
-  ): Record<QuadrupedBody.Limb, EquineBodyPose.Limb> {
-    const one = (limb: QuadrupedBody.Limb): EquineBodyPose.IPlaced => ({
+    anchors: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, IAutoMovieVector3>
+    >,
+  ): Record<AutoMovieArchetypeQuadrupedBody.Limb, EquineBodyPose.Limb> {
+    const one = (
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+    ): EquineBodyPose.IPlaced => ({
       kind: "placed",
       anchor: anchors[limb],
       fold: 0,
@@ -102,9 +106,9 @@ export namespace EquineStanceSupport {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function moved(
-    motion: ArchetypeFrame.IMotion,
+    motion: AutoMovieArchetypeFrame.IMotion,
     shift: IAutoMovieVector3,
-  ): ArchetypeFrame.IMotion {
+  ): AutoMovieArchetypeFrame.IMotion {
     return {
       rotation: motion.rotation,
       translation: Vector3.add(motion.translation, shift),
@@ -126,7 +130,7 @@ export namespace EquineStanceSupport {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function heading(
-    motion: ArchetypeFrame.IMotion,
+    motion: AutoMovieArchetypeFrame.IMotion,
   ): IAutoMovieQuaternion {
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
       motion.rotation,
@@ -158,7 +162,7 @@ export namespace EquineStanceSupport {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function along(
-    motion: ArchetypeFrame.IMotion,
+    motion: AutoMovieArchetypeFrame.IMotion,
     vector: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     return Quaternion.rotateVector(heading(motion), vector);
@@ -211,10 +215,10 @@ export namespace EquineStanceSupport {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function blend(
-    from: ArchetypeFrame.IMotion,
-    to: ArchetypeFrame.IMotion,
+    from: AutoMovieArchetypeFrame.IMotion,
+    to: AutoMovieArchetypeFrame.IMotion,
     share: number,
-  ): ArchetypeFrame.IMotion {
+  ): AutoMovieArchetypeFrame.IMotion {
     return {
       rotation: to.rotation,
       translation: Vector3.lerp(from.translation, to.translation, share),
@@ -240,15 +244,20 @@ export namespace EquineStanceSupport {
   export function transfer<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     state: EquineStanceRows.IState,
-    lifted: QuadrupedBody.Limb,
+    lifted: AutoMovieArchetypeQuadrupedBody.Limb,
   ): IAutoMovieVector3 {
     const centre: IAutoMovieVector3 = EquineBodyPose.point(
       state.trunk,
       body.centre,
     );
-    const corners: IAutoMovieVector3[] = QuadrupedBody.LIMBS.filter(
-      (limb: QuadrupedBody.Limb): boolean => limb !== lifted,
-    ).map((limb: QuadrupedBody.Limb): IAutoMovieVector3 => state.anchors[limb]);
+    const corners: IAutoMovieVector3[] =
+      AutoMovieArchetypeQuadrupedBody.LIMBS.filter(
+        (limb: AutoMovieArchetypeQuadrupedBody.Limb): boolean =>
+          limb !== lifted,
+      ).map(
+        (limb: AutoMovieArchetypeQuadrupedBody.Limb): IAutoMovieVector3 =>
+          state.anchors[limb],
+      );
     const middle: IAutoMovieVector3 = Vector3.scale(
       corners.reduce(
         (sum: IAutoMovieVector3, p: IAutoMovieVector3): IAutoMovieVector3 =>

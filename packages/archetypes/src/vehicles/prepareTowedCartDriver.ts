@@ -6,10 +6,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { Archetype } from "../core/Archetype";
-import { ArchetypeFrame } from "../core/ArchetypeFrame";
-import { ArchetypeRefusal } from "../core/ArchetypeRefusal";
-import type { ArchetypeRide } from "../core/ArchetypeRide";
+import type { AutoMovieArchetype } from "../core/AutoMovieArchetype";
+import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
+import { AutoMovieArchetypeRefusal } from "../core/AutoMovieArchetypeRefusal";
+import type { AutoMovieArchetypeRide } from "../core/AutoMovieArchetypeRide";
 import type { createCart } from "./createCart";
 
 /**
@@ -27,12 +27,15 @@ import type { createCart } from "./createCart";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The binding retains its tow for its own lifetime. A current geometry snapshot is held only by the synchronous query.
  */
 export function prepareTowedCartDriver(
-  cart: Archetype<createCart.Affordance, createCart.Dimension>,
-  ride: ArchetypeRide.ITowedRide<createCart.Affordance, createCart.Dimension>,
+  cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,
+  ride: AutoMovieArchetypeRide.ITowedRide<
+    createCart.Affordance,
+    createCart.Dimension
+  >,
 ): RigidCarrierSample.IBinding {
   const playback: IAutoMovieMotionPlayback<RigidCarrierSample.IRead> = {
     sample: (seconds: number): RigidCarrierSample.IRead => {
-      const current: ArchetypeRide.ITowedSample<createCart.Affordance> =
+      const current: AutoMovieArchetypeRide.ITowedSample<createCart.Affordance> =
         ride.geometry(seconds);
       const frame: IAutoMovieRigidTransform = {
         position: current.placement.translation,
@@ -49,7 +52,7 @@ export function prepareTowedCartDriver(
             id === "leftLineGrip" ? "line-left" : "line-right";
           const segment: ReturnType<typeof current.tail> = current.tail(line);
           if (segment === undefined)
-            throw new ArchetypeRefusal({
+            throw new AutoMovieArchetypeRefusal({
               kind: "parameter",
               archetype: cart.archetype,
               axis: "lines",
@@ -69,7 +72,7 @@ export function prepareTowedCartDriver(
                 Vector3.dot(span, span),
             ),
           );
-          return ArchetypeFrame.facing(
+          return AutoMovieArchetypeFrame.facing(
             Vector3.lerp(from, to, share),
             Vector3.addScaled({ x: 0, y: 1, z: 0 }, along, -along.y),
             along,

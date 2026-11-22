@@ -2,10 +2,10 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { createScenicContainer } from "./createScenicContainer";
 
@@ -35,7 +35,7 @@ const v: typeof Vector3.create = Vector3.create;
 
 /** A selected scenic support construction, with all dimensions in the saved units. */
 type Builder<Id extends createScenicContainer.Affordance | "mount"> =
-  ArchetypeBuilder<Id, createScenicContainer.Dimension>;
+  AutoMovieArchetypeBuilder<Id, createScenicContainer.Dimension>;
 
 /** Shape writers consume their contact IDs without exposing a fluent builder result. */
 type ShapeWriter<Id extends createScenicContainer.Affordance> = {
@@ -62,8 +62,8 @@ function draw<Id extends DrawContact>(
   params: Omit<createScenicContainer.IParams, "kind">,
   seed?: number | string,
 ): IDrawResult<Id> {
-  const session: ArchetypeDrawSession<createScenicContainer.Dimension> =
-    new ArchetypeDrawSession(
+  const session: AutoMovieArchetypeDrawSession<createScenicContainer.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "scenicContainer",
       createScenicContainer.UNITS,
       seed,
@@ -71,7 +71,7 @@ function draw<Id extends DrawContact>(
     );
   const dimensions: Record<createScenicContainer.Dimension, number> =
     session.dimensions(createScenicContainer.BANDS[kind]);
-  const builder: Builder<Id> = new ArchetypeBuilder({
+  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: NAMES[kind],
@@ -100,7 +100,7 @@ function surface<Id extends createScenicContainer.Affordance>(
   builder.affordance({
     id,
     kind: "stack-top",
-    frame: ArchetypeFrame.upright(v(0, y, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, y, 0)),
     extent: [
       v(-width / 2, 0, -depth / 2),
       v(width / 2, 0, -depth / 2),
@@ -385,7 +385,7 @@ export namespace ScenicContainerConstruction {
     kind: BasketsKind,
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<BasketsContact, createScenicContainer.Dimension> {
+  ): AutoMovieArchetype<BasketsContact, createScenicContainer.Dimension> {
     const { builder, dimensions }: ReturnType<typeof draw<BasketsContact>> =
       draw<BasketsContact>(kind, params, seed);
     const {
@@ -413,7 +413,7 @@ export namespace ScenicContainerConstruction {
   export function closedCoffer(
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"top", createScenicContainer.Dimension> {
+  ): AutoMovieArchetype<"top", createScenicContainer.Dimension> {
     const { builder, dimensions }: ReturnType<typeof draw<"top">> = draw<"top">(
       "plankCoffer",
       params,
@@ -443,7 +443,7 @@ export namespace ScenicContainerConstruction {
   export function openCrate(
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"inside", createScenicContainer.Dimension> {
+  ): AutoMovieArchetype<"inside", createScenicContainer.Dimension> {
     const { builder, dimensions }: ReturnType<typeof draw<"inside">> =
       draw<"inside">("moldedCrate", params, seed);
     const {
@@ -470,7 +470,7 @@ export namespace ScenicContainerConstruction {
   export function scenicPod(
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"top", createScenicContainer.Dimension> {
+  ): AutoMovieArchetype<"top", createScenicContainer.Dimension> {
     const { builder, dimensions }: ReturnType<typeof draw<"top">> = draw<"top">(
       "cargoPod",
       params,
@@ -510,7 +510,7 @@ export namespace ScenicContainerConstruction {
   export function mountedPod(
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<MountedPodContact, createScenicContainer.Dimension> {
+  ): AutoMovieArchetype<MountedPodContact, createScenicContainer.Dimension> {
     const { builder, dimensions }: ReturnType<typeof draw<MountedPodContact>> =
       draw<MountedPodContact>("cargoPod", params, seed);
     const {
@@ -525,7 +525,7 @@ export namespace ScenicContainerConstruction {
       id: "mount",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.upright(v(0, 0, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
       extent: null,
     });
     return builder.build(mass);

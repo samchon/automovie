@@ -1,8 +1,8 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeUnits,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeUnits,
   createBoat,
 } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
@@ -32,8 +32,10 @@ export function test_archetype_boat_bands(): void {
       if (band === undefined || band.source.length === 0)
         findings.push(`${kind}: a band without a source`);
     for (let seed: number = 0; seed < 200; seed++) {
-      const boat: Archetype<createBoat.Affordance, createBoat.Dimension> =
-        createBoat({ kind }, seed);
+      const boat: AutoMovieArchetype<
+        createBoat.Affordance,
+        createBoat.Dimension
+      > = createBoat({ kind }, seed);
       for (const [dimension, band] of Object.entries(createBoat.BANDS[kind])) {
         const value: number | undefined =
           boat.dimensions[dimension as createBoat.Dimension];
@@ -64,7 +66,9 @@ export function test_archetype_boat_bands(): void {
           createBoat({ kind, [dimension]: value });
         } catch (error) {
           refused =
-            error instanceof ArchetypeRefusal ? error.axis : String(error);
+            error instanceof AutoMovieArchetypeRefusal
+              ? error.axis
+              : String(error);
         }
         if (refused !== dimension)
           findings.push(
@@ -73,15 +77,16 @@ export function test_archetype_boat_bands(): void {
       }
     }
   const at = (
-    boat: Archetype<createBoat.Affordance, createBoat.Dimension>,
+    boat: AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension>,
     id: createBoat.Affordance,
   ): IAutoMovieVector3 => boat.affordance(id).frame.translation;
   const facing = (
-    boat: Archetype<createBoat.Affordance, createBoat.Dimension>,
+    boat: AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension>,
     id: createBoat.Affordance,
-  ): number => Math.sign(ArchetypeFrame.axis(boat.affordance(id).frame, "z").z);
+  ): number =>
+    Math.sign(AutoMovieArchetypeFrame.axis(boat.affordance(id).frame, "z").z);
   for (const seed of [0, 3, 7, 12]) {
-    const row: Archetype<createBoat.Affordance, createBoat.Dimension> =
+    const row: AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension> =
       createBoat({ kind: "rowboat" }, seed);
     const d: Readonly<Partial<Record<createBoat.Dimension, number>>> =
       row.dimensions;
@@ -94,8 +99,10 @@ export function test_archetype_boat_bands(): void {
       );
     if (facing(row, "thwart0") !== -1 || facing(row, "sternSeat") !== 1)
       findings.push(`rowboat@${seed}: a seat faces the wrong way`);
-    const canoe: Archetype<createBoat.Affordance, createBoat.Dimension> =
-      createBoat({ kind: "canoe" }, seed);
+    const canoe: AutoMovieArchetype<
+      createBoat.Affordance,
+      createBoat.Dimension
+    > = createBoat({ kind: "canoe" }, seed);
     const bottom: number = -createBoat.DRAFT.canoe;
     for (const id of ["thwart0", "thwart1"] as const)
       if (
@@ -106,14 +113,16 @@ export function test_archetype_boat_bands(): void {
           `canoe@${seed}: ${id} is off its seat height or faces aft`,
         );
   }
-  const launch: Archetype<createBoat.Affordance, createBoat.Dimension> =
-    createBoat({ kind: "launch" });
+  const launch: AutoMovieArchetype<
+    createBoat.Affordance,
+    createBoat.Dimension
+  > = createBoat({ kind: "launch" });
   const gunwale: number = launch.dimensions.depth! - createBoat.DRAFT.launch;
   const seats: number[] = (
     ["thwart0", "thwart1", "thwart2", "thwart3", "thwart4"] as const
   ).map((id: createBoat.Affordance): number => {
     if (
-      !close(at(launch, id).y, gunwale - 7 * ArchetypeUnits.INCH) ||
+      !close(at(launch, id).y, gunwale - 7 * AutoMovieArchetypeUnits.INCH) ||
       facing(launch, id) !== -1
     )
       findings.push(
@@ -122,7 +131,7 @@ export function test_archetype_boat_bands(): void {
     return at(launch, id).z;
   });
   for (let k: number = 1; k < seats.length; k++)
-    if (!close(seats[k]! - seats[k - 1]!, 28 * ArchetypeUnits.INCH))
+    if (!close(seats[k]! - seats[k - 1]!, 28 * AutoMovieArchetypeUnits.INCH))
       findings.push(`launch: thwarts ${k - 1} and ${k} are not 28 in apart`);
   TestValidator.equals("the boats stand inside their bands", findings, []);
 }

@@ -1,7 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import { createBoat } from "./createBoat";
 
 /**
@@ -38,7 +42,10 @@ export namespace BoatHull {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function panel(
-    builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createBoat.Affordance,
+      createBoat.Dimension
+    >,
     id: string,
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
@@ -47,7 +54,7 @@ export namespace BoatHull {
   ): void {
     const run: number = Math.hypot(to.x - from.x, to.z - from.z);
     const yaw: number =
-      Math.atan2(to.x - from.x, to.z - from.z) / ArchetypeUnits.DEGREE;
+      Math.atan2(to.x - from.x, to.z - from.z) / AutoMovieArchetypeUnits.DEGREE;
     builder.box(
       id,
       Vector3.create(createBoat.ESTIMATES.plank, gunwale - bottom, run),
@@ -83,7 +90,10 @@ export namespace BoatHull {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function thwart(
-    builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createBoat.Affordance,
+      createBoat.Dimension
+    >,
     id: createBoat.Affordance,
     height: number,
     edge: number,
@@ -105,7 +115,7 @@ export namespace BoatHull {
     builder.affordance({
       id,
       kind: "seat",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, height, edge),
         Vector3.create(0, 1, 0),
         Vector3.create(facing, 0, 0),

@@ -1,8 +1,8 @@
 import {
-  ArchetypeRefusal,
-  EquineStance,
-  type EquineStanceCue,
-  QuadrupedBody,
+  AutoMovieArchetypeEquineStance,
+  type AutoMovieArchetypeEquineStanceCue,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeRefusal,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -84,7 +84,7 @@ export function test_motion_equestrian_seat_response(): void {
     entry: number,
     hold: number,
     exit: number,
-  ): EquineStanceCue.IPhases => ({ from, entry, hold, exit });
+  ): AutoMovieArchetypeEquineStanceCue.IPhases => ({ from, entry, hold, exit });
   const rear: number = halt.duration + 2;
   const buck: number = halt.duration + 7;
   const shy: number = halt.duration + 10;
@@ -92,20 +92,24 @@ export function test_motion_equestrian_seat_response(): void {
   const spun: number = halt.duration + 16;
   const levade: number = halt.duration + 21;
   const pesade: number = halt.duration + 26;
-  const course: mountedHorseScene.Ride = EquineStance.after(horse, halt, [
-    { kind: "rear", pitch: 30, ...phases(rear, 1.2, 0.8, 1.2) },
-    { kind: "buck", pitch: 15, ...phases(buck, 0.6, 0.3, 0.6) },
-    {
-      kind: "stepAside",
-      side: "right",
-      width: 0.25,
-      ...phases(shy, 0.8, 0.4, 0.8),
-    },
-    { kind: "crowHops", count: 3, pitch: 8, ...phases(hops, 1.8, 0.2, 0.4) },
-    { kind: "spin", degrees: 90, ...phases(spun, 3.2, 0.3, 0.6) },
-    { kind: "air", air: "levade", ...phases(levade, 1.2, 1, 1.2) },
-    { kind: "air", air: "pesade", ...phases(pesade, 1.2, 1, 1.2) },
-  ]);
+  const course: mountedHorseScene.Ride = AutoMovieArchetypeEquineStance.after(
+    horse,
+    halt,
+    [
+      { kind: "rear", pitch: 30, ...phases(rear, 1.2, 0.8, 1.2) },
+      { kind: "buck", pitch: 15, ...phases(buck, 0.6, 0.3, 0.6) },
+      {
+        kind: "stepAside",
+        side: "right",
+        width: 0.25,
+        ...phases(shy, 0.8, 0.4, 0.8),
+      },
+      { kind: "crowHops", count: 3, pitch: 8, ...phases(hops, 1.8, 0.2, 0.4) },
+      { kind: "spin", degrees: 90, ...phases(spun, 3.2, 0.3, 0.6) },
+      { kind: "air", air: "levade", ...phases(levade, 1.2, 1, 1.2) },
+      { kind: "air", air: "pesade", ...phases(pesade, 1.2, 1, 1.2) },
+    ],
+  );
   const reared: number = WAIT + rear + 1.2 + 0.4;
   const bucked: number = WAIT + buck + 0.6 + 0.15;
   const shied: number = WAIT + shy + 0.8 + 0.2;
@@ -283,7 +287,7 @@ export function test_motion_equestrian_seat_response(): void {
     [hops, hops + 2.4],
     [spun, spun + 4.1],
   ] as const)
-    for (const limb of QuadrupedBody.LIMBS) {
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const edges: { label: string; seconds: number }[] = course.instants
         .filter(
           (e): boolean =>
@@ -332,13 +336,15 @@ export function test_motion_equestrian_seat_response(): void {
   // An event asked of the horse while it walks is refused.
   let walking: unknown = null;
   try {
-    EquineStance.after(horse, mountedHorseScene.course(horse, "walk"), [
-      { kind: "crowHops", count: 2, pitch: 8, ...phases(4, 1.2, 0.2, 0.4) },
-    ]);
+    AutoMovieArchetypeEquineStance.after(
+      horse,
+      mountedHorseScene.course(horse, "walk"),
+      [{ kind: "crowHops", count: 2, pitch: 8, ...phases(4, 1.2, 0.2, 0.4) }],
+    );
   } catch (failure) {
     walking = failure;
   }
-  if (!(walking instanceof ArchetypeRefusal))
+  if (!(walking instanceof AutoMovieArchetypeRefusal))
     findings.push(
       `crow hops at a walk must be refused, got ${String(walking)}`,
     );
@@ -376,7 +382,7 @@ export function test_motion_equestrian_seat_response(): void {
       findings.push(
         `recovery at ${at.toFixed(2)} s: the horse's root bends ${(root * 1000).toFixed(1)} mm and the rider's hips ${(hipsKink * 1000).toFixed(1)} mm per frame squared`,
       );
-    for (const limb of QuadrupedBody.LIMBS) {
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const hoof = (s: number): IAutoMovieVector3 =>
         archetypeHorseRide.hoof(course, limb, s - WAIT);
       if (kink(hoof, at) > 0.002)

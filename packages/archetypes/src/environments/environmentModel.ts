@@ -6,7 +6,7 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
 import { placeEnvironmentSpace } from "./placeEnvironmentSpace";
 import { requireEnvironmentFrame } from "./requireEnvironmentFrame";
 
@@ -17,7 +17,7 @@ import { requireEnvironmentFrame } from "./requireEnvironmentFrame";
  * @returns A definition that places those records in the scope and frame assigned by the composer.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Each occurrence supplies one model sharing its original geometry but carrying the scoped id. Staging and any live prop cite that same model. Rigid world anchors and optional support derive from the same input frame.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure This bridge owns model identity and stage or prop publication. The support placer owns geometry and height conversion, and ArchetypeFrame owns rigid frame composition.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This bridge owns model identity and stage or prop publication. The support placer owns geometry and height conversion, and AutoMovieArchetypeFrame owns rigid frame composition.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Absent supports and anchors remain absent. Authored mesh bytes and imported provenance remain with their owner. Admission is explicit for custom support and each rigid anchor.
  * @evidence contracts/development/implementation.md#efficient-algorithms Every instance places each supplied anchor once and copies the model header without traversing its geometry. Support placement carries its own validation and ring and height conversion costs.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The definition reuses the supplied local model and authored records. Scoped results are built from the current local records for every occurrence, with no cache across calls.
@@ -35,7 +35,7 @@ export function environmentModel(
     const anchors: Array<readonly [string, IAutoMovieTransform]> = [];
     for (const [name, local] of Object.entries(input.anchors ?? {})) {
       requireEnvironmentFrame(local, `${id}.anchors[${JSON.stringify(name)}]`);
-      anchors.push([name, ArchetypeFrame.compose(frame, local)]);
+      anchors.push([name, AutoMovieArchetypeFrame.compose(frame, local)]);
     }
     return {
       models: [model],

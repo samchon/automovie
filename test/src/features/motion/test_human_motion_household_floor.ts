@@ -1,4 +1,4 @@
-import { type Archetype, createLongTool } from "@automovie/archetypes";
+import { type AutoMovieArchetype, createLongTool } from "@automovie/archetypes";
 import { Quaternion, Vector3, physicalShapeSpan } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
@@ -56,8 +56,10 @@ export function test_human_motion_household_floor(): void {
 
 /** Push a real floor-contact head forward and release both hands at the park. */
 function mopFloor(body: IAutoMovieMotionHumanBody, failures: string[]): void {
-  const mop: Archetype<createLongTool.Affordance, createLongTool.Dimension> =
-    createLongTool({ kind: "mop" });
+  const mop: AutoMovieArchetype<
+    createLongTool.Affordance,
+    createLongTool.Dimension
+  > = createLongTool({ kind: "mop" });
   const start: IAutoMovieVector3 = { x: 0, y: 0, z: 0.41 };
   const film: motionHumanLaw.IFilm = householdFilm.stage(
     body,

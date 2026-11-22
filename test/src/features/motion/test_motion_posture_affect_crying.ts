@@ -1,4 +1,4 @@
-import { type Archetype, createSeat } from "@automovie/archetypes";
+import { type AutoMovieArchetype, createSeat } from "@automovie/archetypes";
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -184,7 +184,7 @@ export function test_motion_posture_affect_crying(): void {
   }
 
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const chair: Archetype<createSeat.Affordance, createSeat.Dimension> =
+  const chair: AutoMovieArchetype<createSeat.Affordance, createSeat.Dimension> =
     createSeat({ kind: "dining" });
   const placed: IAutoMovieMotionHumanProp = HumanObject.prop("chair", chair, {
     at: { x: 0, y: 0, z: -0.3 },

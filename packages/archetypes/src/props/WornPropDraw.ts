@@ -1,9 +1,9 @@
 import {
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** A wristwatch, read. */
@@ -91,7 +91,9 @@ export namespace WornPropDraw {
   export type Dimension = "width" | "depth" | "height" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     depth: "m",
     height: "m",
@@ -116,37 +118,38 @@ export namespace WornPropDraw {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     watch: {
-      width: ArchetypeBand.metres(0.0352, 0.0382, CASIO),
-      depth: ArchetypeBand.metres(
+      width: AutoMovieArchetypeBand.metres(0.0352, 0.0382, CASIO),
+      depth: AutoMovieArchetypeBand.metres(
         0.2,
         0.24,
         `the strap's length: ${UNREAD}`,
         true,
       ),
-      height: ArchetypeBand.metres(0.0085, 0.0085, CASIO),
-      mass: ArchetypeBand.of("kg", 0.021, 0.021, CASIO),
+      height: AutoMovieArchetypeBand.metres(0.0085, 0.0085, CASIO),
+      mass: AutoMovieArchetypeBand.of("kg", 0.021, 0.021, CASIO),
     },
     hat: {
-      width: ArchetypeBand.metres(
-        (20.25 * ArchetypeUnits.INCH) / Math.PI + 2 * 2 * ArchetypeUnits.INCH,
-        (22.25 * ArchetypeUnits.INCH) / Math.PI +
-          2 * 4.125 * ArchetypeUnits.INCH,
+      width: AutoMovieArchetypeBand.metres(
+        (20.25 * AutoMovieArchetypeUnits.INCH) / Math.PI +
+          2 * 2 * AutoMovieArchetypeUnits.INCH,
+        (22.25 * AutoMovieArchetypeUnits.INCH) / Math.PI +
+          2 * 4.125 * AutoMovieArchetypeUnits.INCH,
         `${STETSON}: a head's round as a circle's across and a brim on either side`,
       ),
-      depth: ArchetypeBand.metres(
-        (20.25 * ArchetypeUnits.INCH) / Math.PI,
-        (22.25 * ArchetypeUnits.INCH) / Math.PI,
+      depth: AutoMovieArchetypeBand.metres(
+        (20.25 * AutoMovieArchetypeUnits.INCH) / Math.PI,
+        (22.25 * AutoMovieArchetypeUnits.INCH) / Math.PI,
         `${STETSON}: the head's round as a circle's across`,
       ),
-      height: ArchetypeBand.metres(
-        3.75 * ArchetypeUnits.INCH,
-        4.5 * ArchetypeUnits.INCH,
+      height: AutoMovieArchetypeBand.metres(
+        3.75 * AutoMovieArchetypeUnits.INCH,
+        4.5 * AutoMovieArchetypeUnits.INCH,
         STETSON,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.08,
         0.2,
@@ -155,14 +158,14 @@ export namespace WornPropDraw {
       ),
     },
     spectacles: {
-      width: ArchetypeBand.metres(
+      width: AutoMovieArchetypeBand.metres(
         0.122,
         0.122,
         `${RAYBAN}: two lenses and the bridge; the rims' width outside them ${UNREAD}`,
       ),
-      depth: ArchetypeBand.metres(0.15, 0.15, RAYBAN),
-      height: ArchetypeBand.metres(0.041, 0.041, RAYBAN),
-      mass: ArchetypeBand.of(
+      depth: AutoMovieArchetypeBand.metres(0.15, 0.15, RAYBAN),
+      height: AutoMovieArchetypeBand.metres(0.041, 0.041, RAYBAN),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.02,
         0.04,
@@ -171,10 +174,10 @@ export namespace WornPropDraw {
       ),
     },
     helmet: {
-      width: ArchetypeBand.metres(0.2, 0.22, HELMET, true),
-      depth: ArchetypeBand.metres(0.26, 0.28, HELMET, true),
-      height: ArchetypeBand.metres(0.14, 0.16, HELMET, true),
-      mass: ArchetypeBand.of("kg", 0.22, 0.3, HELMET, true),
+      width: AutoMovieArchetypeBand.metres(0.2, 0.22, HELMET, true),
+      depth: AutoMovieArchetypeBand.metres(0.26, 0.28, HELMET, true),
+      height: AutoMovieArchetypeBand.metres(0.14, 0.16, HELMET, true),
+      mass: AutoMovieArchetypeBand.of("kg", 0.22, 0.3, HELMET, true),
     },
   };
 
@@ -188,7 +191,7 @@ export namespace WornPropDraw {
    */
   export interface IPrepareResult<Id extends Affordance> {
     /** The prepared `builder` this call returns. */
-    builder: ArchetypeBuilder<Id, Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
     /** The prepared `d` this call returns. */
     d: Record<Dimension, number>;
@@ -201,7 +204,7 @@ export namespace WornPropDraw {
    * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
    * @param kind The saved kind whose recipe is used.
    * @returns The builder and dimensions the named producer reads.
-   * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Prepare an empty builder and the previously recorded wearable dimensions.
    * @evidence contracts/development/implementation.md#principled-implementation The `wearable` draw session uses the original seeds, model table, and bands in their original order.
@@ -216,15 +219,21 @@ export namespace WornPropDraw {
     params: Omit<IParams, "kind">,
     seed?: number | string,
   ): IPrepareResult<Id> {
-    const draw: ArchetypeDrawSession<Dimension> =
-      new ArchetypeDrawSession<Dimension>("wearable", UNITS, seed, params);
+    const draw: AutoMovieArchetypeDrawSession<Dimension> =
+      new AutoMovieArchetypeDrawSession<Dimension>(
+        "wearable",
+        UNITS,
+        seed,
+        params,
+      );
     const d: Record<Dimension, number> = draw.dimensions(BANDS[kind]);
-    const builder: ArchetypeBuilder<Id, Dimension> = new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: kind,
-      draw,
-    });
+    const builder: AutoMovieArchetypeBuilder<Id, Dimension> =
+      new AutoMovieArchetypeBuilder({
+        material: "composite",
+        id: params.id,
+        name: kind,
+        draw,
+      });
     return { builder, d };
   }
 }

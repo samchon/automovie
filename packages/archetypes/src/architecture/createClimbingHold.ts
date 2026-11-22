@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The provisional size range of a coarse ledge in an authored film set. */
@@ -22,7 +22,7 @@ const PROFILE: string = "Coarse wall-mounted climbing ledge for a film set";
  * @param params The optional scene identifier and fixed dimensions.
  * @param seed The seed for any unspecified size or mass.
  * @returns A rigid hold with named grip and toe frames.
- * @throws {ArchetypeRefusal} When a prescribed dimension is outside its band.
+ * @throws {AutoMovieArchetypeRefusal} When a prescribed dimension is outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the mounting face, dimension axes and two contact frames.
  * @evidence contracts/development/implementation.md#principled-implementation One rectangle's dimensions own the collider, top face and exposed lip.
@@ -35,9 +35,12 @@ const PROFILE: string = "Coarse wall-mounted climbing ledge for a film set";
 export function createClimbingHold(
   params: createClimbingHold.IParams = {},
   seed?: number | string,
-): Archetype<createClimbingHold.Affordance, createClimbingHold.Dimension> {
-  const draw: ArchetypeDrawSession<createClimbingHold.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createClimbingHold.Affordance,
+  createClimbingHold.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createClimbingHold.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "climbingHold",
       createClimbingHold.UNITS,
       seed,
@@ -51,10 +54,10 @@ export function createClimbingHold(
   }: Record<createClimbingHold.Dimension, number> = draw.dimensions(
     createClimbingHold.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createClimbingHold.Affordance,
     createClimbingHold.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "climbing hold",
     material: "composite",
@@ -70,7 +73,7 @@ export function createClimbingHold(
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, rise, depth),
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),
@@ -82,7 +85,7 @@ export function createClimbingHold(
   builder.affordance({
     id: "toe",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, rise, depth / 2)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, rise, depth / 2)),
     extent: null,
     width,
     depth,
@@ -112,7 +115,9 @@ export namespace createClimbingHold {
   }
 
   /** Units recorded in the model's draw provenance. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     rise: "m",
     depth: "m",
@@ -120,10 +125,10 @@ export namespace createClimbingHold {
   };
 
   /** Authored size limits for the coarse set geometry. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.metres(0.05, 0.28, PROFILE, true),
-    rise: ArchetypeBand.metres(0.02, 0.08, PROFILE, true),
-    depth: ArchetypeBand.metres(0.04, 0.24, PROFILE, true),
-    mass: ArchetypeBand.of("kg", 0.1, 2, PROFILE, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    width: AutoMovieArchetypeBand.metres(0.05, 0.28, PROFILE, true),
+    rise: AutoMovieArchetypeBand.metres(0.02, 0.08, PROFILE, true),
+    depth: AutoMovieArchetypeBand.metres(0.04, 0.24, PROFILE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.1, 2, PROFILE, true),
   };
 }

@@ -2,13 +2,13 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** A maker's saucer, read. */
@@ -23,7 +23,7 @@ const SAUCER: string =
  * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
  * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The plate.
- * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the plate lies, that its well is not drawn, and its four contacts.
  * @evidence contracts/development/implementation.md#principled-implementation One slab of the read diameter or length and width and the read height, round as a disc or oblong as a box; every contact is on that slab's own faces and edges, and the stacking outline is a regular polygon on the plate's circle.
@@ -36,9 +36,9 @@ const SAUCER: string =
 export function createTableware(
   params: createTableware.IParams,
   seed?: number | string,
-): Archetype<createTableware.Affordance, createTableware.Dimension> {
-  const draw: ArchetypeDrawSession<createTableware.Dimension> =
-    new ArchetypeDrawSession<createTableware.Dimension>(
+): AutoMovieArchetype<createTableware.Affordance, createTableware.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createTableware.Dimension> =
+    new AutoMovieArchetypeDrawSession<createTableware.Dimension>(
       "tableware",
       createTableware.UNITS,
       seed,
@@ -65,10 +65,10 @@ export function createTableware(
     ...drawn,
     ...model.figures,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createTableware.Affordance,
     createTableware.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "ceramic",
     id: params.id,
     name: kind,
@@ -109,7 +109,7 @@ export function createTableware(
   builder.affordance({
     id: "top",
     kind: "stack-top",
-    frame: ArchetypeFrame.upright(v(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, height, 0)),
     extent: outline,
   });
 
@@ -122,7 +122,7 @@ export function createTableware(
       id,
       kind: "handle",
       symmetry: "half",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v((sign * length) / 2, height / 2, 0),
         v(0, 1, 0),
         v(0, 0, sign),
@@ -134,7 +134,7 @@ export function createTableware(
   builder.affordance({
     id: "underside",
     kind: "surface",
-    frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
     extent: null,
     width: length,
     depth: width,
@@ -180,7 +180,9 @@ export namespace createTableware {
   export type Dimension = "diameter" | "length" | "width" | "height" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     diameter: "m",
     length: "m",
     width: "m",
@@ -238,14 +240,14 @@ export namespace createTableware {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     plate: {},
     platter: {},
     saucer: {
-      diameter: ArchetypeBand.metres(0.12, 0.12, SAUCER),
-      height: ArchetypeBand.metres(0.014, 0.014, SAUCER),
-      mass: ArchetypeBand.of("kg", 0.106, 0.106, SAUCER),
+      diameter: AutoMovieArchetypeBand.metres(0.12, 0.12, SAUCER),
+      height: AutoMovieArchetypeBand.metres(0.014, 0.014, SAUCER),
+      mass: AutoMovieArchetypeBand.of("kg", 0.106, 0.106, SAUCER),
     },
   };
 }

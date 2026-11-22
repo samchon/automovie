@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { createBaseballBat } from "../sport";
 import {
   createBow,
@@ -31,7 +31,7 @@ import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
 /** The named carrier for each saved holster kind. */
-function carrier(kind: createHolster.Kind): Archetype {
+function carrier(kind: createHolster.Kind): AutoMovieArchetype {
   if (kind === "scabbard" || kind === "sheath")
     return createStageBladeCarrier({ kind });
   if (kind === "quiver") return createStageQuiver();
@@ -40,7 +40,7 @@ function carrier(kind: createHolster.Kind): Archetype {
 }
 
 /** The named inert token for each saved projectile kind. */
-function token(kind: createProjectile.Kind): Archetype {
+function token(kind: createProjectile.Kind): AutoMovieArchetype {
   if (kind === "arrow" || kind === "bolt")
     return createStageShaftToken({ kind });
   if (kind === "ball") return createStageBallProp();
@@ -51,14 +51,14 @@ function token(kind: createProjectile.Kind): Archetype {
 }
 
 /** The named bow silhouette for each saved bow kind. */
-function bow(kind: createBow.Kind): Archetype {
+function bow(kind: createBow.Kind): AutoMovieArchetype {
   return kind === "crossbow"
     ? createStageStockBowProp()
     : createStageHandBowProp({ kind });
 }
 
 /** The named bat or baton for each saved club kind. */
-function club(kind: createClub.Kind): Archetype {
+function club(kind: createClub.Kind): AutoMovieArchetype {
   return kind === "bat" ? createBaseballBat() : createPracticeBaton();
 }
 
@@ -87,59 +87,63 @@ export function archetypeCaptureArmoury(): Readonly<
       ...kinds(
         "handgun",
         createHandgun.FRAMES,
-        (frame: createHandgun.Frame): Archetype => createHandgun({ frame }),
+        (frame: createHandgun.Frame): AutoMovieArchetype =>
+          createHandgun({ frame }),
       ),
       ...kinds(
         "holster",
         createHolster.KINDS,
-        (kind: createHolster.Kind): Archetype => carrier(kind),
+        (kind: createHolster.Kind): AutoMovieArchetype => carrier(kind),
       ),
       ...kinds(
         "magazine",
         createMagazine.KINDS,
-        (kind: createMagazine.Kind): Archetype => createMagazine({ kind }),
+        (kind: createMagazine.Kind): AutoMovieArchetype =>
+          createMagazine({ kind }),
       ),
       ...kinds(
         "projectile",
         createProjectile.KINDS,
-        (kind: createProjectile.Kind): Archetype => token(kind),
+        (kind: createProjectile.Kind): AutoMovieArchetype => token(kind),
       ),
       ...kinds(
         "bow",
         createBow.KINDS,
-        (kind: createBow.Kind): Archetype => bow(kind),
+        (kind: createBow.Kind): AutoMovieArchetype => bow(kind),
       ),
       ...kinds(
         "cannon",
         createCannon.KINDS,
-        (kind: createCannon.Kind): Archetype => createCannon({ kind }),
+        (kind: createCannon.Kind): AutoMovieArchetype => createCannon({ kind }),
       ),
       ...kinds(
         "longGun",
         createLongGun.KINDS,
-        (kind: createLongGun.Kind): Archetype => createLongGun({ kind }),
+        (kind: createLongGun.Kind): AutoMovieArchetype =>
+          createLongGun({ kind }),
       ),
       ...kinds(
         "club",
         createClub.KINDS,
-        (kind: createClub.Kind): Archetype => club(kind),
+        (kind: createClub.Kind): AutoMovieArchetype => club(kind),
       ),
     }),
     blades: still({
       ...kinds(
         "sword",
         createSword.KINDS,
-        (kind: createSword.Kind): Archetype => createSword({ kind }),
+        (kind: createSword.Kind): AutoMovieArchetype => createSword({ kind }),
       ),
       ...kinds(
         "shield",
         createShield.KINDS,
-        (kind: createShield.Kind): Archetype => createShield({ kind }),
+        (kind: createShield.Kind): AutoMovieArchetype => createShield({ kind }),
       ),
       ...kinds(
         "polearm",
         createPolearm.KINDS,
-        (kind: createPolearm.Kind): Archetype => createPolearm({ kind }),
+        (kind: createPolearm.Kind): AutoMovieArchetype =>
+          createPolearm({ kind }),
       ),
       pell: createPell(),
     }),

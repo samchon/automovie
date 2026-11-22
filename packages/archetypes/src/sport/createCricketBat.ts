@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { StickBuild } from "./StickBuild";
 import type { createStick } from "./createStick";
 
@@ -18,7 +18,7 @@ const HANDLE: number = 0.035;
  * @param params The optional identifier and dimensions fixed within their recorded bands.
  * @param seed The seed for free dimensions. The band midpoints apply without a seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Form the blade section and handle length from the recorded MCC limits and put the playing contact on the blade face.
@@ -31,7 +31,7 @@ const HANDLE: number = 0.035;
 export function createCricketBat(
   params: createCricketBat.IParams = {},
   seed?: number | string,
-): Archetype<createCricketBat.Affordance, createCricketBat.Dimension> {
+): AutoMovieArchetype<createCricketBat.Affordance, createCricketBat.Dimension> {
   const {
     builder,
     d,

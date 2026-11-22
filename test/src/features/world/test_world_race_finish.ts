@@ -1,10 +1,10 @@
 import {
-  ArchetypeCourse,
-  type ArchetypeManoeuvre,
-  ArchetypeOval,
-  ArchetypePassage,
-  type ArchetypeRide,
-  QuadrupedGait,
+  AutoMovieArchetypeCourse,
+  type AutoMovieArchetypeManoeuvre,
+  AutoMovieArchetypeOval,
+  AutoMovieArchetypePassage,
+  AutoMovieArchetypeQuadrupedGait,
+  type AutoMovieArchetypeRide,
   createHorse,
   createQuadruped,
   createRaceRail,
@@ -35,14 +35,14 @@ const PULL: number = 60;
  * 3. The same plans and seed replay the same race.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the race, the bump, the pull-up and the two scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Rides real horses with `rideQuadruped` on timed lane plans down the oval's home straight, measures posed envelopes with `ArchetypePassage`, and reads the rides' gait instants.
+ * @evidence contracts/development/testing.md#behavioral-verification Rides real horses with `rideQuadruped` on timed lane plans down the oval's home straight, measures posed envelopes with `AutoMovieArchetypePassage`, and reads the rides' gait instants.
  * @evidence contracts/development/testing.md#independent-expectations The bump is authored as two lanes closing to touching between two rail distances, so contact must fall inside the times the runners cover them; a pull-up below the gallop's least speed must leave the gallop.
  * @evidence contracts/development/testing.md#distinguishing-cases Inside and outside the bump, before and after the post. The break, the order by pace and the rail clearance are pinned by test_world_race_field and test_world_mounted_cues; the jockeys' crouch contacts are pinned by test_motion_equestrian_twopoint_race.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec over real rides.
  */
 export function test_world_race_finish(): void {
   const rail: ReturnType<typeof createRaceRail> = createRaceRail({}, "track");
-  const oval: ArchetypeOval.IOval = ArchetypeOval.lapped(
+  const oval: AutoMovieArchetypeOval.IOval = AutoMovieArchetypeOval.lapped(
     createRaceRail.LAP,
     rail.dimensions.radius!,
   );
@@ -50,36 +50,41 @@ export function test_world_race_finish(): void {
     { withersHeight: 1.62, tempo: 0 },
     "runner",
   );
-  const gallop: ArchetypeManoeuvre.ISpeedRange = QuadrupedGait.range(
-    createQuadruped.species(horse),
-    "gallop",
-    1.62,
-  );
+  const gallop: AutoMovieArchetypeManoeuvre.ISpeedRange =
+    AutoMovieArchetypeQuadrupedGait.range(
+      createQuadruped.species(horse),
+      "gallop",
+      1.62,
+    );
   const pace: number = (gallop.minimum + gallop.maximum) / 2;
   const breadth: number = 0.9;
-  const lane: (k: number, offset: number) => ArchetypeCourse.ISample[] = (
+  const lane: (
     k: number,
     offset: number,
-  ): ArchetypeCourse.ISample[] => {
-    const racing: ArchetypeCourse.ISample[] = ArchetypeOval.lane(
-      `runner${k}`,
-      oval,
-      [
-        { distance: 0, offset, speed: pace },
-        ...(k === 1
-          ? [
-              { distance: BUMP[0]! - 20, offset, speed: pace },
-              { distance: BUMP[0]!, offset: 1 + breadth * 0.5, speed: pace },
-              { distance: BUMP[1]!, offset: 1 + breadth * 0.5, speed: pace },
-              { distance: BUMP[1]! + 20, offset, speed: pace },
-            ]
-          : []),
-        { distance: POST, offset, speed: pace },
-      ],
-      0,
-      0.1,
-      gallop,
-    );
+  ) => AutoMovieArchetypeCourse.ISample[] = (
+    k: number,
+    offset: number,
+  ): AutoMovieArchetypeCourse.ISample[] => {
+    const racing: AutoMovieArchetypeCourse.ISample[] =
+      AutoMovieArchetypeOval.lane(
+        `runner${k}`,
+        oval,
+        [
+          { distance: 0, offset, speed: pace },
+          ...(k === 1
+            ? [
+                { distance: BUMP[0]! - 20, offset, speed: pace },
+                { distance: BUMP[0]!, offset: 1 + breadth * 0.5, speed: pace },
+                { distance: BUMP[1]!, offset: 1 + breadth * 0.5, speed: pace },
+                { distance: BUMP[1]! + 20, offset, speed: pace },
+              ]
+            : []),
+          { distance: POST, offset, speed: pace },
+        ],
+        0,
+        0.1,
+        gallop,
+      );
     const finish: number = racing.at(-1)!.seconds;
 
     // The pull-up: an even slowing along the straight to a trot's pace over `PULL` metres.
@@ -89,10 +94,10 @@ export function test_world_race_finish(): void {
       ...racing,
       ...Array.from(
         { length: 20 },
-        (_: unknown, i: number): ArchetypeCourse.ISample => {
+        (_: unknown, i: number): AutoMovieArchetypeCourse.ISample => {
           const t: number = ((i + 1) * time) / 20;
           const along: number = pace * t - ((pace - slow) * t * t) / (2 * time);
-          const at: IAutoMovieVector3 = ArchetypeOval.point(
+          const at: IAutoMovieVector3 = AutoMovieArchetypeOval.point(
             oval,
             POST + along,
             offset,
@@ -102,37 +107,43 @@ export function test_world_race_finish(): void {
       ),
     ];
   };
-  const rides: ArchetypeRide.IRide<string, string>[] = [
+  const rides: AutoMovieArchetypeRide.IRide<string, string>[] = [
     1,
     1 + breadth + 0.3,
   ].map(
-    (offset: number, k: number): ArchetypeRide.IRide<string, string> =>
+    (offset: number, k: number): AutoMovieArchetypeRide.IRide<string, string> =>
       rideQuadruped(horse, {
-        plan: ArchetypeCourse.timed(`runner${k}`, lane(k, offset)),
+        plan: AutoMovieArchetypeCourse.timed(`runner${k}`, lane(k, offset)),
         cues: [{ from: 0, to: POST / pace, gait: "gallop" }],
       }),
   );
 
   // 1. Bodies meet only inside the bump.
-  const met: ArchetypePassage.IConflict[] = ArchetypePassage.conflicts("race", {
-    participants: rides.map(
-      (
-        ride: ArchetypeRide.IRide<string, string>,
-        k: number,
-      ): ArchetypePassage.IParticipant => ({
-        id: `runner${k}`,
-        plan: ride.plan,
-        footprint: ArchetypePassage.envelope(ride, 0, ride.duration, 0.2),
-        margin: CONTACT,
-      }),
-    ),
-    step: 0.05,
-  });
+  const met: AutoMovieArchetypePassage.IConflict[] =
+    AutoMovieArchetypePassage.conflicts("race", {
+      participants: rides.map(
+        (
+          ride: AutoMovieArchetypeRide.IRide<string, string>,
+          k: number,
+        ): AutoMovieArchetypePassage.IParticipant => ({
+          id: `runner${k}`,
+          plan: ride.plan,
+          footprint: AutoMovieArchetypePassage.envelope(
+            ride,
+            0,
+            ride.duration,
+            0.2,
+          ),
+          margin: CONTACT,
+        }),
+      ),
+      step: 0.05,
+    });
   TestValidator.predicate(
     `the runners meet only inside the authored bump: ${JSON.stringify(met)}`,
     met.length >= 1 &&
       met.every(
-        (found: ArchetypePassage.IConflict): boolean =>
+        (found: AutoMovieArchetypePassage.IConflict): boolean =>
           found.from >= (BUMP[0]! - 20) / pace &&
           found.to <= (BUMP[1]! + 20) / pace,
       ),
@@ -158,18 +169,23 @@ export function test_world_race_finish(): void {
   );
   TestValidator.predicate(
     "each runner's gait changes down after the post",
-    rides.every((ride: ArchetypeRide.IRide<string, string>): boolean =>
+    rides.every((ride: AutoMovieArchetypeRide.IRide<string, string>): boolean =>
       ride.instants.some(
-        (i: ArchetypeRide.IRide<string, string>["instants"][number]): boolean =>
+        (
+          i: AutoMovieArchetypeRide.IRide<string, string>["instants"][number],
+        ): boolean =>
           i.label.startsWith("gait:gallop-") && i.seconds >= POST / pace,
       ),
     ),
   );
   // 3. The same plans and seed replay the same race.
-  const again: ArchetypeRide.IRide<string, string> = rideQuadruped(horse, {
-    plan: ArchetypeCourse.timed("runner0", lane(0, 1)),
-    cues: [{ from: 0, to: POST / pace, gait: "gallop" }],
-  });
+  const again: AutoMovieArchetypeRide.IRide<string, string> = rideQuadruped(
+    horse,
+    {
+      plan: AutoMovieArchetypeCourse.timed("runner0", lane(0, 1)),
+      cues: [{ from: 0, to: POST / pace, gait: "gallop" }],
+    },
+  );
   TestValidator.equals(
     "a rebuilt runner reads the same poses",
     [5, 15, 30].map((seconds: number) => again.at(seconds)),

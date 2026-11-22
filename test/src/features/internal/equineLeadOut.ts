@@ -1,7 +1,7 @@
 import {
-  type ArchetypeRide,
-  QuadrupedDatumRide,
-  type QuadrupedFooting,
+  AutoMovieArchetypeQuadrupedDatumRide,
+  type AutoMovieArchetypeQuadrupedFooting,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -194,7 +194,7 @@ export namespace equineLeadOut {
    * @returns The mount.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the stage and its input.
-   * @evidence contracts/development/implementation.md#principled-implementation The climb rides the authored step, exit and top (`QuadrupedDatumRide` lifts the course to the step's height); the led walk starts where the climb halts on the top at zero.
+   * @evidence contracts/development/implementation.md#principled-implementation The climb rides the authored step, exit and top (`AutoMovieArchetypeQuadrupedDatumRide` lifts the course to the step's height); the led walk starts where the climb halts on the top at zero.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Footing, climb, clip, mount.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms One climb is planned; sampling is the caller's.
@@ -213,17 +213,17 @@ export namespace equineLeadOut {
       from: number,
       to: number,
       slope: number,
-    ): QuadrupedFooting.IPlane => ({
+    ): AutoMovieArchetypeQuadrupedFooting.IPlane => ({
       id,
       origin: { x: 0, y, z: from },
       x: [-6, 6],
       z: [from, to],
       slope: { x: 0, z: slope },
     });
-    const ride: ArchetypeRide.IRide<
+    const ride: AutoMovieArchetypeRide.IRide<
       createHorse.Affordance,
       createHorse.Dimension
-    > = QuadrupedDatumRide(
+    > = AutoMovieArchetypeQuadrupedDatumRide(
       horse,
       {
         start: { x: 0, z: 0, heading: 0 },

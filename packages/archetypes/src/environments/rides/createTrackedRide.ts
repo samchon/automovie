@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import { createTrackedRails } from "./createTrackedRails";
 
 /** Lateral and forward axes of the authored threshold. */
@@ -150,7 +150,7 @@ export function createTrackedRide(
 
     /** Compose the same local course with the occurrence's assigned world frame. */
     const at = (distance: number): IAutoMovieTransform =>
-      ArchetypeFrame.compose(context.frame, course.frame(distance));
+      AutoMovieArchetypeFrame.compose(context.frame, course.frame(distance));
 
     const first: IAutoMovieTransform = at(samples[0]!.distance);
     const rails: IAutoMovieModel = createTrackedRails(
@@ -194,7 +194,7 @@ export function createTrackedRide(
       (scopedCar.affordances ?? []).map(
         (contact: IAutoMovieAffordance): [string, IAutoMovieTransform] => [
           `carrier/${contact.id}`,
-          ArchetypeFrame.compose(first, contact.frame),
+          AutoMovieArchetypeFrame.compose(first, contact.frame),
         ],
       ),
     );
@@ -205,7 +205,7 @@ export function createTrackedRide(
     for (const [name, distance] of stops) {
       const position: number = placeDistance(course, distance);
       const root: IAutoMovieTransform = at(position);
-      const threshold: IAutoMovieTransform = ArchetypeFrame.compose(
+      const threshold: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
         root,
         boarding.frame,
       );

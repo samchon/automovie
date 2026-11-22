@@ -1,11 +1,14 @@
 import {
-  ArchetypeUnits,
-  type ArchetypeCourse,
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeUnits,
   createCar,
   driveCar,
 } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -24,13 +27,18 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_archetype_car_wheel_spin(): void {
   const findings: string[] = [];
-  const spins: readonly createCar.Affordance[] = ["frontLeftSpin", "frontRightSpin", "rearLeftSpin", "rearRightSpin"];
+  const spins: readonly createCar.Affordance[] = [
+    "frontLeftSpin",
+    "frontRightSpin",
+    "rearLeftSpin",
+    "rearRightSpin",
+  ];
   for (const kind of createCar.KINDS) {
     const car: ReturnType<typeof createCar> = createCar({ kind }, 4);
     const diameter: number = car.dimensions.wheelDiameter!;
     const expected = (metres: number): number =>
       ((((metres / (Math.PI * diameter)) * 360) % 360) + 360) % 360;
-    const base: Omit<ArchetypeCourse.ICourse, "legs"> = {
+    const base: Omit<AutoMovieArchetypeCourse.ICourse, "legs"> = {
       start: { x: 0, z: 0, heading: 0 },
       cruise: 3,
       acceleration: 1,
@@ -47,23 +55,35 @@ export function test_archetype_car_wheel_spin(): void {
     });
 
     // 1. After 10 m forward.
-    const forward: ReturnType<typeof createCar> = ride.at(ride.plan.when(10)).archetype;
+    const forward: ReturnType<typeof createCar> = ride.at(
+      ride.plan.when(10),
+    ).archetype;
     for (const id of spins)
       if (Math.abs(forward.travel(id) - expected(10)) > 1e-9)
-        findings.push(`${kind}: ${id} at ${forward.travel(id)}, not ${expected(10)}`);
+        findings.push(
+          `${kind}: ${id} at ${forward.travel(id)}, not ${expected(10)}`,
+        );
     const hub = (archetype: ReturnType<typeof createCar>): IAutoMovieVector3 =>
       Quaternion.rotateVector(
-        archetype.parts.find((p: IAutoMovieModelPart): boolean => p.id === "hub-rear-left")!.transform!.rotation,
+        archetype.parts.find(
+          (p: IAutoMovieModelPart): boolean => p.id === "hub-rear-left",
+        )!.transform!.rotation,
         { x: 0, y: 1, z: 0 },
       );
-    const turned: number = Math.atan2(hub(forward).z, hub(forward).y) / ArchetypeUnits.DEGREE;
-    if (Math.abs((((turned - expected(10)) % 360) + 540) % 360 - 180) > 1e-6)
-      findings.push(`${kind}: the hub bar turned ${turned}, not ${expected(10)}`);
+    const turned: number =
+      Math.atan2(hub(forward).z, hub(forward).y) /
+      AutoMovieArchetypeUnits.DEGREE;
+    if (Math.abs(((((turned - expected(10)) % 360) + 540) % 360) - 180) > 1e-6)
+      findings.push(
+        `${kind}: the hub bar turned ${turned}, not ${expected(10)}`,
+      );
 
     // 2. Back 4 m.
     const back: ReturnType<typeof createCar> = ride.at(ride.duration).archetype;
     if (Math.abs(back.travel("rearRightSpin") - expected(6)) > 1e-9)
-      findings.push(`${kind}: after backing the wheels are at ${back.travel("rearRightSpin")}, not ${expected(6)}`);
+      findings.push(
+        `${kind}: after backing the wheels are at ${back.travel("rearRightSpin")}, not ${expected(6)}`,
+      );
 
     // 3. Before the start.
     if (ride.at(1).archetype.travel("frontLeftSpin") !== 0)

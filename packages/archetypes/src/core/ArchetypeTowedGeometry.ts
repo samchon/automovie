@@ -3,14 +3,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { ArchetypeRide } from "./ArchetypeRide";
+import type { AutoMovieArchetypeRide } from "./AutoMovieArchetypeRide";
 
 /**
  * The contact geometry returned by an actual towed ride sample.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the two tow-specific contracts and their query scope.
  * @evidence contracts/development/design.md#principled-representation A tow adds one query that serves contacts from its current posed sources.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the types for ArchetypeRide.towed without duplicating ordinary ride fields.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the types for AutoMovieArchetypeRide.towed without duplicating ordinary ride fields.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The types retain actual world points and the existing film clock.
  */
 export namespace ArchetypeTowedGeometry {
@@ -64,7 +64,7 @@ export namespace ArchetypeTowedGeometry {
   export interface ITowedRide<
     Id extends string,
     Dimension extends string,
-  > extends ArchetypeRide.IRide<Id, Dimension> {
+  > extends AutoMovieArchetypeRide.IRide<Id, Dimension> {
     /**
      * Share the actual leader and trailer reads among contacts of this film second.
      *

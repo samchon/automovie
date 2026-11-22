@@ -1,12 +1,12 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  HorseDraft,
-  type HorseDraftPlan,
-  QuadrupedBody,
-  type QuadrupedFooting,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeEquineDraft,
+  type AutoMovieArchetypeEquineDraftPlan,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeQuadrupedFooting,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createCart,
   createHorse,
 } from "@automovie/archetypes";
@@ -21,7 +21,7 @@ import { TestValidator } from "@nestia/e2e";
 import { equineFordScene } from "../internal/equineFordScene";
 
 /** A take's sample. */
-type Sample = HorseDraftPlan.ISample<
+type Sample = AutoMovieArchetypeEquineDraftPlan.ISample<
   createHorse.Affordance,
   createHorse.Dimension,
   createCart.Affordance,
@@ -29,7 +29,7 @@ type Sample = HorseDraftPlan.ISample<
 >;
 
 /** A take. */
-type Take = HorseDraftPlan.ITake<
+type Take = AutoMovieArchetypeEquineDraftPlan.ITake<
   createHorse.Affordance,
   createHorse.Dimension,
   createCart.Affordance,
@@ -54,12 +54,14 @@ type Take = HorseDraftPlan.ITake<
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name.
  */
 export function test_archetype_equine_draft(): void {
-  const horse: Archetype<createHorse.Affordance, createHorse.Dimension> =
-    createHorse({ tack: "harness", withersHeight: 1.72, tempo: 0 }, 4);
-  const cart: Archetype<createCart.Affordance, createCart.Dimension> =
+  const horse: AutoMovieArchetype<
+    createHorse.Affordance,
+    createHorse.Dimension
+  > = createHorse({ tack: "harness", withersHeight: 1.72, tempo: 0 }, 4);
+  const cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension> =
     createCart({ kind: "cart", withersHeight: 1.72 }, 4);
   const issues: string[] = [];
-  const base: HorseDraftPlan.IParams = {
+  const base: AutoMovieArchetypeEquineDraftPlan.IParams = {
     start: { x: 0, z: 0, heading: 0 },
     approach: 3,
     connect: 1.5,
@@ -75,10 +77,10 @@ export function test_archetype_equine_draft(): void {
     deceleration: 0.6,
     sag: 0.08,
   };
-  const level: Take = HorseDraft(horse, cart, base);
+  const level: Take = AutoMovieArchetypeEquineDraft(horse, cart, base);
   inspect("level", level, null);
 
-  const ramp: QuadrupedFooting.IScene = {
+  const ramp: AutoMovieArchetypeQuadrupedFooting.IScene = {
     planes: [
       {
         id: "low",
@@ -103,7 +105,7 @@ export function test_archetype_equine_draft(): void {
       },
     ],
   };
-  const graded: Take = HorseDraft(horse, cart, {
+  const graded: Take = AutoMovieArchetypeEquineDraft(horse, cart, {
     ...base,
     pull: [
       { kind: "straight", length: 4 },
@@ -115,14 +117,14 @@ export function test_archetype_equine_draft(): void {
   inspect("grade", graded, ramp);
 
   refuses("mis-fitted cart", "cart", () =>
-    HorseDraft(
+    AutoMovieArchetypeEquineDraft(
       horse,
       createCart({ kind: "cart", withersHeight: 1.6 }, 4),
       base,
     ),
   );
   refuses("saddled horse", "tack", () =>
-    HorseDraft(
+    AutoMovieArchetypeEquineDraft(
       createHorse({ tack: "saddle", withersHeight: 1.72 }, 4),
       cart,
       base,
@@ -138,7 +140,7 @@ export function test_archetype_equine_draft(): void {
   function inspect(
     label: string,
     take: Take,
-    scene: QuadrupedFooting.IScene | null,
+    scene: AutoMovieArchetypeQuadrupedFooting.IScene | null,
   ): void {
     const { connect, pull, brake, release, depart } = take.events;
     if (
@@ -159,7 +161,7 @@ export function test_archetype_equine_draft(): void {
     let turned: boolean = false;
     for (let seconds: number = 0; seconds <= take.duration; seconds += 0.5) {
       const sample: Sample = take.at(seconds);
-      const expected: HorseDraftPlan.Stage =
+      const expected: AutoMovieArchetypeEquineDraftPlan.Stage =
         seconds < connect
           ? "approach"
           : seconds < pull
@@ -176,7 +178,7 @@ export function test_archetype_equine_draft(): void {
           `${label} ${seconds}: stage ${sample.stage}, expected ${expected}`,
         );
       const hitch: IAutoMovieVector3 = world(sample.horse, "hitch");
-      const coupling: IAutoMovieVector3 = ArchetypeFrame.compose(
+      const coupling: IAutoMovieVector3 = AutoMovieArchetypeFrame.compose(
         sample.placement,
         sample.cart.affordance("coupling").frame,
       ).translation;
@@ -187,7 +189,7 @@ export function test_archetype_equine_draft(): void {
         );
       if (
         standing &&
-        Math.abs(ArchetypeFrame.axis(sample.placement, "z").x) > 0.3
+        Math.abs(AutoMovieArchetypeFrame.axis(sample.placement, "z").x) > 0.3
       )
         turned = true;
       if (!standing) {
@@ -204,7 +206,7 @@ export function test_archetype_equine_draft(): void {
     const end: Sample = take.at(take.duration);
     const away: number = Vector3.distance(
       world(end.horse, "hitch"),
-      ArchetypeFrame.compose(
+      AutoMovieArchetypeFrame.compose(
         end.placement,
         end.cart.affordance("coupling").frame,
       ).translation,
@@ -219,8 +221,8 @@ export function test_archetype_equine_draft(): void {
       [connect, pull],
       [release, depart],
     ] as const)
-      for (const limb of QuadrupedBody.LIMBS) {
-        const id: string = QuadrupedBody.BONES[limb][3];
+      for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
+        const id: string = AutoMovieArchetypeQuadrupedBody.BONES[limb][3];
         const a: IAutoMovieVector3 = part(
           take.at(from + 1e-3).horse,
           id,
@@ -241,7 +243,7 @@ export function test_archetype_equine_draft(): void {
     label: string,
     seconds: number,
     sample: Sample,
-    stage: HorseDraftPlan.Stage,
+    stage: AutoMovieArchetypeEquineDraftPlan.Stage,
   ): void {
     const hooked: boolean =
       stage === "connection" || stage === "pull" || stage === "brake";
@@ -256,7 +258,7 @@ export function test_archetype_equine_draft(): void {
       );
       return;
     }
-    const tree: IAutoMovieTransform = ArchetypeFrame.compose(
+    const tree: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
       sample.placement,
       sample.cart.parts.find(
         (p: IAutoMovieModelPart): boolean => p.id === "single-tree",
@@ -269,7 +271,7 @@ export function test_archetype_equine_draft(): void {
       z: 0,
     });
     for (const [k, side] of (["left", "right"] as const).entries()) {
-      const trace: ArchetypeRide.ILineState = sample.traces[k]!;
+      const trace: AutoMovieArchetypeRide.ILineState = sample.traces[k]!;
       const collar: IAutoMovieVector3 = part(
         sample.horse,
         `draft-${side}`,
@@ -317,7 +319,7 @@ export function test_archetype_equine_draft(): void {
     label: string,
     seconds: number,
     sample: Sample,
-    scene: QuadrupedFooting.IScene | null,
+    scene: AutoMovieArchetypeQuadrupedFooting.IScene | null,
   ): void {
     const ids: readonly string[] = sample.cart.parts
       .map((p: IAutoMovieModelPart): string => p.id)
@@ -328,11 +330,11 @@ export function test_archetype_equine_draft(): void {
       const wheel: IAutoMovieModelPart = sample.cart.parts.find(
         (p: IAutoMovieModelPart): boolean => p.id === id,
       )!;
-      const centre: IAutoMovieVector3 = ArchetypeFrame.compose(
+      const centre: IAutoMovieVector3 = AutoMovieArchetypeFrame.compose(
         sample.placement,
         wheel.transform!,
       ).translation;
-      const plane: QuadrupedFooting.IPlane =
+      const plane: AutoMovieArchetypeQuadrupedFooting.IPlane =
         scene === null
           ? {
               id: "floor",
@@ -342,7 +344,7 @@ export function test_archetype_equine_draft(): void {
               slope: { x: 0, z: 0 },
             }
           : scene.planes.find(
-              (p: QuadrupedFooting.IPlane): boolean =>
+              (p: AutoMovieArchetypeQuadrupedFooting.IPlane): boolean =>
                 centre.z >= p.z[0] && centre.z < p.z[1],
             )!;
       const gap: number = equineFordScene.separation(
@@ -359,13 +361,13 @@ export function test_archetype_equine_draft(): void {
 
   /** An emitted part's world frame in a ride sample. */
   function part(
-    sample: ArchetypeRide.ISample<
+    sample: AutoMovieArchetypeRide.ISample<
       createHorse.Affordance,
       createHorse.Dimension
     >,
     id: string,
   ): IAutoMovieTransform {
-    return ArchetypeFrame.compose(
+    return AutoMovieArchetypeFrame.compose(
       sample.placement,
       sample.archetype.parts.find(
         (p: IAutoMovieModelPart): boolean => p.id === id,
@@ -375,13 +377,13 @@ export function test_archetype_equine_draft(): void {
 
   /** A contact's world point in a ride sample. */
   function world(
-    sample: ArchetypeRide.ISample<
+    sample: AutoMovieArchetypeRide.ISample<
       createHorse.Affordance,
       createHorse.Dimension
     >,
     id: createHorse.Affordance,
   ): IAutoMovieVector3 {
-    return ArchetypeFrame.compose(
+    return AutoMovieArchetypeFrame.compose(
       sample.placement,
       sample.archetype.affordance(id).frame,
     ).translation;
@@ -395,7 +397,7 @@ export function test_archetype_equine_draft(): void {
     } catch (caught) {
       error = caught;
     }
-    if (!(error instanceof ArchetypeRefusal && error.axis === axis))
+    if (!(error instanceof AutoMovieArchetypeRefusal && error.axis === axis))
       issues.push(
         `${label}: expected a refusal on ${axis}, got ${String(error)}`,
       );

@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { ArchetypeCourse, ArchetypeRide } from "../core";
+import type { AutoMovieArchetypeCourse, AutoMovieArchetypeRide } from "../core";
 import type { EquineJump } from "./EquineJump";
 import type { EquineObstacle } from "./EquineObstacle";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
@@ -31,10 +31,10 @@ export function trialEquineFlight<
   strides: QuadrupedStridePlan.IPlan,
   clock: QuadrupedRideClock.IClock,
   posed: (
-    state: ArchetypeCourse.IState,
+    state: AutoMovieArchetypeCourse.IState,
     seconds: number,
-  ) => ArchetypeRide.IPose<Affordance, Dimension>,
-  plan: ArchetypeCourse.IPlan,
+  ) => AutoMovieArchetypeRide.IPose<Affordance, Dimension>,
+  plan: AutoMovieArchetypeCourse.IPlan,
   centre: IAutoMovieVector3,
 ): EquineJump.ITrial {
   return {
@@ -42,7 +42,7 @@ export function trialEquineFlight<
     clock,
     centre,
     sample: (seconds: number): EquineObstacle.ISample => {
-      const shown: ArchetypeRide.IPose<Affordance, Dimension> = posed(
+      const shown: AutoMovieArchetypeRide.IPose<Affordance, Dimension> = posed(
         plan.at(seconds),
         seconds,
       );

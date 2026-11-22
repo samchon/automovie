@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-  ArchetypeUnits,
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
 } from "../core";
 import { ServiceCabinet } from "./ServiceCabinet";
 import type { createMachine } from "./createMachine";
@@ -20,8 +20,8 @@ interface IShelf {
 
 /** An ATM's shelf, metres: its top 763 mm up, protruding 174 mm from the fascia (NCR SS32 p. 9). */
 const SHELF: Readonly<IShelf> = {
-  height: 763 * ArchetypeUnits.MILLIMETRE,
-  out: 174 * ArchetypeUnits.MILLIMETRE,
+  height: 763 * AutoMovieArchetypeUnits.MILLIMETRE,
+  out: 174 * AutoMovieArchetypeUnits.MILLIMETRE,
 };
 
 /** The fascia items NCR's guide places. */
@@ -87,7 +87,7 @@ const ESTIMATES: Readonly<IEstimates> = { shelf: 0.03 };
  * @param params The scene identifier and any dimensions to fix inside their bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The shelf and fascia controls retain their measured NCR installation locations.
@@ -100,7 +100,7 @@ const ESTIMATES: Readonly<IEstimates> = { shelf: 0.03 };
 export function createAtm(
   params: createAtm.IParams = {},
   seed?: number | string,
-): Archetype<createAtm.Affordance, createAtm.Dimension> {
+): AutoMovieArchetype<createAtm.Affordance, createAtm.Dimension> {
   const cabinet: ServiceCabinet.ICabinet<createAtm.Affordance> =
     ServiceCabinet.begin("atm", "cash machine", "#b3202a", params, seed);
   fascia(cabinet.builder, cabinet.width, cabinet.depth);
@@ -116,12 +116,15 @@ export function createAtm(
  * @param depth The cabinet's depth, metres.
  */
 function fascia(
-  builder: ArchetypeBuilder<createAtm.Affordance, createMachine.Dimension>,
+  builder: AutoMovieArchetypeBuilder<
+    createAtm.Affordance,
+    createMachine.Dimension
+  >,
   width: number,
   depth: number,
 ): void {
   const v: typeof Vector3.create = Vector3.create;
-  const mm: number = ArchetypeUnits.MILLIMETRE;
+  const mm: number = AutoMovieArchetypeUnits.MILLIMETRE;
   const front: number = depth / 2 + SHELF.out;
   builder.box(
     "shelf",
@@ -151,13 +154,13 @@ function fascia(
         ? {
             id,
             kind: "button",
-            frame: ArchetypeFrame.facing(at, v(0, 0, 1), v(1, 0, 0)),
+            frame: AutoMovieArchetypeFrame.facing(at, v(0, 0, 1), v(1, 0, 0)),
             extent: null,
           }
         : {
             id,
             kind: "socket",
-            frame: ArchetypeFrame.facing(at, v(0, 0, 1), v(1, 0, 0)),
+            frame: AutoMovieArchetypeFrame.facing(at, v(0, 0, 1), v(1, 0, 0)),
             extent: null,
           },
     );
@@ -165,7 +168,7 @@ function fascia(
   builder.affordance({
     id: "screen",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, SCREEN.height * mm, front - SCREEN.depth * mm),
       v(0, 0, 1),
       v(1, 0, 0),

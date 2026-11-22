@@ -1,10 +1,10 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeTrack,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeTrack,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
@@ -39,32 +39,37 @@ import { nclose } from "../internal/nclose";
  */
 export function test_archetype_track_profile_numeric(): void {
   const findings: string[] = [];
-  const model: Archetype<"joint", never> = new ArchetypeBuilder<"joint", never>(
-    {
+  const model: AutoMovieArchetype<"joint", never> =
+    new AutoMovieArchetypeBuilder<"joint", never>({
       name: "profile fixture",
       material: "steel",
-      draw: new ArchetypeDrawSession<never>("profile", {}, undefined),
-    },
-  )
-    .box("body", { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 })
-    .affordance({
-      id: "joint",
-      kind: "crank",
-      extent: null,
-      radius: 1,
-      parts: ["body"],
-      frame: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+      draw: new AutoMovieArchetypeDrawSession<never>("profile", {}, undefined),
     })
-    .build(1);
+      .box("body", { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 })
+      .affordance({
+        id: "joint",
+        kind: "crank",
+        extent: null,
+        radius: 1,
+        parts: ["body"],
+        frame: AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+      })
+      .build(1);
   const max: number = Number.MAX_VALUE;
-  const quarters: ArchetypeTrack.ITrack<"joint"> = ease(0, 512);
+  const quarters: AutoMovieArchetypeTrack.ITrack<"joint"> = ease(0, 512);
   if (
     !nclose(quarters.travel(0.25), 53, 0) ||
     !nclose(quarters.travel(0.75), 459, 0)
   )
     findings.push("the native quintic's exact quarter values changed");
   for (const requested of [0, 5]) {
-    const track: ArchetypeTrack.ITrack<"joint"> = ease(0, 5, -2, 3, requested);
+    const track: AutoMovieArchetypeTrack.ITrack<"joint"> = ease(
+      0,
+      5,
+      -2,
+      3,
+      requested,
+    );
     if (
       track.launch === null ||
       !nclose(track.launch.seconds, requested === 0 ? -2 : 1, 0) ||
@@ -72,7 +77,7 @@ export function test_archetype_track_profile_numeric(): void {
     )
       findings.push("an endpoint crossing lost its exact instant or zero rate");
   }
-  const tinyRate: ArchetypeTrack.ITrack<"joint"> = ease(
+  const tinyRate: AutoMovieArchetypeTrack.ITrack<"joint"> = ease(
     0,
     2 * Number.MIN_VALUE,
     0,
@@ -102,7 +107,7 @@ export function test_archetype_track_profile_numeric(): void {
     findings.push(
       "a representable late displacement disappeared in elapsed subtraction",
     );
-  const opposite: ArchetypeTrack.ITrack<"joint"> = ease(
+  const opposite: AutoMovieArchetypeTrack.ITrack<"joint"> = ease(
     max,
     0,
     -(2 ** 1021 + 3 * 2 ** 970),
@@ -114,7 +119,7 @@ export function test_archetype_track_profile_numeric(): void {
   for (const span of [1, max]) {
     const expected: number =
       Math.cbrt(Number.MIN_VALUE) / Math.cbrt(span) / Math.cbrt(10);
-    const track: ArchetypeTrack.ITrack<"joint"> = ease(
+    const track: AutoMovieArchetypeTrack.ITrack<"joint"> = ease(
       0,
       span,
       0,
@@ -137,7 +142,7 @@ export function test_archetype_track_profile_numeric(): void {
         `the tiny crossing of MIN on span${span} lost its scale or derivative`,
       );
   }
-  const reverse: ArchetypeTrack.ITrack<"joint"> = ease(
+  const reverse: AutoMovieArchetypeTrack.ITrack<"joint"> = ease(
     max,
     0,
     -1,
@@ -158,14 +163,21 @@ export function test_archetype_track_profile_numeric(): void {
       "the tiny late crossing became the end or lost its displayed value",
     );
   for (const read of [
-    (): ArchetypeTrack.ITrack<"joint"> => ease(0, max, 0, 1, -Number.MIN_VALUE),
-    (): ArchetypeTrack.ITrack<"joint"> => ease(0, max, 0, 1, max / 2),
-    (): ArchetypeTrack.ITrack<"joint"> => ease(0, 1, 0, Number.MIN_VALUE, 0.5),
-    (): ArchetypeTrack.ITrack<"joint"> => ease(0, 1, 1e16, 2, 0.5),
+    (): AutoMovieArchetypeTrack.ITrack<"joint"> =>
+      ease(0, max, 0, 1, -Number.MIN_VALUE),
+    (): AutoMovieArchetypeTrack.ITrack<"joint"> => ease(0, max, 0, 1, max / 2),
+    (): AutoMovieArchetypeTrack.ITrack<"joint"> =>
+      ease(0, 1, 0, Number.MIN_VALUE, 0.5),
+    (): AutoMovieArchetypeTrack.ITrack<"joint"> => ease(0, 1, 1e16, 2, 0.5),
   ])
     if (!refuses(read, "launch"))
       findings.push("an unsupported launch escaped its actual admission axis");
-  if (!refuses((): ArchetypeTrack.ITrack<"joint"> => ease(-max, max), "travel"))
+  if (
+    !refuses(
+      (): AutoMovieArchetypeTrack.ITrack<"joint"> => ease(-max, max),
+      "travel",
+    )
+  )
     findings.push("a truly unrepresentable endpoint difference was accepted");
   TestValidator.equals(
     "minimum-jerk numeric conditioning preserves the motion",
@@ -180,8 +192,8 @@ export function test_archetype_track_profile_numeric(): void {
     start: number = 0,
     seconds: number = 1,
     launch?: number,
-  ): ArchetypeTrack.ITrack<"joint"> {
-    return ArchetypeTrack.ease(model, "joint", {
+  ): AutoMovieArchetypeTrack.ITrack<"joint"> {
+    return AutoMovieArchetypeTrack.ease(model, "joint", {
       start,
       seconds,
       from,
@@ -195,7 +207,7 @@ export function test_archetype_track_profile_numeric(): void {
     try {
       read();
     } catch (error) {
-      return error instanceof ArchetypeRefusal && error.axis === axis;
+      return error instanceof AutoMovieArchetypeRefusal && error.axis === axis;
     }
     return false;
   }

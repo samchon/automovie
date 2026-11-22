@@ -1,6 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeDraw, ArchetypeFrame } from "../core";
+import {
+  ArchetypeDraw,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { StationeryDraw } from "./StationeryDraw";
 
 /**
@@ -9,7 +13,7 @@ import { StationeryDraw } from "./StationeryDraw";
  * @param params The optional scene ID, paper format and any fixed dimension in metres or kilograms. The default format is a single sheet.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Loose paper sheet or folding map with a shared writing-surface contract.
  * @evidence contracts/development/implementation.md#principled-implementation The folded map has a fixed base and an equal moving panel with a crease at their boundary.
@@ -22,25 +26,25 @@ import { StationeryDraw } from "./StationeryDraw";
 export function createPaper(
   params?: createPaper.ISheetParams,
   seed?: number | string,
-): Archetype<createPaper.SheetAffordance, createPaper.Dimension>;
+): AutoMovieArchetype<createPaper.SheetAffordance, createPaper.Dimension>;
 
 /** The folded map adds a crease and separate grips for its two layers. */
 export function createPaper(
   params: createPaper.IFoldedMapParams,
   seed?: number | string,
-): Archetype<createPaper.Affordance, createPaper.Dimension>;
+): AutoMovieArchetype<createPaper.Affordance, createPaper.Dimension>;
 
 /** A format selected by an authored scene resolves to one of the two paper models. */
 export function createPaper(
   params: createPaper.IParams,
   seed?: number | string,
-): Archetype<createPaper.Affordance, createPaper.Dimension>;
+): AutoMovieArchetype<createPaper.Affordance, createPaper.Dimension>;
 
 /** Produce the requested format according to the contact contract above. */
 export function createPaper(
   params: createPaper.IParams = {},
   seed?: number | string,
-): Archetype<createPaper.Affordance, createPaper.Dimension> {
+): AutoMovieArchetype<createPaper.Affordance, createPaper.Dimension> {
   const format: createPaper.Format = ArchetypeDraw.choice(
     "stationery",
     "format",
@@ -82,7 +86,7 @@ export function createPaper(
     builder.affordance({
       id: "fold",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(width / 2, baseThickness, 0),
         Vector3.create(0, 0, -1),
         Vector3.create(-1, 0, 0),
@@ -95,7 +99,7 @@ export function createPaper(
       id: "support-grip",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, baseThickness / 2, length / 2),
         Vector3.create(0, 1, 0),
         Vector3.create(1, 0, 0),
@@ -109,7 +113,7 @@ export function createPaper(
       id: "fold-edge",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(-width / 2, panelHeight, 0),
         Vector3.create(0, 1, 0),
         Vector3.create(0, 0, 1),

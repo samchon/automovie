@@ -1,5 +1,5 @@
 import {
-  ArchetypeUnits,
+  AutoMovieArchetypeUnits,
   createBicycle,
   createCar,
   createCart,
@@ -254,15 +254,15 @@ export function test_archetype_ride_bands(): void {
       ),
       row(
         "saddle seat size",
-        16 * ArchetypeUnits.INCH,
-        18 * ArchetypeUnits.INCH,
+        16 * AutoMovieArchetypeUnits.INCH,
+        18 * AutoMovieArchetypeUnits.INCH,
         "Wintec",
         (seed: number): number => horse(seed).affordance("seat").depth!,
       ),
       row(
         "rein width",
-        (5 / 8) * ArchetypeUnits.INCH,
-        (3 / 4) * ArchetypeUnits.INCH,
+        (5 / 8) * AutoMovieArchetypeUnits.INCH,
+        (3 / 4) * AutoMovieArchetypeUnits.INCH,
         "Dover Saddlery",
         (seed: number): number => horse(seed).affordance("leftRein").aperture!,
       ),
@@ -346,8 +346,8 @@ export function test_archetype_ride_bands(): void {
       ),
       row(
         "carbine length, stock in",
-        30.5 * ArchetypeUnits.INCH,
-        30.5 * ArchetypeUnits.INCH,
+        30.5 * AutoMovieArchetypeUnits.INCH,
+        30.5 * AutoMovieArchetypeUnits.INCH,
         "Colt",
         (seed: number): number =>
           archetypeExtent(createLongGun({ kind: "carbine" }, seed), "z", [
@@ -357,8 +357,8 @@ export function test_archetype_ride_bands(): void {
       ),
       row(
         "carbine length, stock out",
-        33.75 * ArchetypeUnits.INCH,
-        33.75 * ArchetypeUnits.INCH,
+        33.75 * AutoMovieArchetypeUnits.INCH,
+        33.75 * AutoMovieArchetypeUnits.INCH,
         "Colt",
         (seed: number): number => {
           const carbine: ReturnType<typeof createLongGun> = createLongGun(
@@ -374,8 +374,8 @@ export function test_archetype_ride_bands(): void {
       ),
       row(
         "shotgun length of pull",
-        13.87 * ArchetypeUnits.INCH,
-        13.87 * ArchetypeUnits.INCH,
+        13.87 * AutoMovieArchetypeUnits.INCH,
+        13.87 * AutoMovieArchetypeUnits.INCH,
         "Mossberg 590A1",
         (seed: number): number => {
           const shotgun: ReturnType<typeof createLongGun> = createLongGun(
@@ -390,8 +390,8 @@ export function test_archetype_ride_bands(): void {
       ),
       row(
         "bat length",
-        35.1 * ArchetypeUnits.INCH,
-        35.2 * ArchetypeUnits.INCH,
+        35.1 * AutoMovieArchetypeUnits.INCH,
+        35.2 * AutoMovieArchetypeUnits.INCH,
         "Nathan, Smith and Russell 2026",
         (seed: number): number =>
           archetypeExtent(createClub({ kind: "bat" }, seed), "y").size,
@@ -399,7 +399,7 @@ export function test_archetype_ride_bands(): void {
       row(
         "bat barrel",
         0,
-        2.61 * ArchetypeUnits.INCH,
+        2.61 * AutoMovieArchetypeUnits.INCH,
         "Official Baseball Rules 3.02(a)",
         (seed: number): number =>
           archetypeExtent(createClub({ kind: "bat" }, seed), "x").size,
@@ -407,23 +407,23 @@ export function test_archetype_ride_bands(): void {
       ),
       row(
         "bat mass",
-        33.9 * ArchetypeUnits.OUNCE,
-        34.5 * ArchetypeUnits.OUNCE,
+        33.9 * AutoMovieArchetypeUnits.OUNCE,
+        34.5 * AutoMovieArchetypeUnits.OUNCE,
         "Nathan, Smith and Russell 2026",
         (seed: number): number => createClub({ kind: "bat" }, seed).body.mass,
       ),
       row(
         "baton length",
-        24 * ArchetypeUnits.INCH,
-        26 * ArchetypeUnits.INCH,
+        24 * AutoMovieArchetypeUnits.INCH,
+        26 * AutoMovieArchetypeUnits.INCH,
         "Monadnock MP24 and MP26",
         (seed: number): number =>
           archetypeExtent(createClub({ kind: "baton" }, seed), "y").size,
       ),
       row(
         "holster ride",
-        -1.5 * ArchetypeUnits.INCH,
-        1.5 * ArchetypeUnits.INCH,
+        -1.5 * AutoMovieArchetypeUnits.INCH,
+        1.5 * AutoMovieArchetypeUnits.INCH,
         "Safariland",
         (seed: number): number => {
           const holster: ReturnType<typeof createHolster> = createHolster(

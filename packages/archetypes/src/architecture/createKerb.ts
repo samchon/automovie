@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -18,7 +18,7 @@ import {
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The kerb or step.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it stands, which side is approached and its two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation One box of the drawn length along `X`, depth along `Z` and height.
@@ -31,9 +31,9 @@ import {
 export function createKerb(
   params: createKerb.IParams,
   seed?: number | string,
-): Archetype<createKerb.Affordance, createKerb.Dimension> {
-  const draw: ArchetypeDrawSession<createKerb.Dimension> =
-    new ArchetypeDrawSession<createKerb.Dimension>(
+): AutoMovieArchetype<createKerb.Affordance, createKerb.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createKerb.Dimension> =
+    new AutoMovieArchetypeDrawSession<createKerb.Dimension>(
       "kerb",
       createKerb.UNITS,
       seed,
@@ -48,13 +48,15 @@ export function createKerb(
   const d: Record<createKerb.Dimension, number> = draw.dimensions(
     createKerb.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<createKerb.Affordance, createKerb.Dimension> =
-    new ArchetypeBuilder({
-      material: "concrete",
-      id: params.id,
-      name: kind,
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createKerb.Affordance,
+    createKerb.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "concrete",
+    id: params.id,
+    name: kind,
+    draw,
+  });
   builder.box(
     kind,
     Vector3.create(d.length, d.height, d.depth),
@@ -64,7 +66,9 @@ export function createKerb(
   builder.affordance({
     id: "top",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, d.height, d.depth / 2)),
+    frame: AutoMovieArchetypeFrame.upright(
+      Vector3.create(0, d.height, d.depth / 2),
+    ),
     extent: null,
     width: d.length,
     depth: d.depth,
@@ -72,7 +76,7 @@ export function createKerb(
   builder.affordance({
     id: "edge",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, d.height, d.depth),
       Vector3.create(0, 1, 0),
       Vector3.create(1, 0, 0),
@@ -117,7 +121,9 @@ export namespace createKerb {
   export type Dimension = "height" | "depth" | "length" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     depth: "m",
     length: "m",
@@ -147,13 +153,13 @@ export namespace createKerb {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     kerb: {
-      height: ArchetypeBand.metres(0.1, 0.15, UPSTAND),
-      depth: ArchetypeBand.metres(0.125, 0.125, HB2),
-      length: ArchetypeBand.metres(0.915, 0.915, HB2),
-      mass: ArchetypeBand.of(
+      height: AutoMovieArchetypeBand.metres(0.1, 0.15, UPSTAND),
+      depth: AutoMovieArchetypeBand.metres(0.125, 0.125, HB2),
+      length: AutoMovieArchetypeBand.metres(0.915, 0.915, HB2),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         72,
         72,
@@ -161,23 +167,23 @@ export namespace createKerb {
       ),
     },
     step: {
-      height: ArchetypeBand.metres(
+      height: AutoMovieArchetypeBand.metres(
         0.196,
         0.196,
         `${IRC}: the riser's limit, which the model takes`,
       ),
-      depth: ArchetypeBand.metres(
+      depth: AutoMovieArchetypeBand.metres(
         0.254,
         0.254,
         `${IRC}: the tread's limit, which the model takes`,
       ),
-      length: ArchetypeBand.metres(
+      length: AutoMovieArchetypeBand.metres(
         0.9,
         1.2,
         "a step's width; the code read sets the riser and the tread only",
         true,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         40,
         150,

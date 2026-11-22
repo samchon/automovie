@@ -1,5 +1,5 @@
 import {
-  type Archetype,
+  type AutoMovieArchetype,
   createHammer,
   createSeat,
   createTable,
@@ -93,8 +93,10 @@ export function test_human_motion_tool_bases(): void {
 
   for (const fit of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
-    const hammer: Archetype<createHammer.Affordance, createHammer.Dimension> =
-      createHammer();
+    const hammer: AutoMovieArchetype<
+      createHammer.Affordance,
+      createHammer.Dimension
+    > = createHammer();
     // The right knee comes down a step behind the stance under the right
     // hip, the hammer lies out beside it and the nail ahead of it, clear of
     // the front foot on the other side.
@@ -133,10 +135,14 @@ export function test_human_motion_tool_bases(): void {
       reaches(floor, hammer, floorPoint),
     );
 
-    const bench: Archetype<createTable.Affordance, createTable.Dimension> =
-      createTable({ kind: "workbench", height: 0.75 });
-    const chair: Archetype<createSeat.Affordance, createSeat.Dimension> =
-      createSeat({ kind: "dining" });
+    const bench: AutoMovieArchetype<
+      createTable.Affordance,
+      createTable.Dimension
+    > = createTable({ kind: "workbench", height: 0.75 });
+    const chair: AutoMovieArchetype<
+      createSeat.Affordance,
+      createSeat.Dimension
+    > = createSeat({ kind: "dining" });
     const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(chair, {
       at: { x: 0, y: 0, z: -0.2 },
       yaw: 0,
@@ -205,7 +211,7 @@ function stage(
 /** Whether the displayed hammer face meets the point at every contact event of the work. */
 function reaches(
   film: HumanPerformance,
-  hammer: Archetype<createHammer.Affordance, createHammer.Dimension>,
+  hammer: AutoMovieArchetype<createHammer.Affordance, createHammer.Dimension>,
   point: IAutoMovieVector3,
 ): boolean {
   const work: IAutoMovieMotionHumanSegment = film

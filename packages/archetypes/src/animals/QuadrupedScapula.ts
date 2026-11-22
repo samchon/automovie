@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { QuadrupedBody } from "./QuadrupedBody";
-import type { QuadrupedLimb } from "./QuadrupedLimb";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedLimb } from "./AutoMovieArchetypeQuadrupedLimb";
 
 /**
  * A fore limb's shoulder blade, turning in the sagittal plane about its upper third so the shoulder joint follows a planted hoof's reach.
@@ -19,10 +19,13 @@ export namespace QuadrupedScapula {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the two limbs that have a blade.
    * @evidence contracts/development/design.md#principled-representation The body's fore limbs, extracted from its limb union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `QuadrupedBody`; named here for the blade.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `AutoMovieArchetypeQuadrupedBody`; named here for the blade.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No restated literals.
    */
-  export type Fore = Extract<QuadrupedBody.Limb, "leftFore" | "rightFore">;
+  export type Fore = Extract<
+    AutoMovieArchetypeQuadrupedBody.Limb,
+    "leftFore" | "rightFore"
+  >;
 
   /**
    * A shoulder blade's bone, between the trunk and the humerus.
@@ -162,7 +165,7 @@ export namespace QuadrupedScapula {
   export function high(
     joint: IJoint,
     goal: IAutoMovieVector3,
-    reach: QuadrupedLimb.IRange,
+    reach: AutoMovieArchetypeQuadrupedLimb.IRange,
     range: number = RANGE,
   ): number {
     const planar: number = leg(reach.maximum, goal.x - joint.glenoid.x);
@@ -207,7 +210,7 @@ export namespace QuadrupedScapula {
   export function least(
     joint: IJoint,
     goal: IAutoMovieVector3,
-    reach: QuadrupedLimb.IRange,
+    reach: AutoMovieArchetypeQuadrupedLimb.IRange,
     height: number,
     margin: number,
     range: number = RANGE,

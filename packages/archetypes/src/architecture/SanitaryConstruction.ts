@@ -1,11 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import type { createSanitary } from "./createSanitary";
 import { createTap } from "./createTap";
 
 /** The builder every kind's construction fills. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createSanitary.Affordance,
   createSanitary.Dimension
 >;
@@ -113,14 +116,18 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "rim",
       kind: "ledge",
-      frame: ArchetypeFrame.facing(v(0, rim, depth), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, rim, depth),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       length: width,
     });
     builder.affordance({
       id: "bowl",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, rim, depth / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, rim, depth / 2)),
       extent: null,
       width: d.bowlWidth!,
       depth: d.bowlDepth!,
@@ -128,7 +135,11 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "tap",
       kind: "knob",
-      frame: ArchetypeFrame.facing(v(0, top, deck), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, top, deck),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       grip: "precision",
       travel: MIXER.turn,
@@ -137,7 +148,11 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "lift",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, top, deck), v(-1, 0, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, top, deck),
+        v(-1, 0, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       travel: MIXER.lift,
       parts: ["tap-lever"],
@@ -146,7 +161,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "spout",
       kind: "socket",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, outlet, deck + d.tapReach!),
         v(0, -1, 0),
         v(1, 0, 0),
@@ -209,7 +224,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "seat",
       kind: "seat",
-      frame: ArchetypeFrame.upright(v(0, seat, front)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, seat, front)),
       extent: null,
       width,
       depth: d.seatDepth!,
@@ -217,7 +232,11 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "lid",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, seat, hinge), v(1, 0, 0), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, seat, hinge),
+        v(1, 0, 0),
+        v(0, 1, 0),
+      ),
       extent: null,
       travel: LIFT,
       parts: ["lid"],
@@ -275,7 +294,11 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "rim",
       kind: "ledge",
-      frame: ArchetypeFrame.facing(v(0, rim, width), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, rim, width),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       length,
     });
@@ -285,14 +308,18 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "edge",
       kind: "ledge",
-      frame: ArchetypeFrame.facing(v(0, rim, width), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, rim, width),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       length,
     });
     builder.affordance({
       id: "top",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, rim, width - side / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, rim, width - side / 2)),
       extent: null,
       width: length,
       depth: side,
@@ -300,7 +327,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "bottom",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, floor, width / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, floor, width / 2)),
       extent: null,
       width: wellX,
       depth: wellZ,
@@ -312,7 +339,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "seat",
       kind: "seat",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, floor, width / 2),
         v(1, 0, 0),
         v(0, 1, 0),
@@ -325,7 +352,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "backrest",
       kind: "surface",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(-wellX / 2, (rim + floor) / 2, width / 2),
         v(1, 0, 0),
         v(0, 1, 0),
@@ -401,7 +428,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "tray",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, step, wall + half)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, step, wall + half)),
       extent: null,
       width: inside,
       depth: inside,
@@ -409,14 +436,22 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "threshold",
       kind: "ledge",
-      frame: ArchetypeFrame.facing(v(0, step, depth), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, step, depth),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       length: inside,
     });
     builder.affordance({
       id: "entry",
       kind: "aperture",
-      frame: ArchetypeFrame.facing(v(0, step, depth), v(0, 1, 0), v(-1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, step, depth),
+        v(0, 1, 0),
+        v(-1, 0, 0),
+      ),
       extent: null,
       width: inside,
       height: height - step,
@@ -424,7 +459,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "seat",
       kind: "seat",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(out, seat, wall + run / 2),
         v(0, 1, 0),
         v(0, 0, 1),
@@ -436,7 +471,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "control",
       kind: "knob",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(-half, d.control!, wall + run / 2),
         v(1, 0, 0),
         v(0, 0, 1),

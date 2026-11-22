@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The World Athletics rule as read. */
@@ -22,7 +22,7 @@ const RULE: string =
  * @param params The category and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The javelin.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the javelin stands and its two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A shaft of the drawn length and diameter in two lengths meeting at the drawn centre of gravity's distance from the point, their mass shares the ones that put the whole's centre of mass there, as the rule places it, and a cord rod a few millimetres thicker, as wide as the rule's cord, centred on it.
@@ -35,9 +35,9 @@ const RULE: string =
 export function createJavelin(
   params: createJavelin.IParams,
   seed?: number | string,
-): Archetype<createJavelin.Affordance, createJavelin.Dimension> {
-  const draw: ArchetypeDrawSession<createJavelin.Dimension> =
-    new ArchetypeDrawSession<createJavelin.Dimension>(
+): AutoMovieArchetype<createJavelin.Affordance, createJavelin.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createJavelin.Dimension> =
+    new AutoMovieArchetypeDrawSession<createJavelin.Dimension>(
       "javelin",
       createJavelin.UNITS,
       seed,
@@ -52,10 +52,10 @@ export function createJavelin(
   const d: Record<createJavelin.Dimension, number> = draw.dimensions(
     createJavelin.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createJavelin.Affordance,
     createJavelin.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `${kind}'s javelin`,
@@ -90,7 +90,7 @@ export function createJavelin(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, d.balance, 0),
       Vector3.create(0, 0, -1),
       Vector3.create(0, 1, 0),
@@ -104,7 +104,7 @@ export function createJavelin(
     id: "point",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, -1, 0),
       Vector3.create(1, 0, 0),
@@ -157,7 +157,9 @@ export namespace createJavelin {
   export type Dimension = "length" | "diameter" | "balance" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     diameter: "m",
     balance: "m",
@@ -174,12 +176,16 @@ export namespace createJavelin {
   }
 
   /** A band in metres of the rule. */
-  const m = (minimum: number, maximum: number, what: string): IArchetypeBand =>
-    ArchetypeBand.metres(minimum, maximum, `${RULE}: ${what}`);
+  const m = (
+    minimum: number,
+    maximum: number,
+    what: string,
+  ): IAutoMovieArchetypeBand =>
+    AutoMovieArchetypeBand.metres(minimum, maximum, `${RULE}: ${what}`);
 
   /** The band of each free dimension, by category. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
       length: m(2.6, 2.7, "the men's 2.60 to 2.70 m long"),
@@ -193,7 +199,7 @@ export namespace createJavelin {
         1.06,
         "the men's centre of gravity 0.90 to 1.06 m from the point",
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.8,
         0.8,
@@ -212,7 +218,7 @@ export namespace createJavelin {
         0.92,
         "the women's centre of gravity 0.80 to 0.92 m from the point",
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.6,
         0.6,

@@ -1,22 +1,22 @@
 import {
-  type Archetype,
-  ArchetypeBand,
-  type ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeRefusal,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeRefusal,
+  type IAutoMovieArchetypeBand,
 } from "../core";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedEquipment } from "./AutoMovieArchetypeQuadrupedEquipment";
+import type { AutoMovieArchetypeQuadrupedLead } from "./AutoMovieArchetypeQuadrupedLead";
 import { QuadrupedAnimal } from "./QuadrupedAnimal";
-import { QuadrupedBody } from "./QuadrupedBody";
-import type { QuadrupedEquipment } from "./QuadrupedEquipment";
-import type { QuadrupedLead } from "./QuadrupedLead";
 import { QuadrupedLeadPlan } from "./QuadrupedLeadPlan";
 
 /** One admitted profile and its fixed-size physical addition plans. */
 interface PreparedReference {
   /** The same profile is reused by selected model construction. */
-  body: QuadrupedBody.IBody;
+  body: AutoMovieArchetypeQuadrupedBody.IBody;
   /** Non-emitting collar/lead plan, absent when none was requested. */
   lead: QuadrupedLeadPlan | undefined;
   /** Non-emitting species/equipment preparation, absent when no extra parts exist. */
@@ -24,7 +24,7 @@ interface PreparedReference {
 }
 
 /** Coordinate of the table's declared spread; no unreported animal SD is inferred. */
-const TEMPO: IArchetypeBand = ArchetypeBand.of(
+const TEMPO: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
   "",
   -1,
   1,
@@ -36,7 +36,7 @@ const TEMPO: IArchetypeBand = ArchetypeBand.of(
  *
  * @param props Closed whole-reference data, authored selection palette, body constructor and actual additions.
  * @returns The independent actual model with authored mass or its selected bare reference mass.
- * @throws {ArchetypeRefusal} For invalid reference dimensions, mass, tempo or authored lead lengths.
+ * @throws {AutoMovieArchetypeRefusal} For invalid reference dimensions, mass, tempo or authored lead lengths.
  * @evidence contracts/development/common.md#meaningful-documentation States exact whole-reference ownership, fixed/seedless/seeded selection, authored catalogue frequency, source versus equipment mass and declared timing spread.
  * @evidence contracts/development/implementation.md#principled-implementation Admit actual profiles and non-emitting gear plans for the entire unfixed catalogue, including its seedless default, before one whole-row draw. Thus equipment refusal cannot depend on seed. A fixed cohort admits only itself. The selected prepared profile/additions build one actual model with source or authored mass and unknown foot friction.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare source figures, actual rigs and physical additions for the request's complete choice domain, make one cohort draw, record tempo and emit the selected profile and plans once.
@@ -47,9 +47,12 @@ const TEMPO: IArchetypeBand = ArchetypeBand.of(
  */
 export function createCohortQuadruped<Cohort extends string>(
   props: createCohortQuadruped.IProps<Cohort>,
-): Archetype<createCohortQuadruped.Affordance, QuadrupedBody.Dimension> {
-  const draw: ArchetypeDrawSession<QuadrupedBody.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createCohortQuadruped.Affordance,
+  AutoMovieArchetypeQuadrupedBody.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeQuadrupedBody.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       props.archetype,
       { withersHeight: "m", girth: "m", mass: "kg", tempo: "" },
       props.seed,
@@ -75,7 +78,12 @@ export function createCohortQuadruped<Cohort extends string>(
 
   // Admit actual profiles and additions before the single whole-reference draw.
   const figures: Partial<
-    Record<Cohort, Readonly<Partial<Record<QuadrupedBody.Dimension, number>>>>
+    Record<
+      Cohort,
+      Readonly<
+        Partial<Record<AutoMovieArchetypeQuadrupedBody.Dimension, number>>
+      >
+    >
   > = {};
   const prepared: Map<Cohort, PreparedReference> = new Map();
   for (const key of candidates) {
@@ -83,7 +91,7 @@ export function createCohortQuadruped<Cohort extends string>(
     const reference: createCohortQuadruped.IReference | undefined =
       props.references[key];
     if (reference === undefined)
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: props.archetype,
         axis: "cohort",
@@ -107,11 +115,12 @@ export function createCohortQuadruped<Cohort extends string>(
         ? { mass: reference.mass }
         : {}),
     };
-    const body: QuadrupedBody.IBody = props.body(key);
-    const rig: QuadrupedBody.IRig = QuadrupedBody.rig(body, {
-      withersHeight: reference.withers,
-      girth: reference.girth,
-    });
+    const body: AutoMovieArchetypeQuadrupedBody.IBody = props.body(key);
+    const rig: AutoMovieArchetypeQuadrupedBody.IRig =
+      AutoMovieArchetypeQuadrupedBody.rig(body, {
+        withersHeight: reference.withers,
+        girth: reference.girth,
+      });
     try {
       const lead: QuadrupedLeadPlan | undefined =
         props.params.lead === undefined
@@ -122,9 +131,9 @@ export function createCohortQuadruped<Cohort extends string>(
       if (
         supplied === undefined &&
         candidates.length > 1 &&
-        error instanceof ArchetypeRefusal
+        error instanceof AutoMovieArchetypeRefusal
       )
-        throw new ArchetypeRefusal({
+        throw new AutoMovieArchetypeRefusal({
           kind: error.kind,
           archetype: error.archetype,
           axis: error.axis,
@@ -138,11 +147,18 @@ export function createCohortQuadruped<Cohort extends string>(
   }
 
   const models: Partial<
-    Record<Cohort, Readonly<Partial<Record<QuadrupedBody.Dimension, number>>>>
+    Record<
+      Cohort,
+      Readonly<
+        Partial<Record<AutoMovieArchetypeQuadrupedBody.Dimension, number>>
+      >
+    >
   > = {};
   for (const key of fixed === undefined ? props.choices : [fixed]) {
     const row:
-      | Readonly<Partial<Record<QuadrupedBody.Dimension, number>>>
+      | Readonly<
+          Partial<Record<AutoMovieArchetypeQuadrupedBody.Dimension, number>>
+        >
       | undefined = figures[key];
     if (row === undefined)
       throw new RangeError(`The reference ${key} was not prepared`);
@@ -150,7 +166,7 @@ export function createCohortQuadruped<Cohort extends string>(
   }
   const selected: Cohort | undefined = draw.model("cohort", fixed, models).name;
   if (selected === undefined)
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: props.archetype,
       axis: "cohort",
@@ -171,9 +187,9 @@ export function createCohortQuadruped<Cohort extends string>(
     draw,
     body: actual.body,
     add: (
-      builder: ArchetypeBuilder<
+      builder: AutoMovieArchetypeBuilder<
         createCohortQuadruped.Affordance,
-        QuadrupedBody.Dimension
+        AutoMovieArchetypeQuadrupedBody.Dimension
       >,
     ): void => {
       actual.addition?.(builder);
@@ -188,7 +204,7 @@ export function createCohortQuadruped<Cohort extends string>(
     unit: "m" | "kg",
   ): void {
     if (!(value !== undefined && Number.isFinite(value) && value > 0))
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: props.archetype,
         axis,
@@ -211,11 +227,14 @@ export function createCohortQuadruped<Cohort extends string>(
  */
 export namespace createCohortQuadruped {
   /** Contacts the non-equid producers may actually build. */
-  export type Affordance = QuadrupedEquipment.Affordance;
+  export type Affordance = AutoMovieArchetypeQuadrupedEquipment.Affordance;
 
   /** Emission of already admitted, fixed-size actual additions into the selected builder. */
   export type Addition = (
-    builder: ArchetypeBuilder<Affordance, QuadrupedBody.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      Affordance,
+      AutoMovieArchetypeQuadrupedBody.Dimension
+    >,
   ) => void;
 
   /** Authored construction choices, independent of the reference cohort's traits. */
@@ -227,7 +246,7 @@ export namespace createCohortQuadruped {
     /** Coordinate -1..1 of the table's declared timing spread. */
     tempo?: number;
     /** Explicit physical collar/lead dimensions; absent means no lead is drawn. */
-    lead?: QuadrupedLead.IParams;
+    lead?: AutoMovieArchetypeQuadrupedLead.IParams;
   }
 
   /** Selected source dimensions; optional bare mass stays separate from equipment. */
@@ -257,12 +276,15 @@ export namespace createCohortQuadruped {
     /** Coherent source figures by key; unselected body geometry is not built. */
     references: Readonly<Record<Cohort, Readonly<IReference>>>;
     /** Prepare each eligible fixed-size profile; only the selected one emits actual model parts. */
-    body: (cohort: Cohort) => QuadrupedBody.IBody;
+    body: (cohort: Cohort) => AutoMovieArchetypeQuadrupedBody.IBody;
     /** Admitted authoring choices. */
     params: IParams;
     /** The seed that draws the cohort and the free dimensions left open in `params`; absent, the cohort is `reference` and each free dimension takes the middle of its band. */
     seed?: number | string;
     /** Admit physical additions without emitting unselected model geometry. */
-    prepare?: (rig: QuadrupedBody.IRig, cohort: Cohort) => Addition | undefined;
+    prepare?: (
+      rig: AutoMovieArchetypeQuadrupedBody.IRig,
+      cohort: Cohort,
+    ) => Addition | undefined;
   }
 }

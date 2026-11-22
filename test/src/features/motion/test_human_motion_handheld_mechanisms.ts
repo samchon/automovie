@@ -1,5 +1,5 @@
 import {
-  UmbrellaRunner,
+  AutoMovieArchetypeUmbrellaRunner,
   createFoldingKnife,
   createPalette,
   createScissors,
@@ -205,7 +205,7 @@ function umbrella(
     });
     const rib: number = posed.travel("rib0");
     follows &&= rib >= last - 1e-6;
-    for (let k: number = 1; k < UmbrellaRunner.RIBS; ++k)
+    for (let k: number = 1; k < AutoMovieArchetypeUmbrellaRunner.RIBS; ++k)
       follows &&= Math.abs(posed.travel(`rib${k}`) - rib) <= 1e-6;
     last = rib;
   }
@@ -220,7 +220,7 @@ function umbrella(
     follows &&
       Math.abs(
         model.articulate({ runner: end["runner"] ?? 0 }).travel("rib0") -
-          UmbrellaRunner.OPEN,
+          AutoMovieArchetypeUmbrellaRunner.OPEN,
       ) <= SHUT,
   );
   // The left hand on the runner through the push's middle half.

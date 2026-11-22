@@ -1,15 +1,15 @@
 import {
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  type ArchetypeSpan,
-  EquineHobble,
-  EquineLunge,
-  EquineLungeLine,
-  EquineStance,
-  EquineTie,
-  QuadrupedBody,
-  QuadrupedGait,
+  AutoMovieArchetypeEquineHobble,
+  AutoMovieArchetypeEquineLunge,
+  AutoMovieArchetypeEquineLungeLine,
+  AutoMovieArchetypeEquineStance,
+  AutoMovieArchetypeEquineTie,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeQuadrupedGait,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
+  type AutoMovieArchetypeSpan,
   createHobble,
   createHorse,
   createQuadruped,
@@ -24,10 +24,13 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /** A horse ride. */
-type Ride = ArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension>;
+type Ride = AutoMovieArchetypeRide.IRide<
+  createHorse.Affordance,
+  createHorse.Dimension
+>;
 
 /** A sample of a horse ride. */
-type Sample = ArchetypeRide.ISample<
+type Sample = AutoMovieArchetypeRide.ISample<
   createHorse.Affordance,
   createHorse.Dimension
 >;
@@ -68,9 +71,9 @@ export function test_archetype_equine_groundwork(): void {
     { tack: "bareback", withersHeight: 1.6, tempo: 0 },
     5,
   );
-  const centre: EquineLunge.IPoint = { x: 0, z: 0 };
+  const centre: AutoMovieArchetypeEquineLunge.IPoint = { x: 0, z: 0 };
   const radius: number = 8;
-  const lunge: Ride = EquineLunge.ride(horse, {
+  const lunge: Ride = AutoMovieArchetypeEquineLunge.ride(horse, {
     centre,
     radius,
     bearing: 0,
@@ -184,9 +187,13 @@ export function test_archetype_equine_groundwork(): void {
   }
 
   // 2. The line, from the line hand to the halter.
-  const hand: EquineLungeLine.IHand = { height: 1.05, reach: 0.4, spread: 0.2 };
+  const hand: AutoMovieArchetypeEquineLungeLine.IHand = {
+    height: 1.05,
+    reach: 0.4,
+    spread: 0.2,
+  };
   const length: number = 9.14;
-  const lined: Ride = EquineLungeLine.layer(
+  const lined: Ride = AutoMovieArchetypeEquineLungeLine.layer(
     lunge,
     "lead",
     centre,
@@ -204,7 +211,7 @@ export function test_archetype_equine_groundwork(): void {
       : NaN;
   for (let t: number = 0; t <= lined.duration; t += 0.5) {
     const sample: Sample = lined.at(t);
-    const state: ArchetypeSpan.IState = sample.archetype.span("lead");
+    const state: AutoMovieArchetypeSpan.IState = sample.archetype.span("lead");
     const from: IAutoMovieVector3 = point(sample.placement, state.from);
     const to: IAutoMovieVector3 = point(sample.placement, state.to);
     const at: IAutoMovieVector3 = sample.placement.translation;
@@ -247,16 +254,17 @@ export function test_archetype_equine_groundwork(): void {
   }
 
   // 3. An over-tight circle.
-  const canter: ReturnType<typeof QuadrupedGait.range> = QuadrupedGait.range(
-    createQuadruped.species(horse),
-    "canter",
-    1.6,
-  );
+  const canter: ReturnType<typeof AutoMovieArchetypeQuadrupedGait.range> =
+    AutoMovieArchetypeQuadrupedGait.range(
+      createQuadruped.species(horse),
+      "canter",
+      1.6,
+    );
   TestValidator.error(
     "a circle tighter than the canter admits is refused",
     () => {
       try {
-        EquineLunge.ride(horse, {
+        AutoMovieArchetypeEquineLunge.ride(horse, {
           centre,
           radius: 2,
           bearing: 0,
@@ -271,7 +279,10 @@ export function test_archetype_equine_groundwork(): void {
           ],
         });
       } catch (error) {
-        if (error instanceof ArchetypeRefusal && error.axis === "radius")
+        if (
+          error instanceof AutoMovieArchetypeRefusal &&
+          error.axis === "radius"
+        )
           throw error;
         throw new Error(`refused for another reason: ${String(error)}`);
       }
@@ -301,7 +312,7 @@ export function test_archetype_equine_groundwork(): void {
     z: halter.z + 0.6,
   };
   const tether: number = 1;
-  const tie: EquineTie.ITie = {
+  const tie: AutoMovieArchetypeEquineTie.ITie = {
     ring,
     axis: { x: 1, y: 0, z: 0 },
     radius: 0.03,
@@ -309,15 +320,19 @@ export function test_archetype_equine_groundwork(): void {
     tie: { from: halt + 0.5, carry: 1.2, wraps: 2, wrap: 0.6 },
     untie: { from: halt + 6, carry: 1.2, wraps: 2, wrap: 0.6 },
   };
-  const tied: Ride = EquineTie.layer(walked, "lead", 3, tie);
+  const tied: Ride = AutoMovieArchetypeEquineTie.layer(walked, "lead", 3, tie);
   const knot: IAutoMovieVector3 = Vector3.addScaled(
     ring,
     { x: 0, y: 1, z: 0 },
     tie.radius,
   );
-  for (let t: number = EquineTie.end(tie.tie); t < tie.untie!.from; t += 0.25) {
+  for (
+    let t: number = AutoMovieArchetypeEquineTie.end(tie.tie);
+    t < tie.untie!.from;
+    t += 0.25
+  ) {
     const sample: Sample = tied.at(t);
-    const span: ArchetypeSpan.IState = sample.archetype.span("lead");
+    const span: AutoMovieArchetypeSpan.IState = sample.archetype.span("lead");
     const muzzle: IAutoMovieVector3 = tip(sample, "head");
     const reach: number = Vector3.distance(
       point(sample.placement, span.to),
@@ -328,8 +343,12 @@ export function test_archetype_equine_groundwork(): void {
       Vector3.distance(muzzle, knot) <= tether + reach + 1e-6,
     );
   }
-  const freed: Sample = tied.at(EquineTie.end(tie.untie!) + 0.5);
-  const loose: Sample = walked.at(EquineTie.end(tie.untie!) + 0.5);
+  const freed: Sample = tied.at(
+    AutoMovieArchetypeEquineTie.end(tie.untie!) + 0.5,
+  );
+  const loose: Sample = walked.at(
+    AutoMovieArchetypeEquineTie.end(tie.untie!) + 0.5,
+  );
   TestValidator.predicate(
     "the lead hangs from the halter again after the untie",
     Vector3.distance(
@@ -340,12 +359,12 @@ export function test_archetype_equine_groundwork(): void {
   TestValidator.error(
     "a tether shorter than the head stands from the knot is refused",
     () => {
-      const short: Ride = EquineTie.layer(walked, "lead", 3, {
+      const short: Ride = AutoMovieArchetypeEquineTie.layer(walked, "lead", 3, {
         ...tie,
         tether: 0.1,
         untie: undefined,
       });
-      short.at(EquineTie.end(tie.tie) + 0.5);
+      short.at(AutoMovieArchetypeEquineTie.end(tie.tie) + 0.5);
     },
   );
 
@@ -356,7 +375,7 @@ export function test_archetype_equine_groundwork(): void {
     cuff(stopped, "rightFore"),
   );
   const strap: number = apart + 0.05;
-  const hopping: Ride = EquineStance.after(horse, walked, [
+  const hopping: Ride = AutoMovieArchetypeEquineStance.after(horse, walked, [
     {
       kind: "hops",
       count: 3,
@@ -370,21 +389,22 @@ export function test_archetype_equine_groundwork(): void {
   ]);
   const cannon: IAutoMovieModelPart = horse.parts.find(
     (part: IAutoMovieModelPart): boolean =>
-      part.id === QuadrupedBody.BONES.leftFore[2],
+      part.id === AutoMovieArchetypeQuadrupedBody.BONES.leftFore[2],
   )!;
-  const hobble: ArchetypeRide.IRide<never, never> = EquineHobble.ride(
-    createHobble(
-      cannon.geometry.type === "primitive" &&
-        (cannon.geometry.shape.type === "capsule" ||
-          cannon.geometry.shape.type === "cylinder")
-        ? cannon.geometry.shape.radius
-        : NaN,
-      { strap },
-    ),
-    hopping,
-  );
+  const hobble: AutoMovieArchetypeRide.IRide<never, never> =
+    AutoMovieArchetypeEquineHobble.ride(
+      createHobble(
+        cannon.geometry.type === "primitive" &&
+          (cannon.geometry.shape.type === "capsule" ||
+            cannon.geometry.shape.type === "cylinder")
+          ? cannon.geometry.shape.radius
+          : NaN,
+        { strap },
+      ),
+      hopping,
+    );
   for (let t: number = halt; t <= hopping.duration; t += 0.1) {
-    const worn: ArchetypeRide.ISample<never, never> = hobble.at(t);
+    const worn: AutoMovieArchetypeRide.ISample<never, never> = hobble.at(t);
     const cuffs: number = Vector3.distance(
       world(worn, "leftCuff"),
       world(worn, "rightCuff"),
@@ -412,7 +432,7 @@ export function test_archetype_equine_groundwork(): void {
   TestValidator.error(
     "a strap shorter than the fores stand apart is refused",
     () =>
-      EquineStance.after(horse, walked, [
+      AutoMovieArchetypeEquineStance.after(horse, walked, [
         {
           kind: "hops",
           count: 1,
@@ -429,13 +449,14 @@ export function test_archetype_equine_groundwork(): void {
 
 /** A part's world origin in a sample. */
 function world<Id extends string, D extends string>(
-  sample: ArchetypeRide.ISample<Id, D>,
+  sample: AutoMovieArchetypeRide.ISample<Id, D>,
   id: string,
 ): IAutoMovieVector3 {
   const part: IAutoMovieModelPart = sample.archetype.parts.find(
     (each: IAutoMovieModelPart): boolean => each.id === id,
   )!;
-  return ArchetypeFrame.compose(sample.placement, part.transform!).translation;
+  return AutoMovieArchetypeFrame.compose(sample.placement, part.transform!)
+    .translation;
 }
 
 /** A bar part's far end in the world: its frame's centre plus half its length along its axis. */
@@ -443,7 +464,7 @@ function tip(sample: Sample, id: string): IAutoMovieVector3 {
   const part: IAutoMovieModelPart = sample.archetype.parts.find(
     (each: IAutoMovieModelPart): boolean => each.id === id,
   )!;
-  const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+  const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     sample.placement,
     part.transform!,
   );
@@ -453,27 +474,33 @@ function tip(sample: Sample, id: string): IAutoMovieVector3 {
       part.geometry.shape.type === "cylinder")
       ? part.geometry.shape.height
       : NaN;
-  return ArchetypeFrame.compose(
+  return AutoMovieArchetypeFrame.compose(
     frame,
-    ArchetypeFrame.upright({ x: 0, y: length / 2, z: 0 }),
+    AutoMovieArchetypeFrame.upright({ x: 0, y: length / 2, z: 0 }),
   ).translation;
 }
 
-/** Where a hobble's cuff closes on a fore cannon in the world: `EquineHobble.ABOVE` up the cannon from its fetlock. */
-function cuff(sample: Sample, limb: QuadrupedBody.Limb): IAutoMovieVector3 {
-  const id: string = QuadrupedBody.BONES[limb][2];
+/** Where a hobble's cuff closes on a fore cannon in the world: `AutoMovieArchetypeEquineHobble.ABOVE` up the cannon from its fetlock. */
+function cuff(
+  sample: Sample,
+  limb: AutoMovieArchetypeQuadrupedBody.Limb,
+): IAutoMovieVector3 {
+  const id: string = AutoMovieArchetypeQuadrupedBody.BONES[limb][2];
   const fetlock: IAutoMovieVector3 = tip(sample, id);
   const middle: IAutoMovieVector3 = world(sample, id);
   return Vector3.addScaled(
     fetlock,
     Vector3.normalize(Vector3.subtract(middle, fetlock)),
-    EquineHobble.ABOVE,
+    AutoMovieArchetypeEquineHobble.ABOVE,
   );
 }
 
 /** A limb's hoof endpoint in the world. */
-function hoof(sample: Sample, limb: QuadrupedBody.Limb): IAutoMovieVector3 {
-  return tip(sample, QuadrupedBody.BONES[limb][3]);
+function hoof(
+  sample: Sample,
+  limb: AutoMovieArchetypeQuadrupedBody.Limb,
+): IAutoMovieVector3 {
+  return tip(sample, AutoMovieArchetypeQuadrupedBody.BONES[limb][3]);
 }
 
 /** The distance from a point to a bar part's axis segment, world metres. */
@@ -521,12 +548,17 @@ function point(
   placement: IAutoMovieTransform,
   local: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return ArchetypeFrame.compose(placement, ArchetypeFrame.upright(local))
-    .translation;
+  return AutoMovieArchetypeFrame.compose(
+    placement,
+    AutoMovieArchetypeFrame.upright(local),
+  ).translation;
 }
 
 /** The unsigned angle between two floor directions, degrees. */
-function angle(a: EquineLunge.IPoint, b: EquineLunge.IPoint): number {
+function angle(
+  a: AutoMovieArchetypeEquineLunge.IPoint,
+  b: AutoMovieArchetypeEquineLunge.IPoint,
+): number {
   return (
     (Math.acos(
       Math.max(

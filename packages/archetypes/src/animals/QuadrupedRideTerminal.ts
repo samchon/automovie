@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { QuadrupedBody } from "./QuadrupedBody";
-import { QuadrupedLimb } from "./QuadrupedLimb";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import { AutoMovieArchetypeQuadrupedLimb } from "./AutoMovieArchetypeQuadrupedLimb";
 
 /**
  * One limb's terminal support for the ride pose (`QuadrupedRidePose`): its exact oriented chain solver and the height of its endpoint above the terminal primitive's lowest surface, for any terminal orientation and support plane.
@@ -27,7 +27,7 @@ export namespace QuadrupedRideTerminal {
    */
   export interface IEnd {
     /** Actual chain with its terminal direction constrained by a pose goal. */
-    solver: QuadrupedLimb.IOriented;
+    solver: AutoMovieArchetypeQuadrupedLimb.IOriented;
     /** Endpoint height above the terminal primitive's lowest surface, metres. */
     clearance: number;
   }
@@ -64,7 +64,7 @@ export namespace QuadrupedRideTerminal {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the prepared chain and the terminal shape.
    */
   export function of(
-    limb: QuadrupedBody.Limb,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
     chain: readonly IAutoMovieVector3[],
     terminal: IAutoMovieModelPart | undefined,
   ): Binding {
@@ -84,10 +84,8 @@ export namespace QuadrupedRideTerminal {
       z: dz / length,
     };
     const shape: typeof terminal.geometry.shape = terminal.geometry.shape;
-    const prepared: QuadrupedLimb.IPrepared = QuadrupedLimb.prepare(
-      chain,
-      limb.endsWith("Fore"),
-    );
+    const prepared: AutoMovieArchetypeQuadrupedLimb.IPrepared =
+      AutoMovieArchetypeQuadrupedLimb.prepare(chain, limb.endsWith("Fore"));
     const defaultSupport: IEnd = support(axis, false);
     return (
       orientation: IAutoMovieQuaternion | undefined,

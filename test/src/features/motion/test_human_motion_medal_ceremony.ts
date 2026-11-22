@@ -1,4 +1,4 @@
-import { type Archetype, createMedal } from "@automovie/archetypes";
+import { type AutoMovieArchetype, createMedal } from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
@@ -30,7 +30,7 @@ const RIGID: number = 0.001;
 const SEAT: number = 0.01;
 
 /** A medal model. */
-type Medal = Archetype<createMedal.Affordance, createMedal.Dimension>;
+type Medal = AutoMovieArchetype<createMedal.Affordance, createMedal.Dimension>;
 
 /**
  * A medal ceremony (#4015): the presenter pins a medal on the left of a

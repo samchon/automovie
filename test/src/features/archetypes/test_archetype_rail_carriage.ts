@@ -1,8 +1,8 @@
 import {
-  ArchetypeAssembly,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeRide,
+  AutoMovieArchetypeAssembly,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeRide,
   createRailCarriage,
   createRailPlatform,
 } from "@automovie/archetypes";
@@ -49,26 +49,26 @@ export function test_archetype_rail_carriage(): void {
   const floorHeight: number = 40 * 0.0254;
   const open: typeof car = car.articulate({ door: leafWidth });
   type Members = {
-    car: ArchetypeAssembly.IMember<
+    car: AutoMovieArchetypeAssembly.IMember<
       createRailCarriage.Affordance,
       createRailCarriage.Dimension
     >;
-    station: ArchetypeAssembly.IMember<"platform" | "platformEdge", never>;
+    station: AutoMovieArchetypeAssembly.IMember<
+      "platform" | "platformEdge",
+      never
+    >;
   };
-  const assembled: ArchetypeAssembly<Members> = ArchetypeAssembly.of<Members>(
-    "parked",
-    "parked metro car",
-    {
+  const assembled: AutoMovieArchetypeAssembly<Members> =
+    AutoMovieArchetypeAssembly.of<Members>("parked", "parked metro car", {
       car: {
         archetype: open,
-        placement: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+        placement: AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
       },
       station: {
         archetype: platform,
-        placement: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+        placement: AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
       },
-    },
-  );
+    });
   TestValidator.predicate(
     "car, platform and parked assembly are admitted",
     () =>
@@ -138,19 +138,27 @@ export function test_archetype_rail_carriage(): void {
       seat.kind === "seat" &&
       nclose(seat.width!, 22 * 0.0254) &&
       seat.frame.translation.x + seat.width! / 2 <= -aisle.width! / 2 + 1e-6 &&
-      vclose(ArchetypeFrame.axis(seat.frame, "z"), { x: 0, y: 0, z: 1 }) &&
+      vclose(AutoMovieArchetypeFrame.axis(seat.frame, "z"), {
+        x: 0,
+        y: 0,
+        z: 1,
+      }) &&
       rail.kind === "bar" &&
       rail.aperture! >= 1.25 * 0.0254 &&
       rail.aperture! <= 1.5 * 0.0254 &&
       rail.frame.translation.z - rail.aperture! / 2 > leafWidth &&
       rail.frame.translation.x - rail.aperture! / 2 > aisle.width! / 2 &&
-      vclose(ArchetypeFrame.axis(rail.frame, "x"), { x: 0, y: 1, z: 0 }),
+      vclose(AutoMovieArchetypeFrame.axis(rail.frame, "x"), {
+        x: 0,
+        y: 1,
+        z: 0,
+      }),
   );
 
-  const ride: ArchetypeRide.IRide<
+  const ride: AutoMovieArchetypeRide.IRide<
     createRailCarriage.Affordance,
     createRailCarriage.Dimension
-  > = ArchetypeRide.along(car, {
+  > = AutoMovieArchetypeRide.along(car, {
     start: { x: 0, z: 0, heading: 0 },
     legs: [{ kind: "straight", length: 8 }],
     cruise: 2,
@@ -229,7 +237,7 @@ export function test_archetype_rail_carriage(): void {
           createRailCarriage(undefined, { seatHeight: height });
         } catch (error) {
           return (
-            error instanceof ArchetypeRefusal &&
+            error instanceof AutoMovieArchetypeRefusal &&
             error.kind === "parameter" &&
             error.axis === "seatHeight" &&
             Object.is(error.value, height) &&

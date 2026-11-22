@@ -2,13 +2,13 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** Published dimensions and per-unit mass of the adult half-cuff model. */
@@ -50,7 +50,7 @@ const SHAPE: Readonly<ICrutchShape> = {
  * @param params The scene identifier and optional floor-to-grip height in metres.
  * @param seed Draws the floor-to-grip height when it is omitted. Without a seed, use the midpoint of the recorded range.
  * @returns The generated prop with its grip and tip contacts.
- * @throws {ArchetypeRefusal} For a grip height outside the recorded range.
+ * @throws {AutoMovieArchetypeRefusal} For a grip height outside the recorded range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the single forearm prop, its axes and contacts, the varied height and the explicit refusal.
  * @evidence contracts/development/implementation.md#principled-implementation Put the floor contact on the lower cap and derive the grip axis and aperture from the same handle rod. The upper extension meets the rear of a coarse open cuff.
@@ -63,16 +63,16 @@ const SHAPE: Readonly<ICrutchShape> = {
 export function createCrutch(
   params: createCrutch.IParams = {},
   seed?: number | string,
-): Archetype<createCrutch.Affordance, createCrutch.Dimension> {
-  const draw: ArchetypeDrawSession<createCrutch.Dimension> =
-    new ArchetypeDrawSession("crutch", { height: "m" }, seed, params);
+): AutoMovieArchetype<createCrutch.Affordance, createCrutch.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createCrutch.Dimension> =
+    new AutoMovieArchetypeDrawSession("crutch", { height: "m" }, seed, params);
   const { height }: Record<createCrutch.Dimension, number> = draw.dimensions(
     createCrutch.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createCrutch.Affordance,
     createCrutch.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     name: "forearm crutch",
     id: params.id,
     material: "composite",
@@ -82,13 +82,13 @@ export function createCrutch(
   const base: IAutoMovieVector3 = v(0, 0, 0);
   const heel: IAutoMovieVector3 = v(0, SHAPE.baseHeight, 0);
   const junction: IAutoMovieVector3 = v(0, height, 0);
-  const cuffHeight: number = height + 9 * ArchetypeUnits.INCH;
+  const cuffHeight: number = height + 9 * AutoMovieArchetypeUnits.INCH;
   const attachment: IAutoMovieVector3 = v(0, cuffHeight, -SHAPE.topSetback);
-  const barLength: number = 4.25 * ArchetypeUnits.INCH;
-  const diameter: number = 1.5 * ArchetypeUnits.INCH;
+  const barLength: number = 4.25 * AutoMovieArchetypeUnits.INCH;
+  const diameter: number = 1.5 * AutoMovieArchetypeUnits.INCH;
   // The midpoints of the four chords carry the published inner radius.
   const cuffRadius: number =
-    ((3.5 * ArchetypeUnits.INCH) / 2 + SHAPE.cuffSection) /
+    ((3.5 * AutoMovieArchetypeUnits.INCH) / 2 + SHAPE.cuffSection) /
     Math.cos(Math.PI / 8);
 
   builder.rod("tip", SHAPE.baseRadius, base, heel, { color: "#33363a" });
@@ -124,7 +124,7 @@ export function createCrutch(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, height, barLength / 2),
       v(0, 1, 0),
       v(0, 0, 1),
@@ -137,7 +137,7 @@ export function createCrutch(
   builder.affordance({
     id: "tip",
     kind: "surface",
-    frame: ArchetypeFrame.facing(base, v(0, -1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(base, v(0, -1, 0), v(1, 0, 0)),
     extent: null,
   });
   return builder.build(0.5528);
@@ -168,10 +168,10 @@ export namespace createCrutch {
   }
 
   /** The measured adjustment envelope of the selected object. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    height: ArchetypeBand.metres(
-      29.8 * ArchetypeUnits.INCH,
-      38 * ArchetypeUnits.INCH,
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    height: AutoMovieArchetypeBand.metres(
+      29.8 * AutoMovieArchetypeUnits.INCH,
+      38 * AutoMovieArchetypeUnits.INCH,
       SOURCE,
     ),
   };

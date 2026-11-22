@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { ObstacleDraw } from "./ObstacleDraw";
 
 /**
@@ -12,7 +12,7 @@ import { ObstacleDraw } from "./ObstacleDraw";
  * @param params The scene identifier and any dimensions to fix inside their bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The frame's drawn height, tube size and picket spacing place a grip on its real upper rail.
@@ -25,7 +25,10 @@ import { ObstacleDraw } from "./ObstacleDraw";
 export function createCrowdBarrier(
   params: createCrowdBarrier.IParams = {},
   seed?: number | string,
-): Archetype<createCrowdBarrier.Affordance, createCrowdBarrier.Dimension> {
+): AutoMovieArchetype<
+  createCrowdBarrier.Affordance,
+  createCrowdBarrier.Dimension
+> {
   const { builder, d }: ObstacleDraw.IObstacle<createCrowdBarrier.Affordance> =
     ObstacleDraw.begin("crowdBarrier", "crowd barrier", "steel", params, seed);
   const v: typeof Vector3.create = Vector3.create;
@@ -86,7 +89,11 @@ export function createCrowdBarrier(
     id: "rail",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, rail, z), v(0, 1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, rail, z),
+      v(0, 1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
     grip: "power",
     aperture: d.tube!,

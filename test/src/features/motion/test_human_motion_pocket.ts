@@ -1,4 +1,4 @@
-import { type Archetype, createPhone } from "@automovie/archetypes";
+import { type AutoMovieArchetype, createPhone } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
@@ -45,7 +45,8 @@ export function test_human_motion_pocket(): void {
     ["f-small", "frontLeft", "left"],
   ] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
-    const phone: Archetype<createPhone.Affordance, string> = createPhone();
+    const phone: AutoMovieArchetype<createPhone.Affordance, string> =
+      createPhone();
     const mount: HumanPocket.IMount = HumanPocket.mount(body, site);
     const film: HumanPerformance = new HumanPerformance({
       seed: "pocket",

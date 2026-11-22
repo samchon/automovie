@@ -1,5 +1,5 @@
 import {
-  ArchetypeCourse,
+  AutoMovieArchetypeCourse,
   createBoat,
   createCanoePaddle,
   createKayak,
@@ -62,9 +62,8 @@ export function test_motion_exercise_native_paddling(): void {
     const paddle = canoe
       ? createCanoePaddle()
       : createKayakPaddle({ length: 2.3 });
-    const course: ArchetypeCourse.IPlan = ArchetypeCourse.plan(
-      "paddle-course",
-      {
+    const course: AutoMovieArchetypeCourse.IPlan =
+      AutoMovieArchetypeCourse.plan("paddle-course", {
         start: { x: 0, z: 0, heading: 0 },
         legs: [
           { kind: "straight", length: 0.4 },
@@ -74,8 +73,7 @@ export function test_motion_exercise_native_paddling(): void {
         cruise: 1.4,
         acceleration: 1.1,
         deceleration: 0.6,
-      },
-    );
+      });
     const first: IAutoMovieRigidTransform = {
       position: course.at(0).placement.translation,
       rotation: course.at(0).placement.rotation,
@@ -273,9 +271,7 @@ export function test_motion_exercise_native_paddling(): void {
         const along: number = Vector3.dot(offset, axis);
         maxHand = Math.max(
           maxHand,
-          Vector3.length(
-            Vector3.subtract(offset, Vector3.scale(axis, along)),
-          ),
+          Vector3.length(Vector3.subtract(offset, Vector3.scale(axis, along))),
           Math.abs(along) - (site.length ?? 0) / 2,
         );
       }

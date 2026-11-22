@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** Book trim sizes: a print service's list, and the UK paperback formats from a secondary source. */
@@ -109,7 +109,9 @@ export namespace StationeryDraw {
   export type Dimension = "width" | "length" | "thickness" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     length: "m",
     thickness: "m",
@@ -167,13 +169,13 @@ export namespace StationeryDraw {
 
   /** The band of each free dimension, by kind; a clipboard's are its model's. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     book: {
-      width: ArchetypeBand.metres(0.11, 0.156, BOOK, true),
-      length: ArchetypeBand.metres(0.178, 0.234, BOOK, true),
-      thickness: ArchetypeBand.metres(0.009, 0.039, THICKNESS, true),
-      mass: ArchetypeBand.of(
+      width: AutoMovieArchetypeBand.metres(0.11, 0.156, BOOK, true),
+      length: AutoMovieArchetypeBand.metres(0.178, 0.234, BOOK, true),
+      thickness: AutoMovieArchetypeBand.metres(0.009, 0.039, THICKNESS, true),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.17,
         0.34,
@@ -182,15 +184,15 @@ export namespace StationeryDraw {
       ),
     },
     paper: {
-      width: ArchetypeBand.metres(0.21, 0.216, PAPER, true),
-      length: ArchetypeBand.metres(0.279, 0.297, PAPER, true),
-      thickness: ArchetypeBand.metres(
+      width: AutoMovieArchetypeBand.metres(0.21, 0.216, PAPER, true),
+      length: AutoMovieArchetypeBand.metres(0.279, 0.297, PAPER, true),
+      thickness: AutoMovieArchetypeBand.metres(
         0.0001,
         0.0001,
         "80 g/m2 office paper is about 0.1 mm thick, not read at a source",
         true,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.0048,
         0.005,
@@ -199,22 +201,22 @@ export namespace StationeryDraw {
       ),
     },
     pen: {
-      length: ArchetypeBand.metres(0.1445, 0.149, PEN, true),
-      thickness: ArchetypeBand.metres(0.006, 0.013, PEN, true),
-      mass: ArchetypeBand.of(
+      length: AutoMovieArchetypeBand.metres(0.1445, 0.149, PEN, true),
+      thickness: AutoMovieArchetypeBand.metres(0.006, 0.013, PEN, true),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.005,
         0.01,
-        ArchetypeBand.TYPICAL_MASS,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
         true,
       ),
     },
     clipboard: {},
     map: {
-      width: ArchetypeBand.metres(0.11, 0.11, MAP),
-      length: ArchetypeBand.metres(0.25, 0.25, MAP),
-      thickness: ArchetypeBand.metres(0.007, 0.007, MAP, true),
-      mass: ArchetypeBand.of("kg", 0.089, 0.09, MAP, true),
+      width: AutoMovieArchetypeBand.metres(0.11, 0.11, MAP),
+      length: AutoMovieArchetypeBand.metres(0.25, 0.25, MAP),
+      thickness: AutoMovieArchetypeBand.metres(0.007, 0.007, MAP, true),
+      mass: AutoMovieArchetypeBand.of("kg", 0.089, 0.09, MAP, true),
     },
   };
 
@@ -228,7 +230,7 @@ export namespace StationeryDraw {
    */
   export interface IPrepareResult<Id extends Affordance> {
     /** The prepared `builder` this call returns. */
-    builder: ArchetypeBuilder<Id, Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
     /** The prepared `d` this call returns. */
     d: Partial<Record<Dimension, number>>;
@@ -241,7 +243,7 @@ export namespace StationeryDraw {
    * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
    * @param kind The saved kind whose recipe is used.
    * @returns The builder and dimensions the named producer reads.
-   * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Prepare an empty builder and the previously recorded stationery dimensions.
    * @evidence contracts/development/implementation.md#principled-implementation The `stationery` draw session uses the original seeds, model table, and bands in their original order.
@@ -256,8 +258,13 @@ export namespace StationeryDraw {
     params: Omit<IParams, "kind">,
     seed?: number | string,
   ): IPrepareResult<Id> {
-    const draw: ArchetypeDrawSession<Dimension> =
-      new ArchetypeDrawSession<Dimension>("stationery", UNITS, seed, params);
+    const draw: AutoMovieArchetypeDrawSession<Dimension> =
+      new AutoMovieArchetypeDrawSession<Dimension>(
+        "stationery",
+        UNITS,
+        seed,
+        params,
+      );
     const drawn: Partial<Record<Dimension, number>> = draw.dimensions(
       BANDS[kind],
       BANDS,
@@ -271,12 +278,13 @@ export namespace StationeryDraw {
       ...drawn,
       ...model.figures,
     };
-    const builder: ArchetypeBuilder<Id, Dimension> = new ArchetypeBuilder({
-      material: kind === "paper" || kind === "map" ? "paper" : "composite",
-      id: params.id,
-      name: NAMES[kind],
-      draw,
-    });
+    const builder: AutoMovieArchetypeBuilder<Id, Dimension> =
+      new AutoMovieArchetypeBuilder({
+        material: kind === "paper" || kind === "map" ? "paper" : "composite",
+        id: params.id,
+        name: NAMES[kind],
+        draw,
+      });
     return { builder, d };
   }
 
@@ -316,7 +324,7 @@ export namespace StationeryDraw {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
    */
   export function addPanelContacts(
-    builder: ArchetypeBuilder<Affordance, Dimension>,
+    builder: AutoMovieArchetypeBuilder<Affordance, Dimension>,
     dimensions: IPanel,
     gripInset: number,
     rides?: "fold",
@@ -326,7 +334,7 @@ export namespace StationeryDraw {
       id: "grip",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, thick / 2, length / 2 - gripInset),
         Vector3.create(0, 1, 0),
         Vector3.create(1, 0, 0),
@@ -340,7 +348,7 @@ export namespace StationeryDraw {
       id: "face",
       kind: "surface",
       direction: "normal",
-      frame: ArchetypeFrame.upright(Vector3.create(0, thick, 0)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, thick, 0)),
       extent: null,
       width,
       depth: length,

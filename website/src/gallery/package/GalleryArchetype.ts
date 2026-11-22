@@ -1,8 +1,8 @@
 import {
-  ArchetypeArticulation,
-  type ArchetypeDrawSession,
-  ArchetypeMarks,
-  type IArchetypeBand,
+  AutoMovieArchetypeArticulation,
+  type AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeMarks,
+  type IAutoMovieArchetypeBand,
 } from "@automovie/archetypes";
 import type { IAutoMovieMark } from "@automovie/interface";
 
@@ -40,7 +40,7 @@ export namespace GalleryArchetype {
    *
    * @param request The subject, its variant, the seed and the articulations' state.
    * @returns The archetype and its listing.
-   * @throws {Error} When no producer has the subject's id; the package's `ArchetypeRefusal` when it refuses the variant or a travel.
+   * @throws {Error} When no producer has the subject's id; the package's `AutoMovieArchetypeRefusal` when it refuses the variant or a travel.
    */
   export function build(request: IGalleryRequest): IBuilt {
     const producer: GalleryCatalogue.IProducer | undefined =
@@ -75,7 +75,7 @@ export namespace GalleryArchetype {
     // from: a drawn one with the band it was drawn in, a picked model's figure
     // as that fixed value in its dimension's unit, named by the model it
     // belongs to. A derived value has only its recorded unit.
-    const provenance: ArchetypeDrawSession.IProvenance<string> =
+    const provenance: AutoMovieArchetypeDrawSession.IProvenance<string> =
       rest.provenance;
     const drawn: Readonly<Partial<Record<string, number>>> =
       archetype.dimensions;
@@ -86,7 +86,8 @@ export namespace GalleryArchetype {
         dimensions: Object.entries(drawn).flatMap(
           ([name, value]): IGalleryView.IDimension[] => {
             if (value === undefined) return [];
-            const band: IArchetypeBand | undefined = provenance.bands[name];
+            const band: IAutoMovieArchetypeBand | undefined =
+              provenance.bands[name];
             if (band !== undefined)
               return [
                 {
@@ -123,7 +124,7 @@ export namespace GalleryArchetype {
         affordances: rest.affordances.map(
           (affordance): IGalleryView.IAffordance => {
             const range: { minimum: number | null; maximum: number | null } =
-              ArchetypeArticulation.range(affordance);
+              AutoMovieArchetypeArticulation.range(affordance);
             const turning: boolean = [
               "hinge",
               "knob",
@@ -135,7 +136,7 @@ export namespace GalleryArchetype {
               kind: affordance.kind,
               color: color(affordance.kind),
               travel:
-                ArchetypeArticulation.KINDS.has(affordance.kind) &&
+                AutoMovieArchetypeArticulation.KINDS.has(affordance.kind) &&
                 affordance.follows === undefined &&
                 range.minimum !== null &&
                 range.maximum !== null &&
@@ -165,18 +166,21 @@ export namespace GalleryArchetype {
 
     // The package keeps its palette to itself, so the colour is read from
     // the mark it makes for a contact of that kind.
-    const mark: IAutoMovieMark | undefined = ArchetypeMarks.of("probe", [
-      {
-        id: "probe",
-        kind: kind as never,
-        frame: {
-          translation: { x: 0, y: 0, z: 0 },
-          rotation: { x: 0, y: 0, z: 0, w: 1 },
-          scale: { x: 1, y: 1, z: 1 },
+    const mark: IAutoMovieMark | undefined = AutoMovieArchetypeMarks.of(
+      "probe",
+      [
+        {
+          id: "probe",
+          kind: kind as never,
+          frame: {
+            translation: { x: 0, y: 0, z: 0 },
+            rotation: { x: 0, y: 0, z: 0, w: 1 },
+            scale: { x: 1, y: 1, z: 1 },
+          },
+          extent: null,
         },
-        extent: null,
-      },
-    ])[0];
+      ],
+    )[0];
     const hex: string = `#${(mark?.color ?? 0x808080).toString(16).padStart(6, "0")}`;
     COLORS.set(kind, hex);
     return hex;

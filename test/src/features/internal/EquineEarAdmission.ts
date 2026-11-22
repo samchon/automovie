@@ -1,7 +1,7 @@
 import {
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  QuadrupedEars,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeQuadrupedEars,
   createHorse,
 } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
@@ -25,13 +25,13 @@ export namespace EquineEarAdmission {
       mass: 400,
       tempo: 0,
     });
-    const good: QuadrupedEars.IProfile = {
+    const good: AutoMovieArchetypeQuadrupedEars.IProfile = {
       length: 0.2,
       width: 0.08,
       plateThickness: 0.008,
       direction: { x: 1, y: 1, z: 0 },
     };
-    const bad: readonly QuadrupedEars.IProfile[] = [
+    const bad: readonly AutoMovieArchetypeQuadrupedEars.IProfile[] = [
       { ...good, length: 0 },
       { ...good, width: -1 },
       { ...good, plateThickness: Number.NaN },
@@ -41,10 +41,16 @@ export namespace EquineEarAdmission {
       { ...good, direction: { x: 1, y: Number.NaN, z: 0 } },
     ];
     for (const profile of bad) {
-      const builder: ArchetypeBuilder<never, "mass"> = fixture();
+      const builder: AutoMovieArchetypeBuilder<never, "mass"> = fixture();
       const before: string = JSON.stringify(builder.build(1));
       try {
-        QuadrupedEars.lay(builder, head, 1.6, profile, "#8a5a3a");
+        AutoMovieArchetypeQuadrupedEars.lay(
+          builder,
+          head,
+          1.6,
+          profile,
+          "#8a5a3a",
+        );
         findings.push("Malformed actual ear profile was admitted");
       } catch (error) {
         if (!(error instanceof RangeError))
@@ -64,10 +70,17 @@ export namespace EquineEarAdmission {
       Number.NaN,
       Number.POSITIVE_INFINITY,
     ]) {
-      const weighted: ArchetypeBuilder<never, "mass"> = fixture();
+      const weighted: AutoMovieArchetypeBuilder<never, "mass"> = fixture();
       const before: string = JSON.stringify(weighted.build(1));
       try {
-        QuadrupedEars.lay(weighted, head, 1.6, good, "#8a5a3a", weight);
+        AutoMovieArchetypeQuadrupedEars.lay(
+          weighted,
+          head,
+          1.6,
+          good,
+          "#8a5a3a",
+          weight,
+        );
         findings.push(
           "A nonpositive or unrepresentable actual ear weight was admitted",
         );
@@ -80,8 +93,8 @@ export namespace EquineEarAdmission {
           "Failed ear weight admission changed actual builder parts",
         );
     }
-    const builder: ArchetypeBuilder<never, "mass"> = fixture();
-    QuadrupedEars.lay(builder, head, 1.6, good, "#8a5a3a");
+    const builder: AutoMovieArchetypeBuilder<never, "mass"> = fixture();
+    AutoMovieArchetypeQuadrupedEars.lay(builder, head, 1.6, good, "#8a5a3a");
     if (
       !validateModel({ model: builder.build(1) }).success ||
       builder.build(1).parts.length !== 3
@@ -89,15 +102,12 @@ export namespace EquineEarAdmission {
       findings.push(
         "Positive actual ear profile did not emit both valid parts",
       );
-    const requested: QuadrupedEars.IProfile = {
+    const requested: AutoMovieArchetypeQuadrupedEars.IProfile = {
       ...good,
       direction: { ...good.direction },
     };
-    const prepared: QuadrupedEars.IPrepared = QuadrupedEars.prepare(
-      head,
-      1.6,
-      requested,
-    );
+    const prepared: AutoMovieArchetypeQuadrupedEars.IPrepared =
+      AutoMovieArchetypeQuadrupedEars.prepare(head, 1.6, requested);
     if (
       !nclose(
         prepared.volume,
@@ -110,7 +120,7 @@ export namespace EquineEarAdmission {
       );
     requested.length += 1;
     requested.direction.y += 1;
-    const first: ArchetypeBuilder<never, "mass"> = fixture();
+    const first: AutoMovieArchetypeBuilder<never, "mass"> = fixture();
     prepared.emit(first, "#8a5a3a");
     const original: string = JSON.stringify(first.build(1));
     const firstEar: IAutoMovieModelPart | undefined = first
@@ -121,7 +131,7 @@ export namespace EquineEarAdmission {
     if (firstEar === undefined)
       throw new Error("The prepared actual ear is missing");
     firstEar.transform!.translation.y += 1;
-    const second: ArchetypeBuilder<never, "mass"> = fixture();
+    const second: AutoMovieArchetypeBuilder<never, "mass"> = fixture();
     prepared.emit(second, "#8a5a3a");
     if (
       JSON.stringify(second.build(1)) !== original ||
@@ -133,17 +143,16 @@ export namespace EquineEarAdmission {
   }
 
   /** One ordinary actual marker part makes mutation visible without patching the builder. */
-  function fixture(): ArchetypeBuilder<never, "mass"> {
-    const draw: ArchetypeDrawSession<"mass"> = new ArchetypeDrawSession(
-      "ear-admission",
-      { mass: "kg" },
-      7,
-    );
+  function fixture(): AutoMovieArchetypeBuilder<never, "mass"> {
+    const draw: AutoMovieArchetypeDrawSession<"mass"> =
+      new AutoMovieArchetypeDrawSession("ear-admission", { mass: "kg" }, 7);
     draw.derive("mass", 1);
-    const builder: ArchetypeBuilder<never, "mass"> = new ArchetypeBuilder<
-      never,
-      "mass"
-    >({ name: "ear-admission", draw, material: "skin" });
+    const builder: AutoMovieArchetypeBuilder<never, "mass"> =
+      new AutoMovieArchetypeBuilder<never, "mass">({
+        name: "ear-admission",
+        draw,
+        material: "skin",
+      });
     builder.box("marker", { x: 0.1, y: 0.1, z: 0.1 }, { x: 0, y: 0.05, z: 0 });
     return builder;
   }

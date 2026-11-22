@@ -1,10 +1,10 @@
 import {
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  EquineExpression,
-  EquineFoal,
-  type EquineLibertyCue,
-  QuadrupedBody,
+  AutoMovieArchetypeEquineExpression,
+  AutoMovieArchetypeEquineFoal,
+  type AutoMovieArchetypeEquineLibertyCue,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createFoal,
   createHorse,
   rideHorse,
@@ -21,10 +21,13 @@ import { equineExpressionObservation as Look } from "../internal/equineExpressio
 import { equineFloorObservation as Floor } from "../internal/equineFloorObservation";
 
 /** A horse ride. */
-type Ride = ArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension>;
+type Ride = AutoMovieArchetypeRide.IRide<
+  createHorse.Affordance,
+  createHorse.Dimension
+>;
 
 /** A sample of a horse ride. */
-type Sample = ArchetypeRide.ISample<
+type Sample = AutoMovieArchetypeRide.ISample<
   createHorse.Affordance,
   createHorse.Dimension
 >;
@@ -105,7 +108,7 @@ export function test_archetype_equine_reaction_foal(): void {
   }
   TestValidator.predicate(
     "an age past weaning refuses",
-    caught instanceof ArchetypeRefusal && caught.axis === "age",
+    caught instanceof AutoMovieArchetypeRefusal && caught.axis === "age",
   );
 
   // 2. Following.
@@ -124,8 +127,16 @@ export function test_archetype_equine_reaction_foal(): void {
     startFromStanding: undefined,
     legs: [{ kind: "straight", length: 40 }],
   });
-  const keep: EquineFoal.IFollow = { side: "left", out: 1.2, back: 0.4 };
-  const following: Ride = EquineFoal.follow(foal, going, keep);
+  const keep: AutoMovieArchetypeEquineFoal.IFollow = {
+    side: "left",
+    out: 1.2,
+    back: 0.4,
+  };
+  const following: Ride = AutoMovieArchetypeEquineFoal.follow(
+    foal,
+    going,
+    keep,
+  );
   for (let at: number = 1; at < going.duration - 1; at += 0.5) {
     const spot: IAutoMovieVector3 = Vector3.add(
       going.at(at).placement.translation,
@@ -163,7 +174,7 @@ export function test_archetype_equine_reaction_foal(): void {
     },
     "walk",
   );
-  const udder: IAutoMovieVector3 = EquineFoal.udder(
+  const udder: IAutoMovieVector3 = AutoMovieArchetypeEquineFoal.udder(
     standing.at(standing.duration),
   );
   const approach: Ride = rideQuadruped(
@@ -181,25 +192,37 @@ export function test_archetype_equine_reaction_foal(): void {
     "walk",
   );
   const t: number = Math.max(standing.duration, approach.duration) + 0.5;
-  const sucking: Ride = EquineExpression.layer(foal, approach, [
-    EquineFoal.suckling(standing, { from: t, to: t + 3, ease: 0.5 }),
-  ]);
+  const sucking: Ride = AutoMovieArchetypeEquineExpression.layer(
+    foal,
+    approach,
+    [
+      AutoMovieArchetypeEquineFoal.suckling(standing, {
+        from: t,
+        to: t + 3,
+        ease: 0.5,
+      }),
+    ],
+  );
   const shown: Sample = sucking.at(t + 1.5);
   const head: Look.IBar = Look.bar(shown, "head");
   TestValidator.predicate(
     "the muzzle meets the udder",
     Math.abs(
-      Vector3.distance(head.to, EquineFoal.udder(standing.at(t + 1.5))) -
-        head.radius,
+      Vector3.distance(
+        head.to,
+        AutoMovieArchetypeEquineFoal.udder(standing.at(t + 1.5)),
+      ) - head.radius,
     ) <= 2e-3,
   );
-  for (const limb of QuadrupedBody.LIMBS)
+  for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS)
     TestValidator.predicate(
       `the foal's ${limb} stays planted while suckling`,
       Vector3.distance(
-        Look.bar(shown, QuadrupedBody.BONES[limb][3]).to,
-        Look.bar(approach.at(approach.duration), QuadrupedBody.BONES[limb][3])
-          .to,
+        Look.bar(shown, AutoMovieArchetypeQuadrupedBody.BONES[limb][3]).to,
+        Look.bar(
+          approach.at(approach.duration),
+          AutoMovieArchetypeQuadrupedBody.BONES[limb][3],
+        ).to,
       ) <= 1e-6,
     );
 
@@ -226,7 +249,7 @@ export function test_archetype_equine_reaction_foal(): void {
   const rest = (
     model: ReturnType<typeof createHorse>,
     fold: number,
-  ): EquineLibertyCue.Rest => ({
+  ): AutoMovieArchetypeEquineLibertyCue.Rest => ({
     loweringSeconds: 2,
     restingSeconds: 1,
     risingSeconds: 2,
@@ -235,18 +258,28 @@ export function test_archetype_equine_reaction_foal(): void {
     folded: { fore: [fold, 0], hind: [-fold, 0] },
     windows: { body: [0, 1], fore: [0, 1], hind: [0, 1] },
   });
-  const foaling: EquineFoal.IFoaling = {
+  const foaling: AutoMovieArchetypeEquineFoal.IFoaling = {
     from: t,
     mare: { side: "left", down: 3, hold: 6 },
     delivery: t + 6,
     foal: rest(newborn, 70),
     behind: 3,
   };
-  const [lying] = EquineFoal.foaling(mare, standing, newborn, foaling);
-  const [, born] = EquineFoal.foaling(mare, standing, newborn, {
-    ...foaling,
-    suckle: { side: "left", seconds: 3 },
-  });
+  const [lying] = AutoMovieArchetypeEquineFoal.foaling(
+    mare,
+    standing,
+    newborn,
+    foaling,
+  );
+  const [, born] = AutoMovieArchetypeEquineFoal.foaling(
+    mare,
+    standing,
+    newborn,
+    {
+      ...foaling,
+      suckle: { side: "left", seconds: 3 },
+    },
+  );
   const onSide: number = lying.instants.find(
     (instant: Instant): boolean => instant.label === "lie:down",
   )!.seconds;
@@ -260,17 +293,23 @@ export function test_archetype_equine_reaction_foal(): void {
       `the mare's lower ${limb} stays extended`,
       Math.abs(
         Look.degrees(
-          Look.axis(lying.at(onSide + 1), QuadrupedBody.BONES[limb][0]),
-          Look.axis(lying.at(onSide + 1), QuadrupedBody.BONES[limb][1]),
+          Look.axis(
+            lying.at(onSide + 1),
+            AutoMovieArchetypeQuadrupedBody.BONES[limb][0],
+          ),
+          Look.axis(
+            lying.at(onSide + 1),
+            AutoMovieArchetypeQuadrupedBody.BONES[limb][1],
+          ),
         ) -
           Look.degrees(
             Look.axis(
               standing.at(standing.duration),
-              QuadrupedBody.BONES[limb][0],
+              AutoMovieArchetypeQuadrupedBody.BONES[limb][0],
             ),
             Look.axis(
               standing.at(standing.duration),
-              QuadrupedBody.BONES[limb][1],
+              AutoMovieArchetypeQuadrupedBody.BONES[limb][1],
             ),
           ),
       ) <= 1,
@@ -283,8 +322,10 @@ export function test_archetype_equine_reaction_foal(): void {
   TestValidator.predicate(
     "the newborn's first suckling meets the udder",
     Math.abs(
-      Vector3.distance(muzzle.to, EquineFoal.udder(lying.at(latch))) -
-        muzzle.radius,
+      Vector3.distance(
+        muzzle.to,
+        AutoMovieArchetypeEquineFoal.udder(lying.at(latch)),
+      ) - muzzle.radius,
     ) <= 2e-3,
   );
 

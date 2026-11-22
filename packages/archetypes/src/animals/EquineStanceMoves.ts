@@ -1,12 +1,12 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core";
+import { AutoMovieArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineBodyPose } from "./EquineBodyPose";
-import type { EquineStanceCue } from "./EquineStanceCue";
 import { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
-import type { QuadrupedBody } from "./QuadrupedBody";
 
 /**
  * The stance responses that travel, repeat or brace (`EquineStanceRows`): a spin on the haunches, a run of crow hops and a set back against a rope. A spin turns the whole horse about the middle of its hind hooves in increments, each hoof stepping around in turn after the weight is on the other three, as a step aside steps sideways; a run of crow hops repeats a small buck, each hop leaving the forehand planted and the hindquarters lifted and set down again. Both end where they finish: a spin facing its new heading, crow hops standing as they began.
@@ -35,7 +35,7 @@ export namespace EquineStanceMoves {
    * @returns Its plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the turn, its pivot, the stepping order and the exit.
-   * @evidence contracts/development/implementation.md#principled-implementation Each increment's anchors and trunk are the start's turned about the vertical through the hind hooves' middle (`ArchetypeFrame.turn`); each hoof's step first moves the weight onto the other three (`EquineStanceSupport.transfer`), then swings the hoof on a lifted minimum-jerk path to its turned anchor.
+   * @evidence contracts/development/implementation.md#principled-implementation Each increment's anchors and trunk are the start's turned about the vertical through the hind hooves' middle (`AutoMovieArchetypeFrame.turn`); each hoof's step first moves the weight onto the other three (`EquineStanceSupport.transfer`), then swings the hoof on a lifted minimum-jerk path to its turned anchor.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The increments' states, the events, then the pose by share.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the stepping hoof leaves its anchor; the others stay planted.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four weight transfers per increment, solved once.
@@ -45,7 +45,7 @@ export namespace EquineStanceMoves {
   export function spin<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineStanceCue.ISpin,
+    cue: AutoMovieArchetypeEquineStanceCue.ISpin,
   ): EquineStanceRows.IPlan {
     const increments: number = Math.max(
       1,
@@ -64,14 +64,14 @@ export namespace EquineStanceMoves {
             0.5,
           )
         : hinds;
-    const turned = (k: number): ArchetypeFrame.IMotion =>
-      ArchetypeFrame.turn(
+    const turned = (k: number): AutoMovieArchetypeFrame.IMotion =>
+      AutoMovieArchetypeFrame.turn(
         pivot,
         { x: 0, y: 1, z: 0 },
         (cue.degrees * k) / increments,
       );
     const apply = (
-      motion: ArchetypeFrame.IMotion,
+      motion: AutoMovieArchetypeFrame.IMotion,
       point: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
       Vector3.add(
@@ -82,27 +82,28 @@ export namespace EquineStanceMoves {
     // A turn to the left (positive about up) steps the right side first, the outside of the turn.
     const outside: "left" | "right" = cue.degrees > 0 ? "right" : "left";
     const inside: "left" | "right" = outside === "left" ? "right" : "left";
-    const order: readonly QuadrupedBody.Limb[] = [
+    const order: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
       `${outside}Fore`,
       `${inside}Fore`,
       `${outside}Hind`,
       `${inside}Hind`,
     ];
     const states: EquineStanceRows.IState[] = [start];
-    const loads: ArchetypeFrame.IMotion[] = [];
+    const loads: AutoMovieArchetypeFrame.IMotion[] = [];
     for (let k: number = 0; k < increments; ++k) {
-      const goal: ArchetypeFrame.IMotion = turned(k + 1);
+      const goal: AutoMovieArchetypeFrame.IMotion = turned(k + 1);
       for (const [j, limb] of order.entries()) {
         const before: EquineStanceRows.IState = states.at(-1)!;
-        const loaded: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
-          before.trunk,
-          EquineStanceSupport.transfer(body, before, limb),
-        );
+        const loaded: AutoMovieArchetypeFrame.IMotion =
+          EquineStanceSupport.moved(
+            before.trunk,
+            EquineStanceSupport.transfer(body, before, limb),
+          );
         loads.push(loaded);
         states.push({
           trunk: EquineStanceSupport.blend(
             loaded,
-            ArchetypeFrame.chain(goal, start.trunk),
+            AutoMovieArchetypeFrame.chain(goal, start.trunk),
             (j + 1) / order.length,
           ),
           anchors: {
@@ -113,14 +114,15 @@ export namespace EquineStanceMoves {
       }
     }
     const end: EquineStanceRows.IState = {
-      trunk: ArchetypeFrame.chain(turned(increments), start.trunk),
+      trunk: AutoMovieArchetypeFrame.chain(turned(increments), start.trunk),
       anchors: states.at(-1)!.anchors,
     };
     const steps: number = increments * order.length;
     const piece: number = 1 / steps;
     const events: EquineStanceRows.IEvent[] = [];
     for (let s: number = 0; s < steps; ++s) {
-      const limb: QuadrupedBody.Limb = order[s % order.length]!;
+      const limb: AutoMovieArchetypeQuadrupedBody.Limb =
+        order[s % order.length]!;
       events.push(
         {
           label: `${limb}Off`,
@@ -156,7 +158,8 @@ export namespace EquineStanceMoves {
         const s: number = Math.min(steps - 1, Math.floor(share / piece));
         const local: number = share / piece - s;
         const before: EquineStanceRows.IState = states[s]!;
-        const limb: QuadrupedBody.Limb = order[s % order.length]!;
+        const limb: AutoMovieArchetypeQuadrupedBody.Limb =
+          order[s % order.length]!;
         if (local <= LOAD)
           return {
             trunk: EquineStanceSupport.blend(
@@ -209,7 +212,7 @@ export namespace EquineStanceMoves {
   export function crowHops<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineStanceCue.ICrowHops,
+    cue: AutoMovieArchetypeEquineStanceCue.ICrowHops,
   ): EquineStanceRows.IPlan {
     const hop: EquineStanceRows.IPlan = EquineStanceRows.plan(body, start, {
       ...cue,
@@ -267,13 +270,13 @@ export namespace EquineStanceMoves {
   export function setBack<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineStanceCue.ISetBack,
+    cue: AutoMovieArchetypeEquineStanceCue.ISetBack,
   ): EquineStanceRows.IPlan {
     const shoulders: IAutoMovieVector3 = Vector3.scale(
       Vector3.add(body.chains.leftFore[0]!, body.chains.rightFore[0]!),
       0.5,
     );
-    const sat: ArchetypeFrame.IMotion = ArchetypeFrame.chain(
+    const sat: AutoMovieArchetypeFrame.IMotion = AutoMovieArchetypeFrame.chain(
       EquineBodyPose.turn(
         cue.pitch,
         0,

@@ -2,16 +2,16 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-  type ArchetypeTrack,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeTrack,
 } from "../core";
 import { SiegeClearance } from "./SiegeClearance";
 import { SiegeStructure } from "./SiegeStructure";
 import type { createSiegeEngine } from "./createSiegeEngine";
 
 /** A siege engine under construction. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createSiegeEngine.Affordance,
   createSiegeEngine.Dimension
 >;
@@ -62,7 +62,7 @@ export namespace SiegeArm {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of the arm's mass figures, read by the throw and its spec.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function pendulum(d: Drawn): ArchetypeTrack.IPendulum {
+  export function pendulum(d: Drawn): AutoMovieArchetypeTrack.IPendulum {
     const long: number = d.armLength!;
     const short: number = d.shortArm!;
     const beam: number = d.armMass!;
@@ -166,7 +166,11 @@ export namespace SiegeArm {
     builder.affordance({
       id: "arm",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, axle, 0), v(-1, 0, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, axle, 0),
+        v(-1, 0, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       travel: d.reach!,
       // A traction engine's arm starts level, so it has no travel below level.
@@ -180,7 +184,7 @@ export namespace SiegeArm {
       builder.affordance({
         id: "counterweight",
         kind: "hinge",
-        frame: ArchetypeFrame.facing(pin, v(-1, 0, 0), v(0, 0, 1)),
+        frame: AutoMovieArchetypeFrame.facing(pin, v(-1, 0, 0), v(0, 0, 1)),
         extent: null,
         travel: d.cocked!,
         reverse: d.reach!,
@@ -191,14 +195,18 @@ export namespace SiegeArm {
     builder.affordance({
       id: "pouch",
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(0, axle + radius, long)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, axle + radius, long)),
       extent: null,
       rides: "arm",
     });
     builder.affordance({
       id: "pin",
       kind: "slider",
-      frame: ArchetypeFrame.facing(v(0, e.beam, long), v(0, 1, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, e.beam, long),
+        v(0, 1, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       grip: "power",
       aperture: e.pin.aperture,
@@ -209,7 +217,7 @@ export namespace SiegeArm {
     builder.affordance({
       id: "winch",
       kind: "crank",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(width / 2 + e.post, e.winch, 0),
         v(1, 0, 0),
         v(0, 1, 0),
@@ -223,7 +231,7 @@ export namespace SiegeArm {
     builder.affordance({
       id: "frame",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, e.beam, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, e.beam, 0)),
       extent: null,
       width,
       depth: long,

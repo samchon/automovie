@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 
 /**
  * Describe one docked landing's room and fixed support polygon.
@@ -34,12 +34,12 @@ export function liftLandingSpace(
   const half: number = width / 2;
   const end: number = gap + depth;
   const world = (x: number, y: number, z: number): IAutoMovieVector3 =>
-    ArchetypeFrame.point(sill, Vector3.create(x, y, z));
+    AutoMovieArchetypeFrame.point(sill, Vector3.create(x, y, z));
   const center: IAutoMovieVector3 = world(0, height / 2, end / 2);
   const limits: Array<[IAutoMovieVector3, number]> = [
-    [ArchetypeFrame.axis(sill, "x"), half],
-    [ArchetypeFrame.axis(sill, "y"), height / 2],
-    [ArchetypeFrame.axis(sill, "z"), end / 2],
+    [AutoMovieArchetypeFrame.axis(sill, "x"), half],
+    [AutoMovieArchetypeFrame.axis(sill, "y"), height / 2],
+    [AutoMovieArchetypeFrame.axis(sill, "z"), end / 2],
   ];
   return {
     space: {

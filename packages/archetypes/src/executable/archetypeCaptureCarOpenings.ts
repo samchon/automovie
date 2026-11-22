@@ -1,6 +1,6 @@
 import type { IAutoMovieAffordance } from "@automovie/interface";
 
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { createCar } from "../vehicles";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
@@ -29,12 +29,16 @@ export function archetypeCaptureCarOpenings(): Readonly<
     "slidingDoor",
     "tailgate",
   ]);
-  const members: Record<string, Archetype> = {};
+  const members: Record<string, AutoMovieArchetype> = {};
   for (const kind of createCar.KINDS) {
     const car: ReturnType<typeof createCar> = createCar({ kind }, 17);
     const movements: Partial<Record<createCar.Affordance, number>> = {};
     for (const id of selected) {
-      if (!car.affordances.some((contact: IAutoMovieAffordance): boolean => contact.id === id))
+      if (
+        !car.affordances.some(
+          (contact: IAutoMovieAffordance): boolean => contact.id === id,
+        )
+      )
         continue;
       const contact: IAutoMovieAffordance = car.affordance(id);
       if (

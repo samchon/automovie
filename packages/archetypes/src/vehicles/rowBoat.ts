@@ -2,30 +2,33 @@ import { RigidCarrierSample } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeArticulation,
-  type ArchetypeCourse,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  ArchetypeSea,
+  AutoMovieArchetype,
+  AutoMovieArchetypeArticulation,
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
+  AutoMovieArchetypeSea,
 } from "../core";
 import { ArchetypeCourseLegs } from "../core/ArchetypeCourseLegs";
 import { BoatOars } from "./BoatOars";
 import type { createBoat } from "./createBoat";
 
 /** Complete rowboat state at a film second. */
-type Sample = ArchetypeRide.ISample<
+type Sample = AutoMovieArchetypeRide.ISample<
   createBoat.Affordance,
   createBoat.Dimension
 >;
 
 /** A rowboat and its authored clock and articulation readers. */
-type Ride = ArchetypeRide.IRide<createBoat.Affordance, createBoat.Dimension>;
+type Ride = AutoMovieArchetypeRide.IRide<
+  createBoat.Affordance,
+  createBoat.Dimension
+>;
 
 /** The original full samplers and whether the course ends in a fixed pose. */
 interface IBindingSource {
-  boat: Archetype<createBoat.Affordance, createBoat.Dimension>;
+  boat: AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension>;
   placement: (seconds: number) => IAutoMovieTransform;
   frame: Ride["frame"];
   duration: number;
@@ -45,9 +48,9 @@ const SOURCES: WeakMap<Ride, IBindingSource> = new WeakMap();
  *
  * @param boat The rowboat.
  * @param course The course its root follows, or its plan.
- * @param options `sea`, a sea the boat rides on (`ArchetypeSea`); still water when absent.
+ * @param options `sea`, a sea the boat rides on (`AutoMovieArchetypeSea`); still water when absent.
  * @returns The ride.
- * @throws {ArchetypeRefusal} When the boat has no oars, or as `ArchetypeCourse.plan` does for a malformed course.
+ * @throws {AutoMovieArchetypeRefusal} When the boat has no oars, or as `AutoMovieArchetypeCourse.plan` does for a malformed course.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stroke cycle and its source, how the rate follows speed, what the oars do in each phase, and how a native ride can be bound to film time.
  * @evidence contracts/development/implementation.md#principled-implementation Strokes are counted by the distance covered, so a stroke's phase is the distance's fraction of `STROKE` and needs no integration; the drive's share is Kleshnev's rhythm at the stroke rate, 0.84 r + 25.1 percent with r in strokes a minute (ISBS 1996, p. 322, https://ojs.ub.uni-konstanz.de/cpa/article/view/2726/2573), its rate held inside the study's 26 to 36.5 strokes a minute. The sweep eases by half a cosine; the lift is the touch angle less a half sine of it through the drive and the touch angle plus a half sine of the rest of the clearance through the recovery, so the blade is below the water exactly between the catch and the finish.
@@ -58,16 +61,16 @@ const SOURCES: WeakMap<Ride, IBindingSource> = new WeakMap();
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride owns the boat, plan and sea. Native ride and reader identities weakly own binding metadata. No prior sampled output is retained by the binding.
  */
 export function rowBoat(
-  boat: Archetype<createBoat.Affordance, createBoat.Dimension>,
-  course: ArchetypeCourse.ICourse | ArchetypeCourse.IPlan,
-  options: { sea?: ArchetypeSea.IOptions } = {},
-): ArchetypeRide.IRide<createBoat.Affordance, createBoat.Dimension> {
+  boat: AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension>,
+  course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
+  options: { sea?: AutoMovieArchetypeSea.IOptions } = {},
+): AutoMovieArchetypeRide.IRide<createBoat.Affordance, createBoat.Dimension> {
   if (
     boat.affordances.every(
       (a: { id: string }): boolean => a.id !== "leftOarlock",
     )
   )
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: boat.archetype,
       axis: "kind",
@@ -102,10 +105,12 @@ export function rowBoat(
   }
 
   const ease = (q: number): number => (1 - Math.cos(Math.PI * q)) / 2;
-  const project: ReturnType<typeof Archetype.projection> =
-    Archetype.projection(boat);
-  const sea: ArchetypeSea.ISea | undefined =
-    options.sea === undefined ? undefined : ArchetypeSea.of(options.sea);
+  const project: ReturnType<typeof AutoMovieArchetype.projection> =
+    AutoMovieArchetype.projection(boat);
+  const sea: AutoMovieArchetypeSea.ISea | undefined =
+    options.sea === undefined
+      ? undefined
+      : AutoMovieArchetypeSea.of(options.sea);
   /** The root pose and sea do not depend on the articulated sockets. */
   const floated = (
     placement: IAutoMovieTransform,
@@ -113,7 +118,7 @@ export function rowBoat(
   ): IAutoMovieTransform =>
     sea === undefined
       ? placement
-      : ArchetypeSea.floated(sea, placement, seconds);
+      : AutoMovieArchetypeSea.floated(sea, placement, seconds);
   function sample(seconds: number): Sample;
   function sample(
     seconds: number,
@@ -123,7 +128,7 @@ export function rowBoat(
     seconds: number,
     ...socket: [] | [createBoat.Affordance]
   ): Sample | IAutoMovieTransform {
-    const state: ArchetypeCourse.IState = plan.at(seconds);
+    const state: AutoMovieArchetypeCourse.IState = plan.at(seconds);
     const turns: number = state.distance / rowBoat.STROKE;
     const p: number = turns - Math.floor(turns);
     const drive: number = rowBoat.drive(rowBoat.rate(state.speed));
@@ -149,7 +154,7 @@ export function rowBoat(
       rightOar: lift,
     };
     const selected: ReturnType<NonNullable<typeof project>> | undefined =
-      project?.(ArchetypeArticulation.travels(travels));
+      project?.(AutoMovieArchetypeArticulation.travels(travels));
     let model: typeof boat | undefined =
       selected === undefined ? boat.articulate(travels) : undefined;
     const placement: IAutoMovieTransform = floated(state.placement, seconds);
@@ -158,7 +163,7 @@ export function rowBoat(
       const local: IAutoMovieTransform =
         selected?.frame(id) ??
         (model ?? boat.articulate(travels)).affordance(id).frame;
-      return ArchetypeFrame.compose(placement, local);
+      return AutoMovieArchetypeFrame.compose(placement, local);
     }
     return {
       get archetype(): typeof boat {
@@ -172,22 +177,22 @@ export function rowBoat(
       course: sea === undefined ? state : { ...state, placement },
     };
   }
-  const ride: ArchetypeRide.IRide<createBoat.Affordance, createBoat.Dimension> =
-    {
-      plan,
-      duration: plan.duration,
-      instants: [...plan.instants, ...instants].sort(
-        (a: { seconds: number }, b: { seconds: number }): number =>
-          a.seconds - b.seconds,
-      ),
-      at: (seconds: number): Sample => sample(seconds),
-      frame: (
-        id: createBoat.Affordance,
-        seconds: number,
-      ): IAutoMovieTransform => sample(seconds, id),
-    };
+  const ride: AutoMovieArchetypeRide.IRide<
+    createBoat.Affordance,
+    createBoat.Dimension
+  > = {
+    plan,
+    duration: plan.duration,
+    instants: [...plan.instants, ...instants].sort(
+      (a: { seconds: number }, b: { seconds: number }): number =>
+        a.seconds - b.seconds,
+    ),
+    at: (seconds: number): Sample => sample(seconds),
+    frame: (id: createBoat.Affordance, seconds: number): IAutoMovieTransform =>
+      sample(seconds, id),
+  };
   if (course.kind !== "plan" && project !== undefined) {
-    const original: ArchetypeCourse.IPlan["at"] = plan.at;
+    const original: AutoMovieArchetypeCourse.IPlan["at"] = plan.at;
     SOURCES.set(ride, {
       boat,
       placement: (seconds: number): IAutoMovieTransform =>

@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -67,11 +67,11 @@ const RANKS: readonly createChessBoard.Rank[] = [
  */
 export function createChessBoard(
   params: createChessBoard.IParams = {},
-): Archetype<createChessBoard.Affordance, createChessBoard.Dimension> {
+): AutoMovieArchetype<createChessBoard.Affordance, createChessBoard.Dimension> {
   const v: typeof Vector3.create = Vector3.create;
   const side: number = 8 * BOARD.square + 2 * BOARD.border;
-  const draw: ArchetypeDrawSession<createChessBoard.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createChessBoard.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "chessBoard",
       { square: "m", side: "m", mass: "kg" },
       undefined,
@@ -79,10 +79,10 @@ export function createChessBoard(
   draw.derive("square", BOARD.square);
   draw.derive("side", side);
   draw.derive("mass", BOARD.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createChessBoard.Affordance,
     createChessBoard.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? "chessBoard",
     name: "chessboard",
     material: "wood",
@@ -98,7 +98,7 @@ export function createChessBoard(
     id: "top",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.upright(v(0, BOARD.thickness, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, BOARD.thickness, 0)),
     extent: null,
   });
   FILES.forEach((file: createChessBoard.File, i: number): void =>
@@ -106,7 +106,7 @@ export function createChessBoard(
       builder.affordance({
         id: `${file}${rank}`,
         kind: "socket",
-        frame: ArchetypeFrame.upright(
+        frame: AutoMovieArchetypeFrame.upright(
           v(
             (i - 3.5) * BOARD.square,
             BOARD.thickness,

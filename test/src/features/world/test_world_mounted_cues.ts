@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeCourse,
-  type ArchetypeManoeuvre,
-  type ArchetypeRide,
-  QuadrupedGait,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeCourse,
+  type AutoMovieArchetypeManoeuvre,
+  AutoMovieArchetypeQuadrupedGait,
+  type AutoMovieArchetypeRide,
   createHorse,
   createQuadruped,
   rideQuadruped,
@@ -29,32 +29,36 @@ const RAMP: number = 0.6;
  * 3. A cue naming the gallop changes the trot to the gallop within the same bound, though the speed alone would not call it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the break, the cues and the bounds.
- * @evidence contracts/development/testing.md#behavioral-verification Rides a real horse with `rideQuadruped` on `ArchetypeCourse.timed` speed profiles and reads its hoof and gait instants.
- * @evidence contracts/development/testing.md#independent-expectations A standing horse takes no step. The stride bound is the species' own declared stride period at the speed, read from `QuadrupedGait.timing`. Each cued cruise lies above the previous gait's greatest declared speed and below its own, so only the cued ramps cross a change point.
+ * @evidence contracts/development/testing.md#behavioral-verification Rides a real horse with `rideQuadruped` on `AutoMovieArchetypeCourse.timed` speed profiles and reads its hoof and gait instants.
+ * @evidence contracts/development/testing.md#independent-expectations A standing horse takes no step. The stride bound is the species' own declared stride period at the speed, read from `AutoMovieArchetypeQuadrupedGait.timing`. Each cued cruise lies above the previous gait's greatest declared speed and below its own, so only the cued ramps cross a change point.
  * @evidence contracts/development/testing.md#distinguishing-cases A stall hold before the cue and the departure after it; three up-changes and no other gait change.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only spec; the trumpet and the doors are authored cue seconds.
  */
 export function test_world_mounted_cues(): void {
-  const horse: Archetype = createHorse({ withersHeight: 1.62 }, "runner");
+  const horse: AutoMovieArchetype = createHorse(
+    { withersHeight: 1.62 },
+    "runner",
+  );
   const species: createQuadruped.ISpecies = createQuadruped.species(horse);
-  const middle: (gait: QuadrupedGait.Gait) => number = (
-    gait: QuadrupedGait.Gait,
+  const middle: (gait: AutoMovieArchetypeQuadrupedGait.Gait) => number = (
+    gait: AutoMovieArchetypeQuadrupedGait.Gait,
   ): number => {
-    const range: ArchetypeManoeuvre.ISpeedRange = QuadrupedGait.range(
-      species,
-      gait,
-      1.62,
-    );
+    const range: AutoMovieArchetypeManoeuvre.ISpeedRange =
+      AutoMovieArchetypeQuadrupedGait.range(species, gait, 1.62);
     return (range.minimum + range.maximum) / 2;
   };
-  const top: (gait: QuadrupedGait.Gait) => number = (
-    gait: QuadrupedGait.Gait,
-  ): number => QuadrupedGait.range(species, gait, 1.62).maximum;
-  const stride: (gait: QuadrupedGait.Gait, speed: number) => number = (
-    gait: QuadrupedGait.Gait,
+  const top: (gait: AutoMovieArchetypeQuadrupedGait.Gait) => number = (
+    gait: AutoMovieArchetypeQuadrupedGait.Gait,
+  ): number =>
+    AutoMovieArchetypeQuadrupedGait.range(species, gait, 1.62).maximum;
+  const stride: (
+    gait: AutoMovieArchetypeQuadrupedGait.Gait,
+    speed: number,
+  ) => number = (
+    gait: AutoMovieArchetypeQuadrupedGait.Gait,
     speed: number,
   ): number =>
-    QuadrupedGait.timing(
+    AutoMovieArchetypeQuadrupedGait.timing(
       species,
       gait,
       speed,
@@ -66,9 +70,9 @@ export function test_world_mounted_cues(): void {
   const doors: number = 2;
   const go: number = doors + REACTION;
   const trot: number = middle("trot");
-  const breakaway: ArchetypeRide.IRide<string, string> = rideQuadruped(
+  const breakaway: AutoMovieArchetypeRide.IRide<string, string> = rideQuadruped(
     horse,
-    ArchetypeCourse.timed(
+    AutoMovieArchetypeCourse.timed(
       "runner",
       profile([
         knot(0, 0),
@@ -80,14 +84,20 @@ export function test_world_mounted_cues(): void {
   );
   const landings: number[] = breakaway.instants
     .filter(
-      (i: ArchetypeRide.IRide<string, string>["instants"][number]): boolean =>
-        i.label.endsWith("On"),
+      (
+        i: AutoMovieArchetypeRide.IRide<string, string>["instants"][number],
+      ): boolean => i.label.endsWith("On"),
     )
     .map(
-      (i: ArchetypeRide.IRide<string, string>["instants"][number]): number =>
-        i.seconds,
+      (
+        i: AutoMovieArchetypeRide.IRide<string, string>["instants"][number],
+      ): number => i.seconds,
     );
-  const walk: number = QuadrupedGait.range(species, "walk", 1.62).minimum;
+  const walk: number = AutoMovieArchetypeQuadrupedGait.range(
+    species,
+    "walk",
+    1.62,
+  ).minimum;
   TestValidator.predicate(
     `no hoof lands in the stall and the first lands within a stride of the break: ${JSON.stringify(landings.slice(0, 4))}`,
     landings.length > 0 &&
@@ -96,7 +106,7 @@ export function test_world_mounted_cues(): void {
   );
 
   // 2. The trumpet cues.
-  const order: readonly QuadrupedGait.Gait[] = [
+  const order: readonly AutoMovieArchetypeQuadrupedGait.Gait[] = [
     "walk",
     "trot",
     "canter",
@@ -105,7 +115,7 @@ export function test_world_mounted_cues(): void {
   const cues: readonly number[] = [4, 9];
   // Each cued gait cruises a third of the way from the gait it leaves' greatest speed to its own, so the cue alone carries it past the change point.
   const cruise: number[] = order.map(
-    (gait: QuadrupedGait.Gait, k: number): number =>
+    (gait: AutoMovieArchetypeQuadrupedGait.Gait, k: number): number =>
       k === 0 ? middle(gait) : (2 * top(order[k - 1]!) + top(gait)) / 3,
   );
   const knots: IKnot[] = [knot(0, cruise[0]!)];
@@ -114,26 +124,32 @@ export function test_world_mounted_cues(): void {
     knots.push(knot(cue + REACTION + RAMP, cruise[k + 1]!));
   });
   knots.push(knot(15, cruise[2]!));
-  const squadron: ArchetypeRide.IRide<string, string> = rideQuadruped(
+  const squadron: AutoMovieArchetypeRide.IRide<string, string> = rideQuadruped(
     horse,
-    ArchetypeCourse.timed("trooper", profile(knots)),
+    AutoMovieArchetypeCourse.timed("trooper", profile(knots)),
   );
-  const changes: ArchetypeRide.IRide<string, string>["instants"][number][] =
-    squadron.instants.filter(
-      (i: ArchetypeRide.IRide<string, string>["instants"][number]): boolean =>
-        i.label.startsWith("gait:"),
-    );
+  const changes: AutoMovieArchetypeRide.IRide<
+    string,
+    string
+  >["instants"][number][] = squadron.instants.filter(
+    (
+      i: AutoMovieArchetypeRide.IRide<string, string>["instants"][number],
+    ): boolean => i.label.startsWith("gait:"),
+  );
   TestValidator.predicate(
     `each trumpet cue changes the gait up within the reaction, the ramp and one stride: ${JSON.stringify(changes)}`,
     changes.length === 2 &&
       changes.every(
         (
-          change: ArchetypeRide.IRide<string, string>["instants"][number],
+          change: AutoMovieArchetypeRide.IRide<
+            string,
+            string
+          >["instants"][number],
           k: number,
         ): boolean =>
           change.label.startsWith(`gait:${k === 0 ? "walk" : "trot"}-`) &&
           species.table.order.indexOf(
-            change.label.split("-")[1] as QuadrupedGait.Gait,
+            change.label.split("-")[1] as AutoMovieArchetypeQuadrupedGait.Gait,
           ) > species.table.order.indexOf(k === 0 ? "walk" : "trot") &&
           change.seconds > cues[k]! &&
           change.seconds <=
@@ -144,23 +160,29 @@ export function test_world_mounted_cues(): void {
   // 3. A trumpet cue names the gallop, which the speed alone does not call over the canter.
   const charge: number = 4;
   const gallop: number = middle("gallop");
-  const charging: ArchetypeRide.IRide<string, string> = rideQuadruped(horse, {
-    plan: ArchetypeCourse.timed(
-      "charger",
-      profile([
-        knot(0, cruise[1]!),
-        knot(charge + REACTION, cruise[1]!),
-        knot(charge + REACTION + RAMP, gallop),
-        knot(charge + 6, gallop),
-      ]),
-    ),
-    cues: [{ from: charge + REACTION, to: charge + 6, gait: "gallop" }],
-  });
-  const charged: ArchetypeRide.IRide<string, string>["instants"][number][] =
-    charging.instants.filter(
-      (i: ArchetypeRide.IRide<string, string>["instants"][number]): boolean =>
-        i.label.startsWith("gait:"),
-    );
+  const charging: AutoMovieArchetypeRide.IRide<string, string> = rideQuadruped(
+    horse,
+    {
+      plan: AutoMovieArchetypeCourse.timed(
+        "charger",
+        profile([
+          knot(0, cruise[1]!),
+          knot(charge + REACTION, cruise[1]!),
+          knot(charge + REACTION + RAMP, gallop),
+          knot(charge + 6, gallop),
+        ]),
+      ),
+      cues: [{ from: charge + REACTION, to: charge + 6, gait: "gallop" }],
+    },
+  );
+  const charged: AutoMovieArchetypeRide.IRide<
+    string,
+    string
+  >["instants"][number][] = charging.instants.filter(
+    (
+      i: AutoMovieArchetypeRide.IRide<string, string>["instants"][number],
+    ): boolean => i.label.startsWith("gait:"),
+  );
   TestValidator.predicate(
     `the charge cue changes the trot to the gallop within the reaction, the ramp and one stride: ${JSON.stringify(charged)}`,
     charged.length === 1 &&
@@ -172,8 +194,8 @@ export function test_world_mounted_cues(): void {
 }
 
 /** Straight samples along +Z of a speed linear between knots of (second, metres per second), every `STEP`. */
-function profile(knots: readonly IKnot[]): ArchetypeCourse.ISample[] {
-  const samples: ArchetypeCourse.ISample[] = [];
+function profile(knots: readonly IKnot[]): AutoMovieArchetypeCourse.ISample[] {
+  const samples: AutoMovieArchetypeCourse.ISample[] = [];
   let z: number = 0;
   for (let k: number = 0; k + 1 < knots.length; ++k) {
     const t0: number = knots[k]!.seconds;

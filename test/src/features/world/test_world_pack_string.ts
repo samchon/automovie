@@ -1,8 +1,8 @@
 import {
-  ArchetypeCourse,
-  ArchetypeManoeuvre,
-  ArchetypePassage,
-  type ArchetypeRide,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeManoeuvre,
+  AutoMovieArchetypePassage,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -31,7 +31,7 @@ const STEP: number = 0.1;
  * 3. No two animals' posed envelopes meet.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the string and the three scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Plans each follower with `ArchetypeManoeuvre.follow`, rides each with `rideQuadruped` under a pack saddle, and reads the actual `tie` and `lead` frames and posed envelopes.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans each follower with `AutoMovieArchetypeManoeuvre.follow`, rides each with `rideQuadruped` under a pack saddle, and reads the actual `tie` and `lead` frames and posed envelopes.
  * @evidence contracts/development/testing.md#independent-expectations The rope's length bounds the distance between the two contacts it joins; the gap and the horses' size are authored.
  * @evidence contracts/development/testing.md#distinguishing-cases A straight start and a turn, the first and the last tie. Narrow openings are pinned by test_world_mounted_manoeuvres.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec over real rides.
@@ -41,21 +41,24 @@ export function test_world_pack_string(): void {
     { withersHeight: 1.6, tempo: 0, tack: "pack" },
     "packer",
   );
-  const leader: ArchetypeCourse.IPlan = ArchetypeCourse.timed("leader", [
-    { seconds: 0, x: 0, y: 0, z: 0 },
-    { seconds: 4, x: 0, y: 0, z: 6 },
-    { seconds: 8, x: 2.5, y: 0, z: 11 },
-    { seconds: 12, x: 6.5, y: 0, z: 14 },
-    { seconds: 16, x: 11.5, y: 0, z: 15 },
-  ]);
-  const plans: ArchetypeCourse.IPlan[] = Array.from(
+  const leader: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.timed(
+    "leader",
+    [
+      { seconds: 0, x: 0, y: 0, z: 0 },
+      { seconds: 4, x: 0, y: 0, z: 6 },
+      { seconds: 8, x: 2.5, y: 0, z: 11 },
+      { seconds: 12, x: 6.5, y: 0, z: 14 },
+      { seconds: 16, x: 11.5, y: 0, z: 15 },
+    ],
+  );
+  const plans: AutoMovieArchetypeCourse.IPlan[] = Array.from(
     { length: ANIMALS },
-    (_: unknown, k: number): ArchetypeCourse.IPlan =>
+    (_: unknown, k: number): AutoMovieArchetypeCourse.IPlan =>
       k === 0
         ? leader
-        : ArchetypeCourse.timed(
+        : AutoMovieArchetypeCourse.timed(
             `packer${k}`,
-            ArchetypeManoeuvre.follow(
+            AutoMovieArchetypeManoeuvre.follow(
               leader,
               k * GAP,
               (k * GAP) / 1.5,
@@ -64,8 +67,10 @@ export function test_world_pack_string(): void {
             ),
           ),
   );
-  const rides: ArchetypeRide.IRide<string, string>[] = plans.map(
-    (plan: ArchetypeCourse.IPlan): ArchetypeRide.IRide<string, string> =>
+  const rides: AutoMovieArchetypeRide.IRide<string, string>[] = plans.map(
+    (
+      plan: AutoMovieArchetypeCourse.IPlan,
+    ): AutoMovieArchetypeRide.IRide<string, string> =>
       rideQuadruped(horse, plan),
   );
   const reads: number[] = Array.from(
@@ -82,7 +87,7 @@ export function test_world_pack_string(): void {
       plans
         .slice(1)
         .every(
-          (plan: ArchetypeCourse.IPlan, k: number): boolean =>
+          (plan: AutoMovieArchetypeCourse.IPlan, k: number): boolean =>
             Vector3.distance(
               plan.at(seconds).placement.translation,
               leader.at(
@@ -98,11 +103,15 @@ export function test_world_pack_string(): void {
     ...reads.flatMap((seconds: number): number[] =>
       rides
         .slice(1)
-        .map((ride: ArchetypeRide.IRide<string, string>, k: number): number =>
-          Vector3.distance(
-            rides[k]!.frame("tie", seconds).translation,
-            ride.frame("lead", seconds).translation,
-          ),
+        .map(
+          (
+            ride: AutoMovieArchetypeRide.IRide<string, string>,
+            k: number,
+          ): number =>
+            Vector3.distance(
+              rides[k]!.frame("tie", seconds).translation,
+              ride.frame("lead", seconds).translation,
+            ),
         ),
     ),
   );
@@ -114,15 +123,15 @@ export function test_world_pack_string(): void {
   // 3. No two bodies meet.
   TestValidator.equals(
     "no two animals' bodies meet",
-    ArchetypePassage.conflicts("string", {
+    AutoMovieArchetypePassage.conflicts("string", {
       participants: rides.map(
         (
-          ride: ArchetypeRide.IRide<string, string>,
+          ride: AutoMovieArchetypeRide.IRide<string, string>,
           k: number,
-        ): ArchetypePassage.IParticipant => ({
+        ): AutoMovieArchetypePassage.IParticipant => ({
           id: `packer${k}`,
           plan: ride.plan,
-          footprint: ArchetypePassage.envelope(ride, 0, 16, 0.25),
+          footprint: AutoMovieArchetypePassage.envelope(ride, 0, 16, 0.25),
           margin: 0,
         }),
       ),

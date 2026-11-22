@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
 } from "@automovie/archetypes";
 import { Quaternion, materializeCompiledEffects } from "@automovie/engine";
 import type {
@@ -35,20 +35,21 @@ export namespace filmStageScreenCue {
   export const FPS: number = 24;
 
   /** A decorative stage panel built as a fixed frame and a detachable tile. */
-  export type Panel = Archetype<never, never>;
+  export type Panel = AutoMovieArchetype<never, never>;
 
   /** Make a solid decorative panel whose visible tile can separate. */
   export function panel(): Panel {
-    const builder: ArchetypeBuilder<never, never> = new ArchetypeBuilder({
-      draw: new ArchetypeDrawSession<never>(
-        "rehearsal-panel",
-        {},
-        undefined,
-        {},
-      ),
-      name: "decorative panel",
-      material: "wood",
-    });
+    const builder: AutoMovieArchetypeBuilder<never, never> =
+      new AutoMovieArchetypeBuilder({
+        draw: new AutoMovieArchetypeDrawSession<never>(
+          "rehearsal-panel",
+          {},
+          undefined,
+          {},
+        ),
+        name: "decorative panel",
+        material: "wood",
+      });
     const frame = { color: "#274932" };
     builder.box(
       "base",

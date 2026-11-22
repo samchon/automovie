@@ -1,5 +1,5 @@
-import { Archetype } from "./Archetype";
 import { ArchetypePartOwnership } from "./ArchetypePartOwnership";
+import { AutoMovieArchetype } from "./AutoMovieArchetype";
 
 /**
  * Build an archetype from the builder's own rest arrays.
@@ -13,12 +13,12 @@ import { ArchetypePartOwnership } from "./ArchetypePartOwnership";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak identity holds only the original already owned array, never a sampled pose.
  */
 export function buildNativeArchetype<Id extends string, D extends string>(
-  props: Archetype.IProps<Id, D>,
-): Archetype<Id, D> {
+  props: AutoMovieArchetype.IProps<Id, D>,
+): AutoMovieArchetype<Id, D> {
   let native: boolean = false;
-  const model: Archetype<Id, D> = ArchetypePartOwnership.observe(
+  const model: AutoMovieArchetype<Id, D> = ArchetypePartOwnership.observe(
     props.parts,
-    (): Archetype<Id, D> => new Archetype<Id, D>(props),
+    (): AutoMovieArchetype<Id, D> => new AutoMovieArchetype<Id, D>(props),
     (owned: boolean): void => {
       native = owned;
     },

@@ -1,4 +1,8 @@
-import { ArchetypeCourse, createBoat, rowBoat } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeCourse,
+  createBoat,
+  rowBoat,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -21,14 +25,14 @@ export function test_archetype_boat_catches(): void {
     { kind: "rowboat" },
     2,
   );
-  const straight: ArchetypeCourse.ICourse = {
+  const straight: AutoMovieArchetypeCourse.ICourse = {
     start: { x: 0, z: 0, heading: 0 },
     legs: [{ kind: "straight", length: 20 }],
     cruise: 1.5,
     acceleration: 0.5,
     deceleration: 0.5,
   };
-  const courses: readonly ArchetypeCourse.ICourse[] = [
+  const courses: readonly AutoMovieArchetypeCourse.ICourse[] = [
     straight,
     { ...straight, legs: [{ kind: "straight", length: 18 }] },
     {
@@ -42,14 +46,14 @@ export function test_archetype_boat_catches(): void {
     },
   ];
   for (const [index, course] of courses.entries()) {
-    const plan: ArchetypeCourse.IPlan = ArchetypeCourse.plan(
+    const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
       boat.archetype,
       course,
     );
     let reads: number = 0;
     const opaque: ReturnType<typeof rowBoat> = rowBoat(boat, {
       ...plan,
-      at: (seconds: number): ArchetypeCourse.IState => {
+      at: (seconds: number): AutoMovieArchetypeCourse.IState => {
         ++reads;
         return plan.at(seconds);
       },

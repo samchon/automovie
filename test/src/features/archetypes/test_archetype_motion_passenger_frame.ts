@@ -1,4 +1,7 @@
-import { ArchetypeFrame, ArchetypeRide } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRide,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import {
   HumanChain,
@@ -29,7 +32,7 @@ import { qclose, vclose } from "../internal/predicates";
 export function test_archetype_motion_passenger_frame(): void {
   const members = archetypeCarriage.members(7),
     car = archetypeCarriage(7);
-  const ride = ArchetypeRide.along(car, {
+  const ride = AutoMovieArchetypeRide.along(car, {
     start: { x: 0, z: 0, heading: 0 },
     legs: [
       { kind: "straight", length: 12 },
@@ -45,21 +48,21 @@ export function test_archetype_motion_passenger_frame(): void {
     for (const [id, local] of [
       [
         "bench2/seat",
-        ArchetypeFrame.compose(
+        AutoMovieArchetypeFrame.compose(
           members.bench2.placement,
           members.bench2.archetype.affordance("seat").frame,
         ),
       ],
       [
         "railLeft/bar",
-        ArchetypeFrame.compose(
+        AutoMovieArchetypeFrame.compose(
           members.railLeft.placement,
           members.railLeft.archetype.affordance("bar").frame,
         ),
       ],
     ] as const) {
       const actual = ride.frame(id, t),
-        expect = ArchetypeFrame.compose(root, local);
+        expect = AutoMovieArchetypeFrame.compose(root, local);
       TestValidator.predicate(
         id,
         vclose(actual.translation, expect.translation, 1e-9) &&

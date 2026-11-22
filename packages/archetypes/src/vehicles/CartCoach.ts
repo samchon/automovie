@@ -2,9 +2,9 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-  type ArchetypeFriction,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeFriction,
 } from "../core";
 import { CartWheel } from "./CartWheel";
 import { createCart } from "./createCart";
@@ -33,7 +33,10 @@ export namespace CartCoach {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function wagon(
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCart.Affordance,
+      createCart.Dimension
+    >,
     d: Readonly<Partial<Record<createCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -83,7 +86,7 @@ export namespace CartCoach {
     builder.affordance({
       id: "bed",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, floor, middle)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, floor, middle)),
       extent: null,
       width,
       depth: length,
@@ -105,7 +108,10 @@ export namespace CartCoach {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function carriage(
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCart.Affordance,
+      createCart.Dimension
+    >,
     d: Readonly<Partial<Record<createCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -179,7 +185,7 @@ export namespace CartCoach {
       builder.affordance({
         id: `${side}Door`,
         kind: "hinge",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(x, c.floor + c.door.height / 2, hinge),
           v(0, -sign, 0),
           v(0, 0, -1),
@@ -191,7 +197,7 @@ export namespace CartCoach {
       builder.affordance({
         id: `${side}Aperture`,
         kind: "aperture",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(x, c.floor, middle),
           v(0, 1, 0),
           v(0, 0, sign),
@@ -213,7 +219,7 @@ export namespace CartCoach {
     builder.affordance({
       id: "seat",
       kind: "seat",
-      frame: ArchetypeFrame.upright(v(0, seat, rear + 0.55)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, seat, rear + 0.55)),
       extent: null,
       depth: 0.5,
       width: 2 * half - 0.1,
@@ -225,7 +231,7 @@ export namespace CartCoach {
     builder.affordance({
       id: "box",
       kind: "seat",
-      frame: ArchetypeFrame.upright(v(0, c.box, wheelbase + 0.225)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, c.box, wheelbase + 0.225)),
       extent: null,
       depth: 0.45,
       width: 1,
@@ -240,7 +246,7 @@ export namespace CartCoach {
         id: `${side}LineGrip`,
         kind: "rein",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(
             (sign * BOX_HANDS.apart) / 2,
             c.box + createCart.REST.elbow,
@@ -282,7 +288,10 @@ const CLOTH: string = "#6b2f2f";
  * @param gear The track, the pole's length and its end's height at rest, the lock, the front and rear spoke counts, and the tyres' material where a source gives it.
  */
 function gear(
-  builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+  builder: AutoMovieArchetypeBuilder<
+    createCart.Affordance,
+    createCart.Dimension
+  >,
   d: Readonly<Partial<Record<createCart.Dimension, number>>>,
   gear: {
     track: number;
@@ -290,7 +299,7 @@ function gear(
     tip: number;
     lock: number;
     spokes: readonly [number, number];
-    surface?: ArchetypeFriction.Material;
+    surface?: AutoMovieArchetypeFriction.Material;
   },
 ): void {
   const v: typeof Vector3.create = Vector3.create;
@@ -321,7 +330,7 @@ function gear(
   builder.affordance({
     id: "frontAxle",
     kind: "wheel",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, front, wheelbase),
       v(0, 1, 0),
       v(0, 0, 1),
@@ -333,7 +342,7 @@ function gear(
   builder.affordance({
     id: "drawbarPitch",
     kind: "hinge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, front, wheelbase),
       v(1, 0, 0),
       v(0, 1, 0),
@@ -347,7 +356,7 @@ function gear(
   builder.affordance({
     id: "coupling",
     kind: "hook",
-    frame: ArchetypeFrame.upright(tip),
+    frame: AutoMovieArchetypeFrame.upright(tip),
     extent: null,
     rides: "drawbarPitch",
   });

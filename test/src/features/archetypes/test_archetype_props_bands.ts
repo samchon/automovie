@@ -1,5 +1,5 @@
 import {
-  ArchetypeUnits,
+  AutoMovieArchetypeUnits,
   createBag,
   createBox,
   createDevice,
@@ -113,8 +113,8 @@ export function test_archetype_props_bands(): void {
       ),
       row(
         "mug rim height",
-        3.88 * ArchetypeUnits.INCH,
-        3.88 * ArchetypeUnits.INCH,
+        3.88 * AutoMovieArchetypeUnits.INCH,
+        3.88 * AutoMovieArchetypeUnits.INCH,
         "ITI diner mug",
         (seed: number): number =>
           createDrinkware({ kind: "mug" }, seed).affordance("lip").frame
@@ -202,8 +202,8 @@ export function test_archetype_props_bands(): void {
       ),
       row(
         "screwdriver length",
-        8.25 * ArchetypeUnits.INCH,
-        8.25 * ArchetypeUnits.INCH,
+        8.25 * AutoMovieArchetypeUnits.INCH,
+        8.25 * AutoMovieArchetypeUnits.INCH,
         "Klein Tools 603-4",
         (seed: number): number =>
           createTool({ kind: "screwdriver" }, seed).affordance("face").frame
@@ -235,8 +235,8 @@ export function test_archetype_props_bands(): void {
       ),
       row(
         "box width between the hands",
-        (16 + 3 / 8) * ArchetypeUnits.INCH,
-        18 * ArchetypeUnits.INCH,
+        (16 + 3 / 8) * AutoMovieArchetypeUnits.INCH,
+        18 * AutoMovieArchetypeUnits.INCH,
         "U-Haul cartons",
         (seed: number): number => {
           const box: ReturnType<typeof createBox> = createBox({}, seed);

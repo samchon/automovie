@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -46,11 +46,11 @@ const SIZE: Readonly<createScissors.ISize> = {
  */
 export function createScissors(
   params: createScissors.IParams = {},
-): Archetype<createScissors.Affordance, createScissors.Dimension> {
+): AutoMovieArchetype<createScissors.Affordance, createScissors.Dimension> {
   const v: typeof Vector3.create = Vector3.create;
   const handle: number = SIZE.length - SIZE.blade;
-  const draw: ArchetypeDrawSession<createScissors.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createScissors.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "scissors",
       { length: "m", blade: "m", mass: "kg" },
       undefined,
@@ -58,10 +58,10 @@ export function createScissors(
   draw.derive("length", SIZE.length);
   draw.derive("blade", SIZE.blade);
   draw.derive("mass", SIZE.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createScissors.Affordance,
     createScissors.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? "scissors",
     name: "scissors",
     material: "steel",
@@ -95,13 +95,13 @@ export function createScissors(
     extent: null,
     travel: SIZE.opening,
     parts: ["blade-upper", "ring-thumb"],
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
   });
   builder.affordance({
     id: "fingerRing",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0.012, -0.002, -handle + SIZE.ring / 2),
       v(0, 1, 0),
       v(0, 0, 1),
@@ -116,7 +116,7 @@ export function createScissors(
     kind: "handle",
     symmetry: "round",
     rides: "pivot",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(-0.012, 0.002, -handle + SIZE.ring / 2),
       v(0, 1, 0),
       v(0, 0, 1),
@@ -129,13 +129,13 @@ export function createScissors(
   builder.affordance({
     id: "cut",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, 0, SIZE.blade / 2)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, SIZE.blade / 2)),
     extent: null,
   });
   builder.affordance({
     id: "tip",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, 0, SIZE.blade)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, SIZE.blade)),
     extent: null,
   });
   return builder.build(SIZE.mass);

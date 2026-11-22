@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { InstrumentBuild } from "./InstrumentBuild";
 import { KeyboardConstruction } from "./KeyboardConstruction";
 import type { createInstrument } from "./createInstrument";
@@ -10,7 +10,7 @@ import type { createInstrument } from "./createInstrument";
  * @param params The optional identifier and dimensions fixed within their recorded bands.
  * @param seed The seed for free dimensions. The band midpoints apply without a seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Place keys by octave and semitone and derive their top faces and dip from the keyboard dimensions.
@@ -23,7 +23,10 @@ import type { createInstrument } from "./createInstrument";
 export function createUprightPiano(
   params: createUprightPiano.IParams = {},
   seed?: number | string,
-): Archetype<createUprightPiano.Affordance, createUprightPiano.Dimension> {
+): AutoMovieArchetype<
+  createUprightPiano.Affordance,
+  createUprightPiano.Dimension
+> {
   return InstrumentBuild.create<createUprightPiano.Affordance>(
     "uprightPiano",
     "upright piano",

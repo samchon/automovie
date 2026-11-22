@@ -1,8 +1,12 @@
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
-import { QuadrupedBody, QuadrupedSkeleton, createHorse } from "../animals";
-import { HorseHarness } from "../animals/HorseHarness";
-import { HorseSaddle } from "../animals/HorseSaddle";
+import {
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeQuadrupedSkeleton,
+  createHorse,
+} from "../animals";
+import { EquineHarness } from "../animals/EquineHarness";
+import { EquineSaddle } from "../animals/EquineSaddle";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
@@ -11,7 +15,7 @@ import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
  *
  * @returns Rest, neck-turn and head-turn views of the same seeded horse with riding and harness tack.
  * @evidence contracts/development/common.md#meaningful-documentation States the actual deterministic horse, isolated twenty-degree test poses and explicit head/tack attachment boundary.
- * @evidence contracts/development/implementation.md#principled-implementation QuadrupedSkeleton drives the real animal through generic FK; declared rigid bridle parts follow the head, while held rein/lead contacts stay on the trunk and actual flexible spans reconnect them to their head-local bit anchors. Independent diagnostic marks use the original neutral horse for all three controls.
+ * @evidence contracts/development/implementation.md#principled-implementation AutoMovieArchetypeQuadrupedSkeleton drives the real animal through generic FK; declared rigid bridle parts follow the head, while held rein/lead contacts stay on the trunk and actual flexible spans reconnect them to their head-local bit anchors. Independent diagnostic marks use the original neutral horse for all three controls.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Build one seeded source, declare the carried bindings and make three independent actual models through the shared still-subject helper.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts These are isolated rig inspection poses, not measured animal action laws; no renderer-only replacement geometry or altered solver supplies the picture.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three fixed-size coarse models are prepared once for the subject catalogue; each seek reads the existing still models.
@@ -26,17 +30,19 @@ export function archetypeCaptureAnimals(): Readonly<
     12,
   );
   const bones: Set<string> = new Set(
-    QuadrupedSkeleton.of(horse).bones.map(
+    AutoMovieArchetypeQuadrupedSkeleton.of(horse).bones.map(
       (
-        bone: ReturnType<typeof QuadrupedSkeleton.of>["bones"][number],
+        bone: ReturnType<
+          typeof AutoMovieArchetypeQuadrupedSkeleton.of
+        >["bones"][number],
       ): string => bone.bone,
     ),
   );
-  const parts: Record<string, QuadrupedBody.Bone> = {};
-  const contacts: Record<string, QuadrupedBody.Bone> = {};
+  const parts: Record<string, AutoMovieArchetypeQuadrupedBody.Bone> = {};
+  const contacts: Record<string, AutoMovieArchetypeQuadrupedBody.Bone> = {};
   const head: Set<string> = new Set([
-    ...HorseHarness.HEAD,
-    ...HorseSaddle.HEAD,
+    ...EquineHarness.HEAD,
+    ...EquineSaddle.HEAD,
   ]);
   for (const part of horse.parts)
     if (!bones.has(part.id))
@@ -44,13 +50,15 @@ export function archetypeCaptureAnimals(): Readonly<
   for (const contact of horse.affordances) contacts[contact.id] = "trunk";
 
   /** An authored test angle isolates each axial control without changing the rest input. */
-  const turn: (bone: QuadrupedBody.Bone) => ReturnType<typeof createHorse> = (
-    bone: QuadrupedBody.Bone,
+  const turn: (
+    bone: AutoMovieArchetypeQuadrupedBody.Bone,
+  ) => ReturnType<typeof createHorse> = (
+    bone: AutoMovieArchetypeQuadrupedBody.Bone,
   ): ReturnType<typeof createHorse> =>
-    QuadrupedSkeleton.pose(
+    AutoMovieArchetypeQuadrupedSkeleton.pose(
       horse,
       new Map<
-        QuadrupedBody.Bone,
+        AutoMovieArchetypeQuadrupedBody.Bone,
         Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">
       >([[bone, { flexion: 20, abduction: 0, twist: 0 }]]),
       parts,

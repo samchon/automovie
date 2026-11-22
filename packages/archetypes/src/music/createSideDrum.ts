@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { InstrumentBuild } from "./InstrumentBuild";
 import { MarchingConstruction } from "./MarchingConstruction";
 import type { createInstrument } from "./createInstrument";
@@ -10,7 +10,7 @@ import type { createInstrument } from "./createInstrument";
  * @param params The optional identifier and dimensions fixed within their recorded bands.
  * @param seed The seed for free dimensions. The band midpoints apply without a seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Build the shell and heads around their shared axis and put the strike on the upper head.
@@ -23,7 +23,7 @@ import type { createInstrument } from "./createInstrument";
 export function createSideDrum(
   params: createSideDrum.IParams = {},
   seed?: number | string,
-): Archetype<createSideDrum.Affordance, createSideDrum.Dimension> {
+): AutoMovieArchetype<createSideDrum.Affordance, createSideDrum.Dimension> {
   return InstrumentBuild.create<createSideDrum.Affordance>(
     "sideDrum",
     "side drum",

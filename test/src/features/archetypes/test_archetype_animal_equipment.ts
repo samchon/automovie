@@ -1,7 +1,7 @@
 import {
-  ArchetypeRefusal,
-  QuadrupedEquipment,
-  QuadrupedLead,
+  AutoMovieArchetypeQuadrupedEquipment,
+  AutoMovieArchetypeQuadrupedLead,
+  AutoMovieArchetypeRefusal,
   createCamel,
   createDeer,
   createOx,
@@ -29,7 +29,7 @@ type Fixture = Equipment.IFixture;
 /** An invalid authored assembly and the exact input a refusal must preserve. */
 interface Invalid {
   /** Whole request, including a valid yoke before every failing pack. */
-  params: QuadrupedEquipment.IParams;
+  params: AutoMovieArchetypeQuadrupedEquipment.IParams;
   /** Physical parameter path. */
   axis: string;
   /** Actual submitted value, including NaN. */
@@ -64,26 +64,30 @@ interface Invalid {
  * the oracles; this unit makes no rendered-fit or safe-load claim.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States authored mass/dimension ownership, actual bearing and clearance observations, atomic parameter admission and the explicit limits of coarse equipment verification.
- * @evidence contracts/development/testing.md#behavioral-verification Calls actual public equipped producers and dispatcher, observes real cylinder/box parts and contact frames, and builds the same genuine body builder before and after direct invalid QuadrupedEquipment.lay requests.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual public equipped producers and dispatcher, observes real cylinder/box parts and contact frames, and builds the same genuine body builder before and after direct invalid AutoMovieArchetypeQuadrupedEquipment.lay requests.
  * @evidence contracts/development/testing.md#independent-expectations Authored SI lengths and analytic cylinder surfaces determine hook openings, depth, grasp diameter and beam span; real primitive extrema determine body clearances. Body-local circular sections retain analytic tangency and positive axial overlap. Separating axes of actual tessellated triangle sections independently require zero gap without penetration; rod endpoints establish frame joins. No fitting plan supplies these expectations. Expected hook contacts are not taken from a constructor table, and unchanged real builder output proves parameter preflight without replacing methods.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts yoke, two side hooks and lead; empty, exact fit and adjacent overflow; zero versus negative clearance; finite positive versus zero, negative, NaN and infinity; complete authored mass versus bare deer mass; and valid-yoke-plus-invalid-pack atomicity. Cohort references and 200-seed construction belong to the adjacent species unit.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous unit owns its actual in-memory builders, models, authored equipment and observations. It starts no host, compiler, renderer or process and uses no foreign-method replacement or monkeypatch.
  */
 export function test_archetype_animal_equipment(): void {
-  const lead: QuadrupedLead.IParams = {
+  const lead: AutoMovieArchetypeQuadrupedLead.IParams = {
     width: 0.1,
     thickness: 0.01,
     leadLength: 0.6,
     leadRadius: 0.005,
   };
-  const yoke: NonNullable<QuadrupedEquipment.IParams["yoke"]> = {
+  const yoke: NonNullable<
+    AutoMovieArchetypeQuadrupedEquipment.IParams["yoke"]
+  > = {
     width: 0.6,
     radius: 0.02,
     neckAt: 0.12,
     clearance: 0.005,
     hook: { radius: 0.008, opening: 0.08, depth: 0.05 },
   };
-  const pack: NonNullable<QuadrupedEquipment.IParams["pack"]> = {
+  const pack: NonNullable<
+    AutoMovieArchetypeQuadrupedEquipment.IParams["pack"]
+  > = {
     length: 0.45,
     width: 0.2,
     thickness: 0.06,
@@ -104,13 +108,13 @@ export function test_archetype_animal_equipment(): void {
       );
     // The ox keeps its own roping contacts (head, horns, hind) beside the equipment's.
     const expected: string =
-      animal === ox
-        ? "head|hind|hitch|horns|lead"
-        : "lead|leftLoad|rightLoad";
+      animal === ox ? "head|hind|hitch|horns|lead" : "lead|leftLoad|rightLoad";
     if (
       animal.affordances
         .map((contact: IAutoMovieAffordance): string => contact.id)
-        .sort((left: string, right: string): number => left.localeCompare(right))
+        .sort((left: string, right: string): number =>
+          left.localeCompare(right),
+        )
         .join("|") !== expected
     )
       findings.push(
@@ -141,8 +145,20 @@ export function test_archetype_animal_equipment(): void {
   )
     findings.push("public camel dispatch dropped or changed actual equipment");
   Equipment.inspectHook(ox, "yoke-hitch", "hitch", yoke.hook, findings);
-  Equipment.inspectHook(camel, "pack-left-hook", "leftLoad", pack.hook, findings);
-  Equipment.inspectHook(camel, "pack-right-hook", "rightLoad", pack.hook, findings);
+  Equipment.inspectHook(
+    camel,
+    "pack-left-hook",
+    "leftLoad",
+    pack.hook,
+    findings,
+  );
+  Equipment.inspectHook(
+    camel,
+    "pack-right-hook",
+    "rightLoad",
+    pack.hook,
+    findings,
+  );
   animalEquipmentBearingObservation(ox, "yoke", yoke.radius, findings);
   animalEquipmentBearingObservation(camel, "pack", pack.railRadius, findings);
 
@@ -167,13 +183,19 @@ export function test_archetype_animal_equipment(): void {
       "actual yoke does not preserve authored span or body clearance",
     );
   const trunk: IAutoMovieModelPart = Equipment.part(camel, "trunk");
-  const neckRoot: IAutoMovieVector3 = Equipment.end(Equipment.part(camel, "neck"), -1);
+  const neckRoot: IAutoMovieVector3 = Equipment.end(
+    Equipment.part(camel, "neck"),
+    -1,
+  );
   for (const side of ["left", "right"] as const) {
     const pad: IAutoMovieModelPart = Equipment.part(camel, `pack-${side}-pad`);
     if (pad.geometry.type !== "primitive" || pad.geometry.shape.type !== "box")
       throw new Error("A real pack side pad must be a box");
     const size: typeof pad.geometry.shape = pad.geometry.shape;
-    const rail: IAutoMovieModelPart = Equipment.part(camel, `pack-${side}-rail`);
+    const rail: IAutoMovieModelPart = Equipment.part(
+      camel,
+      `pack-${side}-rail`,
+    );
     if (
       !nclose(size.width, 0.06) ||
       !nclose(size.height, 0.2) ||
@@ -192,7 +214,10 @@ export function test_archetype_animal_equipment(): void {
       );
   }
   for (const side of [-1, 1] as const) {
-    const bridge: IAutoMovieModelPart = Equipment.part(camel, `pack-bridge-${side}`);
+    const bridge: IAutoMovieModelPart = Equipment.part(
+      camel,
+      `pack-bridge-${side}`,
+    );
     if (
       bridge.transform!.translation.y - Equipment.cylinder(bridge).radius <
         trunk.transform!.translation.y +
@@ -200,7 +225,9 @@ export function test_archetype_animal_equipment(): void {
           pack.clearance -
           1e-9 ||
       bridge.transform!.translation.z + Equipment.cylinder(bridge).radius >
-        neckRoot.z - Equipment.cylinder(Equipment.part(camel, "neck")).radius + 1e-9
+        neckRoot.z -
+          Equipment.cylinder(Equipment.part(camel, "neck")).radius +
+          1e-9
     )
       findings.push(`bridge ${side}: actual back or neck clearance was lost`);
   }
@@ -208,7 +235,12 @@ export function test_archetype_animal_equipment(): void {
   // Builders are observed through build(), including their complete real contacts.
   const empty: Fixture = Equipment.create();
   const beforeEmpty: string = JSON.stringify(empty.builder.build(300));
-  QuadrupedEquipment.lay(empty.builder, empty.rig, {}, "equipment-fixture");
+  AutoMovieArchetypeQuadrupedEquipment.lay(
+    empty.builder,
+    empty.rig,
+    {},
+    "equipment-fixture",
+  );
   if (JSON.stringify(empty.builder.build(300)) !== beforeEmpty)
     findings.push("empty equipment changed the actual body builder");
   const exact: Fixture = Equipment.create();
@@ -221,7 +253,7 @@ export function test_archetype_animal_equipment(): void {
     exact.rig.poll.z - exact.rig.neck.z,
   );
   const beamMinimum: number = 2 * (exact.rig.neckRadius + yoke.radius);
-  QuadrupedEquipment.lay(
+  AutoMovieArchetypeQuadrupedEquipment.lay(
     exact.builder,
     exact.rig,
     {
@@ -232,26 +264,39 @@ export function test_archetype_animal_equipment(): void {
   );
   const exactModel: Animal = exact.builder.build(300);
   animalEquipmentBearingObservation(exactModel, "yoke", yoke.radius, findings);
-  animalEquipmentBearingObservation(exactModel, "pack", pack.railRadius, findings);
-  const frontBridge: IAutoMovieModelPart = Equipment.part(exactModel, "pack-bridge-1");
+  animalEquipmentBearingObservation(
+    exactModel,
+    "pack",
+    pack.railRadius,
+    findings,
+  );
+  const frontBridge: IAutoMovieModelPart = Equipment.part(
+    exactModel,
+    "pack-bridge-1",
+  );
   const exactNeck: IAutoMovieModelPart = Equipment.part(exactModel, "neck");
-  const exactBeam: IAutoMovieModelPart = Equipment.part(exactModel, "yoke-beam");
+  const exactBeam: IAutoMovieModelPart = Equipment.part(
+    exactModel,
+    "yoke-beam",
+  );
   if (
     !validateModel({ model: exactModel }).success ||
     !nclose(
-      frontBridge.transform!.translation.z + Equipment.cylinder(frontBridge).radius,
+      frontBridge.transform!.translation.z +
+        Equipment.cylinder(frontBridge).radius,
       Equipment.end(exactNeck, -1).z - Equipment.cylinder(exactNeck).radius,
       1e-9,
     ) ||
     !nclose(
-      Equipment.cylinder(exactBeam).height / 2 - Equipment.cylinder(exactBeam).radius,
+      Equipment.cylinder(exactBeam).height / 2 -
+        Equipment.cylinder(exactBeam).radius,
       Equipment.cylinder(exactNeck).radius,
       1e-9,
     )
   )
     findings.push("exact span and zero-clearance equipment did not admit");
   const narrow: Fixture = Equipment.create();
-  QuadrupedEquipment.lay(
+  AutoMovieArchetypeQuadrupedEquipment.lay(
     narrow.builder,
     narrow.rig,
     {
@@ -265,9 +310,16 @@ export function test_archetype_animal_equipment(): void {
     "equipment-fixture",
   );
   const narrowModel: Animal = narrow.builder.build(300);
-  animalEquipmentBearingObservation(narrowModel, "pack", pack.railRadius, findings);
+  animalEquipmentBearingObservation(
+    narrowModel,
+    "pack",
+    pack.railRadius,
+    findings,
+  );
   if (!validateModel({ model: narrowModel }).success)
-    findings.push("narrow positive zero-clearance pack lost its actual body path");
+    findings.push(
+      "narrow positive zero-clearance pack lost its actual body path",
+    );
   const invalid: Invalid[] = [
     {
       params: { yoke: { ...yoke, width: Number.NaN } },
@@ -352,7 +404,7 @@ export function test_archetype_animal_equipment(): void {
     const actual: Fixture = Equipment.create();
     const before: string = JSON.stringify(actual.builder.build(300));
     try {
-      QuadrupedEquipment.lay(
+      AutoMovieArchetypeQuadrupedEquipment.lay(
         actual.builder,
         actual.rig,
         request.params,
@@ -363,7 +415,7 @@ export function test_archetype_animal_equipment(): void {
       );
     } catch (error) {
       if (
-        !(error instanceof ArchetypeRefusal) ||
+        !(error instanceof AutoMovieArchetypeRefusal) ||
         error.kind !== "parameter" ||
         error.archetype !== "equipment-fixture" ||
         error.axis !== request.axis ||
@@ -390,7 +442,7 @@ export function test_archetype_animal_equipment(): void {
     const actual: Fixture = Equipment.create();
     const before: string = JSON.stringify(actual.builder.build(300));
     try {
-      QuadrupedLead(
+      AutoMovieArchetypeQuadrupedLead(
         actual.builder,
         actual.rig,
         "lead",
@@ -400,7 +452,7 @@ export function test_archetype_animal_equipment(): void {
       findings.push(`collar.${key}/${value}: invalid lead admitted`);
     } catch (error) {
       if (
-        !(error instanceof ArchetypeRefusal) ||
+        !(error instanceof AutoMovieArchetypeRefusal) ||
         error.kind !== "parameter" ||
         error.archetype !== "equipment-fixture" ||
         error.axis !== `collar.${key}` ||
@@ -424,7 +476,7 @@ export function test_archetype_animal_equipment(): void {
     );
   } catch (error) {
     if (
-      !(error instanceof ArchetypeRefusal) ||
+      !(error instanceof AutoMovieArchetypeRefusal) ||
       error.axis !== "mass" ||
       error.archetype !== "deer"
     )

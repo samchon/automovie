@@ -1,4 +1,4 @@
-import { ArchetypeUnits, createBag } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, createBag } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -34,40 +34,93 @@ export function test_archetype_props_bag_bands(): void {
   const NIOSH: string = "NIOSH 94-110 optimal handle";
   const LONGCHAMP: string = "Longchamp Le Pliage M";
   const TNF: string = "The North Face Base Camp Duffel M";
-  const inch: number = ArchetypeUnits.INCH;
+  const inch: number = AutoMovieArchetypeUnits.INCH;
   const findings: string[] = archetypeBandSweep([
-    row("briefcase width", 0.415, 0.452, ATTACHE, (s: number): number =>
-      archetypeExtent(bag("briefcase", s), "x", ["body"]).size,
+    row(
+      "briefcase width",
+      0.415,
+      0.452,
+      ATTACHE,
+      (s: number): number =>
+        archetypeExtent(bag("briefcase", s), "x", ["body"]).size,
     ),
-    row("briefcase height", 0.35, 0.394, ATTACHE, (s: number): number =>
-      archetypeExtent(bag("briefcase", s), "y", ["body"]).size,
+    row(
+      "briefcase height",
+      0.35,
+      0.394,
+      ATTACHE,
+      (s: number): number =>
+        archetypeExtent(bag("briefcase", s), "y", ["body"]).size,
     ),
-    row("briefcase depth", 0.085, 0.147, ATTACHE, (s: number): number =>
-      archetypeExtent(bag("briefcase", s), "z", ["body"]).size,
+    row(
+      "briefcase depth",
+      0.085,
+      0.147,
+      ATTACHE,
+      (s: number): number =>
+        archetypeExtent(bag("briefcase", s), "z", ["body"]).size,
     ),
-    row("briefcase mass", 2.3, 2.95, ATTACHE, (s: number): number =>
-      bag("briefcase", s).body.mass,
+    row(
+      "briefcase mass",
+      2.3,
+      2.95,
+      ATTACHE,
+      (s: number): number => bag("briefcase", s).body.mass,
     ),
-    row("toolbox width", 0.482, 0.482, STANLEY, (s: number): number =>
-      archetypeExtent(bag("toolbox", s), "x", ["body"]).size,
+    row(
+      "toolbox width",
+      0.482,
+      0.482,
+      STANLEY,
+      (s: number): number =>
+        archetypeExtent(bag("toolbox", s), "x", ["body"]).size,
     ),
-    row("toolbox height", 0.25, 0.25, STANLEY, (s: number): number =>
-      archetypeExtent(bag("toolbox", s), "y", ["body"]).size,
+    row(
+      "toolbox height",
+      0.25,
+      0.25,
+      STANLEY,
+      (s: number): number =>
+        archetypeExtent(bag("toolbox", s), "y", ["body"]).size,
     ),
-    row("toolbox depth", 0.254, 0.254, STANLEY, (s: number): number =>
-      archetypeExtent(bag("toolbox", s), "z", ["body"]).size,
+    row(
+      "toolbox depth",
+      0.254,
+      0.254,
+      STANLEY,
+      (s: number): number =>
+        archetypeExtent(bag("toolbox", s), "z", ["body"]).size,
     ),
-    row("toolbox mass", 1.5, 1.5, STANLEY, (s: number): number =>
-      bag("toolbox", s).body.mass,
+    row(
+      "toolbox mass",
+      1.5,
+      1.5,
+      STANLEY,
+      (s: number): number => bag("toolbox", s).body.mass,
     ),
-    row("handbag width", 0.3, 0.3, LONGCHAMP, (s: number): number =>
-      archetypeExtent(bag("handbag", s), "x", ["body"]).size,
+    row(
+      "handbag width",
+      0.3,
+      0.3,
+      LONGCHAMP,
+      (s: number): number =>
+        archetypeExtent(bag("handbag", s), "x", ["body"]).size,
     ),
-    row("handbag height", 0.28, 0.28, LONGCHAMP, (s: number): number =>
-      archetypeExtent(bag("handbag", s), "y", ["body"]).size,
+    row(
+      "handbag height",
+      0.28,
+      0.28,
+      LONGCHAMP,
+      (s: number): number =>
+        archetypeExtent(bag("handbag", s), "y", ["body"]).size,
     ),
-    row("handbag depth", 0.2, 0.2, LONGCHAMP, (s: number): number =>
-      archetypeExtent(bag("handbag", s), "z", ["body"]).size,
+    row(
+      "handbag depth",
+      0.2,
+      0.2,
+      LONGCHAMP,
+      (s: number): number =>
+        archetypeExtent(bag("handbag", s), "z", ["body"]).size,
     ),
     row("handbag drop", 0.11, 0.12, LONGCHAMP, (s: number): number => {
       const made: ReturnType<typeof createBag> = bag("handbag", s);
@@ -76,32 +129,65 @@ export function test_archetype_props_bag_bands(): void {
         archetypeExtent(made, "y", ["body"]).high
       );
     }),
-    row("handbag mass", 0.24, 0.24, LONGCHAMP, (s: number): number =>
-      bag("handbag", s).body.mass,
+    row(
+      "handbag mass",
+      0.24,
+      0.24,
+      LONGCHAMP,
+      (s: number): number => bag("handbag", s).body.mass,
     ),
-    row("duffel width", 25 * inch, 25 * inch, TNF, (s: number): number =>
-      archetypeExtent(bag("duffel", s), "x", ["body"]).size,
+    row(
+      "duffel width",
+      25 * inch,
+      25 * inch,
+      TNF,
+      (s: number): number =>
+        archetypeExtent(bag("duffel", s), "x", ["body"]).size,
     ),
-    row("duffel height", 14 * inch, 14 * inch, TNF, (s: number): number =>
-      archetypeExtent(bag("duffel", s), "y", ["body"]).size,
+    row(
+      "duffel height",
+      14 * inch,
+      14 * inch,
+      TNF,
+      (s: number): number =>
+        archetypeExtent(bag("duffel", s), "y", ["body"]).size,
     ),
-    row("duffel depth", 14 * inch, 14 * inch, TNF, (s: number): number =>
-      archetypeExtent(bag("duffel", s), "z", ["body"]).size,
+    row(
+      "duffel depth",
+      14 * inch,
+      14 * inch,
+      TNF,
+      (s: number): number =>
+        archetypeExtent(bag("duffel", s), "z", ["body"]).size,
     ),
-    row("duffel mass", 1.62, 1.62, TNF, (s: number): number =>
-      bag("duffel", s).body.mass,
+    row(
+      "duffel mass",
+      1.62,
+      1.62,
+      TNF,
+      (s: number): number => bag("duffel", s).body.mass,
     ),
     ...(["suitcase", "briefcase", "toolbox", "handbag", "duffel"] as const).map(
       (
         kind: "suitcase" | "briefcase" | "toolbox" | "handbag" | "duffel",
       ): archetypeBandSweep.IRow =>
-        row(`${kind} handle bar`, 0.019, 0.038, NIOSH, (s: number): number =>
-          archetypeExtent(bag(kind, s), "z", ["handle"]).size,
+        row(
+          `${kind} handle bar`,
+          0.019,
+          0.038,
+          NIOSH,
+          (s: number): number =>
+            archetypeExtent(bag(kind, s), "z", ["handle"]).size,
         ),
     ),
   ]);
   for (const seed of [0, 1, 2])
-    for (const kind of ["suitcase", "briefcase", "toolbox", "duffel"] as const) {
+    for (const kind of [
+      "suitcase",
+      "briefcase",
+      "toolbox",
+      "duffel",
+    ] as const) {
       const made: ReturnType<typeof createBag> = bag(kind, seed);
       const handle: ReturnType<typeof made.affordance> =
         made.affordance("handle");

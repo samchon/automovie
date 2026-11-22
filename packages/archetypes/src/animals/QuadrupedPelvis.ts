@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { QuadrupedLimb } from "./QuadrupedLimb";
+import type { AutoMovieArchetypeQuadrupedLimb } from "./AutoMovieArchetypeQuadrupedLimb";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /** Halvings of a search over the pelvis's turn: far below a micro-radian over its range. */
@@ -20,7 +20,7 @@ export namespace QuadrupedPelvis {
   /** The bone that turns: the hindquarters bar, the femurs' parent. */
   export const BONE = "hindquarters" as const;
 
-  /** The pelvis's flexion-extension range during locomotion, degrees: 8.2 (Back et al. 1996, as `HorseGait.FOLLOW` cites). */
+  /** The pelvis's flexion-extension range during locomotion, degrees: 8.2 (Back et al. 1996, as `AutoMovieArchetypeEquineGait.FOLLOW` cites). */
   export const RANGE: number = 8.2;
 
   /**
@@ -39,7 +39,7 @@ export namespace QuadrupedPelvis {
     goal: IAutoMovieVector3;
 
     /** The hind's radial reach. */
-    reach: QuadrupedLimb.IRange;
+    reach: AutoMovieArchetypeQuadrupedLimb.IRange;
   }
 
   /**

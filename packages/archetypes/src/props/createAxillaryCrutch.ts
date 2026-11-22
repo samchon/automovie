@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The adult and tall-adult lengths of a maker's aluminium axillary crutch, read at retailers. */
@@ -18,7 +18,8 @@ const LENGTH: string =
 const TUBE: string = "a 7/8 in (22 mm) aluminium tube, provisional";
 
 /** An axillary crutch's mass, provisional. */
-const MASS: string = "about 1 kg for one aluminium axillary crutch, provisional";
+const MASS: string =
+  "about 1 kg for one aluminium axillary crutch, provisional";
 
 /**
  * An axillary (underarm) crutch: a shaft from its rubber tip to its underarm
@@ -37,7 +38,7 @@ const MASS: string = "about 1 kg for one aluminium axillary crutch, provisional"
  * @param params Any dimension the author fixes inside its band, and an optional scene id.
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
  * @returns The crutch.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, how it stands, its three contacts and the fitting rule.
  * @evidence contracts/development/implementation.md#principled-implementation The length is the maker's adjustable range; the handgrip's height follows the clinical fitting rule as a share of the length.
@@ -50,9 +51,12 @@ const MASS: string = "about 1 kg for one aluminium axillary crutch, provisional"
 export function createAxillaryCrutch(
   params: createAxillaryCrutch.IParams = {},
   seed?: number | string,
-): Archetype<createAxillaryCrutch.Affordance, createAxillaryCrutch.Dimension> {
-  const draw: ArchetypeDrawSession<createAxillaryCrutch.Dimension> =
-    new ArchetypeDrawSession<createAxillaryCrutch.Dimension>(
+): AutoMovieArchetype<
+  createAxillaryCrutch.Affordance,
+  createAxillaryCrutch.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createAxillaryCrutch.Dimension> =
+    new AutoMovieArchetypeDrawSession<createAxillaryCrutch.Dimension>(
       "axillaryCrutch",
       createAxillaryCrutch.UNITS,
       seed,
@@ -65,10 +69,10 @@ export function createAxillaryCrutch(
   const r: number = d.diameter / 2;
   const grip: number = createAxillaryCrutch.GRIP * length;
   const pad: number = createAxillaryCrutch.PAD_HEIGHT;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createAxillaryCrutch.Affordance,
     createAxillaryCrutch.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "axillary crutch",
@@ -102,7 +106,7 @@ export function createAxillaryCrutch(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, grip, 0),
       Vector3.create(0, 1, 0),
       Vector3.create(0, 0, 1),
@@ -115,7 +119,7 @@ export function createAxillaryCrutch(
   builder.affordance({
     id: "tip",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, -1, 0),
       Vector3.create(1, 0, 0),
@@ -125,7 +129,7 @@ export function createAxillaryCrutch(
   builder.affordance({
     id: "pad",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, length, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, length, 0)),
     extent: null,
     width: createAxillaryCrutch.PAD_DEPTH,
     depth: createAxillaryCrutch.PAD_WIDTH,
@@ -164,7 +168,9 @@ export namespace createAxillaryCrutch {
   export const PAD_DEPTH: number = 0.06;
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     diameter: "m",
     mass: "kg",
@@ -177,13 +183,13 @@ export namespace createAxillaryCrutch {
   }
 
   /** The sourced bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(
-      45 * ArchetypeUnits.INCH,
-      61 * ArchetypeUnits.INCH,
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(
+      45 * AutoMovieArchetypeUnits.INCH,
+      61 * AutoMovieArchetypeUnits.INCH,
       LENGTH,
     ),
-    diameter: ArchetypeBand.metres(0.022, 0.022, TUBE),
-    mass: ArchetypeBand.of("kg", 1, 1, MASS),
+    diameter: AutoMovieArchetypeBand.metres(0.022, 0.022, TUBE),
+    mass: AutoMovieArchetypeBand.of("kg", 1, 1, MASS),
   };
 }

@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
 } from "../core";
 
 /**
@@ -33,20 +33,18 @@ import {
 export function createFootballFlag(
   params: createFootballFlag.IParams = {},
   seed?: number | string,
-): Archetype<createFootballFlag.Affordance, never> {
-  const draw: ArchetypeDrawSession<never> = new ArchetypeDrawSession(
-    "footballFlag",
-    {},
-    seed,
-    {},
-  );
-  const builder: ArchetypeBuilder<createFootballFlag.Affordance, never> =
-    new ArchetypeBuilder({
-      material: "fabric",
-      id: params.id,
-      name: "football flag",
-      draw,
-    });
+): AutoMovieArchetype<createFootballFlag.Affordance, never> {
+  const draw: AutoMovieArchetypeDrawSession<never> =
+    new AutoMovieArchetypeDrawSession("footballFlag", {}, seed, {});
+  const builder: AutoMovieArchetypeBuilder<
+    createFootballFlag.Affordance,
+    never
+  > = new AutoMovieArchetypeBuilder({
+    material: "fabric",
+    id: params.id,
+    name: "football flag",
+    draw,
+  });
   const { LENGTH, WIDTH, THICKNESS } = createFootballFlag;
   builder.box(
     "strip",
@@ -62,7 +60,7 @@ export function createFootballFlag(
     builder.affordance({
       id,
       kind: id === "grip" ? "handle" : "socket",
-      frame: ArchetypeFrame.upright(Vector3.create(0, y, 0)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, y, 0)),
       extent: null,
     });
 
@@ -89,11 +87,11 @@ export namespace createFootballFlag {
   }
 
   /** The flag's length from its socket, metres: IFAF, 15 to 16 in. */
-  export const LENGTH: number = 15.5 * ArchetypeUnits.INCH;
+  export const LENGTH: number = 15.5 * AutoMovieArchetypeUnits.INCH;
 
   /** The flag's width, metres: IFAF, 1.8 to 2.0 in. */
-  export const WIDTH: number = 1.9 * ArchetypeUnits.INCH;
+  export const WIDTH: number = 1.9 * AutoMovieArchetypeUnits.INCH;
 
   /** The flag's thickness, metres: IFAF, 0.02 to 0.10 in. */
-  export const THICKNESS: number = 0.06 * ArchetypeUnits.INCH;
+  export const THICKNESS: number = 0.06 * AutoMovieArchetypeUnits.INCH;
 }

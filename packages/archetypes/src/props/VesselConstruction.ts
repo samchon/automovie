@@ -1,15 +1,15 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { createVessel } from "./createVessel";
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createVessel.Affordance> = ArchetypeBuilder<
+type Builder<Id extends createVessel.Affordance> = AutoMovieArchetypeBuilder<
   Id,
   createVessel.Dimension
 >;
@@ -35,8 +35,8 @@ function draw<Id extends createVessel.Affordance>(
   params: Omit<createVessel.IParams, "kind">,
   seed?: number | string,
 ): IDrawResult<Id> {
-  const session: ArchetypeDrawSession<createVessel.Dimension> =
-    new ArchetypeDrawSession<createVessel.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<createVessel.Dimension> =
+    new AutoMovieArchetypeDrawSession<createVessel.Dimension>(
       "vessel",
       createVessel.UNITS,
       seed,
@@ -62,7 +62,7 @@ function draw<Id extends createVessel.Affordance>(
     height: read.height!,
     mass: read.mass!,
   };
-  const builder: Builder<Id | DrawContact> = new ArchetypeBuilder({
+  const builder: Builder<Id | DrawContact> = new AutoMovieArchetypeBuilder({
     material:
       kind === "bowl"
         ? "ceramic"
@@ -103,7 +103,7 @@ function draw<Id extends createVessel.Affordance>(
   builder.affordance({
     id: "rim",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, d.height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, d.height, 0)),
     extent: null,
     width: d.diameter,
     depth: d.diameter,
@@ -111,7 +111,7 @@ function draw<Id extends createVessel.Affordance>(
   builder.affordance({
     id: "inside",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, wall, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, wall, 0)),
     extent: null,
     width: d.diameter - 2 * wall,
     depth: d.diameter - 2 * wall,
@@ -134,7 +134,11 @@ function dishGrip(
     id: "body",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, wall / 2, 0), v(0, -1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, wall / 2, 0),
+      v(0, -1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
     grip,
     aperture: wall,
@@ -174,7 +178,7 @@ export namespace VesselConstruction {
   export function bowl(
     params: Omit<createVessel.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<BowlContact, createVessel.Dimension> {
+  ): AutoMovieArchetype<BowlContact, createVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BowlContact>> =
       draw<BowlContact>("bowl", params, seed);
     dishGrip(builder, "two-hand");
@@ -205,7 +209,7 @@ export namespace VesselConstruction {
   export function ashtray(
     params: Omit<createVessel.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<AshtrayContact, createVessel.Dimension> {
+  ): AutoMovieArchetype<AshtrayContact, createVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<AshtrayContact>> =
       draw<AshtrayContact>("ashtray", params, seed);
     dishGrip(builder, "precision");
@@ -236,14 +240,14 @@ export namespace VesselConstruction {
   export function vase(
     params: Omit<createVessel.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<VaseContact, createVessel.Dimension> {
+  ): AutoMovieArchetype<VaseContact, createVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<VaseContact>> =
       draw<VaseContact>("vase", params, seed);
     builder.affordance({
       id: "body",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, d.height / 2, 0),
         v(-1, 0, 0),
         v(0, 1, 0),
@@ -295,7 +299,7 @@ export namespace VesselConstruction {
     kind: CookingPotKind,
     params: Omit<createVessel.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<CookingPotContact, createVessel.Dimension> {
+  ): AutoMovieArchetype<CookingPotContact, createVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<CookingPotContact>> =
       draw<CookingPotContact>(kind, params, seed);
     const r: number = d.diameter / 2;
@@ -315,7 +319,7 @@ export namespace VesselConstruction {
         id: "handle",
         kind: "handle",
         symmetry: "none",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(r + length / 2, d.height - grip, 0),
           v(0, 1, 0),
           v(1, 0, 0),
@@ -344,7 +348,7 @@ export namespace VesselConstruction {
           id,
           kind: "handle",
           symmetry: "none",
-          frame: ArchetypeFrame.facing(
+          frame: AutoMovieArchetypeFrame.facing(
             v(x, d.height - grip, 0),
             v(0, 1, 0),
             v(0, 0, 1),

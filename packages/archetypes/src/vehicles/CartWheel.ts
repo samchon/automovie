@@ -2,9 +2,9 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-  type ArchetypeFriction,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeFriction,
 } from "../core";
 import type { createCart } from "./createCart";
 
@@ -48,7 +48,7 @@ export namespace CartWheel {
     rides?: createCart.Affordance;
 
     /** What the wheels' tyres are made of, where a source says. */
-    surface?: ArchetypeFriction.Material;
+    surface?: AutoMovieArchetypeFriction.Material;
   }
 
   /**
@@ -67,7 +67,10 @@ export namespace CartWheel {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pair(
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCart.Affordance,
+      createCart.Dimension
+    >,
     pair: IPair,
   ): string[] {
     const v: typeof Vector3.create = Vector3.create;
@@ -115,7 +118,7 @@ export namespace CartWheel {
       builder.affordance({
         id: pair.spins[k],
         kind: "knob",
-        frame: ArchetypeFrame.facing(centre, v(1, 0, 0), v(0, 1, 0)),
+        frame: AutoMovieArchetypeFrame.facing(centre, v(1, 0, 0), v(0, 1, 0)),
         extent: null,
         travel: 360,
         parts,

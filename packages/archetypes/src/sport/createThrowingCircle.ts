@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The rules the figures come from. */
@@ -23,7 +23,7 @@ const RULES: string =
  * @param params The event and any figure the author fixes.
  * @param seed The seed that draws each figure left free inside its band; absent, the middle of each band.
  * @returns The throwing place.
- * @throws {ArchetypeRefusal} For an unknown event or a fixed figure outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown event or a fixed figure outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the layout, the frame and the contact of each event.
  * @evidence contracts/development/implementation.md#principled-implementation A thin ring of the rule's inside diameter, or a runway strip ending at the arc's middle, with one surface contact at the floor.
@@ -36,9 +36,12 @@ const RULES: string =
 export function createThrowingCircle(
   params: createThrowingCircle.IParams,
   seed?: number | string,
-): Archetype<createThrowingCircle.Affordance, createThrowingCircle.Dimension> {
-  const draw: ArchetypeDrawSession<createThrowingCircle.Dimension> =
-    new ArchetypeDrawSession<createThrowingCircle.Dimension>(
+): AutoMovieArchetype<
+  createThrowingCircle.Affordance,
+  createThrowingCircle.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createThrowingCircle.Dimension> =
+    new AutoMovieArchetypeDrawSession<createThrowingCircle.Dimension>(
       "throwingCircle",
       createThrowingCircle.UNITS,
       seed,
@@ -55,10 +58,10 @@ export function createThrowingCircle(
       createThrowingCircle.BANDS[event],
       createThrowingCircle.BANDS,
     );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createThrowingCircle.Affordance,
     createThrowingCircle.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `${event} throwing ${event === "javelin" ? "runway" : "circle"}`,
@@ -76,7 +79,7 @@ export function createThrowingCircle(
     builder.affordance({
       id: "arc",
       kind: "surface",
-      frame: ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
       extent: null,
       width,
       depth: radius,
@@ -93,7 +96,7 @@ export function createThrowingCircle(
   builder.affordance({
     id: "circle",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
     extent: null,
     width: diameter,
     depth: diameter,
@@ -138,7 +141,9 @@ export namespace createThrowingCircle {
   export type Dimension = "diameter" | "width" | "radius" | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     diameter: "m",
     width: "m",
     radius: "m",
@@ -155,7 +160,7 @@ export namespace createThrowingCircle {
   }
 
   /** The mass band shared by every event: an estimate of a painted or metal marking. */
-  const MASS: IArchetypeBand = ArchetypeBand.of(
+  const MASS: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
     "kg",
     5,
     20,
@@ -165,14 +170,23 @@ export namespace createThrowingCircle {
 
   /** The bands of each event. */
   export const BANDS: Readonly<
-    Record<Event, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Event, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
-    shot: { diameter: ArchetypeBand.metres(2.13, 2.14, RULES), mass: MASS },
-    hammer: { diameter: ArchetypeBand.metres(2.13, 2.14, RULES), mass: MASS },
-    discus: { diameter: ArchetypeBand.metres(2.495, 2.505, RULES), mass: MASS },
+    shot: {
+      diameter: AutoMovieArchetypeBand.metres(2.13, 2.14, RULES),
+      mass: MASS,
+    },
+    hammer: {
+      diameter: AutoMovieArchetypeBand.metres(2.13, 2.14, RULES),
+      mass: MASS,
+    },
+    discus: {
+      diameter: AutoMovieArchetypeBand.metres(2.495, 2.505, RULES),
+      mass: MASS,
+    },
     javelin: {
-      width: ArchetypeBand.metres(4, 4, RULES),
-      radius: ArchetypeBand.metres(8, 8, RULES),
+      width: AutoMovieArchetypeBand.metres(4, 4, RULES),
+      radius: AutoMovieArchetypeBand.metres(8, 8, RULES),
       mass: MASS,
     },
   };

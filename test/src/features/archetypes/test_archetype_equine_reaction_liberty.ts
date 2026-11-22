@@ -1,11 +1,11 @@
 import {
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  EquineFall,
-  EquineLiberty,
-  type EquineLibertyCue,
-  QuadrupedBody,
-  type QuadrupedLateralRestPlan,
+  AutoMovieArchetypeEquineFall,
+  AutoMovieArchetypeEquineLiberty,
+  type AutoMovieArchetypeEquineLibertyCue,
+  AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeQuadrupedLateralRestPlan,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideHorse,
   type rideQuadruped,
@@ -21,10 +21,13 @@ import { equineExpressionObservation as Look } from "../internal/equineExpressio
 import { equineFloorObservation as Floor } from "../internal/equineFloorObservation";
 
 /** A horse ride. */
-type Ride = ArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension>;
+type Ride = AutoMovieArchetypeRide.IRide<
+  createHorse.Affordance,
+  createHorse.Dimension
+>;
 
 /** A sample of a horse ride. */
-type Sample = ArchetypeRide.ISample<
+type Sample = AutoMovieArchetypeRide.ISample<
   createHorse.Affordance,
   createHorse.Dimension
 >;
@@ -75,7 +78,7 @@ export function test_archetype_equine_reaction_liberty(): void {
   const quarters: IAutoMovieModelPart = horse.parts.find(
     (part: IAutoMovieModelPart): boolean => part.id === "hindquarters",
   )!;
-  const rest: EquineLibertyCue.Rest = {
+  const rest: AutoMovieArchetypeEquineLibertyCue.Rest = {
     loweringSeconds: 2,
     restingSeconds: 1,
     risingSeconds: 2,
@@ -90,7 +93,9 @@ export function test_archetype_equine_reaction_liberty(): void {
     folded: { fore: [90, 0], hind: [-90, 0] },
     windows: { body: [0, 1], fore: [0, 1], hind: [0, 1] },
   };
-  const lateral = (side: Side): QuadrupedLateralRestPlan.IParams => ({
+  const lateral = (
+    side: Side,
+  ): AutoMovieArchetypeQuadrupedLateralRestPlan.IParams => ({
     side,
     rollDegrees: 90,
     tuckDegrees: 35,
@@ -98,17 +103,22 @@ export function test_archetype_equine_reaction_liberty(): void {
     holdSeconds: 0.8,
     offset: 0.08,
   });
-  const planted = (sample: Sample, limb: QuadrupedBody.Limb): boolean =>
+  const planted = (
+    sample: Sample,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
+  ): boolean =>
     Vector3.distance(
-      Look.bar(sample, QuadrupedBody.BONES[limb][3]).to,
-      Look.bar(halt, QuadrupedBody.BONES[limb][3]).to,
+      Look.bar(sample, AutoMovieArchetypeQuadrupedBody.BONES[limb][3]).to,
+      Look.bar(halt, AutoMovieArchetypeQuadrupedBody.BONES[limb][3]).to,
     ) <= 1e-6 &&
-    Math.abs(Floor.part(sample, QuadrupedBody.BONES[limb][3])) <= 1e-6;
+    Math.abs(
+      Floor.part(sample, AutoMovieArchetypeQuadrupedBody.BONES[limb][3]),
+    ) <= 1e-6;
   const still = (a: Sample, b: Sample): boolean =>
     JSON.stringify(a.archetype.parts) === JSON.stringify(b.archetype.parts);
 
   // 1. Kneel, bow and sit.
-  const work: Ride = EquineLiberty.after(horse, walk, [
+  const work: Ride = AutoMovieArchetypeEquineLiberty.after(horse, walk, [
     { kind: "kneel", from: t, entry: 1.5, hold: 1, exit: 1.5 },
     { kind: "bow", side: "left", from: t + 5, entry: 1.5, hold: 1, exit: 1.5 },
     { kind: "sit", from: t + 10, entry: 1.5, hold: 1, exit: 1.5 },
@@ -119,11 +129,12 @@ export function test_archetype_equine_reaction_liberty(): void {
       `the kneel rests the ${limb}'s carpus on the floor`,
       Math.abs(
         Math.min(
-          Floor.part(kneeling, QuadrupedBody.BONES[limb][2]),
-          Floor.part(kneeling, QuadrupedBody.BONES[limb][3]),
+          Floor.part(kneeling, AutoMovieArchetypeQuadrupedBody.BONES[limb][2]),
+          Floor.part(kneeling, AutoMovieArchetypeQuadrupedBody.BONES[limb][3]),
         ),
       ) <= 1e-6 &&
-        Look.bar(kneeling, QuadrupedBody.BONES[limb][2]).from.y <= 0.06,
+        Look.bar(kneeling, AutoMovieArchetypeQuadrupedBody.BONES[limb][2]).from
+          .y <= 0.06,
     );
   for (const limb of ["leftHind", "rightHind"] as const)
     TestValidator.predicate(
@@ -133,13 +144,18 @@ export function test_archetype_equine_reaction_liberty(): void {
   const bowing: Sample = work.at(t + 5 + 1.5 + 0.1);
   TestValidator.predicate(
     "the bow stretches the left fore forward on the floor",
-    Math.abs(Floor.part(bowing, QuadrupedBody.BONES.leftFore[3])) <= 1e-6 &&
-      Look.bar(bowing, QuadrupedBody.BONES.leftFore[3]).to.z >
-        Look.bar(bowing, QuadrupedBody.BONES.leftFore[0]).from.z + 0.2,
+    Math.abs(
+      Floor.part(bowing, AutoMovieArchetypeQuadrupedBody.BONES.leftFore[3]),
+    ) <= 1e-6 &&
+      Look.bar(bowing, AutoMovieArchetypeQuadrupedBody.BONES.leftFore[3]).to.z >
+        Look.bar(bowing, AutoMovieArchetypeQuadrupedBody.BONES.leftFore[0]).from
+          .z +
+          0.2,
   );
   TestValidator.predicate(
     "the bow kneels the right fore",
-    Look.bar(bowing, QuadrupedBody.BONES.rightFore[2]).from.y <= 0.06,
+    Look.bar(bowing, AutoMovieArchetypeQuadrupedBody.BONES.rightFore[2]).from
+      .y <= 0.06,
   );
   const sitting: Sample = work.at(t + 10 + 1.5 + 0.1);
   TestValidator.predicate(
@@ -151,12 +167,13 @@ export function test_archetype_equine_reaction_liberty(): void {
       `the sit rests the ${limb}'s hock on the floor`,
       Math.abs(
         Math.min(
-          Floor.part(sitting, QuadrupedBody.BONES[limb][1]),
-          Floor.part(sitting, QuadrupedBody.BONES[limb][2]),
-          Floor.part(sitting, QuadrupedBody.BONES[limb][3]),
+          Floor.part(sitting, AutoMovieArchetypeQuadrupedBody.BONES[limb][1]),
+          Floor.part(sitting, AutoMovieArchetypeQuadrupedBody.BONES[limb][2]),
+          Floor.part(sitting, AutoMovieArchetypeQuadrupedBody.BONES[limb][3]),
         ),
       ) <= 2e-3 &&
-        Look.bar(sitting, QuadrupedBody.BONES[limb][2]).from.y <= 0.07,
+        Look.bar(sitting, AutoMovieArchetypeQuadrupedBody.BONES[limb][2]).from
+          .y <= 0.07,
     );
   for (const limb of ["leftFore", "rightFore"] as const)
     TestValidator.predicate(
@@ -180,7 +197,7 @@ export function test_archetype_equine_reaction_liberty(): void {
   }
 
   // 2. The lateral dead hold.
-  const dead: Ride = EquineLiberty.after(horse, walk, [], {
+  const dead: Ride = AutoMovieArchetypeEquineLiberty.after(horse, walk, [], {
     from: t,
     rest,
     lateral: lateral("left"),
@@ -206,7 +223,7 @@ export function test_archetype_equine_reaction_liberty(): void {
   const canter: Ride = rideHorse(horse, course(40, 6), "canter");
   const from: number = canter.duration / 2;
   for (const side of ["left", "right"] as const) {
-    const fall: Ride = EquineFall.after(horse, canter, {
+    const fall: Ride = AutoMovieArchetypeEquineFall.after(horse, canter, {
       from,
       drop: 0.6,
       slide: 3,
@@ -223,11 +240,15 @@ export function test_archetype_equine_reaction_liberty(): void {
       `the ${side} fall lies the barrel on the floor`,
       Math.abs(Floor.part(lying, "trunk")) <= 1e-3,
     );
-    const near: number = Look.bar(lying, QuadrupedBody.BONES[`${side}Fore`][0])
-      .from.y;
+    const near: number = Look.bar(
+      lying,
+      AutoMovieArchetypeQuadrupedBody.BONES[`${side}Fore`][0],
+    ).from.y;
     const far: number = Look.bar(
       lying,
-      QuadrupedBody.BONES[`${side === "left" ? "right" : "left"}Fore`][0],
+      AutoMovieArchetypeQuadrupedBody.BONES[
+        `${side === "left" ? "right" : "left"}Fore`
+      ][0],
     ).from.y;
     TestValidator.predicate(
       `the ${side} fall lands on its ${side} shoulder`,
@@ -263,11 +284,11 @@ export function test_archetype_equine_reaction_liberty(): void {
     const after: Sample = fall.at(risen + 1e-6);
     TestValidator.predicate(
       `the ${side} fall's rise joins its first step`,
-      QuadrupedBody.LIMBS.every(
-        (limb: QuadrupedBody.Limb): boolean =>
+      AutoMovieArchetypeQuadrupedBody.LIMBS.every(
+        (limb: AutoMovieArchetypeQuadrupedBody.Limb): boolean =>
           Vector3.distance(
-            Look.bar(before, QuadrupedBody.BONES[limb][3]).to,
-            Look.bar(after, QuadrupedBody.BONES[limb][3]).to,
+            Look.bar(before, AutoMovieArchetypeQuadrupedBody.BONES[limb][3]).to,
+            Look.bar(after, AutoMovieArchetypeQuadrupedBody.BONES[limb][3]).to,
           ) <= 0.02,
       ) &&
         Vector3.distance(
@@ -303,13 +324,13 @@ export function test_archetype_equine_reaction_liberty(): void {
     }
     TestValidator.predicate(
       `${label} refuses on ${axis}`,
-      caught instanceof ArchetypeRefusal && caught.axis === axis,
+      caught instanceof AutoMovieArchetypeRefusal && caught.axis === axis,
     );
   };
   refused(
     "a fall onto unprepared ground",
     () =>
-      EquineFall.after(horse, canter, {
+      AutoMovieArchetypeEquineFall.after(horse, canter, {
         from,
         drop: 0.6,
         slide: 3,
@@ -323,7 +344,7 @@ export function test_archetype_equine_reaction_liberty(): void {
   refused(
     "a fall above the speed bound",
     () =>
-      EquineFall.after(horse, gallop, {
+      AutoMovieArchetypeEquineFall.after(horse, gallop, {
         from: gallop.duration / 2,
         drop: 0.6,
         slide: 3,

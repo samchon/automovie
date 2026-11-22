@@ -1,16 +1,16 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  type ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { GoalBuild } from "./GoalBuild";
 import type { createGoal } from "./createGoal";
 
 /** The builder for this field or court apparatus. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createFieldGoal.Affordance,
   createGoal.Dimension
 >;
@@ -28,7 +28,7 @@ const v: typeof Vector3.create = Vector3.create;
  * @param params The optional identifier and dimensions fixed within their recorded bands.
  * @param seed The seed for free dimensions. The band midpoints apply without a seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Build the post and crossbar sections from the sport's goal-mouth measurements.
@@ -41,7 +41,7 @@ const v: typeof Vector3.create = Vector3.create;
 export function createFieldGoal(
   params: createFieldGoal.IParams = {},
   seed?: number | string,
-): Archetype<createFieldGoal.Affordance, createFieldGoal.Dimension> {
+): AutoMovieArchetype<createFieldGoal.Affordance, createFieldGoal.Dimension> {
   const kind: createFieldGoal.Kind = ArchetypeDraw.choice(
     "goal",
     "kind",
@@ -114,7 +114,7 @@ function rectangularGoal(builder: Builder, d: Drawn, round: boolean): void {
     id: "crossbar",
     kind: "bar",
     symmetry: round ? "round" : "half",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, height + bar / 2, 0),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -128,7 +128,7 @@ function rectangularGoal(builder: Builder, d: Drawn, round: boolean): void {
   builder.affordance({
     id: "mouth",
     kind: "aperture",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
     width: d.width!,
     height,

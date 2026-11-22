@@ -1,4 +1,8 @@
-import { type Archetype, ArchetypeDraw, type IArchetypeBand } from "../core";
+import {
+  ArchetypeDraw,
+  type AutoMovieArchetype,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import { FixtureDraw } from "./FixtureDraw";
 import { STREET_FIXTURE_BANDS } from "./STREET_FIXTURE_BANDS";
 import { STREET_FIXTURE_MODELS } from "./STREET_FIXTURE_MODELS";
@@ -14,7 +18,7 @@ import { createTrafficCone } from "./createTrafficCone";
  * @param params The saved kind and its recorded model, dimensions or identifier.
  * @param seed The seed used by the selected producer under the original draw key.
  * @returns The selected fixture in its original frame.
- * @throws {ArchetypeRefusal} For an unknown kind or a rejected model or dimension.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a rejected model or dimension.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the saved recipe and draw namespace.
  * @evidence contracts/development/implementation.md#principled-implementation Resolve the old kind, then let its canonical producer admit the original inputs.
@@ -27,7 +31,10 @@ import { createTrafficCone } from "./createTrafficCone";
 export function createStreetFixture(
   params: createStreetFixture.IParams,
   seed?: number | string,
-): Archetype<createStreetFixture.Affordance, createStreetFixture.Dimension> {
+): AutoMovieArchetype<
+  createStreetFixture.Affordance,
+  createStreetFixture.Dimension
+> {
   const kind: createStreetFixture.Kind = ArchetypeDraw.choice(
     "streetFixture",
     "kind",
@@ -39,7 +46,7 @@ export function createStreetFixture(
   const produce: (
     params: createStreetFixture.IParams,
     seed?: number | string,
-  ) => Archetype<
+  ) => AutoMovieArchetype<
     createStreetFixture.Affordance,
     createStreetFixture.Dimension
   > = createStreetFixture.PRODUCERS[kind] as typeof produce;
@@ -142,7 +149,7 @@ export namespace createStreetFixture {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = STREET_FIXTURE_BANDS;
 
   /** The fixed producer of each saved kind. */
@@ -152,5 +159,7 @@ export namespace createStreetFixture {
     hydrant: createFireHydrant,
     lampPost: createLampPost,
     signPost: createSignPost,
-  } as const satisfies Readonly<Record<Kind, (...args: never[]) => Archetype>>;
+  } as const satisfies Readonly<
+    Record<Kind, (...args: never[]) => AutoMovieArchetype>
+  >;
 }

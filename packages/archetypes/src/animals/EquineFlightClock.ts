@@ -4,11 +4,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { ArchetypeCourse } from "../core";
+import type { AutoMovieArchetypeCourse } from "../core";
+import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import type { EquineFootwork } from "./EquineFootwork";
 import type { EquineJump } from "./EquineJump";
 import { EquinePitch } from "./EquinePitch";
-import type { QuadrupedFooting } from "./QuadrupedFooting";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
 
@@ -128,18 +128,18 @@ export namespace EquineFlightClock {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one goal.
    */
   export function swing(
-    aim: (state: ArchetypeCourse.IState, amount: number) => IAim,
-    shown: (seconds: number) => ArchetypeCourse.IState,
-    current: ArchetypeCourse.IState,
+    aim: (state: AutoMovieArchetypeCourse.IState, amount: number) => IAim,
+    shown: (seconds: number) => AutoMovieArchetypeCourse.IState,
+    current: AutoMovieArchetypeCourse.IState,
     liftoff: number,
     landing: number,
     along: number,
   ): IAim {
-    const lifted: ArchetypeCourse.IState = shown(liftoff);
-    const landed: ArchetypeCourse.IState = shown(landing);
+    const lifted: AutoMovieArchetypeCourse.IState = shown(liftoff);
+    const landed: AutoMovieArchetypeCourse.IState = shown(landing);
     const ends: readonly [IAim, IAim] = [aim(lifted, 0), aim(landed, 1)];
-    const from: QuadrupedFooting.ISurface = floor(ends[0]);
-    const to: QuadrupedFooting.ISurface = floor(ends[1]);
+    const from: AutoMovieArchetypeQuadrupedFooting.ISurface = floor(ends[0]);
+    const to: AutoMovieArchetypeQuadrupedFooting.ISurface = floor(ends[1]);
     const carried: IAutoMovieVector3 = Vector3.lerp(
       from.point,
       to.point,
@@ -148,7 +148,7 @@ export namespace EquineFlightClock {
 
     // The ground the hoof left and the ground it lands on, blended in the world and seen from the current body.
     const world = (
-      state: ArchetypeCourse.IState,
+      state: AutoMovieArchetypeCourse.IState,
       local: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
       Quaternion.rotateVector(state.placement.rotation, local);
@@ -197,7 +197,7 @@ export namespace EquineFlightClock {
   }
 
   /** A goal's support plane: its own, else the model floor under it. */
-  function floor(end: IAim): QuadrupedFooting.ISurface {
+  function floor(end: IAim): AutoMovieArchetypeQuadrupedFooting.ISurface {
     return (
       end.surface ?? {
         point: { x: end.x ?? 0, y: 0, z: end.z },

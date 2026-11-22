@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { VesselConstruction } from "./VesselConstruction";
 import type { createVessel } from "./createVessel";
 
@@ -8,7 +8,7 @@ import type { createVessel } from "./createVessel";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A saucepan with a long handle or a stockpot with paired side handles.
  * @evidence contracts/development/implementation.md#principled-implementation The two cooking forms share an open floor and rim. Their grip contacts stay on their own handle axes.
@@ -21,7 +21,7 @@ import type { createVessel } from "./createVessel";
 export function createCookingPot(
   params: createCookingPot.IParams,
   seed?: number | string,
-): Archetype<createCookingPot.Affordance, createCookingPot.Dimension> {
+): AutoMovieArchetype<createCookingPot.Affordance, createCookingPot.Dimension> {
   return VesselConstruction.cookingPot(
     ArchetypeDraw.choice("vessel", "kind", params.kind, createCookingPot.KINDS),
     params,

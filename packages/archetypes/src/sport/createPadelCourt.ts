@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -34,15 +34,11 @@ import {
 export function createPadelCourt(
   params: createPadelCourt.IParams = {},
   seed?: number | string,
-): Archetype<createPadelCourt.Affordance, never> {
-  const draw: ArchetypeDrawSession<never> = new ArchetypeDrawSession(
-    "padelCourt",
-    {},
-    seed,
-    {},
-  );
-  const builder: ArchetypeBuilder<createPadelCourt.Affordance, never> =
-    new ArchetypeBuilder({
+): AutoMovieArchetype<createPadelCourt.Affordance, never> {
+  const draw: AutoMovieArchetypeDrawSession<never> =
+    new AutoMovieArchetypeDrawSession("padelCourt", {}, seed, {});
+  const builder: AutoMovieArchetypeBuilder<createPadelCourt.Affordance, never> =
+    new AutoMovieArchetypeBuilder({
       material: "glass",
       id: params.id,
       name: "padel court",
@@ -84,7 +80,7 @@ export function createPadelCourt(
   builder.affordance({
     id: "net",
     kind: "socket",
-    frame: ArchetypeFrame.upright(Vector3.create(0, NET, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, NET, 0)),
     extent: null,
   });
   for (const [id, z] of [
@@ -94,7 +90,7 @@ export function createPadelCourt(
     builder.affordance({
       id,
       kind: "socket",
-      frame: ArchetypeFrame.upright(Vector3.create(0, 0, z)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, z)),
       extent: null,
     });
 

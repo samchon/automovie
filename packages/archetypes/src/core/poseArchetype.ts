@@ -1,18 +1,18 @@
-import { ArchetypeArticulation } from "./ArchetypeArticulation";
 import { ArchetypePartOwnership } from "./ArchetypePartOwnership";
-import { ArchetypeSpan } from "./ArchetypeSpan";
-import type { IArchetypeProps } from "./IArchetypeProps";
+import { AutoMovieArchetypeArticulation } from "./AutoMovieArchetypeArticulation";
+import { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
+import type { IAutoMovieArchetypeProps } from "./IAutoMovieArchetypeProps";
 
 /** The constructor's actual rest geometry, contacts and flexible-line declarations. */
 type Props = Pick<
-  IArchetypeProps<string, string>,
+  IAutoMovieArchetypeProps<string, string>,
   "archetype" | "parts" | "affordances" | "spans"
 >;
 
 /** Original runtime methods required for a constructor allocation receipt. */
-const ARTICULATE: typeof ArchetypeArticulation.pose =
-  ArchetypeArticulation.pose;
-const SPAN: typeof ArchetypeSpan.pose = ArchetypeSpan.pose;
+const ARTICULATE: typeof AutoMovieArchetypeArticulation.pose =
+  AutoMovieArchetypeArticulation.pose;
+const SPAN: typeof AutoMovieArchetypeSpan.pose = AutoMovieArchetypeSpan.pose;
 
 /**
  * Resolve one archetype's articulations, flexible geometry and held contact axes.
@@ -20,7 +20,7 @@ const SPAN: typeof ArchetypeSpan.pose = ArchetypeSpan.pose;
  * @param props Actual rest geometry and its original contact/span declarations.
  * @param travels Requested absolute travels, with the producer's units.
  * @returns Current parts/contact frames and the articulation owner's travels.
- * @throws {ArchetypeRefusal} Through the articulation/span owners for unsupported requests or invalid physical line constraints.
+ * @throws {AutoMovieArchetypeRefusal} Through the articulation/span owners for unsupported requests or invalid physical line constraints.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the constructor's complete current-pose normalization, dependency order, original declarations and refusal ownership.
  * @evidence contracts/development/implementation.md#principled-implementation Resolve articulation and its carried contact origins first, then compute flexible lines and their explicitly constrained held axes from that same current pose.
@@ -33,14 +33,15 @@ const SPAN: typeof ArchetypeSpan.pose = ArchetypeSpan.pose;
 export function poseArchetype(
   props: Props,
   travels: ReadonlyMap<string, number>,
-): ArchetypeArticulation.IResult {
+): AutoMovieArchetypeArticulation.IResult {
   if (ArchetypePartOwnership.active()) return observed(props, travels);
-  const posed: ArchetypeArticulation.IResult = ArchetypeArticulation.pose(
-    props.archetype,
-    { parts: props.parts, affordances: props.affordances },
-    travels,
-  );
-  const spans: ArchetypeSpan.IPose = ArchetypeSpan.pose(
+  const posed: AutoMovieArchetypeArticulation.IResult =
+    AutoMovieArchetypeArticulation.pose(
+      props.archetype,
+      { parts: props.parts, affordances: props.affordances },
+      travels,
+    );
+  const spans: AutoMovieArchetypeSpan.IPose = AutoMovieArchetypeSpan.pose(
     props.archetype,
     props.spans,
     posed.parts,
@@ -53,26 +54,26 @@ export function poseArchetype(
 function observed(
   props: Props,
   travels: ReadonlyMap<string, number>,
-): ArchetypeArticulation.IResult {
-  const articulate: typeof ARTICULATE = ArchetypeArticulation.pose;
+): AutoMovieArchetypeArticulation.IResult {
+  const articulate: typeof ARTICULATE = AutoMovieArchetypeArticulation.pose;
   const archetype: string = props.archetype;
   const original: Props["parts"] = props.parts;
-  const posed: ArchetypeArticulation.IResult = Reflect.apply(
+  const posed: AutoMovieArchetypeArticulation.IResult = Reflect.apply(
     articulate,
-    ArchetypeArticulation,
+    AutoMovieArchetypeArticulation,
     [archetype, { parts: original, affordances: props.affordances }, travels],
   );
-  const span: typeof SPAN = ArchetypeSpan.pose;
+  const span: typeof SPAN = AutoMovieArchetypeSpan.pose;
   const spanOwner: string = props.archetype;
   const declarations: Props["spans"] = props.spans;
-  const articulated: ArchetypeArticulation.IResult["parts"] = posed.parts;
-  const spans: ArchetypeSpan.IPose = Reflect.apply(span, ArchetypeSpan, [
-    spanOwner,
-    declarations,
-    articulated,
-    posed.affordances,
-  ]);
-  const result: ArchetypeArticulation.IResult = {
+  const articulated: AutoMovieArchetypeArticulation.IResult["parts"] =
+    posed.parts;
+  const spans: AutoMovieArchetypeSpan.IPose = Reflect.apply(
+    span,
+    AutoMovieArchetypeSpan,
+    [spanOwner, declarations, articulated, posed.affordances],
+  );
+  const result: AutoMovieArchetypeArticulation.IResult = {
     ...posed,
     parts: spans.parts,
     affordances: spans.affordances,

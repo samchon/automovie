@@ -1,10 +1,10 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeTrack,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeTrack,
 } from "@automovie/archetypes";
 import { AutoMovieGravity, validateModel } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
@@ -43,8 +43,8 @@ import { nclose } from "../internal/nclose";
  */
 export function test_archetype_track_numeric(): void {
   const findings: string[] = [];
-  const hinge: Archetype<"joint", never> = mechanism("hinge");
-  const physics: ArchetypeTrack.IPendulum = {
+  const hinge: AutoMovieArchetype<"joint", never> = mechanism("hinge");
+  const physics: AutoMovieArchetypeTrack.IPendulum = {
     mass: 1,
     moment: 5 / 12,
     arm: 0.5,
@@ -54,8 +54,8 @@ export function test_archetype_track_numeric(): void {
     for (const value of [0, -1, NaN, Infinity, -Infinity]) {
       if (
         !refuses(
-          (): ArchetypeTrack.ITrack<"joint"> =>
-            ArchetypeTrack.swing(hinge, "joint", {
+          (): AutoMovieArchetypeTrack.ITrack<"joint"> =>
+            AutoMovieArchetypeTrack.swing(hinge, "joint", {
               start: 0,
               seconds: 1,
               release: 5,
@@ -70,8 +70,8 @@ export function test_archetype_track_numeric(): void {
   for (const rest of [NaN, Infinity, -Infinity])
     if (
       !refuses(
-        (): ArchetypeTrack.ITrack<"joint"> =>
-          ArchetypeTrack.swing(hinge, "joint", {
+        (): AutoMovieArchetypeTrack.ITrack<"joint"> =>
+          AutoMovieArchetypeTrack.swing(hinge, "joint", {
             start: 0,
             seconds: 1,
             release: 5,
@@ -83,8 +83,8 @@ export function test_archetype_track_numeric(): void {
       findings.push("nonfinite neutral travel was accepted");
   if (
     !refuses(
-      (): ArchetypeTrack.ITrack<"joint"> =>
-        ArchetypeTrack.swing(mechanism("slider"), "joint", {
+      (): AutoMovieArchetypeTrack.ITrack<"joint"> =>
+        AutoMovieArchetypeTrack.swing(mechanism("slider"), "joint", {
           start: 0,
           seconds: 1,
           release: 0.1,
@@ -96,14 +96,14 @@ export function test_archetype_track_numeric(): void {
     findings.push("custom figures made a slider a pendulum hinge");
 
   // Hinge travel is valid beyond 180; this solver separately admits one stable well.
-  const wide: Archetype<"joint", never> = mechanism("hinge", 600);
+  const wide: AutoMovieArchetype<"joint", never> = mechanism("hinge", 600);
   if (!validateModel({ model: wide }).success)
     findings.push("the wide hinge domain control is not an admitted model");
   for (const release of [-360, -200, -180, 180, 200, 360])
     if (
       !refuses(
-        (): ArchetypeTrack.ITrack<"joint"> =>
-          ArchetypeTrack.swing(wide, "joint", {
+        (): AutoMovieArchetypeTrack.ITrack<"joint"> =>
+          AutoMovieArchetypeTrack.swing(wide, "joint", {
             start: 0,
             seconds: 1,
             release,
@@ -118,16 +118,13 @@ export function test_archetype_track_numeric(): void {
     [0, 179],
     [360, 400],
   ] as const) {
-    const control: ArchetypeTrack.ITrack<"joint"> = ArchetypeTrack.swing(
-      wide,
-      "joint",
-      {
+    const control: AutoMovieArchetypeTrack.ITrack<"joint"> =
+      AutoMovieArchetypeTrack.swing(wide, "joint", {
         start: 0,
         seconds: 1,
         release,
         pendulum: { ...physics, rest },
-      },
-    );
+      });
     const reach: number = Math.abs(release - rest);
     for (const sample of [0, 0.5, 1]) {
       const travel: number = control.travel(sample);
@@ -150,17 +147,14 @@ export function test_archetype_track_numeric(): void {
       Math.sqrt(AutoMovieGravity.STANDARD) *
       Math.sqrt(figures.arm);
     const quarter: number = Math.PI / (2 * omega);
-    const track: ArchetypeTrack.ITrack<"joint"> = ArchetypeTrack.swing(
-      hinge,
-      "joint",
-      {
+    const track: AutoMovieArchetypeTrack.ITrack<"joint"> =
+      AutoMovieArchetypeTrack.swing(hinge, "joint", {
         start: 0,
         seconds: 2 * quarter,
         release: 5,
         launch: 0,
         pendulum: figures,
-      },
-    );
+      });
     if (
       track.launch === null ||
       !nclose(track.launch.seconds / quarter, 1, 1e-12) ||
@@ -170,14 +164,14 @@ export function test_archetype_track_numeric(): void {
   }
 
   // omega=3 and T=.8 round phaseEnd upward; phaseEnd/omega would exceed T.
-  const endpointFigures: ArchetypeTrack.IPendulum = {
+  const endpointFigures: AutoMovieArchetypeTrack.IPendulum = {
     mass: 9,
     arm: 1,
     moment: AutoMovieGravity.STANDARD,
     rest: 0,
   };
-  const endpointReference: ArchetypeTrack.ITrack<"joint"> =
-    ArchetypeTrack.swing(hinge, "joint", {
+  const endpointReference: AutoMovieArchetypeTrack.ITrack<"joint"> =
+    AutoMovieArchetypeTrack.swing(hinge, "joint", {
       start: 0,
       seconds: 0.8,
       release: 90,
@@ -186,17 +180,14 @@ export function test_archetype_track_numeric(): void {
   const endpointTravel: number = endpointReference.travel(
     endpointReference.end,
   );
-  const endpoint: ArchetypeTrack.ITrack<"joint"> = ArchetypeTrack.swing(
-    hinge,
-    "joint",
-    {
+  const endpoint: AutoMovieArchetypeTrack.ITrack<"joint"> =
+    AutoMovieArchetypeTrack.swing(hinge, "joint", {
       start: 0,
       seconds: 0.8,
       release: 90,
       launch: endpointTravel,
       pendulum: endpointFigures,
-    },
-  );
+    });
   if (
     !(
       endpoint.launch !== null &&
@@ -213,8 +204,8 @@ export function test_archetype_track_numeric(): void {
   const collapsedSeconds: number = Math.PI / 2 / 25;
   if (
     !refuses(
-      (): ArchetypeTrack.ITrack<"joint"> =>
-        ArchetypeTrack.swing(hinge, "joint", {
+      (): AutoMovieArchetypeTrack.ITrack<"joint"> =>
+        AutoMovieArchetypeTrack.swing(hinge, "joint", {
           start: 0,
           seconds: collapsedSeconds,
           release: 5,
@@ -236,8 +227,8 @@ export function test_archetype_track_numeric(): void {
     for (const release of [5, 90])
       if (
         !refuses(
-          (): ArchetypeTrack.ITrack<"joint"> =>
-            ArchetypeTrack.swing(hinge, "joint", {
+          (): AutoMovieArchetypeTrack.ITrack<"joint"> =>
+            AutoMovieArchetypeTrack.swing(hinge, "joint", {
               start: 0,
               seconds: 1,
               release,
@@ -248,16 +239,13 @@ export function test_archetype_track_numeric(): void {
         )
       )
         findings.push("a nonfinite request reached the solver");
-  const tiny: ArchetypeTrack.ITrack<"joint"> = ArchetypeTrack.swing(
-    hinge,
-    "joint",
-    {
+  const tiny: AutoMovieArchetypeTrack.ITrack<"joint"> =
+    AutoMovieArchetypeTrack.swing(hinge, "joint", {
       start: 0,
       seconds: 1,
       release: Number.MIN_VALUE,
       pendulum: physics,
-    },
-  );
+    });
   if (!nclose(tiny.travel(0.01), Number.MIN_VALUE, 0))
     findings.push("radian conversion erased a representable degree amplitude");
   for (const [figures, seconds] of [
@@ -267,16 +255,13 @@ export function test_archetype_track_numeric(): void {
       2 ** -524,
     ],
   ] as const) {
-    const track: ArchetypeTrack.ITrack<"joint"> = ArchetypeTrack.swing(
-      hinge,
-      "joint",
-      {
+    const track: AutoMovieArchetypeTrack.ITrack<"joint"> =
+      AutoMovieArchetypeTrack.swing(hinge, "joint", {
         start: 0,
         seconds,
         release: 90,
         pendulum: figures,
-      },
-    );
+      });
     for (const share of [0, 0.25, 0.5, 0.75, 1]) {
       const travel: number = track.travel(share * seconds);
       if (!(Number.isFinite(travel) && Math.abs(travel) <= 90 + 1e-6))
@@ -285,44 +270,35 @@ export function test_archetype_track_numeric(): void {
         );
     }
   }
-  const ordinary: ArchetypeTrack.ITrack<"joint"> = ArchetypeTrack.swing(
-    hinge,
-    "joint",
-    {
+  const ordinary: AutoMovieArchetypeTrack.ITrack<"joint"> =
+    AutoMovieArchetypeTrack.swing(hinge, "joint", {
       start: 0,
       seconds: 1,
       release: 90,
       launch: 0,
       pendulum: { mass: 1, moment: 1, arm: 1, rest: 0 },
-    },
-  );
-  const slow: ArchetypeTrack.ITrack<"joint"> = ArchetypeTrack.swing(
-    hinge,
-    "joint",
-    {
+    });
+  const slow: AutoMovieArchetypeTrack.ITrack<"joint"> =
+    AutoMovieArchetypeTrack.swing(hinge, "joint", {
       start: 0,
       seconds: 2 ** 300,
       release: 90,
       pendulum: { mass: 2 ** -600, moment: 2 ** 600, arm: 2 ** 600, rest: 0 },
-    },
-  );
+    });
   if (!nclose(slow.travel(2 ** 299), ordinary.travel(0.5), 0))
     findings.push(
       "physical time scaling changed the dimensionless pendulum trajectory",
     );
 
   // The same phase crossing lies beyond MAX/2; adding its physical bracket would overflow.
-  const extreme: ArchetypeTrack.ITrack<"joint"> = ArchetypeTrack.swing(
-    hinge,
-    "joint",
-    {
+  const extreme: AutoMovieArchetypeTrack.ITrack<"joint"> =
+    AutoMovieArchetypeTrack.swing(hinge, "joint", {
       start: 0,
       seconds: Number.MAX_VALUE,
       release: 90,
       launch: 0,
       pendulum: { mass: Number.MIN_VALUE, moment: 2 ** 974, arm: 1, rest: 0 },
-    },
-  );
+    });
   const extremeOmega: number =
     Math.sqrt(AutoMovieGravity.STANDARD) * 2 ** -1024;
   const ordinaryOmega: number = Math.sqrt(AutoMovieGravity.STANDARD);
@@ -353,8 +329,8 @@ export function test_archetype_track_numeric(): void {
     );
   if (
     !refuses(
-      (): ArchetypeTrack.ITrack<"joint"> =>
-        ArchetypeTrack.swing(hinge, "joint", {
+      (): AutoMovieArchetypeTrack.ITrack<"joint"> =>
+        AutoMovieArchetypeTrack.swing(hinge, "joint", {
           start: 0,
           seconds: Number.MAX_VALUE,
           release: 90,
@@ -371,8 +347,8 @@ export function test_archetype_track_numeric(): void {
     findings.push("a nonrepresentable phase grid was accepted");
   if (
     !refuses(
-      (): ArchetypeTrack.ITrack<"joint"> =>
-        ArchetypeTrack.swing(hinge, "joint", {
+      (): AutoMovieArchetypeTrack.ITrack<"joint"> =>
+        AutoMovieArchetypeTrack.swing(hinge, "joint", {
           start: 0,
           seconds: 2 ** -1021,
           release: 5,
@@ -384,13 +360,13 @@ export function test_archetype_track_numeric(): void {
   )
     findings.push("an unrepresentable launch rate escaped");
   for (const value of [0, -1, NaN, Infinity, -Infinity])
-    if (!refuses((): number => ArchetypeTrack.agm(value, 1), "agm"))
+    if (!refuses((): number => AutoMovieArchetypeTrack.agm(value, 1), "agm"))
       findings.push("an invalid AGM input was accepted");
   for (const [a, b] of [
     [Number.MIN_VALUE, Number.MAX_VALUE],
     [Number.MAX_VALUE / 4, Number.MAX_VALUE / 2],
   ] as const) {
-    const result: number = ArchetypeTrack.agm(a, b);
+    const result: number = AutoMovieArchetypeTrack.agm(a, b);
     if (
       !(
         Number.isFinite(result) &&
@@ -412,7 +388,10 @@ export function test_archetype_track_numeric(): void {
     ] as const)
       if (
         !nclose(
-          ArchetypeTrack.agm(left * Number.MIN_VALUE, right * Number.MIN_VALUE),
+          AutoMovieArchetypeTrack.agm(
+            left * Number.MIN_VALUE,
+            right * Number.MIN_VALUE,
+          ),
           expected * Number.MIN_VALUE,
           0,
         )
@@ -430,11 +409,15 @@ export function test_archetype_track_numeric(): void {
   function mechanism(
     kind: "hinge" | "slider",
     range: number = 179,
-  ): Archetype<"joint", never> {
-    return new ArchetypeBuilder<"joint", never>({
+  ): AutoMovieArchetype<"joint", never> {
+    return new AutoMovieArchetypeBuilder<"joint", never>({
       name: "numeric mechanism",
       material: "steel",
-      draw: new ArchetypeDrawSession<never>("mechanism", {}, undefined),
+      draw: new AutoMovieArchetypeDrawSession<never>(
+        "mechanism",
+        {},
+        undefined,
+      ),
     })
       .box("body", { x: 1, y: 1, z: 1 }, { x: 0, y: -0.5, z: 0 })
       .affordance({
@@ -444,7 +427,7 @@ export function test_archetype_track_numeric(): void {
         parts: ["body"],
         travel: kind === "hinge" ? range : 1,
         reverse: kind === "hinge" ? range : 1,
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           { x: 0, y: 0, z: 0 },
           { x: 1, y: 0, z: 0 },
           { x: 0, y: 0, z: 1 },
@@ -458,7 +441,7 @@ export function test_archetype_track_numeric(): void {
     try {
       read();
     } catch (error) {
-      return error instanceof ArchetypeRefusal && error.axis === axis;
+      return error instanceof AutoMovieArchetypeRefusal && error.axis === axis;
     }
     return false;
   }

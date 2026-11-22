@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import type { ArchetypeTowing } from "../core/ArchetypeTowing";
 import { towingAxle } from "../core/towingAxle";
 import type { createCart } from "./createCart";
@@ -9,7 +9,7 @@ import type { createCart } from "./createCart";
  * @param cart Actual createCart output in neutral steering/drawbar pose, with its producer-declared wheel roles.
  * @returns Independent neutral model-space metre points for single-axle body pitch, or level front/rear support with the actual pole hinge.
  * @throws {RangeError} For another producer, invalid wheel-axis data or a front steering pivot outside its actual axle.
- * @throws {ArchetypeRefusal} If a required wheel/steering affordance is absent, including a pushed kind without these towing roles.
+ * @throws {AutoMovieArchetypeRefusal} If a required wheel/steering affordance is absent, including a pushed kind without these towing roles.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names actual source wheel/steering/pole roles, supported mechanical freedoms, neutral input and independent returned geometry.
  * @evidence contracts/development/implementation.md#principled-implementation The producer knows its own closed affordance roles: two-wheel centres supply the single axle; rear wheel centres plus the actual frontAxle frame and drawbarPitch hinge describe a grounded four-wheeler.
@@ -20,7 +20,7 @@ import type { createCart } from "./createCart";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent point/id records and retains no source model or mutable frame alias.
  */
 export function cartTowing(
-  cart: Archetype<createCart.Affordance, createCart.Dimension>,
+  cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,
 ): ArchetypeTowing.Support<createCart.Affordance> {
   if (cart.archetype !== "cart")
     throw new RangeError(

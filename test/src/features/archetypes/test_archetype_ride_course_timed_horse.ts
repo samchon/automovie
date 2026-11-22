@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeCourse,
-  type ArchetypeRide,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeCourse,
+  type AutoMovieArchetypeRide,
   createHorse,
   createPony,
   rideQuadruped,
@@ -26,13 +26,13 @@ const HOLD: readonly number[] = [4, 6];
  * 5. Forward and reversed reads give the same poses.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the path, the two bodies and the five scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Rides real horse and pony models with `rideQuadruped` on an `ArchetypeCourse.timed` plan and reads placements, landing instants and the seat frame.
+ * @evidence contracts/development/testing.md#behavioral-verification Rides real horse and pony models with `rideQuadruped` on an `AutoMovieArchetypeCourse.timed` plan and reads placements, landing instants and the seat frame.
  * @evidence contracts/development/testing.md#independent-expectations The marks are authored. A standing animal makes no step. At equal speed a smaller animal's stride is shorter by dynamic similarity, so it takes more of them. Sampling is pure, so order does not change a pose.
  * @evidence contracts/development/testing.md#distinguishing-cases Moving, halted and resumed spans, a curve, and two body sizes. Stride timing against the gait rows is owned by the equine ride specs.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only spec over portable models and plans.
  */
 export function test_archetype_ride_course_timed_horse(): void {
-  const samples: readonly ArchetypeCourse.ISample[] = [
+  const samples: readonly AutoMovieArchetypeCourse.ISample[] = [
     sample(0, 0, 0),
     sample(2, 0, 3),
     sample(HOLD[0]!, 0, 6),
@@ -42,17 +42,20 @@ export function test_archetype_ride_course_timed_horse(): void {
     sample(12.5, 3, 16),
     sample(15, 7, 18),
   ];
-  const plan: ArchetypeCourse.IPlan = ArchetypeCourse.timed("slot", samples);
-  const mounts: readonly Archetype[] = [
+  const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.timed(
+    "slot",
+    samples,
+  );
+  const mounts: readonly AutoMovieArchetype[] = [
     createHorse({ withersHeight: 1.7 }, "hazel"),
     createPony({ breed: "connemara" }, "indigo"),
   ];
-  const rides: ArchetypeRide.IRide<string, string>[] = mounts.map(
-    (mount: Archetype): ArchetypeRide.IRide<string, string> =>
+  const rides: AutoMovieArchetypeRide.IRide<string, string>[] = mounts.map(
+    (mount: AutoMovieArchetype): AutoMovieArchetypeRide.IRide<string, string> =>
       rideQuadruped(mount as never, plan),
   );
   const landings: number[][] = rides.map(
-    (ride: ArchetypeRide.IRide<string, string>): number[] =>
+    (ride: AutoMovieArchetypeRide.IRide<string, string>): number[] =>
       ride.instants
         .filter((i: { label: string }): boolean => i.label.endsWith("On"))
         .map((i: { seconds: number }): number => i.seconds),
@@ -60,7 +63,7 @@ export function test_archetype_ride_course_timed_horse(): void {
   for (const [k, ride] of rides.entries()) {
     TestValidator.predicate(
       `ride ${k} stands on every mark at its second`,
-      samples.every((mark: ArchetypeCourse.ISample): boolean =>
+      samples.every((mark: AutoMovieArchetypeCourse.ISample): boolean =>
         vclose(
           ride.at(mark.seconds).placement.translation,
           { x: mark.x, y: 0, z: mark.z },
@@ -105,6 +108,6 @@ function sample(
   seconds: number,
   x: number,
   z: number,
-): ArchetypeCourse.ISample {
+): AutoMovieArchetypeCourse.ISample {
   return { seconds, x, y: 0, z };
 }

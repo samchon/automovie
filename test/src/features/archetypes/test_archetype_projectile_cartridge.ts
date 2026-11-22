@@ -1,4 +1,7 @@
-import { ArchetypeRefusal, createProjectile } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeRefusal,
+  createProjectile,
+} from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -61,7 +64,8 @@ export function test_archetype_projectile_cartridge(): void {
     try {
       createProjectile({ kind: "cartridge", [axis]: value });
     } catch (error) {
-      refused = error instanceof ArchetypeRefusal ? error.axis : String(error);
+      refused =
+        error instanceof AutoMovieArchetypeRefusal ? error.axis : String(error);
     }
     if (refused !== axis)
       findings.push(

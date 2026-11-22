@@ -1,16 +1,16 @@
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
-import type { ArchetypeCourse } from "../core";
+import type { AutoMovieArchetypeCourse } from "../core";
+import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { EquineJump } from "./EquineJump";
 import type { EquineObstacle } from "./EquineObstacle";
-import type { QuadrupedGait } from "./QuadrupedGait";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
 import { leastEquineFlight } from "./leastEquineFlight";
 
 /**
  * One candidate takeoff stride's best spot: the approach's strides lengthen or shorten, each within the gait's declared timing spread at its speed, spread from the leg's start to the push-off, to bring the takeoff to the spot whose flight is least.
  *
- * Riders and horses adjust the approach's strides to meet a fence's takeoff; here the adjustment is bounded by the measured between-horse spread of stride time at the speed (`QuadrupedGait.ITiming.deviation`), so every adjusted stride keeps a measured clock.
+ * Riders and horses adjust the approach's strides to meet a fence's takeoff; here the adjustment is bounded by the measured between-horse spread of stride time at the speed (`AutoMovieArchetypeQuadrupedGait.ITiming.deviation`), so every adjusted stride keeps a measured clock.
  *
  * @param request The admitted jump.
  * @param plan The course plan.
@@ -29,13 +29,13 @@ import { leastEquineFlight } from "./leastEquineFlight";
  */
 export function spotEquineTakeoff(
   request: EquineJump.IRequest,
-  plan: ArchetypeCourse.IPlan,
+  plan: AutoMovieArchetypeCourse.IPlan,
   trial: (
     moved: readonly QuadrupedStridePlan.IMoved[],
     flight: EquineJump.IFlight | undefined,
   ) => EquineJump.ITrial,
   candidate: EquineJump.ICandidate,
-  gait: QuadrupedGait.Gait,
+  gait: AutoMovieArchetypeQuadrupedGait.Gait,
 ): EquineJump.ISpot | undefined {
   const unflown: EquineJump.ITrial = trial(candidate.moved, undefined);
   const at = (phase: number): number => unflown.strides.secondsAt(phase);
@@ -56,7 +56,10 @@ export function spotEquineTakeoff(
   const push: number = at(candidate.push);
   const window: number =
     push - Math.max(unflown.clock.start, plan.when(request.start));
-  const timing: QuadrupedGait.ITiming = unflown.clock.timing(gait, push);
+  const timing: AutoMovieArchetypeQuadrupedGait.ITiming = unflown.clock.timing(
+    gait,
+    push,
+  );
   const shifts: number[] = [0];
   if (window > 0 && timing.deviation > 0 && timing.stride > timing.deviation)
     for (const sign of [-1, 1]) {

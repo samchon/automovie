@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The dummies, from a search only. */
@@ -30,7 +30,7 @@ const LISTINGS: string =
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The wooden dummy.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the origin, axes, parts, affordances and which band is provisional.
  * @evidence contracts/development/implementation.md#principled-implementation Rods for the trunk, three arms and the leg at the listed spacing, a facing frame at each struck place.
@@ -43,9 +43,12 @@ const LISTINGS: string =
 export function createWoodenDummy(
   params: createWoodenDummy.IParams = {},
   seed?: number | string,
-): Archetype<createWoodenDummy.Affordance, createWoodenDummy.Dimension> {
-  const draw: ArchetypeDrawSession<createWoodenDummy.Dimension> =
-    new ArchetypeDrawSession<createWoodenDummy.Dimension>(
+): AutoMovieArchetype<
+  createWoodenDummy.Affordance,
+  createWoodenDummy.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createWoodenDummy.Dimension> =
+    new AutoMovieArchetypeDrawSession<createWoodenDummy.Dimension>(
       "woodenDummy",
       createWoodenDummy.UNITS,
       seed,
@@ -54,10 +57,10 @@ export function createWoodenDummy(
   const d: Record<createWoodenDummy.Dimension, number> = draw.dimensions(
     createWoodenDummy.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createWoodenDummy.Affordance,
     createWoodenDummy.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "wood",
     id: params.id,
     name: "wooden dummy",
@@ -106,7 +109,7 @@ export function createWoodenDummy(
     builder.affordance({
       id,
       kind: "surface",
-      frame: ArchetypeFrame.facing(point, normal, v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(point, normal, v(1, 0, 0)),
       extent: null,
       width,
       depth: width,
@@ -168,13 +171,15 @@ export namespace createWoodenDummy {
     | "mass";
 
   /** The upper arms' height above the middle arm's, metres: 9.5 in. */
-  export const UPPER_TO_MIDDLE: number = 9.5 * ArchetypeUnits.INCH;
+  export const UPPER_TO_MIDDLE: number = 9.5 * AutoMovieArchetypeUnits.INCH;
 
   /** The middle arm's height above the leg's, metres: 13 in. */
-  export const MIDDLE_TO_LEG: number = 13 * ArchetypeUnits.INCH;
+  export const MIDDLE_TO_LEG: number = 13 * AutoMovieArchetypeUnits.INCH;
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     diameter: "m",
     arm: "m",
@@ -190,33 +195,38 @@ export namespace createWoodenDummy {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    height: ArchetypeBand.metres(
-      55 * ArchetypeUnits.INCH,
-      60 * ArchetypeUnits.INCH,
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    height: AutoMovieArchetypeBand.metres(
+      55 * AutoMovieArchetypeUnits.INCH,
+      60 * AutoMovieArchetypeUnits.INCH,
       LISTINGS,
       true,
     ),
-    diameter: ArchetypeBand.metres(
-      8 * ArchetypeUnits.INCH,
-      9 * ArchetypeUnits.INCH,
+    diameter: AutoMovieArchetypeBand.metres(
+      8 * AutoMovieArchetypeUnits.INCH,
+      9 * AutoMovieArchetypeUnits.INCH,
       LISTINGS,
       true,
     ),
-    arm: ArchetypeBand.metres(0.295, 12 * ArchetypeUnits.INCH, LISTINGS, true),
-    leg: ArchetypeBand.metres(
-      25 * ArchetypeUnits.INCH,
-      25 * ArchetypeUnits.INCH,
+    arm: AutoMovieArchetypeBand.metres(
+      0.295,
+      12 * AutoMovieArchetypeUnits.INCH,
       LISTINGS,
       true,
     ),
-    shoulder: ArchetypeBand.metres(
+    leg: AutoMovieArchetypeBand.metres(
+      25 * AutoMovieArchetypeUnits.INCH,
+      25 * AutoMovieArchetypeUnits.INCH,
+      LISTINGS,
+      true,
+    ),
+    shoulder: AutoMovieArchetypeBand.metres(
       1.2,
       1.4,
       "provisional: a trainee's shoulder height, which the listings leave to the stand",
       true,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       25,
       45,

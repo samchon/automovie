@@ -1,7 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { FIELD_GUN } from "./FIELD_GUN";
 import type { createCannon } from "./createCannon";
 
@@ -22,7 +25,10 @@ import type { createCannon } from "./createCannon";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function buildFieldGun(
-  builder: ArchetypeBuilder<createCannon.Affordance, createCannon.Dimension>,
+  builder: AutoMovieArchetypeBuilder<
+    createCannon.Affordance,
+    createCannon.Dimension
+  >,
   recoil: number,
 ): void {
   const v: typeof Vector3.create = Vector3.create;
@@ -229,7 +235,11 @@ export function buildFieldGun(
     builder.affordance({
       id: k === 0 ? "leftSpin" : "rightSpin",
       kind: "knob",
-      frame: ArchetypeFrame.facing(v(x, radius, 0), v(1, 0, 0), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(x, radius, 0),
+        v(1, 0, 0),
+        v(0, 1, 0),
+      ),
       extent: null,
       travel: 360,
       parts,
@@ -256,7 +266,7 @@ export function buildFieldGun(
   builder.affordance({
     id: "elevation",
     kind: "hinge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, axis, trunnions),
       v(-1, 0, 0),
       v(0, 0, 1),
@@ -276,7 +286,11 @@ export function buildFieldGun(
   builder.affordance({
     id: "recoil",
     kind: "slider",
-    frame: ArchetypeFrame.facing(v(0, radius, 0), v(0, 1, 0), v(0, 0, -1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, radius, 0),
+      v(0, 1, 0),
+      v(0, 0, -1),
+    ),
     extent: null,
     travel: recoil,
     parts: ["stock", "trail", "cheek-left", "cheek-right", "axle"],
@@ -285,7 +299,11 @@ export function buildFieldGun(
     id: "muzzle",
     kind: "socket",
     direction: "along",
-    frame: ArchetypeFrame.facing(v(0, axis, muzzle), v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, axis, muzzle),
+      v(0, 0, 1),
+      v(1, 0, 0),
+    ),
     extent: null,
     // The bore runs its read length in from the muzzle's face.
     depth: t.boreLength,
@@ -306,7 +324,7 @@ export function buildFieldGun(
     id: "vent",
     kind: "socket",
     direction: "along",
-    frame: ArchetypeFrame.facing(orifice, out, v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(orifice, out, v(1, 0, 0)),
     extent: null,
     rides: "elevation",
   });
@@ -321,7 +339,7 @@ export function buildFieldGun(
     id: "primer",
     kind: "socket",
     direction: "along",
-    frame: ArchetypeFrame.facing(eye, out, v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(eye, out, v(1, 0, 0)),
     extent: null,
     rides: "elevation",
   });
@@ -329,7 +347,7 @@ export function buildFieldGun(
   builder.affordance({
     id: "lanyard",
     kind: "slider",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, eye.y, eye.z - s.lanyard),
       v(0, 1, 0),
       v(0, 0, -1),
@@ -346,7 +364,11 @@ export function buildFieldGun(
   builder.affordance({
     id: "screwRise",
     kind: "slider",
-    frame: ArchetypeFrame.facing(v(0, screwTop, base), v(0, 0, 1), v(0, -1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, screwTop, base),
+      v(0, 0, 1),
+      v(0, -1, 0),
+    ),
     extent: null,
     travel: turns(c.elevation) * advance,
     reverse: -turns(-c.depression) * advance,
@@ -360,7 +382,11 @@ export function buildFieldGun(
   builder.affordance({
     id: "screw",
     kind: "knob",
-    frame: ArchetypeFrame.facing(v(0, screwTop, base), v(0, 1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, screwTop, base),
+      v(0, 1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
     travel: turns(c.elevation),
     reverse: -turns(-c.depression),
@@ -370,7 +396,7 @@ export function buildFieldGun(
   builder.affordance({
     id: "trail",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, depth, trailEnd)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, depth, trailEnd)),
     extent: null,
     width,
     rides: "recoil",
@@ -380,7 +406,7 @@ export function buildFieldGun(
     id: "handspike",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, depth, trailEnd - (s.handspike * e.handspike) / 2),
       v(0, 1, 0),
       v(0, 0, -1),
@@ -394,14 +420,22 @@ export function buildFieldGun(
   builder.affordance({
     id: "limber",
     kind: "socket",
-    frame: ArchetypeFrame.facing(v(0, 0, trailEnd), v(0, -1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, 0, trailEnd),
+      v(0, -1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
     rides: "recoil",
   });
   builder.affordance({
     id: "axle",
     kind: "socket",
-    frame: ArchetypeFrame.facing(v(0, radius, 0), v(0, 1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, radius, 0),
+      v(0, 1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
     rides: "recoil",
   });
@@ -414,7 +448,7 @@ export function buildFieldGun(
       id,
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v((sign * c.track) / 2, 2 * radius, 0),
         v(sign, 0, 0),
         v(0, 0, 1),

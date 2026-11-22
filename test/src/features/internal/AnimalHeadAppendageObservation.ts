@@ -1,4 +1,4 @@
-import type { Archetype } from "@automovie/archetypes";
+import type { AutoMovieArchetype } from "@automovie/archetypes";
 import { Quaternion, validateModel } from "@automovie/engine";
 import type {
   IAutoMovieCylinderShape,
@@ -33,7 +33,7 @@ export namespace AnimalHeadAppendageObservation {
   export function observe(
     findings: string[],
     label: string,
-    animal: Archetype,
+    animal: AutoMovieArchetype,
     expected: IExpected,
   ): void {
     if (!validateModel({ model: animal }).success)
@@ -115,7 +115,7 @@ export namespace AnimalHeadAppendageObservation {
   export function neutral(
     findings: string[],
     label: string,
-    animal: Archetype,
+    animal: AutoMovieArchetype,
     expected: IExpected,
   ): void {
     for (const [id, length] of Object.entries(expected.lengths)) {
@@ -178,7 +178,7 @@ export namespace AnimalHeadAppendageObservation {
 
   /** Read one genuinely transformed source part. */
   export function part(
-    animal: Pick<Archetype, "parts">,
+    animal: Pick<AutoMovieArchetype, "parts">,
     id: string,
   ): IAutoMovieModelPart {
     const found: IAutoMovieModelPart | undefined = animal.parts.find(

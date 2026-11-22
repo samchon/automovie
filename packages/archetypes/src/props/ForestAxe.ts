@@ -1,16 +1,16 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeBand,
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetypeBand,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import type { createLongTool } from "./createLongTool";
 
 /** A long tool under construction. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createLongTool.Affordance,
   createLongTool.Dimension
 >;
@@ -45,31 +45,36 @@ export namespace ForestAxe {
 
   /** The forest axe's bands; it has no drawn shaft diameter. */
   export const BANDS: Readonly<
-    Partial<Record<createLongTool.Dimension, IArchetypeBand>>
+    Partial<Record<createLongTool.Dimension, IAutoMovieArchetypeBand>>
   > = {
-    length: ArchetypeBand.metres(
-      25 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      25 * AutoMovieArchetypeUnits.INCH,
       0.65,
       `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
     ),
-    edge: ArchetypeBand.metres(
-      3.5 * ArchetypeUnits.INCH,
+    edge: AutoMovieArchetypeBand.metres(
+      3.5 * AutoMovieArchetypeUnits.INCH,
       0.09,
       `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
     ),
-    headLength: ArchetypeBand.metres(
+    headLength: AutoMovieArchetypeBand.metres(
       0.163,
       0.163,
       `${FOREST_AXE_SHOP}; where the handle sits in the head no maker's page, the Axe Book or a retailer gives, and no drawing was found, so the handle's back stands flush with the poll, a provisional construction from which the edge's reach ahead of the handle follows`,
       true,
     ),
-    headMass: ArchetypeBand.of(
+    headMass: AutoMovieArchetypeBand.of(
       "kg",
       0.9,
-      2 * ArchetypeUnits.POUND,
+      2 * AutoMovieArchetypeUnits.POUND,
       `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
     ),
-    mass: ArchetypeBand.of("kg", 1.2, 1.2, `${FOREST_AXE}; ${FOREST_AXE_SHOP}`),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      1.2,
+      1.2,
+      `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
+    ),
   };
 
   /**
@@ -107,7 +112,7 @@ export namespace ForestAxe {
       id: "face",
       kind: "surface",
       direction: "normal",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, edge / 2, head - shaft),
         Vector3.create(0, 0, 1),
         Vector3.create(0, 1, 0),
@@ -126,7 +131,7 @@ export namespace ForestAxe {
       id: "shaft",
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, (edge + length) / 2, 0),
         Vector3.create(0, 0, -1),
         Vector3.create(0, 1, 0),

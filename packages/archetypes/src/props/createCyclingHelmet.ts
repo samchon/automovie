@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { WornPropDraw } from "./WornPropDraw";
 
 /**
@@ -14,7 +14,7 @@ import { WornPropDraw } from "./WornPropDraw";
  * @param params The optional scene ID and any fixed free dimension in metres or kilograms.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {ArchetypeRefusal} When a fixed parameter lies outside its admitted band.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed parameter lies outside its admitted band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the rest frame, the hold, the socket and the provenance of the sizes.
  * @evidence contracts/development/implementation.md#principled-implementation A dome over an elliptical rim as one convex part, with the socket a foam thickness under the shell's top.
@@ -30,7 +30,10 @@ export function createCyclingHelmet(
     "id" | "width" | "depth" | "height" | "mass"
   > = {},
   seed?: number | string,
-): Archetype<createCyclingHelmet.Affordance, createCyclingHelmet.Dimension> {
+): AutoMovieArchetype<
+  createCyclingHelmet.Affordance,
+  createCyclingHelmet.Dimension
+> {
   const {
     builder,
     d,
@@ -66,7 +69,7 @@ export function createCyclingHelmet(
     id: "hold",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(-(d.width / 2 - 0.01), thin / 2, 0),
       v(0, 1, 0),
       v(0, 0, 1),
@@ -77,7 +80,7 @@ export function createCyclingHelmet(
   builder.affordance({
     id: "wear",
     kind: "socket",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, d.height - WornPropDraw.SHELL, 0),
       v(0, -1, 0),
       v(0, 0, 1),
@@ -92,7 +95,7 @@ export function createCyclingHelmet(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
  * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createCyclingHelmet {

@@ -1,4 +1,4 @@
-import { ArchetypeUnits, createTree } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, createTree } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -35,22 +35,37 @@ export function test_archetype_nature_tree_bands(): void {
     measure,
   });
   const share = (made: ReturnType<typeof createTree>): number =>
-    archetypeExtent(made, "y", ["trunk"]).high / archetypeExtent(made, "y").high;
+    archetypeExtent(made, "y", ["trunk"]).high /
+    archetypeExtent(made, "y").high;
   const findings: string[] = archetypeBandSweep([
-    row("oak height", 24, 30, (s: number): number =>
-      archetypeExtent(tree("whiteOak", s), "y").size,
+    row(
+      "oak height",
+      24,
+      30,
+      (s: number): number => archetypeExtent(tree("whiteOak", s), "y").size,
     ),
-    row("oak dbh", 0.91, 1.22, (s: number): number =>
-      archetypeExtent(tree("whiteOak", s), "x", ["trunk"]).size,
+    row(
+      "oak dbh",
+      0.91,
+      1.22,
+      (s: number): number =>
+        archetypeExtent(tree("whiteOak", s), "x", ["trunk"]).size,
     ),
     row("oak crown base", 0.5, 0.6, (s: number): number =>
       share(tree("whiteOak", s)),
     ),
-    row("fir height", 50.8, 61.6, (s: number): number =>
-      archetypeExtent(tree("douglasFir", s), "y").size,
+    row(
+      "fir height",
+      50.8,
+      61.6,
+      (s: number): number => archetypeExtent(tree("douglasFir", s), "y").size,
     ),
-    row("fir dbh", 0.871, 1.535, (s: number): number =>
-      archetypeExtent(tree("douglasFir", s), "x", ["trunk"]).size,
+    row(
+      "fir dbh",
+      0.871,
+      1.535,
+      (s: number): number =>
+        archetypeExtent(tree("douglasFir", s), "x", ["trunk"]).size,
     ),
     row("fir crown base", 1 - 0.64, 1 - 0.45, (s: number): number =>
       share(tree("douglasFir", s)),
@@ -74,7 +89,8 @@ export function test_archetype_nature_tree_bands(): void {
     for (const kind of ["whiteOak", "douglasFir"] as const) {
       const made: ReturnType<typeof createTree> = tree(kind, seed);
       const read: (typeof READ)[typeof kind] = READ[kind];
-      const dbh: number = made.dimensions.dbh! / ArchetypeUnits.CENTIMETRE;
+      const dbh: number =
+        made.dimensions.dbh! / AutoMovieArchetypeUnits.CENTIMETRE;
       const moisture: number = made.dimensions.moisture!;
       const mass: number =
         Math.exp(read.b[0] + read.b[1] * Math.log(dbh)) * (1 + moisture);
@@ -83,7 +99,8 @@ export function test_archetype_nature_tree_bands(): void {
         Math.exp(read.bark[0] + read.bark[1] / dbh);
       const base: number = archetypeExtent(made, "y", ["trunk"]).high;
       const top: number = archetypeExtent(made, "y").high;
-      const balance: number = trunk * (base / 2) + (1 - trunk) * ((base + top) / 2);
+      const balance: number =
+        trunk * (base / 2) + (1 - trunk) * ((base + top) / 2);
       const contact: ReturnType<typeof made.affordance> =
         made.affordance("trunk");
       if (
@@ -91,8 +108,9 @@ export function test_archetype_nature_tree_bands(): void {
         Math.abs(made.body.mass - mass) > 1e-6 * mass ||
         made.body.centerOfMass === null ||
         Math.abs(made.body.centerOfMass.y - balance) > 1e-6 * top ||
-        Math.abs(contact.frame.translation.y - 4.5 * ArchetypeUnits.FOOT) >
-          1e-9 ||
+        Math.abs(
+          contact.frame.translation.y - 4.5 * AutoMovieArchetypeUnits.FOOT,
+        ) > 1e-9 ||
         Math.abs(
           contact.frame.translation.z -
             archetypeExtent(made, "z", ["trunk"]).high,
@@ -103,5 +121,9 @@ export function test_archetype_nature_tree_bands(): void {
           `${kind}@${seed}: its mass, balance, contact or footing is off`,
         );
     }
-  TestValidator.equals("the trees stay as their sources give them", findings, []);
+  TestValidator.equals(
+    "the trees stay as their sources give them",
+    findings,
+    [],
+  );
 }

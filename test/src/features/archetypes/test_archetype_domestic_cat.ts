@@ -1,5 +1,5 @@
 import {
-  ArchetypeFrame,
+  AutoMovieArchetypeFrame,
   createCat,
   createQuadruped,
   rideQuadruped,
@@ -153,7 +153,7 @@ export function test_archetype_domestic_cat(): void {
         1e-8,
       );
       distal.push(
-        ArchetypeFrame.point(
+        AutoMovieArchetypeFrame.point(
           sample.placement,
           AnimalNeutralObservation.endpoint(part, 1),
         ),

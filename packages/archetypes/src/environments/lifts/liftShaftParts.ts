@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 
 /**
  * Form the side, back and slotted front walls of an upright lift shaft.
@@ -35,7 +35,7 @@ export function liftShaftParts(
       },
       material,
       attachedBone: null,
-      transform: ArchetypeFrame.upright(
+      transform: AutoMovieArchetypeFrame.upright(
         Vector3.create(0, centerY, front - thickness / 2),
       ),
     },
@@ -109,7 +109,7 @@ export namespace liftShaftParts {
       name: null,
       material,
       attachedBone: null,
-      transform: ArchetypeFrame.upright(center),
+      transform: AutoMovieArchetypeFrame.upright(center),
       geometry: {
         type: "primitive",
         shape: { type: "box", width, height, depth },

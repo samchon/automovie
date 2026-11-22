@@ -1,4 +1,4 @@
-import type { Archetype } from "@automovie/archetypes";
+import type { AutoMovieArchetype } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPerformance,
@@ -113,7 +113,7 @@ export namespace archetypePlaced {
     name: string;
 
     /** The archetype. */
-    archetype: Archetype;
+    archetype: AutoMovieArchetype;
 
     /** The height of what it rests on, metres: a table top for a thing set down on one; the floor's 0 when absent. */
     on?: number;

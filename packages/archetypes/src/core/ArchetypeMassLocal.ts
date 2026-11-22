@@ -3,8 +3,8 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import type { ArchetypeConvexCell } from "./ArchetypeConvexCell";
 import { ArchetypeMassPrimitive } from "./ArchetypeMassPrimitive";
+import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
 
 /** A supported local solid, with an optional non-axis-aligned principal frame. */
 type Local = NonNullable<ReturnType<typeof ArchetypeMassPrimitive>> & {
@@ -28,9 +28,11 @@ type Local = NonNullable<ReturnType<typeof ArchetypeMassPrimitive>> & {
  */
 export function ArchetypeMassLocal(
   part: IAutoMovieModelPart,
-  cells: ArchetypeConvexCell.Table,
+  cells: AutoMovieArchetypeConvexCell.Table,
 ): Local | null {
-  const cell: ArchetypeConvexCell.ICell | undefined = cells.get(part.id);
+  const cell: AutoMovieArchetypeConvexCell.ICell | undefined = cells.get(
+    part.id,
+  );
   if (cell !== undefined) {
     if (part.geometry !== cell.geometry)
       throw new Error(

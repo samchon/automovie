@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { ArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { EquineBodyPose } from "./EquineBodyPose";
-import type { EquineStanceCue } from "./EquineStanceCue";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
-import { QuadrupedBody } from "./QuadrupedBody";
 
 /** Standard gravity, m/s². */
 const GRAVITY: number = 9.80665;
@@ -33,7 +33,7 @@ const TUCK: Readonly<Record<Tuck, Turns>> = {
 /**
  * The school airs above the ground, as stance rows: the held pesade and levade, the courbette's hind-leg leaps and the capriole's leap with its hind kick.
  *
- * The pesade and levade are a rear held at their sources' trunk angles: 45 degrees and about 30 to 35 degrees with the ground (Airs above the ground, Wikipedia; IFCE Equipedia), the levade taken at 32.5, the middle of its range. The courbette starts as a levade and, through its hold, leaps forward on the hind legs: each leap is a ballistic flight whose height follows from its duration, h = g T² / 8, with the hind limbs tucked and the forelegs kept off the floor; the forehand then comes down where the leaps end. The capriole gathers, then the whole horse flies for its hold, its height again g T² / 8, the forelegs tucked and the hind legs kicking out at the top, and lands on all four where it took off. The Spanish walk is `EquineSpanishWalk`'s layer over a walk. Leap travel, the gathering drop and the tucked joint turns are authored.
+ * The pesade and levade are a rear held at their sources' trunk angles: 45 degrees and about 30 to 35 degrees with the ground (Airs above the ground, Wikipedia; IFCE Equipedia), the levade taken at 32.5, the middle of its range. The courbette starts as a levade and, through its hold, leaps forward on the hind legs: each leap is a ballistic flight whose height follows from its duration, h = g T² / 8, with the hind limbs tucked and the forelegs kept off the floor; the forehand then comes down where the leaps end. The capriole gathers, then the whole horse flies for its hold, its height again g T² / 8, the forelegs tucked and the hind legs kicking out at the top, and lands on all four where it took off. The Spanish walk is `AutoMovieArchetypeEquineSpanishWalk`'s layer over a walk. Leap travel, the gathering drop and the tucked joint turns are authored.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each air, its sourced angle or ballistic height and which values are authored.
  * @evidence contracts/development/design.md#principled-representation Each air is a stance plan: a start and end state, a pose by share and, for the leaps, a pose by second of the hold.
@@ -55,7 +55,7 @@ export namespace EquineAirs {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the held airs and the courbette's levade.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function pitch(air: EquineStanceCue.Air): number {
+  export function pitch(air: AutoMovieArchetypeEquineStanceCue.Air): number {
     return air === "pesade" ? 45 : 32.5;
   }
 
@@ -78,8 +78,12 @@ export namespace EquineAirs {
    */
   export function held<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
-    cue: EquineStanceCue.IAir | EquineStanceCue.ICourbette,
-    rear: (cue: EquineStanceCue.IRear) => EquineStanceRows.IPlan,
+    cue:
+      | AutoMovieArchetypeEquineStanceCue.IAir
+      | AutoMovieArchetypeEquineStanceCue.ICourbette,
+    rear: (
+      cue: AutoMovieArchetypeEquineStanceCue.IRear,
+    ) => EquineStanceRows.IPlan,
   ): EquineStanceRows.IPlan {
     const levade: EquineStanceRows.IPlan = rear({
       kind: "rear",
@@ -113,7 +117,7 @@ export namespace EquineAirs {
    */
   export function courbette<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
-    cue: EquineStanceCue.ICourbette,
+    cue: AutoMovieArchetypeEquineStanceCue.ICourbette,
     levade: EquineStanceRows.IPlan,
   ): EquineStanceRows.IPlan {
     if (!(Number.isInteger(cue.leaps) && cue.leaps > 0))
@@ -128,7 +132,10 @@ export namespace EquineAirs {
     const held: EquineBodyPose.IGoal = levade.goal(1);
     const period: number = cue.hold / cue.leaps;
     const apex: number = (GRAVITY * period * period) / 8;
-    const hind: readonly QuadrupedBody.Limb[] = ["leftHind", "rightHind"];
+    const hind: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
+      "leftHind",
+      "rightHind",
+    ];
     return {
       cue,
       start: levade.start,
@@ -144,7 +151,10 @@ export namespace EquineAirs {
           held,
           Vector3.scale(forward, k),
         );
-        const limbs: Record<QuadrupedBody.Limb, EquineBodyPose.Limb> = {
+        const limbs: Record<
+          AutoMovieArchetypeQuadrupedBody.Limb,
+          EquineBodyPose.Limb
+        > = {
           ...base.limbs,
         };
         for (const limb of hind)
@@ -187,16 +197,18 @@ export namespace EquineAirs {
   export function capriole<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineStanceCue.ICapriole,
+    cue: AutoMovieArchetypeEquineStanceCue.ICapriole,
   ): EquineStanceRows.IPlan {
-    const gathered: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
+    const gathered: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(
       start.trunk,
       { x: 0, y: -GATHER, z: 0 },
     );
-    const placed: Record<QuadrupedBody.Limb, EquineBodyPose.Limb> =
-      EquineStanceSupport.placed(start.anchors);
+    const placed: Record<
+      AutoMovieArchetypeQuadrupedBody.Limb,
+      EquineBodyPose.Limb
+    > = EquineStanceSupport.placed(start.anchors);
     const chains: Readonly<
-      Record<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, readonly IAutoMovieVector3[]>
     > = {
       leftFore: body.chain("leftFore", gathered, placed.leftFore),
       rightFore: body.chain("rightFore", gathered, placed.rightFore),
@@ -217,7 +229,10 @@ export namespace EquineAirs {
       hold: (seconds: number): EquineBodyPose.IGoal => {
         const u: number = Math.max(0, Math.min(1, seconds / cue.hold));
         const tuck: number = Math.sin(Math.PI * u);
-        const limbs: Record<QuadrupedBody.Limb, EquineBodyPose.Limb> = {
+        const limbs: Record<
+          AutoMovieArchetypeQuadrupedBody.Limb,
+          EquineBodyPose.Limb
+        > = {
           leftFore: EquineStanceSupport.folded(
             chains.leftFore,
             TUCK.fore,
@@ -256,10 +271,13 @@ export namespace EquineAirs {
     goal: EquineBodyPose.IGoal,
     by: IAutoMovieVector3,
   ): EquineBodyPose.IGoal {
-    const limbs: Record<QuadrupedBody.Limb, EquineBodyPose.Limb> = {
+    const limbs: Record<
+      AutoMovieArchetypeQuadrupedBody.Limb,
+      EquineBodyPose.Limb
+    > = {
       ...goal.limbs,
     };
-    for (const limb of QuadrupedBody.LIMBS) {
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const state: EquineBodyPose.Limb = goal.limbs[limb];
       if (state.kind === "placed")
         limbs[limb] = { ...state, anchor: Vector3.add(state.anchor, by) };

@@ -1,11 +1,15 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import type { createStorage } from "./createStorage";
 
 /** The builder every construction fills. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createStorage.Affordance,
   createStorage.Dimension
 >;
@@ -70,7 +74,7 @@ export namespace StorageConstruction {
   };
 
   /** A single-tier locker's hat shelf above the locker's bottom, metres: Penco Vanguard specification, "Hat shelf 48 inches from locker bottom" (https://www.pencoproducts.com/media/3677/vanguard-snapshot-specs_jan2019.pdf). */
-  export const LOCKER_SHELF: number = 48 * ArchetypeUnits.INCH;
+  export const LOCKER_SHELF: number = 48 * AutoMovieArchetypeUnits.INCH;
 
   /** A bookcase's shelves above its bottom, as the BILLY's one fixed and four adjustable. */
   export const SHELVES: number = 5;
@@ -110,7 +114,7 @@ export namespace StorageConstruction {
     builder.affordance({
       id: "push",
       kind: "surface",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(width / 2, height / 2, 0),
         v(1, 0, 0),
         v(0, 0, 1),
@@ -122,7 +126,7 @@ export namespace StorageConstruction {
     builder.affordance({
       id: "top",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, height, 0)),
       extent: null,
       width,
       depth,
@@ -177,7 +181,7 @@ export namespace StorageConstruction {
       builder.affordance({
         id: `${side}Door`,
         kind: "hinge",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v((sign * width) / 2, pull, face),
           v(0, sign, 0),
           v(-sign, 0, 0),
@@ -190,7 +194,7 @@ export namespace StorageConstruction {
         id: `${side}Pull`,
         kind: "handle",
         symmetry: "none",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(sign * 0.04, pull, face + E.pull),
           v(0, 0, 1),
           v(0, 1, 0),
@@ -264,7 +268,11 @@ export namespace StorageConstruction {
       builder.affordance({
         id: `drawer${index}`,
         kind: "slider",
-        frame: ArchetypeFrame.facing(v(0, y, front), v(0, 1, 0), v(0, 0, 1)),
+        frame: AutoMovieArchetypeFrame.facing(
+          v(0, y, front),
+          v(0, 1, 0),
+          v(0, 0, 1),
+        ),
         extent: null,
         travel: d.travel!,
         parts: make.pulls
@@ -276,7 +284,11 @@ export namespace StorageConstruction {
           id: `pull${index}`,
           kind: "handle",
           symmetry: "none",
-          frame: ArchetypeFrame.facing(v(0, y, front), v(0, 0, 1), v(1, 0, 0)),
+          frame: AutoMovieArchetypeFrame.facing(
+            v(0, y, front),
+            v(0, 0, 1),
+            v(1, 0, 0),
+          ),
           extent: null,
           grip: "power",
           aperture: E.pull,
@@ -358,7 +370,7 @@ export namespace StorageConstruction {
     builder.affordance({
       id: "shelf1",
       kind: "stack-top",
-      frame: ArchetypeFrame.upright(v(0, shelf, inside)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, shelf, inside)),
       extent: rectangle(width - 2 * t, body - t),
     });
     const face: number = back + depth;
@@ -369,7 +381,7 @@ export namespace StorageConstruction {
     builder.affordance({
       id: "door",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(-width / 2, mid, face),
         v(0, -1, 0),
         v(1, 0, 0),
@@ -430,7 +442,7 @@ export namespace StorageConstruction {
       builder.affordance({
         id: `shelf${k}`,
         kind: "stack-top",
-        frame: ArchetypeFrame.upright(v(0, y, z)),
+        frame: AutoMovieArchetypeFrame.upright(v(0, y, z)),
         extent: rectangle(inner, shelfDepth),
       });
     }

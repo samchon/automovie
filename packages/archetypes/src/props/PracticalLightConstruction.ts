@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { createLight } from "./createLight";
 
@@ -19,7 +19,7 @@ const NAMES: Readonly<Record<createLight.Kind, string>> = {
 };
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createLight.Affordance> = ArchetypeBuilder<
+type Builder<Id extends createLight.Affordance> = AutoMovieArchetypeBuilder<
   Id,
   createLight.Dimension
 >;
@@ -45,8 +45,8 @@ function draw<Id extends createLight.Affordance>(
   params: Omit<createLight.IParams, "kind">,
   seed?: number | string,
 ): IDrawn<Id> {
-  const session: ArchetypeDrawSession<createLight.Dimension> =
-    new ArchetypeDrawSession<createLight.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<createLight.Dimension> =
+    new AutoMovieArchetypeDrawSession<createLight.Dimension>(
       "light",
       createLight.UNITS,
       seed,
@@ -56,7 +56,7 @@ function draw<Id extends createLight.Affordance>(
     createLight.BANDS[kind],
     createLight.BANDS,
   );
-  const builder: Builder<Id> = new ArchetypeBuilder({
+  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
     material: kind === "candle" ? "wax" : "composite",
     id: params.id,
     name: NAMES[kind],
@@ -98,7 +98,7 @@ export namespace PracticalLightConstruction {
   export function pendant(
     params: Omit<createLight.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<PendantContact, createLight.Dimension> {
+  ): AutoMovieArchetype<PendantContact, createLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<PendantContact>> =
       draw<PendantContact>("pendant", params, seed);
     // A shade whose mouth faces down, hanging on its cord from the hook at the origin.
@@ -115,7 +115,7 @@ export namespace PracticalLightConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, mouth + d.height! / 2, 0),
         v(-1, 0, 0),
         v(0, 1, 0),
@@ -128,13 +128,17 @@ export namespace PracticalLightConstruction {
       id: "light",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(v(0, mouth, 0), v(0, -1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, mouth, 0),
+        v(0, -1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
     builder.affordance({
       id: "hook",
       kind: "hook",
-      frame: ArchetypeFrame.upright(v(0, 0, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
       extent: null,
     });
     return builder.build(d.mass!);
@@ -175,7 +179,7 @@ export namespace PracticalLightConstruction {
     kind: StandingKind,
     params: Omit<createLight.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<StandingContact, createLight.Dimension> {
+  ): AutoMovieArchetype<StandingContact, createLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<StandingContact>> =
       draw<StandingContact>(kind, params, seed);
     // A round base on the floor, a stem up to the lampholder, and the shade round it below the lamp's top.
@@ -204,7 +208,7 @@ export namespace PracticalLightConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, bottom + d.height! / 2, 0),
         v(-1, 0, 0),
         v(0, 1, 0),
@@ -217,7 +221,7 @@ export namespace PracticalLightConstruction {
       id: "light",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.upright(v(0, d.stem!, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, d.stem!, 0)),
       extent: null,
     });
     return builder.build(d.mass!);
@@ -247,7 +251,7 @@ export namespace PracticalLightConstruction {
   export function lantern(
     params: Omit<createLight.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<LanternContact, createLight.Dimension> {
+  ): AutoMovieArchetype<LanternContact, createLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<LanternContact>> =
       draw<LanternContact>("lantern", params, seed);
     // The fount up to the burner, the globe over it, the cap to the body's top, and the bail raised over all along X.
@@ -287,7 +291,11 @@ export namespace PracticalLightConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, hang, 0), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, hang, 0),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       grip: "hook",
       aperture: wire,
@@ -296,14 +304,14 @@ export namespace PracticalLightConstruction {
     builder.affordance({
       id: "hook",
       kind: "hook",
-      frame: ArchetypeFrame.upright(v(0, hang, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, hang, 0)),
       extent: null,
     });
     builder.affordance({
       id: "light",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.upright(v(0, foot, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, foot, 0)),
       extent: null,
     });
     return builder.build(d.mass!);
@@ -344,7 +352,7 @@ export namespace PracticalLightConstruction {
     kind: WickKind,
     params: Omit<createLight.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<WickContact, createLight.Dimension> {
+  ): AutoMovieArchetype<WickContact, createLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<WickContact>> =
       draw<WickContact>(kind, params, seed);
     // A candle's taper, or a torch's shaft with its wick head at the top: the grip runs below the head.
@@ -362,7 +370,7 @@ export namespace PracticalLightConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, length / 2, 0),
         v(0, 0, -1),
         v(0, 1, 0),
@@ -376,7 +384,7 @@ export namespace PracticalLightConstruction {
       id: "light",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.upright(v(0, length, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, length, 0)),
       extent: null,
     });
     return builder.build(d.mass!);

@@ -1,8 +1,8 @@
 import {
-  ArchetypeFrame,
-  type EquineFordPlan,
-  QuadrupedBody,
-  type QuadrupedFooting,
+  type AutoMovieArchetypeEquineFordPlan,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeQuadrupedFooting,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
@@ -52,7 +52,9 @@ export namespace equineFordScene {
    * @param shelf The far bank shelf's height, world metres.
    * @returns The parameters.
    */
-  export function params(shelf: number): EquineFordPlan.IParams {
+  export function params(
+    shelf: number,
+  ): AutoMovieArchetypeEquineFordPlan.IParams {
     return {
       water: WATER,
       footing: footing(shelf),
@@ -86,7 +88,9 @@ export namespace equineFordScene {
    * @param shelf The shelf's height, world metres.
    * @returns The footing scene.
    */
-  export function footing(shelf: number): QuadrupedFooting.IScene {
+  export function footing(
+    shelf: number,
+  ): AutoMovieArchetypeQuadrupedFooting.IScene {
     return {
       planes: [
         {
@@ -122,13 +126,13 @@ export namespace equineFordScene {
    * @returns Its world transform.
    */
   export function frame(
-    sample: EquineFordPlan.ISample<string, string>,
+    sample: AutoMovieArchetypeEquineFordPlan.ISample<string, string>,
     id: string,
   ): IAutoMovieTransform {
     const part: IAutoMovieModelPart = sample.archetype.parts.find(
       (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
     )!;
-    return ArchetypeFrame.compose(sample.placement, part.transform!);
+    return AutoMovieArchetypeFrame.compose(sample.placement, part.transform!);
   }
 
   /**
@@ -186,12 +190,12 @@ export namespace equineFordScene {
   export function separation(
     part: IAutoMovieModelPart,
     placement: IAutoMovieTransform,
-    plane: QuadrupedFooting.IPlane,
+    plane: AutoMovieArchetypeQuadrupedFooting.IPlane,
   ): number {
     if (part.geometry.type !== "primitive")
       throw new Error(`${part.id} is not a primitive`);
     const shape = part.geometry.shape;
-    const world: IAutoMovieTransform = ArchetypeFrame.compose(
+    const world: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
       placement,
       part.transform!,
     );
@@ -230,5 +234,6 @@ export namespace equineFordScene {
   }
 
   /** The bars of each limb, top down. */
-  export const BONES: typeof QuadrupedBody.BONES = QuadrupedBody.BONES;
+  export const BONES: typeof AutoMovieArchetypeQuadrupedBody.BONES =
+    AutoMovieArchetypeQuadrupedBody.BONES;
 }

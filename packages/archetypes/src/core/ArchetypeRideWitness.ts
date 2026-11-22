@@ -1,5 +1,5 @@
-import type { ArchetypeCourse } from "./ArchetypeCourse";
-import type { ArchetypeRide } from "./ArchetypeRide";
+import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
+import type { AutoMovieArchetypeRide } from "./AutoMovieArchetypeRide";
 
 /**
  * Internal native ride authentication and one same-time geometry handoff.
@@ -21,7 +21,7 @@ export namespace ArchetypeRideWitness {
   export type Reader<Id extends string, D extends string> = (
     second: number,
     witness: Witness,
-  ) => ArchetypeRide.ISample<Id, D>;
+  ) => AutoMovieArchetypeRide.ISample<Id, D>;
 
   /** One authored source and its original public observation descriptors. */
   interface Binding {
@@ -41,9 +41,9 @@ export namespace ArchetypeRideWitness {
   const writers: WeakMap<object, IWriter> = new WeakMap();
 
   interface IWriter {
-    readonly plan: ArchetypeCourse.IPlan;
-    readonly at: ArchetypeCourse.IPlan["at"];
-    readonly when: ArchetypeCourse.IPlan["when"];
+    readonly plan: AutoMovieArchetypeCourse.IPlan;
+    readonly at: AutoMovieArchetypeCourse.IPlan["at"];
+    readonly when: AutoMovieArchetypeCourse.IPlan["when"];
     readonly reader: Reader<string, string>;
   }
 
@@ -60,7 +60,7 @@ export namespace ArchetypeRideWitness {
    */
   export function authorize<Id extends string, D extends string>(
     writer: object,
-    plan: ArchetypeCourse.IPlan,
+    plan: AutoMovieArchetypeCourse.IPlan,
     reader: Reader<Id, D>,
   ): void {
     writers.set(writer, {
@@ -83,7 +83,7 @@ export namespace ArchetypeRideWitness {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak entries carry only capability and provenance for the life of the writer or ride.
    */
   export function constructed<Id extends string, D extends string>(
-    ride: ArchetypeRide.IRide<Id, D>,
+    ride: AutoMovieArchetypeRide.IRide<Id, D>,
     writer: object,
   ): void {
     const native: IWriter | undefined = writers.get(writer);
@@ -116,7 +116,7 @@ export namespace ArchetypeRideWitness {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The lookup keeps no observation.
    */
   export function of<Id extends string, D extends string>(
-    ride: ArchetypeRide.IRide<Id, D>,
+    ride: AutoMovieArchetypeRide.IRide<Id, D>,
   ): Reader<Id, D> | undefined {
     const entry: Binding | undefined = readers.get(ride);
     return entry?.original() ? (entry.reader as Reader<Id, D>) : undefined;
@@ -140,7 +140,7 @@ export namespace ArchetypeRideWitness {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The enclosing synchronous integration owns the last three roles.
    */
   export function stages<Id extends string, D extends string>(
-    ride: ArchetypeRide.IRide<Id, D>,
+    ride: AutoMovieArchetypeRide.IRide<Id, D>,
   ): (second: number) => IProbes | undefined {
     if (of(ride) === undefined) return () => undefined;
     let previous: number | undefined;

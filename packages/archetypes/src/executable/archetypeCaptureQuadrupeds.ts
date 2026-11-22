@@ -9,7 +9,7 @@ import {
   createPony,
   rideQuadruped,
 } from "../animals";
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
@@ -28,7 +28,7 @@ import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 export function archetypeCaptureQuadrupeds(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
 > {
-  const animals: Record<string, Archetype> = {
+  const animals: Record<string, AutoMovieArchetype> = {
     horse: createHorse({ tack: "both" }),
     pony: createPony({ tack: "both" }),
     donkey: createDonkey({ tack: "both" }),
@@ -42,7 +42,7 @@ export function archetypeCaptureQuadrupeds(): Readonly<
     "canonical-quadrupeds": archetypeCaptureSubject.still(animals),
   };
   for (const name of ["pony", "donkey", "mule"] as const) {
-    const animal: Archetype = animals[name]!;
+    const animal: AutoMovieArchetype = animals[name]!;
     entries[`ride-${name}-walk`] = archetypeCaptureSubject.moving(
       name,
       rideQuadruped(

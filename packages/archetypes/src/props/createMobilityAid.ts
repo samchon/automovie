@@ -1,10 +1,10 @@
 import {
-  Archetype,
-  ArchetypeBand,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { createCane } from "./createCane";
 import { createInfusionStand } from "./createInfusionStand";
@@ -34,7 +34,10 @@ const POWER: string =
 type Producer = (
   params: createMobilityAid.IParams,
   seed?: number | string,
-) => Archetype<createMobilityAid.Affordance, createMobilityAid.Dimension>;
+) => AutoMovieArchetype<
+  createMobilityAid.Affordance,
+  createMobilityAid.Dimension
+>;
 
 /**
  * Replay a saved mobilityAid variant with the original dimensions, identifier and model choices.
@@ -42,7 +45,7 @@ type Producer = (
  * @param params The historic selector and optional fixed settings in the original units.
  * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
  * @returns The original generated model and its local contacts.
- * @throws {ArchetypeRefusal} If the selector or any author setting is outside its admitted range.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Replay a saved mobilityAid variant with the original dimensions, identifier and model choices.
  * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the mobilityAid draw namespace.
@@ -55,7 +58,10 @@ type Producer = (
 export function createMobilityAid(
   params: createMobilityAid.IParams,
   seed?: number | string,
-): Archetype<createMobilityAid.Affordance, createMobilityAid.Dimension> {
+): AutoMovieArchetype<
+  createMobilityAid.Affordance,
+  createMobilityAid.Dimension
+> {
   const kind: createMobilityAid.Kind = ArchetypeDraw.choice(
     "mobilityAid",
     "kind",
@@ -149,7 +155,9 @@ export namespace createMobilityAid {
   export type Dimension = "height" | "diameter" | "width" | "depth" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     diameter: "m",
     width: "m",
@@ -180,69 +188,69 @@ export namespace createMobilityAid {
     Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
   > = {
     walker: {
-      adult: { mass: 7.5 * ArchetypeUnits.POUND },
-      junior: { mass: 7 * ArchetypeUnits.POUND },
+      adult: { mass: 7.5 * AutoMovieArchetypeUnits.POUND },
+      junior: { mass: 7 * AutoMovieArchetypeUnits.POUND },
     },
   };
 
   /** Each walker model's own handle height range, metres: the sheet's 32 to 39 in for the adult and 25 to 32.25 in for the junior. */
   export const HANDLE_HEIGHTS: Readonly<
-    Partial<Record<Model, IArchetypeBand>>
+    Partial<Record<Model, IAutoMovieArchetypeBand>>
   > = {
-    adult: ArchetypeBand.metres(
-      32 * ArchetypeUnits.INCH,
-      39 * ArchetypeUnits.INCH,
+    adult: AutoMovieArchetypeBand.metres(
+      32 * AutoMovieArchetypeUnits.INCH,
+      39 * AutoMovieArchetypeUnits.INCH,
       `${WALKER}: the adult handle heights`,
     ),
-    junior: ArchetypeBand.metres(
-      25 * ArchetypeUnits.INCH,
-      32.25 * ArchetypeUnits.INCH,
+    junior: AutoMovieArchetypeBand.metres(
+      25 * AutoMovieArchetypeUnits.INCH,
+      32.25 * AutoMovieArchetypeUnits.INCH,
       `${WALKER}: the junior handle heights`,
     ),
   };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     cane: {
-      height: ArchetypeBand.metres(
-        30 * ArchetypeUnits.INCH,
-        39 * ArchetypeUnits.INCH,
+      height: AutoMovieArchetypeBand.metres(
+        30 * AutoMovieArchetypeUnits.INCH,
+        39 * AutoMovieArchetypeUnits.INCH,
         CANE,
       ),
-      diameter: ArchetypeBand.metres(
-        0.75 * ArchetypeUnits.INCH,
-        0.75 * ArchetypeUnits.INCH,
+      diameter: AutoMovieArchetypeBand.metres(
+        0.75 * AutoMovieArchetypeUnits.INCH,
+        0.75 * AutoMovieArchetypeUnits.INCH,
         CANE,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
-        0.85 * ArchetypeUnits.POUND,
-        0.85 * ArchetypeUnits.POUND,
+        0.85 * AutoMovieArchetypeUnits.POUND,
+        0.85 * AutoMovieArchetypeUnits.POUND,
         CANE_MASS,
         true,
       ),
     },
     walker: {
-      width: ArchetypeBand.metres(
-        24 * ArchetypeUnits.INCH,
-        24 * ArchetypeUnits.INCH,
+      width: AutoMovieArchetypeBand.metres(
+        24 * AutoMovieArchetypeUnits.INCH,
+        24 * AutoMovieArchetypeUnits.INCH,
         WALKER,
       ),
-      depth: ArchetypeBand.metres(
-        18 * ArchetypeUnits.INCH,
-        18 * ArchetypeUnits.INCH,
+      depth: AutoMovieArchetypeBand.metres(
+        18 * AutoMovieArchetypeUnits.INCH,
+        18 * AutoMovieArchetypeUnits.INCH,
         WALKER,
         true,
       ),
-      diameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
+      diameter: AutoMovieArchetypeBand.metres(0.03, 0.04, POWER, true),
     },
     infusionStand: {
-      height: ArchetypeBand.metres(1.43, 2.26, PROVITA),
-      diameter: ArchetypeBand.metres(0.0337, 0.0337, PROVITA),
-      width: ArchetypeBand.metres(0.63, 0.63, PROVITA),
-      mass: ArchetypeBand.of("kg", 12, 12, PROVITA),
+      height: AutoMovieArchetypeBand.metres(1.43, 2.26, PROVITA),
+      diameter: AutoMovieArchetypeBand.metres(0.0337, 0.0337, PROVITA),
+      width: AutoMovieArchetypeBand.metres(0.63, 0.63, PROVITA),
+      mass: AutoMovieArchetypeBand.of("kg", 12, 12, PROVITA),
     },
   };
 }

@@ -1,4 +1,7 @@
-import { type IArchetypeBand, createDrinkware } from "@automovie/archetypes";
+import {
+  type IAutoMovieArchetypeBand,
+  createDrinkware,
+} from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
@@ -285,7 +288,7 @@ export function archetypeCatalogueVesselContact(
   if (first === 0 && last === 200)
     for (const [axis, bounds] of extrema) {
       const model: Model = createDrinkware({ kind }, 0);
-      const band: IArchetypeBand | undefined =
+      const band: IAutoMovieArchetypeBand | undefined =
         model.provenance.bands[
           axis === "handle bar"
             ? "handleDiameter"

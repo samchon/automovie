@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  ArchetypeUnits,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
   createBed,
   createCrutch,
   createMobilityAid,
@@ -57,7 +57,7 @@ interface IAidCase {
   params: IAutoMovieMotionHumanAidWalk;
 
   /** The visible staged model. */
-  model: Archetype;
+  model: AutoMovieArchetype;
 
   /** Polygon man used in the native motion. */
   body: IAutoMovieMotionHumanBody;
@@ -100,10 +100,14 @@ export function test_human_motion_aided_support_transfer(): void {
     "the grip and tip lie on the rendered forearm crutch",
     nclose(grip.frame.translation.y, height, MM) &&
       nclose(grip.frame.translation.y, (handle.low + handle.high) / 2, MM) &&
-      nclose(grip.aperture!, 1.5 * ArchetypeUnits.INCH, MM) &&
+      nclose(grip.aperture!, 1.5 * AutoMovieArchetypeUnits.INCH, MM) &&
       nclose(grip.aperture!, handle.size, MM) &&
       nclose(tip.frame.translation.y, archetypeExtent(crutch, "y").low, MM) &&
-      vclose(ArchetypeFrame.axis(tip.frame, "y"), { x: 0, y: -1, z: 0 }, MM) &&
+      vclose(
+        AutoMovieArchetypeFrame.axis(tip.frame, "y"),
+        { x: 0, y: -1, z: 0 },
+        MM,
+      ) &&
       nclose(crutch.body.mass, 0.5528, MM),
   );
   TestValidator.error("a height below the measured range refuses", () =>
@@ -149,7 +153,7 @@ function aid(
   const body: IAutoMovieMotionHumanBody = motionHumanBody(
     kind === "crutch" ? "f-small" : "m-average",
   );
-  const model: Archetype =
+  const model: AutoMovieArchetype =
     kind === "walker"
       ? createMobilityAid({ kind, height: 0.86 })
       : kind === "cane"

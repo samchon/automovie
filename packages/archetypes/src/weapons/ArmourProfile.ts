@@ -5,9 +5,9 @@ import type {
 } from "@automovie/interface";
 
 import {
-  type ArchetypeConvexCell,
-  ArchetypeDensity,
-  ArchetypeRefusal,
+  type AutoMovieArchetypeConvexCell,
+  AutoMovieArchetypeDensity,
+  AutoMovieArchetypeRefusal,
 } from "../core";
 import type { createArmour } from "./createArmour";
 
@@ -49,7 +49,7 @@ export namespace ArmourProfile {
     /** Actual convex wall corners, model metres. */
     points: readonly IAutoMovieVector3[];
     /** One already admitted immutable cell, reused only at rigidly equivalent sectors. */
-    prepared?: ArchetypeConvexCell.ICell;
+    prepared?: AutoMovieArchetypeConvexCell.ICell;
     /** Proper rigid placement of a reused local cell; absent is identity. */
     rotation?: IAutoMovieQuaternion;
   }
@@ -188,7 +188,7 @@ export namespace ArmourProfile {
       2 * widthRate * sleeveHeight +
       4 * sleeve * depthRate -
       2 * widthRate * depth;
-    const volume: number = mass / ArchetypeDensity.STEEL;
+    const volume: number = mass / AutoMovieArchetypeDensity.STEEL;
     const discriminant: number = a * a + 4 * b * volume;
     const wall: number = (2 * volume) / (a + Math.sqrt(discriminant));
     if (
@@ -210,7 +210,7 @@ export namespace ArmourProfile {
 
   /** Geometrically impossible data remains an actionable producer refusal. */
   function refuse(kind: createArmour.Kind, reason: string): never {
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "armour",
       axis: "measure",

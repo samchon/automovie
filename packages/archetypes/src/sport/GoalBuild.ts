@@ -1,9 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { GOAL_BANDS } from "./GOAL_BANDS";
 import type { createGoal } from "./createGoal";
@@ -22,7 +22,7 @@ const v: typeof Vector3.create = Vector3.create;
 export namespace GoalBuild {
   /** The recorded dimension units, metres for lengths and kilograms for mass. */
   export const UNITS: Readonly<
-    Record<createGoal.Dimension, ArchetypeDrawSession.Unit>
+    Record<createGoal.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     width: "m",
     height: "m",
@@ -76,7 +76,7 @@ export namespace GoalBuild {
    */
   export interface IDrawResult<Id extends createGoal.Affordance> {
     /** The prepared `builder` this call returns. */
-    builder: ArchetypeBuilder<Id, createGoal.Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, createGoal.Dimension>;
 
     /** The prepared `d` this call returns. */
     d: Partial<Record<createGoal.Dimension, number>>;
@@ -98,9 +98,9 @@ export namespace GoalBuild {
     params: Readonly<Omit<createGoal.IParams, "kind">>,
     seed: number | string | undefined,
   ): IDrawResult<Id> {
-    const draw: ArchetypeDrawSession<createGoal.Dimension> =
-      new ArchetypeDrawSession("goal", UNITS, seed, params);
-    const net: ArchetypeDrawSession.IModel<
+    const draw: AutoMovieArchetypeDrawSession<createGoal.Dimension> =
+      new AutoMovieArchetypeDrawSession("goal", UNITS, seed, params);
+    const net: AutoMovieArchetypeDrawSession.IModel<
       createGoal.Net,
       createGoal.Dimension
     > = draw.model("net", params.net, NETS[kind]);
@@ -108,8 +108,8 @@ export namespace GoalBuild {
       ...draw.dimensions(BANDS[kind], BANDS),
       ...net.figures,
     };
-    const builder: ArchetypeBuilder<Id, createGoal.Dimension> =
-      new ArchetypeBuilder({
+    const builder: AutoMovieArchetypeBuilder<Id, createGoal.Dimension> =
+      new AutoMovieArchetypeBuilder({
         material: "composite",
         id: params.id,
         name:
@@ -136,7 +136,10 @@ export namespace GoalBuild {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or draw state between calls.
    */
   export function posts(
-    builder: ArchetypeBuilder<createGoal.Affordance, createGoal.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createGoal.Affordance,
+      createGoal.Dimension
+    >,
     x: number,
     height: number,
     aperture?: number,
@@ -149,7 +152,7 @@ export namespace GoalBuild {
         id,
         kind: "bar",
         symmetry: aperture === undefined ? "round" : "half",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(sign * x, height / 2, 0),
           v(0, 0, 1),
           v(0, 1, 0),

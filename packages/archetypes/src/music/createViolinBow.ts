@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -29,7 +29,7 @@ import {
  */
 export function createViolinBow(
   params: { id?: string } | string = {},
-): Archetype<"grip" | "hairFrog" | "hairTip", never> {
+): AutoMovieArchetype<"grip" | "hairFrog" | "hairTip", never> {
   const v: typeof Vector3.create = Vector3.create;
   const overall: number = 0.745;
   const hair: number = 0.649;
@@ -39,13 +39,15 @@ export function createViolinBow(
   const stickRadius: number = 0.004;
   const gripLength: number = 0.042;
   const wood: string = "#744426";
-  const builder: ArchetypeBuilder<"grip" | "hairFrog" | "hairTip", never> =
-    new ArchetypeBuilder({
-      id: typeof params === "string" ? params : params.id,
-      name: "violin bow",
-      material: "composite",
-      draw: new ArchetypeDrawSession<never>("violin bow", {}, undefined),
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    "grip" | "hairFrog" | "hairTip",
+    never
+  > = new AutoMovieArchetypeBuilder({
+    id: typeof params === "string" ? params : params.id,
+    name: "violin bow",
+    material: "composite",
+    draw: new AutoMovieArchetypeDrawSession<never>("violin bow", {}, undefined),
+  });
   builder.rod(
     "stick",
     stickRadius,
@@ -71,7 +73,7 @@ export function createViolinBow(
     id: "grip",
     kind: "bar",
     symmetry: "half",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       v(frog + gripLength / 2, head - stickRadius, 0),
     ),
     extent: null,
@@ -87,7 +89,11 @@ export function createViolinBow(
       id: site,
       kind: "surface",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(x, 0, 0), v(0, -1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(x, 0, 0),
+        v(0, -1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
   return builder.build(0.061);

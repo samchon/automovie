@@ -1,6 +1,6 @@
-import { DeerBody } from "./DeerBody";
-import { HorseGait } from "./HorseGait";
-import type { QuadrupedGait } from "./QuadrupedGait";
+import { AutoMovieArchetypeDeerBody } from "./AutoMovieArchetypeDeerBody";
+import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
+import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 
 /**
  * An observed sika walking clock, with explicit construction-only pose data.
@@ -23,7 +23,7 @@ import type { QuadrupedGait } from "./QuadrupedGait";
  * The camera-facing side is assigned to model left and its fore onset
  * rebased to zero. Both measured fore delays are preserved; the opposite
  * hind contact is authored half a stride later under the paper's roughly
- * symmetric walk description. DeerBody's Boso males are another population,
+ * symmetric walk description. AutoMovieArchetypeDeerBody's Boso males are another population,
  * so no paired Nara anatomy or individual scaling law is claimed. Absolute
  * timing leaves the observed clock unscaled. Fold, lift, bob and top-joint
  * follow remain named horse construction proxies, and nod is authored zero.
@@ -52,11 +52,11 @@ export namespace DeerGait {
   const OPPOSITE_FORE_PHASE: number = 0.7700624657146398;
 
   /** One measured walking point with no invented faster-gait clock or stride spread. */
-  export const TABLE: QuadrupedGait.ITable = {
+  export const TABLE: AutoMovieArchetypeQuadrupedGait.ITable = {
     order: ["walk"],
     gaits: {
       walk: {
-        ...HorseGait.TABLE.gaits.walk!,
+        ...AutoMovieArchetypeEquineGait.TABLE.gaits.walk!,
         nod: { range: 0, timing: "support" },
         phases: {
           leftFore: 0,
@@ -75,9 +75,9 @@ export namespace DeerGait {
         ],
       },
     },
-    reference: DeerBody.MEASURES.withers,
+    reference: AutoMovieArchetypeDeerBody.MEASURES.withers,
     scaling: "absolute",
     hysteresis: 0,
-    follow: HorseGait.FOLLOW,
+    follow: AutoMovieArchetypeEquineGait.FOLLOW,
   };
 }

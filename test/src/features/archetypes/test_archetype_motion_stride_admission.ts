@@ -1,6 +1,6 @@
 import {
-  type QuadrupedGait,
-  QuadrupedLocomotion,
+  type AutoMovieArchetypeQuadrupedGait,
+  AutoMovieArchetypeQuadrupedLocomotion,
   createCamel,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -31,7 +31,7 @@ export function test_archetype_motion_stride_admission(): void {
   const regular = clock(1);
   for (const rows of [
     [],
-    new Array<QuadrupedLocomotion.IClock>(1),
+    new Array<AutoMovieArchetypeQuadrupedLocomotion.IClock>(1),
     [regular, regular],
     [regular, { ...regular, speed: 2 }],
     [{ ...regular, foreStance: 1 }],
@@ -40,9 +40,13 @@ export function test_archetype_motion_stride_admission(): void {
   ])
     TestValidator.predicate(
       "invalid stride rows",
-      throwsError(() => QuadrupedLocomotion.camel({ pace: rows })),
+      throwsError(() =>
+        AutoMovieArchetypeQuadrupedLocomotion.camel({ pace: rows }),
+      ),
     );
-  const fast = QuadrupedLocomotion.camel({ pace: [clock(1e-9)] });
+  const fast = AutoMovieArchetypeQuadrupedLocomotion.camel({
+    pace: [clock(1e-9)],
+  });
   TestValidator.equals(
     "a representable fast clock is accepted",
     fast.gaits.pace!.rows[0]!.stride,
@@ -63,7 +67,9 @@ export function test_archetype_motion_stride_admission(): void {
       camel,
       course,
       "pace",
-      QuadrupedLocomotion.camel({ pace: [clock(duration / count)] }),
+      AutoMovieArchetypeQuadrupedLocomotion.camel({
+        pace: [clock(duration / count)],
+      }),
     );
   const boundary = prepare(cycles);
   TestValidator.equals(
@@ -77,47 +83,47 @@ export function test_archetype_motion_stride_admission(): void {
   );
   const edits: readonly (readonly [
     string,
-    (table: QuadrupedGait.ITable) => void,
+    (table: AutoMovieArchetypeQuadrupedGait.ITable) => void,
   ])[] = [
     [
       "reference",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         table.reference = NaN;
       },
     ],
     [
       "hysteresis",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         table.hysteresis = -1;
       },
     ],
     [
       "follow",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         table.follow = { fore: 1.1, hind: 0 };
       },
     ],
     [
       "empty order",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         table.order = [];
       },
     ],
     [
       "duplicate gait",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         table.order = ["walk", "pace", "pace"];
       },
     ],
     [
       "missing gait",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         table.gaits = { walk: table.gaits.walk! };
       },
     ],
     [
       "zero frame",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         table.gaits.pace!.phases = {
           leftFore: 0.1,
           rightFore: 0.5,
@@ -128,7 +134,7 @@ export function test_archetype_motion_stride_admission(): void {
     ],
     [
       "phase endpoint",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         table.gaits.pace!.phases = {
           leftFore: 0,
           rightFore: 1,
@@ -139,7 +145,7 @@ export function test_archetype_motion_stride_admission(): void {
     ],
     [
       "negative phase",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         table.gaits.pace!.phases = {
           leftFore: 0,
           rightFore: -0.1,
@@ -150,7 +156,7 @@ export function test_archetype_motion_stride_admission(): void {
     ],
     [
       "nonfinite phase",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         table.gaits.pace!.phases = {
           leftFore: 0,
           rightFore: NaN,
@@ -161,47 +167,50 @@ export function test_archetype_motion_stride_admission(): void {
     ],
     [
       "period spread",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         table.gaits.pace!.rows[0]!.deviation = 1;
       },
     ],
     [
       "sparse table row",
-      (table: QuadrupedGait.ITable): void => {
-        table.gaits.pace!.rows = new Array<QuadrupedGait.IRow>(1);
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
+        table.gaits.pace!.rows =
+          new Array<AutoMovieArchetypeQuadrupedGait.IRow>(1);
       },
     ],
     [
       "nonfinite bob",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         table.gaits.pace!.bob = NaN;
       },
     ],
     [
       "negative lift",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         table.gaits.pace!.lift = { fore: -1, hind: 0 };
       },
     ],
     [
       "nonfinite transition",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         table.gaits.pace!.change = { kind: "speed", speed: Infinity };
       },
     ],
     [
       "missing transition",
-      (table: QuadrupedGait.ITable): void => {
+      (table: AutoMovieArchetypeQuadrupedGait.ITable): void => {
         delete table.gaits.pace!.change;
       },
     ],
   ];
   for (const [field, edit] of edits) {
-    const candidate = QuadrupedLocomotion.camel({ pace: [regular] });
+    const candidate = AutoMovieArchetypeQuadrupedLocomotion.camel({
+      pace: [regular],
+    });
     edit(candidate);
     TestValidator.predicate(
       field,
-      throwsError(() => QuadrupedLocomotion.admit(candidate)),
+      throwsError(() => AutoMovieArchetypeQuadrupedLocomotion.admit(candidate)),
     );
   }
 }

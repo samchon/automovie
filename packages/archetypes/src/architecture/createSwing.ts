@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The seat clearance read for a single-user swing at rest. */
@@ -31,7 +31,7 @@ const ESTIMATE: string =
  * @param params Fixed dimensions.
  * @param seed The seed for any unfixed dimension.
  * @returns The swing frame.
- * @throws {ArchetypeRefusal} For a dimension outside its band, or a seat that would hang at or above the beam.
+ * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band, or a seat that would hang at or above the beam.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, the pivot axis, the separate seat and the swing plane.
  * @evidence contracts/development/implementation.md#principled-implementation Two posts, one beam and the hanging length from the pivot to the seat's clearance.
@@ -44,9 +44,9 @@ const ESTIMATE: string =
 export function createSwing(
   params: createSwing.IParams = {},
   seed?: number | string,
-): Archetype<createSwing.Affordance, createSwing.Dimension> {
-  const draw: ArchetypeDrawSession<createSwing.Dimension> =
-    new ArchetypeDrawSession("swing", createSwing.UNITS, seed, params);
+): AutoMovieArchetype<createSwing.Affordance, createSwing.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createSwing.Dimension> =
+    new AutoMovieArchetypeDrawSession("swing", createSwing.UNITS, seed, params);
   const {
     pivot,
     clearance,
@@ -55,7 +55,7 @@ export function createSwing(
     mass,
   }: Record<createSwing.Dimension, number> = draw.dimensions(createSwing.BANDS);
   if (!(pivot - clearance > grip))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "swing",
       axis: "pivot",
@@ -69,10 +69,10 @@ export function createSwing(
       reason: "the seat must hang below the chain grips under the beam",
       fix: "raise the beam or lower the seat clearance",
     });
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createSwing.Affordance,
     createSwing.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "swing",
     material: "steel",
@@ -97,7 +97,7 @@ export function createSwing(
   builder.affordance({
     id: "ground",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
     extent: null,
     width: span,
     depth: 2 * pivot,
@@ -139,7 +139,9 @@ export namespace createSwing {
   }
 
   /** Units recorded in the model's draw provenance. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     pivot: "m",
     clearance: "m",
     seatWidth: "m",
@@ -149,15 +151,15 @@ export namespace createSwing {
   };
 
   /** The dimensions' bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    pivot: ArchetypeBand.metres(2, 2.6, ESTIMATE, true),
-    clearance: ArchetypeBand.metres(0.35, 0.45, EN1176, true),
-    seatWidth: ArchetypeBand.metres(0.28, 0.5, ESTIMATE, true),
-    seatDepth: ArchetypeBand.metres(0.15, 0.22, ESTIMATE, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    pivot: AutoMovieArchetypeBand.metres(2, 2.6, ESTIMATE, true),
+    clearance: AutoMovieArchetypeBand.metres(0.35, 0.45, EN1176, true),
+    seatWidth: AutoMovieArchetypeBand.metres(0.28, 0.5, ESTIMATE, true),
+    seatDepth: AutoMovieArchetypeBand.metres(0.15, 0.22, ESTIMATE, true),
     // Where a seated rider holds the chains: from just over the thighs to
     // an adult's seated overhead reach.
-    grip: ArchetypeBand.metres(0.3, 1.2, ESTIMATE, true),
-    mass: ArchetypeBand.of("kg", 60, 150, ESTIMATE, true),
+    grip: AutoMovieArchetypeBand.metres(0.3, 1.2, ESTIMATE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 60, 150, ESTIMATE, true),
   };
 
   /**
@@ -169,26 +171,31 @@ export namespace createSwing {
    * @returns The hanging seat model.
    */
   export function seat(
-    swing: Pick<Archetype<Affordance, Dimension>, "dimensions">,
-  ): Archetype<SeatAffordance, SeatDimension> {
+    swing: Pick<AutoMovieArchetype<Affordance, Dimension>, "dimensions">,
+  ): AutoMovieArchetype<SeatAffordance, SeatDimension> {
     const pivot: number = swing.dimensions.pivot!;
     const clearance: number = swing.dimensions.clearance!;
     const seatWidth: number = swing.dimensions.seatWidth!;
     const seatDepth: number = swing.dimensions.seatDepth!;
     const grip: number = swing.dimensions.grip!;
-    const draw: ArchetypeDrawSession<SeatDimension> = new ArchetypeDrawSession(
-      "swingSeat",
-      { length: "m", width: "m", depth: "m", mass: "kg" },
-      undefined,
-      {},
-    );
+    const draw: AutoMovieArchetypeDrawSession<SeatDimension> =
+      new AutoMovieArchetypeDrawSession(
+        "swingSeat",
+        { length: "m", width: "m", depth: "m", mass: "kg" },
+        undefined,
+        {},
+      );
     const length: number = draw.derive("length", pivot - clearance);
     draw.derive("width", seatWidth);
     draw.derive("depth", seatDepth);
     // A rubber seat of about 2 kg with its chains: a provisional estimate.
     const mass: number = draw.derive("mass", 4);
-    const builder: ArchetypeBuilder<SeatAffordance, SeatDimension> =
-      new ArchetypeBuilder({ name: "swing seat", material: "rubber", draw });
+    const builder: AutoMovieArchetypeBuilder<SeatAffordance, SeatDimension> =
+      new AutoMovieArchetypeBuilder({
+        name: "swing seat",
+        material: "rubber",
+        draw,
+      });
     builder.box(
       "seat",
       Vector3.create(seatWidth, 0.03, seatDepth),
@@ -208,7 +215,7 @@ export namespace createSwing {
         kind: "handle",
         symmetry: "round",
         grip: "power",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           Vector3.create((side * seatWidth) / 2, grip - length, 0),
           Vector3.create(0, 0, -1),
           Vector3.create(0, 1, 0),
@@ -221,7 +228,9 @@ export namespace createSwing {
     builder.affordance({
       id: "seat",
       kind: "seat",
-      frame: ArchetypeFrame.upright(Vector3.create(0, -length, seatDepth / 2)),
+      frame: AutoMovieArchetypeFrame.upright(
+        Vector3.create(0, -length, seatDepth / 2),
+      ),
       extent: null,
       width: seatWidth,
       depth: seatDepth,

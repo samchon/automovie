@@ -1,15 +1,15 @@
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 
-import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
-import type { ArchetypeFriction } from "./ArchetypeFriction";
-import type { ArchetypeMaterial } from "./ArchetypeMaterial";
+import type { AutoMovieArchetypeDrawSession } from "./AutoMovieArchetypeDrawSession";
+import type { AutoMovieArchetypeFriction } from "./AutoMovieArchetypeFriction";
+import type { AutoMovieArchetypeMaterial } from "./AutoMovieArchetypeMaterial";
 
 /**
  * The builder's producer identity and primitive-part options.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Owns builder input records, dimension provenance, physical material declaration, optical colour, relative mass and part placement units.
  * @evidence contracts/development/design.md#principled-representation Typed records separate producer metadata from primitive part options, using existing SI vectors, quaternion and physical material owners. Material admission and positive density or complete mass-share validation remain runtime responsibilities.
- * @evidence contracts/development/design.md#minimal-and-owned-surface ArchetypeBuilder and its existing public aliases consume these records without duplicating their fields.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieArchetypeBuilder and its existing public aliases consume these records without duplicating their fields.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No producer-specific branch or additional coefficient representation is introduced; existing density/share looseness remains documented on IOptions.
  */
 export namespace ArchetypeBuilderTypes {
@@ -29,10 +29,10 @@ export namespace ArchetypeBuilderTypes {
     name: string;
 
     /** The producer's draws, whose values the archetype records as its dimensions and whose provenance it keeps. */
-    draw: ArchetypeDrawSession<Dimension>;
+    draw: AutoMovieArchetypeDrawSession<Dimension>;
 
     /** Physical reference material, separate from optical colours. Every producer declares it; build also refuses missing or unknown names received from an untyped caller rather than inferring them. */
-    material: ArchetypeMaterial.Kind;
+    material: AutoMovieArchetypeMaterial.Kind;
   }
 
   /**
@@ -59,7 +59,7 @@ export namespace ArchetypeBuilderTypes {
     /** The part's rotation in the model's space, a unit quaternion; unrotated when absent. */
     rotation?: IAutoMovieQuaternion;
 
-    /** What the part's surface is made of, for a part something touches: a tyre, a grip, a seat, a sole; undeclared when absent. `Archetype.friction` reads it against another material. */
-    surface?: ArchetypeFriction.Material;
+    /** What the part's surface is made of, for a part something touches: a tyre, a grip, a seat, a sole; undeclared when absent. `AutoMovieArchetype.friction` reads it against another material. */
+    surface?: AutoMovieArchetypeFriction.Material;
   }
 }

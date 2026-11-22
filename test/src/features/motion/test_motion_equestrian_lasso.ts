@@ -1,5 +1,5 @@
 import {
-  EquineStance,
+  AutoMovieArchetypeEquineStance,
   createHorse,
   createLariat,
   createOx,
@@ -214,7 +214,7 @@ export function test_motion_equestrian_lasso(): void {
     },
     "walk",
   );
-  const set = EquineStance.after(horse, halt, [
+  const set = AutoMovieArchetypeEquineStance.after(horse, halt, [
     {
       kind: "setBack",
       pitch: 12,

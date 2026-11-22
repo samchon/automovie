@@ -1,6 +1,6 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { CatBody } from "./CatBody";
-import type { QuadrupedBody } from "./QuadrupedBody";
 import { createCohortQuadruped } from "./createCohortQuadruped";
 
 /**
@@ -13,7 +13,7 @@ import { createCohortQuadruped } from "./createCohortQuadruped";
  * @param params Optional model identity, bare mass in kilograms and timing coordinate.
  * @param seed Draws timing when it was omitted. The shape is fixed.
  * @returns The independent untacked quadruped model.
- * @throws {ArchetypeRefusal} For unsupported mass or timing values.
+ * @throws {AutoMovieArchetypeRefusal} For unsupported mass or timing values.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the fixed shape, seeded time coordinate, explicitly bare mass and shared ground contact ownership.
  * @evidence contracts/development/implementation.md#principled-implementation One complete reference uses the existing non-equid producer and name-based species admission in rideQuadruped.
@@ -26,7 +26,10 @@ import { createCohortQuadruped } from "./createCohortQuadruped";
 export function createCat(
   params: createCat.IParams = {},
   seed?: number | string,
-): Archetype<createCohortQuadruped.Affordance, QuadrupedBody.Dimension> {
+): AutoMovieArchetype<
+  createCohortQuadruped.Affordance,
+  AutoMovieArchetypeQuadrupedBody.Dimension
+> {
   return createCohortQuadruped({
     archetype: "cat",
     name: (): string => "adult domestic cat prototype",

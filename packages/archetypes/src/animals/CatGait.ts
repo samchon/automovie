@@ -1,6 +1,6 @@
+import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
+import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { CatBody } from "./CatBody";
-import { HorseGait } from "./HorseGait";
-import type { QuadrupedGait } from "./QuadrupedGait";
 
 /**
  * The representative overground level walk of an adult domestic cat.
@@ -36,11 +36,11 @@ export namespace CatGait {
   /**
    * Level walking at the measured mean speed in metres per second, with separate diagonal touchdown phases and fore and hind support fractions.
    */
-  export const TABLE: QuadrupedGait.ITable = {
+  export const TABLE: AutoMovieArchetypeQuadrupedGait.ITable = {
     order: ["walk"],
     gaits: {
       walk: {
-        ...HorseGait.TABLE.gaits.walk!,
+        ...AutoMovieArchetypeEquineGait.TABLE.gaits.walk!,
         nod: { range: 0, timing: "support" },
         phases: {
           leftFore: 0,
@@ -62,6 +62,6 @@ export namespace CatGait {
     reference: CatBody.REFERENCE.withers,
     scaling: "absolute",
     hysteresis: 0,
-    follow: HorseGait.FOLLOW,
+    follow: AutoMovieArchetypeEquineGait.FOLLOW,
   };
 }

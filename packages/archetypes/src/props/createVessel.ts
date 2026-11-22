@@ -1,10 +1,10 @@
 import {
-  Archetype,
-  ArchetypeBand,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { createAshtray } from "./createAshtray";
 import { createBowl } from "./createBowl";
@@ -30,7 +30,7 @@ const UNREAD: string = "the IKEA pages read give no weight of the pan alone";
 type Producer = (
   params: createVessel.IParams,
   seed?: number | string,
-) => Archetype<createVessel.Affordance, createVessel.Dimension>;
+) => AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension>;
 
 /**
  * Replay a saved vessel variant with the original dimensions, identifier and model choices.
@@ -38,7 +38,7 @@ type Producer = (
  * @param params The historic selector and optional fixed settings in the original units.
  * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
  * @returns The original generated model and its local contacts.
- * @throws {ArchetypeRefusal} If the selector or any author setting is outside its admitted range.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Replay a saved vessel variant with the original dimensions, identifier and model choices.
  * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the vessel draw namespace.
@@ -51,7 +51,7 @@ type Producer = (
 export function createVessel(
   params: createVessel.IParams,
   seed?: number | string,
-): Archetype<createVessel.Affordance, createVessel.Dimension> {
+): AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension> {
   const kind: createVessel.Kind = ArchetypeDraw.choice(
     "vessel",
     "kind",
@@ -167,7 +167,9 @@ export namespace createVessel {
   export type Dimension = "diameter" | "height" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     diameter: "m",
     height: "m",
     mass: "kg",
@@ -217,32 +219,32 @@ export namespace createVessel {
 
   /** The band of each free dimension, by kind; a bowl's and an ashtray's are its model's. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     bowl: {},
     ashtray: {},
     saucepan: {
-      diameter: ArchetypeBand.metres(0.17, 0.17, SAUCEPAN),
-      height: ArchetypeBand.metres(0.1, 0.1, SAUCEPAN),
-      mass: ArchetypeBand.of("kg", 0.8, 1.4, UNREAD, true),
+      diameter: AutoMovieArchetypeBand.metres(0.17, 0.17, SAUCEPAN),
+      height: AutoMovieArchetypeBand.metres(0.1, 0.1, SAUCEPAN),
+      mass: AutoMovieArchetypeBand.of("kg", 0.8, 1.4, UNREAD, true),
     },
     stockpot: {
-      diameter: ArchetypeBand.metres(
-        9 * ArchetypeUnits.INCH,
-        9 * ArchetypeUnits.INCH,
+      diameter: AutoMovieArchetypeBand.metres(
+        9 * AutoMovieArchetypeUnits.INCH,
+        9 * AutoMovieArchetypeUnits.INCH,
         POT,
       ),
-      height: ArchetypeBand.metres(
-        6 * ArchetypeUnits.INCH,
-        6 * ArchetypeUnits.INCH,
+      height: AutoMovieArchetypeBand.metres(
+        6 * AutoMovieArchetypeUnits.INCH,
+        6 * AutoMovieArchetypeUnits.INCH,
         POT,
       ),
-      mass: ArchetypeBand.of("kg", 1.8, 3, UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 1.8, 3, UNREAD, true),
     },
     vase: {
-      diameter: ArchetypeBand.metres(0.115, 0.16, VASE, true),
-      height: ArchetypeBand.metres(0.3, 0.3, VASE),
-      mass: ArchetypeBand.of(
+      diameter: AutoMovieArchetypeBand.metres(0.115, 0.16, VASE, true),
+      height: AutoMovieArchetypeBand.metres(0.3, 0.3, VASE),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         1.35,
         1.35,

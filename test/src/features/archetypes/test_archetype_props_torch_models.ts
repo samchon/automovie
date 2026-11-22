@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
   createTorch,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
@@ -65,9 +65,10 @@ export function test_archetype_props_torch_models(): void {
       findings.push(`${model}: not its read figures`);
     if (
       Math.abs(lens.frame.translation.y - head.high) > 1e-9 ||
-      Math.abs(ArchetypeFrame.axis(lens.frame, "y").y - 1) > 1e-12 ||
+      Math.abs(AutoMovieArchetypeFrame.axis(lens.frame, "y").y - 1) > 1e-12 ||
       grip.frame.translation.y > head.low ||
-      Math.abs(Math.abs(ArchetypeFrame.axis(grip.frame, "x").y) - 1) > 1e-12
+      Math.abs(Math.abs(AutoMovieArchetypeFrame.axis(grip.frame, "x").y) - 1) >
+        1e-12
     )
       findings.push(`${model}: the beam or the grip is off`);
   }
@@ -77,7 +78,9 @@ export function test_archetype_props_torch_models(): void {
   } catch (error) {
     refused = error;
   }
-  if (!(refused instanceof ArchetypeRefusal && refused.axis === "length"))
+  if (
+    !(refused instanceof AutoMovieArchetypeRefusal && refused.axis === "length")
+  )
     findings.push("a fixed length, a model's own figure, is not refused");
   TestValidator.equals("a flashlight is one of its models", findings, []);
 }

@@ -1,10 +1,10 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { ArchetypeCourse } from "../core";
+import type { AutoMovieArchetypeCourse } from "../core";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
+import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { EquineFlightClock } from "./EquineFlightClock";
-import type { QuadrupedBody } from "./QuadrupedBody";
-import type { QuadrupedFooting } from "./QuadrupedFooting";
-import type { QuadrupedGait } from "./QuadrupedGait";
 import { QuadrupedHoofTrack } from "./QuadrupedHoofTrack";
 import type { QuadrupedPoleSwing } from "./QuadrupedPoleSwing";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
@@ -33,10 +33,10 @@ export namespace QuadrupedSwingGoal {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the two ends the gait's lift and fold key on.
    * @evidence contracts/development/design.md#principled-representation The keys of the gait's lift record, so the two never drift apart.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `QuadrupedGait`; named here for the swing goal.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `AutoMovieArchetypeQuadrupedGait`; named here for the swing goal.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No restated literals.
    */
-  export type End = keyof QuadrupedGait.IGait["lift"];
+  export type End = keyof AutoMovieArchetypeQuadrupedGait.IGait["lift"];
 
   /**
    * One limb's state at a sample.
@@ -48,11 +48,11 @@ export namespace QuadrupedSwingGoal {
    */
   export interface IInput {
     /** The limb. */
-    limb: QuadrupedBody.Limb;
+    limb: AutoMovieArchetypeQuadrupedBody.Limb;
     /** The landing index of the stance it is in or has just left. */
     index: number;
     /** The gait of that stance's stride. */
-    gait: QuadrupedGait.IGait;
+    gait: AutoMovieArchetypeQuadrupedGait.IGait;
     /** The animal's height at the withers, metres. */
     withers: number;
     /** The limb's five actual neutral joints, model metres. */
@@ -64,7 +64,7 @@ export namespace QuadrupedSwingGoal {
     /** Whether footholds are anchored in the world. */
     worldAnchors: boolean;
     /** The authored footing, absent on level ground. */
-    ground: QuadrupedFooting.IPlan | undefined;
+    ground: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined;
     /** Whether this is a jump's trial assembly, which reads no footing for its footholds. */
     trial: boolean;
     /**
@@ -92,9 +92,9 @@ export namespace QuadrupedSwingGoal {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback the caller supplies; its implementation is the caller's.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback the caller supplies; its implementation is the caller's.
      */
-    shown: (seconds: number) => ArchetypeCourse.IState;
+    shown: (seconds: number) => AutoMovieArchetypeCourse.IState;
     /** The current course state with the body's displayed placement. */
-    current: ArchetypeCourse.IState;
+    current: AutoMovieArchetypeCourse.IState;
     /** The swing's liftoff second. */
     off: number;
     /** The swing's landing second. */
@@ -128,7 +128,7 @@ export namespace QuadrupedSwingGoal {
         ? gait.lift[end] * input.withers
         : QuadrupedHoofTrack.elevation(rest, gait.elevation, fore);
     const aim = (
-      moment: ArchetypeCourse.IState,
+      moment: AutoMovieArchetypeCourse.IState,
       amount: number,
     ): EquineFlightClock.IAim =>
       QuadrupedHoofTrack.target(

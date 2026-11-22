@@ -1,4 +1,4 @@
-import { ArchetypeRefusal, createArmour } from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, createArmour } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type {
   IAutoMovieBodyMeasure,
@@ -253,7 +253,7 @@ export function test_archetype_armour_bands(): void {
     try {
       build();
     } catch (thrown) {
-      return thrown instanceof ArchetypeRefusal
+      return thrown instanceof AutoMovieArchetypeRefusal
         ? thrown.axis
         : "a non-refusal error";
     }

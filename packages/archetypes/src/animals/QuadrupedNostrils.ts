@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { ArchetypeBuilder } from "../core";
-import type { QuadrupedBody } from "./QuadrupedBody";
+import type { AutoMovieArchetypeBuilder } from "../core";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
  * Two coarse nostrils laid inside the actual head capsule's nose cap, one to each side, so breathing can flare them.
@@ -67,7 +67,10 @@ export namespace QuadrupedNostrils {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh points and retains nothing.
    */
   export function geometry(
-    head: Pick<QuadrupedBody.IRig, "poll" | "nose" | "headRadius">,
+    head: Pick<
+      AutoMovieArchetypeQuadrupedBody.IRig,
+      "poll" | "nose" | "headRadius"
+    >,
     profile: IProfile,
   ): IGeometry {
     if (
@@ -119,8 +122,11 @@ export namespace QuadrupedNostrils {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The builder owns the parts.
    */
   export function lay<Id extends string, Dimension extends string>(
-    builder: ArchetypeBuilder<Id, Dimension>,
-    head: Pick<QuadrupedBody.IRig, "poll" | "nose" | "headRadius">,
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>,
+    head: Pick<
+      AutoMovieArchetypeQuadrupedBody.IRig,
+      "poll" | "nose" | "headRadius"
+    >,
     profile: IProfile,
     color: string,
   ): void {

@@ -1,6 +1,6 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
   createAshtray,
   createBowl,
   createCandle,
@@ -73,7 +73,10 @@ const UNPLACED: IAutoMovieRigidTransform = {
  */
 export function test_archetype_catalogue_home_supports_practicals(): void {
   for (const seed of [undefined, 0, "furnished-set"]) {
-    const pairs: readonly (readonly [Archetype, Archetype])[] = [
+    const pairs: readonly (readonly [
+      AutoMovieArchetype,
+      AutoMovieArchetype,
+    ])[] = [
       [createVessel({ kind: "bowl" }, seed), createBowl({}, seed)],
       [createVessel({ kind: "ashtray" }, seed), createAshtray({}, seed)],
       [
@@ -332,7 +335,11 @@ export function test_archetype_catalogue_home_supports_practicals(): void {
       TOLERANCE,
     ) &&
       vclose(down, { x: 0, y: -1, z: 0 }, TOLERANCE) &&
-      vclose(ArchetypeFrame.axis(emitter.frame, "y"), down, TOLERANCE) &&
+      vclose(
+        AutoMovieArchetypeFrame.axis(emitter.frame, "y"),
+        down,
+        TOLERANCE,
+      ) &&
       nclose(at(0).intensity, 0, TOLERANCE) &&
       nclose(beam.intensity, 7, TOLERANCE) &&
       nclose(at(0.8).intensity, 0, TOLERANCE),

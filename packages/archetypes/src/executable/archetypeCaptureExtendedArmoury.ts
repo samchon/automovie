@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeAssembly,
-  ArchetypeFrame,
-  ArchetypeTrack,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeAssembly,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeTrack,
 } from "../core";
 import {
   createArmour,
@@ -38,16 +38,19 @@ import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 export function archetypeCaptureExtendedArmoury(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
 > {
-  const engines: Record<string, Archetype> = archetypeCaptureSubject.kinds(
-    "siege",
-    createSiegeEngine.KINDS,
-    (kind: createSiegeEngine.Kind): Archetype => createSiegeEngine({ kind }),
-  );
-  const armour: Record<string, Archetype> = archetypeCaptureSubject.kinds(
-    "armour",
-    createArmour.KINDS,
-    (kind: createArmour.Kind): Archetype => createArmour({ kind }),
-  );
+  const engines: Record<string, AutoMovieArchetype> =
+    archetypeCaptureSubject.kinds(
+      "siege",
+      createSiegeEngine.KINDS,
+      (kind: createSiegeEngine.Kind): AutoMovieArchetype =>
+        createSiegeEngine({ kind }),
+    );
+  const armour: Record<string, AutoMovieArchetype> =
+    archetypeCaptureSubject.kinds(
+      "armour",
+      createArmour.KINDS,
+      (kind: createArmour.Kind): AutoMovieArchetype => createArmour({ kind }),
+    );
   const subjects: Record<string, archetypeCaptureCatalog.ISubject> = {
     "siege-engines": archetypeCaptureSubject.still(engines),
     "armour-pieces": archetypeCaptureSubject.still(armour),
@@ -60,8 +63,8 @@ export function archetypeCaptureExtendedArmoury(): Readonly<
       engine,
       0.5,
     );
-    const pin: ArchetypeTrack.ITrack<createSiegeEngine.Affordance> =
-      ArchetypeTrack.ease(engine, "pin", {
+    const pin: AutoMovieArchetypeTrack.ITrack<createSiegeEngine.Affordance> =
+      AutoMovieArchetypeTrack.ease(engine, "pin", {
         start: 0,
         seconds: thrown.track.start,
         from: 0,
@@ -77,7 +80,7 @@ export function archetypeCaptureExtendedArmoury(): Readonly<
       members: [
         {
           name: `${kind}-arm`,
-          at: (seconds: number): { archetype: Archetype } => ({
+          at: (seconds: number): { archetype: AutoMovieArchetype } => ({
             archetype: engine.articulate({
               arm: thrown.track.travel(seconds),
               pin: pin.travel(seconds),
@@ -115,23 +118,27 @@ export function archetypeCaptureExtendedArmoury(): Readonly<
     members: [
       {
         name: "field-gun-and-shot",
-        at: (seconds: number): { archetype: Archetype } => {
+        at: (seconds: number): { archetype: AutoMovieArchetype } => {
           const state: IAutoMovieProjectileState = projectileAt(
             flight,
             Math.max(0, seconds - fire),
           );
           return {
-            archetype: ArchetypeAssembly.of(
+            archetype: AutoMovieArchetypeAssembly.of(
               "capture-cannon-launch",
               "Actual 6-pdr muzzle launch",
               {
                 cannon: {
                   archetype: gun,
-                  placement: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+                  placement: AutoMovieArchetypeFrame.upright({
+                    x: 0,
+                    y: 0,
+                    z: 0,
+                  }),
                 },
                 shot: {
                   archetype: shot,
-                  placement: ArchetypeFrame.upright(
+                  placement: AutoMovieArchetypeFrame.upright(
                     Vector3.subtract(
                       state.position,
                       shot.affordance("body").frame.translation,

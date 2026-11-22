@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 const RULES: string =
@@ -32,9 +32,12 @@ const RULES: string =
 export function createWaterPoloBall(
   params: createWaterPoloBall.IParams = {},
   seed?: number | string,
-): Archetype<createWaterPoloBall.Affordance, createWaterPoloBall.Dimension> {
-  const draw: ArchetypeDrawSession<createWaterPoloBall.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createWaterPoloBall.Affordance,
+  createWaterPoloBall.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createWaterPoloBall.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "waterPoloBall",
       createWaterPoloBall.UNITS,
       seed,
@@ -43,10 +46,10 @@ export function createWaterPoloBall(
   const d: Record<createWaterPoloBall.Dimension, number> = draw.dimensions(
     createWaterPoloBall.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createWaterPoloBall.Affordance,
     createWaterPoloBall.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "water polo ball",
     material: "rubber",
@@ -59,7 +62,7 @@ export function createWaterPoloBall(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.upright(center),
+    frame: AutoMovieArchetypeFrame.upright(center),
     extent: null,
     grip: "power",
     aperture: 2 * radius,
@@ -67,7 +70,7 @@ export function createWaterPoloBall(
   builder.affordance({
     id: "top",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, radius, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, radius, 0)),
     extent: null,
   });
   return builder.build(d.mass);
@@ -92,13 +95,15 @@ export namespace createWaterPoloBall {
     id?: string;
   }
   /** Units of the cited regulation dimensions. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     circumference: "m",
     mass: "kg",
   };
   /** Regulation circumference for the senior men's game and regulation mass. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    circumference: ArchetypeBand.metres(0.68, 0.71, RULES),
-    mass: ArchetypeBand.of("kg", 0.4, 0.45, RULES),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    circumference: AutoMovieArchetypeBand.metres(0.68, 0.71, RULES),
+    mass: AutoMovieArchetypeBand.of("kg", 0.4, 0.45, RULES),
   };
 }

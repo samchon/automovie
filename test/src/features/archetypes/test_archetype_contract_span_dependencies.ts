@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeRefusal,
-  ArchetypeSpan,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeSpan,
 } from "@automovie/archetypes";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -29,27 +29,32 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership A bounded synchronous in-memory unit owns its graph, poses and malformed copies; no process, compiler, renderer, foreign-method replacement or timed experiment is used.
  */
 export function test_archetype_contract_span_dependencies(): void {
-  const source: Archetype<never, never> = new ArchetypeBuilder<never, never>({
-    name: "line graph",
-    material: "steel",
-    draw: new ArchetypeDrawSession<never>("line-graph", {}, undefined),
-  })
-    .box("a", { x: 0.1, y: 0.1, z: 0.1 }, { x: 0, y: 0, z: 0 })
-    .box("b", { x: 0.1, y: 0.1, z: 0.1 }, { x: 2, y: 0, z: 0 })
-    .box("c", { x: 0.1, y: 0.1, z: 0.1 }, { x: 1, y: 1, z: 0 })
-    .span(
-      "first",
-      { part: "a", at: { x: 0, y: 0, z: 0 } },
-      { part: "b", at: { x: 0, y: 0, z: 0 } },
-      0.01,
-    )
-    .span(
-      "second",
-      { part: "first", at: { x: 0, y: 0.25, z: 0 } },
-      { part: "c", at: { x: 0, y: 0, z: 0 } },
-      0.005,
-    )
-    .build(2);
+  const source: AutoMovieArchetype<never, never> =
+    new AutoMovieArchetypeBuilder<never, never>({
+      name: "line graph",
+      material: "steel",
+      draw: new AutoMovieArchetypeDrawSession<never>(
+        "line-graph",
+        {},
+        undefined,
+      ),
+    })
+      .box("a", { x: 0.1, y: 0.1, z: 0.1 }, { x: 0, y: 0, z: 0 })
+      .box("b", { x: 0.1, y: 0.1, z: 0.1 }, { x: 2, y: 0, z: 0 })
+      .box("c", { x: 0.1, y: 0.1, z: 0.1 }, { x: 1, y: 1, z: 0 })
+      .span(
+        "first",
+        { part: "a", at: { x: 0, y: 0, z: 0 } },
+        { part: "b", at: { x: 0, y: 0, z: 0 } },
+        0.01,
+      )
+      .span(
+        "second",
+        { part: "first", at: { x: 0, y: 0.25, z: 0 } },
+        { part: "c", at: { x: 0, y: 0, z: 0 } },
+        0.005,
+      )
+      .build(2);
   const before: string = JSON.stringify({ model: source, spans: source.spans });
   const parts: IAutoMovieModelPart[] = source.parts.map(
     (part: IAutoMovieModelPart): IAutoMovieModelPart => {
@@ -67,8 +72,13 @@ export function test_archetype_contract_span_dependencies(): void {
   );
   const input: string = JSON.stringify(parts);
   const outputs: readonly IAutoMovieModelPart[][] = [
-    ArchetypeSpan.lay("line-graph", source.spans, parts, []),
-    ArchetypeSpan.lay("line-graph", [...source.spans].reverse(), parts, []),
+    AutoMovieArchetypeSpan.lay("line-graph", source.spans, parts, []),
+    AutoMovieArchetypeSpan.lay(
+      "line-graph",
+      [...source.spans].reverse(),
+      parts,
+      [],
+    ),
     source.reposed(parts).parts,
   ];
   const findings: string[] = [];
@@ -93,14 +103,14 @@ export function test_archetype_contract_span_dependencies(): void {
     )
       findings.push("a dependent line used a stale frame or declaration order");
   }
-  const cyclic: ArchetypeSpan.ISpan[] = source.spans.map(
-    (span: ArchetypeSpan.ISpan): ArchetypeSpan.ISpan =>
+  const cyclic: AutoMovieArchetypeSpan.ISpan[] = source.spans.map(
+    (span: AutoMovieArchetypeSpan.ISpan): AutoMovieArchetypeSpan.ISpan =>
       span.id === "first"
         ? { ...span, from: { part: "second", at: { x: 0, y: 0, z: 0 } } }
         : span,
   );
-  const self: ArchetypeSpan.ISpan[] = source.spans.map(
-    (span: ArchetypeSpan.ISpan): ArchetypeSpan.ISpan =>
+  const self: AutoMovieArchetypeSpan.ISpan[] = source.spans.map(
+    (span: AutoMovieArchetypeSpan.ISpan): AutoMovieArchetypeSpan.ISpan =>
       span.id === "first"
         ? { ...span, from: { part: "first", at: { x: 0, y: 0, z: 0 } } }
         : span,
@@ -118,17 +128,17 @@ export function test_archetype_contract_span_dependencies(): void {
         : part,
   );
   for (const operation of [
-    (): unknown => ArchetypeSpan.lay("line-graph", cyclic, parts, []),
-    (): unknown => ArchetypeSpan.lay("line-graph", self, parts, []),
+    (): unknown => AutoMovieArchetypeSpan.lay("line-graph", cyclic, parts, []),
+    (): unknown => AutoMovieArchetypeSpan.lay("line-graph", self, parts, []),
     (): unknown =>
-      ArchetypeSpan.lay(
+      AutoMovieArchetypeSpan.lay(
         "line-graph",
         [source.spans[0]!, source.spans[0]!],
         parts,
         [],
       ),
     (): unknown =>
-      ArchetypeSpan.lay(
+      AutoMovieArchetypeSpan.lay(
         "line-graph",
         source.spans,
         parts.filter(
@@ -136,12 +146,15 @@ export function test_archetype_contract_span_dependencies(): void {
         ),
         [],
       ),
-    (): unknown => ArchetypeSpan.lay("line-graph", source.spans, wrong, []),
     (): unknown =>
-      ArchetypeSpan.lay(
+      AutoMovieArchetypeSpan.lay("line-graph", source.spans, wrong, []),
+    (): unknown =>
+      AutoMovieArchetypeSpan.lay(
         "line-graph",
         source.spans.map(
-          (span: ArchetypeSpan.ISpan): ArchetypeSpan.ISpan => ({
+          (
+            span: AutoMovieArchetypeSpan.ISpan,
+          ): AutoMovieArchetypeSpan.ISpan => ({
             ...span,
             radius: NaN,
           }),
@@ -154,7 +167,7 @@ export function test_archetype_contract_span_dependencies(): void {
       operation();
       findings.push("an invalid span dependency was accepted");
     } catch (error) {
-      if (!(error instanceof ArchetypeRefusal))
+      if (!(error instanceof AutoMovieArchetypeRefusal))
         findings.push(`untyped span refusal: ${String(error)}`);
     }
   }

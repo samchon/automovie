@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeMass,
-  ArchetypeUnits,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeMass,
+  AutoMovieArchetypeUnits,
   createClub,
 } from "@automovie/archetypes";
 import type { IAutoMoviePrimitiveShape } from "@automovie/interface";
@@ -12,11 +12,11 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose, vclose } from "../internal/predicates";
 
 /** An empty builder for a made-up solid. */
-function builder(): ArchetypeBuilder<never, never> {
-  return new ArchetypeBuilder<never, never>({
+function builder(): AutoMovieArchetypeBuilder<never, never> {
+  return new AutoMovieArchetypeBuilder<never, never>({
     material: "steel",
     name: "solid",
-    draw: new ArchetypeDrawSession<never>("solid", {}, undefined),
+    draw: new AutoMovieArchetypeDrawSession<never>("solid", {}, undefined),
   });
 }
 
@@ -38,7 +38,7 @@ function builder(): ArchetypeBuilder<never, never> {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
  */
 export function test_archetype_contract_mass(): void {
-  const box: ArchetypeMass.IProperties = builder()
+  const box: AutoMovieArchetypeMass.IProperties = builder()
     .box("box", { x: 0.2, y: 0.4, z: 0.6 }, { x: 1, y: 2, z: 3 })
     .build(12).properties;
   TestValidator.predicate(
@@ -50,7 +50,7 @@ export function test_archetype_contract_mass(): void {
       nclose(box.inertia.xy, 0, 1e-12),
   );
 
-  const pair: ArchetypeMass.IProperties = builder()
+  const pair: AutoMovieArchetypeMass.IProperties = builder()
     .ball("a", 0.1, { x: -0.5, y: 0, z: 0 })
     .ball("b", 0.1, { x: 0.5, y: 0, z: 0 })
     .build(4).properties;
@@ -61,7 +61,7 @@ export function test_archetype_contract_mass(): void {
       nclose(pair.inertia.xx, 2 * (0.4 * 2 * 0.01), 1e-9),
   );
 
-  const rod: Archetype<never, never> = builder()
+  const rod: AutoMovieArchetype<never, never> = builder()
     .rod("rod", 0.005, { x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 })
     .build(3);
   TestValidator.predicate(
@@ -73,7 +73,7 @@ export function test_archetype_contract_mass(): void {
     ),
   );
 
-  const uneven: ArchetypeMass.IProperties = builder()
+  const uneven: AutoMovieArchetypeMass.IProperties = builder()
     .box("light", { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 })
     .box("dense", { x: 1, y: 1, z: 1 }, { x: 1, y: 0, z: 0 }, { density: 3 })
     .build(8).properties;
@@ -84,7 +84,9 @@ export function test_archetype_contract_mass(): void {
 
   // An ounce inch squared in kilogram metres squared.
   const OZ_IN2: number =
-    ArchetypeUnits.OUNCE * ArchetypeUnits.INCH * ArchetypeUnits.INCH;
+    AutoMovieArchetypeUnits.OUNCE *
+    AutoMovieArchetypeUnits.INCH *
+    AutoMovieArchetypeUnits.INCH;
   for (const [model, measured] of [
     ["s154", 13354],
     ["s155", 13302],
@@ -92,7 +94,7 @@ export function test_archetype_contract_mass(): void {
     ["t156", 13527],
   ] as const) {
     const swing: number = createClub({ kind: "bat", model }).moment(
-      { x: 0, y: 6 * ArchetypeUnits.INCH, z: 0 },
+      { x: 0, y: 6 * AutoMovieArchetypeUnits.INCH, z: 0 },
       { x: 1, y: 0, z: 0 },
     );
     TestValidator.predicate(

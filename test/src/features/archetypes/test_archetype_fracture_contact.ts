@@ -1,5 +1,5 @@
 import {
-  type ArchetypeFracture,
+  type AutoMovieArchetypeFracture,
   createDoor,
   createDrinkware,
 } from "@automovie/archetypes";
@@ -92,7 +92,7 @@ export function test_archetype_fracture_contact(): void {
   // 5. The pieces.
   const inspect = <I extends string, D extends string>(
     label: string,
-    broken: ArchetypeFracture.IPieces<I, D> | null,
+    broken: AutoMovieArchetypeFracture.IPieces<I, D> | null,
   ): void => {
     if (broken === null) {
       findings.push(`${label} does not break`);
@@ -111,7 +111,7 @@ export function test_archetype_fracture_contact(): void {
           ]),
       ...broken.fragments.map(
         (
-          f: ArchetypeFracture.IPiece<D, I>,
+          f: AutoMovieArchetypeFracture.IPiece<D, I>,
         ): { id: string; model: IAutoMovieModel; again: boolean } => ({
           id: f.id,
           model: f.archetype,

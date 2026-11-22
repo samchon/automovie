@@ -2,13 +2,13 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -19,7 +19,7 @@ import {
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The lariat.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it lies, what is rigid and its four contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The loop as `SEGMENTS` rods round a circle, the hondo a short rod, the spoke one rod and the tail `TURNS` circles of `SEGMENTS` rods; the rope's diameter the drawn one; the coils hold what of the length the loop and spoke do not.
@@ -32,9 +32,9 @@ import {
 export function createLariat(
   params: createLariat.IParams = {},
   seed?: number | string,
-): Archetype<createLariat.Affordance, createLariat.Dimension> {
-  const draw: ArchetypeDrawSession<createLariat.Dimension> =
-    new ArchetypeDrawSession<createLariat.Dimension>(
+): AutoMovieArchetype<createLariat.Affordance, createLariat.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createLariat.Dimension> =
+    new AutoMovieArchetypeDrawSession<createLariat.Dimension>(
       "lariat",
       createLariat.UNITS,
       seed,
@@ -43,10 +43,10 @@ export function createLariat(
   const d: Record<createLariat.Dimension, number> = draw.dimensions(
     createLariat.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createLariat.Affordance,
     createLariat.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "fabric",
     id: params.id,
     name: "lariat",
@@ -111,7 +111,11 @@ export function createLariat(
     id: "spoke",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, r, hand), v(0, 1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, r, hand),
+      v(0, 1, 0),
+      v(0, 0, 1),
+    ),
     extent: null,
     grip: "power",
     aperture: 2 * d.diameter,
@@ -121,7 +125,7 @@ export function createLariat(
     id: "coils",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, r, coilCentre.z - createLariat.COIL),
       v(0, 1, 0),
       v(1, 0, 0),
@@ -135,14 +139,18 @@ export function createLariat(
     id: "hondo",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(v(0, r, loop), v(0, 0, 1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, r, loop),
+      v(0, 0, 1),
+      v(0, 1, 0),
+    ),
     extent: null,
   });
   builder.affordance({
     id: "loop",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.upright(v(0, r, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, r, 0)),
     extent: null,
     width: d.loop,
   });
@@ -189,7 +197,9 @@ export namespace createLariat {
   export type Dimension = "length" | "diameter" | "loop" | "spoke" | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     diameter: "m",
     loop: "m",
@@ -207,22 +217,22 @@ export namespace createLariat {
   const UNREAD: string = "no source read gives it; provisional";
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(
-      30 * ArchetypeUnits.FOOT,
-      35 * ArchetypeUnits.FOOT,
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(
+      30 * AutoMovieArchetypeUnits.FOOT,
+      35 * AutoMovieArchetypeUnits.FOOT,
       `ranch ropes are commonly sold 30 to 35 ft; ${UNREAD}`,
       true,
     ),
-    diameter: ArchetypeBand.metres(
-      (5 / 16) * ArchetypeUnits.INCH,
-      (3 / 8) * ArchetypeUnits.INCH,
+    diameter: AutoMovieArchetypeBand.metres(
+      (5 / 16) * AutoMovieArchetypeUnits.INCH,
+      (3 / 8) * AutoMovieArchetypeUnits.INCH,
       `ranch ropes 5/16 to 3/8 in; ${UNREAD}`,
       true,
     ),
-    loop: ArchetypeBand.metres(1.2, 2.2, UNREAD, true),
-    spoke: ArchetypeBand.metres(0.9, 1.5, UNREAD, true),
-    mass: ArchetypeBand.of("kg", 0.6, 1.2, UNREAD, true),
+    loop: AutoMovieArchetypeBand.metres(1.2, 2.2, UNREAD, true),
+    spoke: AutoMovieArchetypeBand.metres(0.9, 1.5, UNREAD, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.6, 1.2, UNREAD, true),
   };
 
   /**

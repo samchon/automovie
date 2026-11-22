@@ -4,15 +4,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type ArchetypeCourse, ArchetypeRefusal } from "../core";
-import { EquineBank } from "./EquineBank";
+import {
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
+} from "../core";
+import { AutoMovieArchetypeEquineBank } from "./AutoMovieArchetypeEquineBank";
+import { AutoMovieArchetypeEquineScramble } from "./AutoMovieArchetypeEquineScramble";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
+import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { EquineEdge } from "./EquineEdge";
 import { EquineJump } from "./EquineJump";
 import { EquineLateral } from "./EquineLateral";
-import { EquineScramble } from "./EquineScramble";
-import type { QuadrupedBody } from "./QuadrupedBody";
-import type { QuadrupedFooting } from "./QuadrupedFooting";
-import type { QuadrupedGait } from "./QuadrupedGait";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 import type { rideQuadruped } from "./rideQuadruped";
 
@@ -38,8 +41,8 @@ export namespace EquineFootwork {
     | ISlideStop
     | EquineLateral.Technique
     | EquineJump.Technique
-    | EquineBank.ISlide
-    | EquineScramble.IScramble;
+    | AutoMovieArchetypeEquineBank.ISlide
+    | AutoMovieArchetypeEquineScramble.IScramble;
 
   /**
    * A named film-second cue a technique adds to the ride.
@@ -118,9 +121,9 @@ export namespace EquineFootwork {
     /** The admitted jump, when a leg names one. */
     readonly jump?: EquineJump.IRequest;
     /** Admitted slides down steep banks, in leg order. */
-    readonly bank: readonly EquineBank.IWindow[];
+    readonly bank: readonly AutoMovieArchetypeEquineBank.IWindow[];
     /** Admitted scrambles up steep banks, in leg order. */
-    readonly scramble: readonly EquineScramble.IWindow[];
+    readonly scramble: readonly AutoMovieArchetypeEquineScramble.IWindow[];
     /** The bank faces' edges, whose crossing pitches the trunk along its support. */
     readonly edges: readonly EquineEdge.IEdge[];
     /**
@@ -149,7 +152,7 @@ export namespace EquineFootwork {
    * @param reach The fore limb's length, attachment to hoof, metres, which bounds a scramble's climb per bound.
    * @param tail The rigid tail, which bounds a bank slide's sit.
    * @returns Independent registration for the gait selector, event reader, goal sampler, lateral headings and the jump request.
-   * @throws {ArchetypeRefusal} For an unsupported animal, travel context, inconsistent authored timing, an inadmissible lateral figure, jump or baulk, or a second jump.
+   * @throws {AutoMovieArchetypeRefusal} For an unsupported animal, travel context, inconsistent authored timing, an inadmissible lateral figure, jump or baulk, or a second jump.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Describes the source identity, route and typed refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Read actual route boundaries and ensure the diagonal backing is on a reversed level straight walk leg and a slide consumes only an independently authored terminal deceleration.
@@ -162,17 +165,21 @@ export namespace EquineFootwork {
   export function prepare(
     archetype: string,
     course: rideQuadruped.ICourse,
-    plan: ArchetypeCourse.IPlan,
-    gait: QuadrupedGait.Gait | undefined,
-    hooves: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
-    centred: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
+    plan: AutoMovieArchetypeCourse.IPlan,
+    gait: AutoMovieArchetypeQuadrupedGait.Gait | undefined,
+    hooves: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, IAutoMovieVector3>
+    >,
+    centred: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, IAutoMovieVector3>
+    >,
     reach: number,
-    tail: EquineBank.ITail,
+    tail: AutoMovieArchetypeEquineBank.ITail,
   ): IPlan {
     const backing: Set<number> = new Set();
     const lateral: EquineLateral.IWindow[] = [];
-    const bank: EquineBank.IWindow[] = [];
-    const scramble: EquineScramble.IWindow[] = [];
+    const bank: AutoMovieArchetypeEquineBank.IWindow[] = [];
+    const scramble: AutoMovieArchetypeEquineScramble.IWindow[] = [];
     const edges: EquineEdge.IEdge[] = [];
     const cues: IInstant[] = [];
     let jump: EquineJump.IRequest | undefined;
@@ -185,7 +192,7 @@ export namespace EquineFootwork {
         refuse(index, "Equine footwork requires an authored technique record");
       if (archetype !== "horse" && archetype !== "pony")
         refuse(index, "Equine footwork requires a horse or pony source");
-      const span: ArchetypeCourse.ILegSpan = plan.legSpans[index]!;
+      const span: AutoMovieArchetypeCourse.ILegSpan = plan.legSpans[index]!;
       const first: number = plan.when(span.from);
       const end: number = plan.when(span.from + span.span);
       if (
@@ -229,17 +236,18 @@ export namespace EquineFootwork {
         continue;
       }
       if (technique.kind === "bank-slide") {
-        const window: EquineBank.IWindow = EquineBank.admit(
-          archetype,
-          index,
-          leg,
-          technique,
-          course.legs.length,
-          plan,
-          course.footing,
-          hooves.leftHind.z,
-          tail,
-        );
+        const window: AutoMovieArchetypeEquineBank.IWindow =
+          AutoMovieArchetypeEquineBank.admit(
+            archetype,
+            index,
+            leg,
+            technique,
+            course.legs.length,
+            plan,
+            course.footing,
+            hooves.leftHind.z,
+            tail,
+          );
         bank.push(window);
         edges.push(...EquineEdge.of(course.legs, index, plan, hooves));
         cues.push(
@@ -251,16 +259,17 @@ export namespace EquineFootwork {
         continue;
       }
       if (technique.kind === "bank-scramble") {
-        const window: EquineScramble.IWindow = EquineScramble.admit(
-          archetype,
-          index,
-          leg,
-          technique,
-          course.legs.length,
-          plan,
-          course.footing,
-          reach,
-        );
+        const window: AutoMovieArchetypeEquineScramble.IWindow =
+          AutoMovieArchetypeEquineScramble.admit(
+            archetype,
+            index,
+            leg,
+            technique,
+            course.legs.length,
+            plan,
+            course.footing,
+            reach,
+          );
         scramble.push(window);
         edges.push(...EquineEdge.of(course.legs, index, plan, hooves));
         cues.push(
@@ -347,7 +356,7 @@ export namespace EquineFootwork {
 
     /** Report the authored leg that cannot supply the requested footwork. */
     function refuse(index: number, reason: string): never {
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
         axis: `legs[${index}].equineFootwork`,
@@ -373,7 +382,9 @@ export namespace EquineFootwork {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the actual quadruped limb vocabulary.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds no sample or external resource.
    */
-  export function reinBackPhase(limb: QuadrupedBody.Limb): number {
+  export function reinBackPhase(
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
+  ): number {
     return limb === "leftFore" || limb === "rightHind" ? 0 : 0.5;
   }
 
@@ -426,23 +437,23 @@ export namespace EquineFootwork {
   }
 
   /**
-   * The trunk's pitch a technique adds at a film second, degrees, positive nose-down: a bank slide sits the horse back on its haunches by `EquineBank.SIT`, and a bank face's edges pitch the trunk along its support as it crosses them (`EquineEdge`).
+   * The trunk's pitch a technique adds at a film second, degrees, positive nose-down: a bank slide sits the horse back on its haunches by `AutoMovieArchetypeEquineBank.SIT`, and a bank face's edges pitch the trunk along its support as it crosses them (`EquineEdge`).
    *
    * @param plan The admitted technique plan.
    * @param second The film second.
    * @returns The pitch, zero outside a slide.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, sign and source of the pitch.
-   * @evidence contracts/development/implementation.md#principled-implementation The sit's share of `EquineBank.SIT`, nose-up.
+   * @evidence contracts/development/implementation.md#principled-implementation The sit's share of `AutoMovieArchetypeEquineBank.SIT`, nose-up.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One product.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the few slides.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `EquineBank.share`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `AutoMovieArchetypeEquineBank.share`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
    */
   export function sit(plan: IPlan, second: number): number {
     return (
-      EquineBank.pitch(plan.bank, second) +
+      AutoMovieArchetypeEquineBank.pitch(plan.bank, second) +
       (plan.edges.length === 0
         ? 0
         : EquineEdge.pitch(plan.edges, plan.distance(second)))
@@ -467,7 +478,7 @@ export namespace EquineFootwork {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A chain of compositions.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work outside a technique's window.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `EquineScramble.goal`, `slideGoal` and `EquineBank.goal`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `AutoMovieArchetypeEquineScramble.goal`, `slideGoal` and `AutoMovieArchetypeEquineBank.goal`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one goal.
    */
   export function limbGoal(
@@ -478,21 +489,22 @@ export namespace EquineFootwork {
     attachment: IAutoMovieVector3,
     goal: QuadrupedRidePose.IGoal,
     placement: IAutoMovieTransform,
-    footing: QuadrupedFooting.IPlan | undefined,
+    footing: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined,
   ): QuadrupedRidePose.IGoal {
-    const bounding: QuadrupedRidePose.IGoal = EquineScramble.goal(
-      plan.scramble,
-      second,
-      fore,
-      neutral,
-      attachment,
-      goal,
-      placement,
-      footing,
-    );
+    const bounding: QuadrupedRidePose.IGoal =
+      AutoMovieArchetypeEquineScramble.goal(
+        plan.scramble,
+        second,
+        fore,
+        neutral,
+        attachment,
+        goal,
+        placement,
+        footing,
+      );
     return fore
-      ? EquineBank.step(plan.bank, second, bounding)
-      : EquineBank.goal(
+      ? AutoMovieArchetypeEquineBank.step(plan.bank, second, bounding)
+      : AutoMovieArchetypeEquineBank.goal(
           plan.bank,
           second,
           neutral,

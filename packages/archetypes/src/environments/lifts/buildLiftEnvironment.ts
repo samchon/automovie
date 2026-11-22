@@ -16,7 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import type { createElevator } from "../../architecture/createElevator";
-import { ArchetypeFrame } from "../../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import type { createLift } from "./createLift";
 import { liftLandingSpace } from "./liftLandingSpace";
 import { liftShaftParts } from "./liftShaftParts";
@@ -132,11 +132,11 @@ export function buildLiftEnvironment(
   const surfaces: IAutoMovieBuiltSurface[] = [];
   const anchors: Record<string, IAutoMovieTransform> = Object.create(null);
   const world = (x: number, y: number, z: number): IAutoMovieVector3 =>
-    ArchetypeFrame.point(context.frame, Vector3.create(x, y, z));
+    AutoMovieArchetypeFrame.point(context.frame, Vector3.create(x, y, z));
   const anchorFrame = (x: number, y: number, z: number): IAutoMovieTransform =>
-    ArchetypeFrame.compose(
+    AutoMovieArchetypeFrame.compose(
       context.frame,
-      ArchetypeFrame.upright(Vector3.create(x, y, z)),
+      AutoMovieArchetypeFrame.upright(Vector3.create(x, y, z)),
     );
   const leafOffset = (
     leaf: (typeof LEAVES)[number],
@@ -144,7 +144,7 @@ export function buildLiftEnvironment(
   ): IAutoMovieVector3 => {
     const slider: IAutoMovieAffordance = car.affordance(leaf);
     return Vector3.scale(
-      ArchetypeFrame.axis(slider.frame, "x"),
+      AutoMovieArchetypeFrame.axis(slider.frame, "x"),
       opened ? slider.travel! : 0,
     );
   };
@@ -176,7 +176,9 @@ export function buildLiftEnvironment(
       extent: null,
       width: shaftWidth,
       depth: landingDepth,
-      frame: ArchetypeFrame.upright(Vector3.create(0, 0, landingDepth / 2)),
+      frame: AutoMovieArchetypeFrame.upright(
+        Vector3.create(0, 0, landingDepth / 2),
+      ),
     };
     const landingModel: IAutoMovieModel = isolated(
       car,
@@ -260,7 +262,7 @@ export function buildLiftEnvironment(
     surfaces.push(support);
     anchors[id] = sill;
     anchors[`${id}/approach`] = anchorFrame(0, height, gap + landingDepth);
-    anchors[`${id}/call`] = ArchetypeFrame.compose(
+    anchors[`${id}/call`] = AutoMovieArchetypeFrame.compose(
       anchorFrame(0, height, callShift),
       car.affordance("call").frame,
     );
@@ -423,7 +425,7 @@ function element(
     parent,
     space,
     model,
-    transform: ArchetypeFrame.upright(position),
+    transform: AutoMovieArchetypeFrame.upright(position),
   };
 }
 

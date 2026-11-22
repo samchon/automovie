@@ -1,4 +1,4 @@
-import { ArchetypeRefusal, ArchetypeUnits } from "../core";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeUnits } from "../core";
 import { createBow } from "./createBow";
 
 /**
@@ -8,7 +8,7 @@ import { createBow } from "./createBow";
  * @param brace The finite positive braced-string distance behind the grip, metres.
  * @param travel Finite nonnegative full string travel, metres, admitting the fixed limb/string triangle.
  * @returns Rows of string travel, metres, and limb turn, degrees, from brace to full draw; a zero stroke has just the neutral row.
- * @throws {ArchetypeRefusal} For invalid or impossible geometry, unrepresentable intermediate geometry or insufficient binary64 travel resolution.
+ * @throws {AutoMovieArchetypeRefusal} For invalid or impossible geometry, unrepresentable intermediate geometry or insufficient binary64 travel resolution.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States positive geometry, nonnegative triangle-limited travel, the rows' units, zero stroke and explicit numerical refusals.
  * @evidence contracts/development/implementation.md#principled-implementation A tip at `R` from the grip, `R` fixed, and the string's half `S` fixed: with the nock at `n` behind the grip, the tip's reach toward it is `c = (R^2 + n^2 - S^2) / (2 n)`, so the turn is `asin(c / R) - alpha`, `alpha` the braced tip's angle. The triangle requires n-R<=S. Rows bisect until the midpoint's linearly read string half differs from S by at most createBow.STRING; this midpoint criterion is the existing approximation, not a proof of the maximum between rows. Substituting R squared minus S squared equals brace squared gives the dimensionless ratio `(n/R + (brace/n)*(brace/R))/2`, avoiding every raw square and their cancellation without changing the geometric law.
@@ -50,7 +50,7 @@ export function bowLimbs(
       "the positive draw is below the drawn nock's representable resolution",
     );
   if (!(nock - reach <= half))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "bow",
       axis: "travel",
@@ -72,7 +72,8 @@ export function bowLimbs(
   const turn: (x: number) => number = (x: number): number => {
     const n: number = brace + x;
     const ratio: number = (n / reach + (brace / n) * (brace / reach)) / 2;
-    const result: number = (Math.asin(ratio) - alpha) / ArchetypeUnits.DEGREE;
+    const result: number =
+      (Math.asin(ratio) - alpha) / AutoMovieArchetypeUnits.DEGREE;
     if (!Number.isFinite(result))
       refuse(
         "geometry",
@@ -87,7 +88,7 @@ export function bowLimbs(
     x: number,
     turned: number,
   ): number => {
-    const phi: number = turned * ArchetypeUnits.DEGREE;
+    const phi: number = turned * AutoMovieArchetypeUnits.DEGREE;
     const y: number = reach * Math.cos(alpha + phi);
     const z: number = reach * Math.sin(alpha + phi);
     const result: number = Math.abs(Math.hypot(y, z - (brace + x)) - half);
@@ -116,7 +117,7 @@ export function bowLimbs(
 
   /** Refuse unsupported geometry before a NaN table or nonterminating subdivision escapes. */
   function refuse(axis: string, value: number, reason: string): never {
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "bow",
       axis,

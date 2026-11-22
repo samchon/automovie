@@ -1,4 +1,7 @@
-import { EquineGoniometry, EquineJointLimits } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeEquineGoniometry,
+  AutoMovieArchetypeEquineJointLimits,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError, vclose } from "../internal/predicates";
@@ -26,7 +29,7 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership One exported synchronous in-memory unit is discovered by its test name and starts no process, viewer, compiler, capture or other host; all acquisition points and expected measurements are owned here.
  */
 export function test_archetype_animal_equine_goniometry(): void {
-  const input: EquineGoniometry.IInput = {
+  const input: AutoMovieArchetypeEquineGoniometry.IInput = {
     bone: "leftForeCannon",
     studyDoi: "10.3415/VCOT-15-11-0182",
     markers: [
@@ -37,7 +40,8 @@ export function test_archetype_animal_equine_goniometry(): void {
     planeNormal: { x: 0, y: 0, z: 2 },
   };
   const inputBefore: string = JSON.stringify(input);
-  const measured: EquineGoniometry.IResult = EquineGoniometry.measure(input);
+  const measured: AutoMovieArchetypeEquineGoniometry.IResult =
+    AutoMovieArchetypeEquineGoniometry.measure(input);
   TestValidator.predicate(
     "right-handed orthogonal rays are 90 degrees",
     nclose(measured.includedAngle, 90, 1e-12),
@@ -49,10 +53,11 @@ export function test_archetype_animal_equine_goniometry(): void {
       vclose(measured.projectedRays[1], { x: 0, y: 1, z: 0 }, 1e-12),
   );
 
-  const reversed: EquineGoniometry.IResult = EquineGoniometry.measure({
-    ...input,
-    planeNormal: { x: 0, y: 0, z: -8 },
-  });
+  const reversed: AutoMovieArchetypeEquineGoniometry.IResult =
+    AutoMovieArchetypeEquineGoniometry.measure({
+      ...input,
+      planeNormal: { x: 0, y: 0, z: -8 },
+    });
   TestValidator.predicate(
     "reversing the normal preserves the reflex 270 degrees",
     nclose(reversed.includedAngle, 270, 1e-12),
@@ -62,15 +67,16 @@ export function test_archetype_animal_equine_goniometry(): void {
     reversed.comparison?.position,
     "above-extension-mean",
   );
-  const shifted: EquineGoniometry.IResult = EquineGoniometry.measure({
-    ...input,
-    markers: [
-      { x: 13, y: -4, z: 15 },
-      { x: 10, y: -4, z: 7 },
-      { x: 10, y: -1, z: 2 },
-    ],
-    planeNormal: { x: 0, y: 0, z: 19 },
-  });
+  const shifted: AutoMovieArchetypeEquineGoniometry.IResult =
+    AutoMovieArchetypeEquineGoniometry.measure({
+      ...input,
+      markers: [
+        { x: 13, y: -4, z: 15 },
+        { x: 10, y: -4, z: 7 },
+        { x: 10, y: -1, z: 2 },
+      ],
+      planeNormal: { x: 0, y: 0, z: 19 },
+    });
   TestValidator.predicate(
     "translation, scale and axial displacement preserve 90 degrees",
     nclose(shifted.includedAngle, 90, 1e-12),
@@ -80,10 +86,15 @@ export function test_archetype_animal_equine_goniometry(): void {
     [1, 0],
     [-1, 180],
   ] as const) {
-    const boundary: EquineGoniometry.IResult = EquineGoniometry.measure({
-      ...input,
-      markers: [input.markers[0], input.markers[1], { x: secondX, y: 0, z: 0 }],
-    });
+    const boundary: AutoMovieArchetypeEquineGoniometry.IResult =
+      AutoMovieArchetypeEquineGoniometry.measure({
+        ...input,
+        markers: [
+          input.markers[0],
+          input.markers[1],
+          { x: secondX, y: 0, z: 0 },
+        ],
+      });
     TestValidator.predicate(
       `nonzero collinear rays measure ${expected} degrees`,
       nclose(boundary.includedAngle, expected, 1e-12),
@@ -130,15 +141,15 @@ export function test_archetype_animal_equine_goniometry(): void {
   );
   TestValidator.equals(
     "clinical references do not create immobile axes",
-    EquineJointLimits(input.bone).limits,
+    AutoMovieArchetypeEquineJointLimits(input.bone).limits,
     null,
   );
 
   TestValidator.predicate(
     "a hindlimb source cannot silently diagnose a fore carpus",
     throwsError(
-      (): EquineGoniometry.IResult =>
-        EquineGoniometry.measure({
+      (): AutoMovieArchetypeEquineGoniometry.IResult =>
+        AutoMovieArchetypeEquineGoniometry.measure({
           ...input,
           studyDoi: "10.3389/fvets.2021.761500",
         }),
@@ -146,10 +157,11 @@ export function test_archetype_animal_equine_goniometry(): void {
     ),
   );
   for (const bone of ["head", "leftForeHumerus", "rightHindFemur"] as const) {
-    const unknown: EquineGoniometry.IResult = EquineGoniometry.measure({
-      ...input,
-      bone,
-    });
+    const unknown: AutoMovieArchetypeEquineGoniometry.IResult =
+      AutoMovieArchetypeEquineGoniometry.measure({
+        ...input,
+        bone,
+      });
     TestValidator.equals(
       `${bone} has no fabricated comparison`,
       unknown.comparison,
@@ -162,12 +174,12 @@ export function test_archetype_animal_equine_goniometry(): void {
     );
     TestValidator.equals(
       `${bone} has no borrowed reference rows`,
-      EquineJointLimits(bone).observations,
+      AutoMovieArchetypeEquineJointLimits(bone).observations,
       null,
     );
   }
 
-  const invalid: readonly EquineGoniometry.IInput[] = [
+  const invalid: readonly AutoMovieArchetypeEquineGoniometry.IInput[] = [
     { ...input, planeNormal: { x: 0, y: 0, z: 0 } },
     { ...input, planeNormal: { x: 0, y: Infinity, z: 1 } },
     {
@@ -199,14 +211,19 @@ export function test_archetype_animal_equine_goniometry(): void {
     TestValidator.predicate(
       "invalid acquisition refuses",
       throwsError(
-        (): EquineGoniometry.IResult => EquineGoniometry.measure(acquisition),
+        (): AutoMovieArchetypeEquineGoniometry.IResult =>
+          AutoMovieArchetypeEquineGoniometry.measure(acquisition),
       ),
     );
   for (const angle of [-1, 361, NaN, Infinity])
     TestValidator.predicate(
       "invalid clinical angle refuses",
-      throwsError((): EquineJointLimits.IComparison | null =>
-        EquineJointLimits.compare(input.bone, input.studyDoi, angle),
+      throwsError((): AutoMovieArchetypeEquineJointLimits.IComparison | null =>
+        AutoMovieArchetypeEquineJointLimits.compare(
+          input.bone,
+          input.studyDoi,
+          angle,
+        ),
       ),
     );
 
@@ -223,7 +240,8 @@ export function test_archetype_animal_equine_goniometry(): void {
     "altered returned record",
   );
   Reflect.set(measured.normal, "z", -999);
-  const independent: EquineGoniometry.IResult = EquineGoniometry.measure(input);
+  const independent: AutoMovieArchetypeEquineGoniometry.IResult =
+    AutoMovieArchetypeEquineGoniometry.measure(input);
   if (independent.comparison === null)
     throw new Error("A later carpal measurement lost its primary reference");
   TestValidator.predicate(

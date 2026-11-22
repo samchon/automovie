@@ -1,17 +1,17 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { CareBedConstruction } from "./CareBedConstruction";
 import { MATTRESS_SIZES } from "./MATTRESS_SIZES";
 import { createBed } from "./createBed";
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createBed.Affordance> = ArchetypeBuilder<
+type Builder<Id extends createBed.Affordance> = AutoMovieArchetypeBuilder<
   Id,
   createBed.Dimension
 >;
@@ -34,8 +34,8 @@ function draw<Id extends createBed.Affordance>(
   params: Omit<createBed.IParams, "kind">,
   seed?: number | string,
 ): IDrawn<Id> {
-  const session: ArchetypeDrawSession<createBed.Dimension> =
-    new ArchetypeDrawSession<createBed.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<createBed.Dimension> =
+    new AutoMovieArchetypeDrawSession<createBed.Dimension>(
       "bed",
       createBed.UNITS,
       seed,
@@ -51,7 +51,7 @@ function draw<Id extends createBed.Affordance>(
     ...session.dimensions(createBed.BANDS[kind], createBed.BANDS),
     ...size,
   };
-  const builder: Builder<Id> = new ArchetypeBuilder({
+  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name:
@@ -109,7 +109,7 @@ export namespace BedConstruction {
     kind: PlatformKind,
     params: Omit<createBed.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<PlatformContact, createBed.Dimension> {
+  ): AutoMovieArchetype<PlatformContact, createBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<PlatformContact>> =
       draw<PlatformContact>(kind, params, seed);
     const width: number = d.width!;
@@ -139,7 +139,7 @@ export namespace BedConstruction {
     builder.affordance({
       id: "surface",
       kind: "surface",
-      frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
       extent: null,
       width,
       depth: length,
@@ -151,7 +151,7 @@ export namespace BedConstruction {
       builder.affordance({
         id,
         kind: "seat",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           Vector3.create((sign * width) / 2, height, 0),
           Vector3.create(0, 1, 0),
           Vector3.create(0, 0, -sign),
@@ -192,7 +192,7 @@ export namespace BedConstruction {
   export function hospital(
     params: Omit<createBed.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<HospitalContact, createBed.Dimension> {
+  ): AutoMovieArchetype<HospitalContact, createBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<HospitalContact>> =
       draw<HospitalContact>("hospital", params, seed);
     CareBedConstruction.hospital(builder, d);
@@ -223,7 +223,7 @@ export namespace BedConstruction {
   export function gurney(
     params: Omit<createBed.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<GurneyContact, createBed.Dimension> {
+  ): AutoMovieArchetype<GurneyContact, createBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<GurneyContact>> =
       draw<GurneyContact>("gurney", params, seed);
     CareBedConstruction.gurney(builder, d);
@@ -254,7 +254,7 @@ export namespace BedConstruction {
   export function crib(
     params: Omit<createBed.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<CribContact, createBed.Dimension> {
+  ): AutoMovieArchetype<CribContact, createBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<CribContact>> =
       draw<CribContact>("crib", params, seed);
     CareBedConstruction.crib(builder, d);
@@ -290,7 +290,7 @@ export namespace BedConstruction {
   export function bunk(
     params: Omit<createBed.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<BunkContact, createBed.Dimension> {
+  ): AutoMovieArchetype<BunkContact, createBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BunkContact>> =
       draw<BunkContact>("bunk", params, seed);
     CareBedConstruction.bunk(builder, d);

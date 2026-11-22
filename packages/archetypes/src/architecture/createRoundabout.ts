@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** Construction sizes no source read gives, provisional. */
@@ -30,7 +30,7 @@ const INBOARD: number = 0.1;
  * @param params Fixed dimensions.
  * @param seed The seed for any unfixed dimension.
  * @returns The roundabout's base.
- * @throws {ArchetypeRefusal} For a dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, the spindle and the separate disc.
  * @evidence contracts/development/implementation.md#principled-implementation A spindle under the disc's platform height and a ground contact.
@@ -43,9 +43,9 @@ const INBOARD: number = 0.1;
 export function createRoundabout(
   params: createRoundabout.IParams = {},
   seed?: number | string,
-): Archetype<createRoundabout.Affordance, createRoundabout.Dimension> {
-  const draw: ArchetypeDrawSession<createRoundabout.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<createRoundabout.Affordance, createRoundabout.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createRoundabout.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "roundabout",
       createRoundabout.UNITS,
       seed,
@@ -53,10 +53,10 @@ export function createRoundabout(
     );
   const { radius, height, mass }: Record<createRoundabout.Dimension, number> =
     draw.dimensions(createRoundabout.BANDS);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createRoundabout.Affordance,
     createRoundabout.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "roundabout",
     material: "steel",
@@ -72,7 +72,7 @@ export function createRoundabout(
   builder.affordance({
     id: "ground",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
     extent: null,
     width: 2 * radius + 2,
     depth: 2 * radius + 2,
@@ -108,17 +108,19 @@ export namespace createRoundabout {
   }
 
   /** Units recorded in the model's draw provenance. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     radius: "m",
     height: "m",
     mass: "kg",
   };
 
   /** The dimensions' bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    radius: ArchetypeBand.metres(0.8, 1.5, ESTIMATE, true),
-    height: ArchetypeBand.metres(0.1, 0.2, ESTIMATE, true),
-    mass: ArchetypeBand.of("kg", 30, 80, ESTIMATE, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    radius: AutoMovieArchetypeBand.metres(0.8, 1.5, ESTIMATE, true),
+    height: AutoMovieArchetypeBand.metres(0.1, 0.2, ESTIMATE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 30, 80, ESTIMATE, true),
   };
 
   /**
@@ -131,22 +133,23 @@ export namespace createRoundabout {
    * @returns The disc model.
    */
   export function disc(
-    roundabout: Pick<Archetype<Affordance, Dimension>, "dimensions">,
-  ): Archetype<DiscAffordance, DiscDimension> {
+    roundabout: Pick<AutoMovieArchetype<Affordance, Dimension>, "dimensions">,
+  ): AutoMovieArchetype<DiscAffordance, DiscDimension> {
     const radius: number = roundabout.dimensions.radius!;
     const height: number = roundabout.dimensions.height!;
-    const draw: ArchetypeDrawSession<DiscDimension> = new ArchetypeDrawSession(
-      "roundaboutDisc",
-      { radius: "m", height: "m", mass: "kg" },
-      undefined,
-      {},
-    );
+    const draw: AutoMovieArchetypeDrawSession<DiscDimension> =
+      new AutoMovieArchetypeDrawSession(
+        "roundaboutDisc",
+        { radius: "m", height: "m", mass: "kg" },
+        undefined,
+        {},
+      );
     draw.derive("radius", radius);
     draw.derive("height", height);
     // 60 kg a square metre of steel deck: a provisional construction estimate.
     const mass: number = draw.derive("mass", 60 * Math.PI * radius * radius);
-    const builder: ArchetypeBuilder<DiscAffordance, DiscDimension> =
-      new ArchetypeBuilder({
+    const builder: AutoMovieArchetypeBuilder<DiscAffordance, DiscDimension> =
+      new AutoMovieArchetypeBuilder({
         name: "roundabout disc",
         material: "steel",
         draw,
@@ -161,7 +164,7 @@ export namespace createRoundabout {
     builder.affordance({
       id: "platform",
       kind: "surface",
-      frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
       extent: null,
       width: 2 * radius,
       depth: 2 * radius,
@@ -183,7 +186,7 @@ export namespace createRoundabout {
         kind: "handle",
         symmetry: "round",
         grip: "power",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           at,
           Vector3.create(Math.sin(angle), 0, Math.cos(angle)),
           Vector3.create(0, 1, 0),

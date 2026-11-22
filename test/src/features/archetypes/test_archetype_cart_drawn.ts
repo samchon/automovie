@@ -1,11 +1,11 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  type ArchetypeCourse,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRide,
-  ArchetypeUnits,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRide,
+  AutoMovieArchetypeUnits,
   createCart,
 } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
@@ -36,7 +36,7 @@ export function test_archetype_cart_drawn(): void {
   const gap = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Vector3.length(Vector3.subtract(a, b));
   const at = (
-    cart: Archetype<createCart.Affordance, createCart.Dimension>,
+    cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,
     id: createCart.Affordance,
   ): IAutoMovieVector3 => cart.affordance(id).frame.translation;
   const DRAWN: readonly createCart.Kind[] = [
@@ -47,8 +47,10 @@ export function test_archetype_cart_drawn(): void {
   ];
   for (const kind of DRAWN)
     for (const seed of [0, 3, 7, 12]) {
-      const cart: Archetype<createCart.Affordance, createCart.Dimension> =
-        createCart({ kind }, seed);
+      const cart: AutoMovieArchetype<
+        createCart.Affordance,
+        createCart.Dimension
+      > = createCart({ kind }, seed);
       const d: Readonly<Partial<Record<createCart.Dimension, number>>> =
         cart.dimensions;
       const label: string = `${kind}@${seed}`;
@@ -61,12 +63,14 @@ export function test_archetype_cart_drawn(): void {
         ["rightSpin", -1],
       ] as const) {
         const spin: IAutoMovieVector3 = at(cart, id);
-        const axis: IAutoMovieVector3 = ArchetypeFrame.axis(
+        const axis: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
           cart.affordance(id).frame,
           "y",
         );
         const track: number =
-          kind === "rickshaw" ? d.width! - ArchetypeUnits.INCH : d.track!;
+          kind === "rickshaw"
+            ? d.width! - AutoMovieArchetypeUnits.INCH
+            : d.track!;
         if (
           !close(spin.x, (sign * track) / 2) ||
           !close(spin.y, radius) ||
@@ -122,28 +126,26 @@ export function test_archetype_cart_drawn(): void {
         if (spokes * 2 !== 6)
           findings.push(`${label}: a wheel shows ${spokes * 2} spokes`);
       } else {
-        if (!close(coupling.z, 144.58 * ArchetypeUnits.INCH, 1e-6))
+        if (!close(coupling.z, 144.58 * AutoMovieArchetypeUnits.INCH, 1e-6))
           findings.push(
-            `${label}: the pole's end is ${coupling.z / ArchetypeUnits.INCH} in ahead of the axle`,
+            `${label}: the pole's end is ${coupling.z / AutoMovieArchetypeUnits.INCH} in ahead of the axle`,
           );
         if (!(at(cart, "pintle").z < 0))
           findings.push(`${label}: the pintle is not behind the axle`);
         if (
-          !close(d.wheelDiameter!, 57 * ArchetypeUnits.INCH) ||
-          !close(d.track!, 60 * ArchetypeUnits.INCH)
+          !close(d.wheelDiameter!, 57 * AutoMovieArchetypeUnits.INCH) ||
+          !close(d.track!, 60 * AutoMovieArchetypeUnits.INCH)
         )
           findings.push(`${label}: the wheels are not the Manual's`);
       }
 
       // Towed through a quarter turn.
-      const leader: ArchetypeRide.IRide<"hitch", never> = ArchetypeRide.along(
-        hitched(),
-        COURSE,
-      );
-      const towed: ArchetypeRide.IRide<
+      const leader: AutoMovieArchetypeRide.IRide<"hitch", never> =
+        AutoMovieArchetypeRide.along(hitched(), COURSE);
+      const towed: AutoMovieArchetypeRide.IRide<
         createCart.Affordance,
         createCart.Dimension
-      > = ArchetypeRide.towed(leader, "hitch", cart, "coupling", {
+      > = AutoMovieArchetypeRide.towed(leader, "hitch", cart, "coupling", {
         support: createCart.towing(cart),
       });
       for (const seconds of [0, 5, 10, 15, 20])
@@ -165,7 +167,7 @@ export function test_archetype_cart_drawn(): void {
 }
 
 /** A straight, a quarter turn of 10 m radius and a straight. */
-const COURSE: ArchetypeCourse.ICourse = {
+const COURSE: AutoMovieArchetypeCourse.ICourse = {
   start: { x: 0, z: 0, heading: 0 },
   legs: [
     { kind: "straight", length: 10 },
@@ -182,17 +184,17 @@ const COURSE: ArchetypeCourse.ICourse = {
  *
  * @returns The leader.
  */
-function hitched(): Archetype<"hitch", never> {
-  return new ArchetypeBuilder<"hitch", never>({
+function hitched(): AutoMovieArchetype<"hitch", never> {
+  return new AutoMovieArchetypeBuilder<"hitch", never>({
     material: "steel",
     name: "leader",
-    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
+    draw: new AutoMovieArchetypeDrawSession<never>("fixture", {}, undefined),
   })
     .box("body", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
     .affordance({
       id: "hitch",
       kind: "hook",
-      frame: ArchetypeFrame.upright(Vector3.create(0, 1, -1)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 1, -1)),
       extent: null,
     })
     .build(500);

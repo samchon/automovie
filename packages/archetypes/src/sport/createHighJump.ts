@@ -2,14 +2,14 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The rules' comparison sheet, read for the World Athletics column. */
@@ -33,7 +33,7 @@ const BAR: string = `${WA}, Technical Rule 26.7: the circular part of the crossb
  * @param params The kind, `highJump` when absent, and any dimension the author fixes; `height` is the bar's.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The apparatus.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only the other kind has.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or one only the other kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each apparatus stands, where the box and the zero line are, the contacts and where the landing is.
  * @evidence contracts/development/implementation.md#principled-implementation Upright rods a little taller than the bar and the crossbar rod with its top at the drawn height; a pole vault's crossbar rests on arms reaching in from standards set clear of its ends, the arms' tips the rule's peg span apart, and its box is a floor plate down the slope that the rule's inside length, runway length and depth fix, and a stop board leaning from the zero line to the floor's end, both rotated boxes.
@@ -46,9 +46,9 @@ const BAR: string = `${WA}, Technical Rule 26.7: the circular part of the crossb
 export function createHighJump(
   params: createHighJump.IParams = {},
   seed?: number | string,
-): Archetype<createHighJump.Affordance, createHighJump.Dimension> {
-  const draw: ArchetypeDrawSession<createHighJump.Dimension> =
-    new ArchetypeDrawSession<createHighJump.Dimension>(
+): AutoMovieArchetype<createHighJump.Affordance, createHighJump.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createHighJump.Dimension> =
+    new AutoMovieArchetypeDrawSession<createHighJump.Dimension>(
       "highJump",
       createHighJump.UNITS,
       seed,
@@ -64,10 +64,10 @@ export function createHighJump(
     createHighJump.BANDS[kind],
     createHighJump.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createHighJump.Affordance,
     createHighJump.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: kind === "highJump" ? "high jump" : "pole vault",
@@ -121,7 +121,11 @@ export function createHighJump(
     id: "bar",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, centre, at), v(0, 1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, centre, at),
+      v(0, 1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
     aperture: d.diameter!,
     length,
@@ -188,7 +192,9 @@ export namespace createHighJump {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     length: "m",
     diameter: "m",
@@ -216,19 +222,19 @@ export namespace createHighJump {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     highJump: {
-      height: ArchetypeBand.metres(
+      height: AutoMovieArchetypeBand.metres(
         1,
         2.45,
         "the height the competition sets, from a beginner's 1 m to the 2.45 m men's world record (World Athletics records); a setting, not a measurement",
         true,
       ),
-      length: ArchetypeBand.metres(3.98, 4.02, RULES),
-      diameter: ArchetypeBand.metres(0.029, 0.031, BAR),
-      span: ArchetypeBand.metres(4, 4.04, RULES),
-      mass: ArchetypeBand.of(
+      length: AutoMovieArchetypeBand.metres(3.98, 4.02, RULES),
+      diameter: AutoMovieArchetypeBand.metres(0.029, 0.031, BAR),
+      span: AutoMovieArchetypeBand.metres(4, 4.04, RULES),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         20,
         40,
@@ -237,34 +243,34 @@ export namespace createHighJump {
       ),
     },
     poleVault: {
-      height: ArchetypeBand.metres(
+      height: AutoMovieArchetypeBand.metres(
         2,
         6.3,
         "the height the competition sets, from a beginner's 2 m to the men's world record near 6.3 m; a setting, not a measurement",
         true,
       ),
-      length: ArchetypeBand.metres(
+      length: AutoMovieArchetypeBand.metres(
         4.48,
         4.52,
         `${WA}, Technical Rule 26.7: the crossbar 4.50 m +/- 0.02 m long in the pole vault`,
       ),
-      diameter: ArchetypeBand.metres(0.029, 0.031, BAR),
-      span: ArchetypeBand.metres(
+      diameter: AutoMovieArchetypeBand.metres(0.029, 0.031, BAR),
+      span: AutoMovieArchetypeBand.metres(
         4.28,
         4.37,
         `${WA}, Technical Rule 28.10: the pegs 4.28 to 4.37 m apart`,
       ),
-      setback: ArchetypeBand.metres(
+      setback: AutoMovieArchetypeBand.metres(
         0,
         0.8,
         `${WA}, Figure (c) TR28: the standards from the zero line to 0.80 m beyond it`,
       ),
-      boxLength: ArchetypeBand.metres(1.08, 1.08, BOX),
-      boxFloor: ArchetypeBand.metres(1, 1, BOX),
-      boxDepth: ArchetypeBand.metres(0.2, 0.2, BOX),
-      boxWidth: ArchetypeBand.metres(0.6, 0.6, BOX),
-      boxEnd: ArchetypeBand.metres(0.15, 0.15, BOX),
-      mass: ArchetypeBand.of(
+      boxLength: AutoMovieArchetypeBand.metres(1.08, 1.08, BOX),
+      boxFloor: AutoMovieArchetypeBand.metres(1, 1, BOX),
+      boxDepth: AutoMovieArchetypeBand.metres(0.2, 0.2, BOX),
+      boxWidth: AutoMovieArchetypeBand.metres(0.6, 0.6, BOX),
+      boxEnd: AutoMovieArchetypeBand.metres(0.15, 0.15, BOX),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         60,
         120,
@@ -284,7 +290,7 @@ export namespace createHighJump {
  * @param d The drawn dimensions.
  */
 function box(
-  builder: ArchetypeBuilder<
+  builder: AutoMovieArchetypeBuilder<
     createHighJump.Affordance,
     createHighJump.Dimension
   >,
@@ -307,7 +313,8 @@ function box(
     behind: IAutoMovieVector3,
   ): void => {
     const span: IAutoMovieVector3 = Vector3.subtract(to, from);
-    const tilt: number = Math.atan2(-span.y, span.z) / ArchetypeUnits.DEGREE;
+    const tilt: number =
+      Math.atan2(-span.y, span.z) / AutoMovieArchetypeUnits.DEGREE;
     builder.box(
       id,
       v(width, t, Vector3.length(span)),
@@ -326,7 +333,7 @@ function box(
   builder.affordance({
     id: "box",
     kind: "socket",
-    frame: ArchetypeFrame.upright(foot),
+    frame: AutoMovieArchetypeFrame.upright(foot),
     extent: null,
   });
 }

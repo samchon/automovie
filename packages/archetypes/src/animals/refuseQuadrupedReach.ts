@@ -1,4 +1,4 @@
-import { ArchetypeRefusal } from "../core";
+import { AutoMovieArchetypeRefusal } from "../core";
 
 /**
  * Turn a pose solver's geometric failure at one sample into the ride's typed refusal, naming the film second.
@@ -23,9 +23,9 @@ export function refuseQuadrupedReach(
   archetype: string,
   seconds: number,
   error: unknown,
-): ArchetypeRefusal {
+): AutoMovieArchetypeRefusal {
   if (!(error instanceof RangeError)) throw error;
-  return new ArchetypeRefusal({
+  return new AutoMovieArchetypeRefusal({
     kind: "parameter",
     archetype,
     axis: "course",

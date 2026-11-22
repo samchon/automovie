@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  QuadrupedLocomotion,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeQuadrupedLocomotion,
   createCamel,
   createQuadruped,
   rideQuadruped,
@@ -38,7 +38,7 @@ export function test_archetype_motion_carried_socket(): void {
     },
     73,
   );
-  const table = QuadrupedLocomotion.admit(
+  const table = AutoMovieArchetypeQuadrupedLocomotion.admit(
     createQuadruped.species(animal).table,
   );
   table.gaits.walk!.nod = { range: 20, timing: "support" };
@@ -55,7 +55,7 @@ export function test_archetype_motion_carried_socket(): void {
     ),
     lead = animal.affordance("lead").frame;
   TestValidator.predicate("nonzero head nod", Math.abs(change.w) < 1 - 1e-8);
-  const expected = ArchetypeFrame.compose(snapshot.placement, {
+  const expected = AutoMovieArchetypeFrame.compose(snapshot.placement, {
     translation: Vector3.add(
       head.translation,
       Quaternion.rotateVector(

@@ -1,9 +1,9 @@
 import {
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  EquineComfort,
-  type EquineComfortCue,
-  QuadrupedBody,
+  AutoMovieArchetypeEquineComfort,
+  type AutoMovieArchetypeEquineComfortCue,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -22,10 +22,13 @@ import { equineExpressionObservation as Look } from "../internal/equineExpressio
 type Horse = ReturnType<typeof createHorse>;
 
 /** A horse ride. */
-type Ride = ArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension>;
+type Ride = AutoMovieArchetypeRide.IRide<
+  createHorse.Affordance,
+  createHorse.Dimension
+>;
 
 /** A sample of a horse ride. */
-type Sample = ArchetypeRide.ISample<
+type Sample = AutoMovieArchetypeRide.ISample<
   createHorse.Affordance,
   createHorse.Dimension
 >;
@@ -67,7 +70,7 @@ export function test_archetype_equine_reaction_comfort(): void {
     "walk",
   );
   const t: number = ride.duration + 0.5;
-  const acts: readonly EquineComfortCue.Act[] = [
+  const acts: readonly AutoMovieArchetypeEquineComfortCue.Act[] = [
     { kind: "rest", side: "left", from: t, seconds: 6 },
     { kind: "paw", side: "right", strokes: 3, from: t + 7, seconds: 3 },
     { kind: "stamp", limb: "leftFore", from: t + 11, seconds: 0.8 },
@@ -75,11 +78,18 @@ export function test_archetype_equine_reaction_comfort(): void {
     { kind: "shake", from: t + 15, seconds: 2 },
     { kind: "urinate", from: t + 18, seconds: 3 },
   ];
-  const comfort: Ride = EquineComfort.after(horse, ride, acts);
+  const comfort: Ride = AutoMovieArchetypeEquineComfort.after(
+    horse,
+    ride,
+    acts,
+  );
   const halt: Sample = ride.at(ride.duration);
-  const terminal = (limb: QuadrupedBody.Limb): string =>
-    QuadrupedBody.BONES[limb][3];
-  const radius = (sample: Sample, limb: QuadrupedBody.Limb): number => {
+  const terminal = (limb: AutoMovieArchetypeQuadrupedBody.Limb): string =>
+    AutoMovieArchetypeQuadrupedBody.BONES[limb][3];
+  const radius = (
+    sample: Sample,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
+  ): number => {
     const part: IAutoMovieModelPart = sample.archetype.parts.find(
       (candidate: IAutoMovieModelPart): boolean =>
         candidate.id === terminal(limb),
@@ -100,7 +110,7 @@ export function test_archetype_equine_reaction_comfort(): void {
   /** The terminal bar's lowest rim point. */
   const lowest = (
     sample: Sample,
-    limb: QuadrupedBody.Limb,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
   ): IAutoMovieVector3 => {
     const bar: Look.IBar = Look.bar(sample, terminal(limb));
     const axis: IAutoMovieVector3 = Vector3.normalize(
@@ -118,26 +128,31 @@ export function test_archetype_equine_reaction_comfort(): void {
       ? end
       : Vector3.addScaled(end, down, radius(sample, limb) / across);
   };
-  const sole = (sample: Sample, limb: QuadrupedBody.Limb): number =>
-    lowest(sample, limb).y;
-  const place = (sample: Sample, limb: QuadrupedBody.Limb): IAutoMovieVector3 =>
-    Look.bar(sample, terminal(limb)).to;
+  const sole = (
+    sample: Sample,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
+  ): number => lowest(sample, limb).y;
+  const place = (
+    sample: Sample,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
+  ): IAutoMovieVector3 => Look.bar(sample, terminal(limb)).to;
   const hip = (sample: Sample, side: "left" | "right"): number =>
-    Look.bar(sample, QuadrupedBody.BONES[`${side}Hind`][0]).from.y;
+    Look.bar(sample, AutoMovieArchetypeQuadrupedBody.BONES[`${side}Hind`][0])
+      .from.y;
   const planted = (
     sample: Sample,
-    limbs: readonly QuadrupedBody.Limb[],
+    limbs: readonly AutoMovieArchetypeQuadrupedBody.Limb[],
   ): boolean =>
     limbs.every(
-      (limb: QuadrupedBody.Limb): boolean =>
+      (limb: AutoMovieArchetypeQuadrupedBody.Limb): boolean =>
         Vector3.distance(place(sample, limb), place(halt, limb)) <= 1e-6 &&
         Math.abs(sole(sample, limb)) <= 1e-6,
     );
 
   // 1. The standing rest; the hips' lateral span is read at the halt.
   const span: number = Math.abs(
-    Look.bar(halt, QuadrupedBody.BONES.leftHind[0]).from.x -
-      Look.bar(halt, QuadrupedBody.BONES.rightHind[0]).from.x,
+    Look.bar(halt, AutoMovieArchetypeQuadrupedBody.BONES.leftHind[0]).from.x -
+      Look.bar(halt, AutoMovieArchetypeQuadrupedBody.BONES.rightHind[0]).from.x,
   );
   const resting: Sample = comfort.at(t + 3);
   const lowPoint: IAutoMovieVector3 = lowest(resting, "leftHind");
@@ -204,7 +219,10 @@ export function test_archetype_equine_reaction_comfort(): void {
   );
   TestValidator.predicate(
     "the stamp sets the hoof back on its place",
-    planted(comfort.at(t + 11 + 0.8 + 0.05), QuadrupedBody.LIMBS),
+    planted(
+      comfort.at(t + 11 + 0.8 + 0.05),
+      AutoMovieArchetypeQuadrupedBody.LIMBS,
+    ),
   );
   const kicked: Sample = comfort.at(t + 13 + 0.5);
   TestValidator.predicate(
@@ -231,7 +249,7 @@ export function test_archetype_equine_reaction_comfort(): void {
   for (const shown of shaking)
     TestValidator.predicate(
       "the hooves stay planted through the shake",
-      planted(shown, QuadrupedBody.LIMBS),
+      planted(shown, AutoMovieArchetypeQuadrupedBody.LIMBS),
     );
 
   // 4. Urination.
@@ -297,7 +315,7 @@ export function test_archetype_equine_reaction_comfort(): void {
   // 6. Refusal while moving.
   let caught: unknown = null;
   try {
-    EquineComfort.after(horse, ride, [
+    AutoMovieArchetypeEquineComfort.after(horse, ride, [
       {
         kind: "paw",
         side: "left",
@@ -311,6 +329,6 @@ export function test_archetype_equine_reaction_comfort(): void {
   }
   TestValidator.predicate(
     "pawing at a walk refuses",
-    caught instanceof ArchetypeRefusal && caught.axis === "from",
+    caught instanceof AutoMovieArchetypeRefusal && caught.axis === "from",
   );
 }

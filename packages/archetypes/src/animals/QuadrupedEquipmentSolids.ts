@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeRefusal } from "../core";
-import type { QuadrupedEquipment } from "./QuadrupedEquipment";
+import { AutoMovieArchetypeRefusal } from "../core";
+import type { AutoMovieArchetypeQuadrupedEquipment } from "./AutoMovieArchetypeQuadrupedEquipment";
 
 /**
  * Actual additional body spheres used by the common equipment preflight.
@@ -18,7 +18,7 @@ import type { QuadrupedEquipment } from "./QuadrupedEquipment";
  */
 export class QuadrupedEquipmentSolids {
   /** Independent records of the actual additional body spheres. */
-  readonly #spheres: readonly QuadrupedEquipment.ISphere[];
+  readonly #spheres: readonly AutoMovieArchetypeQuadrupedEquipment.ISphere[];
   /** Producer identity for an actionable physical refusal. */
   readonly #archetype: string;
 
@@ -31,11 +31,13 @@ export class QuadrupedEquipmentSolids {
    */
   public constructor(
     archetype: string,
-    spheres: readonly QuadrupedEquipment.ISphere[],
+    spheres: readonly AutoMovieArchetypeQuadrupedEquipment.ISphere[],
   ) {
     this.#archetype = archetype;
     this.#spheres = spheres.map(
-      (sphere: QuadrupedEquipment.ISphere): QuadrupedEquipment.ISphere => {
+      (
+        sphere: AutoMovieArchetypeQuadrupedEquipment.ISphere,
+      ): AutoMovieArchetypeQuadrupedEquipment.ISphere => {
         if (
           !(Number.isFinite(sphere.radius) && sphere.radius > 0) ||
           ![sphere.centre.x, sphere.centre.y, sphere.centre.z].every(
@@ -63,7 +65,7 @@ export class QuadrupedEquipmentSolids {
    * @param radius Already admitted finite positive circular bar radius, metres.
    * @param clearance Already admitted finite nonnegative body separation, metres.
    * @returns A conservative upper support plane; the caller connects the raised beam to its rails.
-   * @throws {ArchetypeRefusal} If the derived support height is nonfinite.
+   * @throws {AutoMovieArchetypeRefusal} If the derived support height is nonfinite.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names actual bridge footprint, finite metre inputs, additional solid support and the conservative sphere-top choice rather than a minimum-height fit.
    * @evidence contracts/development/implementation.md#principled-implementation A sphere whose radius-plus-bar-plus-clearance reaches the finite XZ segment contributes its top plus bar radius and clearance. Each sum rounds outward to the next representable binary64 value, so representation cannot lower a support plane.
@@ -118,7 +120,7 @@ export class QuadrupedEquipmentSolids {
    * @param from First admitted finite cylinder endpoint in the neutral model, metres.
    * @param to Second admitted finite endpoint with positive finite span, metres.
    * @param clearance Already admitted finite nonnegative body separation, metres; the plan defaults it to zero.
-   * @throws {ArchetypeRefusal} If any actual sphere lacks the required cylinder separation, including a nonfinite computed distance.
+   * @throws {AutoMovieArchetypeRefusal} If any actual sphere lacks the required cylinder separation, including a nonfinite computed distance.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines actual cylinder endpoints/radius, authored clearance and exact finite axial/radial distance to a solid cylinder.
    * @evidence contracts/development/implementation.md#principled-implementation Project the sphere centre onto the cylinder axis, subtract its circular radius from radial distance and its finite span from axial distance. The hypotenuse of the two nonnegative outside distances must reach sphere radius plus clearance.
@@ -170,7 +172,7 @@ export class QuadrupedEquipmentSolids {
    * @param size Already admitted positive finite full box lengths, metres.
    * @param at Already admitted finite box centre in the neutral model frame, metres.
    * @param clearance Already admitted finite nonnegative body separation, metres; the plan defaults it to zero.
-   * @throws {ArchetypeRefusal} If any actual sphere lacks the required box separation, including a nonfinite engine distance.
+   * @throws {AutoMovieArchetypeRefusal} If any actual sphere lacks the required box separation, including a nonfinite engine distance.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines actual full box sizes/centre and authored minimum body clearance in canonical metres.
    * @evidence contracts/development/implementation.md#principled-implementation The engine's exact point-to-box signed distance must reach sphere radius plus clearance. Coincident segment endpoints select its point query, with no iterative segment search.
@@ -218,10 +220,10 @@ export class QuadrupedEquipmentSolids {
    * @param axis Actual equipment part or derived support identity.
    * @param value Original geometry and obstacle facts, without an invented feasible interval.
    * @param obstacle Actual interfering body-sphere identity or nonfinite support-envelope description.
-   * @throws {ArchetypeRefusal} Always, retaining only ordinary request facts and an actionable authored-fit correction.
+   * @throws {AutoMovieArchetypeRefusal} Always, retaining only ordinary request facts and an actionable authored-fit correction.
    */
   private refuse(axis: string, value: unknown, obstacle: string): never {
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: this.#archetype,
       axis: `equipment.${axis}`,

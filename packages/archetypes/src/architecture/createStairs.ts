@@ -2,15 +2,15 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The building code's stair clauses, read in a state adoption of the model code. */
@@ -29,7 +29,7 @@ const ADA: string =
  * @param params The number of risers, the rails, the occupant class and any dimension the author fixes.
  * @param seed The seed that draws the occupant class when it is not given and every dimension left free inside its band; absent, the first class and the middle of each band.
  * @returns The flight.
- * @throws {ArchetypeRefusal} For an occupant class the code does not list, a fixed dimension outside its band, or a number of risers that is not a whole number from 2 to 20.
+ * @throws {AutoMovieArchetypeRefusal} For an occupant class the code does not list, a fixed dimension outside its band, or a number of risers that is not a whole number from 2 to 20.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the flight's direction and origin, how steps are named and where a rail runs.
  * @evidence contracts/development/implementation.md#principled-implementation Every step is the same drawn riser and tread, so the flight is uniform exactly, inside the 9.5 mm of IBC 1011.5.4; the rail's height is the top of its gripping surface measured vertically above the nosing line, as IBC 1014.2 and ADA 505.4 measure it, and it runs one tread beyond the bottom riser on the slope and 305 mm level beyond the top one, the extensions of ADA 505.10.
@@ -42,9 +42,9 @@ const ADA: string =
 export function createStairs(
   params: createStairs.IParams = {},
   seed?: number | string,
-): Archetype<createStairs.Affordance, createStairs.Dimension> {
-  const draw: ArchetypeDrawSession<createStairs.Dimension> =
-    new ArchetypeDrawSession<createStairs.Dimension>(
+): AutoMovieArchetype<createStairs.Affordance, createStairs.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createStairs.Dimension> =
+    new AutoMovieArchetypeDrawSession<createStairs.Dimension>(
       "stairs",
       createStairs.UNITS,
       seed,
@@ -52,7 +52,7 @@ export function createStairs(
     );
   const steps: number = params.steps ?? 12;
   if (!Number.isInteger(steps) || steps < 2 || steps > createStairs.STEPS)
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "stairs",
       axis: "steps",
@@ -85,10 +85,10 @@ export function createStairs(
     width: occupancy.figures.width!,
   };
   const { riser, tread, width }: Record<createStairs.Dimension, number> = d;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createStairs.Affordance,
     createStairs.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "stairs",
@@ -108,7 +108,7 @@ export function createStairs(
     builder.affordance({
       id: `step${k}`,
       kind: "ledge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, k * riser, (k - 1) * tread),
         Vector3.create(0, 1, 0),
         Vector3.create(-1, 0, 0),
@@ -120,7 +120,7 @@ export function createStairs(
   builder.affordance({
     id: "landing",
     kind: "surface",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       Vector3.create(0, steps * riser, (steps - 1) * tread + landing / 2),
     ),
     extent: null,
@@ -171,7 +171,7 @@ export function createStairs(
       id: `${side}Rail`,
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.scale(Vector3.add(low, high), 0.5),
         Vector3.create(0, tread, -riser),
         Vector3.create(0, riser, tread),
@@ -210,7 +210,7 @@ export namespace createStairs {
   export const EXTENSION: number = 0.305;
 
   /** The greatest depth of the top landing along the flight, metres, 48 in: the landing is as deep as the flight is wide, up to this. An estimate, not read at a source. */
-  export const LANDING: number = 48 * ArchetypeUnits.INCH;
+  export const LANDING: number = 48 * AutoMovieArchetypeUnits.INCH;
 
   /**
    * The affordance ids:
@@ -244,7 +244,9 @@ export namespace createStairs {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     riser: "m",
     tread: "m",
     width: "m",
@@ -283,29 +285,35 @@ export namespace createStairs {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<
-    Record<Exclude<Dimension, "width">, IArchetypeBand>
+    Record<Exclude<Dimension, "width">, IAutoMovieArchetypeBand>
   > = {
-    riser: ArchetypeBand.metres(
+    riser: AutoMovieArchetypeBand.metres(
       0.102,
       0.178,
       `${IBC} 1011.5.2, risers 4 to 7 in (102 to 178 mm); ${ADA} 504.2 agrees`,
     ),
-    tread: ArchetypeBand.metres(
+    tread: AutoMovieArchetypeBand.metres(
       0.279,
-      13 * ArchetypeUnits.INCH,
+      13 * AutoMovieArchetypeUnits.INCH,
       `${IBC} 1011.5.2, treads at least 11 in (279 mm); the upper end, 13 in, is an estimate`,
       true,
     ),
-    railHeight: ArchetypeBand.metres(
+    railHeight: AutoMovieArchetypeBand.metres(
       0.865,
       0.965,
       `${ADA} 505.4, gripping surface 34 to 38 in (865 to 965 mm) above the nosings; ${IBC} 1014.2 agrees`,
     ),
-    railDiameter: ArchetypeBand.metres(
+    railDiameter: AutoMovieArchetypeBand.metres(
       0.032,
       0.051,
       `${ADA} 505.7.1, circular gripping surface 1-1/4 to 2 in (32 to 51 mm)`,
     ),
-    mass: ArchetypeBand.of("kg", 30, 60, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      30,
+      60,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

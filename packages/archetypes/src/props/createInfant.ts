@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** Newborn proportions read from a growth chart are not yet applied. */
@@ -35,16 +35,21 @@ const STAGED: string =
 export function createInfant(
   params: createInfant.IParams = {},
   seed?: number | string,
-): Archetype<createInfant.Affordance, createInfant.Dimension> {
-  const draw: ArchetypeDrawSession<createInfant.Dimension> =
-    new ArchetypeDrawSession("infant", createInfant.UNITS, seed, params);
+): AutoMovieArchetype<createInfant.Affordance, createInfant.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createInfant.Dimension> =
+    new AutoMovieArchetypeDrawSession(
+      "infant",
+      createInfant.UNITS,
+      seed,
+      params,
+    );
   const d: Record<createInfant.Dimension, number> = draw.dimensions(
     createInfant.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createInfant.Affordance,
     createInfant.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "a swaddled infant",
     material: "fabric",
@@ -63,7 +68,7 @@ export function createInfant(
     id: "seat",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
     extent: null,
     grip: "power",
     aperture: 2 * half,
@@ -73,7 +78,11 @@ export function createInfant(
     id: "nape",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(v(0, body, -half), v(0, 0, -1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, body, -half),
+      v(0, 0, -1),
+      v(0, 1, 0),
+    ),
     extent: null,
     width: 0.08,
   });
@@ -81,7 +90,7 @@ export function createInfant(
     id: "back",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, body * 0.55, -half),
       v(0, 0, -1),
       v(0, 1, 0),
@@ -92,7 +101,7 @@ export function createInfant(
   builder.affordance({
     id: "mouth",
     kind: "socket",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, body + r * 0.8, r * 0.9),
       v(0, 0, 1),
       v(0, 1, 0),
@@ -102,7 +111,7 @@ export function createInfant(
   builder.affordance({
     id: "head",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, body + r, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, body + r, 0)),
     extent: null,
   });
   return builder.build(d.mass);
@@ -130,16 +139,18 @@ export namespace createInfant {
   }
 
   /** Units of each dimension. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     head: "m",
     mass: "kg",
   };
 
   /** Staged bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(0.42, 0.5, STAGED, true),
-    head: ArchetypeBand.metres(0.11, 0.13, STAGED, true),
-    mass: ArchetypeBand.of("kg", 3, 5, STAGED, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(0.42, 0.5, STAGED, true),
+    head: AutoMovieArchetypeBand.metres(0.11, 0.13, STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 3, 5, STAGED, true),
   };
 }

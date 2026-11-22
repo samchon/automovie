@@ -1,4 +1,4 @@
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { ForestAxe } from "./ForestAxe";
 import { LongImplementDraw } from "./LongImplementDraw";
 
@@ -8,7 +8,7 @@ import { LongImplementDraw } from "./LongImplementDraw";
  * @param params The optional scene ID and any fixed free dimension in metres or kilograms.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Forest axe with a shaft hold and a head-face marker.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the saved visual assembly that derives its handle mass and grip aperture from the model.
@@ -24,7 +24,7 @@ export function createForestAxe(
     "id" | "length" | "edge" | "headLength" | "headMass" | "mass"
   > = {},
   seed?: number | string,
-): Archetype<createForestAxe.Affordance, createForestAxe.Dimension> {
+): AutoMovieArchetype<createForestAxe.Affordance, createForestAxe.Dimension> {
   const {
     builder,
     d,
@@ -43,7 +43,7 @@ export function createForestAxe(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
  * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createForestAxe {

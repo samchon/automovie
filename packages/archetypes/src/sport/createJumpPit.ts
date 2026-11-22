@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The rules the pit's figures come from. */
@@ -21,7 +21,7 @@ const RULES: string =
  * @param params Any figure the author fixes.
  * @param seed The seed that draws each figure left free inside its band; absent, the middle of each band.
  * @returns The jump pit.
- * @throws {ArchetypeRefusal} For a fixed figure outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed figure outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the layout, the frame and both contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Two boxes sunk below the runway so their tops lie at 0, sized by the rules' figures, and two upright surface contacts at their tops' centres.
@@ -34,9 +34,9 @@ const RULES: string =
 export function createJumpPit(
   params: createJumpPit.IParams = {},
   seed?: number | string,
-): Archetype<createJumpPit.Affordance, createJumpPit.Dimension> {
-  const draw: ArchetypeDrawSession<createJumpPit.Dimension> =
-    new ArchetypeDrawSession<createJumpPit.Dimension>(
+): AutoMovieArchetype<createJumpPit.Affordance, createJumpPit.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createJumpPit.Dimension> =
+    new AutoMovieArchetypeDrawSession<createJumpPit.Dimension>(
       "jumpPit",
       createJumpPit.UNITS,
       seed,
@@ -45,10 +45,10 @@ export function createJumpPit(
   const d: Record<createJumpPit.Dimension, number> = draw.dimensions(
     createJumpPit.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createJumpPit.Affordance,
     createJumpPit.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "long jump pit",
@@ -65,7 +65,9 @@ export function createJumpPit(
   builder.affordance({
     id: "board",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, -d.boardWidth / 2)),
+    frame: AutoMovieArchetypeFrame.upright(
+      Vector3.create(0, 0, -d.boardWidth / 2),
+    ),
     extent: null,
     width: d.boardLength,
     depth: d.boardWidth,
@@ -83,7 +85,7 @@ export function createJumpPit(
   builder.affordance({
     id: "sand",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, centre)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, centre)),
     extent: null,
     width: d.width,
     depth: length,
@@ -133,7 +135,9 @@ export namespace createJumpPit {
     | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     boardLength: "m",
     boardWidth: "m",
     gap: "m",
@@ -149,12 +153,18 @@ export namespace createJumpPit {
   }
 
   /** The band of each figure. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    boardLength: ArchetypeBand.metres(1.21, 1.22, RULES),
-    boardWidth: ArchetypeBand.metres(0.198, 0.202, RULES),
-    gap: ArchetypeBand.metres(1, 3, RULES),
-    reach: ArchetypeBand.metres(10, 11, RULES, true),
-    width: ArchetypeBand.metres(2.75, 3, RULES),
-    mass: ArchetypeBand.of("kg", 10, 20, "an estimate of a wooden board 1.22 x 0.20 x 0.10 m", true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    boardLength: AutoMovieArchetypeBand.metres(1.21, 1.22, RULES),
+    boardWidth: AutoMovieArchetypeBand.metres(0.198, 0.202, RULES),
+    gap: AutoMovieArchetypeBand.metres(1, 3, RULES),
+    reach: AutoMovieArchetypeBand.metres(10, 11, RULES, true),
+    width: AutoMovieArchetypeBand.metres(2.75, 3, RULES),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      10,
+      20,
+      "an estimate of a wooden board 1.22 x 0.20 x 0.10 m",
+      true,
+    ),
   };
 }

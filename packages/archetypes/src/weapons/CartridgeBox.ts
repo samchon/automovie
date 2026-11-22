@@ -4,7 +4,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import type { createHolster } from "./createHolster";
 
 /**
@@ -31,14 +35,14 @@ export namespace CartridgeBox {
     count: 2,
     parts: [
       {
-        length: 2 * ArchetypeUnits.INCH,
-        across: 1.35 * ArchetypeUnits.INCH,
+        length: 2 * AutoMovieArchetypeUnits.INCH,
+        across: 1.35 * AutoMovieArchetypeUnits.INCH,
         rows: 3,
         columns: 2,
       },
       {
-        length: 1.35 * ArchetypeUnits.INCH,
-        across: 1.35 * ArchetypeUnits.INCH,
+        length: 1.35 * AutoMovieArchetypeUnits.INCH,
+        across: 1.35 * AutoMovieArchetypeUnits.INCH,
         rows: 2,
         columns: 2,
       },
@@ -68,7 +72,7 @@ export namespace CartridgeBox {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lay(
-    builder: ArchetypeBuilder<
+    builder: AutoMovieArchetypeBuilder<
       createHolster.Affordance,
       createHolster.Dimension
     >,
@@ -93,7 +97,11 @@ export namespace CartridgeBox {
     builder.affordance({
       id: "lid",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, deep, 0), v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, deep, 0),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
       travel: FLAP.open,
       parts: ["lid"],
@@ -125,7 +133,7 @@ export namespace CartridgeBox {
       builder.affordance({
         id: `slot${k + 1}`,
         kind: "socket",
-        frame: ArchetypeFrame.upright(at),
+        frame: AutoMovieArchetypeFrame.upright(at),
         extent: null,
       });
     });

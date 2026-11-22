@@ -1,7 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import type { SiegeArm } from "./SiegeArm";
 import { SiegeClearance } from "./SiegeClearance";
 import type { createSiegeEngine } from "./createSiegeEngine";
@@ -31,7 +34,8 @@ import type { createSiegeEngine } from "./createSiegeEngine";
  */
 export namespace SiegeStructure {
   /** Tarver 1995 p.155's 5/8-inch manila rope, reused as coarse cord stock for both kinds; no strength or counterweight-replica measurement is implied. */
-  export const CORD_RADIUS: number = ((5 / 8) * ArchetypeUnits.INCH) / 2;
+  export const CORD_RADIUS: number =
+    ((5 / 8) * AutoMovieArchetypeUnits.INCH) / 2;
 
   /** Actual rigid pieces turned by the existing arm hinge; spans follow their ends. */
   export const ARM_PARTS: readonly string[] = [
@@ -144,7 +148,7 @@ export namespace SiegeStructure {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Records only builder-owned primitive/span data; retains no caller records, cache, sampled pose history or external resource.
    */
   export function lay(
-    builder: ArchetypeBuilder<
+    builder: AutoMovieArchetypeBuilder<
       createSiegeEngine.Affordance,
       createSiegeEngine.Dimension
     >,
@@ -154,9 +158,9 @@ export namespace SiegeStructure {
     armRadius: number,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
-    const wood: ArchetypeBuilder.IOptions = { color: "#6b5a3e" };
-    const iron: ArchetypeBuilder.IOptions = { color: "#5a5a5a" };
-    const cord: ArchetypeBuilder.IOptions = { color: "#645139" };
+    const wood: AutoMovieArchetypeBuilder.IOptions = { color: "#6b5a3e" };
+    const iron: AutoMovieArchetypeBuilder.IOptions = { color: "#5a5a5a" };
+    const cord: AutoMovieArchetypeBuilder.IOptions = { color: "#645139" };
     const axle: number = d.axleHeight!;
     const width: number = d.frameWidth!;
     const long: number = d.armLength!;
@@ -219,8 +223,11 @@ export namespace SiegeStructure {
       const bed: IBox = {
         id: `release-bed-${sign}`,
         size: v(bedWidth, 2 * stock, guideEnd - guideStart),
-        at: v(sign * (stock + bedWidth / 2), bedTop - stock,
-          (guideStart + guideEnd) / 2),
+        at: v(
+          sign * (stock + bedWidth / 2),
+          bedTop - stock,
+          (guideStart + guideEnd) / 2,
+        ),
       };
       admit(bed.id, SiegeClearance.box(bed.at, bed.size, 0, 0, 0));
       builder.box(bed.id, bed.size, bed.at, wood);
@@ -264,7 +271,7 @@ export namespace SiegeStructure {
       iron,
       "frame",
     );
-    const cocked: number = -d.cocked! * ArchetypeUnits.DEGREE;
+    const cocked: number = -d.cocked! * AutoMovieArchetypeUnits.DEGREE;
     rod(
       "release-link",
       stock,
@@ -323,7 +330,7 @@ export namespace SiegeStructure {
       radius: number,
       from: IAutoMovieVector3,
       to: IAutoMovieVector3,
-      options: ArchetypeBuilder.IOptions,
+      options: AutoMovieArchetypeBuilder.IOptions,
       carrier: "arm" | "frame" | "winch",
     ): void {
       const pivot: number =

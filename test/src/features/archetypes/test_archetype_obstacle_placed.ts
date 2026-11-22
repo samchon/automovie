@@ -1,4 +1,4 @@
-import { ArchetypeUnits, createObstacle } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, createObstacle } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -89,12 +89,12 @@ export function test_archetype_obstacle_placed(): void {
           [7, 8],
         ].flatMap(([depth, face]: number[]): number[][] =>
           [
-            8 * ArchetypeUnits.FOOT,
-            8.5 * ArchetypeUnits.FOOT,
-            9 * ArchetypeUnits.FOOT,
+            8 * AutoMovieArchetypeUnits.FOOT,
+            8.5 * AutoMovieArchetypeUnits.FOOT,
+            9 * AutoMovieArchetypeUnits.FOOT,
           ].map((length: number): number[] => [
-            depth! * ArchetypeUnits.INCH,
-            face! * ArchetypeUnits.INCH,
+            depth! * AutoMovieArchetypeUnits.INCH,
+            face! * AutoMovieArchetypeUnits.INCH,
             length,
           ]),
         ),
@@ -104,46 +104,46 @@ export function test_archetype_obstacle_placed(): void {
     ...archetypeBandSweep([
       row(
         "sandbag height",
-        ArchetypeUnits.FOOT / 3,
-        ArchetypeUnits.FOOT / 3,
+        AutoMovieArchetypeUnits.FOOT / 3,
+        AutoMovieArchetypeUnits.FOOT / 3,
         "USACE",
         (s: number): number => archetypeExtent(make("sandbag", s), "y").high,
       ),
       row(
         "sandbag length",
-        ArchetypeUnits.FOOT,
-        ArchetypeUnits.FOOT,
+        AutoMovieArchetypeUnits.FOOT,
+        AutoMovieArchetypeUnits.FOOT,
         "USACE",
         (s: number): number => archetypeExtent(make("sandbag", s), "x").size,
       ),
       row(
         "barrier height",
-        32 * ArchetypeUnits.INCH,
-        32 * ArchetypeUnits.INCH,
+        32 * AutoMovieArchetypeUnits.INCH,
+        32 * AutoMovieArchetypeUnits.INCH,
         "FHWA-RD-89-036",
         (s: number): number =>
           archetypeExtent(make("jerseyBarrier", s), "y").high,
       ),
       row(
         "barrier base",
-        24 * ArchetypeUnits.INCH,
-        24 * ArchetypeUnits.INCH,
+        24 * AutoMovieArchetypeUnits.INCH,
+        24 * AutoMovieArchetypeUnits.INCH,
         "FHWA-RD-89-036",
         (s: number): number =>
           archetypeExtent(make("jerseyBarrier", s), "z").size,
       ),
       row(
         "barrier top",
-        6 * ArchetypeUnits.INCH,
-        6 * ArchetypeUnits.INCH,
+        6 * AutoMovieArchetypeUnits.INCH,
+        6 * AutoMovieArchetypeUnits.INCH,
         "FHWA-RD-89-036",
         (s: number): number =>
           make("jerseyBarrier", s).affordance("top").depth!,
       ),
       row(
         "barrier mass per metre",
-        (450 * ArchetypeUnits.POUND) / ArchetypeUnits.FOOT,
-        (550 * ArchetypeUnits.POUND) / ArchetypeUnits.FOOT,
+        (450 * AutoMovieArchetypeUnits.POUND) / AutoMovieArchetypeUnits.FOOT,
+        (550 * AutoMovieArchetypeUnits.POUND) / AutoMovieArchetypeUnits.FOOT,
         "FHWA-RD-89-036, 450 to 550 lb/ft",
         (s: number): number => {
           const barrier: ReturnType<typeof createObstacle> = make(
@@ -155,24 +155,24 @@ export function test_archetype_obstacle_placed(): void {
       ),
       row(
         "crowd barrier rail top",
-        43 * ArchetypeUnits.INCH,
-        43 * ArchetypeUnits.INCH,
+        43 * AutoMovieArchetypeUnits.INCH,
+        43 * AutoMovieArchetypeUnits.INCH,
         "listings",
         (s: number): number =>
           archetypeExtent(make("crowdBarrier", s), "y").high,
       ),
       row(
         "post top",
-        40 * ArchetypeUnits.INCH,
-        40 * ArchetypeUnits.INCH,
+        40 * AutoMovieArchetypeUnits.INCH,
+        40 * AutoMovieArchetypeUnits.INCH,
         "listings",
         (s: number): number =>
           archetypeExtent(make("ropeAndPosts", s), "y", ["leftPost-post"]).high,
       ),
       row(
         "post to post",
-        6 * ArchetypeUnits.FOOT,
-        6 * ArchetypeUnits.FOOT,
+        6 * AutoMovieArchetypeUnits.FOOT,
+        6 * AutoMovieArchetypeUnits.FOOT,
         "listings",
         (s: number): number => {
           const posts: ReturnType<typeof createObstacle> = make(

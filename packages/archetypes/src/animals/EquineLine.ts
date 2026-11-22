@@ -5,12 +5,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame, ArchetypeRefusal, type ArchetypeRide } from "../core";
+import {
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
+} from "../core";
 
 /**
  * A lead laid from the halter to a held point away from the head: the lunge line paid out to the handler at the circle's centre, or the lead tied to a ring.
  *
- * The lead is the equid's own line (`HorseSaddle.lead`): a span from its held run to the halter. Each sample moves the held run's contact to the given world point and re-lays the span through the model's own span owner (`Archetype.reposed`), so the line runs straight from that point to the halter and its held run lies along it. The line's drawn length is the distance between them; a point farther from the halter than the line's length is refused, as a line cannot stretch.
+ * The lead is the equid's own line (`EquineSaddle.lead`): a span from its held run to the halter. Each sample moves the held run's contact to the given world point and re-lays the span through the model's own span owner (`AutoMovieArchetype.reposed`), so the line runs straight from that point to the halter and its held run lies along it. The line's drawn length is the distance between them; a point farther from the halter than the line's length is refused, as a line cannot stretch.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is laid, by whom, its length and the refusal.
  * @evidence contracts/development/design.md#principled-representation A ride in, a ride out on the same clock; the held point is a world point at each film second.
@@ -28,7 +32,7 @@ export namespace EquineLine {
    */
   export type Held<Id extends string, D extends string> = (
     seconds: number,
-    sample: ArchetypeRide.ISample<Id, D>,
+    sample: AutoMovieArchetypeRide.ISample<Id, D>,
   ) => IAutoMovieVector3;
 
   /**
@@ -39,7 +43,7 @@ export namespace EquineLine {
    * @param held Where the held run is at each film second.
    * @param length The line's whole length, metres.
    * @returns The ride with the line laid.
-   * @throws {ArchetypeRefusal} At a sample whose held point is farther from the halter than the line's length.
+   * @throws {AutoMovieArchetypeRefusal} At a sample whose held point is farther from the halter than the line's length.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order it must be applied in and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Carry the world point into the model's space through the sample's placement, rebind the contact there and let the span owner re-lay the line and turn its held run onto it.
@@ -50,15 +54,15 @@ export namespace EquineLine {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the base ride and the held function.
    */
   export function layer<Id extends string, D extends string>(
-    ride: ArchetypeRide.IRide<Id, D>,
+    ride: AutoMovieArchetypeRide.IRide<Id, D>,
     lead: Id,
     held: Held<Id, D>,
     length: number,
-  ): ArchetypeRide.IRide<Id, D> {
+  ): AutoMovieArchetypeRide.IRide<Id, D> {
     if (!(Number.isFinite(length) && length > 0))
       throw new RangeError("A line has a positive finite length");
-    const at = (seconds: number): ArchetypeRide.ISample<Id, D> => {
-      const base: ArchetypeRide.ISample<Id, D> = ride.at(seconds);
+    const at = (seconds: number): AutoMovieArchetypeRide.ISample<Id, D> => {
+      const base: AutoMovieArchetypeRide.ISample<Id, D> = ride.at(seconds);
       const point: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.inverse(base.placement.rotation),
         Vector3.subtract(held(seconds, base), base.placement.translation),
@@ -68,16 +72,19 @@ export namespace EquineLine {
           (contact: IAutoMovieAffordance): [string, IAutoMovieTransform] => [
             contact.id,
             contact.id === lead
-              ? { ...ArchetypeFrame.copy(contact.frame), translation: point }
-              : ArchetypeFrame.copy(contact.frame),
+              ? {
+                  ...AutoMovieArchetypeFrame.copy(contact.frame),
+                  translation: point,
+                }
+              : AutoMovieArchetypeFrame.copy(contact.frame),
           ],
         ),
       );
-      const archetype: ArchetypeRide.ISample<Id, D>["archetype"] =
+      const archetype: AutoMovieArchetypeRide.ISample<Id, D>["archetype"] =
         base.archetype.reposed(base.archetype.parts, frames);
       const drawn: number = archetype.span(lead).length;
       if (!(drawn <= length))
-        throw new ArchetypeRefusal({
+        throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
           archetype: archetype.archetype,
           axis: "held",
@@ -94,8 +101,8 @@ export namespace EquineLine {
       instants: ride.instants,
       at,
       frame: (id: Id, seconds: number): IAutoMovieTransform => {
-        const sample: ArchetypeRide.ISample<Id, D> = at(seconds);
-        return ArchetypeFrame.compose(
+        const sample: AutoMovieArchetypeRide.ISample<Id, D> = at(seconds);
+        return AutoMovieArchetypeFrame.compose(
           sample.placement,
           sample.archetype.affordance(id).frame,
         );

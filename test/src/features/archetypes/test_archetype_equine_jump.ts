@@ -1,8 +1,8 @@
 import {
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  QuadrupedBody,
-  type QuadrupedFooting,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeQuadrupedFooting,
+  AutoMovieArchetypeRefusal,
   createHorse,
   rideHorse,
   type rideQuadruped,
@@ -44,7 +44,7 @@ interface IObstacleCase {
   /** Its rails. */
   rails: readonly IRail[];
   /** The lane's support planes. */
-  planes: readonly QuadrupedFooting.IPlane[];
+  planes: readonly AutoMovieArchetypeQuadrupedFooting.IPlane[];
 }
 
 /** One measured part's lowest height and its extent along the lane. */
@@ -78,14 +78,19 @@ export function test_archetype_equine_jump(): void {
     tempo: 0,
   });
   const speed: number = 5;
-  const lane = (z: readonly [number, number]): QuadrupedFooting.IPlane => ({
+  const lane = (
+    z: readonly [number, number],
+  ): AutoMovieArchetypeQuadrupedFooting.IPlane => ({
     id: `lane-${z[0]}`,
     origin: { x: 0, y: 0, z: 0 },
     x: [-4, 4],
     z,
     slope: { x: 0, z: 0 },
   });
-  const pole = (rail: IRail, index: number): QuadrupedFooting.IPole => ({
+  const pole = (
+    rail: IRail,
+    index: number,
+  ): AutoMovieArchetypeQuadrupedFooting.IPole => ({
     id: `rail-${index}`,
     from: { x: -2, y: rail.y, z: rail.z },
     to: { x: 2, y: rail.y, z: rail.z },
@@ -119,16 +124,17 @@ export function test_archetype_equine_jump(): void {
     if (!(cue(ride, "jumpApproach") < takeoff && landing < recovery))
       issues.push(`${label}: jump cues out of order`);
     if (
-      !QuadrupedBody.LIMBS.some(
-        (limb: QuadrupedBody.Limb): boolean =>
+      !AutoMovieArchetypeQuadrupedBody.LIMBS.some(
+        (limb: AutoMovieArchetypeQuadrupedBody.Limb): boolean =>
           limb.endsWith("Hind") && sole(ride, limb, takeoff - 0.01) < 1e-6,
       )
     )
       issues.push(`${label}: no hind is down before takeoff`);
     for (let at: number = takeoff + 0.005; at < landing; at += 0.01)
       if (
-        QuadrupedBody.LIMBS.some(
-          (limb: QuadrupedBody.Limb): boolean => !(sole(ride, limb, at) > 0),
+        AutoMovieArchetypeQuadrupedBody.LIMBS.some(
+          (limb: AutoMovieArchetypeQuadrupedBody.Limb): boolean =>
+            !(sole(ride, limb, at) > 0),
         )
       ) {
         issues.push(`${label}: a hoof is down in flight at ${at}`);
@@ -188,7 +194,7 @@ export function test_archetype_equine_jump(): void {
         issues.push(`${label}: ${side} carpus folds ${fold} degrees in flight`);
     }
     if (label === "ditch")
-      for (const limb of QuadrupedBody.LIMBS)
+      for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS)
         for (const at of archetypeHorseRide.footfalls(ride, limb)) {
           const hoof: IAutoMovieVector3 = archetypeHorseRide.hoof(
             ride,
@@ -225,7 +231,7 @@ export function test_archetype_equine_jump(): void {
   const settle: number = cue(baulk, "baulkSettle");
   if (baulk.instants.some((event): boolean => event.label.startsWith("jump")))
     issues.push("the baulk publishes a jump event");
-  for (const limb of QuadrupedBody.LIMBS) {
+  for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
     const first: IAutoMovieVector3 = archetypeHorseRide.hoof(
       baulk,
       limb,
@@ -280,7 +286,7 @@ export function test_archetype_equine_jump(): void {
     }
     if (
       !(
-        refusal instanceof ArchetypeRefusal &&
+        refusal instanceof AutoMovieArchetypeRefusal &&
         refusal.axis.endsWith("equineFootwork")
       )
     )
@@ -290,8 +296,8 @@ export function test_archetype_equine_jump(): void {
 
   /** A straight canter lane with one jump leg. */
   function jump(
-    poles: readonly QuadrupedFooting.IPole[],
-    planes: readonly QuadrupedFooting.IPlane[],
+    poles: readonly AutoMovieArchetypeQuadrupedFooting.IPole[],
+    planes: readonly AutoMovieArchetypeQuadrupedFooting.IPlane[],
     x: number,
   ): Ride {
     const legs: readonly rideQuadruped.ILeg[] = [
@@ -320,7 +326,7 @@ function carpus(ride: Ride, side: "left" | "right", at: number): number {
   const axis = (index: number): IAutoMovieVector3 => {
     const part: IAutoMovieModelPart = parts.find(
       (p: IAutoMovieModelPart): boolean =>
-        p.id === QuadrupedBody.BONES[`${side}Fore`][index],
+        p.id === AutoMovieArchetypeQuadrupedBody.BONES[`${side}Fore`][index],
     )!;
     return Quaternion.rotateVector(part.transform!.rotation, {
       x: 0,
@@ -342,10 +348,15 @@ function cue(ride: Ride, label: string): number {
 }
 
 /** A hoof's displayed sole height above the level floor. */
-function sole(ride: Ride, limb: QuadrupedBody.Limb, at: number): number {
+function sole(
+  ride: Ride,
+  limb: AutoMovieArchetypeQuadrupedBody.Limb,
+  at: number,
+): number {
   const sample: ReturnType<Ride["at"]> = ride.at(at);
   const part: IAutoMovieModelPart = sample.archetype.parts.find(
-    (p: IAutoMovieModelPart): boolean => p.id === QuadrupedBody.BONES[limb][3],
+    (p: IAutoMovieModelPart): boolean =>
+      p.id === AutoMovieArchetypeQuadrupedBody.BONES[limb][3],
   )!;
   return animalTerminalSole(part, sample.placement);
 }
@@ -358,7 +369,7 @@ function measure(
   if (part.geometry.type !== "primitive")
     throw new Error(`${part.id} is not a primitive`);
   const shape: typeof part.geometry.shape = part.geometry.shape;
-  const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+  const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     placement,
     part.transform!,
   );

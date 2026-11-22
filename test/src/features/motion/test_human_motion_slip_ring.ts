@@ -1,4 +1,7 @@
-import { type Archetype, createFingerRing } from "@automovie/archetypes";
+import {
+  type AutoMovieArchetype,
+  createFingerRing,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -34,7 +37,10 @@ const SEATED: number = 0.005;
 const APART: number = 0.75;
 
 /** A ring model. */
-type Ring = Archetype<createFingerRing.Affordance, createFingerRing.Dimension>;
+type Ring = AutoMovieArchetype<
+  createFingerRing.Affordance,
+  createFingerRing.Dimension
+>;
 
 /** One ring exchange: who gives, who receives, and with which hands. */
 interface ICase {

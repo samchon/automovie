@@ -1,5 +1,5 @@
 import {
-  type Archetype,
+  type AutoMovieArchetype,
   createBed,
   createBookcase,
   createBunkBed,
@@ -39,7 +39,7 @@ const IDENTITY: IAutoMovieRigidTransform = {
 
 /** Whether an advertised contact is on the top of a named solid with free space above it. */
 function onTop(
-  model: Archetype,
+  model: AutoMovieArchetype,
   site: IAutoMovieAffordance,
   part: string,
 ): boolean {
@@ -82,7 +82,10 @@ function onTop(
  */
 export function test_archetype_catalogue_home_supports(): void {
   for (const seed of [undefined, 0, "care-room"]) {
-    const pairs: readonly (readonly [Archetype, Archetype])[] = [
+    const pairs: readonly (readonly [
+      AutoMovieArchetype,
+      AutoMovieArchetype,
+    ])[] = [
       [createMobilityAid({ kind: "cane" }, seed), createCane({}, seed)],
       [
         createMobilityAid(

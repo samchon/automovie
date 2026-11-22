@@ -2,16 +2,16 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeBand,
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetypeBand,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import type { createLongTool } from "./createLongTool";
 
 /** A long tool under construction. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createLongTool.Affordance,
   createLongTool.Dimension
 >;
@@ -61,50 +61,52 @@ export namespace Throwers {
   export const BANDS: Readonly<
     Record<
       "sling" | "atlatl",
-      Readonly<Partial<Record<createLongTool.Dimension, IArchetypeBand>>>
+      Readonly<
+        Partial<Record<createLongTool.Dimension, IAutoMovieArchetypeBand>>
+      >
     >
   > = {
     sling: {
-      length: ArchetypeBand.metres(1.78, 1.78, FINNEY),
-      shaftDiameter: ArchetypeBand.metres(0.006, 0.006, FINNEY),
-      pouchLength: ArchetypeBand.metres(0.155, 0.155, FINNEY),
-      pouchWidth: ArchetypeBand.metres(0.04, 0.04, FINNEY),
-      launchSpeed: ArchetypeBand.of("m/s", 32.1, 43.3, SKOV),
-      mass: ArchetypeBand.of(
+      length: AutoMovieArchetypeBand.metres(1.78, 1.78, FINNEY),
+      shaftDiameter: AutoMovieArchetypeBand.metres(0.006, 0.006, FINNEY),
+      pouchLength: AutoMovieArchetypeBand.metres(0.155, 0.155, FINNEY),
+      pouchWidth: AutoMovieArchetypeBand.metres(0.04, 0.04, FINNEY),
+      launchSpeed: AutoMovieArchetypeBand.of("m/s", 32.1, 43.3, SKOV),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.05,
         0.1,
-        `${ArchetypeBand.TYPICAL_MASS}: an estimate, no sling's weight being read (searched: Finney 2005, Skov 2013; records-sling-atlatl.md)`,
+        `${AutoMovieArchetypeBand.TYPICAL_MASS}: an estimate, no sling's weight being read (searched: Finney 2005, Skov 2013; records-sling-atlatl.md)`,
         true,
       ),
     },
     atlatl: {
-      length: ArchetypeBand.metres(
-        26 * ArchetypeUnits.INCH,
-        26 * ArchetypeUnits.INCH,
+      length: AutoMovieArchetypeBand.metres(
+        26 * AutoMovieArchetypeUnits.INCH,
+        26 * AutoMovieArchetypeUnits.INCH,
         BASKETMAKER,
       ),
-      width: ArchetypeBand.metres(
-        (11 / 8) * ArchetypeUnits.INCH,
-        (11 / 8) * ArchetypeUnits.INCH,
+      width: AutoMovieArchetypeBand.metres(
+        (11 / 8) * AutoMovieArchetypeUnits.INCH,
+        (11 / 8) * AutoMovieArchetypeUnits.INCH,
         `${BASKETMAKER}: the spur end`,
       ),
-      spurSetback: ArchetypeBand.metres(
-        3 * ArchetypeUnits.INCH,
-        3 * ArchetypeUnits.INCH,
+      spurSetback: AutoMovieArchetypeBand.metres(
+        3 * AutoMovieArchetypeUnits.INCH,
+        3 * AutoMovieArchetypeUnits.INCH,
         BASKETMAKER,
       ),
-      gripSetback: ArchetypeBand.metres(
-        4 * ArchetypeUnits.INCH,
-        4 * ArchetypeUnits.INCH,
+      gripSetback: AutoMovieArchetypeBand.metres(
+        4 * AutoMovieArchetypeUnits.INCH,
+        4 * AutoMovieArchetypeUnits.INCH,
         BASKETMAKER,
       ),
-      launchSpeed: ArchetypeBand.of("m/s", 16.7, 28.7, PETTIGREW),
-      mass: ArchetypeBand.of(
+      launchSpeed: AutoMovieArchetypeBand.of("m/s", 16.7, 28.7, PETTIGREW),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.1,
         0.3,
-        `${ArchetypeBand.TYPICAL_MASS}: an estimate, no Basketmaker atlatl being weighed (searched: Kidder and Guernsey 1919, Museums Victoria's woomeras; records-sling-atlatl.md)`,
+        `${AutoMovieArchetypeBand.TYPICAL_MASS}: an estimate, no Basketmaker atlatl being weighed (searched: Kidder and Guernsey 1919, Museums Victoria's woomeras; records-sling-atlatl.md)`,
         true,
       ),
     },
@@ -153,7 +155,7 @@ export namespace Throwers {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(loop, v(0, 0, -1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(loop, v(0, 0, -1), v(1, 0, 0)),
       extent: null,
       grip: "hook",
       aperture: ESTIMATES.loop,
@@ -163,7 +165,7 @@ export namespace Throwers {
       id: "release",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(knot, v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(knot, v(0, 0, 1), v(1, 0, 0)),
       extent: null,
       grip: "lateral",
       aperture: ESTIMATES.knot,
@@ -172,7 +174,7 @@ export namespace Throwers {
     builder.affordance({
       id: "pouch",
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(0, r, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, r, 0)),
       extent: null,
     });
   }
@@ -205,7 +207,11 @@ export namespace Throwers {
       id: "grip",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(v(0, grip / 2, 0), v(0, 0, -1), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, grip / 2, 0),
+        v(0, 0, -1),
+        v(0, 1, 0),
+      ),
       extent: null,
       grip: "power",
       aperture: ESTIMATES.thickness,
@@ -215,7 +221,7 @@ export namespace Throwers {
       id: "spur",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, length - d.spurSetback!, ESTIMATES.thickness / 2),
         v(0, -1, 0),
         v(1, 0, 0),

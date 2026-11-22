@@ -1,9 +1,9 @@
-﻿import {
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  EquineExpression,
-  type EquineExpressionCue,
-  QuadrupedBody,
+import {
+  AutoMovieArchetypeEquineExpression,
+  type AutoMovieArchetypeEquineExpressionCue,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -20,10 +20,13 @@ import { equineExpressionObservation as Look } from "../internal/equineExpressio
 type Horse = ReturnType<typeof createHorse>;
 
 /** A horse ride. */
-type Ride = ArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension>;
+type Ride = AutoMovieArchetypeRide.IRide<
+  createHorse.Affordance,
+  createHorse.Dimension
+>;
 
 /** A sample of a horse ride. */
-type Sample = ArchetypeRide.ISample<
+type Sample = AutoMovieArchetypeRide.ISample<
   createHorse.Affordance,
   createHorse.Dimension
 >;
@@ -79,10 +82,10 @@ export function test_archetype_equine_expression(): void {
     z: root.z + 0.7,
   };
   const reach = (
-    act: EquineExpressionCue.Act,
+    act: AutoMovieArchetypeEquineExpressionCue.Act,
     from: number,
     point: IAutoMovieVector3,
-  ): EquineExpressionCue.IReach => ({
+  ): AutoMovieArchetypeEquineExpressionCue.IReach => ({
     kind: "reach",
     act,
     from,
@@ -91,7 +94,7 @@ export function test_archetype_equine_expression(): void {
     target: { kind: "point", point },
     gap: 0,
   });
-  const cues: readonly EquineExpressionCue.Cue[] = [
+  const cues: readonly AutoMovieArchetypeEquineExpressionCue.Cue[] = [
     reach("graze", t, grass),
     { kind: "jaw", action: "chew", from: t + 0.8, to: t + 4.8, ease: 0.3 },
     reach("hay", t + 5, hay),
@@ -117,10 +120,10 @@ export function test_archetype_equine_expression(): void {
     { kind: "jaw", action: "open", from: t + 18, to: t + 19.5, ease: 0.3 },
     { kind: "vocalize", call: "neigh", at: t + 18.3 },
   ];
-  const layered: EquineExpression.IRide<
+  const layered: AutoMovieArchetypeEquineExpression.IRide<
     createHorse.Affordance,
     createHorse.Dimension
-  > = EquineExpression.layer(horse, halted, cues);
+  > = AutoMovieArchetypeEquineExpression.layer(horse, halted, cues);
 
   // 1. Each target meets the displayed muzzle while held and lies clear of it outside.
   for (const [label, from, point] of [
@@ -225,7 +228,9 @@ export function test_archetype_equine_expression(): void {
   // 4. One mark and one instant per call.
   TestValidator.equals(
     "one mark per call",
-    layered.marks.map((mark: EquineExpressionCue.IMark): string => mark.call),
+    layered.marks.map(
+      (mark: AutoMovieArchetypeEquineExpressionCue.IMark): string => mark.call,
+    ),
     ["snort", "neigh"],
   );
   for (const call of ["snort", "neigh"])
@@ -259,7 +264,7 @@ function gaze(horse: Horse): void {
     "walk",
   );
   const point: IAutoMovieVector3 = { x: 6, y: 1.8, z: 6 };
-  const layered: Ride = EquineExpression.layer(horse, walk, [
+  const layered: Ride = AutoMovieArchetypeEquineExpression.layer(horse, walk, [
     {
       kind: "attend",
       from: 1,
@@ -269,9 +274,9 @@ function gaze(horse: Horse): void {
     },
   ]);
   const kept: readonly string[] = [
-    ...QuadrupedBody.LIMBS.flatMap(
-      (limb: QuadrupedBody.Limb): readonly string[] =>
-        QuadrupedBody.BONES[limb],
+    ...AutoMovieArchetypeQuadrupedBody.LIMBS.flatMap(
+      (limb: AutoMovieArchetypeQuadrupedBody.Limb): readonly string[] =>
+        AutoMovieArchetypeQuadrupedBody.BONES[limb],
     ),
     "trunk",
     "hindquarters",
@@ -335,18 +340,18 @@ function refusals(
 ): void {
   const refused = (
     label: string,
-    cues: readonly EquineExpressionCue.Cue[],
+    cues: readonly AutoMovieArchetypeEquineExpressionCue.Cue[],
     axis: string,
   ): void => {
     let caught: unknown = null;
     try {
-      EquineExpression.layer(horse, halted, cues);
+      AutoMovieArchetypeEquineExpression.layer(horse, halted, cues);
     } catch (error) {
       caught = error;
     }
     TestValidator.predicate(
       `${label} refuses on ${axis}`,
-      caught instanceof ArchetypeRefusal && caught.axis === axis,
+      caught instanceof AutoMovieArchetypeRefusal && caught.axis === axis,
     );
   };
   refused(

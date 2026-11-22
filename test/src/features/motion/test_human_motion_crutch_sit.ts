@@ -1,4 +1,7 @@
-import { type Archetype, createAxillaryCrutch } from "@automovie/archetypes";
+import {
+  type AutoMovieArchetype,
+  createAxillaryCrutch,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -258,7 +261,7 @@ interface ITake {
 }
 
 /** An axillary crutch's model. */
-type CrutchModel = Archetype<
+type CrutchModel = AutoMovieArchetype<
   createAxillaryCrutch.Affordance,
   createAxillaryCrutch.Dimension
 >;

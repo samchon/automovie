@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -49,10 +49,13 @@ const SIZE: Readonly<createPotteryWheel.ISize> = {
  */
 export function createPotteryWheel(
   params: createPotteryWheel.IParams = {},
-): Archetype<createPotteryWheel.Affordance, createPotteryWheel.Dimension> {
+): AutoMovieArchetype<
+  createPotteryWheel.Affordance,
+  createPotteryWheel.Dimension
+> {
   const v: typeof Vector3.create = Vector3.create;
-  const draw: ArchetypeDrawSession<createPotteryWheel.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createPotteryWheel.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "potteryWheel",
       { height: "m", clay: "m", rise: "m", mass: "kg" },
       undefined,
@@ -61,10 +64,10 @@ export function createPotteryWheel(
   draw.derive("clay", SIZE.clay);
   draw.derive("rise", SIZE.rise);
   draw.derive("mass", SIZE.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createPotteryWheel.Affordance,
     createPotteryWheel.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? "potteryWheel",
     name: "potter's wheel",
     material: "steel",
@@ -95,7 +98,7 @@ export function createPotteryWheel(
     kind: "crank",
     extent: null,
     parts: ["head"],
-    frame: ArchetypeFrame.upright(v(0, top, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, top, 0)),
   });
   builder.affordance({
     id: "raise",
@@ -103,7 +106,7 @@ export function createPotteryWheel(
     extent: null,
     travel: SIZE.rise,
     parts: ["wall"],
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, top + SIZE.start, 0),
       v(0, 0, 1),
       v(0, 1, 0),
@@ -113,7 +116,7 @@ export function createPotteryWheel(
     id: "outside",
     kind: "socket",
     rides: "raise",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, top + SIZE.start, SIZE.clay),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -124,7 +127,7 @@ export function createPotteryWheel(
     id: "inside",
     kind: "socket",
     rides: "raise",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, top + SIZE.start, SIZE.clay - SIZE.wall),
       v(0, 0, -1),
       v(1, 0, 0),

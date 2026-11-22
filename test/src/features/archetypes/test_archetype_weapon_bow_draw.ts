@@ -1,4 +1,4 @@
-import { ArchetypeRefusal, createBow } from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, createBow } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -107,7 +107,9 @@ export function test_archetype_weapon_bow_draw(): void {
       bow.articulate({ upperLimb: 10 });
     } catch (error) {
       refused =
-        error instanceof ArchetypeRefusal ? String(error.value) : String(error);
+        error instanceof AutoMovieArchetypeRefusal
+          ? String(error.value)
+          : String(error);
     }
     if (refused === null)
       findings.push(`${kind}: a limb named in a state was not refused`);

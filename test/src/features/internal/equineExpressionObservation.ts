@@ -1,4 +1,7 @@
-import { ArchetypeFrame, type ArchetypeRide } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeRide,
+} from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
@@ -46,11 +49,11 @@ export namespace equineExpressionObservation {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup, one composition.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing part throws.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses `ArchetypeFrame.compose`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses `AutoMovieArchetypeFrame.compose`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function frame(
-    sample: ArchetypeRide.IPose<string, string>,
+    sample: AutoMovieArchetypeRide.IPose<string, string>,
     id: string,
   ): IAutoMovieTransform {
     const part: IAutoMovieModelPart | undefined = sample.archetype.parts.find(
@@ -58,7 +61,7 @@ export namespace equineExpressionObservation {
     );
     if (part?.transform === undefined || part.transform === null)
       throw new Error(`No displayed part ${id}`);
-    return ArchetypeFrame.compose(sample.placement, part.transform);
+    return AutoMovieArchetypeFrame.compose(sample.placement, part.transform);
   }
 
   /**
@@ -73,7 +76,7 @@ export namespace equineExpressionObservation {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bar(
-    sample: ArchetypeRide.IPose<string, string>,
+    sample: AutoMovieArchetypeRide.IPose<string, string>,
     id: string,
   ): IBar {
     const part: IAutoMovieModelPart = sample.archetype.parts.find(
@@ -128,7 +131,7 @@ export namespace equineExpressionObservation {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function axis(
-    sample: ArchetypeRide.IPose<string, string>,
+    sample: AutoMovieArchetypeRide.IPose<string, string>,
     id: string,
   ): IAutoMovieVector3 {
     return Quaternion.rotateVector(frame(sample, id).rotation, {

@@ -5,12 +5,12 @@ import type {
 } from "@automovie/interface";
 
 import {
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
 } from "../core";
-import type { QuadrupedBody } from "./QuadrupedBody";
-import type { QuadrupedEquipment } from "./QuadrupedEquipment";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedEquipment } from "./AutoMovieArchetypeQuadrupedEquipment";
 import { QuadrupedEquipmentSolids } from "./QuadrupedEquipmentSolids";
 
 /** One admitted real primitive, kept outside the animal builder until the whole assembly fits. */
@@ -39,7 +39,7 @@ type Part =
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines neutral-model metres, copied additional spheres, preflight lifetime, primitive/contact ownership and the explicit append boundary.
  * @evidence contracts/development/design.md#principled-representation Rod and box records carry actual SI geometry; typed contacts refer to the same bearing bars. The shared solid owner holds independent body-sphere copies and admits actual cylinder/box separation before recording.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only QuadrupedEquipment uses this internal plan. It owns shared length admission, primitive recording, three-bar U hooks and final append, while assembly fit and public inputs remain with QuadrupedEquipment.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only AutoMovieArchetypeQuadrupedEquipment uses this internal plan. It owns shared length admission, primitive recording, three-bar U hooks and final append, while assembly fit and public inputs remain with AutoMovieArchetypeQuadrupedEquipment.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No species dimensions, mass shares, material coefficients, maker defaults or contact-only substitutes enter this plan; a failed preflight has no builder to mutate.
  */
 export class QuadrupedEquipmentPlan {
@@ -48,7 +48,7 @@ export class QuadrupedEquipmentPlan {
 
   /** Contacts of the same actual planned U bars. */
   readonly #contacts: (IAutoMovieAffordance & {
-    id: QuadrupedEquipment.Affordance;
+    id: AutoMovieArchetypeQuadrupedEquipment.Affordance;
   })[] = [];
 
   /** Actual caller identity retained by every admission failure. */
@@ -66,7 +66,7 @@ export class QuadrupedEquipmentPlan {
    */
   public constructor(
     archetype: string,
-    spheres: readonly QuadrupedEquipment.ISphere[] = [],
+    spheres: readonly AutoMovieArchetypeQuadrupedEquipment.ISphere[] = [],
   ) {
     this.#archetype = archetype;
     this.#solids = new QuadrupedEquipmentSolids(archetype, spheres);
@@ -81,7 +81,7 @@ export class QuadrupedEquipmentPlan {
    * @param radius Positive finite bridge cylinder radius, metres.
    * @param clearance Finite nonnegative separation from actual additional spheres, metres.
    * @returns The admitted lower height or a conservative upper sphere support height, metres.
-   * @throws {ArchetypeRefusal} For invalid inputs or nonfinite derived support height.
+   * @throws {AutoMovieArchetypeRefusal} For invalid inputs or nonfinite derived support height.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the admitted trunk height, real X span/Z plane, bar radius and authored minimum clearance in metres.
    * @evidence contracts/development/implementation.md#principled-implementation Delegate the additional-sphere upper envelope and outward rounding to the same solid owner that admits every final primitive.
@@ -118,9 +118,9 @@ export class QuadrupedEquipmentPlan {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each builder owns independent emitted records. The caller may retain fixed equipment records and O(S) copied body spheres until the plan's final emission; the plan retains no builder or external handle.
    */
   public emit(
-    builder: ArchetypeBuilder<
-      QuadrupedEquipment.Affordance,
-      QuadrupedBody.Dimension
+    builder: AutoMovieArchetypeBuilder<
+      AutoMovieArchetypeQuadrupedEquipment.Affordance,
+      AutoMovieArchetypeQuadrupedBody.Dimension
     >,
   ): void {
     for (const part of this.#parts)
@@ -142,7 +142,7 @@ export class QuadrupedEquipmentPlan {
    * @param to Second finite endpoint, distinct from the first, metres.
    * @param color Optical display color without material-physics implications.
    * @param clearance Finite nonnegative separation from each additional body sphere, metres; defaults to zero, allowing exact contact.
-   * @throws {ArchetypeRefusal} For invalid geometry/clearance or insufficient actual sphere separation.
+   * @throws {AutoMovieArchetypeRefusal} For invalid geometry/clearance or insufficient actual sphere separation.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names actual cylinder geometry, display color, the zero default clearance and physical additional-sphere refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Admit radius, endpoints, positive span and clearance, then check the actual flat-capped cylinder against every additional sphere before recording it.
@@ -177,7 +177,7 @@ export class QuadrupedEquipmentPlan {
    * @param at Finite box centre in the neutral model frame, metres.
    * @param color Optical display color without material-physics implications.
    * @param clearance Finite nonnegative additional-sphere separation, metres; defaults to zero, allowing exact contact.
-   * @throws {ArchetypeRefusal} For nonfinite geometry, invalid clearance or insufficient actual sphere separation.
+   * @throws {AutoMovieArchetypeRefusal} For nonfinite geometry, invalid clearance or insufficient actual sphere separation.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines full-size metre geometry, prior positive-size admission, the zero clearance default and actual-solid refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Admit finite size/placement and nonnegative clearance, then delegate actual sphere-to-box separation before recording the unchanged pad.
@@ -210,7 +210,7 @@ export class QuadrupedEquipmentPlan {
    * @param hook Already admitted positive finite bar radius, opening and depth, metres.
    * @param color Optical display color for all three bars.
    * @param clearance Finite nonnegative additional-sphere separation for every bar, metres; defaults to zero.
-   * @throws {ArchetypeRefusal} For invalid derived bar geometry or insufficient actual sphere separation; no builder has been mutated.
+   * @throws {AutoMovieArchetypeRefusal} For invalid derived bar geometry or insufficient actual sphere separation; no builder has been mutated.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the lower bar midpoint, clear fore-aft opening, clear vertical depth, bar radius and the outward bearing normal.
    * @evidence contracts/development/implementation.md#principled-implementation Offset upright axes by opening/2 plus radius, raise each upright by radius plus clear depth and put the contact exactly one radius above the actual lower bar axis.
@@ -222,9 +222,9 @@ export class QuadrupedEquipmentPlan {
    */
   public hook(
     name: string,
-    id: QuadrupedEquipment.Affordance,
+    id: AutoMovieArchetypeQuadrupedEquipment.Affordance,
     base: IAutoMovieVector3,
-    hook: QuadrupedEquipment.IHook,
+    hook: AutoMovieArchetypeQuadrupedEquipment.IHook,
     color: string,
     clearance: number = 0,
   ): void {
@@ -256,7 +256,7 @@ export class QuadrupedEquipmentPlan {
       id,
       kind: "hook",
       extent: null,
-      frame: ArchetypeFrame.upright(bearing),
+      frame: AutoMovieArchetypeFrame.upright(bearing),
     });
   }
 
@@ -271,7 +271,10 @@ export class QuadrupedEquipmentPlan {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the single positive-length owner for both assemblies and all physical hooks.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no authored hook input and opens no process or resource.
    */
-  public admitHook(name: string, hook: QuadrupedEquipment.IHook): void {
+  public admitHook(
+    name: string,
+    hook: AutoMovieArchetypeQuadrupedEquipment.IHook,
+  ): void {
     for (const key of ["radius", "opening", "depth"] as const)
       this.positive(`${name}.${key}`, hook[key]);
   }
@@ -371,7 +374,7 @@ export class QuadrupedEquipmentPlan {
    * Preserve one actual physical request as an actionable producer refusal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines the caller identity, physical axis, unchanged value and direct reason/fix supplied by the actual admission site.
-   * @evidence contracts/development/implementation.md#principled-implementation Throw the existing ArchetypeRefusal with parameter kind and the original request facts; no inclusive feasible range falsely admits zero.
+   * @evidence contracts/development/implementation.md#principled-implementation Throw the existing AutoMovieArchetypeRefusal with parameter kind and the original request facts; no inclusive feasible range falsely admits zero.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordinary typed refusal construction with no handler or fallback.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No error is swallowed, reclassified as a successful build or converted to a guessed dimension.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant refusal construction on the failure path only.
@@ -384,7 +387,7 @@ export class QuadrupedEquipmentPlan {
     reason: string,
     fix: string,
   ): never {
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: this.#archetype,
       axis,

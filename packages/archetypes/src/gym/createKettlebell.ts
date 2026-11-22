@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** What a competition kettlebell is commonly stated to measure. */
@@ -27,7 +27,7 @@ const BELL: string =
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The kettlebell.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it stands, what it is built of, why the mass leaves the shape alone and the contact.
  * @evidence contracts/development/implementation.md#principled-implementation A ball of the body's diameter on the floor, the handle's bar at the bell's height less half its own thickness, and an upright from each end of the bar down to the ball.
@@ -40,9 +40,9 @@ const BELL: string =
 export function createKettlebell(
   params: createKettlebell.IParams,
   seed?: number | string,
-): Archetype<createKettlebell.Affordance, createKettlebell.Dimension> {
-  const draw: ArchetypeDrawSession<createKettlebell.Dimension> =
-    new ArchetypeDrawSession<createKettlebell.Dimension>(
+): AutoMovieArchetype<createKettlebell.Affordance, createKettlebell.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createKettlebell.Dimension> =
+    new AutoMovieArchetypeDrawSession<createKettlebell.Dimension>(
       "kettlebell",
       createKettlebell.UNITS,
       seed,
@@ -60,10 +60,10 @@ export function createKettlebell(
   const slim: number = d.handleDiameter! / 2;
   const top: number = d.height! - slim;
   const half: number = createKettlebell.WINDOW / 2 + slim;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createKettlebell.Affordance,
     createKettlebell.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: "kettlebell",
@@ -89,7 +89,7 @@ export function createKettlebell(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, top, 0),
       Vector3.create(0, 1, 0),
       Vector3.create(1, 0, 0),
@@ -134,7 +134,9 @@ export namespace createKettlebell {
   export type Dimension = "height" | "diameter" | "handleDiameter" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     diameter: "m",
     handleDiameter: "m",
@@ -152,13 +154,13 @@ export namespace createKettlebell {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     competition: {
-      height: ArchetypeBand.metres(0.28, 0.28, BELL, true),
-      diameter: ArchetypeBand.metres(0.21, 0.21, BELL, true),
-      handleDiameter: ArchetypeBand.metres(0.033, 0.035, BELL, true),
-      mass: ArchetypeBand.of(
+      height: AutoMovieArchetypeBand.metres(0.28, 0.28, BELL, true),
+      diameter: AutoMovieArchetypeBand.metres(0.21, 0.21, BELL, true),
+      handleDiameter: AutoMovieArchetypeBand.metres(0.033, 0.035, BELL, true),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         8,
         32,

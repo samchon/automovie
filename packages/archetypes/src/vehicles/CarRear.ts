@@ -1,6 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { CarBody } from "./CarBody";
 import { createCar } from "./createCar";
 
@@ -28,7 +31,10 @@ export namespace CarRear {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function build(
-    builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCar.Affordance,
+      createCar.Dimension
+    >,
     l: CarBody.ILayout,
   ): void {
     if (l.kind === "sedan" || l.kind === "hatchback") boot(builder, l);
@@ -37,7 +43,10 @@ export namespace CarRear {
   }
   /** A sedan's or a hatchback's boot: its floor, walls and lid on a hinge, and the `load` surface on its floor. */
   function boot(
-    builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCar.Affordance,
+      createCar.Dimension
+    >,
     l: CarBody.ILayout,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -74,9 +83,14 @@ export namespace CarRear {
         { color: BODY },
       );
     } else {
-      builder.box("boot-roof", v(width, 0.04, length), v(0, l.top - 0.02, middle), {
-        color: BODY,
-      });
+      builder.box(
+        "boot-roof",
+        v(width, 0.04, length),
+        v(0, l.top - 0.02, middle),
+        {
+          color: BODY,
+        },
+      );
       builder.box(
         "boot-lid",
         v(width - 0.04, l.top - 0.04 - (l.floor + 0.1), 0.04),
@@ -87,7 +101,7 @@ export namespace CarRear {
     builder.affordance({
       id: "boot",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         l.kind === "sedan"
           ? v(0, l.belt + 0.03, l.back)
           : v(0, l.top - 0.04, l.rear + 0.02),
@@ -101,7 +115,7 @@ export namespace CarRear {
     builder.affordance({
       id: "load",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, l.floor + 0.1, middle)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, l.floor + 0.1, middle)),
       extent: null,
       width: width - 0.08,
       depth: length - 0.04,
@@ -110,7 +124,10 @@ export namespace CarRear {
 
   /** A van's body behind its front doors: a bulkhead behind the seats, the cargo floor, the side walls with the sliding door's opening on the kerb side, and the rear doors. */
   function van(
-    builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCar.Affordance,
+      createCar.Dimension
+    >,
     l: CarBody.ILayout,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -118,9 +135,14 @@ export namespace CarRear {
     const bulkhead: number = CarBody.bulkhead(l);
     const opening: number = l.d.sideDoorWidth!;
     const cargo: number = l.d.cargoFloor!;
-    builder.box("bulkhead", v(width, l.top - l.floor, 0.04), v(0, (l.top + l.floor) / 2, bulkhead + 0.02), {
-      color: BODY,
-    });
+    builder.box(
+      "bulkhead",
+      v(width, l.top - l.floor, 0.04),
+      v(0, (l.top + l.floor) / 2, bulkhead + 0.02),
+      {
+        color: BODY,
+      },
+    );
     builder.box(
       "cargo-floor",
       v(width, cargo - l.floor, bulkhead - l.rear),
@@ -149,7 +171,9 @@ export namespace CarRear {
     builder.affordance({
       id: "cargo",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, cargo, (bulkhead + l.rear) / 2)),
+      frame: AutoMovieArchetypeFrame.upright(
+        v(0, cargo, (bulkhead + l.rear) / 2),
+      ),
       extent: null,
       width: width - 0.08,
       depth: bulkhead - l.rear - 0.04,
@@ -158,7 +182,10 @@ export namespace CarRear {
 
   /** A pickup's bed behind its cab: the floor at the lift-in height, the sides and front, the tailgate on a hinge at its foot, and the `bed` surface. */
   function bed(
-    builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCar.Affordance,
+      createCar.Dimension
+    >,
     l: CarBody.ILayout,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -173,9 +200,14 @@ export namespace CarRear {
       v(0, (l.top + l.floor) / 2, l.back + 0.02),
       { color: BODY },
     );
-    builder.box("bed-floor", v(inner, 0.06, length), v(0, floor - 0.03, middle), {
-      color: BODY,
-    });
+    builder.box(
+      "bed-floor",
+      v(inner, 0.06, length),
+      v(0, floor - 0.03, middle),
+      {
+        color: BODY,
+      },
+    );
     for (const [name, x] of [
       ["bed-left", (inner + l.d.width!) / 4],
       ["bed-right", -(inner + l.d.width!) / 4],
@@ -197,7 +229,11 @@ export namespace CarRear {
     builder.affordance({
       id: "tailgate",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, floor, l.rear + 0.02), v(-1, 0, 0), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, floor, l.rear + 0.02),
+        v(-1, 0, 0),
+        v(0, 1, 0),
+      ),
       extent: null,
       travel: createCar.TAILGATE,
       parts: ["tailgate"],
@@ -205,7 +241,7 @@ export namespace CarRear {
     builder.affordance({
       id: "bed",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, floor, middle)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, floor, middle)),
       extent: null,
       width: inner,
       depth: length,

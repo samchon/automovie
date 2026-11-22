@@ -1,8 +1,8 @@
 import { PRIMITIVE_RADIAL_SEGMENTS, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { QuadrupedBody } from "./QuadrupedBody";
-import type { QuadrupedEquipment } from "./QuadrupedEquipment";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedEquipment } from "./AutoMovieArchetypeQuadrupedEquipment";
 import type { QuadrupedEquipmentPlan } from "./QuadrupedEquipmentPlan";
 
 /**
@@ -39,8 +39,8 @@ export namespace QuadrupedEquipmentBearing {
    */
   export function yoke(
     plan: QuadrupedEquipmentPlan,
-    rig: QuadrupedBody.IRig,
-    yoke: NonNullable<QuadrupedEquipment.IParams["yoke"]>,
+    rig: AutoMovieArchetypeQuadrupedBody.IRig,
+    yoke: NonNullable<AutoMovieArchetypeQuadrupedEquipment.IParams["yoke"]>,
     beam: IAutoMovieVector3,
     color: string,
   ): void {
@@ -100,8 +100,8 @@ export namespace QuadrupedEquipmentBearing {
    */
   export function pack(
     plan: QuadrupedEquipmentPlan,
-    rig: QuadrupedBody.IRig,
-    pack: NonNullable<QuadrupedEquipment.IParams["pack"]>,
+    rig: AutoMovieArchetypeQuadrupedBody.IRig,
+    pack: NonNullable<AutoMovieArchetypeQuadrupedEquipment.IParams["pack"]>,
     side: "left" | "right",
     rail: IAutoMovieVector3,
     color: string,

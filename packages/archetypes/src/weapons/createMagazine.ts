@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** An aftermarket magazine for that pistol, read at a retailer. */
@@ -27,7 +27,7 @@ const PMAG: string =
  * @param params The kind, whether it is loaded and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The magazine.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the magazine stands, how it seats in a well, and its three contacts.
  * @evidence contracts/development/implementation.md#principled-implementation One box of the published length, width and depth; a loaded magazine adds the published difference between the loaded and the empty weight, the rounds' mass.
@@ -40,9 +40,9 @@ const PMAG: string =
 export function createMagazine(
   params: createMagazine.IParams,
   seed?: number | string,
-): Archetype<createMagazine.Affordance, createMagazine.Dimension> {
-  const draw: ArchetypeDrawSession<createMagazine.Dimension> =
-    new ArchetypeDrawSession<createMagazine.Dimension>(
+): AutoMovieArchetype<createMagazine.Affordance, createMagazine.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createMagazine.Dimension> =
+    new AutoMovieArchetypeDrawSession<createMagazine.Dimension>(
       "magazine",
       createMagazine.UNITS,
       seed,
@@ -57,10 +57,10 @@ export function createMagazine(
   const d: Record<createMagazine.Dimension, number> = draw.dimensions(
     createMagazine.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createMagazine.Affordance,
     createMagazine.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `${kind} magazine`,
@@ -73,14 +73,14 @@ export function createMagazine(
   builder.affordance({
     id: "feed",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, d.length, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, d.length, 0)),
     extent: null,
   });
   builder.affordance({
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, d.length / 2, 0),
       v(-1, 0, 0),
       v(0, 1, 0),
@@ -93,7 +93,7 @@ export function createMagazine(
   builder.affordance({
     id: "base",
     kind: "surface",
-    frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
     extent: null,
     width: d.width,
     depth: d.depth,
@@ -144,7 +144,9 @@ export namespace createMagazine {
   export type Dimension = "length" | "width" | "depth" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     depth: "m",
@@ -165,40 +167,45 @@ export namespace createMagazine {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     pistol: {
-      length: ArchetypeBand.metres(0.12555, 0.12555, STRIKE),
-      width: ArchetypeBand.metres(0.0285, 0.0285, STRIKE),
-      depth: ArchetypeBand.metres(
+      length: AutoMovieArchetypeBand.metres(0.12555, 0.12555, STRIKE),
+      width: AutoMovieArchetypeBand.metres(0.0285, 0.0285, STRIKE),
+      depth: AutoMovieArchetypeBand.metres(
         0.04188,
         0.04188,
         `${STRIKE}; its 41.88 mm height is taken as front to back, the other two being the length and the double stack's width`,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
-        1.4 * ArchetypeUnits.OUNCE,
-        1.4 * ArchetypeUnits.OUNCE,
+        1.4 * AutoMovieArchetypeUnits.OUNCE,
+        1.4 * AutoMovieArchetypeUnits.OUNCE,
         STRIKE,
       ),
     },
     rifle: {
-      length: ArchetypeBand.metres(
-        7.5 * ArchetypeUnits.INCH,
-        7.5 * ArchetypeUnits.INCH,
+      length: AutoMovieArchetypeBand.metres(
+        7.5 * AutoMovieArchetypeUnits.INCH,
+        7.5 * AutoMovieArchetypeUnits.INCH,
         PMAG,
       ),
-      width: ArchetypeBand.metres(
-        0.87 * ArchetypeUnits.INCH,
-        0.87 * ArchetypeUnits.INCH,
+      width: AutoMovieArchetypeBand.metres(
+        0.87 * AutoMovieArchetypeUnits.INCH,
+        0.87 * AutoMovieArchetypeUnits.INCH,
         PMAG,
       ),
-      depth: ArchetypeBand.metres(
-        2.6 * ArchetypeUnits.INCH,
-        2.6 * ArchetypeUnits.INCH,
+      depth: AutoMovieArchetypeBand.metres(
+        2.6 * AutoMovieArchetypeUnits.INCH,
+        2.6 * AutoMovieArchetypeUnits.INCH,
         PMAG,
       ),
-      mass: ArchetypeBand.of("kg", 5 * ArchetypeUnits.OUNCE, 0.146, PMAG),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        5 * AutoMovieArchetypeUnits.OUNCE,
+        0.146,
+        PMAG,
+      ),
     },
   };
 }

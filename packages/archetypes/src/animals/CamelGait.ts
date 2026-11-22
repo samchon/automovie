@@ -1,6 +1,6 @@
-import { CamelBody } from "./CamelBody";
-import { HorseGait } from "./HorseGait";
-import type { QuadrupedGait } from "./QuadrupedGait";
+import { AutoMovieArchetypeCamelBody } from "./AutoMovieArchetypeCamelBody";
+import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
+import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 
 /**
  * A provisional dromedary walk from an observed Bactrian walking point.
@@ -23,7 +23,7 @@ import type { QuadrupedGait } from "./QuadrupedGait";
  * Map the camera-facing side to model left, rebase its fore touchdown to
  * zero and retain both measured fore phases. The opposite hind touchdown
  * uses an authored half-cycle symmetry assumption, not a measured phase.
- * Transfer from Bactrian camels to CamelBody's Mauritanian dromedaries is
+ * Transfer from Bactrian camels to AutoMovieArchetypeCamelBody's Mauritanian dromedaries is
  * explicitly provisional. Absolute scaling does not infer a shared reference
  * height. Horse fold, clearance, bob and top-joint follow are construction
  * proxies; neck nod is authored zero. The dromedary's running pace needs
@@ -52,11 +52,11 @@ export namespace CamelGait {
   const OPPOSITE_FORE_PHASE: number = 0.6425789503922897;
 
   /** One measured walking point; the remaining camel gait clocks are not measured here. */
-  export const TABLE: QuadrupedGait.ITable = {
+  export const TABLE: AutoMovieArchetypeQuadrupedGait.ITable = {
     order: ["walk"],
     gaits: {
       walk: {
-        ...HorseGait.TABLE.gaits.walk!,
+        ...AutoMovieArchetypeEquineGait.TABLE.gaits.walk!,
         nod: { range: 0, timing: "support" },
         phases: {
           leftFore: 0,
@@ -75,9 +75,9 @@ export namespace CamelGait {
         ],
       },
     },
-    reference: CamelBody.MEASURES.withers,
+    reference: AutoMovieArchetypeCamelBody.MEASURES.withers,
     scaling: "absolute",
     hysteresis: 0,
-    follow: HorseGait.FOLLOW,
+    follow: AutoMovieArchetypeEquineGait.FOLLOW,
   };
 }

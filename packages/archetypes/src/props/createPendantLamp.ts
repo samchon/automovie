@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { PracticalLightConstruction } from "./PracticalLightConstruction";
 import type { createLight } from "./createLight";
 
@@ -8,7 +8,7 @@ import type { createLight } from "./createLight";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A hanging pendant lamp with its ceiling hook at the origin.
  * @evidence contracts/development/implementation.md#principled-implementation The cord drops through negative Y and the light frame points out through the shade opening.
@@ -21,7 +21,10 @@ import type { createLight } from "./createLight";
 export function createPendantLamp(
   params: createPendantLamp.IParams = {},
   seed?: number | string,
-): Archetype<createPendantLamp.Affordance, createPendantLamp.Dimension> {
+): AutoMovieArchetype<
+  createPendantLamp.Affordance,
+  createPendantLamp.Dimension
+> {
   return PracticalLightConstruction.pendant(params, seed);
 }
 

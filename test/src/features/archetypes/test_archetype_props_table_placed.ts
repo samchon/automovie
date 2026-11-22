@@ -1,5 +1,5 @@
 import {
-  type Archetype,
+  type AutoMovieArchetype,
   createFood,
   createLight,
   createMobilityAid,
@@ -27,7 +27,7 @@ export function test_archetype_props_table_placed(): void {
   const kinds = <Kind extends string>(
     name: string,
     all: readonly Kind[],
-    make: (kind: Kind) => Archetype,
+    make: (kind: Kind) => AutoMovieArchetype,
     yaw: number,
   ): archetypePlaced.IRow[] =>
     all.map(
@@ -43,13 +43,14 @@ export function test_archetype_props_table_placed(): void {
       ...kinds(
         "tableware",
         createTableware.KINDS,
-        (kind: createTableware.Kind): Archetype => createTableware({ kind }),
+        (kind: createTableware.Kind): AutoMovieArchetype =>
+          createTableware({ kind }),
         0,
       ),
       ...kinds(
         "food",
         createFood.KINDS,
-        (kind: createFood.Kind): Archetype => createFood({ kind }),
+        (kind: createFood.Kind): AutoMovieArchetype => createFood({ kind }),
         90,
       ),
       ...kinds(
@@ -57,7 +58,7 @@ export function test_archetype_props_table_placed(): void {
         createLight.KINDS.filter(
           (kind: createLight.Kind): boolean => kind !== "pendant",
         ),
-        (kind: createLight.Kind): Archetype => createLight({ kind }),
+        (kind: createLight.Kind): AutoMovieArchetype => createLight({ kind }),
         180,
       ),
       { name: "umbrella", archetype: createUmbrella(), yaw: 270 },
@@ -69,7 +70,7 @@ export function test_archetype_props_table_placed(): void {
       ...kinds(
         "mobilityAid",
         createMobilityAid.KINDS,
-        (kind: createMobilityAid.Kind): Archetype =>
+        (kind: createMobilityAid.Kind): AutoMovieArchetype =>
           createMobilityAid({ kind }),
         300,
       ),

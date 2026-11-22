@@ -1,6 +1,6 @@
 import {
-  ArchetypeCourse,
-  type QuadrupedGait,
+  AutoMovieArchetypeCourse,
+  type AutoMovieArchetypeQuadrupedGait,
   createHorse,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -25,7 +25,7 @@ interface ICase {
   /** The timed marks. */
   marks: readonly IMark[];
   /** The gait cued over the whole path; the speed chooses when absent. */
-  gait?: QuadrupedGait.Gait;
+  gait?: AutoMovieArchetypeQuadrupedGait.Gait;
 }
 
 /** The probe interval, seconds. */
@@ -79,7 +79,10 @@ export function test_archetype_equine_fast_timed(): void {
   ];
   const issues: string[] = [];
   for (const { label, withers, marks, gait } of cases) {
-    const plan: ArchetypeCourse.IPlan = ArchetypeCourse.timed("horse", marks);
+    const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.timed(
+      "horse",
+      marks,
+    );
     const ride = rideQuadruped(
       createHorse({ withersHeight: withers, tempo: 0 }, "runner"),
       gait === undefined

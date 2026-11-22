@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3, validateModel } from "@automovie/engine";
 import type {
@@ -42,12 +42,12 @@ const TABLE: [number, number][] = [
 function fixture(
   flap: IAutoMovieAffordanceCoupling = { id: "slide", table: TABLE },
   swing: IAutoMovieAffordanceCoupling = { id: "slide", ratio: RATIO },
-): Archetype<Id, never> {
+): AutoMovieArchetype<Id, never> {
   const v: typeof Vector3.create = Vector3.create;
-  return new ArchetypeBuilder<Id, never>({
+  return new AutoMovieArchetypeBuilder<Id, never>({
     material: "steel",
     name: "fixture",
-    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
+    draw: new AutoMovieArchetypeDrawSession<never>("fixture", {}, undefined),
   })
     .box("base", v(1, 0.1, 1), v(0, 0.05, 0))
     .box("carriage", v(0.1, 0.1, 0.1), v(0, 0.2, 0))
@@ -56,7 +56,11 @@ function fixture(
     .affordance({
       id: "slide",
       kind: "slider",
-      frame: ArchetypeFrame.facing(v(0, 0.2, 0), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, 0.2, 0),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       travel: 0.3,
       parts: ["carriage"],
@@ -64,7 +68,11 @@ function fixture(
     .affordance({
       id: "swing",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0.1, 0.5, 0), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0.1, 0.5, 0),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       travel: 90,
       parts: ["leaf"],
@@ -73,7 +81,11 @@ function fixture(
     .affordance({
       id: "flap",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(-0.3, 0.5, 0), v(0, 1, 0), v(-1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(-0.3, 0.5, 0),
+        v(0, 1, 0),
+        v(-1, 0, 0),
+      ),
       extent: null,
       travel: 60,
       parts: ["flap-leaf"],
@@ -84,7 +96,7 @@ function fixture(
 
 /** Where a part's centre is in its model. */
 function centre(
-  archetype: Archetype<Id, never>,
+  archetype: AutoMovieArchetype<Id, never>,
   part: string,
 ): IAutoMovieVector3 {
   return archetype.parts.find(
@@ -136,7 +148,7 @@ function faults(model: IAutoMovieModel): string[] {
  */
 export function test_archetype_contract_follows(): void {
   const findings: string[] = [];
-  const rest: Archetype<Id, never> = fixture();
+  const rest: AutoMovieArchetype<Id, never> = fixture();
   const hinge = (id: Id): IAutoMovieVector3 =>
     rest.affordance(id).frame.translation;
 
@@ -151,7 +163,7 @@ export function test_archetype_contract_follows(): void {
   };
   for (let k: number = 0; k <= 10; k++) {
     const slide: number = (0.3 * k) / 10;
-    const posed: Archetype<Id, never> = rest.articulate({ slide });
+    const posed: AutoMovieArchetype<Id, never> = rest.articulate({ slide });
     for (const [id, part, angle] of [
       ["swing", "leaf", RATIO * slide],
       ["flap", "flap-leaf", table(slide)],
@@ -174,7 +186,7 @@ export function test_archetype_contract_follows(): void {
   }
 
   // 2. A follower is not set in a state.
-  const named: ArchetypeRefusal | null = refused(() =>
+  const named: AutoMovieArchetypeRefusal | null = refused(() =>
     rest.articulate({ swing: 10 }),
   );
   if (
@@ -186,7 +198,7 @@ export function test_archetype_contract_follows(): void {
     findings.push(`a follower in the state: ${named?.message ?? "admitted"}`);
 
   // 3. Two followers of each other.
-  const cycle: ArchetypeRefusal | null = refused(() =>
+  const cycle: AutoMovieArchetypeRefusal | null = refused(() =>
     fixture({ id: "swing", ratio: 1 }, { id: "flap", ratio: 1 }),
   );
   if (
@@ -198,7 +210,7 @@ export function test_archetype_contract_follows(): void {
     findings.push(`a cycle of followers: ${cycle?.message ?? "admitted"}`);
 
   // 4. A table that leaves its follower's range at mid-slide.
-  const over: Archetype<Id, never> = fixture({
+  const over: AutoMovieArchetype<Id, never> = fixture({
     id: "slide",
     table: [
       [0, 0],
@@ -206,7 +218,7 @@ export function test_archetype_contract_follows(): void {
       [0.3, 0],
     ],
   });
-  const beyond: ArchetypeRefusal | null = refused(() =>
+  const beyond: AutoMovieArchetypeRefusal | null = refused(() =>
     over.articulate({ slide: 0.15 }),
   );
   if (
@@ -351,11 +363,11 @@ export function test_archetype_contract_follows(): void {
   TestValidator.equals("an articulation follows its leader", findings, []);
 }
 /** Run an operation and return the refusal it raises, or null when it raises none or something else. */
-function refused(operation: () => unknown): ArchetypeRefusal | null {
+function refused(operation: () => unknown): AutoMovieArchetypeRefusal | null {
   try {
     operation();
   } catch (error) {
-    return error instanceof ArchetypeRefusal ? error : null;
+    return error instanceof AutoMovieArchetypeRefusal ? error : null;
   }
   return null;
 }

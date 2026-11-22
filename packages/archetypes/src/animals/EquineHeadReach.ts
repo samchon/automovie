@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeRefusal } from "../core";
+import { AutoMovieArchetypeRefusal } from "../core";
 
 /** Degrees per radian. */
 const DEGREES: number = 180 / Math.PI;
@@ -103,7 +103,7 @@ export namespace EquineHeadReach {
    * @param archetype The animal's producer name, for a refusal.
    * @param under Whether the poll bends down under the line from the root to the target, as a foal reaches up to an udder; it bends up otherwise.
    * @returns The neck's and head's turns.
-   * @throws {ArchetypeRefusal} When the target lies outside the two links' band from the neck's root.
+   * @throws {AutoMovieArchetypeRefusal} When the target lies outside the two links' band from the neck's root.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the clearance and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation In the trunk's frame, the target's bearing yaws both links and the law of cosines on the neck's length a, the head's link b plus the gap and the root-to-target distance D gives the neck's elevation with the poll bent upward, or downward when `under`; the head then points from the moved poll at the target.
@@ -131,7 +131,7 @@ export namespace EquineHeadReach {
     const minimum: number = Math.abs(a - b);
     const maximum: number = a + b;
     if (!(distance >= minimum && distance <= maximum))
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
         axis: "target",

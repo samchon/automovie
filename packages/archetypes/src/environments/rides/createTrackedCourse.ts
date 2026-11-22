@@ -13,8 +13,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../../core/ArchetypeFrame";
-import { ArchetypeUnits } from "../../core/ArchetypeUnits";
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
+import { AutoMovieArchetypeUnits } from "../../core/AutoMovieArchetypeUnits";
 
 /** Start with 32 chord and display sections per spline span. */
 const SECTIONS_PER_SPAN: number = 32;
@@ -108,7 +108,7 @@ export function createTrackedCourse(
     ? Math.atan2(
         Vector3.dot(first.normal, Vector3.cross(last.x, first.x)),
         Vector3.dot(last.x, first.x),
-      ) / ArchetypeUnits.DEGREE
+      ) / AutoMovieArchetypeUnits.DEGREE
     : 0;
   const chordLength: number = chords[chords.length - 1]!;
   const parameters: number[] = [0];
@@ -175,7 +175,7 @@ export function createTrackedCourse(
             Quaternion.fromAxisAngle(FORWARD, bank),
           ),
         ),
-        scale: { ...ArchetypeFrame.UNIT },
+        scale: { ...AutoMovieArchetypeFrame.UNIT },
       };
     },
   });

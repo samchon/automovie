@@ -1,6 +1,6 @@
 import {
-  ArchetypeRefusal,
-  type QuadrupedFooting,
+  type AutoMovieArchetypeQuadrupedFooting,
+  AutoMovieArchetypeRefusal,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -17,7 +17,7 @@ const DEPTH: number = 0.05;
  * Scenarios:
  * 1. A horse walks the same straight over firm ground and over sand declaring 5 cm: at each left fore's mid-stance its displayed hoof joint is 5 cm lower on the sand, within 0.1 mm.
  * 2. At each mid-swing on the sand the hoof joint is above the surface.
- * 3. A footing declaring 0.6 m, deeper than the carpus stands, refuses as an ArchetypeRefusal on the footing.
+ * 3. A footing declaring 0.6 m, deeper than the carpus stands, refuses as an AutoMovieArchetypeRefusal on the footing.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the depth, the swing and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Reads displayed hoof joints of two public rides.
@@ -29,7 +29,7 @@ export function test_archetype_equine_yield(): void {
   const horse = createHorse({ withersHeight: 1.6, tempo: 0 }, 1);
   const issues: string[] = [];
   const ride = (depth: number | undefined): ReturnType<typeof rideHorse> => {
-    const plane: QuadrupedFooting.IPlane = {
+    const plane: AutoMovieArchetypeQuadrupedFooting.IPlane = {
       id: "ground",
       origin: { x: 0, y: 0, z: 0 },
       x: [-10, 10],
@@ -76,7 +76,11 @@ export function test_archetype_equine_yield(): void {
   } catch (error) {
     refusal = error;
   }
-  if (!(refusal instanceof ArchetypeRefusal && refusal.axis === "footing"))
+  if (
+    !(
+      refusal instanceof AutoMovieArchetypeRefusal && refusal.axis === "footing"
+    )
+  )
     issues.push(`an over-deep footing raises ${String(refusal)}`);
   TestValidator.equals("yielding footing", issues, []);
 }

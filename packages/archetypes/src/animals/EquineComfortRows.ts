@@ -9,15 +9,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core";
+import { AutoMovieArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeEquineComfortCue } from "./AutoMovieArchetypeEquineComfortCue";
+import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineBodyPose } from "./EquineBodyPose";
 import { EquineCampOut } from "./EquineCampOut";
-import type { EquineComfortCue } from "./EquineComfortCue";
 import { EquineHoofRows } from "./EquineHoofRows";
-import type { EquineStanceCue } from "./EquineStanceCue";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
-import { QuadrupedBody } from "./QuadrupedBody";
 
 /** The zero vector. */
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -37,14 +37,9 @@ const REST: Readonly<IRestShape> = {
 const SHAKE: Readonly<IShakeShape> = { roll: 6, hertz: 3 };
 
 /** The comfort rows' kinds. */
-const KINDS: ReadonlySet<string> = new Set<EquineComfortCue.Row["kind"]>([
-  "rest",
-  "paw",
-  "stamp",
-  "cowKick",
-  "shake",
-  "camp",
-]);
+const KINDS: ReadonlySet<string> = new Set<
+  AutoMovieArchetypeEquineComfortCue.Row["kind"]
+>(["rest", "paw", "stamp", "cowKick", "shake", "camp"]);
 
 /** The standing rest's authored shape. */
 interface IRestShape {
@@ -95,7 +90,9 @@ export namespace EquineComfortRows {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The kinds are built once.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function owns(cue: EquineStanceCue.Cue): cue is EquineComfortCue.Row {
+  export function owns(
+    cue: AutoMovieArchetypeEquineStanceCue.Cue,
+  ): cue is AutoMovieArchetypeEquineComfortCue.Row {
     return KINDS.has(cue.kind);
   }
 
@@ -119,7 +116,7 @@ export namespace EquineComfortRows {
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineComfortCue.Row,
+    cue: AutoMovieArchetypeEquineComfortCue.Row,
   ): EquineStanceRows.IPlan {
     if (cue.kind === "rest") return rest(body, start, cue);
     if (cue.kind === "paw") return EquineHoofRows.paw(body, start, cue);
@@ -133,15 +130,15 @@ export namespace EquineComfortRows {
   function rest<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineComfortCue.IRest,
+    cue: AutoMovieArchetypeEquineComfortCue.IRest,
   ): EquineStanceRows.IPlan {
-    const resting: QuadrupedBody.Limb = `${cue.side}Hind`;
-    const locked: QuadrupedBody.Limb =
+    const resting: AutoMovieArchetypeQuadrupedBody.Limb = `${cue.side}Hind`;
+    const locked: AutoMovieArchetypeQuadrupedBody.Limb =
       cue.side === "left" ? "rightHind" : "leftHind";
     const heading: IAutoMovieQuaternion = EquineStanceSupport.heading(
       start.trunk,
     );
-    const loaded: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
+    const loaded: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(
       start.trunk,
       EquineStanceSupport.transfer(body, start, resting),
     );
@@ -207,7 +204,7 @@ export namespace EquineComfortRows {
           };
         const s: number = minimumJerk.share((share - LOAD) / (1 - LOAD));
         return {
-          trunk: ArchetypeFrame.chain(
+          trunk: AutoMovieArchetypeFrame.chain(
             EquineBodyPose.turn(0, roll * s, pivot, ZERO, heading),
             loaded,
           ),
@@ -229,7 +226,7 @@ export namespace EquineComfortRows {
   function shake<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineComfortCue.IShake,
+    cue: AutoMovieArchetypeEquineComfortCue.IShake,
   ): EquineStanceRows.IPlan {
     const heading: IAutoMovieQuaternion = EquineStanceSupport.heading(
       start.trunk,
@@ -237,12 +234,14 @@ export namespace EquineComfortRows {
     const pivot: IAutoMovieVector3 = EquineBodyPose.point(
       start.trunk,
       Vector3.scale(
-        QuadrupedBody.LIMBS.reduce(
-          (sum: IAutoMovieVector3, limb: QuadrupedBody.Limb) =>
-            Vector3.add(sum, body.chains[limb][0]!),
+        AutoMovieArchetypeQuadrupedBody.LIMBS.reduce(
+          (
+            sum: IAutoMovieVector3,
+            limb: AutoMovieArchetypeQuadrupedBody.Limb,
+          ) => Vector3.add(sum, body.chains[limb][0]!),
           ZERO,
         ),
-        1 / QuadrupedBody.LIMBS.length,
+        1 / AutoMovieArchetypeQuadrupedBody.LIMBS.length,
       ),
     );
     const cycles: number = Math.max(1, Math.round(cue.hold * SHAKE.hertz));
@@ -258,7 +257,7 @@ export namespace EquineComfortRows {
       events: [],
       goal: (): EquineBodyPose.IGoal => still,
       hold: (seconds: number): EquineBodyPose.IGoal => ({
-        trunk: ArchetypeFrame.chain(
+        trunk: AutoMovieArchetypeFrame.chain(
           EquineBodyPose.turn(
             0,
             SHAKE.roll * Math.sin((2 * Math.PI * cycles * seconds) / cue.hold),

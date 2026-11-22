@@ -1,5 +1,5 @@
 import {
-  type Archetype,
+  type AutoMovieArchetype,
   createFood,
   createTableware,
 } from "@automovie/archetypes";
@@ -16,9 +16,9 @@ const OVERLAP: number = 1e-6;
 
 /** The least signed distance between any collider of one placed archetype and any of another: negative when they overlap. */
 function apart(
-  a: Archetype,
+  a: AutoMovieArchetype,
   at: IAutoMovieTransform,
-  b: Archetype,
+  b: AutoMovieArchetype,
   bt: IAutoMovieTransform,
 ): number {
   const pose = (t: IAutoMovieTransform): IAutoMovieRigidTransform => ({
@@ -75,7 +75,7 @@ export function test_archetype_props_stacking(): void {
   };
 
   // 1. and 2. A stack: each thing on the top of the one below.
-  const stack = (name: string, things: readonly Archetype[]): void => {
+  const stack = (name: string, things: readonly AutoMovieArchetype[]): void => {
     const frames: IAutoMovieTransform[] = [origin];
     for (let k: number = 1; k < things.length; k++)
       frames.push(
@@ -104,7 +104,7 @@ export function test_archetype_props_stacking(): void {
     stack(
       kind,
       [0, 1, 2, 3, 4].map(
-        (seed: number): Archetype => createTableware({ kind }, seed),
+        (seed: number): AutoMovieArchetype => createTableware({ kind }, seed),
       ),
     );
 

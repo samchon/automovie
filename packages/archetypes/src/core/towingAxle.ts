@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "./ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 
 /**
  * Read an actual wheel pair's shared transverse axis without guessing part names.
@@ -51,7 +51,10 @@ export function towingAxle(
       "The declared towing wheels must share one transverse axle",
     );
   for (const contact of [left, right]) {
-    const axis: IAutoMovieVector3 = ArchetypeFrame.axis(contact.frame, "y");
+    const axis: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+      contact.frame,
+      "y",
+    );
     if (
       contact.kind !== "knob" ||
       ![axis.x, axis.y, axis.z].every(Number.isFinite) ||

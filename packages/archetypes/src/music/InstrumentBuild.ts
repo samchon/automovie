@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
 } from "../core";
 import { INSTRUMENT_BANDS } from "./INSTRUMENT_BANDS";
 import type { createInstrument } from "./createInstrument";
@@ -17,7 +17,7 @@ import type { createInstrument } from "./createInstrument";
 export namespace InstrumentBuild {
   /** The original units of the instrument dimensions. */
   export const UNITS: Readonly<
-    Record<createInstrument.Dimension, ArchetypeDrawSession.Unit>
+    Record<createInstrument.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     height: "m",
     width: "m",
@@ -70,16 +70,16 @@ export namespace InstrumentBuild {
     params: Readonly<Partial<Omit<createInstrument.IParams, "kind">>>,
     seed: number | string | undefined,
     construct: (
-      builder: ArchetypeBuilder<Id, createInstrument.Dimension>,
+      builder: AutoMovieArchetypeBuilder<Id, createInstrument.Dimension>,
       dimensions: Partial<Record<createInstrument.Dimension, number>>,
     ) => void,
-  ): Archetype<Id, createInstrument.Dimension> {
-    const draw: ArchetypeDrawSession<createInstrument.Dimension> =
-      new ArchetypeDrawSession("instrument", UNITS, seed, params);
+  ): AutoMovieArchetype<Id, createInstrument.Dimension> {
+    const draw: AutoMovieArchetypeDrawSession<createInstrument.Dimension> =
+      new AutoMovieArchetypeDrawSession("instrument", UNITS, seed, params);
     const dimensions: Partial<Record<createInstrument.Dimension, number>> =
       draw.dimensions(BANDS[kind], BANDS);
-    const builder: ArchetypeBuilder<Id, createInstrument.Dimension> =
-      new ArchetypeBuilder({
+    const builder: AutoMovieArchetypeBuilder<Id, createInstrument.Dimension> =
+      new AutoMovieArchetypeBuilder({
         material: "composite",
         id: params.id,
         name,

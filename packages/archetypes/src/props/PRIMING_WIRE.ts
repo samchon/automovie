@@ -1,11 +1,11 @@
-import { ArchetypeUnits } from "../core";
+import { AutoMovieArchetypeUnits } from "../core";
 
 /** The read wire, ring and stems, metres, and the garrison wire's weight, kilograms. */
-const WIRE: number = 0.175 * ArchetypeUnits.INCH;
-const RING: number = 2 * ArchetypeUnits.INCH;
-const FIELD: number = 8 * ArchetypeUnits.INCH;
-const GARRISON: number = 14 * ArchetypeUnits.INCH;
-const GARRISON_MASS: number = 0.08 * ArchetypeUnits.POUND;
+const WIRE: number = 0.175 * AutoMovieArchetypeUnits.INCH;
+const RING: number = 2 * AutoMovieArchetypeUnits.INCH;
+const FIELD: number = 8 * AutoMovieArchetypeUnits.INCH;
+const GARRISON: number = 14 * AutoMovieArchetypeUnits.INCH;
+const GARRISON_MASS: number = 0.08 * AutoMovieArchetypeUnits.POUND;
 
 /** The length of wire in the ring, metres: its circumference at the wire's centre line. */
 const RING_WIRE: number = Math.PI * (RING - WIRE);

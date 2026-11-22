@@ -1,7 +1,7 @@
 import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core";
+import { AutoMovieArchetypeFrame } from "../core";
 
 /**
  * The trunk's height and pitch through a jump: the push-off, a flight about the centre of mass, and the landing stance.
@@ -191,8 +191,7 @@ export namespace EquinePitch {
   ): IAutoMovieTransform {
     if (
       yaw === 0 &&
-      (tilt === undefined ||
-        (tilt.y === 0 && tilt.z === 0 && tilt.pitch === 0))
+      (tilt === undefined || (tilt.y === 0 && tilt.z === 0 && tilt.pitch === 0))
     )
       return placement;
     return {
@@ -214,7 +213,7 @@ export namespace EquinePitch {
           (-(tilt?.pitch ?? 0) * 180) / Math.PI,
         ),
       ),
-      scale: ArchetypeFrame.UNIT,
+      scale: AutoMovieArchetypeFrame.UNIT,
     };
   }
 

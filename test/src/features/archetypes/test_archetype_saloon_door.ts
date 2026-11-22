@@ -1,4 +1,7 @@
-import { ArchetypeUnits, createSaloonDoor } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeUnits,
+  createSaloonDoor,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -27,7 +30,7 @@ export function test_archetype_saloon_door(): void {
     if (!(Math.abs(got - wanted) <= MM))
       findings.push(`${what}: ${got}, ${wanted} expected`);
   };
-  const inch: number = ArchetypeUnits.INCH;
+  const inch: number = AutoMovieArchetypeUnits.INCH;
   findings.push(
     ...archetypeModelSweep([
       {

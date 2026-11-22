@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeCourse,
-  ArchetypePassage,
-  ArchetypeRefusal,
-  type ArchetypeRide,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypePassage,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createHorse,
   createPony,
   rideQuadruped,
@@ -54,7 +54,7 @@ const FILE: IAutoMovieFormationLayout = {
 };
 
 /** The dais the pairs separate around: a three-metre square centred at (0, 25). */
-const DAIS: ArchetypePassage.IObstacle = {
+const DAIS: AutoMovieArchetypePassage.IObstacle = {
   id: "dais",
   footprint: {
     outline: [
@@ -96,10 +96,10 @@ interface IPair {
   rider: string;
 
   /** The horse's footprint, from its rest geometry with its tack. */
-  footprint: ArchetypePassage.IFootprint;
+  footprint: AutoMovieArchetypePassage.IFootprint;
 
   /** The course its root follows. */
-  plan: ArchetypeCourse.IPlan;
+  plan: AutoMovieArchetypeCourse.IPlan;
 
   /** The authored second and mark of each addressed stage cue. */
   stages: readonly IStage[];
@@ -111,7 +111,7 @@ interface IStage {
   name: string;
 
   /** The route sample the stage is delivered at. */
-  sample: ArchetypeCourse.ISample;
+  sample: AutoMovieArchetypeCourse.ISample;
 }
 
 /**
@@ -130,15 +130,18 @@ interface IStage {
  * 7. Forward, reversed and repeated reads of the plans and the measurement agree.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the staged passage, the variants and the seven scenarios with their expectations.
- * @evidence contracts/development/testing.md#behavioral-verification Plans real formation path samples and authored marks through `ArchetypeCourse.timed`, measures them with `ArchetypePassage.conflicts` and `admit` on footprints of real horse and pony models, and resolves addressed cues through the public schedule.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans real formation path samples and authored marks through `AutoMovieArchetypeCourse.timed`, measures them with `AutoMovieArchetypePassage.conflicts` and `admit` on footprints of real horse and pony models, and resolves addressed cues through the public schedule.
  * @evidence contracts/development/testing.md#independent-expectations Entrance and re-form ranks are five metres apart by the layout. During the halt both pairs stand still facing +Z side by side, so their clearance is the lane spacing less the facing sides of the two rest boxes. The tight variants put the lanes inside the authored margin, so the conflict must span the halt and lie between the marks that bound the lane; the dais conflict must span the seconds the lane runs beside the dais. Halts are zero speed by the authored repeated marks. Cue seconds are the authored stage seconds.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers admitted synchronized, staggered and held variants, a pair conflict and two obstacle conflicts, a halted versus still-moving partner at the same second, and same versus different seeds. The horses' animated limbs, rider support and gait clocks are #3905's and the equine campaign's.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec over portable plans, models and schedules, without a renderer or browser.
  */
 export function test_world_mounted_passage(): void {
   // 1. Seeded members, their footprints and the tack inside them.
-  const hazel: Archetype = createHorse({}, "hazel");
-  const indigo: Archetype = createPony({ breed: "connemara" }, "indigo");
+  const hazel: AutoMovieArchetype = createHorse({}, "hazel");
+  const indigo: AutoMovieArchetype = createPony(
+    { breed: "connemara" },
+    "indigo",
+  );
   TestValidator.equals(
     "a seed rebuilds the same horse",
     JSON.stringify(createHorse({}, "hazel")),
@@ -146,12 +149,13 @@ export function test_world_mounted_passage(): void {
   );
   TestValidator.predicate(
     "another seed varies the horse's footprint",
-    JSON.stringify(ArchetypePassage.footprint(createHorse({}, "ivory"))) !==
-      JSON.stringify(ArchetypePassage.footprint(hazel)),
+    JSON.stringify(
+      AutoMovieArchetypePassage.footprint(createHorse({}, "ivory")),
+    ) !== JSON.stringify(AutoMovieArchetypePassage.footprint(hazel)),
   );
-  const footprints: readonly ArchetypePassage.IFootprint[] = [
-    ArchetypePassage.footprint(hazel),
-    ArchetypePassage.footprint(indigo),
+  const footprints: readonly AutoMovieArchetypePassage.IFootprint[] = [
+    AutoMovieArchetypePassage.footprint(hazel),
+    AutoMovieArchetypePassage.footprint(indigo),
   ];
   for (const [index, model] of [hazel, indigo].entries())
     for (const tack of ["seat", "leftStirrup", "rightStirrup", "lead"])
@@ -196,7 +200,7 @@ export function test_world_mounted_passage(): void {
   // 3. The admitted variants.
   const stage: (staging: IStaging) => IPair[] = (staging: IStaging): IPair[] =>
     [hazel, indigo].map(
-      (_: Archetype, slot: number): IPair =>
+      (_: AutoMovieArchetype, slot: number): IPair =>
         pair(ROSTER[slot]!, footprints[slot]!, slot, staging, entry, reform),
     );
   const synchronized: IPair[] = stage({
@@ -224,7 +228,7 @@ export function test_world_mounted_passage(): void {
   ] as const)
     TestValidator.equals(
       `the ${label} passage keeps every margin`,
-      ArchetypePassage.conflicts("passage", passage(pairs)),
+      AutoMovieArchetypePassage.conflicts("passage", passage(pairs)),
       [],
     );
   TestValidator.predicate(
@@ -253,7 +257,7 @@ export function test_world_mounted_passage(): void {
             candidate.intent.capability === addressed.name,
         );
         const start: number = delivered[0]?.start ?? NaN;
-        const state: ArchetypeCourse.IState = member.plan.at(start);
+        const state: AutoMovieArchetypeCourse.IState = member.plan.at(start);
         TestValidator.predicate(
           `${label} ${addressed.name} reaches ${member.rider} on its mark`,
           delivered.length === 1 &&
@@ -282,15 +286,14 @@ export function test_world_mounted_passage(): void {
   // 5. The halt's clearance is the gap between the rest boxes.
   const facing: number =
     x(footprints[1]!, Math.min) - x(footprints[0]!, Math.max);
-  const halt: ArchetypePassage.IConflict[] = ArchetypePassage.conflicts(
-    "halt",
-    {
+  const halt: AutoMovieArchetypePassage.IConflict[] =
+    AutoMovieArchetypePassage.conflicts("halt", {
       participants: passage(synchronized)
         .participants.slice(0, 2)
         .map(
           (
-            participant: ArchetypePassage.IParticipant,
-          ): ArchetypePassage.IParticipant => ({
+            participant: AutoMovieArchetypePassage.IParticipant,
+          ): AutoMovieArchetypePassage.IParticipant => ({
             ...participant,
             margin: 100,
           }),
@@ -298,8 +301,7 @@ export function test_world_mounted_passage(): void {
       from: 9.5,
       to: 11,
       step: FRAME,
-    },
-  );
+    });
   TestValidator.predicate(
     "the halted pairs stand their lane spacing less their facing sides apart",
     halt.length === 1 &&
@@ -315,14 +317,12 @@ export function test_world_mounted_passage(): void {
     arrival: 9.5,
     held: false,
   });
-  const close: ArchetypePassage.IConflict[] = ArchetypePassage.conflicts(
-    "passage",
-    passage(tight),
-  );
+  const close: AutoMovieArchetypePassage.IConflict[] =
+    AutoMovieArchetypePassage.conflicts("passage", passage(tight));
   TestValidator.equals(
     "tight lanes name the two pairs once",
     close.map(
-      (found: ArchetypePassage.IConflict): string =>
+      (found: AutoMovieArchetypePassage.IConflict): string =>
         `${found.subject}/${found.other}/${found.required}`,
     ),
     [`hazel/indigo/${MOUNT_MARGIN}`],
@@ -337,15 +337,16 @@ export function test_world_mounted_passage(): void {
       close[0]!.seconds >= close[0]!.from &&
       close[0]!.seconds <= close[0]!.to,
   );
-  const crowded: ArchetypePassage.IConflict[] = ArchetypePassage.conflicts(
-    "passage",
-    passage(stage({ lane: 2, split: 2, arrival: 9.5, held: false })),
-  );
+  const crowded: AutoMovieArchetypePassage.IConflict[] =
+    AutoMovieArchetypePassage.conflicts(
+      "passage",
+      passage(stage({ lane: 2, split: 2, arrival: 9.5, held: false })),
+    );
   TestValidator.equals(
     "a separation too close to the dais names each pair beside it",
     crowded
       .map(
-        (found: ArchetypePassage.IConflict): string =>
+        (found: AutoMovieArchetypePassage.IConflict): string =>
           `${found.subject}/${found.other}/${found.required}`,
       )
       .sort((a: string, b: string): number => a.localeCompare(b)),
@@ -357,7 +358,7 @@ export function test_world_mounted_passage(): void {
   TestValidator.predicate(
     `each pair is beside the dais while its lane runs past it: ${JSON.stringify(crowded)}`,
     crowded.every(
-      (found: ArchetypePassage.IConflict): boolean =>
+      (found: AutoMovieArchetypePassage.IConflict): boolean =>
         found.from > 14 && found.from < 16 && found.to > 18 && found.to < 20,
     ),
   );
@@ -378,21 +379,24 @@ export function test_world_mounted_passage(): void {
   // 8. The real rides: each envelope holds its rest box and every posed limb, and the passage stays admitted with them.
   const ridden: IPair[] = synchronized.map(
     (member: IPair, slot: number): IPair => {
-      const ride: ArchetypeRide.IRide<string, string> = rideQuadruped(
+      const ride: AutoMovieArchetypeRide.IRide<string, string> = rideQuadruped(
         slot === 0 ? hazel : indigo,
         member.plan,
       );
       const landings: string = JSON.stringify(
         ride.instants.filter(
           (
-            instant: ArchetypeRide.IRide<string, string>["instants"][number],
+            instant: AutoMovieArchetypeRide.IRide<
+              string,
+              string
+            >["instants"][number],
           ): boolean => instant.label.endsWith("On"),
         ),
       );
       gaits.push(landings);
       return {
         ...member,
-        footprint: ArchetypePassage.envelope(ride, 0, 27, 4 * FRAME),
+        footprint: AutoMovieArchetypePassage.envelope(ride, 0, 27, 4 * FRAME),
       };
     },
   );
@@ -408,7 +412,7 @@ export function test_world_mounted_passage(): void {
   );
   TestValidator.equals(
     "the ridden passage keeps every margin",
-    ArchetypePassage.conflicts("passage", passage(ridden)),
+    AutoMovieArchetypePassage.conflicts("passage", passage(ridden)),
     [],
   );
   TestValidator.predicate(
@@ -428,7 +432,7 @@ export function test_world_mounted_passage(): void {
     );
   TestValidator.equals(
     "the measurement repeats",
-    ArchetypePassage.conflicts("passage", passage(tight)),
+    AutoMovieArchetypePassage.conflicts("passage", passage(tight)),
     close,
   );
 }
@@ -438,17 +442,17 @@ function refused(
   label: string,
   pairs: readonly IPair[],
   axis: string,
-  expected: ArchetypePassage.IConflict,
+  expected: AutoMovieArchetypePassage.IConflict,
 ): void {
   let refusal: unknown;
   try {
-    ArchetypePassage.admit("passage", passage(pairs));
+    AutoMovieArchetypePassage.admit("passage", passage(pairs));
   } catch (error) {
     refusal = error;
   }
   TestValidator.predicate(
     label,
-    refusal instanceof ArchetypeRefusal &&
+    refusal instanceof AutoMovieArchetypeRefusal &&
       refusal.axis === axis &&
       JSON.stringify(refusal.value) === JSON.stringify(expected),
   );
@@ -457,7 +461,7 @@ function refused(
 /** One pair's route: the entrance formation's path, the authored passage marks, then the re-form formation's path unless held. */
 function pair(
   horse: string,
-  footprint: ArchetypePassage.IFootprint,
+  footprint: AutoMovieArchetypePassage.IFootprint,
   slot: number,
   staging: IStaging,
   entry: IAutoMovieMotionHumanFormation,
@@ -466,14 +470,14 @@ function pair(
   const side: number = slot === 0 ? -1 : 1;
   const lane: number = side * staging.lane;
   const split: number = side * staging.split;
-  const entrance: ArchetypeCourse.ISample[] = HumanFormation.path(
+  const entrance: AutoMovieArchetypeCourse.ISample[] = HumanFormation.path(
     entry,
     slot,
     0,
     4,
     2,
   );
-  const marks: ArchetypeCourse.ISample[] =
+  const marks: AutoMovieArchetypeCourse.ISample[] =
     slot === 0
       ? [
           sample(6, lane, 10),
@@ -487,7 +491,7 @@ function pair(
           sample(staging.arrival, lane, 15),
           sample(staging.held ? 27 : 11, lane, 15),
         ];
-  const separation: ArchetypeCourse.ISample[] =
+  const separation: AutoMovieArchetypeCourse.ISample[] =
     staging.held && slot === 1
       ? []
       : [
@@ -498,7 +502,7 @@ function pair(
           sample(20, split, 30),
           ...HumanFormation.path(reform, slot, 23, 27, 2),
         ];
-  const samples: ArchetypeCourse.ISample[] = [
+  const samples: AutoMovieArchetypeCourse.ISample[] = [
     ...entrance,
     ...marks,
     ...separation,
@@ -518,17 +522,17 @@ function pair(
     horse,
     rider: `${horse}-rider`,
     footprint,
-    plan: ArchetypeCourse.timed(horse, samples),
+    plan: AutoMovieArchetypeCourse.timed(horse, samples),
     stages,
   };
 }
 
 /** The passage of the pairs, the dais and the marshal who crosses behind them. */
-function passage(pairs: readonly IPair[]): ArchetypePassage.IProps {
+function passage(pairs: readonly IPair[]): AutoMovieArchetypePassage.IProps {
   return {
     participants: [
       ...pairs.map(
-        (member: IPair): ArchetypePassage.IParticipant => ({
+        (member: IPair): AutoMovieArchetypePassage.IParticipant => ({
           id: member.horse,
           plan: member.plan,
           footprint: member.footprint,
@@ -537,7 +541,7 @@ function passage(pairs: readonly IPair[]): ArchetypePassage.IProps {
       ),
       {
         id: "marshal",
-        plan: ArchetypeCourse.timed("marshal", [
+        plan: AutoMovieArchetypeCourse.timed("marshal", [
           sample(0, -8, 19),
           sample(17, -8, 19),
           sample(19.5, -4, 19),
@@ -585,13 +589,13 @@ function cue(pairs: readonly IPair[]): IAutoMovieSchedule {
 
 /** A formation course frame through samples. */
 function course(
-  samples: readonly ArchetypeCourse.ISample[],
+  samples: readonly AutoMovieArchetypeCourse.ISample[],
 ): IAutoMovieMotionHumanFormation.Frame {
   return {
     kind: "course",
     samples: samples.map(
       (
-        at: ArchetypeCourse.ISample,
+        at: AutoMovieArchetypeCourse.ISample,
       ): IAutoMovieMotionHumanFormation.ISample => ({
         seconds: at.seconds,
         x: at.x,
@@ -604,7 +608,7 @@ function course(
 
 /** Whether a footprint's rectangle holds a model-frame point on the floor. */
 function holds(
-  footprint: ArchetypePassage.IFootprint,
+  footprint: AutoMovieArchetypePassage.IFootprint,
   at: IAutoMovieVector3,
 ): boolean {
   return (
@@ -621,7 +625,7 @@ function holds(
 
 /** A footprint's least or greatest x, metres. */
 function x(
-  footprint: ArchetypePassage.IFootprint,
+  footprint: AutoMovieArchetypePassage.IFootprint,
   pick: (...values: number[]) => number,
 ): number {
   return pick(...footprint.outline.map((p: IAutoMovieVector3): number => p.x));
@@ -632,7 +636,7 @@ function sample(
   seconds: number,
   x: number,
   z: number,
-): ArchetypeCourse.ISample {
+): AutoMovieArchetypeCourse.ISample {
   return { seconds, x, y: 0, z };
 }
 

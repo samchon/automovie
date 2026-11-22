@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { GroomingPropDraw } from "./GroomingPropDraw";
 import { createComb } from "./createComb";
 import { createLipstick } from "./createLipstick";
@@ -13,7 +13,7 @@ import { createToothbrush } from "./createToothbrush";
  * @param params The saved kind, fixed values, optional identifier and model when applicable.
  * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
  * @returns The selected prop in its original frame.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Read a saved grooming prop recipe and call the producer for its kind.
  * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects the named producer that owns its geometry and contacts.
@@ -26,7 +26,7 @@ import { createToothbrush } from "./createToothbrush";
 export function createCareItem(
   params: createCareItem.IParams,
   seed?: number | string,
-): Archetype<createCareItem.Affordance, createCareItem.Dimension> {
+): AutoMovieArchetype<createCareItem.Affordance, createCareItem.Dimension> {
   const kind: createCareItem.Kind = ArchetypeDraw.choice(
     "careItem",
     "kind",
@@ -38,7 +38,7 @@ export function createCareItem(
   const produce: (
     params: createCareItem.IParams,
     seed?: number | string,
-  ) => Archetype<createCareItem.Affordance, createCareItem.Dimension> =
+  ) => AutoMovieArchetype<createCareItem.Affordance, createCareItem.Dimension> =
     createCareItem.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);
 }

@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { MobilityAidConstruction } from "./MobilityAidConstruction";
 import type { createMobilityAid } from "./createMobilityAid";
 
@@ -8,7 +8,7 @@ import type { createMobilityAid } from "./createMobilityAid";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A four-legged walking frame with a paired hand-grip and a central floor reference.
  * @evidence contracts/development/implementation.md#principled-implementation The companion rails and grips share their axes. Adult and junior select their own height bands and measured masses.
@@ -21,7 +21,7 @@ import type { createMobilityAid } from "./createMobilityAid";
 export function createWalker(
   params: createWalker.IParams = {},
   seed?: number | string,
-): Archetype<createWalker.Affordance, createWalker.Dimension> {
+): AutoMovieArchetype<createWalker.Affordance, createWalker.Dimension> {
   return MobilityAidConstruction.walker(params, seed);
 }
 

@@ -1,4 +1,8 @@
-import { ArchetypeCourse, createHorse, rideHorse } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeCourse,
+  createHorse,
+  rideHorse,
+} from "@automovie/archetypes";
 import { AutoMovieGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -35,10 +39,10 @@ export function test_archetype_ride_horse_hysteresis(): void {
       for (let k: number = 0; k < 8; k++)
         speeds.push(point + (k % 2 === 0 ? -0.1 : 0.1));
       speeds.push(0);
-      const course: ArchetypeCourse.ICourse = {
+      const course: AutoMovieArchetypeCourse.ICourse = {
         start: { x: 0, z: 0, heading: 0 },
         legs: speeds.map(
-          (_: number, k: number): ArchetypeCourse.Leg => ({
+          (_: number, k: number): AutoMovieArchetypeCourse.Leg => ({
             kind: "straight",
             length: k === 0 ? 50 : 25,
           }),

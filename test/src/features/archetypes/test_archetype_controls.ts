@@ -1,5 +1,5 @@
 import {
-  ArchetypeUnits,
+  AutoMovieArchetypeUnits,
   createConsole,
   createControl,
   createHatch,
@@ -36,8 +36,8 @@ export function test_archetype_controls(): void {
     if (!(Math.abs(got - wanted) <= MM))
       findings.push(`${what}: ${got}, ${wanted} expected`);
   };
-  const inch: number = ArchetypeUnits.INCH;
-  const mm: number = ArchetypeUnits.MILLIMETRE;
+  const inch: number = AutoMovieArchetypeUnits.INCH;
+  const mm: number = AutoMovieArchetypeUnits.MILLIMETRE;
   findings.push(
     ...archetypeBandSweep([
       ...createControl.KINDS.map(
@@ -78,7 +78,7 @@ export function test_archetype_controls(): void {
   });
   const shaft: IAutoMovieVector3 = lever.affordance("shaft").frame.translation;
   const ball: IAutoMovieVector3 = lever.affordance("knob").frame.translation;
-  const rise: number = 20 * ArchetypeUnits.DEGREE;
+  const rise: number = 20 * AutoMovieArchetypeUnits.DEGREE;
   near("a 100 mm lever's ball", lever.affordance("knob").aperture!, 25 * mm);
   near("a 100 mm lever's mass", lever.properties.mass, 0.1);
   near("its ball up the panel", ball.y - shaft.y, 0.1 * Math.cos(rise));
@@ -175,7 +175,7 @@ export function test_archetype_controls(): void {
     );
   const cover: number = archetypeExtent(hatch, "z", ["cover"]).size;
   const thick: number = archetypeExtent(hatch, "y", ["cover"]).size;
-  const swing: number = 70 * ArchetypeUnits.DEGREE;
+  const swing: number = 70 * AutoMovieArchetypeUnits.DEGREE;
   near(
     "the open cover's top",
     archetypeExtent(hatch.articulate({ hinge: 70 }), "y", ["cover"]).high,
@@ -191,7 +191,11 @@ export function test_archetype_controls(): void {
     near(`a ${hinge} safe's width`, archetypeExtent(safe, "x").size, 30 * inch);
     near(`its height`, archetypeExtent(safe, "y").size, 59.25 * inch);
     near(`its depth`, archetypeExtent(safe, "z").size, 26 * inch);
-    near(`its mass`, safe.properties.mass, 1081 * ArchetypeUnits.POUND);
+    near(
+      `its mass`,
+      safe.properties.mass,
+      1081 * AutoMovieArchetypeUnits.POUND,
+    );
     near(
       `its door's width`,
       archetypeExtent(safe, "x", ["door"]).size,

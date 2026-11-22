@@ -1,6 +1,6 @@
 import type { IAutoMovieTransform } from "@automovie/interface";
 
-import type { Archetype, ArchetypeRide } from "../core";
+import type { AutoMovieArchetype, AutoMovieArchetypeRide } from "../core";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 
 /**
@@ -27,17 +27,17 @@ export namespace archetypeCaptureSubject {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds plain data only.
    */
   export function still(
-    members: Record<string, Archetype>,
+    members: Record<string, AutoMovieArchetype>,
   ): archetypeCaptureCatalog.ISubject {
     return {
       members: Object.entries(members).map(
         ([name, archetype]: [
           string,
-          Archetype,
+          AutoMovieArchetype,
         ]): archetypeCaptureCatalog.IMember => ({
           name,
           reference: archetype,
-          at: (): { archetype: Archetype } => ({ archetype }),
+          at: (): { archetype: AutoMovieArchetype } => ({ archetype }),
         }),
       ),
     };
@@ -62,10 +62,10 @@ export namespace archetypeCaptureSubject {
   export function kinds<Kind extends string>(
     prefix: string,
     list: readonly Kind[],
-    create: (kind: Kind) => Archetype,
-  ): Record<string, Archetype> {
+    create: (kind: Kind) => AutoMovieArchetype,
+  ): Record<string, AutoMovieArchetype> {
     return Object.fromEntries(
-      list.map((kind: Kind): [string, Archetype] => [
+      list.map((kind: Kind): [string, AutoMovieArchetype] => [
         `${prefix}-${kind}`,
         create(kind),
       ]),
@@ -90,8 +90,8 @@ export namespace archetypeCaptureSubject {
    */
   export function moving<Id extends string, Dimension extends string>(
     name: string,
-    ride: ArchetypeRide.IRide<Id, Dimension>,
-    reference?: Archetype,
+    ride: AutoMovieArchetypeRide.IRide<Id, Dimension>,
+    reference?: AutoMovieArchetype,
   ): archetypeCaptureCatalog.ISubject {
     return {
       members: [
@@ -101,7 +101,7 @@ export namespace archetypeCaptureSubject {
           at: (
             seconds: number,
           ): {
-            archetype: Archetype;
+            archetype: AutoMovieArchetype;
             placement: IAutoMovieTransform;
           } => ride.at(seconds),
         },

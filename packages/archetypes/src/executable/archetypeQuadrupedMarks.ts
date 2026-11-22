@@ -7,10 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { QuadrupedBody } from "../animals/QuadrupedBody";
+import { AutoMovieArchetypeQuadrupedBody } from "../animals/AutoMovieArchetypeQuadrupedBody";
+import { AutoMovieArchetypeQuadrupedSkeleton } from "../animals/AutoMovieArchetypeQuadrupedSkeleton";
 import { QuadrupedRestFloor } from "../animals/QuadrupedRestFloor";
-import { QuadrupedSkeleton } from "../animals/QuadrupedSkeleton";
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 
 /** An actual primitive's two axis endpoints and joint frame, in model metres. */
 interface Bar {
@@ -37,11 +37,11 @@ interface Bar {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The draw subject owns the prepared closure; returned marks contain fresh numeric arrays and acquire no geometry, process, cache, file or renderer handle.
  */
 export function archetypeQuadrupedMarks(
-  reference: Archetype | undefined,
+  reference: AutoMovieArchetype | undefined,
 ): (
-  animal: Archetype,
+  animal: AutoMovieArchetype,
   path: string,
-  goals?: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieVector3>,
+  goals?: ReadonlyMap<AutoMovieArchetypeQuadrupedBody.Bone, IAutoMovieVector3>,
 ) => readonly IAutoMovieMark[] {
   if (
     reference === undefined ||
@@ -50,13 +50,16 @@ export function archetypeQuadrupedMarks(
     )
   )
     return (): readonly IAutoMovieMark[] => [];
-  const rig: IAutoMovieArticulatedRig<QuadrupedBody.Bone> =
-    QuadrupedSkeleton.of(reference);
+  const rig: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone> =
+    AutoMovieArchetypeQuadrupedSkeleton.of(reference);
 
   return (
-    animal: Archetype,
+    animal: AutoMovieArchetype,
     path: string,
-    goals?: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieVector3>,
+    goals?: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieVector3
+    >,
   ): readonly IAutoMovieMark[] => {
     const parts: Map<string, IAutoMovieModelPart> = new Map(
       animal.parts.map(
@@ -66,9 +69,11 @@ export function archetypeQuadrupedMarks(
         ],
       ),
     );
-    const bars: Map<QuadrupedBody.Bone, Bar> = new Map(
+    const bars: Map<AutoMovieArchetypeQuadrupedBody.Bone, Bar> = new Map(
       rig.bones.map(
-        (bone: (typeof rig.bones)[number]): [QuadrupedBody.Bone, Bar] => [
+        (
+          bone: (typeof rig.bones)[number],
+        ): [AutoMovieArchetypeQuadrupedBody.Bone, Bar] => [
           bone.bone,
           bar(parts.get(bone.bone)),
         ],
@@ -153,8 +158,9 @@ export function archetypeQuadrupedMarks(
         ),
       );
     }
-    for (const limb of QuadrupedBody.LIMBS) {
-      const terminal: QuadrupedBody.Bone = QuadrupedBody.BONES[limb][3]!;
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
+      const terminal: AutoMovieArchetypeQuadrupedBody.Bone =
+        AutoMovieArchetypeQuadrupedBody.BONES[limb][3]!;
       const part: IAutoMovieModelPart = parts.get(terminal)!;
       const height: number = QuadrupedRestFloor(part);
       marks.push(

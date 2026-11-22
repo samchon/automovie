@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The permissible diameter and minimum mass of a rhythmic ball. */
@@ -21,7 +21,7 @@ const NORMS: string =
  * @param params Fixed dimensions inside their admitted bands and its model id.
  * @param seed Draws unspecified dimensions within their bands; absent selects their midpoints.
  * @returns The ball with its handling and palm contacts.
- * @throws {ArchetypeRefusal} When a fixed dimension lies outside its band.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the model's floor, centre and palm references and their use.
  * @evidence contracts/development/implementation.md#principled-implementation One sphere places both contacts at its physical centre and lower pole.
@@ -34,9 +34,12 @@ const NORMS: string =
 export function createRhythmicBall(
   params: createRhythmicBall.IParams = {},
   seed?: number | string,
-): Archetype<createRhythmicBall.Affordance, createRhythmicBall.Dimension> {
-  const draw: ArchetypeDrawSession<createRhythmicBall.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createRhythmicBall.Affordance,
+  createRhythmicBall.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createRhythmicBall.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "rhythmicBall",
       createRhythmicBall.UNITS,
       seed,
@@ -45,10 +48,10 @@ export function createRhythmicBall(
   const values: Record<createRhythmicBall.Dimension, number> = draw.dimensions(
     createRhythmicBall.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createRhythmicBall.Affordance,
     createRhythmicBall.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "rubber",
     id: params.id,
     name: "rhythmic gymnastics ball",
@@ -62,7 +65,7 @@ export function createRhythmicBall(
     id: "grip",
     kind: "handle",
     extent: null,
-    frame: ArchetypeFrame.upright(centre),
+    frame: AutoMovieArchetypeFrame.upright(centre),
     aperture: values.diameter,
     symmetry: "round",
   });
@@ -70,7 +73,7 @@ export function createRhythmicBall(
     id: "palm",
     kind: "surface",
     extent: null,
-    frame: ArchetypeFrame.facing(point(0, 0, 0), point(0, -1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(point(0, 0, 0), point(0, -1, 0)),
   });
   return builder.build(values.mass);
 }
@@ -97,15 +100,17 @@ export namespace createRhythmicBall {
   }
 
   /** Units shared by all admitted dimensions and bands. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     diameter: "m",
     mass: "kg",
   };
 
   /** Official diameter band and a provisional range just above the minimum mass. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    diameter: ArchetypeBand.metres(0.18, 0.2, NORMS),
-    mass: ArchetypeBand.of(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    diameter: AutoMovieArchetypeBand.metres(0.18, 0.2, NORMS),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       0.4,
       0.42,

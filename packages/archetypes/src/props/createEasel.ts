@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -40,10 +40,10 @@ const SIZE: Readonly<createEasel.ISize> = {
  */
 export function createEasel(
   params: createEasel.IParams = {},
-): Archetype<createEasel.Affordance, createEasel.Dimension> {
+): AutoMovieArchetype<createEasel.Affordance, createEasel.Dimension> {
   const v: typeof Vector3.create = Vector3.create;
-  const draw: ArchetypeDrawSession<createEasel.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createEasel.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "easel",
       { width: "m", height: "m", centre: "m", mass: "kg" },
       undefined,
@@ -52,10 +52,10 @@ export function createEasel(
   draw.derive("height", SIZE.height);
   draw.derive("centre", SIZE.centre);
   draw.derive("mass", SIZE.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createEasel.Affordance,
     createEasel.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? "easel",
     name: "easel",
     material: "wood",
@@ -88,7 +88,7 @@ export function createEasel(
   builder.affordance({
     id: "canvas",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, SIZE.centre, -0.01),
       v(0, 0, -1),
       v(1, 0, 0),

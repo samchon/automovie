@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type ArchetypeMaterial,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeMaterial,
 } from "../core";
 import { FixtureDraw } from "./FixtureDraw";
 import { OBSTACLE_BANDS } from "./OBSTACLE_BANDS";
@@ -30,7 +30,7 @@ export namespace ObstacleDraw {
    */
   export interface IObstacle<Id extends string> {
     /** A fresh builder with the drawn identity and physical material. */
-    builder: ArchetypeBuilder<Id, createObstacle.Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, createObstacle.Dimension>;
 
     /** Values in metres, kilograms or kilograms per metre. */
     d: Partial<Record<createObstacle.Dimension, number>>;
@@ -45,7 +45,7 @@ export namespace ObstacleDraw {
    * @param params The scene identifier, dimension overrides and optional crosstie sizes.
    * @param seed The seed for unresolved dimensions and choices.
    * @returns The dimensions and the builder awaiting the selected geometry.
-   * @throws {ArchetypeRefusal} For a model or dimension the given profile cannot admit.
+   * @throws {AutoMovieArchetypeRefusal} For a model or dimension the given profile cannot admit.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the original axes and returned builder.
    * @evidence contracts/development/implementation.md#principled-implementation Apply two whole crosstie draws and then validate the selected bands, preserving the recorded figures.
@@ -58,12 +58,17 @@ export namespace ObstacleDraw {
   export function begin<Id extends string>(
     kind: createObstacle.Kind,
     name: string,
-    material: ArchetypeMaterial.Kind,
+    material: AutoMovieArchetypeMaterial.Kind,
     params: Omit<createObstacle.IParams, "kind">,
     seed?: number | string,
   ): IObstacle<Id> {
-    const draw: ArchetypeDrawSession<createObstacle.Dimension> =
-      new ArchetypeDrawSession("obstacle", FixtureDraw.obstacle, seed, params);
+    const draw: AutoMovieArchetypeDrawSession<createObstacle.Dimension> =
+      new AutoMovieArchetypeDrawSession(
+        "obstacle",
+        FixtureDraw.obstacle,
+        seed,
+        params,
+      );
     const section: Readonly<Partial<Record<createObstacle.Dimension, number>>> =
       draw.model("section", params.section, TIE_SIZES.section[kind]).figures;
     const length: Readonly<Partial<Record<createObstacle.Dimension, number>>> =
@@ -73,8 +78,8 @@ export namespace ObstacleDraw {
       ...section,
       ...length,
     };
-    const builder: ArchetypeBuilder<Id, createObstacle.Dimension> =
-      new ArchetypeBuilder({
+    const builder: AutoMovieArchetypeBuilder<Id, createObstacle.Dimension> =
+      new AutoMovieArchetypeBuilder({
         material,
         id: params.id,
         name,
@@ -121,7 +126,7 @@ export namespace ObstacleDraw {
     builder.affordance({
       id: "top",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, height, centre)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, height, centre)),
       extent: null,
       width: length,
       depth,
@@ -129,7 +134,7 @@ export namespace ObstacleDraw {
     builder.affordance({
       id: "edge",
       kind: "ledge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, height, centre + depth / 2),
         v(0, 1, 0),
         v(1, 0, 0),

@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { ArchetypeCourse } from "../core";
-import type { QuadrupedBody } from "./QuadrupedBody";
+import type { AutoMovieArchetypeCourse } from "../core";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { rideQuadruped } from "./rideQuadruped";
 
 /**
@@ -54,8 +54,10 @@ export namespace EquineEdge {
   export function of(
     legs: readonly rideQuadruped.ILeg[],
     index: number,
-    plan: ArchetypeCourse.IPlan,
-    hooves: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
+    plan: AutoMovieArchetypeCourse.IPlan,
+    hooves: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, IAutoMovieVector3>
+    >,
   ): IEdge[] {
     const ahead: number = hooves.leftFore.z;
     const behind: number = -hooves.leftHind.z;
@@ -63,10 +65,16 @@ export namespace EquineEdge {
       leg === undefined || leg.kind !== "straight"
         ? 0
         : (-Math.atan((leg.rise ?? 0) / leg.length) * 180) / Math.PI;
-    const span: ArchetypeCourse.ILegSpan = plan.legSpans[index]!;
+    const span: AutoMovieArchetypeCourse.ILegSpan = plan.legSpans[index]!;
     const here: number = pitch(legs[index]);
     return [
-      { at: span.from, before: pitch(legs[index - 1]), after: here, ahead, behind },
+      {
+        at: span.from,
+        before: pitch(legs[index - 1]),
+        after: here,
+        ahead,
+        behind,
+      },
       {
         at: span.from + span.span,
         before: here,

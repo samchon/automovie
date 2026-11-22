@@ -1,6 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import type { createGoal } from "./createGoal";
 
 /** Point shorthand in the goal's model frame. */
@@ -27,7 +30,10 @@ const RING_RODS: number = 16;
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The helper retains no data after writing the construction.
  */
 export function buildBasketballHoop(
-  builder: ArchetypeBuilder<createGoal.Affordance, createGoal.Dimension>,
+  builder: AutoMovieArchetypeBuilder<
+    createGoal.Affordance,
+    createGoal.Dimension
+  >,
   d: Partial<Record<createGoal.Dimension, number>>,
 ): void {
   const bottom: number = d.height! - BOARD_BELOW_RING;
@@ -64,7 +70,7 @@ export function buildBasketballHoop(
     id: "rim",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, y, centre + radius),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -77,7 +83,7 @@ export function buildBasketballHoop(
   builder.affordance({
     id: "board",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, bottom + d.board! / 2, 0),
       v(0, 0, 1),
       v(1, 0, 0),

@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
 /**
@@ -12,7 +12,7 @@ import { StreetFixtureDraw } from "./StreetFixtureDraw";
  * @param params The scene identifier and any dimensions to fix inside their bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The mounting height and base and luminaire dimensions locate the grip on the actual shaft.
@@ -25,7 +25,7 @@ import { StreetFixtureDraw } from "./StreetFixtureDraw";
 export function createLampPost(
   params: createLampPost.IParams = {},
   seed?: number | string,
-): Archetype<createLampPost.Affordance, createLampPost.Dimension> {
+): AutoMovieArchetype<createLampPost.Affordance, createLampPost.Dimension> {
   const { builder, d }: StreetFixtureDraw.IFixture<createLampPost.Affordance> =
     StreetFixtureDraw.begin("lampPost", "lamp post", "composite", params, seed);
   const v: typeof Vector3.create = Vector3.create;

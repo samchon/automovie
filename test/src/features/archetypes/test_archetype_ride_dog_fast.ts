@@ -1,7 +1,7 @@
 import {
-  ArchetypeFrame,
-  type ArchetypeRide,
-  type QuadrupedBody,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeRide,
   createDog,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -47,9 +47,9 @@ export function test_archetype_ride_dog_fast(): void {
   for (const cohort of ["pet", "show", "sled"] as const)
     for (const [gait, speed, cycle, foreStance, hindStance] of cases)
       for (const lead of ["left", "right"] as const) {
-        const ride: ArchetypeRide.IRide<
+        const ride: AutoMovieArchetypeRide.IRide<
           createDog.Affordance,
-          QuadrupedBody.Dimension
+          AutoMovieArchetypeQuadrupedBody.Dimension
         > = rideQuadruped(
           createDog(
             {
@@ -97,7 +97,9 @@ export function test_archetype_ride_dog_fast(): void {
           findings.push(
             `${cohort}/${gait}/${lead}: the actual outward lead axis changed to ${JSON.stringify(axis)}`,
           );
-        const expected: Readonly<Record<QuadrupedBody.Limb, number>> =
+        const expected: Readonly<
+          Record<AutoMovieArchetypeQuadrupedBody.Limb, number>
+        > =
           gait === "trot"
             ? { leftFore: 0, rightFore: 0.5, leftHind: 0.5, rightHind: 0 }
             : lead === "left"
@@ -150,8 +152,11 @@ export function test_archetype_ride_dog_fast(): void {
 
 /** Observe the actual lower-bar joint through model and course transforms. */
 function foot(
-  ride: ArchetypeRide.IRide<createDog.Affordance, QuadrupedBody.Dimension>,
-  limb: QuadrupedBody.Limb,
+  ride: AutoMovieArchetypeRide.IRide<
+    createDog.Affordance,
+    AutoMovieArchetypeQuadrupedBody.Dimension
+  >,
+  limb: AutoMovieArchetypeQuadrupedBody.Limb,
   seconds: number,
 ): IAutoMovieVector3 {
   const sample: ReturnType<typeof ride.at> = ride.at(seconds);
@@ -175,5 +180,5 @@ function foot(
       z: 0,
     }),
   );
-  return ArchetypeFrame.point(sample.placement, point);
+  return AutoMovieArchetypeFrame.point(sample.placement, point);
 }

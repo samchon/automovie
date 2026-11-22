@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame, ArchetypeRefusal } from "../core";
+import { AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal } from "../core";
 
 /** A unit scale: the rides move rigid frames. */
 const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
@@ -25,7 +25,7 @@ const RATE: number = 1e-3;
  * @param placement The installed roundabout's world placement.
  * @param ride The driven angle and the release second.
  * @returns The disc's angle and frame on the ride's clock.
- * @throws {ArchetypeRefusal} For a release before the ride starts.
+ * @throws {AutoMovieArchetypeRefusal} For a release before the ride starts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the clock, the driven and coasting phases and the neglected friction.
  * @evidence contracts/development/implementation.md#principled-implementation The disc keeps the pusher's angle while held, then turns at constant speed.
@@ -40,7 +40,7 @@ export function rideRoundabout(
   ride: rideRoundabout.IParams,
 ): rideRoundabout.IRide {
   if (!(ride.release > RATE))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "roundabout",
       axis: "release",
@@ -59,7 +59,7 @@ export function rideRoundabout(
     speed,
     angle,
     disc: (seconds: number): IAutoMovieTransform =>
-      ArchetypeFrame.compose(placement, {
+      AutoMovieArchetypeFrame.compose(placement, {
         scale: ONE,
         translation: { x: 0, y: 0, z: 0 },
         rotation: Quaternion.fromAxisAngle(UP, angle(seconds)),

@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core";
-import type { QuadrupedFooting } from "./QuadrupedFooting";
+import { AutoMovieArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
 /**
@@ -30,7 +30,7 @@ import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
  */
 export function QuadrupedFootingClip(
   part: IAutoMovieModelPart,
-  plane: QuadrupedFooting.IPlane,
+  plane: AutoMovieArchetypeQuadrupedFooting.IPlane,
   frame: IAutoMovieTransform,
 ): number {
   const shape: IAutoMovieModelPart["geometry"] = part.geometry;
@@ -42,7 +42,7 @@ export function QuadrupedFootingClip(
   )
     return QuadrupedRestFloor({
       ...part,
-      transform: ArchetypeFrame.compose(frame, part.transform!),
+      transform: AutoMovieArchetypeFrame.compose(frame, part.transform!),
     });
   const radius: number = shape.shape.radius;
   const half: number =
@@ -96,6 +96,6 @@ export function QuadrupedFootingClip(
       point.z >= plane.z[0] &&
       point.z < plane.z[1]
     )
-      least = Math.min(least, ArchetypeFrame.point(frame, point).y);
+      least = Math.min(least, AutoMovieArchetypeFrame.point(frame, point).y);
   return least;
 }

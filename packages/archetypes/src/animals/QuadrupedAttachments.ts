@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { QuadrupedBody } from "./QuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedRestLimb } from "./QuadrupedRestLimb";
 
 /**
@@ -12,7 +12,7 @@ import { QuadrupedRestLimb } from "./QuadrupedRestLimb";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes explicit neutral construction from motion: the former connects an authored control rig to its actual torso capsules, while the latter only reads and admits fixed source attachments.
  * @evidence contracts/development/design.md#principled-representation Parent capsules have their actual axis/radius, and an attachment carries both model and primitive-centre parent coordinates. Neutral construction preserves four bar lengths, foot X/Z and distal carriage while placing the actual terminal cylinder's sole at ground Y=0.
- * @evidence contracts/development/design.md#minimal-and-owned-surface QuadrupedBody uses the shared capsule definitions and neutral construction; QuadrupedJoints uses the actual-part attachment admission. The ride receives fixed attachment metadata without a species branch or another skeleton representation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieArchetypeQuadrupedBody uses the shared capsule definitions and neutral construction; AutoMovieArchetypeQuadrupedJoints uses the actual-part attachment admission. The ride receives fixed attachment metadata without a species branch or another skeleton representation.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The explicit grounding and closest-solid construction operates only on initial provisional geometry, never on a requested moving root or foot. Already grounded and connected chains stay unchanged; impossible geometry refuses instead of stretching or using a speed/breed fixture.
  */
 export namespace QuadrupedAttachments {
@@ -85,7 +85,10 @@ export namespace QuadrupedAttachments {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent scalar points and retains no rig or external resource.
    */
   export function solids(
-    rig: Pick<QuadrupedBody.IRig, "back" | "trunk" | "barrel" | "quarters">,
+    rig: Pick<
+      AutoMovieArchetypeQuadrupedBody.IRig,
+      "back" | "trunk" | "barrel" | "quarters"
+    >,
   ): Readonly<Record<Parent, ICapsule>> {
     const rear: IAutoMovieVector3 = {
       x: 0,
@@ -125,10 +128,14 @@ export namespace QuadrupedAttachments {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Every returned chain/point is independently owned; no caller array, completed pose cache or handle is retained.
    */
   export function conform(
-    limbs: Readonly<Record<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>>,
+    limbs: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, readonly IAutoMovieVector3[]>
+    >,
     parents: Readonly<Record<Parent, ICapsule>>,
     terminalRadius: number,
-  ): Readonly<Record<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>> {
+  ): Readonly<
+    Record<AutoMovieArchetypeQuadrupedBody.Limb, readonly IAutoMovieVector3[]>
+  > {
     return {
       leftFore: connect(limbs.leftFore, parents.trunk, true, terminalRadius),
       rightFore: connect(limbs.rightFore, parents.trunk, true, terminalRadius),
@@ -155,13 +162,15 @@ export namespace QuadrupedAttachments {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Four bindings use one physical membership and coordinate conversion owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reading never repairs source geometry or moves roots. Only scale-derived binary64 roundoff admits a calculated boundary; a real gap refuses.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four constant-size point/segment distances and rigid conversions, once per prepared animal.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual parent axes and frames prepared by QuadrupedJoints serve both membership and parent-local coordinates.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual parent axes and frames prepared by AutoMovieArchetypeQuadrupedJoints serve both membership and parent-local coordinates.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned points are independent scalar copies and retain no part, geometry buffer or mutable source array.
    */
   export function read(
-    limbs: Readonly<Record<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>>,
+    limbs: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, readonly IAutoMovieVector3[]>
+    >,
     parents: Readonly<Record<Parent, IParent>>,
-  ): Readonly<Record<QuadrupedBody.Limb, IAttachment>> {
+  ): Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, IAttachment>> {
     return {
       leftFore: binding("trunk", limbs.leftFore[0]!, parents.trunk),
       rightFore: binding("trunk", limbs.rightFore[0]!, parents.trunk),
@@ -216,7 +225,7 @@ export namespace QuadrupedAttachments {
       lengths.push(length);
     }
 
-    // This is the same flat fourth cylinder that QuadrupedBody.lay emits.
+    // This is the same flat fourth cylinder that AutoMovieArchetypeQuadrupedBody.lay emits.
     // Its centreline endpoint is not its sole when the bar is inclined.
     const terminal: number = lengths[3]!;
     const axis: IAutoMovieVector3 = {

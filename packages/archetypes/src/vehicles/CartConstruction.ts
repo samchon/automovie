@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
 } from "../core";
 import { CART_MODELS } from "./CART_MODELS";
 import { CartFit } from "./CartFit";
@@ -18,7 +18,7 @@ import { createCart } from "./createCart";
  * @param params The carrier's authored options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the draw and geometry ownership of the land forms.
  * @evidence contracts/development/implementation.md#principled-implementation Keeps model, castor, shaft and free dimension draws in their historical order before building the selected geometry.
@@ -34,9 +34,9 @@ export function CartConstruction(
   seed: number | string | undefined,
   build: CartConstruction.Build,
   fit?: typeof CartFit.harness,
-): Archetype<createCart.Affordance, createCart.Dimension> {
-  const draw: ArchetypeDrawSession<createCart.Dimension> =
-    new ArchetypeDrawSession<createCart.Dimension>(
+): AutoMovieArchetype<createCart.Affordance, createCart.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createCart.Dimension> =
+    new AutoMovieArchetypeDrawSession<createCart.Dimension>(
       "cart",
       createCart.UNITS,
       seed,
@@ -72,13 +72,15 @@ export function CartConstruction(
   );
   fit?.(draw);
   const d: Partial<Record<createCart.Dimension, number>> = { ...draw.values };
-  const builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: createCart.NAMES[kind],
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createCart.Affordance,
+    createCart.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: createCart.NAMES[kind],
+    draw,
+  });
   build(builder, d);
   return builder.build(d.mass!, createCart.RESTS[kind]);
 }
@@ -94,7 +96,10 @@ export function CartConstruction(
 export namespace CartConstruction {
   /** Adds one carrier form's model-space geometry and contacts. */
   export type Build = (
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCart.Affordance,
+      createCart.Dimension
+    >,
     dimensions: Readonly<Partial<Record<createCart.Dimension, number>>>,
   ) => void;
 }

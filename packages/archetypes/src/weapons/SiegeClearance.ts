@@ -6,7 +6,7 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
 
 /**
  * Analytic level-ground support over a complete declared rotation about model -X.
@@ -95,14 +95,14 @@ export namespace SiegeClearance {
         critical(candidates, cosine, sine, first, last);
       }
     for (const angle of neighbours(candidates, first, last)) {
-      const current: ReturnType<typeof ArchetypeFrame.upright> =
-        ArchetypeFrame.move(
-          ArchetypeFrame.turn(
+      const current: ReturnType<typeof AutoMovieArchetypeFrame.upright> =
+        AutoMovieArchetypeFrame.move(
+          AutoMovieArchetypeFrame.turn(
             { x: 0, y: height, z: 0 },
             { x: -1, y: 0, z: 0 },
             angle,
           ),
-          ArchetypeFrame.upright(at),
+          AutoMovieArchetypeFrame.upright(at),
         );
       for (const x of [-1, 1] as const)
         for (const y of [-1, 1] as const)
@@ -171,7 +171,7 @@ export namespace SiegeClearance {
           critical(candidates, cosine, sine, first, last);
         }
     }
-    const rest: ReturnType<typeof ArchetypeFrame.upright> = {
+    const rest: ReturnType<typeof AutoMovieArchetypeFrame.upright> = {
       translation: Vector3.scale(Vector3.add(from, to), 0.5),
       rotation: rotationBetween(
         { x: 0, y: 1, z: 0 },
@@ -180,8 +180,8 @@ export namespace SiegeClearance {
       scale: { x: 1, y: 1, z: 1 },
     };
     for (const angle of neighbours(candidates, first, last)) {
-      const current: typeof rest = ArchetypeFrame.move(
-        ArchetypeFrame.turn(
+      const current: typeof rest = AutoMovieArchetypeFrame.move(
+        AutoMovieArchetypeFrame.turn(
           { x: 0, y: height, z: 0 },
           { x: -1, y: 0, z: 0 },
           angle,

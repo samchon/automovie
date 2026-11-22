@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeRefusal } from "../core";
-import { QuadrupedBody } from "./QuadrupedBody";
+import { type AutoMovieArchetype, AutoMovieArchetypeRefusal } from "../core";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
  * Refuse a muzzle reach whose head or neck passes through a forelimb.
@@ -19,7 +19,7 @@ import { QuadrupedBody } from "./QuadrupedBody";
  * @param archetype The producer's name, for the refusal.
  * @param posed The posed equid's parts, model space.
  * @param point The reach's target, model space.
- * @throws {ArchetypeRefusal} When the head or neck overlaps a forelimb bar that does not bear the target, with the overlap in metres.
+ * @throws {AutoMovieArchetypeRefusal} When the head or neck overlaps a forelimb bar that does not bear the target, with the overlap in metres.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bars checked, the overlap test, the skipped bearing bar and the refusal.
  * @evidence contracts/development/implementation.md#principled-implementation Capsule overlap is axis-segment distance against the radii sum; the engine's closest-segment query gives the distance.
@@ -31,7 +31,7 @@ import { QuadrupedBody } from "./QuadrupedBody";
  */
 export function EquineHeadClearance(
   archetype: string,
-  posed: Pick<Archetype, "parts">,
+  posed: Pick<AutoMovieArchetype, "parts">,
   point: IAutoMovieVector3,
 ): void {
   const bars: Map<string, ISegment> = new Map(
@@ -43,7 +43,7 @@ export function EquineHeadClearance(
   for (const mover of ["head", "neck"] as const) {
     const moving: ISegment = bars.get(mover)!;
     for (const limb of ["leftFore", "rightFore"] as const)
-      for (const bone of QuadrupedBody.BONES[limb]) {
+      for (const bone of AutoMovieArchetypeQuadrupedBody.BONES[limb]) {
         const other: ISegment = bars.get(bone)!;
         const bearing: number = closestPointsBetweenSegments(
           point,
@@ -62,7 +62,7 @@ export function EquineHeadClearance(
           moving.radius -
           other.radius;
         if (gap < 0)
-          throw new ArchetypeRefusal({
+          throw new AutoMovieArchetypeRefusal({
             kind: "parameter",
             archetype,
             axis: "target",

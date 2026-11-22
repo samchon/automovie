@@ -1,7 +1,7 @@
 import {
-  ArchetypeCourse,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
   createBicycle,
   rideBicycle,
 } from "@automovie/archetypes";
@@ -73,7 +73,7 @@ type BodyKey = "m-average";
 function take(key: BodyKey, failures: string[]): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
   const bicycle: ReturnType<typeof createBicycle> = fittedBicycle(body, 8);
-  const course: ArchetypeCourse.ICourse = {
+  const course: AutoMovieArchetypeCourse.ICourse = {
     start: { x: 2, z: -4, heading: 0 },
     legs: [{ kind: "straight", length: 12 }],
     cruise: 3.2,
@@ -365,7 +365,7 @@ function take(key: BodyKey, failures: string[]): void {
     }
     check(
       `overlapping flight ${overlapping.join("-")} s is refused before publishing another takeoff`,
-      refusal instanceof ArchetypeRefusal &&
+      refusal instanceof AutoMovieArchetypeRefusal &&
         refusal.axis === "hop.interval" &&
         base.instants.filter(
           (event: (typeof base.instants)[number]): boolean =>
@@ -420,7 +420,8 @@ function take(key: BodyKey, failures: string[]): void {
     }
     check(
       "the hop refuses a stationary, turning, climbing or elevated approach",
-      refusal instanceof ArchetypeRefusal && refusal.axis === "hop.approach",
+      refusal instanceof AutoMovieArchetypeRefusal &&
+        refusal.axis === "hop.approach",
     );
   }
   TestValidator.equals("off-road bicycle observations", findings, []);
@@ -448,11 +449,11 @@ function tirePoint(
     tire.transform === null
   )
     throw new Error("The bicycle tire must be a placed cylinder.");
-  const wheel: IAutoMovieTransform = ArchetypeFrame.compose(
+  const wheel: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     sample.placement,
     tire.transform,
   );
-  const axis: IAutoMovieVector3 = ArchetypeFrame.axis(wheel, "y");
+  const axis: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(wheel, "y");
   if (!nclose(axis.y, 0))
     throw new Error("The hop must keep the tire axis level.");
   return {

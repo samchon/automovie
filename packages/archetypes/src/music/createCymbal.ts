@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
 } from "../core";
 
 /**
@@ -31,8 +31,8 @@ import {
  */
 export function createCymbal(
   params: { id?: string } | string = {},
-): Archetype<"edge" | "bell", never> {
-  const radius: number = 8 * ArchetypeUnits.INCH;
+): AutoMovieArchetype<"edge" | "bell", never> {
+  const radius: number = 8 * AutoMovieArchetypeUnits.INCH;
   const edgeHeight: number = 0.85;
   const plateThickness: number = 0.002;
   const bellRadius: number = 0.055;
@@ -45,12 +45,12 @@ export function createCymbal(
   const bronze: string = "#c89439";
   const steel: string = "#8c969c";
   const v: typeof Vector3.create = Vector3.create;
-  const builder: ArchetypeBuilder<"edge" | "bell", never> =
-    new ArchetypeBuilder({
+  const builder: AutoMovieArchetypeBuilder<"edge" | "bell", never> =
+    new AutoMovieArchetypeBuilder({
       id: typeof params === "string" ? params : params.id,
       name: "mounted cymbal",
       material: "composite",
-      draw: new ArchetypeDrawSession<never>("cymbal", {}, undefined),
+      draw: new AutoMovieArchetypeDrawSession<never>("cymbal", {}, undefined),
     });
 
   builder.rod(
@@ -88,13 +88,13 @@ export function createCymbal(
   builder.affordance({
     id: "edge",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, edgeHeight, -radius)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, edgeHeight, -radius)),
     extent: null,
   });
   builder.affordance({
     id: "bell",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, edgeHeight + bellRise, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, edgeHeight + bellRise, 0)),
     extent: null,
   });
   return builder.build(mass);

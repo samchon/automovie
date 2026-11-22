@@ -1,12 +1,16 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import { FlintLock } from "./FlintLock";
 import type { createHandgun } from "./createHandgun";
 
 /** A handgun under construction. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createHandgun.Affordance,
   createHandgun.Dimension
 >;
@@ -84,8 +88,8 @@ export namespace HandgunActions {
 
   /** A Single Action Army's hammer travel at its spur, metres: half cock "about three quarters inch from Safety position", the safety "about a quarter inch" back, and full cock "FULLY back (about an inch and three quarters)", Colt's Single Action Army instruction manual (1993), Sections 3 and 4 (https://vdoc.pub/documents/colt-single-action-army-6ej6kgerjtg0). */
   export const HAMMER: Readonly<{ half: number; full: number }> = {
-    half: (0.25 + 0.75) * ArchetypeUnits.INCH,
-    full: 1.75 * ArchetypeUnits.INCH,
+    half: (0.25 + 0.75) * AutoMovieArchetypeUnits.INCH,
+    full: 1.75 * AutoMovieArchetypeUnits.INCH,
   };
 
   /** A revolver's chambers: "Check each of six chambers", Colt's manual, Section 4; Ruger's Vaquero 5104 holds 6 (https://ruger.com/products/vaqueroStainless/specSheets/5104.html). */
@@ -106,7 +110,7 @@ export namespace HandgunActions {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function hammer(travel: number): number {
-    return travel / ESTIMATES.spur / ArchetypeUnits.DEGREE;
+    return travel / ESTIMATES.spur / AutoMovieArchetypeUnits.DEGREE;
   }
 
   /**
@@ -191,7 +195,11 @@ export namespace HandgunActions {
     builder.affordance({
       id: "hammer",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, bore, 0), v(-1, 0, 0), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, bore, 0),
+        v(-1, 0, 0),
+        v(0, 1, 0),
+      ),
       extent: null,
       travel: full,
       parts: ["hammer"],
@@ -199,7 +207,11 @@ export namespace HandgunActions {
     builder.affordance({
       id: "cylinder",
       kind: "knob",
-      frame: ArchetypeFrame.facing(v(0, axis, back), v(0, 0, -1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, axis, back),
+        v(0, 0, -1),
+        v(1, 0, 0),
+      ),
       extent: null,
       travel: 360,
       parts: ["cylinder"],
@@ -208,7 +220,7 @@ export namespace HandgunActions {
     builder.affordance({
       id: "gate",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(-d.width! / 2, bore, back),
         v(0, 1, 0),
         v(0, 0, -1),
@@ -222,7 +234,7 @@ export namespace HandgunActions {
       builder.affordance({
         id: `chamber${k + 1}` as createHandgun.Affordance,
         kind: "socket",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(
             e.chamber * Math.sin(angle),
             axis + e.chamber * Math.cos(angle),
@@ -329,7 +341,7 @@ export namespace HandgunActions {
       id: "grip",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, grip / 2, d.gripDepth! / 2),
         v(0, 0, -1),
         v(0, 1, 0),
@@ -342,7 +354,7 @@ export namespace HandgunActions {
     builder.affordance({
       id: "trigger",
       kind: "trigger",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, grip - ESTIMATES.trigger.drop, d.triggerReach!),
         v(0, 0, 1),
         v(1, 0, 0),
@@ -355,20 +367,26 @@ export namespace HandgunActions {
     builder.affordance({
       id: "sight",
       kind: "surface",
-      frame: ArchetypeFrame.upright(top),
+      frame: AutoMovieArchetypeFrame.upright(top),
       extent: null,
     });
     builder.affordance({
       id: "frontSight",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, top.y, sight + d.sightRadius!)),
+      frame: AutoMovieArchetypeFrame.upright(
+        v(0, top.y, sight + d.sightRadius!),
+      ),
       extent: null,
     });
     builder.affordance({
       id: "muzzle",
       kind: mouth,
       direction: "along",
-      frame: ArchetypeFrame.facing(v(0, bore, muzzle), v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, bore, muzzle),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
   }

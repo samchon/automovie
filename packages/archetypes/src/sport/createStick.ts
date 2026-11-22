@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { StickBuild } from "./StickBuild";
 import { createCricketBat } from "./createCricketBat";
 import { createFieldHockeyStick } from "./createFieldHockeyStick";
@@ -11,7 +11,7 @@ import { createLacrosseCrosse } from "./createLacrosseCrosse";
  * @param params The saved kind, optional identifier and any dimensions or choices the author supplied.
  * @param seed The seed used by the selected producer.
  * @returns The original model and its contacts.
- * @throws {ArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the saved input and selected model.
  * @evidence contracts/development/implementation.md#principled-implementation Admit the saved kind and use its producer's bands and original seed domain.
@@ -24,7 +24,7 @@ import { createLacrosseCrosse } from "./createLacrosseCrosse";
 export function createStick(
   params: createStick.IParams,
   seed?: number | string,
-): Archetype<createStick.Affordance, createStick.Dimension> {
+): AutoMovieArchetype<createStick.Affordance, createStick.Dimension> {
   const kind: createStick.Kind = ArchetypeDraw.choice(
     "stick",
     "kind",

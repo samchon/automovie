@@ -4,8 +4,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type ArchetypeCourse, ArchetypeRefusal } from "../core";
-import { QuadrupedBody } from "./QuadrupedBody";
+import {
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
+} from "../core";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { QuadrupedHoofTrack } from "./QuadrupedHoofTrack";
 import type { rideQuadruped } from "./rideQuadruped";
 
@@ -141,7 +144,7 @@ export namespace EquineLateral {
    * @param hooves The actual neutral hoof endpoints in model metres.
    * @param centred The stance centres of a moving limb: each neutral hoof brought fore and aft under its attachment, in model metres.
    * @returns The admitted window.
-   * @throws {ArchetypeRefusal} For a leg of the wrong shape, a reversed or graded leg, an angle outside (0, `MAXIMUM`], a blend that does not fit twice in the leg, or a pirouette radius the pivot cannot hold.
+   * @throws {AutoMovieArchetypeRefusal} For a leg of the wrong shape, a reversed or graded leg, an angle outside (0, `MAXIMUM`], a blend that does not fit twice in the leg, or a pirouette radius the pivot cannot hold.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each refusal and the units.
    * @evidence contracts/development/implementation.md#principled-implementation Headings are degrees positive to the left, so moving toward the left puts the travel left of the body and the body offset is negative. Shoulder-in's offset puts the inside hind and the outside fore on one line along the travel. A pirouette turns the body so the vector from the root to the inside hind points at the turn's centre; the hind's circle is the leg's radius less that hoof's distance, admitted from zero up to the hind track width so the outside hind still moves round the inside hind (DR112.3).
@@ -156,11 +159,15 @@ export namespace EquineLateral {
     index: number,
     leg: rideQuadruped.ILeg,
     technique: Technique,
-    plan: ArchetypeCourse.IPlan,
-    hooves: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
-    centred: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
+    plan: AutoMovieArchetypeCourse.IPlan,
+    hooves: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, IAutoMovieVector3>
+    >,
+    centred: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, IAutoMovieVector3>
+    >,
   ): IWindow {
-    const span: ArchetypeCourse.ILegSpan = plan.legSpans[index]!;
+    const span: AutoMovieArchetypeCourse.ILegSpan = plan.legSpans[index]!;
     const from: number = plan.when(span.from);
     const to: number = plan.when(span.from + span.span);
     if (leg.reverse === true || (leg.rise ?? 0) !== 0)
@@ -214,7 +221,7 @@ export namespace EquineLateral {
 
     /** Report the leg that cannot carry the figure. */
     function refuse(reason: string): never {
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
         axis: `legs[${index}].equineFootwork`,
@@ -255,7 +262,7 @@ export namespace EquineLateral {
   /**
    * The crossover of leg-yielding and half-pass: the stances of the legs away from the movement, shifted toward it in the body frame so each lands across its partner's track.
    *
-   * DR111.2.b and DR112.2.b have the outside legs cross in front of the inside legs. A rigid trunk carries each hoof sideways in the body frame by D = travel · sin|ψ| over one stance, ψ the heading offset, so a footprint centred under its neutral point lands D/2 toward the movement and leaves D/2 away from it. The crossing hoof's stance is therefore shifted toward the movement by Δ = max(0, W − D + 2r), W the pair's neutral track width and r its pastern's radius, so it lands at least one hoof breadth beyond the point its partner leaves from; a figure's entry and recovery scale Δ by the same minimum-jerk share as the heading. The shift is taken up by limb adduction of about asin(Δ / L), L the attachment-to-hoof length. That adduction is authored and provisional: a search for "horse forelimb adduction abduction angle degrees shoulder half-pass leg-yield kinematics range of motion hip adduction equine" found no measured equine shoulder or hip adduction range, only fetlock adduction-abduction of 13 ± 7 degrees at walk and 18 ± 7 at trot and a passive stifle adduction of 6 ± 2.7 degrees, neither of which bounds the shoulder or hip. `EquineJointLimits` therefore holds no such bound; the actual limb reach and the ride's pose fit refuse a shift they cannot take.
+   * DR111.2.b and DR112.2.b have the outside legs cross in front of the inside legs. A rigid trunk carries each hoof sideways in the body frame by D = travel · sin|ψ| over one stance, ψ the heading offset, so a footprint centred under its neutral point lands D/2 toward the movement and leaves D/2 away from it. The crossing hoof's stance is therefore shifted toward the movement by Δ = max(0, W − D + 2r), W the pair's neutral track width and r its pastern's radius, so it lands at least one hoof breadth beyond the point its partner leaves from; a figure's entry and recovery scale Δ by the same minimum-jerk share as the heading. The shift is taken up by limb adduction of about asin(Δ / L), L the attachment-to-hoof length. That adduction is authored and provisional: a search for "horse forelimb adduction abduction angle degrees shoulder half-pass leg-yield kinematics range of motion hip adduction equine" found no measured equine shoulder or hip adduction range, only fetlock adduction-abduction of 13 ± 7 degrees at walk and 18 ± 7 at trot and a passive stifle adduction of 6 ± 2.7 degrees, neither of which bounds the shoulder or hip. `AutoMovieArchetypeEquineJointLimits` therefore holds no such bound; the actual limb reach and the ride's pose fit refuse a shift they cannot take.
    *
    * @param windows The admitted figures.
    * @param limbs The actual neutral limb points in model metres, the hoof endpoint last.
@@ -272,7 +279,9 @@ export namespace EquineLateral {
    */
   export function crossing(
     windows: readonly IWindow[],
-    limbs: Readonly<Record<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>>,
+    limbs: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, readonly IAutoMovieVector3[]>
+    >,
     parts: readonly IAutoMovieModelPart[],
   ): QuadrupedHoofTrack.Crossing | undefined {
     const crossed: readonly IWindow[] = windows.filter(
@@ -282,10 +291,10 @@ export namespace EquineLateral {
     if (crossed.length === 0) return undefined;
 
     /** The pastern radius, metres, of one limb. */
-    const radius = (limb: QuadrupedBody.Limb): number => {
+    const radius = (limb: AutoMovieArchetypeQuadrupedBody.Limb): number => {
       const part: IAutoMovieModelPart | undefined = parts.find(
         (candidate: IAutoMovieModelPart): boolean =>
-          candidate.id === QuadrupedBody.BONES[limb][3],
+          candidate.id === AutoMovieArchetypeQuadrupedBody.BONES[limb][3],
       );
       if (
         part?.geometry.type !== "primitive" ||

@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { StationeryDraw } from "./StationeryDraw";
 
 /**
@@ -9,7 +9,7 @@ import { StationeryDraw } from "./StationeryDraw";
  * @param params The optional scene ID and Esselte model.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Clipboard with a grip on its near edge and a level writing surface.
  * @evidence contracts/development/implementation.md#principled-implementation The selected Esselte model supplies the board dimensions and mass. The pinch and face derive from the board.
@@ -24,7 +24,7 @@ export function createClipboard(
     model?: StationeryDraw.Model;
   } = {},
   seed?: number | string,
-): Archetype<createClipboard.Affordance, createClipboard.Dimension> {
+): AutoMovieArchetype<createClipboard.Affordance, createClipboard.Dimension> {
   const {
     builder,
     d,
@@ -53,7 +53,7 @@ export function createClipboard(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
  * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createClipboard {

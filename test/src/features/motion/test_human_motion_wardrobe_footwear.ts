@@ -1,5 +1,5 @@
 import {
-  type Archetype,
+  type AutoMovieArchetype,
   createSeat,
   createStageFootwear,
 } from "@automovie/archetypes";
@@ -72,7 +72,7 @@ function footwear(
   const hand: AutoMovieHumanSide = side === "right" ? "left" : "right";
   const sign: number = hand === "left" ? 1 : -1;
   const body: IAutoMovieMotionHumanBody = motionHumanBody(cast);
-  const model: Archetype<
+  const model: AutoMovieArchetype<
     createStageFootwear.Affordance,
     createStageFootwear.Dimension
   > = createStageFootwear({
@@ -82,7 +82,7 @@ function footwear(
     width: 0.15,
     height: 0.045,
   });
-  const chair: Archetype<createSeat.Affordance, createSeat.Dimension> =
+  const chair: AutoMovieArchetype<createSeat.Affordance, createSeat.Dimension> =
     createSeat({
       kind: "office",
       seatHeight: cast === "f-small" ? 0.39 : 0.43,

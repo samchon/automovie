@@ -1,4 +1,7 @@
-import { ArchetypeDrawSession, ArchetypeRefusal } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeRefusal,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /** Three made-up alternatives, the default first. */
@@ -28,7 +31,7 @@ function pick(
   value: "a" | "b" | "c" | undefined,
   seed: number | string | undefined,
 ): string {
-  return new ArchetypeDrawSession<never>(archetype, {}, seed).model(
+  return new AutoMovieArchetypeDrawSession<never>(archetype, {}, seed).model(
     axis,
     value,
     MODELS,
@@ -60,7 +63,7 @@ export function test_archetype_draw_pick(): void {
     findings.push("an unlisted value was accepted");
   } catch (error) {
     if (
-      !(error instanceof ArchetypeRefusal) ||
+      !(error instanceof AutoMovieArchetypeRefusal) ||
       error.kind !== "parameter" ||
       error.axis !== "model" ||
       JSON.stringify(error.feasible) !==
