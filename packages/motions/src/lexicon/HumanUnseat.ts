@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -17,6 +18,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanHand } from "../posture/HumanHand";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KnockdownFloor } from "../reaction/KnockdownFloor";
 import { HumanMountedFrame } from "./HumanMountedFrame";
@@ -335,10 +337,24 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         HumanUnseatPose.beside(shown, side, context.body),
         1,
       );
-      // The hand bears on the floor from the touch, not before: until then the goal is only where the course is bound.
+      // The palm bears on the floor, the hand turned palm-down with the fingers out to the side, from the touch on; until then the goal is only where the course is bound.
+      const out: IAutoMovieVector3 = Quaternion.rotateVector(
+        resolveHumanPosture.heading({ yaw: shown.yaw, pitch: 0, roll: 0 }),
+        { x: side === "left" ? 1 : -1, y: 0, z: 0 },
+      );
+      const floor: IAutoMovieHumanLimbGoal = reached.limbs[`${side}Arm`]!;
       reached.limbs = {
         ...reached.limbs,
-        [`${side}Arm`]: { ...reached.limbs[`${side}Arm`]!, planted: t >= touch },
+        [`${side}Arm`]: {
+          ...floor,
+          point: { ...floor.point, y: 0 },
+          contact: HumanHand.offset(context.body, side, "palm").point,
+          rotation: HumanHand.rotation(side, {
+            fingers: out,
+            palm: { x: 0, y: -1, z: 0 },
+          }),
+          planted: t >= touch,
+        },
       };
       return reached;
     },
