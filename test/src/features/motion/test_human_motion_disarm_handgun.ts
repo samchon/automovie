@@ -37,9 +37,7 @@ type ICase = readonly [
 type Cast = Parameters<typeof motionHumanBody>[0];
 
 /** The handgun, on the smaller defender; the knife spec covers the other pair. */
-const CASES: readonly ICase[] = [
-  ["f-small", "m-average", "handgun"],
-];
+const CASES: readonly ICase[] = [["f-small", "m-average", "handgun"]];
 
 /** Samples per custody span. */
 const SAMPLES: number = 6;
@@ -158,7 +156,7 @@ function perform(
     ? HumanChain.subject("a")
         .pickUp({ prop: "weapon", handle: "grip", hand: "right" })
         .stand({ seconds: 0.4, sway: 0 })
-        .act("disarmed", { partner: "d", of: "take" })
+        .registered("disarmed", { partner: "d", of: "take" })
     : HumanChain.subject("a").stand({ seconds: 3, sway: 0 });
   return new HumanPerformance({
     seed: "disarm-" + kind,
@@ -182,7 +180,7 @@ function perform(
     ],
     composition: HumanChain.subject("d")
       .stand({ seconds: 2.5, sway: 0 })
-      .act("disarm", { partner: "a", prop: "weapon", kind }, "take")
+      .registered("disarm", { partner: "a", prop: "weapon", kind }, "take")
       .with(partner).node,
   });
 }

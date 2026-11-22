@@ -18,6 +18,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
+import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
 
 /**
  * A planned arm that follows a person who moves: the feed-forward plan
@@ -36,7 +37,7 @@ export namespace AutoMovieMotionHumanArmFollow {
   /**
    * The arm of a planned carry that follows its goal.
    *
-   * The correction is zero up to `ready`. On the frame grid from there, each
+   * The correction is zero at `start`; on the reach the goal's motion counts by the share of the reach made. On the frame grid from there, each
    * frame takes one damped least-squares step (`HumanArmDifferential.step`) on the contact's
    * Jacobian at the corrected arm, toward the goal's motion since the plan
    * (`moved`) less the contact's motion the correction has already made, so
@@ -48,7 +49,7 @@ export namespace AutoMovieMotionHumanArmFollow {
    * deeper past the tangle audit's skin than it is. After `relax` the
    * correction returns to zero within the same bound, so the return rejoins
    * the plan. Between grid frames the correction is interpolated, so the arm
-   * is a function of time: the grid is filled from `ready` once, in order,
+   * is a function of time: the grid is filled from `start` once, in order,
    * and kept.
    *
    * @param body The body.
@@ -72,12 +73,13 @@ export namespace AutoMovieMotionHumanArmFollow {
     span: IAutoMovieMotionHumanArmPlanned.ISpan,
     plan: IAutoMovieMotionHumanArmTrajectory.Trajectory,
     before: IAutoMovieMotionHumanActionPlan["posture"],
-  ): (seconds: number, source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-    projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]) => IAutoMovieMotionHumanArmClearance.IArm {
-    const setup: IAutoMovieMotionHumanArmGeometry.ISetup = HumanArmGeometry.prepare(
-      body,
-      carry.side,
-    );
+  ): (
+    seconds: number,
+    source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+  ) => IAutoMovieMotionHumanArmClearance.IArm {
+    const setup: IAutoMovieMotionHumanArmGeometry.ISetup =
+      HumanArmGeometry.prepare(body, carry.side);
     const contextOf: ReturnType<typeof HumanArmTrajectoryContext.prepare> =
       HumanArmTrajectoryContext.prepare(body, [carry.side]);
     const zero: number[] = new Array(HumanArmGeometry.DIMENSIONS).fill(0);
@@ -87,7 +89,17 @@ export namespace AutoMovieMotionHumanArmFollow {
     // the goal's fastest travel over a frame so far, and its last motion.
     let pace: number | undefined;
     let tracked: number = 0;
-    const at = (j: number): number => span.ready + j * STEP;
+    // The correction runs from the reach's start: a shot corrects toward the
+    // moving person all the way in, as visually guided reaching does
+    // (Brenner and Smeets 1997), not only once the hand is on the hold.
+    const at = (j: number): number => span.start + j * STEP;
+    // On the reach the goal's motion counts by the share of the reach made,
+    // the carry's own weight, so the correction starts from zero with the
+    // reach and is the whole motion by the hold.
+    const share = (t: number): number =>
+      t >= span.ready
+        ? 1
+        : AutoMovieMotionInterval.progress(span.start, span.ready, t);
     const add = (
       a: readonly number[],
       b: readonly number[],
@@ -97,8 +109,10 @@ export namespace AutoMovieMotionHumanArmFollow {
       c.every((v: number): boolean => v === 0);
 
     // One more frame of the grid: the correction stepped toward its target.
-    const next = (source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): void => {
+    const next = (
+      source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): void => {
       const j: number = corrections.length;
       const t: number = at(j);
       const previous: number[] = corrections[j - 1]!;
@@ -110,22 +124,38 @@ export namespace AutoMovieMotionHumanArmFollow {
       // same pose, so their sites' difference is exactly zero. After the hold
       // the step is the correction's own negation, zero, which the travel
       // bound cannot scale and the depth test cannot refuse.
-      if (still(previous) && (t >= span.relax || carry.perceived === undefined)) {
+      if (
+        still(previous) &&
+        (t >= span.relax || carry.perceived === undefined)
+      ) {
         corrections.push(zero);
         if (t >= span.relax) settled = true;
         return;
       }
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution(source);
       const project: ReturnType<typeof prepareHumanPostureProjection> =
         projection ?? prepareHumanPostureProjection(body);
-      const posture: IAutoMovieMotionHumanPosture = before(t, undefined, resolution, project);
+      const posture: IAutoMovieMotionHumanPosture = before(
+        t,
+        undefined,
+        resolution,
+        project,
+      );
       const here: number[] = HumanArmGeometry.encode(setup, plan(t));
       const there: number[] = HumanArmGeometry.encode(setup, plan(at(j - 1)));
       const read:
         | ReturnType<typeof AutoMovieMotionHumanArmPlanned.moved>
         | undefined =
         t < span.relax
-          ? AutoMovieMotionHumanArmPlanned.moved(body, carry, posture, t, resolution, project)
+          ? AutoMovieMotionHumanArmPlanned.moved(
+              body,
+              carry,
+              posture,
+              t,
+              resolution,
+              project,
+            )
           : undefined;
       if (
         read !== undefined &&
@@ -135,25 +165,27 @@ export namespace AutoMovieMotionHumanArmFollow {
         corrections.push(zero);
         return;
       }
-      const context: HumanArmTrajectoryModel.IContext =
-        contextOf({
-          body,
-          times: [t],
-          bases: [
-            read?.base ??
-              AutoMovieMotionHumanArmPlanned.moved(
-                body,
-                carry,
-                posture,
-                span.relax,
-                resolution,
-                project,
-              ).base,
-          ],
-          arms: [{ side: carry.side, rest: carry.rest, sites: [undefined] }],
-        });
-      const frame: IAutoMovieMotionHumanArmGeometry.IFrame = context.frames[0]![0]!;
-      const placed = (q: readonly number[]): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+      const context: HumanArmTrajectoryModel.IContext = contextOf({
+        body,
+        times: [t],
+        bases: [
+          read?.base ??
+            AutoMovieMotionHumanArmPlanned.moved(
+              body,
+              carry,
+              posture,
+              span.relax,
+              resolution,
+              project,
+            ).base,
+        ],
+        arms: [{ side: carry.side, rest: carry.rest, sites: [undefined] }],
+      });
+      const frame: IAutoMovieMotionHumanArmGeometry.IFrame =
+        context.frames[0]![0]!;
+      const placed = (
+        q: readonly number[],
+      ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
         HumanArmGeometry.placed(setup, frame, q, false);
       const contact = (
         p: IAutoMovieMotionHumanArmGeometry.IPlaced,
@@ -190,17 +222,29 @@ export namespace AutoMovieMotionHumanArmFollow {
           frame,
           current,
           read.contact,
-          Vector3.subtract(read.error, made),
+          Vector3.subtract(Vector3.scale(read.error, share(t)), made),
         );
-        tracked = Math.max(tracked, Vector3.length(Vector3.subtract(read.error, made)));
+        tracked = Math.max(
+          tracked,
+          Vector3.length(
+            Vector3.subtract(Vector3.scale(read.error, share(t)), made),
+          ),
+        );
       }
       // The plan's own pace: its fastest probe's travel over a frame of the
       // span, read once on this frame's base; the correction keeps within it.
       pace ??= ((): number => {
         let most: number = 0;
         let last: number[] = HumanArmGeometry.encode(setup, plan(span.start));
-        for (let s: number = span.start + STEP; s < span.end + STEP / 2; s += STEP) {
-          const now: number[] = HumanArmGeometry.encode(setup, plan(Math.min(s, span.end)));
+        for (
+          let s: number = span.start + STEP;
+          s < span.end + STEP / 2;
+          s += STEP
+        ) {
+          const now: number[] = HumanArmGeometry.encode(
+            setup,
+            plan(Math.min(s, span.end)),
+          );
           most = Math.max(most, travel(last, now));
           last = now;
         }
@@ -231,7 +275,12 @@ export namespace AutoMovieMotionHumanArmFollow {
       // change no reading: a step moves a probe at most the pace a frame.
       const halvings: number = Math.max(
         0,
-        Math.ceil(Math.log2((Math.max(pace, tracked) * 1000) / HumanArmTrajectoryModel.TOLERANCE)),
+        Math.ceil(
+          Math.log2(
+            (Math.max(pace, tracked) * 1000) /
+              HumanArmTrajectoryModel.TOLERANCE,
+          ),
+        ),
       );
       for (
         let k: number = 0;
@@ -248,9 +297,12 @@ export namespace AutoMovieMotionHumanArmFollow {
       )
         settled = true;
     };
-    return (seconds: number, source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanArmClearance.IArm => {
-      if (seconds <= span.ready) return plan(seconds);
+    return (
+      seconds: number,
+      source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanArmClearance.IArm => {
+      if (seconds <= span.start) return plan(seconds);
       while (
         !settled &&
         at(corrections.length - 1) < seconds &&
@@ -266,7 +318,7 @@ export namespace AutoMovieMotionHumanArmFollow {
           : ((): number[] => {
               const j: number = Math.min(
                 last - 1,
-                Math.floor((seconds - span.ready) / STEP),
+                Math.floor((seconds - span.start) / STEP),
               );
               const u: number = (seconds - at(j)) / STEP;
               return corrections[j]!.map(

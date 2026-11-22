@@ -52,7 +52,7 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * Slip a ring onto a partner's finger (#4015). The partner's presented hand
  * is read where it is at the action's start, so the partner presents it
  * first (`presentHand`). The dresser's other hand goes palm up under the
- * partner's palm, its fingers toward the partner's wrist, and holds it from `ready` to `relax`. The ring hand brings
+ * partner's wrist, its fingers along the partner's forearm, and holds it from `ready` to `relax`. The ring hand brings
  * the ring's hole onto the finger's axis `LINE_UP` beyond the fingertip by
  * `ready`, then slides it along the axis to `SEAT` of the proximal phalanx
  * over the stroke: the ring's `wear` axis lies along the finger, from the
@@ -218,8 +218,14 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
           bend(side),
         );
 
-      // The steadying palm under the partner's palm, its fingers toward the
-      // partner's wrist, cupping the presented fingers from below.
+      // The steadying palm under the partner's wrist, its fingers along the
+      // partner's forearm: the wrist, not the palm, so the two hands work a
+      // hand's length apart instead of crossing at the fingers (they met
+      // 25 mm deep with both on the palm). The palm lies the forearm's
+      // radius under the wrist's joint, against the partner's palm side.
+      const wrist: IAutoMovieVector3 = bones.get(
+        `${hand}Hand` as AutoMovieHumanoidBone,
+      )!.worldPosition;
       const under: IAutoMovieMotionHumanArmTarget.ITarget =
         AutoMovieMotionHumanArmTarget.prepareTarget(
           body,
@@ -227,12 +233,15 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
           "palm",
           "flat",
         )({
-          point: palm.point,
+          point: Vector3.add(
+            wrist,
+            Vector3.scale(palm.normal, partner.body.measure.forearmRadius),
+          ),
           rotation: HumanHand.align(
             HumanHand.offset(body, steady, "palm", "flat"),
             {
               normal: Vector3.scale(palm.normal, -1),
-              forward: Vector3.normalize(Vector3.subtract(palm.point, tip)),
+              forward: Vector3.normalize(Vector3.subtract(wrist, tip)),
             },
           ),
           bend: bend(steady),

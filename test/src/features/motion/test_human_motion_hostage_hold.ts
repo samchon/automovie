@@ -1,8 +1,12 @@
 import { createHandgun } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieRigidTransform,
@@ -90,12 +94,14 @@ export function test_human_motion_hostage_hold(): void {
             model.affordance("muzzle").frame.translation,
           ),
         );
-        const reader: IAutoMovieMotionHumanPosture = film.posture("h", t);
-        const temple: IAutoMovieVector3 = film.aim(
-          { kind: "person", subject: "v", region: "templeRight" },
-          t,
-          { root: reader.root, yaw: reader.yaw },
-        ).point;
+        // The hostage's temple on its displayed head.
+        const site: IAutoMovieHumanoidSurfaces.IFrame =
+          hostage.surfaces.regions.templeRight;
+        const temple: IAutoMovieVector3 =
+          resolveAutoMovieHumanoidSurfaces.point(
+            site,
+            film.bones("v", t).get(site.bone)!,
+          );
         checks.check(
           `${label}: the muzzle stays at the temple at ${t.toFixed(2)} (${Vector3.distance(muzzle, temple).toFixed(3)} m)`,
           Vector3.distance(muzzle, temple) <= AIM,
@@ -174,7 +180,7 @@ function perform(
     ],
     composition: HumanChain.subject("h")
       .pickUp({ prop: "gun", handle: "grip", hand: "right" })
-      .act(
+      .registered(
         "hostageHold",
         {
           partner: "v",
@@ -188,7 +194,7 @@ function perform(
       .with(
         HumanChain.subject("v")
           .stand({ seconds: 2, sway: 0 })
-          .act("heldHostage", { partner: "h" }),
+          .registered("heldHostage", { partner: "h" }),
       ).node,
   });
 }

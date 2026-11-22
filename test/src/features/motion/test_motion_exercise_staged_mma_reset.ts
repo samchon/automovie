@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Vector3, physicalShapePairDistance } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
@@ -7,7 +7,6 @@ import type {
   IAutoMovieMotionHumanKickboxingRing,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
-  IAutoMovieResolvedBone,
   IAutoMovieScheduleEntry,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -55,29 +54,24 @@ const FACING: IAutoMovieVector3 = {
 const receiverMark = (along: number): IAutoMovieVector3 =>
   Vector3.add(ACTOR_MARK, Vector3.scale(FACING, along));
 
-/** A trunk part read as a sphere: its bone, its centre's height on the body and its radius. */
-interface IBall {
-  /** The bone carrying it. */
-  bone: "head" | "chest";
-
-  /** The centre's standing height, metres. */
-  height: number;
-
-  /** The radius, metres. */
-  radius: number;
-}
+/** The trunk parts whose meeting the spacing keeps apart. */
+const TRUNK: ReadonlySet<string> = new Set([
+  "head",
+  "neck",
+  "chest",
+  "upperChest",
+]);
 
 /**
- * The least spacing of the marks at which the two fighters' heads and chests
- * never meet over a played scene, metres: each a sphere (the head by its
- * radius, the chest by half its depth) carried by its displayed bone. The
- * receiver's whole motion is its own on its mark, the stances read nothing
- * of the initiator, so moving its mark by s along the facing moves every
- * sphere of it by s. For two spheres whose centres lie `along` apart on the
- * facing and `lateral` across it, they clear by `skin` once
- * `along + s >= sqrt((r1 + r2 + skin)^2 - lateral^2)`; the spacing is the
- * played one plus the greatest such s over the scene's instants, the closest
- * approach of the two bodies' solved stances.
+ * The least spacing of the marks at which the two fighters' heads and
+ * trunks never meet over a played scene, metres. The receiver's whole motion
+ * is its own on its mark, the stances read nothing of the initiator, so
+ * moving its mark by s along the facing moves every collider of it by s; the
+ * two face each other along that line, so a pair of colliders `d` apart
+ * (negative overlapping, `physicalShapePairDistance`, exact for the convex
+ * shapes) clears by `skin` once moved `skin - d` farther. The spacing is the
+ * played one plus the greatest such move over the scene's instants: the
+ * closest approach of the two bodies' solved stances.
  */
 const spacing = (
   film: HumanPerformance,
@@ -86,55 +80,23 @@ const spacing = (
   from: number,
   to: number,
 ): number => {
-  const balls: IBall[] = [
-    {
-      bone: "head",
-      height: body.measure.headHeight,
-      radius: body.measure.headRadius,
-    },
-    {
-      bone: "chest",
-      height: body.measure.chestHeight,
-      radius: body.measure.chestDepth / 2,
-    },
-  ];
-  const centre = (
-    subject: string,
-    ball: IBall,
-    seconds: number,
-  ): IAutoMovieVector3 => {
-    const bone: IAutoMovieResolvedBone = film
-      .bones(subject, seconds)
-      .get(ball.bone)!;
-    return Vector3.add(
-      bone.worldPosition,
-      Quaternion.rotateVector(bone.worldRotation, {
-        x: 0,
-        y: ball.height - body.rest.get(ball.bone)!.y,
-        z: 0,
-      }),
-    );
-  };
-  let more: number = -Infinity;
-  for (let t: number = from; t <= to + 1e-9; t += 1 / 24)
-    for (const a of balls)
-      for (const b of balls) {
-        const gap: IAutoMovieVector3 = Vector3.subtract(
-          centre("b", b, t),
-          centre("a", a, t),
-        );
-        const along: number = Vector3.dot(gap, FACING);
-        const lateral: number = Math.sqrt(
-          Math.max(0, Vector3.dot(gap, gap) - along * along),
-        );
-        const reach: number = a.radius + b.radius + SKIN;
-        if (lateral >= reach) continue;
-        more = Math.max(
-          more,
-          Math.sqrt(reach * reach - lateral * lateral) - along,
-        );
-      }
-  return played + Math.max(0, more);
+  let more: number = 0;
+  for (let t: number = from; t <= to + 1e-9; t += 1 / 24) {
+    const trunk = (subject: string): IAutoMovieMotionHumanColliders.IPlaced[] =>
+      HumanColliders.placed(body, film.bones(subject, t)).filter(
+        (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+          TRUNK.has(segment.bone),
+      );
+    for (const a of trunk("a"))
+      for (const b of trunk("b"))
+        for (const one of a.shapes)
+          for (const other of b.shapes)
+            more = Math.max(
+              more,
+              SKIN - physicalShapePairDistance(a.pose, one, b.pose, other),
+            );
+  }
+  return played + more;
 };
 
 /**

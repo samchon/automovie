@@ -63,6 +63,9 @@ const TILT: number = 40;
 /** The neck's two bones a resting head bends over. */
 type NeckBone = "neck" | "head";
 
+/** The neck's protraction searched, degrees of lower-neck flexion countered by as much upper-neck extension, so the chin juts forward with the face level: cervical protraction flexes the lower cervical segments and extends the upper ones (Ordway et al. 1999, Spine 24(3):240-247; provisional range). */
+const PROTRACT: number = 25;
+
 /** How far the body may sink on bent knees to bring the chin down, metres (provisional: a slight knee bend). */
 const SINK: number = 0.12;
 
@@ -89,6 +92,9 @@ interface ISolved {
   /** The side bend over the neck and head, degrees. */
   tilt: number;
 
+  /** The neck's protraction, degrees: lower-neck flexion countered by upper-neck extension. */
+  protract: number;
+
   /** The chin's distance from the shoulder at the solution, metres. */
   miss: number;
 }
@@ -99,7 +105,7 @@ interface ISolved {
  * the partner's upper back (the kiss's lean model, `kissBody`, on planted
  * feet); then the knees' sink (up to `SINK`), the side lean (within the
  * kiss's `ROLL`), the head's turn
- * (`TWIST`) and the neck's flexion and side bend that bring the chin nearest
+ * (`TWIST`), the neck's flexion and side bend and its protraction (`PROTRACT`) that bring the chin nearest
  * the top of the partner's shoulder beside the neck (halfway between the
  * shoulder's region and the neck's side), by turns on coarse grids refined by
  * degrees. A
@@ -374,8 +380,10 @@ function neck(
     const held: readonly [number, number, number] = posture.joints[bone] ?? [
       0, 0, 0,
     ];
+    // Protraction flexes the neck bone and extends the head bone as much.
+    const jut: number = (bone === "neck" ? 1 : -1) * s.protract * k;
     return [
-      held[0] + flexion[bone]![0],
+      held[0] + flexion[bone]![0] + jut,
       held[1] + bend[bone]![1],
       held[2] + turn[bone]![2],
     ];
@@ -427,6 +435,7 @@ function solve(
     twist: 0,
     flexion: 0,
     tilt: 0,
+    protract: 0,
     miss: 0,
   };
   const gap = (pitch: number): number =>
@@ -512,6 +521,14 @@ function solve(
       ),
       s,
     );
+  // The chin jutted forward as far as the protraction range needs.
+  const protracted = (s: ISolved, step: number): ISolved =>
+    least(
+      grid(0, PROTRACT, step).map(
+        (protract: number): ISolved => ({ ...s, protract }),
+      ),
+      s,
+    );
   let best: ISolved = scored({ ...upright, pitch });
   const lowered = (s: ISolved): ISolved =>
     least(
@@ -519,8 +536,11 @@ function solve(
       s,
     );
   for (let round: number = 0; round < 2; ++round)
-    best = necked(sideways(lowered(best), 4, 2 * TILT), 5, 2 * TILT);
-  best = necked(sideways(best, 1, 4), 1, 4);
+    best = protracted(
+      necked(sideways(lowered(best), 4, 2 * TILT), 5, 2 * TILT),
+      5,
+    );
+  best = protracted(necked(sideways(best, 1, 4), 1, 4), 1);
   if (best.miss > NEAR) {
     // Where the shoulder lies from the chin, in the performer's frame.
     const off: IAutoMovieVector3 = Vector3.subtract(

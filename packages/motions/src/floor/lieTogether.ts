@@ -43,6 +43,12 @@ const FOLD: Readonly<Record<ArmBone, readonly [number, number, number]>> = {
   lower: [140, 0, 0],
 };
 
+/** The lower arm's fold when spooning, clinical degrees: the upper arm raised along the floor above the head and the elbow bent back, the forearm under the head as its pillow, so the arm a spooning body lies on stays behind its own head instead of reaching into the partner it lies behind (the forward fold met the partner's chest 42 mm deep; provisional). */
+const PILLOW: Readonly<Record<ArmBone, readonly [number, number, number]>> = {
+  upper: [160, 0, 0],
+  lower: [100, 0, 0],
+};
+
 /** How far two lying headings may differ, degrees (provisional). */
 const ALIGNED: number = 25;
 
@@ -65,7 +71,7 @@ interface INeck {
  * Lie together with a partner (#4012). Both already lie on the support
  * (`lieDown`, `lieOnSurface`, `turnOver`), the performer within its arm's
  * reach (upper arm, forearm and hand) of where it settles; as it settles,
- * the arm on the side it lies on folds up before the face (`FOLD`). Spooning, the performer lies on the same
+ * the arm on the side it lies on folds up before the face (`FOLD`), or, spooning, under its own head (`PILLOW`). Spooning, the performer lies on the same
  * side as the partner, heading within `ALIGNED`, and slides across the
  * support until its chest's sternum region lies `REST` off the partner's
  * upper back. With the head on the chest, it lies on its side facing the
@@ -149,16 +155,32 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
             reason: `spooning lies on the partner's side and heading, but the headings differ by ${heading.toFixed(0)} degrees`,
             fix: "lie down on the same side as the partner",
           });
+        // The front slides up to the partner's back until its first part
+        // meets: the chest at the upper back or the belly at the lower back,
+        // whichever the slide reaches sooner along the back's normal (the
+        // chest alone let the hips overlap 41 mm).
         own = "sternum";
         theirs = "upperBack";
-        const back: IAutoMovieMotionHumanStrikingBody.IRegionResult =
-          region(theirs);
-        slide = flat(
-          Vector3.subtract(
-            Vector3.add(back.point, Vector3.scale(back.normal, REST)),
-            HumanTrunk.region(body, entry, own).point,
-          ),
-        );
+        const meet = (
+          mine: AutoMovieHumanoidRegion,
+          other: AutoMovieHumanoidRegion,
+        ): IAutoMovieVector3 => {
+          const back: IAutoMovieMotionHumanStrikingBody.IRegionResult =
+            region(other);
+          return flat(
+            Vector3.subtract(
+              Vector3.add(back.point, Vector3.scale(back.normal, REST)),
+              HumanTrunk.region(body, entry, mine).point,
+            ),
+          );
+        };
+        const upper: IAutoMovieVector3 = meet("sternum", "upperBack");
+        const lower: IAutoMovieVector3 = meet("abdomen", "lowerBack");
+        const normal: IAutoMovieVector3 = region("upperBack").normal;
+        slide =
+          Vector3.dot(lower, normal) > Vector3.dot(upper, normal)
+            ? lower
+            : upper;
       } else {
         const left: IAutoMovieVector3 = HumanTrunk.region(
           body,
@@ -210,6 +232,9 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
         HumanTrunk.region(body, entry, "shoulderRight").point.y
           ? "left"
           : "right";
+      // Spooning, the arm folds under the head; else up before the face.
+      const fold: Readonly<Record<ArmBone, readonly [number, number, number]>> =
+        p.way === "spoon" ? PILLOW : FOLD;
       const folded = (
         posture: IAutoMovieMotionHumanPosture,
         k: number,
@@ -236,8 +261,8 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
           limbs,
           joints: {
             ...posture.joints,
-            [`${lower}UpperArm`]: blend(`${lower}UpperArm`, FOLD.upper),
-            [`${lower}LowerArm`]: blend(`${lower}LowerArm`, FOLD.lower),
+            [`${lower}UpperArm`]: blend(`${lower}UpperArm`, fold.upper),
+            [`${lower}LowerArm`]: blend(`${lower}LowerArm`, fold.lower),
           },
         };
       };
