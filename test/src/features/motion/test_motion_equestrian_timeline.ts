@@ -27,6 +27,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 type Horse = ReturnType<typeof createHorse>;
@@ -195,7 +196,9 @@ export function test_motion_equestrian_timeline(): void {
       to: leads.duration,
     },
   ];
+  assertTakeClean("the gait timeline take", take.film);
   const moving: ITake = stage(horse, leads, leadWindows, false);
+  assertTakeClean("the lead-change timeline take", moving.film);
   const both: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
     moving.film,
     "rider",

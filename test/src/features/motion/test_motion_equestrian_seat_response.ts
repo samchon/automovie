@@ -19,6 +19,7 @@ import { HumanFoot, HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeHorseRide } from "../internal/archetypeHorseRide";
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { mountedHorseScene } from "../internal/mountedHorseScene";
 
@@ -459,6 +460,9 @@ export function test_motion_equestrian_seat_response(): void {
       `a response of 1.5 must be refused on respond, got ${String(error)}`,
     );
 
+  assertTakeClean("the responding seat", responding.film);
+  assertTakeClean("the rigid seat", rigid.film);
+  assertTakeClean("the shaken seat", shaken.film);
   TestValidator.equals("the seat response to a rear and a buck", findings, []);
 }
 

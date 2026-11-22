@@ -224,32 +224,6 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         Vector3.subtract(raisedShoulder, upright.root),
       ),
     );
-  // The shoulder's reach out over the side grows with the lean: bisect for the least lean whose shoulder meets the ball's line, or take the most admitted.
-  let low: number = 0;
-  let high: number = lean;
-  if (sign * (shoulderAt(high).x - ball.x) >= 0)
-    for (let k: number = 0; k < 24; ++k) {
-      const mid: number = (low + high) / 2;
-      if (sign * (shoulderAt(mid).x - ball.x) < 0) low = mid;
-      else high = mid;
-    }
-  const leaning: number = high;
-  const shoulder: IAutoMovieVector3 = shoulderAt(leaning);
-
-  // The swing's plane: through the leaned shoulder and the ball, holding the horse's level heading.
-  const toBall: IAutoMovieVector3 = Vector3.subtract(ball, shoulder);
-  const radius: number = Vector3.length(toBall);
-  const u: IAutoMovieVector3 = Vector3.normalize(toBall);
-  const forward: IAutoMovieVector3 = {
-    x: 0,
-    y: 0,
-    z: params.stroke === "forehand" ? 1 : -1,
-  };
-  const w: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(forward, Vector3.scale(u, Vector3.dot(forward, u))),
-  );
-  const normal: IAutoMovieVector3 = Vector3.cross(u, w);
-
   // The hand's own frame at rest, the held mallet as the grip holds it, and the head from the wrist in that frame.
   const hand: HumanPoloHand.IHand = HumanPoloHand.of(
     context.body,
@@ -272,6 +246,39 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   };
   const radialEnd: number = (-DEVIATION.radial * Math.PI) / 180;
   const ulnarEnd: number = (DEVIATION.ulnar * Math.PI) / 180;
+  // The shoulder's reach out over the side grows with the lean: bisect for the least lean whose shoulder meets the ball's line and brings the ball within the mallet head's longest reach, or take the most admitted.
+  const fits = (degrees: number): boolean => {
+    const at: IAutoMovieVector3 = shoulderAt(degrees);
+    return (
+      sign * (at.x - ball.x) >= 0 &&
+      Vector3.distance(at, ball) <= distanceAt(radialEnd)
+    );
+  };
+  let low: number = 0;
+  let high: number = lean;
+  if (fits(high))
+    for (let k: number = 0; k < 24; ++k) {
+      const mid: number = (low + high) / 2;
+      if (fits(mid)) high = mid;
+      else low = mid;
+    }
+  const leaning: number = high;
+  const shoulder: IAutoMovieVector3 = shoulderAt(leaning);
+
+  // The swing's plane: through the leaned shoulder and the ball, holding the horse's level heading.
+  const toBall: IAutoMovieVector3 = Vector3.subtract(ball, shoulder);
+  const radius: number = Vector3.length(toBall);
+  const u: IAutoMovieVector3 = Vector3.normalize(toBall);
+  const forward: IAutoMovieVector3 = {
+    x: 0,
+    y: 0,
+    z: params.stroke === "forehand" ? 1 : -1,
+  };
+  const w: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(forward, Vector3.scale(u, Vector3.dot(forward, u))),
+  );
+  const normal: IAutoMovieVector3 = Vector3.cross(u, w);
+
   const deviated: number = HumanPoloHand.deviation(hand, d, radius);
   if (!(deviated >= radialEnd && deviated <= ulnarEnd))
     throw new HumanRefusal({

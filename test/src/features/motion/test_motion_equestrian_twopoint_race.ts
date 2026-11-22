@@ -10,6 +10,7 @@ import type {
 import { HumanFoot, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { mountedHorseScene } from "../internal/mountedHorseScene";
 
@@ -169,6 +170,7 @@ export function test_motion_equestrian_twopoint_race(): void {
           );
       }
 
+  assertTakeClean("the race", scene.film);
   TestValidator.equals("a race from the gate to the pull-up", findings, []);
 }
 

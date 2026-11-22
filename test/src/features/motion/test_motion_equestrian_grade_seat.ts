@@ -8,6 +8,7 @@ import type {
 import { HumanFoot, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { mountedHorseScene } from "../internal/mountedHorseScene";
 
@@ -60,6 +61,7 @@ export function test_motion_equestrian_grade_seat(): void {
           hands: { left: "leftRein", right: "rightRein" },
         }),
     });
+    assertTakeClean(`the seat on a ${grade}-degree grade`, scene.film);
     const ball = (side: "left" | "right"): IAutoMovieVector3 =>
       mountedHorseScene.local(
         scene.part(`${side}Stirrup`, at),

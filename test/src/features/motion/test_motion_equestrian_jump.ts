@@ -21,6 +21,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 type Ride = ReturnType<typeof rideHorse>;
@@ -221,6 +222,7 @@ export function test_motion_equestrian_jump(): void {
     )
   )
     issues.push("the seat does not leave the saddle in flight");
+  assertTakeClean("the jump under the rider", film);
   TestValidator.equals("rider contacts through the jump", issues, []);
 
   /** The seat region in the saddle's current frame. */

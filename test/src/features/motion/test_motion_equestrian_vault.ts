@@ -11,6 +11,7 @@ import type {
 import { HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { mountedHorseScene } from "../internal/mountedHorseScene";
 
@@ -345,6 +346,7 @@ export function test_motion_equestrian_vault(): void {
     unsupported.film.bones("rider", unsupported.film.duration - 0.1);
   });
 
+  assertTakeClean("the vaulting take", scene.film);
   TestValidator.equals("vaulting supports on a moving surcingle", findings, []);
 }
 

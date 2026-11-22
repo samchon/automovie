@@ -21,6 +21,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 type Ride = ReturnType<typeof rideHorse>;
@@ -151,6 +152,7 @@ export function test_motion_equestrian_dressage(): void {
   const turned: number = yaw((begin + cut) / 2);
   if (!(Math.abs(turned + 30) < 1 && Math.abs(yaw(cut + 1.2)) < 1))
     issues.push(`saddle heading off travel ${turned}, after ${yaw(cut + 1.2)}`);
+  assertTakeClean("the lateral figure under the rider", film);
   TestValidator.equals("rider contacts through the lateral figure", issues, []);
 
   /** The seat region in the saddle's current frame. */

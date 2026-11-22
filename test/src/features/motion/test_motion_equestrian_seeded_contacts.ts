@@ -22,6 +22,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 type Horse = ReturnType<typeof createHorse>;
@@ -150,6 +151,7 @@ export function test_motion_equestrian_seeded_contacts(): void {
 
 /** The actual moving tack, current rider geometry and published posting cues. */
 interface Take {
+  film: HumanPerformance;
   ride: Ride;
   reader: IAutoMovieMotionHumanSignature.IReader;
   body: IAutoMovieMotionHumanBody;
@@ -236,6 +238,7 @@ function mounted(
       }).node,
   });
   return {
+    film,
     ride,
     reader: HumanSignature.of(film, "rider", body, 0),
     body,
@@ -246,6 +249,7 @@ function mounted(
 
 /** Measure consistent actual saddle and foot contact on each selected stride. */
 function inspect(take: Take, times: readonly number[]): void {
+  assertTakeClean("a seeded mounted take", take.film);
   const initial: number = times[0]!;
   const seated: IAutoMovieVector3 = seat(take, initial);
   const rested: Record<AutoMovieHumanSide, IAutoMovieVector3> = {

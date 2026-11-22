@@ -16,6 +16,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { mountedHorseScene } from "../internal/mountedHorseScene";
 
@@ -306,6 +307,8 @@ export function test_motion_equestrian_aids(): void {
       `an unaided required change must be refused on aided, got ${String(error)}`,
     );
 
+  assertTakeClean("the aided take", scene.film);
+  assertTakeClean("the second aided take", other.film);
   TestValidator.equals("aids that cue the horse's transitions", findings, []);
 }
 

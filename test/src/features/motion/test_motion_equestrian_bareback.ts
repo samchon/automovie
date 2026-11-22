@@ -11,6 +11,7 @@ import type {
 import { HumanFoot, HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { mountedHorseScene } from "../internal/mountedHorseScene";
 
@@ -194,6 +195,8 @@ export function test_motion_equestrian_bareback(): void {
       `a bareback stirrup must be refused on feet, got ${String(error)}`,
     );
 
+  assertTakeClean("the bareback take", bare.film);
+  assertTakeClean("the saddled straddle take", saddled.film);
   TestValidator.equals(
     "bareback and straddle supports at the trot",
     findings,

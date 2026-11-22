@@ -34,6 +34,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
@@ -285,6 +286,7 @@ export function test_human_motion_ride_towed_driver(): void {
       continue;
     }
 
+    assertTakeClean(`the towed driver ${name}`, performance);
     for (const seconds of instants) {
       const label: string = `${name} at ${seconds.toFixed(2)} s`;
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =

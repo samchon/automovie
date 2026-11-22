@@ -24,6 +24,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { equineLeadOut } from "../internal/equineLeadOut";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
@@ -274,6 +275,7 @@ function build(
 /** Read actual rig geometry through each actor/horse phase of the full scene. */
 function verify(take: Take): void {
   const { body, film, horse, mounted, part } = take;
+  assertTakeClean("the equestrian lifecycle take", film);
   const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
     film,
     "rider",

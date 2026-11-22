@@ -17,6 +17,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { mountedHorseScene } from "../internal/mountedHorseScene";
 
@@ -362,6 +363,8 @@ export function test_motion_equestrian_twopoint(): void {
     loose.film.bones("rider", loose.film.duration - 0.1);
   });
 
+  assertTakeClean("the out-of-saddle seats", scene.film);
+  assertTakeClean("the whipped two-point", whipped.film);
   TestValidator.equals("out-of-saddle seats at the canter", findings, []);
 }
 

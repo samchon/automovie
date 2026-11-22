@@ -12,6 +12,7 @@ import type {
 import { HumanFoot, HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { mountedHorseScene } from "../internal/mountedHorseScene";
 
@@ -310,6 +311,7 @@ export function test_motion_equestrian_sidesaddle(): void {
     far.film.bones("rider", far.film.duration - 0.1);
   });
 
+  assertTakeClean("the side-saddle take", scene.film);
   TestValidator.equals("side-saddle supports on a walking horse", findings, []);
 }
 

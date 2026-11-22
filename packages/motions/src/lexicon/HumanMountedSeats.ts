@@ -267,6 +267,27 @@ export namespace HumanMountedSeats {
       ),
     );
 
+    // The ball of the left foot on its stirrup, the knee forward and out under the leaping head: each support's reach is admitted before the hanging shank is solved.
+    const footId: string = supports.leftFoot!;
+    const placed: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
+      body,
+      "left",
+      "ball",
+      context.point(footId),
+      facing,
+      0,
+    );
+    const [near, far]: readonly [number, number] = HumanMount.span(body);
+    const reach: number = Vector3.distance(placed.ankle, hips.left);
+    if (!(reach >= near && reach <= far))
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "supports.leftFoot",
+        value: reach,
+        feasible: { kind: "range", minimum: near, maximum: far, unit: "m" },
+        reason: `the stirrup ${footId} lies ${reach.toFixed(3)} m from the left hip, outside the leg's band`,
+        fix: "set the side saddle's stirrup within the left leg's reach",
+      });
     // The shank hangs from the knee, turned out about the carrier's fore-and-aft axis only as far as clears the carrier.
     const ankleAt = (degrees: number): IAutoMovieVector3 => {
       const r: number = (degrees * Math.PI) / 180;
@@ -307,27 +328,6 @@ export namespace HumanMountedSeats {
       ),
     );
 
-    // The ball of the left foot on its stirrup, the knee forward and out under the leaping head.
-    const footId: string = supports.leftFoot!;
-    const placed: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
-      body,
-      "left",
-      "ball",
-      context.point(footId),
-      facing,
-      0,
-    );
-    const [near, far]: readonly [number, number] = HumanMount.span(body);
-    const reach: number = Vector3.distance(placed.ankle, hips.left);
-    if (!(reach >= near && reach <= far))
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "supports.leftFoot",
-        value: reach,
-        feasible: { kind: "range", minimum: near, maximum: far, unit: "m" },
-        reason: `the stirrup ${footId} lies ${reach.toFixed(3)} m from the left hip, outside the leg's band`,
-        fix: "set the side saddle's stirrup within the left leg's reach",
-      });
     const leftLeg: IAutoMovieHumanLimbGoal = {
       point: placed.ankle,
       rotation: placed.rotation,

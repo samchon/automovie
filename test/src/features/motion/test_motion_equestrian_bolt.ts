@@ -10,6 +10,7 @@ import type {
 import { HumanFoot, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { mountedHorseScene } from "../internal/mountedHorseScene";
 
@@ -169,6 +170,8 @@ export function test_motion_equestrian_bolt(): void {
         );
   }
 
+  assertTakeClean("the responding bolt", responding.film);
+  assertTakeClean("the rigid bolt", rigid.film);
   TestValidator.equals("a bolt and its pull-up", findings, []);
 }
 
