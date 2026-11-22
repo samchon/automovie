@@ -532,7 +532,9 @@ export function test_human_motion_blade_carrier_draw(): void {
 }
 
 /** How far the scabbard retreats along its line in the long draw, metres: an authored share of the blade. */
-const RETREAT: number = 0.3;
+const RETREAT: number = 0.15;
+/** The longsword's scabbard tilts forward from plumb by this, degrees: steep enough that the drawn hilt rises toward the drawing shoulder, authored. */
+const CANT: number = 20;
 /** The longsword's mouth from the body's midline, metres on a 1.75 m body: worn forward of the hip for the cross draw, authored. */
 const LATERAL: number = 0.1;
 /** The longsword's mouth ahead of the hips, metres: authored. */
@@ -547,7 +549,7 @@ function longsword(): void {
     body,
     { kind: "longsword", model: "crecy" },
     { kind: "scabbard", blade: "crecy" },
-    35,
+    CANT,
     "left",
     "mouth",
     LATERAL,
@@ -600,9 +602,7 @@ function longsword(): void {
   });
   const draw: IAutoMovieMotionHumanSegment = film
     .segments("fencer")
-    .find(
-      (s: IAutoMovieMotionHumanSegment): boolean => s.id === "draw",
-    )!;
+    .find((s: IAutoMovieMotionHumanSegment): boolean => s.id === "draw")!;
   const liftOff: number = at(draw, "unseated");
   const lifted: number = at(draw, "drawn");
   const seat: IAutoMovieRigidTransform = socket(staged, "seat");
