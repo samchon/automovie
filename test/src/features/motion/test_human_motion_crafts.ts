@@ -311,11 +311,14 @@ function conducting(
       figure.directions.forEach((direction: Direction, b: number): void => {
         const beat: number = segment.start + (b + 1) * period;
         // The ictus is the tip's lowest point: the lowest within a quarter
-        // beat either side falls within a film frame of the beat.
+        // beat either side falls within a frame of the beat.
         let lowest: number = beat;
         let low: number = Infinity;
-        for (let i: number = -30; i <= 30; ++i) {
-          const t: number = beat + (i * period) / 120;
+        // Read at film frames, the precision the check asks, out to a quarter
+        // beat either side.
+        const frames: number = Math.ceil((period / 4) * 24);
+        for (let i: number = -frames; i <= frames; ++i) {
+          const t: number = beat + i / 24;
           const y: number = tip(t).y;
           if (y < low) {
             low = y;
