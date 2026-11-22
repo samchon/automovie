@@ -47,8 +47,10 @@ const LEGAL: number = 1e-6;
  *    and a little outward, placed; each second continues the fit before
  *    it, as a display does. At every second the ankle is on its goal within
  *    a millimetre, the knee lies within a degree of its pole's side about
- *    the hip-to-ankle line (so it never flips), and the range clamp leaves
- *    every leg joint as fitted.
+ *    the hip-to-ankle line or, where the pole is refused, holds the legal
+ *    edge nearest it (its angle off the pole changing by no more than the
+ *    pole turned since the second before, so it never flips), and the
+ *    range clamp leaves every leg joint as fitted.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the placed-knee contract, the path, the bodies and each bound.
  * @evidence contracts/development/testing.md#behavioral-verification Fits each second through resolveHumanPosture.seeded with the previous second's seed and reads the knee and ankle off the posed bones and the joints through the range clamp.
@@ -95,6 +97,7 @@ export function test_motion_contact_placed_knee(): void {
       },
     });
     let seed: IAutoMovieSwivelSeed | null | undefined;
+    let previous: number | undefined;
     for (let i: number = 0; i <= FRAMES; ++i) {
       const share: number = i / FRAMES;
       const near: IAutoMovieMotionHumanResolveHumanPosture.INear =
@@ -117,19 +120,21 @@ export function test_motion_contact_placed_knee(): void {
       const axis: IAutoMovieVector3 = unit(minus(at, root));
       const radial = (p: IAutoMovieVector3): IAutoMovieVector3 =>
         minus(p, plus(root, scale(axis, dot(minus(p, root), axis))));
-      const toward: number =
-        (Math.acos(
-          Math.max(
-            -1,
-            Math.min(1, dot(unit(radial(knee)), unit(radial(hint(share))))),
-          ),
-        ) *
-          180) /
-        Math.PI;
-      TestValidator.predicate(
-        `${name} at ${i} of ${FRAMES}: the placed knee lies toward its pole (${toward.toFixed(3)} degrees off)`,
-        toward <= TOWARD,
-      );
+      const toward: number = angle(radial(knee), radial(hint(share)));
+      // Where the pole is refused the knee holds the legal edge nearest it,
+      // so its angle off the pole changes by no more than the pole itself
+      // turned about the line since the second before: it never flips.
+      if (previous !== undefined) {
+        const turned: number = angle(
+          radial(hint(share)),
+          radial(hint((i - 1) / FRAMES)),
+        );
+        TestValidator.predicate(
+          `${name} at ${i} of ${FRAMES}: the placed knee lies toward its pole (${toward.toFixed(3)} degrees off) or holds its edge (${Math.abs(toward - previous).toFixed(3)} of the pole's ${turned.toFixed(3)} degrees)`,
+          toward <= TOWARD || Math.abs(toward - previous) <= turned + TOWARD,
+        );
+      }
+      previous = toward;
       const moved: number = clamped(body, fitted.pose);
       TestValidator.predicate(
         `${name} at ${i} of ${FRAMES}: the leg is legal as fitted (the clamp moves a joint ${moved} degrees)`,
@@ -165,6 +170,14 @@ function clamped(
     );
   }
   return worst;
+}
+
+/** The angle between two vectors, degrees. */
+function angle(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
+  return (
+    (Math.acos(Math.max(-1, Math.min(1, dot(unit(a), unit(b))))) * 180) /
+    Math.PI
+  );
 }
 
 /** a - b. */

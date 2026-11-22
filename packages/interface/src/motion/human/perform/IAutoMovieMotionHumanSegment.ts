@@ -88,11 +88,11 @@ export interface IAutoMovieMotionHumanSegment {
   >;
 
   /**
-   * The limbs' fits of the action's displayed leaf at its anchor seconds,
+   * The arms' fits of the action's displayed leaf at its anchor seconds,
    * each read cold once, keyed by the person's overlay count and the anchor
    * (the plan second over the anchor spacing, rounded), as `<overlays>:<anchor>`.
    * A displayed second with no fits of its own places its arms at the swivels
-   * interpolated between the anchors around it, and continues its legs from them, so a verdict, a sub-frame
+   * interpolated between the anchors around it, so a verdict, a sub-frame
    * and playback read one closed-form placement instead of sweeping every
    * swivel. Absent until a read needs one, and
    * released when anything is placed or the person's memos are forgotten.
@@ -124,7 +124,7 @@ export interface IAutoMovieMotionHumanSegment {
 /** Operation-local contracts supporting IAutoMovieMotionHumanSegment. */
 export namespace IAutoMovieMotionHumanSegment {
   /**
-   * One anchor second's limb fits (`IAutoMovieMotionHumanSegment.anchors`): each
+   * One anchor second's arm fits (`IAutoMovieMotionHumanSegment.anchors`): each
    * fit's chosen swivel seed by its display fit name (the leaf's, an overlay
    * leaf's, a carry's or a contact's), null where that fit gave none.
    *
