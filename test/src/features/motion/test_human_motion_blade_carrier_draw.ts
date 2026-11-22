@@ -8,6 +8,7 @@ import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSheath,
@@ -663,6 +664,12 @@ function longsword(): void {
   assertTakeClean("longsword draw", film);
 }
 
+/** The closed hand's surfaces that wrap a handle farthest from its axis: the thumb's tip and the longest finger's. */
+const WRAPPING: readonly IAutoMovieMotionHumanHand.Surface[] = [
+  "thumbTip",
+  "middleTip",
+];
+
 /** Wear the carrier at a hip, its mouth tilted forward by the cant, and seat the blade in it. */
 function stage(
   body: IAutoMovieMotionHumanBody,
@@ -671,7 +678,7 @@ function stage(
   cant: number,
   side: AutoMovieHumanSide = "right",
   mouth: string = "mouth",
-  lateral: number = 0.2,
+  lateral?: number,
   ahead: number = 0.12,
 ): IStage {
   const blade: ReturnType<typeof createSword> = createSword(bladeParams);
@@ -692,8 +699,32 @@ function stage(
     { x: 1, y: 0, z: 0 },
     cant,
   );
+  // Hung at the side by default: the hip's outer surface (the hip joint's
+  // half width and the thigh's radius) and, beyond it, the closed hand's
+  // reach about the grip (its thumb and fingertips wrap the handle on the
+  // hip's side) or the forearm's radius, whichever is more, so the drawing
+  // hand closes on the hilt and the forearm comes down beside the hip
+  // without touching it; an authored lateral (the cross draw's) scales with
+  // the body.
+  // The closed hand's reach about the handle: the farthest its wrapping tips
+  // lie from the grip socket.
+  const grip: IAutoMovieVector3 = HumanHand.offset(body, side, "grip").point;
+  const wrap: number = Math.max(
+    ...WRAPPING.map((surface: IAutoMovieMotionHumanHand.Surface): number =>
+      Vector3.distance(
+        HumanHand.offset(body, side, surface, "fist").point,
+        grip,
+      ),
+    ),
+  );
+  const out: number =
+    lateral === undefined
+      ? body.measure.hipHalfWidth +
+        body.measure.thighRadius +
+        Math.max(wrap, body.measure.forearmRadius)
+      : lateral * (body.measure.stature / 1.75);
   const mouthAt: IAutoMovieVector3 = {
-    x: (side === "left" ? lateral : -lateral) * (body.measure.stature / 1.75),
+    x: side === "left" ? out : -out,
     y: body.measure.hipHeight + 0.05,
     z: ahead,
   };
