@@ -6,8 +6,7 @@ import type { IAutoMovieMotionHumanWeaponPresent } from "./IAutoMovieMotionHuman
 
 /**
  * Open parameters of the archery lexicon family, keyed by each runtime export name.
- * Omitted keys are fixed by the row before its underlying law plans. Release rows can also transfer one staged prop onto an authored continuation.
- * HumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values.
+ * Release rows can also transfer one staged prop onto an authored continuation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
  * @evidence contracts/development/design.md#principled-representation The archery family is a closed export-name map that reuses source law types and adds one shared continuation record.

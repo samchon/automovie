@@ -1,8 +1,8 @@
 import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHumanCrouch";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionHumanClinch";
-import type { IAutoMovieMotionHumanGrapple } from "../grappling/IAutoMovieMotionHumanGrapple";
 import type { IAutoMovieMotionHumanDisarm } from "../grappling/IAutoMovieMotionHumanDisarm";
+import type { IAutoMovieMotionHumanGrapple } from "../grappling/IAutoMovieMotionHumanGrapple";
 import type { IAutoMovieMotionHumanHostageHold } from "../grappling/IAutoMovieMotionHumanHostageHold";
 import type { IAutoMovieMotionHumanLungeGrab } from "../grappling/IAutoMovieMotionHumanLungeGrab";
 import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
@@ -15,8 +15,6 @@ import type { IAutoMovieMotionHumanStageProp } from "./IAutoMovieMotionHumanStag
 
 /**
  * Open parameters of the stageFight lexicon family, keyed by each runtime export name.
- * Omitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.
- * HumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
  * @evidence contracts/development/design.md#principled-representation The stageFight family is a closed export-name map with the exact Omit projection of each source law.

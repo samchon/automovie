@@ -47,7 +47,8 @@ import type { IAutoMovieMotionHumanLexiconWeaponMeleeParams } from "./IAutoMovie
 /**
  * The open parameters of every installed Human lexicon row, by family and
  * then by the row's export key: what a row leaves to the author after the
- * parameters it fixes. A row's export key may differ from its registered
+ * parameters it fixes, each with its law's own default, unit and required
+ * status. A row's export key may differ from its registered
  * name; `HUMAN_LEXICON_FAMILIES` pairs them when the schema is generated.
  * Rows are admitted at run time as actions are
  * (`IAutoMovieMotionHumanActionParams`): `HumanPerformanceParams` checks the

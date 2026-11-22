@@ -6,8 +6,6 @@ import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanT
 
 /**
  * Open parameters of the gunDrill lexicon family, keyed by each runtime export name: a field gun crew's duties of #3489.
- * Omitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.
- * HumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
  * @evidence contracts/development/design.md#principled-representation The gunDrill family is a closed export-name map with the exact Omit projection of each source law.

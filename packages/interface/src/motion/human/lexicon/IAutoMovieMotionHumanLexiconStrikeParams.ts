@@ -6,8 +6,6 @@ import type { IAutoMovieMotionHumanPunch } from "../striking/IAutoMovieMotionHum
 
 /**
  * Open parameters of the strike lexicon family, keyed by each runtime export name: the named punches, kicks and knees of #3362.
- * Omitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.
- * HumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
  * @evidence contracts/development/design.md#principled-representation The strike family is a closed export-name map with the exact Omit projection of each source law.
