@@ -8,6 +8,7 @@ import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidB
 import type { IAutoMovieSoftBodyDomain } from "../../../soft/IAutoMovieSoftBodyDomain";
 import type { AutoMovieMotionHumanScheduledInstant } from "../law/AutoMovieMotionHumanScheduledInstant";
 import type { IAutoMovieMotionHumanObject } from "./IAutoMovieMotionHumanObject";
+import type { IAutoMovieMotionHumanTether } from "./IAutoMovieMotionHumanTether";
 
 /**
  * A prop actions can aim at and hands can hold: a subject id, its world
@@ -180,6 +181,14 @@ export interface IAutoMovieMotionHumanProp {
    * (`HumanPropFlight`). Absent when the model declares none.
    */
   body?: IAutoMovieBody;
+
+  /**
+   * Lines from the prop's points to other props' points (#3998): a rod's
+   * fishing line to its lure. A line shorter than the distance between its
+   * ends pulls the far prop toward this one while no hand holds it
+   * (`IAutoMovieMotionHumanTether`). None when absent.
+   */
+  tethers?: readonly IAutoMovieMotionHumanTether[];
 }
 
 /**

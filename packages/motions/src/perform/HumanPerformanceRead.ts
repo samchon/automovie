@@ -17,6 +17,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceHold } from "./HumanPerformanceHold";
+import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPropHold } from "./HumanPropHold";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentShown } from "./HumanSegmentShown";
@@ -168,7 +169,9 @@ export namespace HumanPerformanceRead {
    * sled pushed by its two handles). A hold an action
    * leaves (`IHumanActionPlan.holds`) is a grip lasting until a later action
    * takes that hand over. Released props stay where the last grip to end
-   * released them; falling is the physics layer's.
+   * released them; falling is the physics layer's. A line running to the
+   * prop from another (`IAutoMovieMotionHumanProp.tethers`) holds it within
+   * the line's length while no hand or wear carries it.
    *
    * A grip carries the prop only after it closes: at its first second the
    * prop is where it was, which is where the offset the grip keeps puts it
@@ -207,7 +210,14 @@ export namespace HumanPerformanceRead {
       ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     },
   ): IAutoMovieRigidTransform {
-    return HumanPerformanceHold.prop(self, subject, seconds, own);
+    // A line running to the prop holds it within its length (`HumanPerformanceTether`).
+    return HumanPerformanceTether.pull(
+      self,
+      subject,
+      seconds,
+      HumanPerformanceHold.prop(self, subject, seconds, own),
+      (other: string, at: number): IAutoMovieRigidTransform => prop(self, other, at),
+    );
   }
 
   /**

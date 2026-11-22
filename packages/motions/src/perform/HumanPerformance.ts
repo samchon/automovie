@@ -14,6 +14,7 @@ import type {
   IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanPropFracture,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanTether,
   IAutoMovieMotionTarget,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
@@ -30,6 +31,7 @@ import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropFracture } from "./HumanPropFracture";
 import { HumanSegment } from "./HumanSegment";
@@ -160,6 +162,26 @@ export class HumanPerformance {
    */
   public prop(subject: string, seconds: number): IAutoMovieRigidTransform {
     return HumanPerformanceRead.prop(this.resolved, subject, seconds);
+  }
+
+  /**
+   * A line between props at a film second (`IAutoMovieMotionHumanTether`):
+   * its ends, its line out, whether it runs taut, and the points it is
+   * drawn through, straight when taut and a catenary when slack.
+   *
+   * @param subject The prop the line runs from.
+   * @param id The line's id on that prop.
+   * @param seconds Film seconds.
+   * @returns The line as it lies.
+   */
+  public tether(subject: string, id: string, seconds: number): IAutoMovieMotionHumanTether.ISpan {
+    return HumanPerformanceTether.span(
+      this.resolved,
+      subject,
+      id,
+      seconds,
+      (prop: string, at: number): IAutoMovieRigidTransform => HumanPerformanceRead.prop(this.resolved, prop, at),
+    );
   }
 
   /**

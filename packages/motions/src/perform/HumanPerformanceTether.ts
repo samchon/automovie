@@ -1,0 +1,239 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanTether,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
+
+/** How many points a slack line is drawn with. */
+const SAMPLES: number = 16;
+
+/** A tether found by its far prop: the declaring prop and the line. */
+interface IHeld {
+  /** The prop the line runs from. */
+  owner: IAutoMovieMotionHumanProp;
+
+  /** The line. */
+  tether: IAutoMovieMotionHumanTether;
+}
+
+/** The lines by far prop, per resolved performance. */
+const INDEX: WeakMap<IAutoMovieMotionHumanPerformanceState, Map<string, IHeld[]>> = new WeakMap();
+
+/**
+ * The lines between props (`IAutoMovieMotionHumanTether`, #3998): where a
+ * line lies at a second, and how it holds its far prop.
+ *
+ * A line's length is its free metres, or its metres less its rate times the
+ * driving articulation's travel at that second (`HumanPerformanceObject.state`),
+ * never below zero. The far prop is pulled to the line's length from the near
+ * end while no hand or worn span carries it; a flight pays the line out,
+ * so a line long enough never pulls it and one too short stops it. Pulled, it
+ * keeps its height and slides along the surface it rests on toward the near
+ * end, as a lure drawn back across the water. A slack line hangs as the
+ * catenary of its length between its ends (Irvine 1981, Cable Structures).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the length, the pull and when it applies, and the hang with its source.
+ * @evidence contracts/development/design.md#principled-representation The line is read from the declaring prop's record; the pull is a constraint on the far prop's rest frame.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The span reader, the pull and the stretch measure.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The far prop is never posed while a hand or a wear carries it.
+ */
+export namespace HumanPerformanceTether {
+  /**
+   * The line as it lies at a second.
+   *
+   * @param self The resolved performance.
+   * @param subject The prop the line runs from.
+   * @param id The line's id.
+   * @param seconds Film seconds.
+   * @param frame Reads a prop's displayed frame.
+   * @returns The ends, the length, whether taut and the drawn points.
+   * @throws {HumanRefusal} For an unknown prop, line or point, or a length of no line.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and what is returned.
+   * @evidence contracts/development/implementation.md#principled-implementation The ends are the props' displayed points; a slack line is the catenary of its length, its parameter by Newton's method.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Ends, length, then the hang.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing point or a nonpositive length refuses.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two frame reads, one articulation read and at most a few Newton steps.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each read is independent.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function span(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    id: string,
+    seconds: number,
+    frame: (prop: string, seconds: number) => IAutoMovieRigidTransform,
+  ): IAutoMovieMotionHumanTether.ISpan {
+    const owner: IAutoMovieMotionHumanProp = prop(self, subject);
+    const tether: IAutoMovieMotionHumanTether | undefined = owner.tethers?.find(
+      (t: IAutoMovieMotionHumanTether): boolean => t.id === id,
+    );
+    if (tether === undefined)
+      throw refuse("tether", id, `the prop ${subject} declares no line named ${id}`);
+    const from: IAutoMovieVector3 = point(owner, tether.from, frame(subject, seconds));
+    const to: IAutoMovieVector3 = point(prop(self, tether.to.prop), tether.to.point, frame(tether.to.prop, seconds));
+    const length: number = out(self, tether, seconds);
+    const taut: boolean = Vector3.distance(from, to) >= length - 1e-9;
+    return { from, to, length, taut, points: taut ? [from, to] : hang(from, to, length) };
+  }
+
+  /**
+   * A prop's frame held by the lines that run to it.
+   *
+   * @param self The resolved performance.
+   * @param subject The prop.
+   * @param seconds Film seconds.
+   * @param rested Its frame as its carriers leave it.
+   * @param frame Reads a prop's displayed frame.
+   * @returns The frame, pulled to each line's length while the prop rests.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when the pull applies and what it keeps.
+   * @evidence contracts/development/implementation.md#principled-implementation The far point is moved horizontally toward the near end until the line's length reaches it, its height kept.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Lines found by index, the rest test, one translation per line.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A prop a hand or a wear carries is returned as given.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A prop with no line costs one index lookup.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The index is built once per resolved performance.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The index lives as long as the resolved performance.
+   */
+  export function pull(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    seconds: number,
+    rested: IAutoMovieRigidTransform,
+    frame: (prop: string, seconds: number) => IAutoMovieRigidTransform,
+  ): IAutoMovieRigidTransform {
+    const lines: IHeld[] | undefined = index(self).get(subject);
+    if (lines === undefined || carried(self, subject, seconds)) return rested;
+    let placed: IAutoMovieRigidTransform = rested;
+    for (const { owner, tether } of lines) {
+      const near: IAutoMovieVector3 = point(owner, tether.from, frame(owner.subject, seconds));
+      const far: IAutoMovieVector3 = point(prop(self, subject), tether.to.point, placed);
+      const length: number = out(self, tether, seconds);
+      if (Vector3.distance(near, far) <= length) continue;
+      const rise: number = far.y - near.y;
+      const across: IAutoMovieVector3 = { x: far.x - near.x, y: 0, z: far.z - near.z };
+      const reach: number = Math.sqrt(Math.max(0, length * length - rise * rise));
+      const flat: number = Math.hypot(across.x, across.z);
+      const scale: number = flat > 1e-9 ? reach / flat : 0;
+      const moved: IAutoMovieVector3 = { x: near.x + across.x * scale, y: far.y, z: near.z + across.z * scale };
+      placed = { ...placed, position: Vector3.add(placed.position, Vector3.subtract(moved, far)) };
+    }
+    return placed;
+  }
+
+  /**
+   * How far a line is stretched past its length at a second: zero when it reaches.
+   *
+   * @param span The line as it lies.
+   * @returns Metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the reading and its unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The ends' distance less the line out, clamped at zero.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One difference.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function stretch(span: IAutoMovieMotionHumanTether.ISpan): number {
+    return Math.max(0, Vector3.distance(span.from, span.to) - span.length);
+  }
+}
+
+/** The lines by far prop, built once per resolved performance. */
+function index(self: IAutoMovieMotionHumanPerformanceState): Map<string, IHeld[]> {
+  const known: Map<string, IHeld[]> | undefined = INDEX.get(self);
+  if (known !== undefined) return known;
+  const out: Map<string, IHeld[]> = new Map();
+  for (const owner of self.props.values())
+    for (const tether of owner.tethers ?? []) {
+      const list: IHeld[] = out.get(tether.to.prop) ?? [];
+      list.push({ owner, tether });
+      out.set(tether.to.prop, list);
+    }
+  INDEX.set(self, out);
+  return out;
+}
+
+/** Whether a hand or a wear carries the prop at a second. A mount a launch leaves is not read: a flight only pays the line out, so a line long enough never pulls it, and one too short stops it. */
+function carried(self: IAutoMovieMotionHumanPerformanceState, subject: string, seconds: number): boolean {
+  return HumanPerformanceGrips.of(self, subject).some(
+    (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
+      g.mount === undefined && g.from <= seconds && seconds <= g.to,
+  );
+}
+
+/** The line out at a second. */
+function out(
+  self: IAutoMovieMotionHumanPerformanceState,
+  tether: IAutoMovieMotionHumanTether,
+  seconds: number,
+): number {
+  const length: IAutoMovieMotionHumanTether.Length = tether.length;
+  const metres: number =
+    length.kind === "free"
+      ? length.metres
+      : length.metres -
+        length.per *
+          (HumanPerformanceObject.state(self, prop(self, length.articulation.prop), seconds)[length.articulation.point] ?? 0);
+  if (!(length.metres > 0))
+    throw refuse("tether", length.metres, `the line ${tether.id} has no line out`);
+  return Math.max(0, metres);
+}
+
+/** A prop's named point in the world. */
+function point(owner: IAutoMovieMotionHumanProp, id: string, frame: IAutoMovieRigidTransform): IAutoMovieVector3 {
+  const site: IAutoMovieAffordance | undefined = owner.affordances?.find((a: IAutoMovieAffordance): boolean => a.id === id);
+  if (site === undefined) throw refuse("tether", id, `the prop ${owner.subject} declares no point named ${id}`);
+  return Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, site.frame.translation));
+}
+
+/** A declared prop, or a refusal. */
+function prop(self: IAutoMovieMotionHumanPerformanceState, subject: string): IAutoMovieMotionHumanProp {
+  const found: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
+  if (found === undefined) throw refuse("tether", subject, `no prop is named ${subject}`);
+  return found;
+}
+
+/** The catenary of a length between two points, sampled from the first to the second. */
+function hang(from: IAutoMovieVector3, to: IAutoMovieVector3, length: number): IAutoMovieVector3[] {
+  const across: IAutoMovieVector3 = { x: to.x - from.x, y: 0, z: to.z - from.z };
+  const h: number = Math.hypot(across.x, across.z);
+  const v: number = to.y - from.y;
+  // Hanging straight down from the higher end when the ends share a vertical.
+  if (h < 1e-6) {
+    const low: number = Math.min(from.y, to.y) - (length - Math.abs(v)) / 2;
+    return [from, { x: from.x, y: low, z: from.z }, to];
+  }
+  // Solve 2a sinh(h / 2a) = sqrt(L² - v²) for a by Newton's method on b = h / 2a.
+  const target: number = Math.sqrt(length * length - v * v) / h;
+  let b: number = Math.sqrt(6 * (target - 1));
+  for (let i: number = 0; i < 30; ++i) {
+    const f: number = Math.sinh(b) / b - target;
+    const df: number = (Math.cosh(b) * b - Math.sinh(b)) / (b * b);
+    const next: number = b - f / df;
+    if (Math.abs(next - b) < 1e-12) break;
+    b = next > 0 ? next : b / 2;
+  }
+  const a: number = h / (2 * b);
+  const x0: number = h / 2 - a * Math.atanh(v / length);
+  const y: (x: number) => number = (x: number): number => a * (Math.cosh((x - x0) / a) - Math.cosh(-x0 / a));
+  const unit: IAutoMovieVector3 = { x: across.x / h, y: 0, z: across.z / h };
+  return Array.from({ length: SAMPLES + 1 }, (_v: unknown, k: number): IAutoMovieVector3 => {
+    const x: number = (h * k) / SAMPLES;
+    return { x: from.x + unit.x * x, y: from.y + y(x), z: from.z + unit.z * x };
+  });
+}
+
+/** A tether refusal. */
+function refuse(axis: string, value: string | number, reason: string): HumanRefusal {
+  return new HumanRefusal({ kind: "parameter", axis, value, reason, fix: "declare the line between existing props' points with line out" });
+}

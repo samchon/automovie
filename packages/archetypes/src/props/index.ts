@@ -61,6 +61,7 @@ export * from "./createComb";
 export * from "./createFishingRod";
 export * from "./createLure";
 export * from "./createMedal";
+export * from "./createSpinningRod";
 export * from "./createForestAxe";
 export * from "./createFork";
 export * from "./createHammer";

@@ -1,10 +1,12 @@
-import { createFishingRod, createLure } from "@automovie/archetypes";
+import { createLure, createSpinningRod } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHookSet,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanTether,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -26,8 +28,17 @@ const TARGET: IAutoMovieVector3 = { x: 0, y: 0, z: 12 };
 /** How near the lure lands to the target, metres (provisional: a fair cast). */
 const LANDING: number = 0.5;
 
-/** How near the lure leaves the rod's tip, metres: the contact bound. */
+/** How near the lure leaves the rod's tip, and the line's ends lie on their points, metres: the contact bound. */
 const TIP: number = 0.01;
+
+/** The line paid in per handle turn, metres: a reel inside the producer's band. */
+const RETRIEVE: number = 0.8;
+
+/** The handle turns of the retrieve. */
+const TURNS: number = 3;
+
+/** The line out once cast, metres: the tip's reach to the target with a little slack. */
+const LINE: number = 13;
 
 /** The hook set's lift and time. */
 const SET: IAutoMovieMotionHumanHookSet = { rod: "rod", angle: 40, seconds: 0.25 };
@@ -35,48 +46,77 @@ const SET: IAutoMovieMotionHumanHookSet = { rod: "rod", angle: 40, seconds: 0.25
 /** How near the tip's rise is to the authored lift, degrees (provisional). */
 const RISE: number = 3;
 
+/** How still the rod stays in the rod hand while the other hand reels, metres: the rigid custody bound. */
+const STILL: number = 0.001;
+
+/** The rod model. */
+type Rod = ReturnType<typeof createSpinningRod>;
+
 /**
- * Casting a lure and setting the hook (#3998).
+ * Casting a lure, reeling it in and setting the hook (#3998).
  *
  * Scenarios, on the average man and the small woman, each take clean:
  * 1. The lure, set on the rod's tip, leaves it at the throw's release and
  *    lands within 0.5 m of the target 12 m ahead.
- * 2. The hook set lifts the tip by the authored 40 degrees in the
+ * 2. The line runs from the tip to the lure's eye throughout.
+ * 3. Three turns of the reel's handle by the free hand shorten the line by
+ *    three turns' retrieve and draw the lure in with it, while the rod
+ *    stays in the rod hand.
+ * 4. The hook set lifts the tip by the authored 40 degrees in the
  *    authored 0.25 s.
- * 3. A target far beyond any cast is refused.
+ * 5. A target far beyond any cast is refused.
  *
- * The line between the tip and the lure and the reel's retrieve need a
- * span between two props and a reel's crank, which no model has yet.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the cases, the bounds and what is pending.
- * @evidence contracts/development/testing.md#behavioral-verification Reads the displayed lure against the displayed tip at the release and at its landing, and the rod's displayed elevation over the hook set; a lure leaving from the hand, a short or wide cast, a slow or small set or an admitted unreachable target fails.
- * @evidence contracts/development/testing.md#independent-expectations The target and the lift are authored; the tip is the rod's own contact.
- * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, the cast, the set and the refusal.
+ * @evidence contracts/development/common.md#meaningful-documentation States the cases and the bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the displayed lure, tip and line, the reel's travel and the rod in the rod hand; a lure leaving from the hand, a short or wide cast, a line off its ends, a retrieve that does not shorten the line by the turns, a rod slipping in the hand, a slow or small set or an admitted unreachable target fails.
+ * @evidence contracts/development/testing.md#independent-expectations The target, the turns, the retrieve and the lift are authored; the line shortens by turns times retrieve.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, the cast, the retrieve, the set and the refusal.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances through the public chain.
  */
 export function test_human_motion_fishing(): void {
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const film: HumanPerformance = angle(body, TARGET);
-    assertTakeClean(`${name} casts`, film);
-    const cast: IAutoMovieMotionHumanSegment = film
-      .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === "throwObject")!;
+    const rod: Rod = createSpinningRod({ id: "rod", retrieve: RETRIEVE });
+    const film: HumanPerformance = fish(body, rod, TARGET);
+    assertTakeClean(`${name} fishes`, film);
+    const cast: IAutoMovieMotionHumanSegment = segment(film, "throwObject");
     const release: number = mark(cast, "release");
-    const off: number = Vector3.distance(film.prop("lure", release).position, tip(film, release));
+    const off: number = Vector3.distance(film.prop("lure", release).position, point(film.prop("rod", release), rod, "tip"));
     TestValidator.predicate(
       `${name}: the lure leaves the rod's tip at the release (${(off * 1000).toFixed(1)} mm)`,
       off <= TIP,
     );
-    const landed: IAutoMovieVector3 = film.prop("lure", film.duration).position;
+    const reel: IAutoMovieMotionHumanSegment = segment(film, "operate");
+    const landed: IAutoMovieVector3 = film.prop("lure", reel.start).position;
     const miss: number = Math.hypot(landed.x - TARGET.x, landed.z - TARGET.z);
-    TestValidator.predicate(
-      `${name}: the lure lands ${miss.toFixed(2)} m from the target`,
-      miss <= LANDING,
+    TestValidator.predicate(`${name}: the lure lands ${miss.toFixed(2)} m from the target`, miss <= LANDING);
+    const ends: number = Math.max(
+      ...[release, reel.start, (reel.start + reel.end) / 2, reel.end].map((t: number): number => {
+        const line: IAutoMovieMotionHumanTether.ISpan = film.tether("rod", "line", t);
+        return Math.max(
+          Vector3.distance(line.from, point(film.prop("rod", t), rod, "tip")),
+          Vector3.distance(line.to, film.prop("lure", t).position),
+        );
+      }),
     );
-    const set: IAutoMovieMotionHumanSegment = film
-      .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === "hookSet")!;
+    TestValidator.predicate(`${name}: the line runs from the tip to the lure (${(ends * 1000).toFixed(1)} mm)`, ends <= TIP);
+    const before: IAutoMovieMotionHumanTether.ISpan = film.tether("rod", "line", reel.start);
+    const after: IAutoMovieMotionHumanTether.ISpan = film.tether("rod", "line", reel.end);
+    const turned: number = (film.state("rod", reel.end)["crank"] ?? 0) - (film.state("rod", reel.start)["crank"] ?? 0);
+    TestValidator.predicate(
+      `${name}: the handle turns ${(turned / 360).toFixed(2)} times and the line shortens ${(before.length - after.length).toFixed(2)} m`,
+      Math.abs(turned - 360 * TURNS) <= 1 && Math.abs(before.length - after.length - TURNS * RETRIEVE) <= TIP,
+    );
+    TestValidator.predicate(
+      `${name}: the lure is drawn in with the line`,
+      after.taut && Math.abs(Vector3.distance(after.from, after.to) - after.length) <= TIP,
+    );
+    const held: number = Math.max(
+      ...[0.25, 0.5, 0.75, 1].map((share: number): number =>
+        Vector3.distance(inHand(film, reel.start + share * (reel.end - reel.start)), inHand(film, reel.start)),
+      ),
+    );
+    TestValidator.predicate(`${name}: the rod stays in the rod hand while reeling (${(held * 1000).toFixed(2)} mm)`, held <= STILL);
+    const set: IAutoMovieMotionHumanSegment = segment(film, "hookSet");
     const done: number = mark(set, "set");
     const rise: number = elevation(film.prop("rod", done)) - elevation(film.prop("rod", set.start));
     TestValidator.predicate(
@@ -88,7 +128,7 @@ export function test_human_motion_fishing(): void {
     "a target far beyond any cast is refused",
     (() => {
       try {
-        angle(motionHumanBody("m-average"), { x: 0, y: 0, z: 400 }).bones("a", 3);
+        fish(motionHumanBody("m-average"), createSpinningRod({ id: "rod" }), { x: 0, y: 0, z: 400 }).bones("a", 3);
         return false;
       } catch (error: unknown) {
         return error instanceof HumanRefusal;
@@ -97,21 +137,27 @@ export function test_human_motion_fishing(): void {
   );
 }
 
-/** `a` takes up the rod with the lure on its tip, casts at the target, waits and sets the hook. */
-function angle(body: IAutoMovieMotionHumanBody, target: IAutoMovieVector3): HumanPerformance {
-  const rod: ReturnType<typeof createFishingRod> = createFishingRod({ id: "rod" });
+/** `a` takes up the rod with the lure on its tip, casts at the target, reels three turns and sets the hook. */
+function fish(body: IAutoMovieMotionHumanBody, rod: Rod, target: IAutoMovieVector3): HumanPerformance {
   const lure: ReturnType<typeof createLure> = createLure({ id: "lure" });
-  const tipFrame: IAutoMovieRigidTransform = {
+  const tip: IAutoMovieRigidTransform = {
     position: rod.affordance("tip").frame.translation,
     rotation: rod.affordance("tip").frame.rotation,
+  };
+  const line: IAutoMovieMotionHumanTether = {
+    id: "line",
+    from: "tip",
+    to: { prop: "lure", point: "eye" },
+    length: { kind: "driven", metres: LINE, articulation: { prop: "rod", point: "crank" }, per: RETRIEVE / 360 },
   };
   return new HumanPerformance({
     seed: "fishing",
     laws: [hookSet],
     props: [
-      HumanObject.prop("rod", rod, { at: { x: 0.35, y: 0, z: 0.3 }, yaw: 0 }),
+      // The rod stands in a rack, its grip at hip height.
+      { ...HumanObject.prop("rod", rod, { at: { x: 0.3, y: 0.85, z: 0.3 }, yaw: 0 }), tethers: [line] },
       {
-        ...HumanObject.prop("lure", lure, { position: tipFrame.position, rotation: tipFrame.rotation }),
+        ...HumanObject.prop("lure", lure, tip),
         mounted: {
           prop: "rod",
           point: "tip",
@@ -129,15 +175,25 @@ function angle(body: IAutoMovieMotionHumanBody, target: IAutoMovieVector3): Huma
         implement: { prop: "rod", point: "tip" },
       })
       .stand({ seconds: 1 })
+      .operate({ mechanism: { kind: "knob", at: { kind: "prop", subject: "rod", point: "handle" }, turn: 360 * TURNS }, hand: "left" })
       .registered(hookSet.name, SET).node,
   });
 }
 
-/** The rod's displayed tip. */
-function tip(film: HumanPerformance, t: number): IAutoMovieVector3 {
-  const rod: IAutoMovieRigidTransform = film.prop("rod", t);
-  const model: ReturnType<typeof createFishingRod> = createFishingRod({ id: "rod" });
-  return Vector3.add(rod.position, Quaternion.rotateVector(rod.rotation, model.affordance("tip").frame.translation));
+/** The first segment of an action. */
+function segment(film: HumanPerformance, name: string): IAutoMovieMotionHumanSegment {
+  return film.segments("a").find((s: IAutoMovieMotionHumanSegment): boolean => s.name === name)!;
+}
+
+/** A displayed prop's named point. */
+function point(frame: IAutoMovieRigidTransform, rod: Rod, id: createSpinningRod.Affordance): IAutoMovieVector3 {
+  return Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, rod.affordance(id).frame.translation));
+}
+
+/** The rod's position in the displayed right hand's frame. */
+function inHand(film: HumanPerformance, t: number): IAutoMovieVector3 {
+  const hand: IAutoMovieResolvedBone = film.bones("a", t).get("rightHand")!;
+  return Quaternion.rotateVector(Quaternion.inverse(hand.worldRotation), Vector3.subtract(film.prop("rod", t).position, hand.worldPosition));
 }
 
 /** The rod's elevation above the horizontal, degrees. */
