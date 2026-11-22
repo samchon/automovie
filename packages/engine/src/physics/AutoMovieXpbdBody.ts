@@ -71,12 +71,6 @@ export class AutoMovieXpbdBody {
   /** Accumulated world torque, newton metres. */
   public torque: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-  /** Extra constraint passes this body asks of its step, on top of the world's. */
-  public extraPasses: number = 0;
-
-  /** Extra sweeps per pass this body asks of its step. */
-  public extraSweeps: number = 0;
-
   /** The world inverse inertia frozen for the current substep, row-major. */
   public frozen: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 

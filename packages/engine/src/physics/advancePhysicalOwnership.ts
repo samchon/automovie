@@ -13,10 +13,9 @@ import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalRotationVector as Rotation } from "./PhysicalRotationVector";
-import { assertPhysicalNativeMotion } from "./assertPhysicalNativeMotion";
+import { assertPhysicalFiniteMotion } from "./assertPhysicalFiniteMotion";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
-import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { stabilizePhysicalJointReturn } from "./stabilizePhysicalJointReturn";
 
@@ -47,7 +46,7 @@ export function advancePhysicalOwnership(input: {
     string,
     IAutoMovieSamplePhysicalTarget.IResult
   >;
-  /** Exact next native tick; native f32 timesteps never establish event time. */ tick: number;
+  /** Exact next solver tick; floating-point timesteps never establish event time. */ tick: number;
   /** Declared integer native ticks per second. */ nativeRate: number;
 }): Set<string> {
   const seconds: number = input.tick / input.nativeRate;
@@ -161,7 +160,7 @@ export function advancePhysicalOwnership(input: {
     if (selected.has(bone)) {
       delete transitions[bone];
       if (!rigid.isDynamic()) {
-        assertPhysicalNativeMotion(
+        assertPhysicalFiniteMotion(
           segment,
           actual[bone]!.pose,
           actual[bone]!.velocity,
@@ -408,14 +407,14 @@ export function advancePhysicalOwnership(input: {
     return input.goals[bone]!;
   }
 
-  /** Validate the same actual collider/display trajectory before passing it through the native f32 boundary. */
+  /** Validate the same actual collider/display trajectory before handing it to the solver. */
   function write(
     segment: IAutoMoviePhysicalSegment,
     joint?: IAutoMoviePhysicalJoint,
   ): void {
     const bone: string = segment.bone;
     const goal: IAutoMovieSamplePhysicalTarget.IResult = input.goals[bone]!;
-    assertPhysicalNativeMotion(
+    assertPhysicalFiniteMotion(
       segment,
       goal.pose,
       goal.velocity,
@@ -426,10 +425,8 @@ export function advancePhysicalOwnership(input: {
         goal.pose,
         joint.childFrame.position,
       );
-      if (![anchor.x, anchor.y, anchor.z].every(scalar))
-        throw new Error(
-          `Derived native joint anchor exceeds f32 range: ${joint.id}`,
-        );
+      if (![anchor.x, anchor.y, anchor.z].every(Number.isFinite))
+        throw new Error(`Derived joint anchor is not finite: ${joint.id}`);
     }
     const rigid: AutoMovieXpbdBody = segments.get(bone)!;
     rigid.setNextKinematicTranslation(goal.pose.position);

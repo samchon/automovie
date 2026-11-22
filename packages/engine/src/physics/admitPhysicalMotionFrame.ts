@@ -5,7 +5,6 @@ import type {
   IAutoMoviePhysicalSegmentState,
 } from "@automovie/interface";
 
-import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { motionAuditGeometry } from "./motionAuditGeometry";
 
 /**
@@ -46,7 +45,9 @@ export function admitPhysicalMotionFrame(
         !state.rotation ||
         !state.velocity ||
         !state.angularVelocity ||
-        ![state.position.x, state.position.y, state.position.z].every(scalar) ||
+        ![state.position.x, state.position.y, state.position.z].every(
+          Number.isFinite,
+        ) ||
         ![
           state.rotation.x,
           state.rotation.y,

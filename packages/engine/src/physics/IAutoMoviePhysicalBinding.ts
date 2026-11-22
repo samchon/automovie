@@ -58,7 +58,7 @@ export interface IAutoMoviePhysicalBinding {
   >;
   /** Actual ownership transitions, shared with the replay cache. */ ownership: IAutoMoviePhysicalOwnershipEvent[];
   /** Virtual requested/allocated support demand, never a measured solver impulse. */ supportWrenches: IAutoMoviePhysicalSupportWrench[];
-  /** Explicit root-withdrawal quality policies currently applied during protective joint effort. */ reflexQuality: Set<string>;
+
   /** At most one transient set of recovery motor goals per body and cached interval. */ planned: Map<
     string,
     IAutoMoviePhysicalTargetInterval.IPlan & {

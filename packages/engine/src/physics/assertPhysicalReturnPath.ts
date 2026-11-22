@@ -128,9 +128,11 @@ export function assertPhysicalReturnPath(
             physicalSupportPoint(child, joint.childFrame.position),
           ),
         );
+        // The return poses are composed in float64; 64 ulps of their scale bound
+        // the rounding of the few quaternion products that place an anchor.
         const rounding: number =
           64 *
-          2 ** -23 *
+          Number.EPSILON *
           Math.max(
             1,
             Vector3.length(parent.position),
@@ -172,7 +174,8 @@ export function assertPhysicalReturnPath(
           error >
           body.handoffLimits!.maximumJointViolation *
             (transitions[joint.child] ? fade : 1) +
-            64 * 2 ** -23
+            // 64 ulps of the composed rotations' float64 rounding.
+            64 * Number.EPSILON
         )
           throw new Error(
             `Physical return violates joint limit envelope: ${body.id}/${joint.id} at ${seconds}: ${error} rad`,

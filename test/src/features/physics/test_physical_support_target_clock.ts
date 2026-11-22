@@ -59,7 +59,6 @@ export async function test_physical_support_target_clock(): Promise<void> {
     PhysicalFixtures.input([body], 1 / 120);
   input.substeps = 8;
   input.floor = 0;
-  input.internalIterations = 1;
   const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(input.gravity);
   {
     const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(

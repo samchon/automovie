@@ -39,7 +39,6 @@ export async function test_physical_recovery_release(): Promise<void> {
   Object.assign(input, {
     gravity: { x: 0, y: -9.81, z: 0 },
     substeps: 4,
-    internalIterations: 1,
     contactTolerance: 0.0001,
     contactFrequency: 240,
   });

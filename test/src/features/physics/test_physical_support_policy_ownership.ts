@@ -57,7 +57,6 @@ export async function test_physical_support_policy_ownership(): Promise<void> {
       floor: 0,
       gravity: { x: 0, y: -9.81, z: 0 },
       substeps: 8,
-      internalIterations: 1,
       contactTolerance: 0.0001,
       contactFrequency: 240,
     });

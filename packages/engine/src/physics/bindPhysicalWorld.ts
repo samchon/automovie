@@ -16,7 +16,7 @@ import type { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
-import { assertPhysicalNativeMotion } from "./assertPhysicalNativeMotion";
+import { assertPhysicalFiniteMotion } from "./assertPhysicalFiniteMotion";
 import { physicalHullErode } from "./physicalHullErode";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
@@ -59,7 +59,7 @@ export function bindPhysicalWorld(
     handoffs: new Map(),
     ownership: [],
     supportWrenches: [],
-    reflexQuality: new Set(),
+
     planned: new Map(),
     supportPlanned: new Map(),
     contactTargets: new Map(),
@@ -132,7 +132,7 @@ export function bindPhysicalWorld(
               0,
               input.rate,
             );
-          assertPhysicalNativeMotion(
+          assertPhysicalFiniteMotion(
             segment,
             target,
             sampled.velocity,

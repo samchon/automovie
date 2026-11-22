@@ -25,10 +25,13 @@ import { solveXpbdJoints } from "./solveXpbdJoints";
  * their velocities under gravity and their accumulated wrench (with the
  * gyroscopic term `w x I w`) and predict their poses; kinematic bodies
  * move to the pose set for the step's end; contacts are detected at the
- * predicted poses; `passes * sweeps` sweeps then correct the joints and
- * the contacts; velocities are re-derived from the pose change,
- * `v = dx / h`, `w = 2 vec(dq q^-1) / h`; and the velocity passes, as many as the position passes, apply dynamic
- * friction and restitution before the joints' motors. Every loop runs in
+ * predicted poses; one position pass corrects the joints and the
+ * contacts; velocities are re-derived from the pose change,
+ * `v = dx / h`, `w = 2 vec(dq q^-1) / h`; and one velocity pass applies
+ * dynamic friction and restitution before the joints' motors. Accuracy
+ * comes from substeps, not passes (Macklin, Storey, Lu, Terdiman,
+ * Chentanez, Jeschke and Mueller 2019, "Small Steps in Physics
+ * Simulation"; Mueller et al. 2020 use one iteration per substep). Every loop runs in
  * creation order over plain float64 state, so a world given the same
  * inputs repeats every bit; `takeSnapshot` copies that state and
  * `restoreSnapshot` rebuilds it in the same order.
@@ -36,7 +39,7 @@ import { solveXpbdJoints } from "./solveXpbdJoints";
  * @evidence contracts/development/common.md#meaningful-documentation States the substep's phases with their formulas, the determinism and the snapshot.
  * @evidence contracts/development/design.md#principled-representation SI units, world frame, one substep per step; bodies, colliders and joints keep creation order and integer handles.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the engine's physical simulation, which binds, tracks, reads and checkpoints it; the members are what those owners use.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every coefficient is an input: gravity, substep, passes, sweeps, allowed contact error and contact frequency.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every coefficient is an input: gravity, substep, allowed contact error and contact frequency.
  */
 export class AutoMovieXpbdWorld {
   /** World gravitational acceleration, metres per second squared. */
@@ -53,12 +56,6 @@ export class AutoMovieXpbdWorld {
 
   /** The substep, seconds. */
   public timestep: number = 1 / 60;
-
-  /** Constraint passes per substep. */
-  public passes: number = 4;
-
-  /** Sweeps of every constraint within one pass. */
-  public sweeps: number = 1;
 
   /** Contact depth left uncorrected, metres. */
   public allowedError: number = 0.001;
@@ -187,20 +184,17 @@ export class AutoMovieXpbdWorld {
   /**
    * Advance one substep of `timestep` seconds: integrate every body and
    * freeze each dynamic body's inverse inertia, detect contacts at the
-   * predicted poses among pairs neither joined nor filtered out, run
-   * `passes * sweeps` joint and contact position passes (the bodies' largest
-   * extra passes and sweeps added), re-derive the dynamic bodies'
-   * velocities, run as many contact velocity passes and finally the joint
-   * motors. The step keeps the contacts it found for the readers until the
+   * predicted poses among pairs neither joined nor filtered out, run one joint and contact position pass, re-derive the dynamic bodies'
+   * velocities, run one contact velocity pass and finally the joint motors. The step keeps the contacts it found for the readers until the
    * next step.
    *
    * @param filter Whether two colliders may touch; every pair when absent.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the phases in order, the pass count, the pair exclusions and what the step keeps.
+   * @evidence contracts/development/common.md#meaningful-documentation States the phases in order, the single passes, the pair exclusions and what the step keeps.
    * @evidence contracts/development/implementation.md#principled-implementation The substep of Mueller et al. 2020, Algorithm 2: predict, solve positions, derive velocities, solve velocities; the inverse inertia is held fixed over the substep's corrections.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Orders the phases; integration and derivation are local helpers, contacts belong to solveXpbdContacts and joints and motors to solveXpbdJoints.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every count and coefficient is a world setting or a body's own request; no body, pair or scene has its own rule.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For b bodies, j joints, c colliders and k found contacts, integration is O(b), the joined-pair set O(j), detection is solveXpbdContacts.detect's cost over c colliders, and each of the passes * sweeps position and velocity passes is O(j + k).
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every coefficient is a world setting; no body, pair or scene has its own rule.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For b bodies, j joints, c colliders and k found contacts, integration is O(b), the joined-pair set O(j), detection is solveXpbdContacts.detect's cost over c colliders, and the position and velocity passes are O(j + k).
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The contacts found at the predicted poses serve every position and velocity pass of the substep and the readers after it.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Replaces the retained contact list each step; the joined-pair set and dynamic list are released at return.
    */
@@ -225,30 +219,15 @@ export class AutoMovieXpbdWorld {
     const dynamic: AutoMovieXpbdBody[] = this.bodies.filter(
       (body: AutoMovieXpbdBody): boolean => body.dynamic,
     );
-    const passes: number =
-      this.passes +
-      Math.max(
-        0,
-        ...dynamic.map((body: AutoMovieXpbdBody): number => body.extraPasses),
-      );
-    const sweeps: number =
-      this.sweeps +
-      Math.max(
-        0,
-        ...dynamic.map((body: AutoMovieXpbdBody): number => body.extraSweeps),
-      );
-    for (let pass: number = 0; pass < passes * sweeps; pass++) {
-      solveXpbdJoints.positions(this.joints);
-      solveXpbdContacts.positions(
-        this.found,
-        h,
-        this.allowedError,
-        this.contactFrequency,
-      );
-    }
+    solveXpbdJoints.positions(this.joints);
+    solveXpbdContacts.positions(
+      this.found,
+      h,
+      this.allowedError,
+      this.contactFrequency,
+    );
     for (const body of dynamic) derive(body, h);
-    for (let pass: number = 0; pass < passes * sweeps; pass++)
-      solveXpbdContacts.velocities(this.found, h, Vector3.length(this.gravity));
+    solveXpbdContacts.velocities(this.found, h, Vector3.length(this.gravity));
     solveXpbdJoints.motors(this.joints, h);
   }
 

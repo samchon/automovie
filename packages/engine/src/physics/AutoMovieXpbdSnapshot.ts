@@ -39,8 +39,8 @@ export namespace AutoMovieXpbdSnapshot {
     /** World gravity. */
     gravity: IAutoMovieVector3;
 
-    /** Substep, passes, sweeps, allowed error, contact frequency and the next handle. */
-    settings: [number, number, number, number, number, number];
+    /** Substep, allowed error, contact frequency and the next handle. */
+    settings: [number, number, number, number];
 
     /** Every body's state. */
     bodies: IBodyState[];
@@ -70,7 +70,7 @@ export namespace AutoMovieXpbdSnapshot {
     /** Whether dynamic. */
     dynamic: boolean;
 
-    /** Centre, rotation, previous centre and rotation, velocities, mass properties, wrench and passes. */
+    /** Centre, rotation, previous centre and rotation, velocities, mass properties and wrench. */
     values: number[];
 
     /** The set kinematic pose, if any. */
@@ -159,8 +159,6 @@ export namespace AutoMovieXpbdSnapshot {
       gravity: { ...world.gravity },
       settings: [
         world.timestep,
-        world.passes,
-        world.sweeps,
         world.allowedError,
         world.contactFrequency,
         Math.max(
@@ -194,8 +192,6 @@ export namespace AutoMovieXpbdSnapshot {
             body.gravityScale,
             ...vector(body.force),
             ...vector(body.torque),
-            body.extraPasses,
-            body.extraSweeps,
           ],
           next: body.next === undefined ? null : structuredClone(body.next),
         }),
@@ -247,13 +243,8 @@ export namespace AutoMovieXpbdSnapshot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fills the given world; retains nothing else.
    */
   export function read(state: IState, world: AutoMovieXpbdWorld): void {
-    [
-      world.timestep,
-      world.passes,
-      world.sweeps,
-      world.allowedError,
-      world.contactFrequency,
-    ] = state.settings;
+    [world.timestep, world.allowedError, world.contactFrequency] =
+      state.settings;
     const bodies: Map<number, AutoMovieXpbdBody> = new Map();
     for (const entry of state.bodies) {
       const v: number[] = entry.values;
@@ -276,8 +267,6 @@ export namespace AutoMovieXpbdSnapshot {
       body.gravityScale = v[31]!;
       body.force = { x: v[32]!, y: v[33]!, z: v[34]! };
       body.torque = { x: v[35]!, y: v[36]!, z: v[37]! };
-      body.extraPasses = v[38]!;
-      body.extraSweeps = v[39]!;
       body.next = entry.next ?? undefined;
       world.bodies.push(body);
       bodies.set(entry.handle, body);
@@ -320,7 +309,7 @@ export namespace AutoMovieXpbdSnapshot {
         }),
       ),
     );
-    world.resume(state.settings[5]);
+    world.resume(state.settings[3]);
   }
 
   /**

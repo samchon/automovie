@@ -11,6 +11,7 @@ import type { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
 import { AutoMovieXpbdMath } from "./AutoMovieXpbdMath";
 import { physicalShapeContactManifold } from "./physicalShapeContactManifold";
 import { physicalShapePairContact } from "./physicalShapePairContact";
+import { physicalShapePenetration } from "./physicalShapePenetration";
 
 /**
  * The contact phase of one extended position-based dynamics step (Mueller,
@@ -151,14 +152,8 @@ export namespace solveXpbdContacts {
           !filter(a, b)
         )
           continue;
-        const measured: physicalShapePairContact.IResult =
-          physicalShapePairContact(
-            a.bodyPose(),
-            a.shape,
-            b.bodyPose(),
-            b.shape,
-          );
-        if (!(measured.distance < 0)) continue;
+        const measured: physicalShapePairContact.IResult | null = measure(a, b);
+        if (measured === null || !(measured.distance <= 0)) continue;
         const patch: physicalShapeContactManifold.IPoint[] =
           a.sensor || b.sensor
             ? []
@@ -227,46 +222,71 @@ export namespace solveXpbdContacts {
     frequency: number,
   ): void {
     const omega: number = 2 * Math.PI * frequency;
-    for (const contact of contacts) {
-      if (contact.a.sensor || contact.b.sensor) continue;
-      const first: AutoMovieXpbdBody = contact.a.body;
-      const second: AutoMovieXpbdBody = contact.b.body;
-      const armA: IAutoMovieVector3 = arm(first, contact.localA);
-      const armB: IAutoMovieVector3 = arm(second, contact.localB);
-      const pa: IAutoMovieVector3 = Vector3.add(first.center, armA);
-      const pb: IAutoMovieVector3 = Vector3.add(second.center, armB);
-      const depth: number = -Vector3.dot(
-        Vector3.subtract(pb, pa),
-        contact.normal,
-      );
-      contact.separation = -depth;
-      if (!(depth > allowed)) continue;
-      const away: IAutoMovieVector3 = Vector3.scale(contact.normal, -1);
-      const weight: number =
-        AutoMovieXpbdMath.weight(first, away, armA) +
-        AutoMovieXpbdMath.weight(second, away, armB);
-      const alpha: number = weight / (omega * omega);
-      contact.normalLambda += AutoMovieXpbdMath.positional(
-        first,
-        second,
-        away,
-        depth - allowed,
-        armA,
-        armB,
-        alpha,
-        h,
-        contact.normalLambda,
-      );
+    for (const patch of manifolds(contacts)) {
+      for (const contact of patch) {
+        const first: AutoMovieXpbdBody = contact.a.body;
+        const second: AutoMovieXpbdBody = contact.b.body;
+        const armA: IAutoMovieVector3 = arm(first, contact.localA);
+        const armB: IAutoMovieVector3 = arm(second, contact.localB);
+        const depth: number = -Vector3.dot(
+          Vector3.subtract(
+            Vector3.add(second.center, armB),
+            Vector3.add(first.center, armA),
+          ),
+          contact.normal,
+        );
+        contact.separation = -depth;
+        if (!(depth > allowed)) continue;
+        const away: IAutoMovieVector3 = Vector3.scale(contact.normal, -1);
+        const weight: number =
+          AutoMovieXpbdMath.weight(first, away, armA) +
+          AutoMovieXpbdMath.weight(second, away, armB);
+        contact.normalLambda += AutoMovieXpbdMath.positional(
+          first,
+          second,
+          away,
+          depth - allowed,
+          armA,
+          armB,
+          weight / (omega * omega),
+          h,
+          contact.normalLambda,
+        );
+      }
 
-      // Static friction: undo this step's tangential slip of the witnesses
-      // while the tangential multiplier stays inside the friction cone.
+      // Static friction acts on the patch as a whole, at its centroid with
+      // the patch's normal multiplier (patch friction): it undoes the
+      // centroid's tangential slip of the substep while the accumulated
+      // tangential multiplier stays inside the cone mu * sum(lambda_n).
+      const head: IContact = patch[0]!;
+      const pressed: number = patch.reduce(
+        (sum: number, contact: IContact): number => sum + contact.normalLambda,
+        0,
+      );
+      if (!(pressed > 0)) continue;
+      const first: AutoMovieXpbdBody = head.a.body;
+      const second: AutoMovieXpbdBody = head.b.body;
+      const localA: IAutoMovieVector3 = centroid(
+        patch.map((contact: IContact): IAutoMovieVector3 => contact.localA),
+      );
+      const localB: IAutoMovieVector3 = centroid(
+        patch.map((contact: IContact): IAutoMovieVector3 => contact.localB),
+      );
+      const armA: IAutoMovieVector3 = arm(first, localA);
+      const armB: IAutoMovieVector3 = arm(second, localB);
       const slip: IAutoMovieVector3 = Vector3.subtract(
-        Vector3.subtract(pa, previous(first, contact.localA)),
-        Vector3.subtract(pb, previous(second, contact.localB)),
+        Vector3.subtract(
+          Vector3.add(first.center, armA),
+          previous(first, localA),
+        ),
+        Vector3.subtract(
+          Vector3.add(second.center, armB),
+          previous(second, localB),
+        ),
       );
       const tangent: IAutoMovieVector3 = Vector3.subtract(
         slip,
-        Vector3.scale(contact.normal, Vector3.dot(slip, contact.normal)),
+        Vector3.scale(head.normal, Vector3.dot(slip, head.normal)),
       );
       const length: number = Vector3.length(tangent);
       if (!(length > 0)) continue;
@@ -279,21 +299,19 @@ export namespace solveXpbdContacts {
         AutoMovieXpbdMath.weight(first, back, armA) +
         AutoMovieXpbdMath.weight(second, back, armB);
       if (!(total > 0)) continue;
-      // The accumulated tangential multiplier is projected back onto the
-      // cone, so corrections that cancel across passes spend no budget.
       const wanted: IAutoMovieVector3 = Vector3.add(
-        contact.tangentLambda,
+        head.tangentLambda,
         Vector3.scale(back, length / total),
       );
-      const bound: number = contact.friction * contact.normalLambda;
+      const bound: number = head.friction * pressed;
       const size: number = Vector3.length(wanted);
       const next: IAutoMovieVector3 =
         size > bound ? Vector3.scale(wanted, bound / size) : wanted;
       const step: IAutoMovieVector3 = Vector3.subtract(
         next,
-        contact.tangentLambda,
+        head.tangentLambda,
       );
-      contact.tangentLambda = next;
+      head.tangentLambda = next;
       AutoMovieXpbdMath.apply(first, second, step, armA, armB);
     }
   }
@@ -317,27 +335,43 @@ export namespace solveXpbdContacts {
     h: number,
     gravity: number,
   ): void {
-    for (const contact of contacts) {
-      if (contact.a.sensor || contact.b.sensor || !(contact.normalLambda > 0))
-        continue;
-      const first: AutoMovieXpbdBody = contact.a.body;
-      const second: AutoMovieXpbdBody = contact.b.body;
-      const armA: IAutoMovieVector3 = arm(first, contact.localA);
-      const armB: IAutoMovieVector3 = arm(second, contact.localB);
-      const v: IAutoMovieVector3 = Vector3.subtract(
-        first.velocityAtPoint(Vector3.add(first.center, armA)),
-        second.velocityAtPoint(Vector3.add(second.center, armB)),
+    for (const patch of manifolds(contacts)) {
+      const pressedPoints: IContact[] = patch.filter(
+        (contact: IContact): boolean => contact.normalLambda > 0,
       );
-      const vn: number = Vector3.dot(v, contact.normal);
+      if (pressedPoints.length === 0) continue;
+      const head: IContact = patch[0]!;
+      const first: AutoMovieXpbdBody = head.a.body;
+      const second: AutoMovieXpbdBody = head.b.body;
+      const pressed: number = pressedPoints.reduce(
+        (sum: number, contact: IContact): number => sum + contact.normalLambda,
+        0,
+      );
+
+      // Dynamic friction on the patch: an impulse against the centroid's
+      // slip, at most what the cone mu * sum(lambda_n) leaves after the
+      // positional friction, over h, and at most what stops the slip.
+      const localA: IAutoMovieVector3 = centroid(
+        pressedPoints.map(
+          (contact: IContact): IAutoMovieVector3 => contact.localA,
+        ),
+      );
+      const localB: IAutoMovieVector3 = centroid(
+        pressedPoints.map(
+          (contact: IContact): IAutoMovieVector3 => contact.localB,
+        ),
+      );
+      const centreA: IAutoMovieVector3 = arm(first, localA);
+      const centreB: IAutoMovieVector3 = arm(second, localB);
+      const v: IAutoMovieVector3 = Vector3.subtract(
+        first.velocityAtPoint(Vector3.add(first.center, centreA)),
+        second.velocityAtPoint(Vector3.add(second.center, centreB)),
+      );
       const vt: IAutoMovieVector3 = Vector3.subtract(
         v,
-        Vector3.scale(contact.normal, vn),
+        Vector3.scale(head.normal, Vector3.dot(v, head.normal)),
       );
       const speed: number = Vector3.length(vt);
-
-      // Dynamic friction: an impulse against the slip, at most what the
-      // cone mu lambda_n leaves after the positional friction, over h, and
-      // at most what stops the slip.
       if (speed > 0) {
         const direction: IAutoMovieVector3 = {
           x: -vt.x / speed,
@@ -345,45 +379,51 @@ export namespace solveXpbdContacts {
           z: -vt.z / speed,
         };
         const weight: number =
-          AutoMovieXpbdMath.weight(first, direction, armA) +
-          AutoMovieXpbdMath.weight(second, direction, armB);
+          AutoMovieXpbdMath.weight(first, direction, centreA) +
+          AutoMovieXpbdMath.weight(second, direction, centreB);
         const amount: number = Math.min(
-          (contact.friction * contact.normalLambda -
-            Vector3.length(contact.tangentLambda)) /
-            h -
-            contact.tangentImpulse,
+          (head.friction * pressed - Vector3.length(head.tangentLambda)) / h -
+            head.tangentImpulse,
           speed / weight,
         );
         if (weight > 0 && amount > 0) {
-          contact.tangentImpulse += amount;
+          head.tangentImpulse += amount;
           AutoMovieXpbdMath.impulse(
             first,
             second,
             Vector3.scale(direction, amount),
-            armA,
-            armB,
+            centreA,
+            centreB,
           );
         }
       }
 
-      // The normal velocity becomes the restitution of the approach before
-      // the step, which also removes the velocity the position correction
-      // left (Mueller et al. 2020, eq. 34).
-      const bounce: number =
-        contact.approach > 2 * gravity * h
-          ? contact.restitution * contact.approach
-          : 0;
-      const after: IAutoMovieVector3 = Vector3.subtract(
-        first.velocityAtPoint(Vector3.add(first.center, armA)),
-        second.velocityAtPoint(Vector3.add(second.center, armB)),
-      );
-      const away: IAutoMovieVector3 = Vector3.scale(contact.normal, -1);
-      const normalWeight: number =
-        AutoMovieXpbdMath.weight(first, away, armA) +
-        AutoMovieXpbdMath.weight(second, away, armB);
-      if (normalWeight > 0) {
-        const push: number =
-          (bounce + Vector3.dot(after, contact.normal)) / normalWeight;
+      // Each pressed point's normal velocity becomes the restitution of its
+      // approach before the step, which also removes the velocity the
+      // position correction left (Mueller et al. 2020, eq. 34).
+      for (const contact of pressedPoints) {
+        const armA: IAutoMovieVector3 = arm(first, contact.localA);
+        const armB: IAutoMovieVector3 = arm(second, contact.localB);
+        const bounce: number =
+          contact.approach > 2 * gravity * h
+            ? contact.restitution * contact.approach
+            : 0;
+        const after: IAutoMovieVector3 = Vector3.subtract(
+          first.velocityAtPoint(Vector3.add(first.center, armA)),
+          second.velocityAtPoint(Vector3.add(second.center, armB)),
+        );
+        const away: IAutoMovieVector3 = Vector3.scale(contact.normal, -1);
+        const normalWeight: number =
+          AutoMovieXpbdMath.weight(first, away, armA) +
+          AutoMovieXpbdMath.weight(second, away, armB);
+        if (!(normalWeight > 0)) continue;
+        // A contact only pushes: over the substep its position and velocity
+        // impulses together stay nonnegative (Signorini), so the pass may
+        // take back at most what the position pass gave.
+        const push: number = Math.max(
+          (bounce + Vector3.dot(after, contact.normal)) / normalWeight,
+          -(contact.normalLambda / h + contact.velocityImpulse),
+        );
         contact.velocityImpulse += push;
         AutoMovieXpbdMath.impulse(
           first,
@@ -395,6 +435,63 @@ export namespace solveXpbdContacts {
       }
     }
   }
+
+  /** The responding contacts grouped by collider pair, in pair order; sensors are left out. */
+  function manifolds(contacts: readonly IContact[]): IContact[][] {
+    const result: IContact[][] = [];
+    for (const contact of contacts) {
+      if (contact.a.sensor || contact.b.sensor) continue;
+      const last: IContact[] | undefined = result[result.length - 1];
+      if (last !== undefined && last[0]!.pair === contact.pair)
+        last.push(contact);
+      else result.push([contact]);
+    }
+    return result;
+  }
+
+  /** The mean of body-frame offsets. */
+  function centroid(points: readonly IAutoMovieVector3[]): IAutoMovieVector3 {
+    return Vector3.scale(
+      points.reduce(
+        (sum: IAutoMovieVector3, p: IAutoMovieVector3): IAutoMovieVector3 =>
+          Vector3.add(sum, p),
+        { x: 0, y: 0, z: 0 },
+      ),
+      1 / points.length,
+    );
+  }
+  /**
+   * The contact of two colliders, or null when they are apart. Two
+   * polytopes (boxes and hulls) are tested by GJK and, when they overlap,
+   * measured by EPA (physicalShapePenetration), which is exact for
+   * polytopes; a pair with a round shape takes its exact wire distance
+   * (physicalShapePairContact), whose round wire is one segment.
+   */
+  function measure(
+    a: AutoMovieXpbdCollider,
+    b: AutoMovieXpbdCollider,
+  ): physicalShapePairContact.IResult | null {
+    const round = (collider: AutoMovieXpbdCollider): boolean =>
+      collider.shape.kind === "sphere" || collider.shape.kind === "capsule";
+    if (round(a) || round(b))
+      return physicalShapePairContact(
+        a.bodyPose(),
+        a.shape,
+        b.bodyPose(),
+        b.shape,
+      );
+    const deep: physicalShapePenetration.IResult | null =
+      physicalShapePenetration(a.bodyPose(), a.shape, b.bodyPose(), b.shape);
+    return deep === null
+      ? null
+      : {
+          distance: -deep.depth,
+          normal: deep.normal,
+          pointA: deep.pointA,
+          pointB: deep.pointB,
+        };
+  }
+
   /** A world witness as a body-frame offset from the centre. */
   function local(
     body: AutoMovieXpbdBody,

@@ -23,7 +23,6 @@ import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBin
 import { advancePhysicalBalance as AdvanceBalance } from "./advancePhysicalBalance";
 import { advancePhysicalOwnership } from "./advancePhysicalOwnership";
 import { collectPhysicalSupports } from "./collectPhysicalSupports";
-import { configurePhysicalBodyQuality } from "./configurePhysicalBodyQuality";
 import { configurePhysicalJointMotor } from "./configurePhysicalJointMotor";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
@@ -86,7 +85,7 @@ export function trackPhysicalWorld(
       !hasPhysicalHandoff(bound.handoffs.get(body.id))
     ) {
       if (!bound.released.has(body.id))
-        releasePhysicalTracking(world, input, body, bound);
+        releasePhysicalTracking(world, body, bound);
       continue;
     }
     const authoredGoals: Record<
@@ -142,22 +141,13 @@ export function trackPhysicalWorld(
     }
     if (body.mode.kind === "kinematic") continue;
     if (!dynamic.size) {
-      // Authored ownership is not withdrawal. Remove stale release quality
-      // while leaving native kinematic velocity and handoff authority intact.
-      if (
-        bound.released.delete(body.id) &&
-        body.releasedQuality &&
-        !body.releasedQuality.duringReflex
-      )
-        for (const rigid of bound.segments.get(body.id)!.values()) {
-          rigid.extraPasses = 0;
-          rigid.extraSweeps = 0;
-        }
-      configurePhysicalBodyQuality(bound, input, body, false);
+      // Authored ownership is not withdrawal: clear the release while leaving
+      // kinematic velocity and handoff authority intact.
+      bound.released.delete(body.id);
       continue;
     }
     if (physicalTrackingWithdrawn(target)) {
-      releasePhysicalTracking(world, input, body, bound);
+      releasePhysicalTracking(world, body, bound);
       continue;
     }
     const actuation: Map<string, IAutoMovieVector3> | undefined =
@@ -262,19 +252,10 @@ export function trackPhysicalWorld(
       strength: target.strength * balance,
     };
     if (physicalTrackingWithdrawn(effort)) {
-      releasePhysicalTracking(world, input, body, bound);
+      releasePhysicalTracking(world, body, bound);
       continue;
     }
-    if (
-      bound.released.delete(body.id) &&
-      body.releasedQuality &&
-      !body.releasedQuality.duringReflex
-    )
-      for (const rigid of bound.segments.get(body.id)!.values()) {
-        rigid.extraPasses = 0;
-        rigid.extraSweeps = 0;
-      }
-    configurePhysicalBodyQuality(bound, input, body, effort.strength === 0);
+    bound.released.delete(body.id);
     const endpointGoals: typeof goals = { ...authoredGoals };
     for (const limb of body.balance?.pattern.limbs ?? []) {
       const point: IAutoMovieVector3 | undefined = assessment?.goals[limb.bone];

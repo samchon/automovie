@@ -120,7 +120,7 @@ export class AutoMoviePhysicalSimulation {
     const owned: IAutoMoviePhysicalSimulationInput.IInput =
       structuredClone(input);
     if (owned.substeps === undefined) owned.substeps = 16;
-    if (owned.internalIterations === undefined) owned.internalIterations = 1;
+
     if (owned.contactTolerance === undefined) owned.contactTolerance = 0.0001;
     if (owned.contactFrequency === undefined) owned.contactFrequency = 240;
     for (const body of owned.bodies) {
@@ -129,7 +129,9 @@ export class AutoMoviePhysicalSimulation {
       if (body.handoffLimits === undefined)
         body.handoffLimits = {
           maximumLinearError: owned.contactTolerance,
-          maximumJointViolation: 64 * 2 ** -23,
+          // Post-stabilization at return entry projects each joint exactly,
+          // leaving the float64 rounding of its composed rotations: 64 ulps.
+          maximumJointViolation: 64 * Number.EPSILON,
         };
     }
     admitPhysicalSimulation(owned);
@@ -310,17 +312,7 @@ export class AutoMoviePhysicalSimulation {
               start / owned.rate,
               bound.contactReleased,
             );
-          if (
-            body.mode.kind !== "kinematic" &&
-            bound.dynamic.get(body.id)!.size > 0 &&
-            body.releasedQuality?.duringReflex &&
-            (target.strength === 0 ||
-              [...bound.segments.get(body.id)!.values()].some(
-                (rigid: AutoMovieXpbdBody): boolean =>
-                  rigid.extraPasses > 0 || rigid.extraSweeps > 0,
-              ))
-          )
-            bound.reflexQuality.add(body.id);
+
           // The snapshot already owns the cleared forces and passive motors.
           if (
             body.mode.kind !== "kinematic" &&
@@ -333,8 +325,7 @@ export class AutoMoviePhysicalSimulation {
             bound.released.add(body.id);
         }
       world.timestep = 1 / (owned.rate * owned.substeps!);
-      world.passes = owned.iterations;
-      world.sweeps = owned.internalIterations!;
+
       world.allowedError = owned.contactTolerance!;
       world.contactFrequency = owned.contactFrequency!;
       if (start === 0) {

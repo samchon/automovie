@@ -50,7 +50,6 @@
     "typia": "catalog:samchon"
   },
   "devDependencies": {
-    "@dimforge/rapier3d-compat": "0.21.0",
     "@ttsc/evidence": "catalog:samchon",
     "@ttsc/lint": "catalog:samchon",
     "@ttsc/unplugin": "catalog:samchon",

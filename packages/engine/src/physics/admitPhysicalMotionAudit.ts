@@ -6,7 +6,6 @@ import type {
 } from "@automovie/interface";
 
 import { admitMotionGeometry } from "./admitMotionGeometry";
-import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { motionAuditGeometry } from "./motionAuditGeometry";
 import { validatePhysicalProfile } from "./validatePhysicalProfile";
 
@@ -26,7 +25,7 @@ export function admitPhysicalMotionAudit(
 ): void {
   const point: (value: IAutoMovieVector3) => boolean = (
     value: IAutoMovieVector3,
-  ): boolean => !!value && [value.x, value.y, value.z].every(scalar);
+  ): boolean => !!value && [value.x, value.y, value.z].every(Number.isFinite);
   const nonnegative: (value: number) => boolean = (value: number): boolean =>
     Number.isFinite(value) && value >= 0;
   if (

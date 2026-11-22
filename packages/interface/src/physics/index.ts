@@ -50,7 +50,6 @@ export type { IAutoMoviePhysicalPointBound } from "./IAutoMoviePhysicalPointBoun
 export type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 export type { IAutoMoviePhysicalRecoveryPolicy } from "./IAutoMoviePhysicalRecoveryPolicy";
 export type { IAutoMoviePhysicalRecoveryState } from "./IAutoMoviePhysicalRecoveryState";
-export type { IAutoMoviePhysicalReleasedQuality } from "./IAutoMoviePhysicalReleasedQuality";
 export type { IAutoMoviePhysicalSegment } from "./IAutoMoviePhysicalSegment";
 export type { IAutoMoviePhysicalSegmentState } from "./IAutoMoviePhysicalSegmentState";
 export type { IAutoMoviePhysicalShape } from "./IAutoMoviePhysicalShape";

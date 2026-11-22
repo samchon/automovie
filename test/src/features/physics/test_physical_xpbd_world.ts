@@ -237,8 +237,6 @@ export async function test_physical_xpbd_world(): Promise<void> {
       z: 0,
     });
     world.timestep = h;
-    world.passes = 4;
-    world.sweeps = 1;
     world.allowedError = allowed;
     world.contactFrequency = frequency;
     const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(

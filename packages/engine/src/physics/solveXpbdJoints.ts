@@ -6,6 +6,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { prepareLinearSystem } from "../math/prepareLinearSystem";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import { AutoMovieXpbdMath } from "./AutoMovieXpbdMath";
@@ -20,10 +21,10 @@ import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
  * `positions` closes each joint's anchor gap with a hard point constraint solved as one 3x3 block, then turns the child toward the nearest admitted rotation of its anchor frame relative to the parent's, again as one block: the box of the profile's free
  * axes, locked axes held at zero (`projectPhysicalJointRotation`), and the
  * clinical swing-twist limit where the joint declares one (`limitPhysicalSwingTwist`). Solving each attachment's rows together removes the whole linearized error in one correction, whatever the inertia's anisotropy, where a scalar constraint along the error direction converges only over passes. `motors` drives each free axis's relative angular
- * velocity toward its motor's speed by implicit damping,
- * `lambda = h c (s - v) / (1 + h c w)` with `w` the pair's angular inverse
- * mass about the axis, the backward-Euler damper, capped at the motor's
- * torque times the substep.
+ * velocity toward its motor's speed by the backward-Euler damper
+ * `mu = h c (s - v')`, capped at the motor's torque times the substep,
+ * solved together with the attachment's velocity rows so the motor meets
+ * the inertia about the joint rather than about the child's centre.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the attachment, both limits, the motor law and its cap.
  * @evidence contracts/development/design.md#principled-representation A namespace over the world's joints; angles in radians, impulses in newton metre seconds.
@@ -88,16 +89,24 @@ export namespace solveXpbdJoints {
   }
 
   /**
-   * The velocity pass of the joints' motors.
+   * The velocity pass of the joints' motors. Each joint's motor rows are
+   * solved together with its attachment's three velocity rows, so a motor
+   * turns the child about the joint with the inertia it really meets there:
+   * unknowns are the attachment impulse `p` and one angular impulse `mu_i`
+   * per motor axis `a_i`, the attachment rows ask the anchors' relative
+   * velocity to vanish, and each motor row is the backward-Euler damper
+   * `mu_i = h c_i (s_i - v_i')` on the axis's relative angular velocity
+   * after the impulse, `v_i' + mu_i / (h c_i) = s_i`. A motor whose impulse
+   * exceeds its cap `tau_i h` is held at the cap and the rest re-solved.
    *
    * @param joints The joints, in creation order.
    * @param h The substep, seconds.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the implicit damper and its cap.
-   * @evidence contracts/development/implementation.md#principled-implementation Backward-Euler damper lambda = h c (s - v) / (1 + h c w), capped at the torque times h.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over joints and their motors.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A motor without damping or torque is skipped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in motors.
+   * @evidence contracts/development/common.md#meaningful-documentation States the coupled rows, the implicit damper and its cap.
+   * @evidence contracts/development/implementation.md#principled-implementation The joint's attachment and motor velocity rows as one linear system (J M^-1 J^T + diag(0, 1 / (h c))) x = rhs, the backward-Euler damper of each motor with its anchor held, solved directly; a capped motor becomes a fixed impulse.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over joints: assemble the block by its unit responses, solve, clamp, apply.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A motor without damping or torque is skipped; a singular block applies nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most six unknowns per joint and at most three re-solves, linear in joints.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Motors are reset by their owner each step.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mutates only the bodies it is given; allocates only transient vectors.
    */
@@ -106,39 +115,216 @@ export namespace solveXpbdJoints {
     h: number,
   ): void {
     for (const joint of joints) {
-      if (joint.motors.size === 0) continue;
       const parent: AutoMovieXpbdBody = joint.parent;
       const child: AutoMovieXpbdBody = joint.child;
+      if (!parent.dynamic && !child.dynamic) continue;
       const base: IAutoMovieQuaternion = Quaternion.multiply(
         parent.orientation,
         joint.parentFrame().rotation,
       );
-      for (const [name, motor] of joint.motors) {
-        if (!(motor.damping > 0) || !(motor.maximumTorque > 0)) continue;
-        const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-          base,
-          UNIT[name]!,
-        );
-        const relative: number = Vector3.dot(
-          Vector3.subtract(child.angularVelocity, parent.angularVelocity),
-          axis,
-        );
-        const weight: number =
-          AutoMovieXpbdMath.weight(child, axis) +
-          AutoMovieXpbdMath.weight(parent, axis);
-        if (!(weight > 0)) continue;
-        const cap: number = motor.maximumTorque * h;
-        const lambda: number = Math.max(
-          -cap,
-          Math.min(
-            cap,
-            (h * motor.damping * (motor.speed - relative)) /
-              (1 + h * motor.damping * weight),
+      const rows: IMotorRow[] = [];
+      for (const [name, motor] of joint.motors)
+        if (motor.damping > 0 && motor.maximumTorque > 0)
+          rows.push({
+            axis: Quaternion.rotateVector(base, UNIT[name]!),
+            motor,
+            fixed: null,
+          });
+      if (rows.length === 0) continue;
+      const pair: IPair = {
+        parent,
+        child,
+        armP: anchorArm(parent, joint.parentFrame().position),
+        armC: anchorArm(child, joint.childFrame().position),
+      };
+
+      // Present relative velocities: the anchors', then each motor axis's.
+      const present: number[] = measure(pair, rows);
+      // Each round holds at least one more motor at its cap, so at most
+      // one round per motor follows the first.
+      let solution: number[] | null = solveBlock(pair, rows, present, h);
+      while (solution !== null && clamp(rows, solution, h))
+        solution = solveBlock(pair, rows, present, h);
+      if (solution === null) continue;
+      const impulse: IImpulse = impulses(rows, solution);
+      AutoMovieXpbdMath.impulse(
+        child,
+        parent,
+        impulse.point,
+        pair.armC,
+        pair.armP,
+      );
+      AutoMovieXpbdMath.spin(child, parent, impulse.angular);
+    }
+  }
+
+  /** Hold every free motor whose impulse exceeds its cap at the cap; true when any was newly held. */
+  function clamp(
+    rows: readonly IMotorRow[],
+    solution: readonly number[],
+    h: number,
+  ): boolean {
+    let clamped: boolean = false;
+    rows.forEach((row: IMotorRow, index: number): void => {
+      const cap: number = row.motor.maximumTorque * h;
+      const mu: number = solution[3 + index]!;
+      if (row.fixed === null && Math.abs(mu) > cap) {
+        row.fixed = Math.sign(mu) * cap;
+        clamped = true;
+      }
+    });
+    return clamped;
+  }
+
+  /** One motor row of a joint's velocity block. */
+  interface IMotorRow {
+    /** The free axis in world space. */
+    axis: IAutoMovieVector3;
+
+    /** The axis's motor. */
+    motor: AutoMovieXpbdJoint.IMotor;
+
+    /** The impulse the row is held at once its cap binds, else null. */
+    fixed: number | null;
+  }
+
+  /** The two bodies of a joint with their anchors' world arms. */
+  interface IPair {
+    parent: AutoMovieXpbdBody;
+    child: AutoMovieXpbdBody;
+    armP: IAutoMovieVector3;
+    armC: IAutoMovieVector3;
+  }
+
+  /** The anchors' relative velocity (child minus parent) and each axis's relative angular velocity. */
+  function measure(pair: IPair, rows: readonly IMotorRow[]): number[] {
+    const u: IAutoMovieVector3 = Vector3.subtract(
+      pair.child.velocityAtPoint(Vector3.add(pair.child.center, pair.armC)),
+      pair.parent.velocityAtPoint(Vector3.add(pair.parent.center, pair.armP)),
+    );
+    const omega: IAutoMovieVector3 = Vector3.subtract(
+      pair.child.angularVelocity,
+      pair.parent.angularVelocity,
+    );
+    return [
+      u.x,
+      u.y,
+      u.z,
+      ...rows.map((row: IMotorRow): number => Vector3.dot(omega, row.axis)),
+    ];
+  }
+
+  /** A block solution's impulses on the child: the attachment's at its anchor and the motors' summed angular one. */
+  interface IImpulse {
+    point: IAutoMovieVector3;
+    angular: IAutoMovieVector3;
+  }
+
+  /** Read the attachment impulse and the summed motor angular impulse from unknowns `x`. */
+  function impulses(rows: readonly IMotorRow[], x: readonly number[]): IImpulse {
+    let angular: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    rows.forEach((row: IMotorRow, index: number): void => {
+      angular = Vector3.add(angular, Vector3.scale(row.axis, x[3 + index]!));
+    });
+    return { point: { x: x[0]!, y: x[1]!, z: x[2]! }, angular };
+  }
+
+  /**
+   * The change of the measured velocities under unknowns `x`: the
+   * attachment impulse on the child at its anchor, opposite on the parent,
+   * then one angular impulse per axis.
+   */
+  function respond(
+    pair: IPair,
+    rows: readonly IMotorRow[],
+    x: readonly number[],
+  ): number[] {
+    const impulse: IImpulse = impulses(rows, x);
+    const c: IChange = change(pair.child, pair.armC, impulse, 1);
+    const q: IChange = change(pair.parent, pair.armP, impulse, -1);
+    const du: IAutoMovieVector3 = Vector3.subtract(c.linear, q.linear);
+    const dw: IAutoMovieVector3 = Vector3.subtract(c.angular, q.angular);
+    return [
+      du.x,
+      du.y,
+      du.z,
+      ...rows.map((row: IMotorRow): number => Vector3.dot(dw, row.axis)),
+    ];
+  }
+
+  /** The velocity change of one body's anchor point and its rotation. */
+  interface IChange {
+    linear: IAutoMovieVector3;
+    angular: IAutoMovieVector3;
+  }
+
+  /** One body's anchor velocity and angular velocity change under the impulses, taken with `sign`. */
+  function change(
+    body: AutoMovieXpbdBody,
+    arm: IAutoMovieVector3,
+    impulse: IImpulse,
+    sign: number,
+  ): IChange {
+    if (!body.dynamic)
+      return { linear: { x: 0, y: 0, z: 0 }, angular: { x: 0, y: 0, z: 0 } };
+    const spin: IAutoMovieVector3 = Vector3.scale(
+      body.frozenInverseInertia(
+        Vector3.add(Vector3.cross(arm, impulse.point), impulse.angular),
+      ),
+      sign,
+    );
+    return {
+      linear: Vector3.add(
+        Vector3.scale(impulse.point, sign * body.inverseMass()),
+        Vector3.cross(spin, arm),
+      ),
+      angular: spin,
+    };
+  }
+
+  /**
+   * Solve the joint's block: attachment rows `du = -u`, free motor rows
+   * `dv_i + mu_i / (h c_i) = s_i - v_i`, held motor rows `mu_i = fixed`.
+   */
+  function solveBlock(
+    pair: IPair,
+    rows: readonly IMotorRow[],
+    present: readonly number[],
+    h: number,
+  ): number[] | null {
+    const size: number = 3 + rows.length;
+    const columns: number[][] = [];
+    for (let j: number = 0; j < size; ++j) {
+      const unit: number[] = new Array<number>(size).fill(0);
+      unit[j] = 1;
+      columns.push(respond(pair, rows, unit));
+    }
+    const matrix: number[][] = [];
+    const right: number[] = [];
+    for (let i: number = 0; i < size; ++i) {
+      const row: IMotorRow | undefined = i < 3 ? undefined : rows[i - 3];
+      if (row !== undefined && row.fixed !== null) {
+        matrix.push(
+          Array.from({ length: size }, (_: unknown, j: number): number =>
+            j === i ? 1 : 0,
           ),
         );
-        AutoMovieXpbdMath.spin(child, parent, Vector3.scale(axis, lambda));
+        right.push(row.fixed);
+        continue;
       }
+      matrix.push(
+        Array.from(
+          { length: size },
+          (_: unknown, j: number): number =>
+            columns[j]![i]! +
+            (row !== undefined && j === i ? 1 / (h * row.motor.damping) : 0),
+        ),
+      );
+      right.push(
+        row === undefined ? -present[i]! : row.motor.speed - present[i]!,
+      );
     }
+    return prepareLinearSystem.solve(matrix, right);
   }
 
   /** A body-frame anchor's world arm from the body's centre. */

@@ -7,7 +7,6 @@ import type {
 } from "@automovie/interface";
 
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
-import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 
 /**
  * Admit shared support geometry before tracking or recovery can dereference a carrier.
@@ -32,7 +31,7 @@ export function admitPhysicalSupportPattern(
   );
   const vector: (value: IAutoMovieVector3) => boolean = (
     value: IAutoMovieVector3,
-  ): boolean => !!value && [value.x, value.y, value.z].every(scalar);
+  ): boolean => !!value && [value.x, value.y, value.z].every(Number.isFinite);
   const names: (values: string[]) => boolean = (values: string[]): boolean =>
     Array.isArray(values) &&
     new Set(values).size === values.length &&
@@ -103,7 +102,7 @@ export function admitPhysicalSupportPattern(
       limb.duty < 0 ||
       limb.duty > 1 ||
       !limb.offset ||
-      ![limb.offset.forward, limb.offset.left].every(scalar) ||
+      ![limb.offset.forward, limb.offset.left].every(Number.isFinite) ||
       !Array.isArray(limb.stride) ||
       !limb.stride.length
     )
@@ -111,9 +110,9 @@ export function admitPhysicalSupportPattern(
     for (const [index, sample] of limb.stride.entries())
       if (
         !sample ||
-        !scalar(sample.speed) ||
+        !Number.isFinite(sample.speed) ||
         sample.speed < 0 ||
-        !scalar(sample.length) ||
+        !Number.isFinite(sample.length) ||
         sample.length <= 0 ||
         (index > 0 && sample.speed <= limb.stride[index - 1]!.speed)
       )

@@ -27,7 +27,7 @@ export function physicalInputDigest(
       handoffSeconds: body.handoffSeconds ?? 0.2,
       handoffLimits: body.handoffLimits ?? {
         maximumLinearError: input.contactTolerance ?? 0.0001,
-        maximumJointViolation: 64 * 2 ** -23,
+        maximumJointViolation: 64 * Number.EPSILON,
       },
       targets: body.targets.map(
         (target: (typeof body.targets)[number]): string => {
@@ -44,11 +44,10 @@ export function physicalInputDigest(
   return autoMovieRenderDigest(
     canonicalizeAutoMovieJson({
       protocol: AutoMoviePhysicsCache.protocol,
-      solver: "rapier-0.21.0",
+      solver: "automovie-xpbd-1",
       input: {
         ...input,
         substeps: input.substeps ?? 16,
-        internalIterations: input.internalIterations ?? 1,
         contactTolerance: input.contactTolerance ?? 0.0001,
         contactFrequency: input.contactFrequency ?? 240,
         bodies,

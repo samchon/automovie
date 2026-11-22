@@ -50,8 +50,6 @@ export async function test_physical_ownership_handoff(): Promise<void> {
     PhysicalFixtures.input([body], 1);
   Object.assign(input, {
     substeps: 8,
-    iterations: 32,
-    internalIterations: 4,
     checkpointEvery: 12,
   });
   input.impulses.push({
@@ -306,7 +304,6 @@ export async function test_physical_ownership_handoff(): Promise<void> {
     const scene: IAutoMoviePhysicalSimulationInput.IInput =
       PhysicalFixtures.input([receiving, striker], 0.5);
     scene.substeps = 8;
-    scene.iterations = 32;
     const run: IAutoMoviePhysicalSimulation = await Simulation.compute(scene);
     TestValidator.equals(
       "only positive actual contact changes complete authority",

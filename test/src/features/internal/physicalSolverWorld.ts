@@ -4,9 +4,8 @@ import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 /**
  * An empty solver world configured from an input's explicit settings the
  * way `AutoMoviePhysicalSimulation.compute` configures its own: gravity,
- * the substep `1 / (rate * substeps)` seconds, `iterations` passes,
- * `internalIterations` sweeps, `contactTolerance` as the allowed contact
- * error and `contactFrequency`. A case that steps a world by hand states
+ * the substep `1 / (rate * substeps)` seconds, `contactTolerance` as the
+ * allowed contact error and `contactFrequency`. A case that steps a world by hand states
  * every one of these settings, so a missing one throws instead of falling
  * back to a default the case never declared.
  *
@@ -18,15 +17,12 @@ export function physicalSolverWorld(
 ): AutoMovieXpbdWorld {
   if (
     input.substeps === undefined ||
-    input.internalIterations === undefined ||
     input.contactTolerance === undefined ||
     input.contactFrequency === undefined
   )
     throw new Error("A hand-stepped solver world needs explicit settings");
   const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(input.gravity);
   world.timestep = 1 / (input.rate * input.substeps);
-  world.passes = input.iterations;
-  world.sweeps = input.internalIterations;
   world.allowedError = input.contactTolerance;
   world.contactFrequency = input.contactFrequency;
   return world;
