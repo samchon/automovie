@@ -11,6 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
+import { AutoMovieMotionHumanAuditGround } from "./AutoMovieMotionHumanAuditGround";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
@@ -31,7 +32,7 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  *   floor at both ends of the step travels horizontally: a foot dragged or
  *   skated along the floor. `share` is the part of the film's steps in which
  *   some socket does so faster than `SPEED`.
- * - `loose` and `afloat`: inside a plant window, the foot's lowest socket
+ * - `loose` and `afloat`: inside a plant window, the point the window declares held (`IAutoMovieMotionHumanContactWindow.socket`), else the foot's lowest socket,
  *   must be the contact: `loose` is its horizontal speed in the frame of the
  *   window's support (`IAutoMovieMotionHumanAuditMotion.support`; a deck or a
  *   saddle carries a planted foot) while the same socket stays the lowest,
@@ -166,11 +167,16 @@ export namespace AutoMovieMotionHumanAuditContact {
         return found?.contact.support ?? GROUND;
       };
       let before: IAutoMovieMotionHumanFoot.ISocket[] | null = null;
+      let previous: ReturnType<
+        IAutoMovieMotionHumanAuditMotion["bones"]
+      > | null = null;
       for (let i: number = 0; i < frames.length; i++) {
         const t: number = frames[i]!;
+        const bones: ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> =
+          motion.bones(subject, t);
         const sole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
           body,
-          motion.bones(subject, t),
+          bones,
           side,
         );
         const holding: IAutoMovieMotionHumanAuditMotion.IWindow[] =
@@ -233,14 +239,25 @@ export namespace AutoMovieMotionHumanAuditContact {
             const support: IAutoMovieMotionHumanContactWindow.Support =
               window.contact.support;
             const where: string = `${window.action} ${part}`;
-            const low: IAutoMovieMotionHumanFoot.ISocket = lowest(sole);
+            // The point the window declares held, else the lowest socket.
+            const declared:
+              | IAutoMovieMotionHumanContactWindow.Socket
+              | undefined = window.contact.socket;
+            const low: AutoMovieMotionHumanAuditGround.IHeld =
+              AutoMovieMotionHumanAuditGround.held(body, bones, side, declared);
             if (support.kind === "ground") {
               const above: number = low.point.y - (support.height ?? 0);
               if (above > out.afloat.value)
                 out.afloat = { value: above, seconds: t, where };
             }
-            const prior: IAutoMovieMotionHumanFoot.ISocket = lowest(before);
-            if (prior.socket !== low.socket) continue;
+            const prior: AutoMovieMotionHumanAuditGround.IHeld =
+              AutoMovieMotionHumanAuditGround.held(
+                body,
+                previous!,
+                side,
+                declared,
+              );
+            if (prior.key !== low.key) continue;
             const now: IAutoMovieVector3 = local(support, t, low.point);
             const then: IAutoMovieVector3 = local(
               support,
@@ -253,6 +270,7 @@ export namespace AutoMovieMotionHumanAuditContact {
           }
         }
         before = sole;
+        previous = bones;
       }
     }
     out.share =
@@ -263,16 +281,6 @@ export namespace AutoMovieMotionHumanAuditContact {
     return out;
   }
 }
-
-/** The lowest socket of a sole, the heel and then the ball winning a tie within a micrometre. */
-const lowest = (
-  sole: readonly IAutoMovieMotionHumanFoot.ISocket[],
-): IAutoMovieMotionHumanFoot.ISocket => {
-  let contact: IAutoMovieMotionHumanFoot.ISocket = sole[0]!;
-  for (const socket of sole)
-    if (socket.point.y < contact.point.y - 1e-6) contact = socket;
-  return contact;
-};
 
 /** The world floor, the support of a foot that no window has declared one for. */
 const GROUND: IAutoMovieMotionHumanContactWindow.Support = { kind: "ground" };

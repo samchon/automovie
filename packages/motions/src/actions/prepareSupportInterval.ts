@@ -76,6 +76,7 @@ type HeldLeg = `${AutoMovieHumanSide}Leg`;
  * @param a The fixed key before the interval.
  * @param b The fixed key after it.
  * @param place The entry-time contact lookup, which may observe an unsettled schedule.
+ * @param socket The sole socket each floor foot holds through its window (`supportHeldSocket`); the lower of its heel and ball at the key before when absent.
  * @returns The interior writer and invalidation of its target observations at plan settlement.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the keys, the root pin, the held-limb fit, the floor bound, what stays unpinned and the settlement invalidation.
@@ -93,6 +94,7 @@ export function prepareSupportInterval(
   place: (
     contact: IAutoMovieMotionHumanSupport.IContact,
   ) => IAutoMovieVector3 | null,
+  socket?: prepareSupportHeldFrames.Socket,
 ): IInterval {
   const blend: ReturnType<typeof supportKey.prepareBlended> =
     supportKey.prepareBlended(body, a.posture, b.posture);
@@ -159,6 +161,7 @@ export function prepareSupportInterval(
       place,
       read,
       project,
+      socket,
     );
     const held: prepareSupportHeldFrames.IHeldFrames[] = frames;
     const elevatedFoot: boolean = held.some(

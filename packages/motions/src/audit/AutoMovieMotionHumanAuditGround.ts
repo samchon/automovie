@@ -124,6 +124,68 @@ export namespace AutoMovieMotionHumanAuditGround {
   ): IAutoMovieMotionHumanAuditMeasure {
     return plants(motion, subject, body, rate, true);
   }
+
+  /**
+   * A planted foot's contact at an instant: the point its window declares
+   * held (`IAutoMovieMotionHumanContactWindow.socket`), a named sole socket
+   * or a rest-frame point placed by the displayed foot bone, else its lowest
+   * sole socket, the heel winning a tie within a micrometre and then the
+   * ball.
+   *
+   * @param body The body.
+   * @param bones The displayed bones at the instant.
+   * @param side The foot.
+   * @param declared The window's held point; none when absent.
+   * @returns The contact, keyed by which point it is.
+   */
+  export function held(
+    body: IAutoMovieMotionHumanBody,
+    bones: ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]>,
+    side: "left" | "right",
+    declared: IAutoMovieMotionHumanContactWindow.Socket | undefined,
+  ): IHeld {
+    if (declared !== undefined && typeof declared !== "string") {
+      const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
+      return {
+        key: "contact",
+        point: Vector3.add(
+          foot.worldPosition,
+          Quaternion.rotateVector(foot.worldRotation, declared),
+        ),
+      };
+    }
+    const sole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
+      body,
+      bones,
+      side,
+    );
+    let contact: IAutoMovieMotionHumanFoot.ISocket = sole[0]!;
+    if (declared !== undefined)
+      contact = sole.find(
+        (socket: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+          socket.socket === declared,
+      )!;
+    else
+      for (const socket of sole)
+        if (socket.point.y < contact.point.y - 1e-6) contact = socket;
+    return { key: contact.socket, point: contact.point };
+  }
+
+  /**
+   * A planted foot's contact point at an instant, keyed by which point it is.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
+   * @evidence contracts/development/design.md#principled-representation A key naming the point and its world place.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the slip, lift, loose and afloat readings.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's vector.
+   */
+  export interface IHeld {
+    /** The socket's name, or `contact` for a declared rest-frame point. */
+    key: string;
+
+    /** Where it is, world metres. */
+    point: IAutoMovieVector3;
+  }
 }
 
 /** The worst slip, or the worst height off the floor, over every foot plant window. */
@@ -172,7 +234,8 @@ const plants = (
     ]) {
       const bones: ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> =
         motion.bones(subject, t);
-      const contact: IHeld = holding(body, bones, side, declared);
+      const contact: AutoMovieMotionHumanAuditGround.IHeld =
+        AutoMovieMotionHumanAuditGround.held(body, bones, side, declared);
       let value: number = Math.abs(contact.point.y - elevation);
       if (anchors !== undefined) {
         const carrier: IAutoMovieRigidTransform | null = frame(t);
@@ -199,51 +262,4 @@ const plants = (
     }
   }
   return worst;
-};
-
-/** A planted foot's contact point at an instant, keyed by which point it is. */
-interface IHeld {
-  /** The socket's name, or `contact` for a declared rest-frame point. */
-  key: string;
-
-  /** Where it is, world metres. */
-  point: IAutoMovieVector3;
-}
-
-/**
- * A planted foot's contact at an instant: the point its window declares
- * held, else its lowest sole socket, the heel winning a tie within a
- * micrometre and then the ball.
- */
-const holding = (
-  body: IAutoMovieMotionHumanBody,
-  bones: ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]>,
-  side: "left" | "right",
-  declared: IAutoMovieMotionHumanContactWindow.Socket | undefined,
-): IHeld => {
-  if (declared !== undefined && typeof declared !== "string") {
-    const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
-    return {
-      key: "contact",
-      point: Vector3.add(
-        foot.worldPosition,
-        Quaternion.rotateVector(foot.worldRotation, declared),
-      ),
-    };
-  }
-  const sole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
-    body,
-    bones,
-    side,
-  );
-  let contact: IAutoMovieMotionHumanFoot.ISocket = sole[0]!;
-  if (declared !== undefined)
-    contact = sole.find(
-      (socket: IAutoMovieMotionHumanFoot.ISocket): boolean =>
-        socket.socket === declared,
-    )!;
-  else
-    for (const socket of sole)
-      if (socket.point.y < contact.point.y - 1e-6) contact = socket;
-  return { key: contact.socket, point: contact.point };
 };

@@ -34,10 +34,11 @@ import { prepareSupportContactForm } from "./prepareSupportContactForm";
  * @param place The resolved contact target lookup.
  * @param read The synchronous pose-resolution workspace.
  * @param project The body's posture projector.
+ * @param socket The sole socket each floor foot holds through its window; the lower of its heel and ball at the key before when absent.
  * @returns World key frames and the rotation pivot in the end-bone frame.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the fixed keys, donor contacts, frame owners and output units.
- * @evidence contracts/development/implementation.md#principled-implementation Read wrists or ankles and their bending joints at both keys. Above-floor contacts reuse the key fitter's toe, palm or grip datum. Floor feet retain the lower heel-or-ball socket, and floor hands retain the wrist.
+ * @evidence contracts/development/implementation.md#principled-implementation Read wrists or ankles and their bending joints at both keys. Above-floor contacts reuse the key fitter's toe, palm or grip datum. Floor feet retain the heel or ball socket their window holds (else the lower at the key before), and floor hands retain the wrist.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the anatomical point and needed frames. Observe both keys and re-express each pivot in its end bone's local frame.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The world pivot uses achieved bone frames, including the point offset of a raised grip. No authored target replaces an achieved key.
  * @evidence contracts/development/implementation.md#efficient-algorithms One fixed bone demand for the two key poses. Each limb contributes one frame pair and at most one bearing pivot.
@@ -54,6 +55,7 @@ export function prepareSupportHeldFrames(
   ) => IAutoMovieVector3 | null,
   read: ReturnType<typeof prepareHumanPoseResolution>,
   project: ReturnType<typeof prepareHumanPostureProjection>,
+  socket?: prepareSupportHeldFrames.Socket,
 ): prepareSupportHeldFrames.IHeldFrames[] {
   if (limbs.length === 0) return [];
   const requested: Set<AutoMovieHumanoidBone> = new Set();
@@ -155,7 +157,19 @@ export function prepareSupportHeldFrames(
           (frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
             resolveAutoMovieHumanoidSurfaces.point(frame, a0),
         );
-        pivot = heel!.y <= ball!.y ? heel! : ball!;
+        // The socket the foot holds through its whole window, so every
+        // interval of the window turns it about the same point.
+        const named: ReturnType<prepareSupportHeldFrames.Socket> = socket?.(
+          limb.contact,
+        );
+        pivot =
+          named === "heel"
+            ? heel!
+            : named === "ball"
+              ? ball!
+              : heel!.y <= ball!.y
+                ? heel!
+                : ball!;
       }
       const local: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.inverse(a0.worldRotation),
@@ -211,6 +225,11 @@ function angles(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Geometry and contact selection come from the fitted keys and canonical support forms.
  */
 export namespace prepareSupportHeldFrames {
+  /** The sole socket a floor foot holds through its window, by its contact; none for a contact that holds none. */
+  export type Socket = (
+    contact: IAutoMovieMotionHumanSupport.IContact,
+  ) => "heel" | "ball" | undefined;
+
   /**
    * A limb retained between two support keys and the bones defining its fit.
    *

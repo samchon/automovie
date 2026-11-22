@@ -111,6 +111,7 @@ export namespace supportWindows {
    * @param keys The solved instants.
    * @param duration The sequence's seconds.
    * @param observe Optional reader of a window and the exact authored target that opens it.
+   * @param socket The sole socket each floor foot holds through its window, declared on it (`IAutoMovieMotionHumanContactWindow.socket`).
    * @returns Contact windows.
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, units and result.
    * @evidence contracts/development/implementation.md#principled-implementation Contacts open when placed and close when released; each named target supplies its own support frame, including the shared on target and self regions.
@@ -128,6 +129,9 @@ export namespace supportWindows {
     keys: readonly IKey[],
     duration: number,
     observe?: Observe,
+    socket?: (
+      contact: IAutoMovieMotionHumanSupport.IContact,
+    ) => "heel" | "ball" | undefined,
   ): IAutoMovieMotionHumanContactWindow[] {
     // An interval carries exactly the contacts common to its two solved keys.
     // A newly placed contact starts on the arriving key. A lifted contact
@@ -149,10 +153,12 @@ export namespace supportWindows {
         }
         const identity: ReturnType<typeof bearing> = bearing(context, contact);
         if (identity === undefined) continue;
+        const holds: "heel" | "ball" | undefined = socket?.(contact);
         const window: IAutoMovieMotionHumanContactWindow = {
           ...identity,
           from: share,
           to: share,
+          ...(holds === undefined ? {} : { socket: holds }),
         };
         contacts.push(window);
         open.set(id, window);

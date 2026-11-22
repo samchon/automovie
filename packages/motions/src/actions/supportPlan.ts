@@ -17,6 +17,7 @@ import { prepareSupportHelperGrip } from "./prepareSupportHelperGrip";
 import { prepareSupportInterval } from "./prepareSupportInterval";
 import { supportBalance } from "./supportBalance";
 import { supportCourse } from "./supportCourse";
+import { supportHeldSocket } from "./supportHeldSocket";
 import { supportWindows } from "./supportWindows";
 
 /**
@@ -84,8 +85,14 @@ export namespace supportPlan {
     routes: ReadonlyMap<number, supportCourse.ILeg[]>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
+    // Each floor foot holds one sole socket through its window, which the
+    // window declares and every interval of it turns the foot about.
+    const socket: ReturnType<typeof supportHeldSocket> = supportHeldSocket(
+      body,
+      keys,
+    );
     const contacts: IAutoMovieMotionHumanActionPlan["contacts"] =
-      supportWindows.of(context, keys, duration, course?.observe);
+      supportWindows.of(context, keys, duration, course?.observe, socket);
     // Contact windows own the arm that reaches and the hand that holds.
     const yields: AutoMovieMotionHumanChannelClaim[] = ["head"];
     for (const side of ["left", "right"] as const)
@@ -110,6 +117,7 @@ export namespace supportPlan {
             key,
             keys[Math.min(i + 1, keys.length - 1)]!,
             key.place,
+            socket,
           ),
       );
 
