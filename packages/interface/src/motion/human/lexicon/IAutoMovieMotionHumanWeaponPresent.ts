@@ -26,6 +26,15 @@ import type { IAutoMovieMotionHumanWeaponTrack } from "./IAutoMovieMotionHumanWe
  * hand. A target more than `TURN` degrees off the heading is refused: the
  * performer turns first.
  *
+ * Timing (all provisional, no recoil or presentation study was read):
+ * `present` brings the weapon onto the line in 0.9 s at novice to 0.5 s at
+ * elite skill (`HumanWeaponPresent.PRESENT`). `fire` is the trigger press
+ * 0.1 s, the muzzle's rise 0.07 s and its return 0.25 s, 0.42 s in all
+ * (`HumanWeaponPresent.SHOT`), the muzzle rising 14 degrees at novice to 7
+ * at elite (`HumanWeaponPresent.RISE`). The bore may miss the aim point by
+ * 1 degree (`HumanWeaponPresent.DISPERSION`). A target more than 60
+ * degrees off the heading is refused (`HumanWeaponPresent.TURN`).
+ *
  * First pass: the target is read once at the action's start, the holster is
  * a prop where the scene stands it and does not ride the body, and no
  * reload is planned. The recoil's size and times are provisional: no
@@ -79,9 +88,9 @@ export namespace IAutoMovieMotionHumanWeaponPresent {
     shot?: {
       /** Scene subject id of the projectile launched from the weapon's muzzle. */
       prop: string;
-      /** Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner. */
+      /** Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner. Authored, never derived: take the gun's own muzzle velocity. */
       speed: number;
-      /** Lock delay after trigger break, seconds; defaults to zero. */
+      /** Lock delay after trigger break, seconds; 0 when absent: the shot launches at the trigger break. Give a flintlock's lock time here. */
       lock?: number;
     };
   }
@@ -142,7 +151,7 @@ export namespace IAutoMovieMotionHumanWeaponPresent {
      */
     extended?: boolean;
 
-    /** Seconds the carriage is held once reached; 1 when absent.
+    /** Seconds the carriage is held once reached, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.
      * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     seconds?: number;

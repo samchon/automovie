@@ -10,6 +10,8 @@ import { HumanSwordThrust } from "./HumanSwordThrust";
 
 /**
  * One-handed melee weapons and the firearm's reload under film names, each
+ * a blade row with the blade timing of `IAutoMovieMotionHumanSword` (a cut's
+ * edge at 6 to 10 m/s, a thrust's point at 2.6 to 3.2 m/s, by skill), and each
  * a row of a blade law or of the touch. The composition gives the weapon
  * the hand holds (`blade`; a club's striking contact is `tip: "strike"`,
  * fixed here) and the target; with neither, the row is a shadow stroke of

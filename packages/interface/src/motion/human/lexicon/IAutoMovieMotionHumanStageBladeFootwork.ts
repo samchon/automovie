@@ -22,11 +22,17 @@ export namespace IAutoMovieMotionHumanStageBladeFootwork {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Every style selects a complete stage profile. None implies a sport rule, target or equipment contact.
    */
   export type Style =
+    /** The general fencing step: 0.55 s for a shift of 0.14 stature, a foot lift of 0.014 stature (`stageBladeFootwork` profiles, provisional film timings). */
     | "fencing"
+    /** The same step as `fencing`: 0.55 s, 0.14 stature. */
     | "foil"
+    /** A shorter, more measured step: 0.65 s, 0.12 stature. */
     | "epee"
+    /** A longer, quicker step: 0.45 s, 0.15 stature. */
     | "sabre"
+    /** A low glide with the foot along the floor: 0.62 s, 0.12 stature. */
     | "kendo"
+    /** A deliberate lifted shift in armour: 0.85 s, 0.11 stature. */
     | "armoured";
 
   /**
@@ -59,10 +65,10 @@ export namespace IAutoMovieMotionHumanStageBladeFootwork {
     /** Preferred forward lead. Absent, read it from the entry feet. */
     lead?: "left" | "right";
 
-    /** Horizontal travel in metres. Defaults to a body-scaled stage distance. */
+    /** Horizontal travel in metres. Absent, the style's share of the stature (0.11 to 0.15, about 0.19 to 0.26 m at a stature of 1.75 m); at most 0.23 of the stature, about 0.4 m (`stageBladeFootwork`, provisional). */
     distance?: number;
 
-    /** Positive stage duration in seconds. Defaults to a body-scaled edit length. */
+    /** Positive stage duration in seconds. Absent, the style's length from 0.45 s (`sabre`) to 0.85 s (`armoured`) at the reference hip (`stageBladeFootwork`, provisional); the foot moves in two windows within it. */
     duration?: number;
 
     /** Share in [0, 1] at which to emit the independent `propCue` editing event. */

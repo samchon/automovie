@@ -16,7 +16,7 @@ export interface IAutoMovieMotionHumanRoman {
   /** The seat contact each foot stands on. */
   frame: string;
 
-  /** How long the stand is held, seconds. */
+  /** How long the stand is held once reached, seconds; positive, and the action lasts `step` more. The two seats must stay between a hip width and the two legs' span apart for the whole hold (a leg abducted 30 degrees), or the stand is refused. */
   seconds: number;
 
   /** Seconds it takes to come up from the entry; 0.6 when absent. */

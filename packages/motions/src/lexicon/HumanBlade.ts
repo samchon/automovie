@@ -26,6 +26,14 @@ import { HumanSwordThrust } from "./HumanSwordThrust";
  * with `outcome: "parried"` and an anchor, the defender's `parry` with
  * `against` that anchor, and the defender's `riposte` after it.
  *
+ * Every attack row keeps the blade timing of `IAutoMovieMotionHumanSword`: a
+ * thrust, lunge, stab, wind and disengage reach contact on a point speed of
+ * 2.6 m/s at novice to 3.2 m/s at elite, a cut, slash, draw and backslash
+ * on an edge speed of 6 to 10 m/s (`HumanSword.SPEED`), a path of 0.8 m
+ * taking 0.47 s at elite for a thrust. A bind holds the parry for a second
+ * (provisional); the footwork rows (`advance`, `retreat`, `traverse`) take
+ * one stance step, 0.35 s at the reference hip (`step.PERIOD`).
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what the composition gives, the guard names' source and how an exchange is written.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of a registered law (`HumanActionRow`), so it is data over a law that fits the body, refuses and is checked.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The family's rows and nothing else; a production registers the ones it uses.

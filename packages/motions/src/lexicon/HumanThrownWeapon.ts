@@ -9,7 +9,11 @@ import { throwObject } from "../throwing/throwObject";
 /**
  * Thrown weapons (#3490) as rows of `throwObject`, each throwing the held
  * prop the composition names (`prop`), which rides the hand to the release
- * and then flies (#3479):
+ * and then flies (#3479). Every row throws overarm with the style's 0.5 s
+ * windup, at a release angle of 20 degrees but the javelin and the spear's
+ * 33.9, and the speed that range equation gives for the stand-off
+ * (`IAutoMovieMotionHumanThrowObjectForm.Style`): a farther target is a
+ * faster throw, and no row fixes a speed.
  *
  * - `throwJavelin` and `throwSpear`: overarm, the shaft along its velocity,
  *   released at the middle of the release angles Campos, Brizuela and Ramón

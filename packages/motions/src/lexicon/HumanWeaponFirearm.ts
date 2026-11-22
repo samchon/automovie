@@ -26,7 +26,9 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * rise about the hand and its return onto the line). `present` with a ready
  * position lowers the weapon, and `holster` puts it back.
  *
- * The two-hand rules, the refusal of a target past `TURN` and what the
+ * Timing (`IAutoMovieMotionHumanWeaponPresent`): `present` takes 0.9 s at
+ * novice to 0.5 s at elite, `fire` 0.42 s (press 0.1, rise 0.07, return 0.25),
+ * all provisional. The two-hand rules, the refusal of a target past `TURN` and what the
  * first pass leaves out are `HumanWeaponPresent`'s, whose laws these are.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the effector, how the firearm is given, how a shot is composed, and where the hand rules, refusals and limits are stated.

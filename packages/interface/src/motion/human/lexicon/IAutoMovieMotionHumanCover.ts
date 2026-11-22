@@ -49,10 +49,10 @@ export namespace IAutoMovieMotionHumanCover {
     /** The end of the face peeked past, as seen facing the face. */
     side: AutoMovieHumanSide;
 
-    /** How far the head crosses the end's plane, metres; 0.12 when absent. */
+    /** How far the head crosses the end's plane, metres; 0.12 m when absent. */
     exposure?: number;
 
-    /** Seconds the head holds out; 0.8 when absent. */
+    /** Seconds the head holds out, between the lean out and the lean back; 0.8 s when absent. */
     hold?: number;
   }
 

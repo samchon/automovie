@@ -28,9 +28,9 @@ export interface IAutoMovieMotionHumanLunge {
    */
   change?: number;
 
-  /** Seconds the action lasts, taking up and letting go the line included, more than twice `transition`. */
+  /** Seconds the action lasts, taking up and letting go the line included, more than twice `transition`. Pivot steps follow the horse's bearing: one step is two foot swings of the stance step's period, 0.7 s at the reference hip (`step.PERIOD` 0.35 s), taken whenever the bearing has moved a third of the hip's twist from the feet (`HumanLungePivot.TRIGGER`). */
   seconds: number;
 
-  /** Seconds the hands take to take up the line and aim the whip, and again to let them go, positive. */
+  /** Seconds the hands take to take up the line and aim the whip, and again to let them go, positive; also the time the pelvis takes to turn from the entry heading to the horse. A change of rein takes three of these (`change`). */
   transition: number;
 }

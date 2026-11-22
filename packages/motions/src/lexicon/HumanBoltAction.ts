@@ -15,8 +15,10 @@ import { release } from "../throwing/release";
  * `seatMagazine` inserts a magazine into the gun's `magazine` socket
  * (`operate`'s `insert`); `pressRelease` presses the magazine release
  * button and `dropMagazine` lets the empty magazine fall (`release`).
- * The composition gives the contacts; the timings are the laws',
- * provisional.
+ * The composition gives the contacts; the timings are `operate`'s paces,
+ * provisional: the bolt handle's hinge moves at 0.6 m/s along its arc, the
+ * bolt slide and the inserted magazine at 0.4 m/s and the release button
+ * press takes 0.25 s (`operate.PACE`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each row operates, the order of a cycle and what is provisional.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`).

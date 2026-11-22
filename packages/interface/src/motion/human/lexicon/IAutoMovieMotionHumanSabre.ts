@@ -30,10 +30,10 @@ export interface IAutoMovieMotionHumanSabre {
   /** What the engage points at; straight ahead along the seat's forward when absent. */
   target?: IAutoMovieMotionTarget;
 
-  /** Seconds the slope takes to reach the engage, more than none and at most a gallop stride. */
+  /** Seconds the slope takes to reach the engage after the charge cue, more than none and at most 0.5 s, one gallop stride (`HumanSabre` `STRIDE`, provisional: about two strides a second); a minimum-jerk path in the seat frame. The arms take 0.5 s from the entry to the bridle and the carriage. */
   transition: number;
 
-  /** How long the act lasts, seconds. */
+  /** How long the act lasts, seconds; positive. The charge cue must fall inside it. */
   seconds: number;
 }
 export namespace IAutoMovieMotionHumanSabre {

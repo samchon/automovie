@@ -14,7 +14,8 @@ import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
  * and aim its bore; with no gun named they are the same movements of the
  * empty hand. Register the ones a film uses.
  *
- * A shot from the holster is `HumanWeaponFirearm.draw`, then `takeAim`, then
+ * `takeAim` and the ready rows take 0.9 s at novice to 0.5 s at elite and `recoil`
+ * 0.42 s, provisional (`IAutoMovieMotionHumanWeaponPresent`). A shot from the holster is `HumanWeaponFirearm.draw`, then `takeAim`, then
  * `recoil`; `lowReady` lowers the weapon and `HumanWeaponFirearm.holster`
  * returns it.
  *
