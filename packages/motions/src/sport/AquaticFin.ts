@@ -1,5 +1,6 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanAquatic,
