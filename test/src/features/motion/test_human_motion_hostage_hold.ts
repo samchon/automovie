@@ -28,10 +28,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 const LEAN: number = 20;
 
 /**
- * Whether the hostage's right temple lies inside the holder's reach sphere
- * with the handgun: from the holder's right shoulder, the arm's length and
- * the handgun's grip-to-muzzle length, with the trunk leaned by `LEAN` over
- * the hips. The temple stands the head's radius right of the hostage's
+ * Whether the hostage's right temple lies inside the holder's reach sphere,
+ * as the touch law reads the arm that brings the point there: from the
+ * holder's right shoulder, the arm's length, with the trunk leaned by `LEAN`
+ * over the hips. The temple stands the head's radius right of the hostage's
  * line at its eye height; the shoulder at its height and half width on the
  * holder's mark.
  */
@@ -39,13 +39,6 @@ const reaches = (
   holder: IAutoMovieMotionHumanBody,
   hostage: IAutoMovieMotionHumanBody,
 ): boolean => {
-  const gun: ReturnType<typeof createHandgun> = createHandgun({
-    frame: "compact",
-  });
-  const muzzle: number = Vector3.distance(
-    gun.affordance("muzzle").frame.translation,
-    gun.affordance("grip").frame.translation,
-  );
   const h: IAutoMovieMotionHumanBody["measure"] = holder.measure;
   const lean: number =
     (h.shoulderHeight - h.hipHeight) * Math.sin((LEAN * Math.PI) / 180);
@@ -59,10 +52,7 @@ const reaches = (
     y: hostage.measure.eyeHeight,
     z: 0,
   };
-  return (
-    Vector3.distance(shoulder, temple) <=
-    h.upperArm + h.forearm + h.hand + muzzle
-  );
+  return Vector3.distance(shoulder, temple) <= h.upperArm + h.forearm + h.hand;
 };
 
 /** The gap between the holder's chest and the hostage's back in the hold, metres: the grapple specs' skin. */
