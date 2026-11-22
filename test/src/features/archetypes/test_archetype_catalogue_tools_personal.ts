@@ -100,7 +100,10 @@ const FAMILIES = [
       "createPaper",
     ],
   ],
-  [props.createWearable, ["createWatch", "createHat", "createSpectacles"]],
+  [
+    props.createWearable,
+    ["createWatch", "createHat", "createSpectacles", "createCyclingHelmet"],
+  ],
   [props.createSmoking, ["createCigarette", "createLighter"]],
 ] as const;
 

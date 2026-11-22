@@ -100,7 +100,7 @@ export function test_archetype_catalogue_transport_props_craft(): void {
       wheelbarrow.affordances.map((contact) => contact.id),
     ],
     [
-      ["handle", "load"],
+      ["handle", "leftHandle", "rightHandle", "load"],
       ["leftHandle", "rightHandle", "load"],
     ],
   );

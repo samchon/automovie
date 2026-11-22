@@ -111,10 +111,10 @@ export namespace ArchetypeMaterial {
   /** Cited friction pairs, keyed by alphabetically ordered material names. */
   export const FRICTION: Readonly<Record<string, IFriction>> = {
     "concrete/felt": {
-      static: [0.61, 0.65],
+      static: 0.65,
       kinetic: [0.61, 0.65],
       source:
-        "ITF Approved Tennis Balls, Classified Court Surfaces & Recognised Courts: Court Pace Rating = 100(1 - mu) + 150(0.81 - e), Category 3 (medium) 35 to 39, so a tennis ball's felt sliding on a medium hard court has mu 0.61 to 0.65 at the reference e = 0.81. The rating measures sliding during the bounce; no separate static value is published, so the static range repeats it.",
+        "ITF Approved Tennis Balls, Classified Court Surfaces & Recognised Courts: Court Pace Rating = 100(1 - mu) + 150(0.81 - e), Category 3 (medium) 35 to 39, so a tennis ball's felt sliding on a medium hard court has mu 0.61 to 0.65 at the reference e = 0.81. The rating measures sliding during the bounce; no static value is published, so the static coefficient is the largest sliding value, 0.65, the least a static coefficient can be since it is never below the kinetic one (provisional).",
     },
     "concrete/rubber": {
       static: 1,

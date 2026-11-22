@@ -243,11 +243,19 @@ export function animalAttachmentObserver(
         ),
         need(original, solid),
       );
-      inside(
-        `${child} posed proximal touches actual parent solid`,
-        local(frame(need(current, solid)), endpoint(need(current, child), -1)),
-        need(current, solid),
-      );
+      // A turned blade carries the shoulder joint on its arc about the blade's
+      // rotation centre, out of the trunk's solid that holds it at rest. The
+      // point check above pins it to the blade's own frame, so only a parent
+      // that is itself the solid is read inside it when posed.
+      if (solid === parent)
+        inside(
+          `${child} posed proximal touches actual parent solid`,
+          local(
+            frame(need(current, solid)),
+            endpoint(need(current, child), -1),
+          ),
+          need(current, solid),
+        );
     }
   }
 

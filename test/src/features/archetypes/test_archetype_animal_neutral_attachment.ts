@@ -331,12 +331,13 @@ function tack(
       "leftRein",
       "rightRein",
       "lead",
+      "mane",
     ];
     expected =
       params.tack === "harness"
         ? ["hitch"]
         : params.tack === "pack"
-          ? ["lead", "leftLoad", "rightLoad"]
+          ? ["lead", "leftLoad", "rightLoad", "tie"]
           : params.tack === "both"
             ? [...saddle, "hitch"]
             : saddle;
@@ -345,7 +346,7 @@ function tack(
       params.kind === "dog"
         ? ["lead"]
         : params.kind === "ox"
-          ? ["lead", "hitch"]
+          ? ["lead", "hitch", "head", "horns", "hind"]
           : params.kind === "camel"
             ? ["lead", "leftLoad", "rightLoad"]
             : [];

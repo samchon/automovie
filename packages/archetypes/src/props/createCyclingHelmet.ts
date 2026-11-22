@@ -5,9 +5,9 @@ import { type Archetype, ArchetypeFrame } from "../core";
 import { WornPropDraw } from "./WornPropDraw";
 
 /**
- * Cycling helmet with a rim pinch and a shell socket. It rests on its rim,
+ * Cycling helmet with a rim hold and a shell socket. It rests on its rim,
  * shell up, front toward `+Z`; `hold` is the rim at its right side (`-X`)
- * where a right hand puts it on by the side of the head, and `wear` is the
+ * where a right hand puts it on by the side of the head, closing over the shell on its height (the hold declares no aperture, so a grasp reads the shell's span along its `+Y`), and `wear` is the
  * shell's inside top, `+Y` toward the head, which rests on the head's crown
  * under the foam.
  *
@@ -16,7 +16,7 @@ import { WornPropDraw } from "./WornPropDraw";
  * @returns The model with its named contact frames in model space.
  * @throws {ArchetypeRefusal} When a fixed parameter lies outside its admitted band.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the rest frame, the pinch, the socket and the provenance of the sizes.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rest frame, the hold, the socket and the provenance of the sizes.
  * @evidence contracts/development/implementation.md#principled-implementation A dome over an elliptical rim as one convex part, with the socket a foam thickness under the shell's top.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the recipe, then build the shell and its two contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shell is rigid; the vents, straps and foam are not modelled.
@@ -72,8 +72,7 @@ export function createCyclingHelmet(
       v(0, 0, 1),
     ),
     extent: null,
-    grip: "precision",
-    aperture: thin,
+    grip: "power",
   });
   builder.affordance({
     id: "wear",
