@@ -146,6 +146,7 @@ export * from "./grappling/kuzushi";
 export * from "./ballStrike/kickBall";
 export * from "./tasks/sideDrumStrike";
 export * from "./tasks/useTool";
+export * from "./tasks/hookSet";
 export * from "./tasks/longTool";
 export * from "./tasks/LongToolStroke";
 export * from "./tasks/holdInfant";

@@ -6,3 +6,4 @@ export type { IAutoMovieMotionHumanLongTool } from "./IAutoMovieMotionHumanLongT
 export type { IAutoMovieMotionHumanHoldInfant } from "./IAutoMovieMotionHumanHoldInfant";
 export type { IAutoMovieMotionHumanWipe } from "./IAutoMovieMotionHumanWipe";
 export type { IAutoMovieMotionHumanFirefight } from "./IAutoMovieMotionHumanFirefight";
+export type { IAutoMovieMotionHumanHookSet } from "./IAutoMovieMotionHumanHookSet";
