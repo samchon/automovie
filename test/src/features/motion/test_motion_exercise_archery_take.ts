@@ -90,7 +90,7 @@ export function test_motion_exercise_archery_take(): void {
         HumanObject.prop(
           "bow",
           bow,
-          onCounter(bow, "grip", { x: 0.04, y: TOP + 0.03, z: 0.42 }),
+          onCounter(bow, "grip", { x: 0, y: TOP + 0.03, z: 0.42 }),
         ),
         HumanObject.prop(
           "arrow",
@@ -108,7 +108,7 @@ export function test_motion_exercise_archery_take(): void {
             subject: "a",
             body,
             // Close to the counter, as a performer takes things from it.
-            at: { x: 0, y: 0, z: 0.12 },
+            at: { x: 0, y: 0, z: 0.2 },
             yaw: 0,
             proficiency: { level: "trained" },
           },
@@ -127,7 +127,12 @@ export function test_motion_exercise_archery_take(): void {
           )
           .act(
             "presentBow",
-            { target: { kind: "point", at: TARGET, frame: "world" } },
+            // Brought up over two seconds, the right hand on the string riding
+            // up with the bow from the nocking place.
+            {
+              target: { kind: "point", at: TARGET, frame: "world" },
+              seconds: 2,
+            },
             "present",
           )
           .act(
