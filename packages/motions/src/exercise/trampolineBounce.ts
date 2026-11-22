@@ -322,8 +322,11 @@ export namespace trampolineBounce {
           Quaternion.rotateVector(resolveHumanPosture.heading(turned), rest),
         );
         const onBed: boolean = phaseAt(s).kind !== "flight";
+        // In the air the legs take the shape's joints, no foot goal held.
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
           ...turned.limbs,
+          leftLeg: undefined,
+          rightLeg: undefined,
         };
         if (onBed)
           for (const side of ["left", "right"] as const) {

@@ -397,14 +397,8 @@ export namespace highJump {
     const touchdown: number = off + down;
     const settled: number = touchdown + GymnasticsMat.SETTLE;
     const duration: number = settled + GymnasticsMat.HOLD;
-    const pushed: IAutoMovieMotionHumanContactWindow =
-      takeoff.plan.contacts[0]!;
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
-      {
-        ...pushed,
-        from: 0,
-        to: off / duration,
-      },
+      ...GymnasticsTakeoff.contacts(takeoff, duration),
       {
         part: "back",
         kind: "lie",

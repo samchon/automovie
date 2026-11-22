@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanGymnasticsTakeoff,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieVector3,
@@ -130,5 +131,43 @@ export namespace GymnasticsTakeoff {
       apex = apexOf(asked);
     }
     return taken!;
+  }
+
+  /**
+   * The push-off's contacts up to the take-off, rescaled to the action that
+   * goes on from it: every window the jump declared before its take-off,
+   * cut there, so the feet bear exactly where the push-off bears them.
+   *
+   * @param takeoff The take-off.
+   * @param duration The whole action's seconds.
+   * @returns The windows, shares of `duration`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which windows are kept, the cut and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation Each window's seconds in the push-off, clipped to the take-off, over the new duration.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter and one map.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No window is stretched past where the push-off ends it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the windows.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The push-off's own windows.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function contacts(
+    takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff,
+    duration: number,
+  ): IAutoMovieMotionHumanContactWindow[] {
+    const span: number = takeoff.plan.duration;
+    return takeoff.plan.contacts
+      .filter(
+        (c: IAutoMovieMotionHumanContactWindow): boolean =>
+          c.from * span < takeoff.seconds - 1e-9,
+      )
+      .map(
+        (
+          c: IAutoMovieMotionHumanContactWindow,
+        ): IAutoMovieMotionHumanContactWindow => ({
+          ...c,
+          from: (c.from * span) / duration,
+          to: Math.min(c.to * span, takeoff.seconds) / duration,
+        }),
+      );
   }
 }

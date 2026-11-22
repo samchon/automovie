@@ -1,5 +1,5 @@
 import { createRhythmicBall } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
@@ -26,6 +26,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * into its catch at the release (#3997's self-catch contract).
  *
  * Scenarios, on two body proportions:
+ * 0. A toss aimed through its apex peaks at the asked height within 0.1 m,
+ *    rising with at most 1 m/s across.
  * 1. The throw cuts into the catch at its release, and the catch meets the
  *    ball as it falls to the chest (`catchObject.TOSS` of the stature): the
  *    catching palm holds the ball within its radius from the contact on.
@@ -43,22 +45,21 @@ export function test_motion_exercise_self_catch(): void {
   for (const name of ["f-small", "m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
 
-    // 0. The toss alone rises to its asked height above the hands and comes
-    // back down within the arms' reach of where it left.
-    const toss: IAutoMovieMotionHumanSegment = take(
-      body,
-      1.2 * body.measure.stature,
-      false,
-    ).segments("a")[1]!;
+    // 0. The toss aimed through its apex rises to the asked height and goes
+    // up, not across.
+    const height: number = 1.2 * body.measure.stature;
+    const apex: IAutoMovieVector3 = aimed(body, height);
     const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch =
-      throwObject.of(toss.plan)!;
+      throwObject.of(take(body, apex, false).segments("a")[1]!.plan)!;
     const across: number = Math.hypot(launch.velocity.x, launch.velocity.z);
+    const peak: number =
+      launch.point.y + launch.velocity.y ** 2 / (2 * AutoMovieGravity.STANDARD);
     TestValidator.predicate(
-      `${name} tosses up (${launch.velocity.y.toFixed(2)} m/s up, ${across.toFixed(2)} m/s across, from ${launch.point.y.toFixed(2)} m)`,
-      launch.velocity.y > 0 && across <= 1,
+      `${name} tosses up to ${peak.toFixed(2)} m for ${height.toFixed(2)} m (${launch.velocity.y.toFixed(2)} m/s up, ${across.toFixed(2)} m/s across)`,
+      launch.velocity.y > 0 && across <= 1 && Math.abs(peak - height) <= 0.1,
     );
 
-    const film: HumanPerformance = take(body, 1.2 * body.measure.stature);
+    const film: HumanPerformance = take(body, apex);
     const segments: readonly IAutoMovieMotionHumanSegment[] =
       film.segments("a");
     const thrown: IAutoMovieMotionHumanSegment = segments.find(
@@ -106,7 +107,7 @@ export function test_motion_exercise_self_catch(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   let refused: HumanRefusal | undefined;
   try {
-    take(body, 0.66 * body.measure.stature);
+    take(body, aimed(body, 0.66 * body.measure.stature));
   } catch (error) {
     if (!(error instanceof HumanRefusal)) throw error;
     refused = error;
@@ -117,10 +118,33 @@ export function test_motion_exercise_self_catch(): void {
   );
 }
 
-/** A performer picking up the ball, tossing it to a height and catching it. */
-function take(
+/** The release angle of the toss, degrees. */
+const ANGLE: number = 85;
+
+/**
+ * The apex of a toss rising to a height at `ANGLE`: a projectile tops out
+ * `2 rise / tan(ANGLE)` ahead of its release, read from a first toss's
+ * release point (the performer faces +Z).
+ */
+function aimed(
   body: IAutoMovieMotionHumanBody,
   height: number,
+): IAutoMovieVector3 {
+  const first: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch = throwObject.of(
+    take(body, { x: 0, y: height, z: 0.35 }, false).segments("a")[1]!.plan,
+  )!;
+  const rise: number = height - first.point.y;
+  return {
+    x: first.point.x,
+    y: height,
+    z: first.point.z + (2 * rise) / Math.tan((ANGLE * Math.PI) / 180),
+  };
+}
+
+/** A performer picking up the ball, tossing it through a point and catching it. */
+function take(
+  body: IAutoMovieMotionHumanBody,
+  through: IAutoMovieVector3,
   catching: boolean = true,
 ): HumanPerformance {
   const tossed: IAutoMovieMotionHumanChain = HumanChain.subject("a")
@@ -130,11 +154,11 @@ function take(
       {
         at: {
           kind: "point",
-          at: { x: 0, y: height, z: 0.35 },
+          at: through,
           frame: "performer",
         },
         style: "toss",
-        angle: 80,
+        angle: ANGLE,
         prop: "ball",
       },
       "toss",

@@ -2,6 +2,7 @@ import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
@@ -131,24 +132,53 @@ export namespace DanceFootwork {
           to: Math.min(1, (key.at + BRUSH) / duration),
           support,
         });
+    // A travel with no clearance keeps the foot on the floor: it slides,
+    // bearing as it goes (the moonwalk's backslide, a rise onto the ball).
+    for (let i: number = 0; i + 1 < keys.length; i++) {
+      const from: number = keys[i]!.leave;
+      const next: IAutoMovieMotionHumanDanceFootKey = keys[i + 1]!;
+      if (next.clearance === 0 && next.at > from)
+        contacts.push({
+          part: `${side}Foot`,
+          kind: "bear",
+          from: Math.max(0, from / duration),
+          to: Math.min(1, next.at / duration),
+          support,
+        });
+    }
+    // The floor under the feet, read at the first key's ball.
+    const floor: number = HumanFoot.point(body, side, "ball", keys[0]!.place).y;
     const leg: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanLeg.place({
       body,
       side,
       from: 0,
       to: duration,
-      // A foot that bears nothing relaxes within its passive range.
+      // A foot keeps within the dorsal range of the weight it bears,
+      // shedding it before it lifts.
       placement: (
         posture: IAutoMovieMotionHumanPosture,
         t: number,
       ): IAutoMovieMotionHumanFoot.IPlacement =>
-        planted(t)
-          ? placed(t)
-          : AutoMovieMotionHumanFootRelax.of(body, posture, side, placed(t)),
+        AutoMovieMotionHumanFootRelax.of(
+          body,
+          posture,
+          side,
+          placed(t),
+          planted(t)
+            ? AutoMovieMotionHumanFootRelax.load(
+                t,
+                last(keys, t) + 1 < keys.length
+                  ? keys[last(keys, t)]!.leave
+                  : Infinity,
+              )
+            : 0,
+          planted(t) ||
+            HumanFoot.point(body, side, "ball", placed(t)).y - floor < TOUCH,
+        ),
       planted,
     });
     // A foot risen on its ball at the floor bends its toes back by the heel's
     // lift, so they lie on the floor (as `AutoMovieMotionHumanRise` does).
-    const floor: number = HumanFoot.point(body, side, "ball", keys[0]!.place).y;
     const toes: AutoMovieHumanoidBone =
       side === "left" ? "leftToes" : "rightToes";
     return {
@@ -168,7 +198,13 @@ export namespace DanceFootwork {
             resolution,
             projection,
           );
-          const at: IAutoMovieMotionHumanFoot.IPlacement = placed(t);
+          // Read the foot the leg was given, its heel risen or not.
+          const goal: IAutoMovieHumanLimbGoal | undefined =
+            written.limbs[side === "left" ? "leftLeg" : "rightLeg"];
+          const at: IAutoMovieMotionHumanFoot.IPlacement =
+            goal?.rotation === undefined
+              ? placed(t)
+              : { ankle: goal.point, rotation: goal.rotation };
           const lift: number = -HumanFoot.pitch(at.rotation);
           const near: number = Math.max(
             0,
@@ -310,7 +346,6 @@ export namespace DanceFootwork {
       base: AutoMovieMotionHumanBase.still(course.duration, entry, [
         ...left.contacts,
         ...right.contacts,
-        ...(course.contacts ?? []),
         ...(course.holds ?? []).map(
           (
             hold: IAutoMovieMotionHumanDanceCourse.IHold,

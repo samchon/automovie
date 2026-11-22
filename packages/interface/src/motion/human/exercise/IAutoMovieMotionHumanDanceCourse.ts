@@ -3,7 +3,6 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionClockInstant } from "../compose/IAutoMovieMotionClockInstant";
 import type { IAutoMovieMotionHumanArmTarget } from "../compose/IAutoMovieMotionHumanArmTarget";
-import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanDanceFootKey } from "./IAutoMovieMotionHumanDanceFootKey";
 
@@ -65,9 +64,6 @@ export interface IAutoMovieMotionHumanDanceCourse {
 
   /** The hands' contacts with partners, shares of the duration. */
   holds?: IAutoMovieMotionHumanDanceCourse.IHold[];
-
-  /** Further contacts the course declares, as a stilt carried on a foot. */
-  contacts?: IAutoMovieMotionHumanContactWindow[];
 }
 export namespace IAutoMovieMotionHumanDanceCourse {
   /** The placed hands; a hand absent keeps the joints' arm. */

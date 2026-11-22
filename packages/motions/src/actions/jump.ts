@@ -145,6 +145,14 @@ export namespace jump {
     ],
   };
 
+  /** The arms and hands a layup, a jump throw, a spike or a block takes while the jump carries the body; the jump's own momentum swing shows only where no overlay claims them. */
+  export const yields: IAutoMovieMotionHumanActionLaw["yields"] = [
+    "leftArm",
+    "leftHand",
+    "rightArm",
+    "rightHand",
+  ];
+
   /** Push-off duration, seconds (provisional; take-off contact of a one-foot jump from walking). */
   export const PUSH: number = 0.3;
   /** Landing absorption duration, seconds (provisional). */

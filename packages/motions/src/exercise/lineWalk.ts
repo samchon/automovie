@@ -304,6 +304,13 @@ export namespace lineWalk {
           minimumJerk.share((t - lift) / (SWING * PERIOD)),
         );
       };
+      // The second the foot next lifts, or never.
+      const lifts: (t: number) => number = (t: number): number => {
+        for (const f of list)
+          if (f.at > 0 && f.at - SWING * PERIOD >= t)
+            return f.at - SWING * PERIOD;
+        return Infinity;
+      };
       const planted: (t: number) => boolean = (t: number): boolean =>
         list.every(
           (f: IFall): boolean =>
@@ -319,14 +326,14 @@ export namespace lineWalk {
             posture: IAutoMovieMotionHumanPosture,
             t: number,
           ): IAutoMovieMotionHumanFoot.IPlacement =>
-            planted(t)
-              ? placementAt(t)
-              : AutoMovieMotionHumanFootRelax.of(
-                  body,
-                  posture,
-                  side,
-                  placementAt(t),
-                ),
+            AutoMovieMotionHumanFootRelax.of(
+              body,
+              posture,
+              side,
+              placementAt(t),
+              planted(t) ? AutoMovieMotionHumanFootRelax.load(t, lifts(t)) : 0,
+              planted(t),
+            ),
           planted,
         }),
       );

@@ -8,12 +8,13 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanDanceCourse,
   IAutoMovieMotionHumanDanceFootKey,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanStiltWalk,
+  IAutoMovieMotionPropWear,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -76,7 +77,7 @@ export namespace stiltWalk {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation Footprints a step apart along the way at the platforms' height, each foot keyed through them, the stilts held on the feet throughout.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Stilts, way, keys, contacts, composition.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Stilts, way, keys, composition, the worn stilts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An entry off the platforms is refused, never snapped.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in steps.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared footwork.
@@ -158,24 +159,12 @@ export namespace stiltWalk {
       keys[side][keys[side].length - 1]!.leave = duration;
     instants.push({ name: "relax", seconds: duration - PERIOD / 2 });
 
-    // The feet bear on the platforms' height; each foot carries its stilt.
-    const contacts: IAutoMovieMotionHumanContactWindow[] = (
-      ["left", "right"] as const
-    ).map(
-      (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
-        part: side === "left" ? "leftFoot" : "rightFoot",
-        kind: "grip",
-        from: 0,
-        to: 1,
-        support: { kind: "prop", subject: p.stilts[side] },
-      }),
-    );
     const arms: IAutoMovieMotionHumanPosture["joints"] = ExerciseKey.from(
       body,
       {},
       { shoulder: 15, raise: 35, elbow: 30 },
     ).joints;
-    const course: Parameters<typeof DanceFootwork.compose>[2] = {
+    const course: IAutoMovieMotionHumanDanceCourse = {
       duration,
       left: keys.left,
       right: keys.right,
@@ -183,14 +172,23 @@ export namespace stiltWalk {
       yaw: (): number => entry.yaw,
       joints: (): IAutoMovieMotionHumanPosture["joints"] => arms,
       instants,
-      contacts,
     };
-    return DanceFootwork.compose(
+    // The feet bear at the platforms' height; each stilt is strapped on its
+    // foot, riding it from the start as a worn prop.
+    const plan: IAutoMovieMotionHumanActionPlan = DanceFootwork.compose(
       body,
       entry,
       { ...course, hips: DanceFootwork.over(body, context.entry, course, 0) },
       { kind: "ground", height: (top.left + top.right) / 2 },
     );
+    const wears: IAutoMovieMotionPropWear[] = (["left", "right"] as const).map(
+      (side: AutoMovieHumanSide): IAutoMovieMotionPropWear => ({
+        prop: p.stilts[side],
+        bone: side === "left" ? "leftFoot" : "rightFoot",
+        from: 0,
+      }),
+    );
+    return { ...plan, wears };
   }
 
   /** The entry stance's key. */
