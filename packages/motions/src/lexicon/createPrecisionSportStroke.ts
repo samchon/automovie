@@ -216,9 +216,9 @@ export function createPrecisionSportStroke<P extends Stroke>(
         );
       };
 
-      // The follow-through sweeps the whole arm in front of the trunk and
-      // within reach: past the contact the swing goes on only while the arm's
-      // line from its shoulder to the hand stays ahead of the trunk's front
+      // The backswing and the follow-through sweep the whole arm in front of
+      // the trunk and within reach: the swing goes back and on only while the
+      // arm's line from its shoulder to the hand stays ahead of the trunk's front
       // (the shoulder lies on the root's frontal plane, so the line's middle
       // is half the chest's depth ahead when the hand is a whole depth ahead)
       // and the hand within the arm's reach of the striking shoulder as it
@@ -240,21 +240,25 @@ export function createPrecisionSportStroke<P extends Stroke>(
           PrecisionStrokeForms.reach(body) -
             Vector3.length(Vector3.subtract(path(progress).point, shoulder)),
         );
-      let cap: number = Infinity;
-      if (form.sweep !== 0 && front(1) > 0 && !(front(2) > 0)) {
-        let ahead: number = 1;
-        let behind: number = 2;
+      // The edge where the swing's arm meets the trunk's front or its reach,
+      // between a progress where it is clear and one where it is not.
+      const edge = (clear: number, blocked: number): number => {
         for (let i: number = 0; i < 40; i++) {
-          const middle: number = (ahead + behind) / 2;
-          if (front(middle) > 0) ahead = middle;
-          else behind = middle;
+          const middle: number = (clear + blocked) / 2;
+          if (front(middle) > 0) clear = middle;
+          else blocked = middle;
         }
-        cap = ahead;
-      }
+        return clear;
+      };
+      // The backswing is held the same way from its start (progress 0).
+      const cap: number =
+        form.sweep !== 0 && front(1) > 0 && !(front(2) > 0) ? edge(1, 2) : 2;
+      const floor: number =
+        form.sweep !== 0 && front(1) > 0 && !(front(0) > 0) ? edge(1, 0) : 0;
       const swept = (
         progress: number,
       ): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
-        path(Math.min(progress, cap));
+        path(Math.min(Math.max(progress, floor), cap));
 
       const plan: IAutoMovieMotionHumanActionPlan = StrikingBlade.plan(
         context,

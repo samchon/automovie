@@ -154,6 +154,7 @@ export function test_motion_exercise_campaign_plays(): void {
               .over((upper) =>
                 upper.throwObject({
                   prop: "ball",
+                  angle: 55,
                   at: { kind: "point", frame: "world", at: ring },
                 }),
               )
@@ -277,7 +278,7 @@ export function test_motion_exercise_campaign_plays(): void {
         },
         {
           subject: "b",
-          at: { x: 0.9, y: 0, z: 0.7 },
+          at: { x: 1.2, y: 0, z: 0.8 },
           yaw: 180,
           compose: (chain) =>
             chain

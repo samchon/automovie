@@ -161,10 +161,9 @@ export function test_motion_exercise_campaign_catches(): void {
     }
   };
 
-  // 1. #3896: a lacrosse catch into the pocket of the receiver's crosse.
+  // 1. #3896: a lacrosse catch into the pocket of the crosse worn on the
+  // receiver's catching hand.
   const receiverAt: IAutoMovieVector3 = { x: 0, y: 0, z: 8 };
-  const crosseHold: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
-    holding("catchFixtureCrosse", [{ side: "right", prop: "crosse" }]);
   const crosse: ReturnType<typeof createLacrosseCrosse> =
     createLacrosseCrosse();
   take(
@@ -178,16 +177,26 @@ export function test_motion_exercise_campaign_catches(): void {
       proficiency: { level: "trained" },
     },
     [
-      HumanObject.prop("crosse", crosse, {
-        position: Vector3.subtract(
-          { x: -hand.x, y: hand.y, z: receiverAt.z - hand.z },
-          crosse.affordance("grip").frame.translation,
-        ),
-        rotation: Quaternion.identity(),
-      }),
+      {
+        ...HumanObject.prop("crosse", crosse, {
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+        }),
+        worn: {
+          subject: "receiver",
+          bone: "rightHand",
+          offset: {
+            position: Vector3.scale(
+              crosse.affordance("grip").frame.translation,
+              -1,
+            ),
+            rotation: Quaternion.identity(),
+          },
+        },
+      },
     ],
     HumanChain.subject("receiver")
-      .registered(crosseHold.name, { seconds: 0.2, sway: 0 })
+      .stand({ seconds: 0.2, sway: 0 })
       .registered("stageCatch", {
         from: "throw",
         ball: "ball",
@@ -197,9 +206,8 @@ export function test_motion_exercise_campaign_catches(): void {
       })
       .sync({ of: "throw" }),
     { x: -0.35, y: 1.7, z: receiverAt.z - 0.4 },
-    [crosseHold],
+    [],
   );
-
   // 2. #3898: a two-hand catch by a player seated in a wheelchair.
   const chair: ReturnType<typeof createWheelchair> = createWheelchair();
   const chairAt: IAutoMovieVector3 = { x: 0, y: 0, z: 6 };
@@ -226,14 +234,18 @@ export function test_motion_exercise_campaign_catches(): void {
         rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
       }),
     ],
+    // The catch is laid over the held sit, so the player catches seated.
     HumanChain.subject("seated")
-      .sit({ seat: { at: seat, yaw: 180 }, seconds: 0.6 })
-      .registered("stageCatch", {
-        from: "throw",
-        ball: "ball",
-        hands: "two",
-      })
-      .sync({ of: "throw" }),
+      .sit({ seat: { at: seat, yaw: 180 }, seconds: 3 })
+      .over((upper) =>
+        upper
+          .registered("stageCatch", {
+            from: "throw",
+            ball: "ball",
+            hands: "two",
+          })
+          .sync({ of: "throw" }),
+      ),
     { x: seat.x, y: seat.y + 0.45, z: seat.z - 0.4 },
     [],
   );
