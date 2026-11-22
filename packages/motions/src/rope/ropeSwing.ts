@@ -19,6 +19,7 @@ import type {
 import { stand } from "../actions/stand";
 import { poseBones } from "../posture/poseBones";
 import { stuntFallPose } from "../reaction/stuntFallPose";
+import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { ropeLine } from "./ropeLine";
 
 /** How far the landing may lie from the nearest reachable touchdown, metres (provisional: within a step). */
@@ -203,6 +204,8 @@ export function ropeSwing(
     limbs: {},
   };
 
+  // The hanging arms' solved angles, once the hang has been read.
+  let hangArms: IAutoMovieMotionHumanPosture["joints"] | undefined;
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds: number,
   ): IAutoMovieMotionHumanPosture => {
@@ -244,8 +247,14 @@ export function ropeSwing(
       hand,
       Vector3.scale(u, -measure.upperArm),
     );
+    // The hands keep one place on the body through the whole hang, so the
+    // arms are solved once, at the first hanging read, and carried as joint
+    // angles after: a fresh goal at every read would re-run the arm fit.
+    const shaped: IAutoMovieMotionHumanPosture = shape(hips, toward, hangJoints);
+    if (hangArms !== undefined)
+      return blendIn(t, { ...shaped, joints: { ...shaped.joints, ...hangArms } });
     const hung: IAutoMovieMotionHumanPosture = {
-      ...shape(hips, toward, hangJoints),
+      ...shaped,
       limbs: {
         leftArm: {
           point: Vector3.add(
@@ -263,15 +272,24 @@ export function ropeSwing(
         },
       },
     };
-    // Off the take-off, the body swings onto the rope over `STEP_OFF`.
-    return t >= STEP_OFF
-      ? hung
-      : stuntFallPose.blend(
-          entered,
-          { ...hung, limbs: {} },
-          minimumJerk.share(t / STEP_OFF),
-        );
+    const solved: IAutoMovieMotionHumanPosture["joints"] =
+      GymnasticsFlight.frozen(body, hung).joints;
+    hangArms = {};
+    for (const bone of Object.keys(solved) as (keyof IAutoMovieMotionHumanPosture["joints"])[])
+      if (/(UpperArm|LowerArm|Hand|Shoulder)$/.test(bone)) hangArms[bone] = solved[bone];
+    return blendIn(t, { ...shaped, joints: { ...shaped.joints, ...hangArms } });
   };
+  // Off the take-off, the body swings onto the rope over `STEP_OFF`.
+  const blendIn: (
+    t: number,
+    hung: IAutoMovieMotionHumanPosture,
+  ) => IAutoMovieMotionHumanPosture = (
+    t: number,
+    hung: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture =>
+    t >= STEP_OFF
+      ? hung
+      : stuntFallPose.blend(entered, hung, minimumJerk.share(t / STEP_OFF));
   return {
     duration,
     events: [
