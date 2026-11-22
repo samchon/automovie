@@ -6,13 +6,13 @@ import type {
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
+import { HumanArmTrajectoryMaterialSweep } from "./HumanArmTrajectoryMaterialSweep";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
-import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
-import { HumanArmTrajectoryMaterialSweep } from "./HumanArmTrajectoryMaterialSweep";
 import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
+import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 
 /**
  * The objective and the constraints' violations of an arms' trajectory at an
@@ -31,7 +31,7 @@ import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
  * @param c The context.
  * @param x Each arm's coordinates at each waypoint.
  * @param kept An earlier reading of the same context and the waypoints whose coordinates changed since it (`laid[k]` true), every other waypoint's coordinates being those that reading read; absent, every waypoint is read.
- * @param contact The waypoints whose clearance pairs (the probes' deepest, the body's corners embedded, the two arms' crossings) are read, `contact[k]` true: an optimiser's rounds read them at its knots, the sweeps between consecutive waypoints keeping the continuous check, and the converged path is read whole; absent, every waypoint's are read.
+ * @param contact The waypoints whose clearance pairs (the probes' deepest, the body's corners embedded, the two arms' crossings) are read, `contact[k]` true: an optimiser's rounds read them at its knots, the sweeps between consecutive waypoints keeping the continuous check, and the converged path is read whole; absent, every waypoint's are read. The arms' collider probes, which only these pairs read, are placed only at the waypoints read, so a reading with `contact` serves its optimiser's rounds and no verdict: verdicts read a whole reading, whose placements are all complete.
  * @returns The arms placed, the objective, the summed violation and the worst one past its slack, with the pairs, sweeps and crossings the reading found and the waypoints that take part in a violation past the tolerance.
  */
 export function HumanArmTrajectoryEvaluate(
@@ -49,8 +49,12 @@ export function HumanArmTrajectoryEvaluate(
   // A material encounter also depends on the neighbours defining the two
   // Hermite tangents. The ordinary swept spheres only depend on the ends.
   const sameInterval = (a: number, k: number): boolean =>
-    same(k) && same(k + 1) &&
+    same(k) &&
+    same(k + 1) &&
     ((c.material?.parts[a] ?? -1) < 0 || (same(k - 1) && same(k + 2)));
+  // The collider probes are read by the clearance pairs alone, so they are
+  // placed only where the pairs are read; the speed, path and sweep terms
+  // read the axis probes and a site the chain, which every waypoint places.
   const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[][] = x.map(
     (
       arm: readonly (readonly number[])[],
@@ -61,9 +65,9 @@ export function HumanArmTrajectoryEvaluate(
           v: readonly number[],
           k: number,
         ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
-          same(k)
+          same(k) && surfaced(kept!.reading.placed[a]![k]!, reads(k))
             ? kept!.reading.placed[a]![k]!
-            : G.placed(c.setups[a]!, c.frames[a]![k]!, v),
+            : G.placed(c.setups[a]!, c.frames[a]![k]!, v, reads(k)),
       ),
   );
   let objective: number = 0;
@@ -109,7 +113,11 @@ export function HumanArmTrajectoryEvaluate(
     violation += v;
     // What else bears at this waypoint, read when a site is missed there:
     // the term that keeps the hand off its site.
-    if (term !== "site" && term !== "limit" && v - slack > (bearing.get(here)?.value ?? -Infinity))
+    if (
+      term !== "site" &&
+      term !== "limit" &&
+      v - slack > (bearing.get(here)?.value ?? -Infinity)
+    )
       bearing.set(here, { value: v - slack, what });
     if (v - slack > M.TOLERANCE) {
       failing[here] = true;
@@ -301,15 +309,27 @@ export function HumanArmTrajectoryEvaluate(
     if (!c.still && (c.material?.parts[a] ?? -1) >= 0) {
       for (let k: number = 0; k + 1 < n; ++k) {
         if (sameInterval(a, k)) continue;
-        const material: HumanArmTrajectorySweep.ISwept[] = HumanArmTrajectoryMaterialSweep(
-          c, a, k, placed[a]![k]!, placed[a]![k + 1]!, pairs[a]!, x[a]!,
-        );
+        const material: HumanArmTrajectorySweep.ISwept[] =
+          HumanArmTrajectoryMaterialSweep(
+            c,
+            a,
+            k,
+            placed[a]![k]!,
+            placed[a]![k + 1]!,
+            pairs[a]!,
+            x[a]!,
+          );
         here = k;
         interval = true;
         for (const sweep of material) {
           swept[a]![k]!.push(sweep);
           const short: number = 1000 * (sweep.lower - sweep.clear);
-          note(short, "swept", () => `${nameArmTrajectoryPair(c, a, k, sweep.probe, sweep.shape)} swept ${short.toFixed(1)} mm deep after ${times[k]!.toFixed(3)} s`);
+          note(
+            short,
+            "swept",
+            () =>
+              `${nameArmTrajectoryPair(c, a, k, sweep.probe, sweep.shape)} swept ${short.toFixed(1)} mm deep after ${times[k]!.toFixed(3)} s`,
+          );
         }
       }
       interval = false;
@@ -353,6 +373,14 @@ export function HumanArmTrajectoryEvaluate(
     crossing,
     failing,
   };
+}
+
+/** Whether an earlier placement serves a reading: it holds the collider probes where the reading reads pairs. */
+function surfaced(
+  placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
+  pairs: boolean,
+): boolean {
+  return !pairs || placed.probes.length > G.SURFACE;
 }
 
 /** The strongest reading other than a site's at one waypoint: its excess, millimetres or coordinate units, and its words. */

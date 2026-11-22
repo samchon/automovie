@@ -56,7 +56,9 @@ export namespace HumanArmTrajectorySweep {
    * An arm's sweeps over one interval: every axis sphere against every
    * shape whose bounding sphere lies within the pairs' reach of the sphere
    * at the interval's first waypoint. A sphere that moves less than its own
-   * radius relative to a shape sweeps nothing against it and is left out.
+   * radius relative to a shape sweeps nothing against it and is left out, as
+   * is a sweep the shape's bounding sphere shows clear of its allowance by
+   * more than `T.CHECK`, which no reader uses.
    *
    * @param c The context.
    * @param a The arm.
@@ -68,8 +70,8 @@ export namespace HumanArmTrajectorySweep {
    * @evidence contracts/development/common.md#meaningful-documentation States what is read, what is left out and the order.
    * @evidence contracts/development/implementation.md#principled-implementation A sphere moving on a segment sweeps a capsule; its signed distance to a convex shape is the segment's distance less the radius (`physicalShapeSegmentDistance`), read relative to the shape's own motion as continuous collision detection against a moving obstacle is.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the eight spheres and the shapes near each.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reach, the allowances and the radius are the model's own, unchanged; the exact segment distance decides, the bounding spheres only screen.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Eight sphere screens over the waypoint's reachable shapes and one segment distance per near shape.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reach, the allowances and the radius are the model's own, unchanged; the exact segment distance decides every sweep any reader can use. The screen uses the shape's declared bounding-sphere radius, never an estimate: the shape lies in that sphere, so the segment's distance to its centre less its radius and the probe's is a true lower bound on the clearance, and a sweep skipped by it is clear of its allowance by more than `T.CHECK`, past both the merit (which counts only a sweep past its allowance) and the convex rows (which read only one within `T.CHECK`).
+   * @evidence contracts/development/implementation.md#efficient-algorithms Eight sphere screens over the waypoint's reachable shapes; a closed-form segment-to-centre bound per near shape (TrajOpt's d_check, Schulman et al. 2014, section IV); one exact segment distance only where that bound falls within the check distance.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The reading is kept on the iterate's evaluation, so the convex model of the same iterate reads these records instead of the geometry again.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and retains nothing.
    */
@@ -92,7 +94,8 @@ export namespace HumanArmTrajectorySweep {
         c.reachable[a]![k]!,
       )) {
         // The hand's spheres on what the hand rests on are the goal's contact.
-        if (probe >= G.WRIST && frame.resting.has(frame.shapes[shape]!.part)) continue;
+        if (probe >= G.WRIST && frame.resting.has(frame.shapes[shape]!.part))
+          continue;
         // The probe's motion relative to the shape, which may move too.
         const moved: {
           point: IAutoMovieVector3;
@@ -103,6 +106,13 @@ export namespace HumanArmTrajectorySweep {
           c.allowed(a, k, probe, shape),
           c.allowed(a, k + 1, probe, shape),
         );
+        // A sweep its shape's bounding sphere shows clear of its allowance by
+        // more than the active set's check distance has no reader: the merit
+        // counts only a sweep past its allowance and the convex model only one
+        // within `T.CHECK` of it (TrajOpt's d_check, Schulman et al. 2014,
+        // section IV), so its exact distance is not read.
+        if (beyondCheck(frame.shapes[shape]!, pa, moved.point, r, lower))
+          continue;
         out.push({
           probe,
           shape,
@@ -115,4 +125,44 @@ export namespace HumanArmTrajectorySweep {
     }
     return out;
   }
+}
+
+/**
+ * Whether a swept sphere clears its allowance by more than the check
+ * distance on its shape's declared bounding sphere alone: the shape lies in
+ * that sphere, so each point's signed distance to the shape is at least its
+ * distance to the sphere's centre less the sphere's radius, and the
+ * segment's signed distance, the least over its points
+ * (`physicalShapeSegmentDistance`), is at least the segment's distance to
+ * the centre less that radius. That bound less the probe's radius is a true
+ * lower bound on the sweep's clearance.
+ */
+function beyondCheck(
+  shape: IAutoMovieMotionHumanArmGeometry.IShape,
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+  radius: number,
+  lower: number,
+): boolean {
+  const bound: number =
+    segmentDistance(from, to, shape.centre) - shape.radius - radius;
+  return 1000 * (bound - lower) > T.CHECK;
+}
+
+/** A point's distance to a segment, metres: to the segment's point nearest it, in closed form. */
+function segmentDistance(
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  p: IAutoMovieVector3,
+): number {
+  const span: IAutoMovieVector3 = Vector3.subtract(b, a);
+  const length: number = Vector3.dot(span, span);
+  const u: number =
+    length > 0
+      ? Math.min(
+          1,
+          Math.max(0, Vector3.dot(Vector3.subtract(p, a), span) / length),
+        )
+      : 0;
+  return Vector3.distance(p, Vector3.add(a, Vector3.scale(span, u)));
 }

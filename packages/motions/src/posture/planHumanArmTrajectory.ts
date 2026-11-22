@@ -416,8 +416,12 @@ export function planHumanArmTrajectory(
 
   // An earlier plan's solution of this action is tried first: on its own
   // knots as it stands, returned where the model admits it at them and on
-  // the frame grid, and continued from at its penalty where not.
+  // the frame grid, and continued from at its penalty where not. It is the
+  // earlier plan's own solve of this action from its course, continued, so
+  // where it ends unadmitted the course is not solved cold again: the
+  // planner's seed, the other initialisation, follows (`warmed`).
   let solved: Solved | undefined;
+  let warmed: boolean = false;
   if (warm !== undefined && warm.x.length === initial.arms.length) {
     knots = snap(warm.times);
     problem = reading(seconds(knots));
@@ -446,12 +450,17 @@ export function planHumanArmTrajectory(
     solved = met(kept) ? kept : optimised(seed, warm.penalty);
     if (!met(solved)) {
       solved = undefined;
+      warmed = true;
       knots = snapped;
       problem = initial;
       context = contextOf(problem, fine);
     }
   }
-  if (solved === undefined && course?.read.evaluation !== undefined) {
+  if (
+    solved === undefined &&
+    !warmed &&
+    course?.read.evaluation !== undefined
+  ) {
     const repaired: HumanArmTrajectory.ISolved | undefined = repair(
       course,
       course.read.evaluation,
@@ -460,7 +469,7 @@ export function planHumanArmTrajectory(
   }
   if (solved === undefined) {
     const laid: number[][][] | undefined =
-      course === undefined
+      course === undefined || warmed
         ? undefined
         : Pace.coursed(context, course.trajectories);
 
@@ -475,7 +484,11 @@ export function planHumanArmTrajectory(
     solved = optimised(laid ?? HumanArmSeed.seed(problem, context));
     // A stretch cut from a course is solved from that course alone: its
     // refusal leaves the whole span to the optimiser.
-    if (course?.read.evaluation !== undefined && !met(solved)) {
+    if (
+      laid !== undefined &&
+      course?.read.evaluation !== undefined &&
+      !met(solved)
+    ) {
       knots = snapped;
       problem = initial;
       context = contextOf(problem, fine);
