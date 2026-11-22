@@ -31,7 +31,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
+import { touchPrimitive } from "../compose/touchPrimitive";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
@@ -385,7 +385,7 @@ export namespace highFive {
                   ),
               },
         clock,
-        primitives: AutoMovieMotionHumanTouch.touch({
+        primitives: touchPrimitive({
           body,
           clock,
           side,

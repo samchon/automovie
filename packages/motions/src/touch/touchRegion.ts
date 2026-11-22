@@ -13,7 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
+import { touchRegionFrame } from "../compose/touchRegionFrame";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -132,7 +132,7 @@ export namespace touchRegion {
       ): IAutoMovieMotionHumanTouchSite.IFrame => {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
           requested === undefined ? undefined : prepareHumanPoseResolution(source);
-        const frame: IAutoMovieMotionHumanTouchSite.IFrame = AutoMovieMotionHumanTouch.region(
+        const frame: IAutoMovieMotionHumanTouchSite.IFrame = touchRegionFrame(
           context,
           aimed,
           context.start + seconds,

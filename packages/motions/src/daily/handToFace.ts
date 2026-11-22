@@ -34,7 +34,7 @@ import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
+import { touchPrimitive } from "../compose/touchPrimitive";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanVariationDraw } from "../compose/AutoMovieMotionHumanVariationDraw";
@@ -464,7 +464,7 @@ export namespace handToFace {
               },
             }),
       };
-      primitives.push(...AutoMovieMotionHumanTouch.touch(stroke));
+      primitives.push(...touchPrimitive(stroke));
     }
     const base: ReturnType<typeof AutoMovieMotionHumanBase.under> =
       AutoMovieMotionHumanBase.under(context, clock.duration);

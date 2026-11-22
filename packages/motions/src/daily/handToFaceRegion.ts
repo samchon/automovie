@@ -8,7 +8,7 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
+import { touchRegionFrame } from "../compose/touchRegionFrame";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handToFaceSheet } from "./handToFaceSheet";
@@ -63,7 +63,7 @@ export function handToFaceRegion(
     ): Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> => {
       if (name === null) return handToFaceSheet.of(context, posture, side);
       const place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> =
-        AutoMovieMotionHumanTouch.region(
+        touchRegionFrame(
           context,
           { kind: "self", region: name } satisfies IAutoMovieMotionTarget,
           context.start + seconds,

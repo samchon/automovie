@@ -31,7 +31,7 @@ import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanA
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
+import { touchPrimitive } from "../compose/touchPrimitive";
 import { AutoMovieMotionHumanTouchContacts } from "../compose/AutoMovieMotionHumanTouchContacts";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
@@ -518,7 +518,7 @@ export namespace touch {
           p.elbow,
         );
       primitives.push(
-        ...AutoMovieMotionHumanTouch.touch({
+        ...touchPrimitive({
           body,
           clock,
           side,
