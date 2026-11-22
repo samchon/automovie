@@ -37,6 +37,9 @@ elax may lower for a swinging limb. */
     /** A fore limb's shoulder blade, whose turn within range may carry the attachment toward the goal and so raise the upper bound. */
     scapula?: QuadrupedScapula.IJoint;
 
+    /** A limb whose hoof is in the air: it bears no load, so it never holds the root down; its hoof follows where the supporting limbs put the root (`QuadrupedRidePose`). Its folded limb still cannot pass through itself, so its lower bound stays. */
+    free?: true;
+
     /** A hind limb's hip on the pelvis (`QuadrupedPelvis`), whose turn within the pelvis's range may carry the attachment toward the goal and so raise the upper bound. */
     pelvis?: QuadrupedScapula.IJoint;
   }
@@ -57,7 +60,7 @@ elax may lower for a swinging limb. */
   }
 
   /**
-   * Intersect actual four-limb reach with one whole-body floor requirement.
+   * Intersect the supporting limbs' actual reach with one whole-body floor requirement; a limb in the air (`free`) sets no upper bound.
    *
    * The proximal joint stays above its terminal target. For horizontal offset q
    * and radial interval [r,R], its vertical drop is exactly
@@ -185,12 +188,19 @@ elax may lower for a swinging limb. */
     for (const limb of QuadrupedBody.LIMBS) {
       const [low, high] = limbBounds(limb, constraints?.[limb]);
       if (low > bound.minimum) [bound.minimum, bound.lowest] = [low, limb];
+      // A hoof in the air bears no load, so it never holds the trunk down.
+      if (constraints?.[limb]?.free === true) continue;
       if (high < bound.maximum) [bound.maximum, bound.highest] = [high, limb];
     }
     // Both hips ride one pelvis: the hinds bound the root jointly.
     const left: IConstraint | undefined = constraints?.leftHind;
     const right: IConstraint | undefined = constraints?.rightHind;
-    if (left?.pelvis !== undefined && right?.pelvis !== undefined) {
+    if (
+      left?.pelvis !== undefined &&
+      right?.pelvis !== undefined &&
+      left.free !== true &&
+      right.free !== true
+    ) {
       const shared: number = QuadrupedPelvis.high([
         { joint: left.pelvis, goal: left.goal, reach: left.reach },
         { joint: right.pelvis, goal: right.goal, reach: right.reach },

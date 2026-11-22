@@ -237,8 +237,14 @@ export namespace QuadrupedRidePose {
       }
       /** Solve the shared-root limbs and prove their actual canonical FK. */
       const geometry = (): ReturnType<typeof pose.position> => {
+        // With every hoof in the air no limb bounds the trunk from above; it keeps its preferred height above the floor.
         const height: number = chooseQuadrupedBodyRoot(
-          range,
+          Number.isFinite(range.maximum)
+            ? range
+            : {
+                minimum: range.minimum,
+                maximum: Math.max(range.minimum, preferredRoot),
+              },
           preferredRoot,
           coordinateScale,
         );
@@ -253,7 +259,10 @@ export namespace QuadrupedRidePose {
           new Map(axial);
         // Both hips ride one pelvis, turned as far as the hind needing it most requires.
         const pelvis: number = QuadrupedPelvis.turn(
-          HINDS.map((limb: QuadrupedBody.Limb): QuadrupedPelvis.IHip => {
+          HINDS.filter(
+            (limb: QuadrupedBody.Limb): boolean =>
+              targets.get(limb)!.constraint.free !== true,
+          ).map((limb: QuadrupedBody.Limb): QuadrupedPelvis.IHip => {
             const constraint: QuadrupedRootRange.IConstraint =
               targets.get(limb)!.constraint;
             return {
@@ -275,11 +284,17 @@ export namespace QuadrupedRidePose {
             hip === undefined
               ? shoulder(target, height, turned)
               : QuadrupedScapula.glenoid(hip, pelvis);
+          const from: IAutoMovieVector3 = {
+            ...attachment,
+            y: attachment.y + height,
+          };
           solved.set(
             limb,
             target.solver.solve(
-              { ...attachment, y: attachment.y + height },
-              target.endpoint,
+              from,
+              target.constraint.free === true
+                ? reachable(target, from)
+                : target.endpoint,
               target.fold,
             ),
           );
@@ -357,6 +372,22 @@ export namespace QuadrupedRidePose {
         return QuadrupedScapula.glenoid(joint, angle);
       }
 
+      /** A hoof in the air brought within its limb's longest reach of the attachment the supporting limbs placed, along the line from the attachment: the limb leads and the hoof follows. */
+      function reachable(
+        target: Target,
+        from: IAutoMovieVector3,
+      ): IAutoMovieVector3 {
+        const goal: IAutoMovieVector3 = target.solver.target(target.endpoint);
+        const offset: IAutoMovieVector3 = Vector3.subtract(goal, from);
+        const distance: number = Vector3.length(offset);
+        const band: QuadrupedLimb.IRange = target.solver.range(target.fold);
+        const margin: number = 256 * Number.EPSILON * coordinateScale;
+        const held: number = Math.min(band.maximum - margin, distance);
+        return held === distance || !(distance > 0)
+          ? target.endpoint
+          : Vector3.addScaled(target.endpoint, offset, held / distance - 1);
+      }
+
       /** An axial bar's goal turned by an angle about model X from its previewed direction. */
       function bar(
         bone: QuadrupedPosePlan.Axial,
@@ -420,6 +451,7 @@ export namespace QuadrupedRidePose {
             ? QuadrupedScapula.BONES[limb]
             : undefined;
         const result: QuadrupedRootRange.IConstraint = {
+          ...(goal.lift > 0 ? { free: true as const } : {}),
           attachment,
           goal: support.solver.target(endpoint),
           reach: support.solver.range(goal.fold),

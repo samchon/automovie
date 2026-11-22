@@ -16,6 +16,7 @@ import { QuadrupedMotion } from "./QuadrupedMotion";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
+import { QuadrupedSwingChord } from "./QuadrupedSwingChord";
 
 /**
  * One hoof's anchored position and orientation through a turn or grounded departure.
@@ -380,16 +381,26 @@ export namespace QuadrupedHoofTrack {
           -Math.abs(support.travel) / 2,
           Math.min(Math.abs(support.travel) / 2, (under ?? rest.z) - rest.z),
         );
+      if (to === undefined)
+        return {
+          z:
+            centre(from) +
+            from.travel / 2 -
+            (state.progress - from.landed.progress),
+        };
+      // The swing's path in the body frame and on the ground, blended as `QuadrupedSwingChord` blends a world-anchored swing.
+      const lifting: number =
+        from.landed.progress + centre(from) + from.travel / 2;
+      const landing: number = to.landed.progress + centre(to) + to.travel / 2;
       return {
-        z:
-          to === undefined
-            ? centre(from) +
-              from.travel / 2 -
-              (state.progress - from.landed.progress)
-            : centre(from) -
-              from.travel / 2 +
-              (centre(to) + to.travel / 2 - centre(from) + from.travel / 2) *
-                amount,
+        z: QuadrupedSwingChord.blend(
+          lifting + (landing - lifting) * amount - state.progress,
+          centre(from) -
+            from.travel / 2 +
+            (centre(to) + to.travel / 2 - centre(from) + from.travel / 2) *
+              amount,
+          amount,
+        ),
       };
     }
     const placed = (stance: IStance): IAutoMovieVector3 => {
@@ -415,10 +426,18 @@ export namespace QuadrupedHoofTrack {
     const arrival: IAutoMovieVector3 | undefined =
       nextFoot === undefined ? undefined : (nextGround?.point ?? nextFoot);
 
+    // A swing runs between its footholds on the ground at its ends and under the body mid-swing (`QuadrupedSwingChord`).
     const chord: IAutoMovieVector3 =
       arrival === undefined
         ? beginning
-        : Vector3.lerp(beginning, arrival, amount);
+        : QuadrupedSwingChord.carried(
+            state.placement,
+            beginning,
+            QuadrupedSwingChord.release(from),
+            arrival,
+            to!.landed.placement,
+            amount,
+          );
     // A swinging hoof rises above the ground beneath it, not only above the chord between its footholds, which passes under a crest between them.
     const beneath: QuadrupedFooting.ILanding | undefined =
       arrival === undefined || footing === undefined

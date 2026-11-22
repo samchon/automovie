@@ -19,7 +19,7 @@ import type { rideQuadruped } from "./rideQuadruped";
  * - a lame hindlimb shows as the pelvis dropping less during that limb's stance (PDmin), with the withers moving 0.55 mm toward the contralateral side per mm of PDmin;
  * - a compensatory head nod can mimic an ipsilateral forelimb lameness.
  *
- * A forelimb case nods the head up about the neck's root, peaking at the lame fore's mid-stance. A hindlimb case pitches the trunk nose-down during the lame hind's stance about the lateral axis that gives that withers-to-pelvis ratio of −0.55. The grade's rows are in `head` and `pelvis`. Its stance timing is left as the gait's: Rhodin et al. report no stance-duration change.
+ * A forelimb case nods the head up about the neck's root, peaking at the lame fore's mid-stance. A hindlimb case pitches the trunk nose-down during the lame hind's stance about the lateral axis that gives that withers-to-pelvis ratio of −0.55. That pitch lowers the head too, by its lever ahead of the axis; the head asymmetry the literature measures is the head's whole vertical movement (a poll sensor), so a compensatory nod supplies only the measured head asymmetry less that passive part. The grade's rows are in `head` and `pelvis`. Its stance timing is left as the gait's: Rhodin et al. report no stance-duration change.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the source, its three findings, the mechanism and what stays unchanged.
  * @evidence contracts/development/design.md#principled-representation A limb, a closed grade and an optional compensation flag; rows are millimetres of the cited asymmetry measures.
@@ -132,7 +132,7 @@ export namespace QuadrupedLameness {
    * @throws {ArchetypeRefusal} For a gait other than walk or trot, an unknown grade or a malformed record.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The nod angle δ raises the head's centre by its asymmetry: δ = asin((A + y)/R) − atan2(y, z) for the centre at (y, z) from the neck's root, R its distance. The hind tilt turns about the pivot z_c = (z_w + 0.55 z_p)/1.55 between the withers (the shoulder joints) and the pelvis (the hindquarters' centre), by the angle that lifts the pelvis by its asymmetry. Both follow sin² of the stance share, peaking at mid-stance.
+   * @evidence contracts/development/implementation.md#principled-implementation The nod angle δ raises the head's centre by its asymmetry: δ = asin((A + y)/R) − atan2(y, z) for the centre at (y, z) from the neck's root, R its distance. The hind tilt turns about the pivot z_c = (z_w + 0.55 z_p)/1.55 between the withers (the shoulder joints) and the pelvis (the hindquarters' centre), by the angle that lifts the pelvis by its asymmetry; it lowers the head's centre (y, z) by (z − z_c) sin θ − y (cos θ − 1), which a compensatory nod's asymmetry is reduced by. Both follow sin² of the stance share, peaking at mid-stance.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, measure the neutral geometry once, then return the reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No speed or gait the source did not cover is admitted.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per sample.
@@ -171,16 +171,21 @@ export namespace QuadrupedLameness {
       : lameness.compensation === true
         ? (`${side}Fore` as QuadrupedBody.Limb)
         : undefined;
-    const nodAngle: number =
-      nodder === undefined
-        ? 0
-        : raise(parts, head(fore ? lameness.grade : "subtle"));
     const withers: number = (limbs.leftFore[0]!.z + limbs.rightFore[0]!.z) / 2;
     const rear: IAutoMovieVector3 = centre(parts, "hindquarters");
     const pivot: number = (withers + 0.55 * rear.z) / 1.55;
     const tiltAngle: number = fore
       ? 0
       : Math.asin(pelvis(lameness.grade) / (pivot - rear.z));
+    // The hind's pitch already lowers the head during the lame hind's stance, the ipsilateral fore's half-stride away; a compensatory nod adds only what the measured head asymmetry wants beyond it.
+    const skull: IAutoMovieVector3 = centre(parts, "head");
+    const passive: number =
+      (skull.z - pivot) * Math.sin(tiltAngle) -
+      skull.y * (Math.cos(tiltAngle) - 1);
+    const nodAngle: number =
+      nodder === undefined
+        ? 0
+        : raise(parts, fore ? head(lameness.grade) : head("subtle") - passive);
     return (
       strides: QuadrupedStridePlan.IPlan,
       phase: number,
