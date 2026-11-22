@@ -28,6 +28,9 @@ import { assertTakeClean } from "../internal/assertTakeClean";
 import { equineLeadOut } from "../internal/equineLeadOut";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
+/** The gaits these takes ride, each with its speed: walk, trot and canter; the gallop is not ridden here. */
+type Ridden = Exclude<IAutoMovieMotionHumanRide.EquestrianGait, "gallop">;
+
 /** The horse producer's model. */
 type Horse = ReturnType<typeof createHorse>;
 
@@ -35,11 +38,7 @@ type Horse = ReturnType<typeof createHorse>;
 type Ride = ReturnType<typeof rideHorse>;
 
 /** The gaits the sweep's bodies ride in turn. */
-const GAITS: readonly IAutoMovieMotionHumanRide.EquestrianGait[] = [
-  "walk",
-  "trot",
-  "canter",
-];
+const GAITS: readonly Ridden[] = ["walk", "trot", "canter"];
 
 /** Seconds the mounted ride waits before the horse sets off. */
 const MOUNT_WAIT: number = 6;
@@ -68,8 +67,7 @@ export function test_motion_equestrian_lifecycle(): void {
   // rides one gait in turn, so every body and every gait are ridden.
   motionHumanBody.SWEEP.forEach(
     (name: motionHumanBody.Name, index: number): void => {
-      const gait: IAutoMovieMotionHumanRide.EquestrianGait =
-        GAITS[index % GAITS.length]!;
+      const gait: Ridden = GAITS[index % GAITS.length]!;
       try {
         verify(build(motionHumanBody(name), gait));
       } catch (failure) {
@@ -134,7 +132,7 @@ interface ICarrierTrack {
 /** Rehearse the handler's walk, then lay the led horse's course so its progress follows the walker's. */
 function build(
   body: IAutoMovieMotionHumanBody,
-  gait: IAutoMovieMotionHumanRide.EquestrianGait,
+  gait: Ridden,
   staged?: equineLeadOut.IStanding,
 ): Take {
   const horse: Horse = createHorse(

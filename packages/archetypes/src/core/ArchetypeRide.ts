@@ -172,7 +172,7 @@ export namespace ArchetypeRide {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `at` and `ArchetypeFrame.compose`.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the ride's own closure.
      */
-    frame: (id: Id, seconds: number) => IAutoMovieTransform;
+    frame(id: Id, seconds: number): IAutoMovieTransform;
   }
 
   /**

@@ -31,6 +31,9 @@ type Ride = ReturnType<typeof rideHorse>;
 const WAIT: number = 6;
 const CONTACT: number = 0.01;
 
+/** The gaits these takes ride, each with its speed: walk, trot and canter; the gallop is not ridden here. */
+type Ridden = Exclude<IAutoMovieMotionHumanRide.EquestrianGait, "gallop">;
+
 /**
  * The physical rider remains on the emitted horse equipment across 200 seeds.
  *
@@ -163,7 +166,7 @@ interface Take {
 function mounted(
   horse: Horse,
   body: IAutoMovieMotionHumanBody,
-  gait: IAutoMovieMotionHumanRide.EquestrianGait,
+  gait: Ridden,
   rising: boolean = false,
 ): Take {
   const scale: number = Math.sqrt(horse.dimensions.withersHeight! / 1.38);
