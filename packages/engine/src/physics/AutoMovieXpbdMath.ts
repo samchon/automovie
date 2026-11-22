@@ -48,9 +48,9 @@ export namespace AutoMovieXpbdMath {
     arm?: IAutoMovieVector3,
   ): number {
     if (body === null || !body.dynamic) return 0;
-    if (arm === undefined) return Vector3.dot(n, body.inverseInertia(n));
+    if (arm === undefined) return Vector3.dot(n, body.frozenInverseInertia(n));
     const rn: IAutoMovieVector3 = Vector3.cross(arm, n);
-    return body.inverseMass() + Vector3.dot(rn, body.inverseInertia(rn));
+    return body.inverseMass() + Vector3.dot(rn, body.frozenInverseInertia(rn));
   }
 
   /**
@@ -187,7 +187,7 @@ export namespace AutoMovieXpbdMath {
       if (body !== null && body.dynamic)
         body.angularVelocity = Vector3.add(
           body.angularVelocity,
-          Vector3.scale(body.inverseInertia(p), sign),
+          Vector3.scale(body.frozenInverseInertia(p), sign),
         );
   }
 
@@ -253,17 +253,14 @@ export namespace AutoMovieXpbdMath {
     const k: number[] = add(angularMatrix(first), angularMatrix(second));
     const p: IAutoMovieVector3 | null = solve(k, theta);
     if (p === null) return;
-    turn(first, first.inverseInertia(p), 1);
-    if (second !== null) turn(second, second.inverseInertia(p), -1);
+    turn(first, first.frozenInverseInertia(p), 1);
+    if (second !== null) turn(second, second.frozenInverseInertia(p), -1);
   }
 
   /** A body's world inverse inertia as a row-major 3x3 matrix; zero for the world or a kinematic body. */
   function angularMatrix(body: AutoMovieXpbdBody | null): number[] {
     if (body === null || !body.dynamic) return [0, 0, 0, 0, 0, 0, 0, 0, 0];
-    const x: IAutoMovieVector3 = body.inverseInertia({ x: 1, y: 0, z: 0 });
-    const y: IAutoMovieVector3 = body.inverseInertia({ x: 0, y: 1, z: 0 });
-    const z: IAutoMovieVector3 = body.inverseInertia({ x: 0, y: 0, z: 1 });
-    return [x.x, y.x, z.x, x.y, y.y, z.y, x.z, y.z, z.z];
+    return [...body.frozen];
   }
 
   /** A body's point inverse mass matrix at an arm, `(1/m) E - [r]x I^-1 [r]x`. */
@@ -280,7 +277,7 @@ export namespace AutoMovieXpbdMath {
     ]) {
       const column: IAutoMovieVector3 = Vector3.add(
         Vector3.scale(e, body.inverseMass()),
-        Vector3.cross(body.inverseInertia(Vector3.cross(arm, e)), arm),
+        Vector3.cross(body.frozenInverseInertia(Vector3.cross(arm, e)), arm),
       );
       result.push(column.x, column.y, column.z);
     }
@@ -348,7 +345,7 @@ export namespace AutoMovieXpbdMath {
       body.center,
       Vector3.scale(p, sign * body.inverseMass()),
     );
-    turn(body, body.inverseInertia(Vector3.cross(arm, p)), sign);
+    turn(body, body.frozenInverseInertia(Vector3.cross(arm, p)), sign);
   }
 
   /** Change a body's velocities by an impulse at an arm. */
@@ -365,7 +362,7 @@ export namespace AutoMovieXpbdMath {
     );
     body.angularVelocity = Vector3.add(
       body.angularVelocity,
-      Vector3.scale(body.inverseInertia(Vector3.cross(arm, p)), sign),
+      Vector3.scale(body.frozenInverseInertia(Vector3.cross(arm, p)), sign),
     );
   }
 

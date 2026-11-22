@@ -10,6 +10,7 @@ import { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
 import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
+import type { solveXpbdContacts } from "./solveXpbdContacts";
 
 /**
  * The complete state of an extended position-based dynamics world
@@ -49,6 +50,9 @@ export namespace AutoMovieXpbdSnapshot {
 
     /** Every joint's bodies, profile joint and motors. */
     joints: IJointState[];
+
+    /** The last step's contacts, which controllers read before the next step. */
+    contacts: IContactState[];
   }
 
   /**
@@ -115,6 +119,25 @@ export namespace AutoMovieXpbdSnapshot {
 
     /** Motors by axis. */
     motors: [string, AutoMovieXpbdJoint.IMotor][];
+  }
+
+  /**
+   * One contact of the last step in a snapshot.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the pair handles and the contact's recorded fields.
+   * @evidence contracts/development/design.md#principled-representation Collider handles in place of colliders; every other field as the contact holds it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read by this namespace.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact is copied whole, so a restored world reports the same last step.
+   */
+  export interface IContactState extends Omit<
+    solveXpbdContacts.IContact,
+    "a" | "b"
+  > {
+    /** The first collider's handle. */
+    a: number;
+
+    /** The second collider's handle. */
+    b: number;
   }
 
   /**
@@ -198,6 +221,13 @@ export namespace AutoMovieXpbdSnapshot {
           ),
         }),
       ),
+      contacts: world.lastContacts().map(
+        (contact: solveXpbdContacts.IContact): IContactState => ({
+          ...structuredClone({ ...contact, a: undefined, b: undefined }),
+          a: contact.a.handle,
+          b: contact.b.handle,
+        }),
+      ),
     };
   }
 
@@ -273,7 +303,63 @@ export namespace AutoMovieXpbdSnapshot {
       for (const [axis, motor] of entry.motors) joint.motors.set(axis, motor);
       world.joints.push(joint);
     }
+    const colliders: Map<number, AutoMovieXpbdCollider> = new Map(
+      world.colliders.map(
+        (collider: AutoMovieXpbdCollider): [number, AutoMovieXpbdCollider] => [
+          collider.handle,
+          collider,
+        ],
+      ),
+    );
+    world.adoptContacts(
+      state.contacts.map(
+        (entry: IContactState): solveXpbdContacts.IContact => ({
+          ...entry,
+          a: colliders.get(entry.a)!,
+          b: colliders.get(entry.b)!,
+        }),
+      ),
+    );
     world.resume(state.settings[5]);
+  }
+
+  /**
+   * The JSON replacer that keeps a negative zero, which JSON writes as
+   * zero: it becomes the marker string, every other value passes through.
+   *
+   * @param _key The property name.
+   * @param value The value.
+   * @returns The value or the marker.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the replacer changes and why.
+   * @evidence contracts/development/implementation.md#principled-implementation JSON.stringify writes -0 as 0, so a bit-for-bit snapshot marks it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One test of the value.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only an exact negative zero is replaced.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per value.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its value.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function replace(_key: string, value: unknown): unknown {
+    return Object.is(value, -0) ? NEGATIVE_ZERO : value;
+  }
+
+  /**
+   * The JSON reviver that restores the negative zero `replace` marked.
+   *
+   * @param _key The property name.
+   * @param value The parsed value.
+   * @returns The value, or negative zero for the marker.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the reviver restores.
+   * @evidence contracts/development/implementation.md#principled-implementation The inverse of replace.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One test of the value.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the exact marker is restored.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per value.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its value.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function revive(_key: string, value: unknown): unknown {
+    return value === NEGATIVE_ZERO ? -0 : value;
   }
 }
 
@@ -286,3 +372,6 @@ function vector(v: IAutoMovieVector3): [number, number, number] {
 function quaternion(q: IAutoMovieQuaternion): [number, number, number, number] {
   return [q.x, q.y, q.z, q.w];
 }
+
+/** The marker a negative zero becomes in snapshot JSON; no shape or joint identity begins with a NUL. */
+const NEGATIVE_ZERO: string = "\u0000-0";

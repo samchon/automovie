@@ -200,7 +200,7 @@ function face(
   );
   const length: number = Vector3.length(n);
   if (!(length > 0)) return null;
-  n = Vector3.scale(n, 1 / length);
+  n = { x: n.x / length, y: n.y / length, z: n.z / length };
   const distance: number = Vector3.dot(n, pa);
   return distance >= 0
     ? { a, b, c, normal: n, distance }

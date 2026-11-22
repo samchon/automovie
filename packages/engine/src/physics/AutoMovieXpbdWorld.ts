@@ -82,12 +82,21 @@ export class AutoMovieXpbdWorld {
   }
 
   /**
-   * Add a body.
+   * Add a body with the next handle, at the end of the creation order. Its
+   * mass properties are zero until `setMass`.
    *
    * @param dynamic Whether forces and corrections move it.
-   * @param pose Its body frame's world pose.
-   * @param gravityScale Multiplier on world gravity.
-   * @returns The body.
+   * @param pose Its body frame's world pose, metres.
+   * @param gravityScale Multiplier on world gravity; 1 by default.
+   * @returns The body, owned by the world.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the handle, order, default gravity scale, unset mass and ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation One handle counter for bodies, colliders and joints keeps handles unique in the world, and creation order is the order every step loop follows.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Constructs the body and appends it; mass properties are the caller's to set.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Amortised constant work: one append.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call creates a distinct body.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The world holds the body for its own lifetime and has no removal; the body population grows by one per call.
    */
   public createBody(
     dynamic: boolean,
@@ -106,14 +115,23 @@ export class AutoMovieXpbdWorld {
   }
 
   /**
-   * Add a collider to a body.
+   * Add a collider to a body with the next handle, at the end of the
+   * creation order.
    *
-   * @param body The body.
-   * @param shape The shape, its transform in the body frame.
+   * @param body The body, one of this world's.
+   * @param shape The shape, its transform in the body frame; held, not copied.
    * @param friction Coulomb friction coefficient.
    * @param restitution Restitution coefficient.
    * @param sensor Whether it only reports overlaps.
-   * @returns The collider.
+   * @returns The collider, owned by the world.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the handle, order, the shape's frame and that it is held, and ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation The shared handle counter keeps handles unique; creation order is the contact detection's pair order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Constructs the collider and appends it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case; the material is stored as given.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Amortised constant work plus the collider's local box, linear in a hull's points.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call creates a distinct collider.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The world holds the collider for its own lifetime and has no removal; the collider population grows by one per call.
    */
   public createCollider(
     body: AutoMovieXpbdBody,
@@ -135,12 +153,21 @@ export class AutoMovieXpbdWorld {
   }
 
   /**
-   * Join two bodies; the joined pair never collides.
+   * Join two bodies with the next handle, at the end of the creation order;
+   * the joined pair never collides.
    *
-   * @param joint The profile's joint.
-   * @param parent The parent body.
-   * @param child The child body.
-   * @returns The joint.
+   * @param joint The profile's joint; held, not copied.
+   * @param parent The parent body, one of this world's.
+   * @param child The child body, one of this world's.
+   * @returns The joint, owned by the world.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the handle, order, the collision exclusion, that the joint record is held, and ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation The shared handle counter keeps handles unique; step reads the joint list to exclude joined pairs from contact detection.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Constructs the joint and appends it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Amortised constant work: one append.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call creates a distinct joint.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The world holds the joint for its own lifetime and has no removal; the joint population grows by one per call.
    */
   public createJoint(
     joint: IAutoMoviePhysicalJoint,
@@ -158,13 +185,31 @@ export class AutoMovieXpbdWorld {
   }
 
   /**
-   * Advance one substep.
+   * Advance one substep of `timestep` seconds: integrate every body and
+   * freeze each dynamic body's inverse inertia, detect contacts at the
+   * predicted poses among pairs neither joined nor filtered out, run
+   * `passes * sweeps` joint and contact position passes (the bodies' largest
+   * extra passes and sweeps added), re-derive the dynamic bodies'
+   * velocities, run as many contact velocity passes and finally the joint
+   * motors. The step keeps the contacts it found for the readers until the
+   * next step.
    *
    * @param filter Whether two colliders may touch; every pair when absent.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the phases in order, the pass count, the pair exclusions and what the step keeps.
+   * @evidence contracts/development/implementation.md#principled-implementation The substep of Mueller et al. 2020, Algorithm 2: predict, solve positions, derive velocities, solve velocities; the inverse inertia is held fixed over the substep's corrections.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Orders the phases; integration and derivation are local helpers, contacts belong to solveXpbdContacts and joints and motors to solveXpbdJoints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every count and coefficient is a world setting or a body's own request; no body, pair or scene has its own rule.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For b bodies, j joints, c colliders and k found contacts, integration is O(b), the joined-pair set O(j), detection is solveXpbdContacts.detect's cost over c colliders, and each of the passes * sweeps position and velocity passes is O(j + k).
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The contacts found at the predicted poses serve every position and velocity pass of the substep and the readers after it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Replaces the retained contact list each step; the joined-pair set and dynamic list are released at return.
    */
   public step(filter?: solveXpbdContacts.Filter): void {
     const h: number = this.timestep;
-    for (const body of this.bodies) this.integrate(body, h);
+    for (const body of this.bodies) {
+      this.integrate(body, h);
+      if (body.dynamic) body.freezeInverseInertia();
+    }
     const joined: Set<string> = new Set(
       this.joints.map((joint: AutoMovieXpbdJoint): string =>
         key(joint.parent, joint.child),
@@ -210,10 +255,21 @@ export class AutoMovieXpbdWorld {
   /**
    * The last step's touching pairs that responded, one manifold each:
    * non-sensor pairs with their normal from the first collider toward the
-   * second and every patch point's world witness midpoint, end-of-step
-   * separation and normal impulse.
+   * second and every patch point's world witness midpoint, its separation
+   * where the step found it and the normal impulse the step transferred
+   * there: the position passes' multiplier over the substep, `lambda / h`,
+   * plus the velocity passes' impulse, which together are the momentum the
+   * contact gave each body.
    *
-   * @returns The manifolds, in pair order.
+   * @returns Fresh manifolds, in pair order; their colliders are the world's.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which pairs are reported, the normal's direction, each point's position, separation and impulse with units, and the order.
+   * @evidence contracts/development/implementation.md#principled-implementation Each point's impulse is the momentum the step's position and velocity passes transferred, so a reader sees the step's real load; the witness midpoint is the two bodies' contact points at their current poses.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass that opens a manifold whenever the pair index changes; detection and solving stay with solveXpbdContacts.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sensor pairs are left to intersections, which the compliant contacts read; no pair has its own rule.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the step's contacts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built on demand from the retained contacts; a caller reading twice gets equal fresh records.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records; retains nothing.
    */
   public manifolds(): AutoMovieXpbdWorld.IManifold[] {
     const result: AutoMovieXpbdWorld.IManifold[] = [];
@@ -252,16 +308,25 @@ export class AutoMovieXpbdWorld {
           ),
           0.5,
         ),
-        separation: contact.separation,
-        impulse: contact.normalLambda / this.timestep,
+        separation: contact.detected,
+        impulse: contact.normalLambda / this.timestep + contact.velocityImpulse,
       });
     }
     return result;
   }
+
   /**
    * The last step's overlaps involving a sensor collider.
    *
-   * @returns Each overlapping pair, in pair order.
+   * @returns Each overlapping pair, in pair order, as fresh records of the world's colliders.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which overlaps are reported and their order.
+   * @evidence contracts/development/implementation.md#principled-implementation A sensor takes part in no response, so its contacts are overlaps that the compliant layers measure themselves.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter and one map over the retained contacts.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the step's contacts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built on demand from the retained contacts.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records; retains nothing.
    */
   public intersections(): AutoMovieXpbdWorld.IIntersection[] {
     return this.found
@@ -280,25 +345,46 @@ export class AutoMovieXpbdWorld {
   }
 
   /**
-   * Copy the world's complete state.
+   * Copy the world's complete state, the last step's contacts included.
    *
-   * @returns Owned bytes: the UTF-8 JSON of every body, collider, joint and setting in creation order.
+   * @returns Owned bytes: the UTF-8 JSON of every body, collider, joint and setting in creation order, negative zeros marked so they survive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the encoding, the contents, the order and the negative-zero marking.
+   * @evidence contracts/development/implementation.md#principled-implementation JSON writes every finite float64 so that parsing returns the same value, and the replacer keeps the one value it loses, negative zero.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The state's layout belongs to AutoMovieXpbdSnapshot.write; this method encodes it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No finite value is rounded or dropped; a non-finite value would become null, which JSON cannot avoid.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the bodies, colliders, joints, hull points and contacts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each snapshot is of a different moment.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns bytes the caller owns; retains nothing.
    */
   public takeSnapshot(): Uint8Array {
     return new TextEncoder().encode(
-      JSON.stringify(AutoMovieXpbdSnapshot.write(this)),
+      JSON.stringify(
+        AutoMovieXpbdSnapshot.write(this),
+        AutoMovieXpbdSnapshot.replace,
+      ),
     );
   }
 
   /**
-   * Rebuild a world from its snapshot, with the same handles in the same order.
+   * Rebuild a world from its snapshot, with the same handles in the same
+   * order, the same last-step contacts and the next handle continued.
    *
-   * @param bytes A snapshot's bytes.
-   * @returns The world.
+   * @param bytes A snapshot's bytes, as `takeSnapshot` wrote them.
+   * @returns A new world.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is restored and the expected input.
+   * @evidence contracts/development/implementation.md#principled-implementation Parses with the reviver that undoes the snapshot's negative-zero marker, then assigns every recorded value back, so the world continues bit for bit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Decodes here; the state's layout belongs to AutoMovieXpbdSnapshot.read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is recomputed; malformed bytes throw from the parser.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the snapshot's size.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each restore builds its own objects.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a world the caller owns; retains nothing.
    */
   public static restoreSnapshot(bytes: Uint8Array): AutoMovieXpbdWorld {
     const state: AutoMovieXpbdSnapshot.IState = JSON.parse(
       new TextDecoder().decode(bytes),
+      AutoMovieXpbdSnapshot.revive,
     );
     const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(state.gravity);
     AutoMovieXpbdSnapshot.read(state, world);
@@ -306,9 +392,52 @@ export class AutoMovieXpbdWorld {
   }
 
   /**
+   * The last step's contacts, sensors included, as the step left them.
+   *
+   * @returns The world's own records, read-only; a snapshot copies them.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is returned, that it is shared and read-only, and its snapshot reader.
+   * @evidence contracts/development/implementation.md#principled-implementation Exposes the retained contacts so the snapshot records the state the next readers would see.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One field read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work; no copy.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the step's own list until the next step replaces it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing new; the list lives until the next step or adoption.
+   */
+  public lastContacts(): readonly solveXpbdContacts.IContact[] {
+    return this.found;
+  }
+
+  /**
+   * Adopt a restored step's contacts as the last step's, which the readers
+   * then report until the next step.
+   *
+   * @param contacts The contacts, their colliders this world's; held, not copied.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the effect, its lifetime and the input's premise and ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation A restored world reports the same last step as the world it was taken from.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One field write; the snapshot rebuilds the records.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A mutation; nothing to share.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the list until the next step replaces it.
+   */
+  public adoptContacts(contacts: solveXpbdContacts.IContact[]): void {
+    this.found = contacts;
+  }
+
+  /**
    * Continue handle numbering after a restore.
    *
-   * @param next The next handle to give.
+   * @param next The next handle to give: one past the largest restored handle.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the effect and the value expected.
+   * @evidence contracts/development/implementation.md#principled-implementation Handles stay unique when numbering continues past every restored handle.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One field write; the snapshot records the value.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A mutation; nothing to share.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one number.
    */
   public resume(next: number): void {
     this.counter = next;
@@ -408,10 +537,10 @@ export namespace AutoMovieXpbdWorld {
     /** World midpoint of the two witnesses, metres. */
     point: IAutoMovieVector3;
 
-    /** Signed distance at the end of the step, metres; negative pressing. */
+    /** Signed distance where the step found the contact, metres; negative pressing. */
     separation: number;
 
-    /** Normal impulse of the step, newton seconds. */
+    /** Normal impulse the step transferred, newton seconds: the position passes' multiplier over the substep plus the velocity passes' impulse. */
     impulse: number;
   }
 

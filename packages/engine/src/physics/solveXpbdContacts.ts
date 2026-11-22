@@ -9,7 +9,6 @@ import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
 import { AutoMovieXpbdMath } from "./AutoMovieXpbdMath";
-import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalShapeContactManifold } from "./physicalShapeContactManifold";
 import { physicalShapePairContact } from "./physicalShapePairContact";
 
@@ -82,6 +81,12 @@ export namespace solveXpbdContacts {
 
     /** Signed distance at the end of the step, metres. */
     separation: number;
+
+    /** Signed distance where the step found the contact, before any correction, metres. */
+    detected: number;
+
+    /** Normal impulse of the velocity passes, newton seconds; positive pushing the pair apart. */
+    velocityImpulse: number;
   }
 
   /**
@@ -125,8 +130,7 @@ export namespace solveXpbdContacts {
     const bounds: IAutoMoviePhysicalShapeBounds.IResult[] = colliders.map(
       (
         collider: AutoMovieXpbdCollider,
-      ): IAutoMoviePhysicalShapeBounds.IResult =>
-        physicalShapeBounds(collider.bodyPose(), collider.shape),
+      ): IAutoMoviePhysicalShapeBounds.IResult => collider.bounds(),
     );
     const found: IContact[] = [];
     let pair: number = 0;
@@ -170,6 +174,10 @@ export namespace solveXpbdContacts {
           ? patch
           : [{ pointA: measured.pointA, pointB: measured.pointB }];
         for (const point of points) {
+          const gap: number = Vector3.dot(
+            Vector3.subtract(point.pointB, point.pointA),
+            measured.normal,
+          );
           const relative: IAutoMovieVector3 = Vector3.subtract(
             a.body.velocityAtPoint(point.pointA),
             b.body.velocityAtPoint(point.pointB),
@@ -187,10 +195,9 @@ export namespace solveXpbdContacts {
             tangentLambda: { x: 0, y: 0, z: 0 },
             tangentImpulse: 0,
             approach: Vector3.dot(relative, measured.normal),
-            separation: Vector3.dot(
-              Vector3.subtract(point.pointB, point.pointA),
-              measured.normal,
-            ),
+            separation: gap,
+            detected: gap,
+            velocityImpulse: 0,
           });
         }
         pair++;
@@ -263,7 +270,11 @@ export namespace solveXpbdContacts {
       );
       const length: number = Vector3.length(tangent);
       if (!(length > 0)) continue;
-      const back: IAutoMovieVector3 = Vector3.scale(tangent, -1 / length);
+      const back: IAutoMovieVector3 = {
+        x: -tangent.x / length,
+        y: -tangent.y / length,
+        z: -tangent.z / length,
+      };
       const total: number =
         AutoMovieXpbdMath.weight(first, back, armA) +
         AutoMovieXpbdMath.weight(second, back, armB);
@@ -328,7 +339,11 @@ export namespace solveXpbdContacts {
       // cone mu lambda_n leaves after the positional friction, over h, and
       // at most what stops the slip.
       if (speed > 0) {
-        const direction: IAutoMovieVector3 = Vector3.scale(vt, -1 / speed);
+        const direction: IAutoMovieVector3 = {
+          x: -vt.x / speed,
+          y: -vt.y / speed,
+          z: -vt.z / speed,
+        };
         const weight: number =
           AutoMovieXpbdMath.weight(first, direction, armA) +
           AutoMovieXpbdMath.weight(second, direction, armB);
@@ -366,17 +381,18 @@ export namespace solveXpbdContacts {
       const normalWeight: number =
         AutoMovieXpbdMath.weight(first, away, armA) +
         AutoMovieXpbdMath.weight(second, away, armB);
-      if (normalWeight > 0)
+      if (normalWeight > 0) {
+        const push: number =
+          (bounce + Vector3.dot(after, contact.normal)) / normalWeight;
+        contact.velocityImpulse += push;
         AutoMovieXpbdMath.impulse(
           first,
           second,
-          Vector3.scale(
-            away,
-            (bounce + Vector3.dot(after, contact.normal)) / normalWeight,
-          ),
+          Vector3.scale(away, push),
           armA,
           armB,
         );
+      }
     }
   }
   /** A world witness as a body-frame offset from the centre. */

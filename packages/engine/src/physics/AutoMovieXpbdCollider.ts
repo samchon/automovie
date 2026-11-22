@@ -1,5 +1,6 @@
 import type {
   IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalShapeBounds,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -43,6 +44,9 @@ export class AutoMovieXpbdCollider {
 
   /** Whether it only reports overlaps. */
   public readonly sensor: boolean;
+
+  /** The shape's own box in its frame: centre and half-extents, metres. */
+  private readonly box: AutoMovieXpbdCollider.IBox;
   /**
    * Create a collider on a body.
    *
@@ -67,12 +71,21 @@ export class AutoMovieXpbdCollider {
     this.friction = friction;
     this.restitution = restitution;
     this.sensor = sensor;
+    this.box = enclose(shape);
   }
 
   /**
    * The body it rides.
    *
-   * @returns The body.
+   * @returns The world's own body record, not a copy.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is returned and that it is the shared record.
+   * @evidence contracts/development/implementation.md#principled-implementation A collider rides one body for its lifetime, fixed at creation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One field read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A read of fixed state; nothing to share.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the world-owned body; retains nothing new.
    */
   public parent(): AutoMovieXpbdBody {
     return this.body;
@@ -82,6 +95,14 @@ export class AutoMovieXpbdCollider {
    * The body frame's world pose, which the shape's own transform is relative to.
    *
    * @returns A fresh pose, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, unit and that the pose is fresh.
+   * @evidence contracts/development/implementation.md#principled-implementation The body's frame origin and rotation, which the shape transform is expressed in.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the body's translation and rotation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A read of the current pose; the next correction changes it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh pose; retains nothing.
    */
   public bodyPose(): IAutoMovieRigidTransform {
     return {
@@ -91,9 +112,68 @@ export class AutoMovieXpbdCollider {
   }
 
   /**
-   * The shape frame's world position.
+   * World axis-aligned bounds of the shape's own box: the box of the shape
+   * in its frame (a hull's vertex extremes, a box's half-extents, a
+   * capsule's and a sphere's radius-widened axis), turned into the world
+   * with `half_world = |R| half_local`. It encloses the shape, so a pair
+   * whose bounds are apart cannot touch.
    *
-   * @returns Metres.
+   * @returns World minimum and maximum, metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the local box of each shape kind, the world transform of its half-extents and the enclosure guarantee.
+   * @evidence contracts/development/implementation.md#principled-implementation The world extent of a rotated box along each world axis is the sum of its half-extents times the absolute rotation matrix entries (Ericson 2005, Real-Time Collision Detection, sec. 4.2.6), so the result encloses the local box and with it the shape.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The local box is built once at construction; this method only places it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No padding or margin; the box is the shape's own extremes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call: three axis rotations and nine products, independent of a hull's point count.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the local box computed at construction, valid because the shape is readonly.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh bounds; retains nothing.
+   */
+  public bounds(): IAutoMoviePhysicalShapeBounds.IResult {
+    const rotation: IAutoMovieQuaternion = this.rotation();
+    const centre: IAutoMovieVector3 = Vector3.add(
+      this.translation(),
+      Quaternion.rotateVector(rotation, this.box.centre),
+    );
+    const x: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 1,
+      y: 0,
+      z: 0,
+    });
+    const y: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
+    const z: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
+    const h: IAutoMovieVector3 = this.box.half;
+    const half: IAutoMovieVector3 = {
+      x: Math.abs(x.x) * h.x + Math.abs(y.x) * h.y + Math.abs(z.x) * h.z,
+      y: Math.abs(x.y) * h.x + Math.abs(y.y) * h.y + Math.abs(z.y) * h.z,
+      z: Math.abs(x.z) * h.x + Math.abs(y.z) * h.y + Math.abs(z.z) * h.z,
+    };
+    return {
+      min: Vector3.subtract(centre, half),
+      max: Vector3.add(centre, half),
+    };
+  }
+
+  /**
+   * The shape frame's world position: the body frame's origin plus the
+   * shape's offset rotated by the body.
+   *
+   * @returns A fresh vector, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, unit and composition.
+   * @evidence contracts/development/implementation.md#principled-implementation Composes the body pose with the shape's body-frame transform.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression over the body's translation and orientation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A read of the current pose; the next correction changes it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh vector; retains nothing.
    */
   public translation(): IAutoMovieVector3 {
     return Vector3.add(
@@ -106,9 +186,18 @@ export class AutoMovieXpbdCollider {
   }
 
   /**
-   * The shape frame's world rotation.
+   * The shape frame's world rotation: the body's rotation times the
+   * shape's body-frame rotation.
    *
    * @returns A fresh unit quaternion.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame and composition.
+   * @evidence contracts/development/implementation.md#principled-implementation Composes the body rotation with the shape's body-frame rotation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One quaternion product.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A read of the current pose; the next correction changes it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh quaternion; retains nothing.
    */
   public rotation(): IAutoMovieQuaternion {
     return Quaternion.multiply(
@@ -116,4 +205,58 @@ export class AutoMovieXpbdCollider {
       this.shape.transform.rotation,
     );
   }
+}
+
+/** Companion types of {@link AutoMovieXpbdCollider}. */
+export namespace AutoMovieXpbdCollider {
+  /**
+   * A box in a shape's frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the centre and half-extents.
+   * @evidence contracts/development/design.md#principled-representation Shape-frame metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Built once per collider and read by its bounds.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Computed from the shape itself; no padding.
+   */
+  export interface IBox {
+    /** Centre in the shape frame, metres. */
+    centre: IAutoMovieVector3;
+
+    /** Half-extents along the shape frame's axes, metres. */
+    half: IAutoMovieVector3;
+  }
+}
+
+/** The box of a shape in its own frame. */
+function enclose(shape: IAutoMoviePhysicalShape): AutoMovieXpbdCollider.IBox {
+  const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  if (shape.kind === "sphere")
+    return {
+      centre: origin,
+      half: { x: shape.radius, y: shape.radius, z: shape.radius },
+    };
+  if (shape.kind === "capsule")
+    return {
+      centre: origin,
+      half: {
+        x: shape.radius,
+        y: shape.halfLength + shape.radius,
+        z: shape.radius,
+      },
+    };
+  if (shape.kind === "box")
+    return { centre: origin, half: { ...shape.halfExtents } };
+  const min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
+  const max: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };
+  for (const p of shape.points) {
+    min.x = Math.min(min.x, p.x);
+    min.y = Math.min(min.y, p.y);
+    min.z = Math.min(min.z, p.z);
+    max.x = Math.max(max.x, p.x);
+    max.y = Math.max(max.y, p.y);
+    max.z = Math.max(max.z, p.z);
+  }
+  return {
+    centre: Vector3.scale(Vector3.add(min, max), 0.5),
+    half: Vector3.scale(Vector3.subtract(max, min), 0.5),
+  };
 }

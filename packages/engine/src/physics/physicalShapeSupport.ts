@@ -51,7 +51,9 @@ export function physicalShapeSupport(
   );
   const length: number = Vector3.length(local);
   const unit: IAutoMovieVector3 =
-    length > 0 ? Vector3.scale(local, 1 / length) : { x: 0, y: 0, z: 0 };
+    length > 0
+      ? { x: local.x / length, y: local.y / length, z: local.z / length }
+      : { x: 0, y: 0, z: 0 };
   let point: IAutoMovieVector3;
   if (shape.kind === "sphere") point = Vector3.scale(unit, shape.radius);
   else if (shape.kind === "capsule")

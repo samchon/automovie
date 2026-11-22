@@ -135,7 +135,9 @@ export function solvePhysicalCompliantContacts(
     );
     const speed: number = Vector3.length(tangent);
     const direction: IAutoMovieVector3 =
-      speed > 0 ? Vector3.scale(tangent, 1 / speed) : { x: 0, y: 0, z: 0 };
+      speed > 0
+        ? { x: tangent.x / speed, y: tangent.y / speed, z: tangent.z / speed }
+        : { x: 0, y: 0, z: 0 };
     const tangentInverse: number =
       inverseMass(parentA, point, direction) +
       inverseMass(parentB, point, direction);
