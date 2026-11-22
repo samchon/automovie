@@ -1,4 +1,5 @@
 import type { IAutoMovieMotionHumanCarry } from "../carrying/IAutoMovieMotionHumanCarry";
+import type { IAutoMovieMotionHumanLongTool } from "../tasks/IAutoMovieMotionHumanLongTool";
 import type { IAutoMovieMotionHumanUseTool } from "../tasks/IAutoMovieMotionHumanUseTool";
 import type { IAutoMovieMotionHumanWipe } from "../tasks/IAutoMovieMotionHumanWipe";
 import type { IAutoMovieMotionHumanThrowObjectParams } from "../throwing/IAutoMovieMotionHumanThrowObjectParams";
@@ -49,4 +50,19 @@ export interface IAutoMovieMotionHumanLexiconLabourParams {
 
   /** Hurl something overarm. */
   hurl: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
+
+  /** Chop or split overhead with an axe onto a block or a log. */
+  chop: Omit<IAutoMovieMotionHumanLongTool.IParams, "stroke">;
+
+  /** Chop level into a standing trunk. */
+  sideChop: Omit<IAutoMovieMotionHumanLongTool.IParams, "stroke">;
+
+  /** Swing a sledgehammer or a pickaxe down at the ground. */
+  sledge: Omit<IAutoMovieMotionHumanLongTool.IParams, "stroke">;
+
+  /** Dig with a shovel and throw each load aside. */
+  dig: Omit<IAutoMovieMotionHumanLongTool.IParams, "stroke">;
+
+  /** Rake or hoe the ground toward oneself. */
+  rake: Omit<IAutoMovieMotionHumanLongTool.IParams, "stroke">;
 }

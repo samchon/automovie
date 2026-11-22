@@ -1,4 +1,5 @@
 import {
+  Quaternion,
   Vector3,
   minimumJerk,
   resolveAutoMovieHumanoidSurfaces,
@@ -9,6 +10,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -137,6 +139,54 @@ export namespace AquaticRescue {
     );
     const hipsAt: ReturnType<typeof AquaticPosture.markers> =
       AquaticPosture.markers(body, ["hips"]);
+    // The body without the holding arm's goal.
+    const bodyAt: (seconds: number) => IAutoMovieMotionHumanPosture = (
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture => {
+      const t: number = Math.max(0, Math.min(duration, seconds));
+      const shaped: IAutoMovieMotionHumanPosture =
+        t < arrive ? swimAt(t) : turn((t - arrive) / GRIP);
+      const where: IAutoMovieVector3 =
+        t < arrive
+          ? Vector3.lerp(
+              { ...entry.posture.root, y: 0 },
+              { ...behind, y: 0 },
+              t / arrive,
+            )
+          : Vector3.add(
+              { ...behind, y: 0 },
+              Vector3.scale(tow.toward, along(tow, t - hold)),
+            );
+      const hips: IAutoMovieVector3 = hipsAt(shaped).get("hips")!.worldPosition;
+      const placed: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
+        shaped,
+        Vector3.add(shaped.root, {
+          x: where.x - hips.x,
+          y: water - 0.15 - hips.y,
+          z: where.z - hips.z,
+        }),
+      );
+      if (t < arrive) return placed;
+      // The legs scissor under the side-lying rescuer.
+      const swing: number = Math.sin((2 * Math.PI * (t - arrive)) / KICK);
+      const legs: IAutoMovieMotionHumanPosture["joints"] = ExerciseKey.from(
+        body,
+        {},
+        {},
+        { hip: 20 + 25 * swing, knee: 30 + 20 * swing },
+        { hip: 20 - 25 * swing, knee: 30 - 20 * swing },
+      ).joints;
+      return {
+        ...placed,
+        joints: {
+          ...placed.joints,
+          leftUpperLeg: legs.leftUpperLeg,
+          rightUpperLeg: legs.rightUpperLeg,
+          leftLowerLeg: legs.leftLowerLeg,
+          rightLowerLeg: legs.rightLowerLeg,
+        },
+      };
+    };
     const swimming: IAutoMovieMotionHumanActionPlan = {
       duration,
       contacts: [],
@@ -148,72 +198,56 @@ export namespace AquaticRescue {
         { name: "relax", share: 1 },
       ],
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.max(0, Math.min(duration, seconds));
-        const shaped: IAutoMovieMotionHumanPosture =
-          t < arrive ? swimAt(t) : turn((t - arrive) / GRIP);
-        const where: IAutoMovieVector3 =
-          t < arrive
-            ? Vector3.lerp(
-                { ...entry.posture.root, y: 0 },
-                { ...behind, y: 0 },
-                t / arrive,
-              )
-            : Vector3.add(
-                { ...behind, y: 0 },
-                Vector3.scale(tow.toward, along(tow, t - hold)),
-              );
-        const hips: IAutoMovieVector3 =
-          hipsAt(shaped).get("hips")!.worldPosition;
-        const placed: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
-          shaped,
-          Vector3.add(shaped.root, {
-            x: where.x - hips.x,
-            y: water - 0.15 - hips.y,
-            z: where.z - hips.z,
-          }),
-        );
-        if (t < arrive) return placed;
-
-        // The near hand lies on the victim's displayed sternum, the arm across the chest.
-        const sternum: IAutoMovieHumanoidSurfaces.IFrame =
-          victim.body.surfaces.regions.sternum;
-        const chest: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-          sternum,
-          victim.bones(start + t, new Set([sternum.bone])).get(sternum.bone)!,
-        ).point;
-        // The legs scissor under the side-lying rescuer.
-        const swing: number = Math.sin((2 * Math.PI * (t - arrive)) / KICK);
-        const legs: IAutoMovieMotionHumanPosture["joints"] = ExerciseKey.from(
-          body,
-          {},
-          {},
-          { hip: 20 + 25 * swing, knee: 30 + 20 * swing },
-          { hip: 20 - 25 * swing, knee: 30 - 20 * swing },
-        ).joints;
-        return {
-          ...placed,
-          joints: {
-            ...placed.joints,
-            leftUpperLeg: legs.leftUpperLeg,
-            rightUpperLeg: legs.rightUpperLeg,
-            leftLowerLeg: legs.leftLowerLeg,
-            rightLowerLeg: legs.rightLowerLeg,
-          },
-          limbs: {
-            ...placed.limbs,
-            // The upper arm of the side-lying rescuer drapes over the
-            // victim's shoulder, the elbow back toward the rescuer.
-            leftArm: {
-              point: chest,
-              bend: Vector3.add(
-                Vector3.subtract(chest, Vector3.scale(tow.toward, 0.25)),
-                { x: 0, y: 0.1, z: 0 },
-              ),
-            },
-          },
-        };
+        const shaped: IAutoMovieMotionHumanPosture = bodyAt(seconds);
+        return seconds < arrive
+          ? shaped
+          : { ...shaped, limbs: { ...shaped.limbs, leftArm: grip() } };
       },
     };
+
+    // The hold rides the rescuer's own chest: the victim's displayed
+    // sternum is read once, where the hold is taken, and kept in the
+    // rescuer's chest frame, so the hand goes with the pair through the tow
+    // without reading the victim at a later second. The upper arm of the
+    // side-lying rescuer drapes over the victim's shoulder, the elbow back
+    // toward the rescuer.
+    let held: IAutoMovieHumanLimbGoal | undefined;
+    const grip: () => IAutoMovieHumanLimbGoal = (): IAutoMovieHumanLimbGoal => {
+      if (held !== undefined) return held;
+      const sternum: IAutoMovieHumanoidSurfaces.IFrame =
+        victim.body.surfaces.regions.sternum;
+      const chest: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+        sternum,
+        victim.bones(start + hold, new Set([sternum.bone])).get(sternum.bone)!,
+      ).point;
+      const own: IAutoMovieResolvedBone = chestAt(bodyAt(hold)).get(
+        "upperChest",
+      )!;
+      const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+        point: IAutoMovieVector3,
+      ): IAutoMovieVector3 =>
+        Quaternion.rotateVector(
+          Quaternion.inverse(own.worldRotation),
+          Vector3.subtract(point, own.worldPosition),
+        );
+      held = {
+        on: "upperChest",
+        point: local(chest),
+        bend: local(
+          Vector3.add(
+            Vector3.subtract(chest, Vector3.scale(tow.toward, 0.25)),
+            {
+              x: 0,
+              y: 0.1,
+              z: 0,
+            },
+          ),
+        ),
+      };
+      return held;
+    };
+    const chestAt: ReturnType<typeof AquaticPosture.markers> =
+      AquaticPosture.markers(body, ["upperChest"]);
     // The near arm reaches from its last crawl stroke to the victim's
     // sternum as one admitted course and holds it through the tow
     // (`courseArmGoal`); the victim never reads the rescuer.
@@ -223,17 +257,6 @@ export namespace AquaticRescue {
       plan: swimming,
       side: "left",
       rest: AquaticPosture.rest(body, opening, "left"),
-      // The victim moves with the tow: the hand follows its displayed
-      // sternum on the hold, read as the rescuer perceives it.
-      perceived: (
-        _posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-      ): IAutoMovieHumanLimbGoal =>
-        swimming.posture(seconds, undefined, resolution, projection).limbs
-          .leftArm!,
-      tracked: true,
       span: { start: arrive, ready: hold, relax: duration, end: duration },
     });
   }

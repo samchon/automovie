@@ -20,12 +20,12 @@ const RISE: number = 0.04;
 
 /** The offered palm outside the shoulder, over the shoulder's half-width, and the share of the arm's length it extends to: provisional, a pressing arm short of straight. */
 const OUTSIDE: number = 0.25;
-const EXTENSION: number = 0.9;
+const EXTENSION: number = 0.95;
 
-/** A supporting base's elbow out from, below and behind its offered palm, over stature: provisional, a pressing arm. */
-const ELBOW_OUT: number = 0.12;
-const ELBOW_DOWN: number = 0.12;
-const ELBOW_BACK: number = 0.06;
+/** A supporting base's elbow out from, below and behind its offered palm, over stature: provisional, a forearm's length behind it and nearly level, so the forearm lies flat and the palm faces up by supination alone. */
+const ELBOW_OUT: number = 0.08;
+const ELBOW_DOWN: number = 0.03;
+const ELBOW_BACK: number = 0.13;
 
 /** Fixed plan-time placement and pose offer of one supporting hand. */
 interface IPalmOffer {

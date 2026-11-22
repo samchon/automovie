@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
@@ -12,6 +13,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -22,6 +24,7 @@ import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticProp } from "../sport/AquaticProp";
 
 /** Path samples per second of the bicycle's course read at planning, Hz. */
@@ -299,77 +302,119 @@ export const HumanBikeGuide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
         right: HumanFoot.offset(body, "right", "ball"),
       };
 
+      // The near hand's hold rides the athlete's own pelvis: the grip on
+      // the bicycle is read once, where the hand takes it, and kept in the
+      // pelvis frame, so the hand goes with the walk without reading the
+      // bicycle at a later second.
+      let taken: IAutoMovieHumanLimbGoal | undefined;
+      const holding: () => IAutoMovieHumanLimbGoal =
+        (): IAutoMovieHumanLimbGoal => {
+          if (taken !== undefined) return taken;
+          const at: IAutoMovieMotionHumanPosture = bodyAt(REACH);
+          const world: IAutoMovieHumanLimbGoal = AquaticProp.hold(
+            body,
+            at,
+            side,
+            AquaticProp.at(bicycle, start + REACH).require(grip, "handle")
+              .world,
+          );
+          const pelvis: IAutoMovieResolvedBone = pelvisAt(at).get("hips")!;
+          const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+            pelvis.worldRotation,
+          );
+          const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+            point: IAutoMovieVector3,
+          ): IAutoMovieVector3 =>
+            Quaternion.rotateVector(
+              inverse,
+              Vector3.subtract(point, pelvis.worldPosition),
+            );
+          taken = {
+            ...world,
+            on: "hips",
+            point: local(world.point),
+            bend: local(world.bend!),
+            rotation: Quaternion.multiply(inverse, world.rotation!),
+          };
+          return taken;
+        };
+      // The body at a second, without the near arm's goal.
+      const bodyAt: (seconds: number) => IAutoMovieMotionHumanPosture = (
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const t: number = Math.max(0, Math.min(duration, seconds));
+        const frame: IAutoMovieRigidTransform = bicycle.frame(start + t);
+        const along: IAutoMovieVector3 = Vector3.add(
+          frame.position,
+          Quaternion.rotateVector(frame.rotation, held(t)),
+        );
+        const turn: number = heading(frame.rotation) - heading0;
+        const feet: Record<AutoMovieHumanSide, IPrint> = {
+          left: place(prints.left, t, balls.left),
+          right: place(prints.right, t, balls.right),
+        };
+
+        // Lower the pelvis only as far as a leg must to reach a foot that
+        // has left its place under the hip, no farther than it stood.
+        let drop: number = 0;
+        const spin: IAutoMovieQuaternion = Quaternion.fromAxisAngle(UP, turn);
+        for (const foot of ["left", "right"] as const) {
+          const ankle: IAutoMovieVector3 = feet[foot].ankle;
+          const under: IAutoMovieVector3 = Vector3.add(
+            along,
+            Quaternion.rotateVector(
+              spin,
+              Vector3.subtract(entry.feet[foot].ankle, entry.posture.root),
+            ),
+          );
+          const across: number = Math.hypot(
+            ankle.x - under.x,
+            ankle.z - under.z,
+          );
+          const height: number = hips - ankle.y;
+          drop = Math.max(
+            drop,
+            height - Math.sqrt(Math.max(0, reach[foot] ** 2 - across * across)),
+          );
+        }
+        const posture: IAutoMovieMotionHumanPosture = {
+          ...entry.posture,
+          root: { x: along.x, y: entry.posture.root.y - drop, z: along.z },
+          yaw: entry.posture.yaw + turn,
+          limbs: { ...entry.posture.limbs },
+        };
+        for (const foot of ["left", "right"] as const) {
+          const now: IPrint = feet[foot];
+          posture.limbs[`${foot}Leg`] = {
+            ...AutoMovieMotionHumanLeg.goal(
+              body,
+              posture,
+              foot,
+              { ankle: now.ankle, rotation: now.rotation },
+              now.lift >= t && now.land <= t,
+            ),
+            planted: now.lift >= t && now.land <= t,
+          };
+        }
+
+        return posture;
+      };
       const plan: IAutoMovieMotionHumanActionPlan = {
         duration,
         events,
         contacts,
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-          const t: number = Math.max(0, Math.min(duration, seconds));
-          const frame: IAutoMovieRigidTransform = bicycle.frame(start + t);
-          const along: IAutoMovieVector3 = Vector3.add(
-            frame.position,
-            Quaternion.rotateVector(frame.rotation, held(t)),
-          );
-          const turn: number = heading(frame.rotation) - heading0;
-          const feet: Record<AutoMovieHumanSide, IPrint> = {
-            left: place(prints.left, t, balls.left),
-            right: place(prints.right, t, balls.right),
-          };
-
-          // Lower the pelvis only as far as a leg must to reach a foot that
-          // has left its place under the hip, no farther than it stood.
-          let drop: number = 0;
-          const spin: IAutoMovieQuaternion = Quaternion.fromAxisAngle(UP, turn);
-          for (const foot of ["left", "right"] as const) {
-            const ankle: IAutoMovieVector3 = feet[foot].ankle;
-            const under: IAutoMovieVector3 = Vector3.add(
-              along,
-              Quaternion.rotateVector(
-                spin,
-                Vector3.subtract(entry.feet[foot].ankle, entry.posture.root),
-              ),
-            );
-            const across: number = Math.hypot(
-              ankle.x - under.x,
-              ankle.z - under.z,
-            );
-            const height: number = hips - ankle.y;
-            drop = Math.max(
-              drop,
-              height -
-                Math.sqrt(Math.max(0, reach[foot] ** 2 - across * across)),
-            );
-          }
-          const posture: IAutoMovieMotionHumanPosture = {
-            ...entry.posture,
-            root: { x: along.x, y: entry.posture.root.y - drop, z: along.z },
-            yaw: entry.posture.yaw + turn,
-            limbs: { ...entry.posture.limbs },
-          };
-          for (const foot of ["left", "right"] as const) {
-            const now: IPrint = feet[foot];
-            posture.limbs[`${foot}Leg`] = {
-              ...AutoMovieMotionHumanLeg.goal(
-                body,
-                posture,
-                foot,
-                { ankle: now.ankle, rotation: now.rotation },
-                now.lift >= t && now.land <= t,
-              ),
-              planted: now.lift >= t && now.land <= t,
-            };
-          }
-
-          // The near hand holds the grip on the bicycle as posed now.
-          posture.limbs[`${side}Arm`] = AquaticProp.hold(
-            body,
-            posture,
-            side,
-            AquaticProp.at(bicycle, start + t).require(grip, "handle").world,
-          );
+          const posture: IAutoMovieMotionHumanPosture = bodyAt(seconds);
+          posture.limbs[`${side}Arm`] = holding();
           return posture;
         },
       };
+      const pelvisAt: (
+        posture: IAutoMovieMotionHumanPosture,
+      ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
+        posture: IAutoMovieMotionHumanPosture,
+      ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+        poseBones(body, resolveHumanPosture(body, posture), undefined, HIPS);
 
       // The near arm reaches from the entered arm to the grip by `REACH`
       // and holds it as one admitted course (`courseArmGoal`).
@@ -379,25 +424,12 @@ export const HumanBikeGuide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
         side,
         rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
         span: { start: 0, ready: REACH, relax: duration, end: duration },
-        // The bicycle rolls and the walk sways: the hand follows the grip
-        // as posed at each second on the hold.
-        perceived: (
-          _posture: IAutoMovieMotionHumanPosture,
-          seconds: number,
-          resolution?: Parameters<
-            IAutoMovieMotionHumanActionPlan["posture"]
-          >[2],
-          projection?: Parameters<
-            IAutoMovieMotionHumanActionPlan["posture"]
-          >[3],
-        ): IAutoMovieHumanLimbGoal =>
-          plan.posture(seconds, undefined, resolution, projection).limbs[
-            `${side}Arm`
-          ]!,
-        tracked: true,
       });
     },
   };
+
+/** The pelvis, the bone the near hand's hold rides. */
+const HIPS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["hips"]);
 
 /** The world up axis. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

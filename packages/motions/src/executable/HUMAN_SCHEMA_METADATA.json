@@ -3348,7 +3348,12 @@
         }
       }
     },
+    "chop": {},
+    "dig": {},
     "hammer": {},
+    "rake": {},
+    "sideChop": {},
+    "sledge": {},
     "hammerStrokes": {},
     "hammerTurn": {
       "properties": {

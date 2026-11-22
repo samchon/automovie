@@ -31,9 +31,6 @@ const CONTACT_BLEND: number = 0.22;
 /** Seconds a base's support arm takes to reach into its palm offer and back out: provisional, an unhurried sculling arm. */
 const BASE_REACH: number = 0.5;
 
-/** How far a base's eggbeater raises it at the figure's apex, metres: provisional, the shoulders near the surface. */
-const BASE_RISE: number = 0.3;
-
 /**
  * An artistic figure with optional team support. Flat and vertical sculls
  * follow the form distinctions measured by Homma et al. (PMID 31718520).
@@ -152,12 +149,7 @@ export namespace AquaticTeam {
           ankle: -25,
         },
       ),
-      // A base drives up under its offered palm, its shoulders near the
-      // surface, so its forearm offers the palm level rather than overhead.
-      {
-        ...upright.root,
-        y: upright.root.y + (lifted ? 0.76 : base ? BASE_RISE : 0.18),
-      },
+      { ...upright.root, y: upright.root.y + (lifted ? 0.76 : 0.18) },
     );
     const vertical: ReturnType<typeof AquaticPosture.blend> =
       AquaticPosture.blend(laid, upright);
