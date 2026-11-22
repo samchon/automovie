@@ -8,7 +8,6 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanCarryPerson,
-  HumanCarriedLean,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
@@ -16,7 +15,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 type CarryFixture = "m-average" | "f-small";
 type CarrySubject = "a" | "b";
@@ -43,7 +42,7 @@ interface ICarriedStage {
  * @evidence contracts/development/testing.md#execution-ownership Uses one pair of bodies; geometry is sampled per placement branch and carry names are checked as data.
  * @evidence contracts/development/common.md#meaningful-documentation States the units, phases and compared body regions.
  */
-export function test_motion_posture_coupled_clearance(): void {
+export function test_motion_carry_person_coupled_clearance(): void {
   const RESTS: Readonly<
     Record<
       IAutoMovieMotionHumanCarried.Carry,
@@ -110,7 +109,10 @@ export function test_motion_posture_coupled_clearance(): void {
               layers: {
                 a: [
                   {
-                    layer: HumanCarriedLean.layer(carry),
+                    layer:
+                      AutoMovieMotionHumanCarryPerson.HumanCarriedLean.layer(
+                        carry,
+                      ),
                     from: 0.3,
                     fade: AutoMovieMotionHumanCarryPerson.carryPerson.TAKE,
                   },

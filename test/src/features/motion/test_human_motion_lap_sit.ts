@@ -9,16 +9,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSeat,
+  AutoMovieMotionHumanTouch,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  seated,
-  sitOnLap,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+const { sitOnLap } = AutoMovieMotionHumanTouch;
 
 /** How near the sitter's seat comes to the top of the lap, metres: the seat socket's own depth under the buttocks and a skin contact (provisional). */
 const LAP: number = 0.03;
@@ -138,7 +140,11 @@ function scene(
   sitting: boolean,
 ): IScene {
   const chair: IAutoMovieMotionHumanSeated.ISeat = {
-    at: { x: 0, y: seated.popliteal(b), z: b.rest.get("leftFoot")!.z - 0.1 },
+    at: {
+      x: 0,
+      y: AutoMovieMotionHumanSeat.seated.popliteal(b),
+      z: b.rest.get("leftFoot")!.z - 0.1,
+    },
     yaw: 0,
     depth: 0.45,
   };

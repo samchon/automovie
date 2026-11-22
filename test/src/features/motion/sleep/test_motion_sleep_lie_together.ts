@@ -11,15 +11,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSleep,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  lieTogether,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** How near the resting region stays to the partner's, metres: the law's skin contact and its rest gap. */
 const NEAR: number = 0.015;
@@ -71,7 +71,7 @@ interface IWay {
  * @evidence contracts/development/testing.md#distinguishing-cases Two ways, and a performer lying apart refused.
  * @evidence contracts/development/testing.md#execution-ownership In-memory two-performer performances through the public chain, each body's lying place read once from its own lie alone to stage the pair.
  */
-export function test_human_motion_lie_together(): void {
+export function test_motion_sleep_lie_together(): void {
   const ways: readonly IWay[] = [
     {
       way: "spoon",
@@ -205,7 +205,7 @@ function scene(
   };
   return new HumanPerformance({
     seed: "lie-together",
-    laws: [lieTogether],
+    laws: [AutoMovieMotionHumanSleep.lieTogether],
     performers: [
       {
         subject: "a",
@@ -230,7 +230,7 @@ function scene(
           // Lies down once the partner is down, so the two never cross on the way.
           .stand({ hold: 3 })
           .lieDown({ kind: w.own, hold: 0.5 })
-          .registered(lieTogether.name, {
+          .registered(AutoMovieMotionHumanSleep.lieTogether.name, {
             partner: "b",
             way: w.way,
             hold: HOLD,

@@ -9,16 +9,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSeat,
+  AutoMovieMotionHumanTouch,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  backToBack,
-  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+const { backToBack } = AutoMovieMotionHumanTouch;
 
 /** How near the two upper backs stay, metres: twice the law's skin contact, one each side of the meeting point. */
 const NEAR: number = 0.02;
@@ -135,7 +137,7 @@ function scene(
   ): IAutoMovieMotionHumanSeated.ISeat => ({
     at: {
       x: 0,
-      y: seated.popliteal(body),
+      y: AutoMovieMotionHumanSeat.seated.popliteal(body),
       z: sign * (at + body.rest.get("leftFoot")!.z - 0.1),
     },
     yaw: sign > 0 ? 0 : 180,

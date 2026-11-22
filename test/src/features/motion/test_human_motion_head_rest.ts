@@ -9,16 +9,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSeat,
+  AutoMovieMotionHumanTouch,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  headRest,
-  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+const { headRest } = AutoMovieMotionHumanTouch;
 
 /** How near the resting region stays to the partner's region, metres (provisional: a skin contact). */
 const NEAR: number = 0.01;
@@ -149,7 +151,10 @@ function bench(
   a: IAutoMovieMotionHumanBody,
   b: IAutoMovieMotionHumanBody,
 ): HumanPerformance {
-  const height: number = Math.min(seated.popliteal(a), seated.popliteal(b));
+  const height: number = Math.min(
+    AutoMovieMotionHumanSeat.seated.popliteal(a),
+    AutoMovieMotionHumanSeat.seated.popliteal(b),
+  );
   const seat: (
     x: number,
     body: IAutoMovieMotionHumanBody,

@@ -216,13 +216,13 @@ function arrival(
     .pickUp({ prop: "pack", handle: "rightStrap", hand: "right", lift: 0 })
     .registered("workHeld", {
       prop: "pack",
-      side: "right",
+      hand: "right",
       at: {
         out: body.measure.shoulderHalfWidth + 0.05,
         up: body.measure.hipHeight + 0.1,
         forward: 0.15,
       },
-      seconds: 0.6,
+      duration: 0.6,
     });
   const take: HumanPerformance = play(`${label} arrival`, body, props, chain);
   const walks: IAutoMovieMotionHumanSegment[] = named(take, "walk");
@@ -313,7 +313,7 @@ function tray(
     .pickUp({ prop: "tray", handle: "palm", hand: "right", lift: 0 })
     .registered("workHeld", {
       prop: "tray",
-      side: "right",
+      hand: "right",
       at: {
         out: 0.2,
         // The palm just under shoulder height, the forearm level.
@@ -321,7 +321,7 @@ function tray(
         forward: 0.25,
         level: true,
       },
-      seconds: 0.5,
+      duration: 0.5,
     })
     .walk({ to: { x: 0, y: 0, z: 1.5 } })
     .walk({ to: { x: -1.2, y: 0, z: 2.2 } });

@@ -23,7 +23,9 @@ import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
  * lay in the neck (87 mm for the small woman on the average man's
  * shoulders). The pelvis's colliders are measured against the neck's once
  * on the fitted key, and where they overlap the whole borne body is set
- * back by the overlap, toward the bearer's back across the floor, so the
+ * back toward the bearer's back across the floor by the overlap over the
+ * distance's slope along that direction (read from one more distance at the
+ * overlap's depth, since the two meet obliquely), so the
  * pelvis's front comes onto the neck's surface: the pelvis's half depth and
  * the neck's radius less the yoke's place behind the neck, read on the
  * real shapes. A body clear of the neck is left where the fit put it.
@@ -34,10 +36,10 @@ import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
  * @returns The key, its placement set back when the pelvis meets the neck.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the defect, the measured overlap, the direction and the case left alone.
- * @evidence contracts/development/implementation.md#principled-implementation One signed distance between the placed pelvis and neck colliders gives the overlap, and the placement is translated by it along the bearer's backward heading.
+ * @evidence contracts/development/implementation.md#principled-implementation One signed distance between the placed pelvis and neck colliders gives the overlap; the distance is linear in a backward shift at the contact normal's slope on that direction, so a second distance at the overlap's depth gives the slope and the placement is translated by the overlap over it (one secant step, exact for a flat contact).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The placed pelvis, the neck, their least distance, one translation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shapes are the bodies' own colliders; no depth or radius is typed.
- * @evidence contracts/development/implementation.md#efficient-algorithms One pair of collider placements and their pairwise distances, once per coupling.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One pair of collider placements and two passes of their pairwise distances, once per coupling.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per coupling.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned placement closes over one translation.
  */
@@ -79,19 +81,57 @@ export function HumanCarriedNeckClear(
     HumanColliders.placed(body, bones).filter(
       (s: IAutoMovieMotionHumanColliders.IPlaced): boolean => s.bone === bone,
     );
-  let gap: number = Infinity;
-  for (const m of shapes(borne, placed, "hips"))
-    for (const y of shapes(bearer, read.theirs, "neck"))
-      for (const s of m.shapes)
-        for (const t of y.shapes)
-          gap = Math.min(gap, physicalShapePairDistance(m.pose, s, y.pose, t));
+  const pelvic: IAutoMovieMotionHumanColliders.IPlaced[] = shapes(
+    borne,
+    placed,
+    "hips",
+  );
+  const neckShapes: IAutoMovieMotionHumanColliders.IPlaced[] = shapes(
+    bearer,
+    read.theirs,
+    "neck",
+  );
+  // The least signed distance between the pelvis, moved by an offset, and
+  // the neck.
+  const least = (offset: IAutoMovieVector3): number => {
+    let found: number = Infinity;
+    for (const m of pelvic)
+      for (const y of neckShapes)
+        for (const s of m.shapes)
+          for (const t of y.shapes)
+            found = Math.min(
+              found,
+              physicalShapePairDistance(
+                {
+                  ...m.pose,
+                  position: Vector3.add(m.pose.position, offset),
+                },
+                s,
+                y.pose,
+                t,
+              ),
+            );
+    return found;
+  };
+  const gap: number = least({ x: 0, y: 0, z: 0 });
   if (!(gap < 0)) return read;
 
-  // Back across the floor, away from the way the bearer's chest faces.
+  // Back across the floor, away from the way the bearer's chest faces. The
+  // pelvis meets the neck obliquely (over its top), so the distance grows
+  // with a backward shift at the slope of the contact normal on that
+  // direction, not one for one: one more distance at the overlap's own
+  // depth gives the slope, and the shift is the overlap over it.
   const yaw: number = (HumanFrame.heading(chest.worldRotation) * Math.PI) / 180;
+  const backward: IAutoMovieVector3 = {
+    x: -Math.sin(yaw),
+    y: 0,
+    z: -Math.cos(yaw),
+  };
+  const probe: number = -gap;
+  const slope: number = (least(Vector3.scale(backward, probe)) - gap) / probe;
   const back: IAutoMovieVector3 = Vector3.scale(
-    { x: Math.sin(yaw), y: 0, z: Math.cos(yaw) },
-    gap,
+    backward,
+    slope > 0 ? -gap / slope : probe,
   );
   return {
     ...read,

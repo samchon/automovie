@@ -8,15 +8,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanTouch,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  embraceFromBehind,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+const { embraceFromBehind } = AutoMovieMotionHumanTouch;
 
 /** How near two regions in contact stay, metres: the law's skin contact. */
 const NEAR: number = 0.01;
