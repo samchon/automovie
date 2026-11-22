@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -284,6 +285,43 @@ export namespace AutoMovieMotionHumanAuditBalance {
     );
   }
 
+  /** The feet, the parts a standing base bears on. */
+  const FEET: ReadonlySet<IAutoMovieMotionHumanContactWindow["part"]> = new Set<
+    IAutoMovieMotionHumanContactWindow["part"]
+  >(["leftFoot", "rightFoot"]);
+
+  /**
+   * Whether another support takes the body within the hold: a bearing window
+   * of a part not bearing now (a seat the body is lowered onto, a hand put
+   * down) opens after the instant and by its end. That is the same case as a
+   * step being taken: the parts bearing now will not be alone for the hold,
+   * whether they are planted feet or feet and knees bearing together.
+   *
+   * @param windows The person's contact windows, film seconds.
+   * @param seconds Film seconds.
+   * @param until The hold's end, film seconds.
+   * @param bearing The parts bearing at the instant.
+   * @returns Whether such a support arrives.
+   */
+  function arriving(
+    windows: readonly IAutoMovieMotionHumanAuditMotion.IWindow[],
+    seconds: number,
+    until: number,
+    bearing: ReadonlySet<IAutoMovieMotionHumanContactWindow["part"]>,
+  ): boolean {
+    return (
+      until > seconds &&
+      windows.some(
+        (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+          !bearing.has(w.contact.part) &&
+          w.contact.kind !== "grip" &&
+          w.contact.kind !== "strike" &&
+          w.from > seconds &&
+          w.from <= until + 1e-9,
+      )
+    );
+  }
+
   /**
    * Whether both feet alone bear the body at an instant: each foot inside a
    * plant window on the ground, and no other contact window open.
@@ -311,26 +349,28 @@ export namespace AutoMovieMotionHumanAuditBalance {
           w.contact.kind === "bear",
       )
     )
-      return open.every(
-        (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
-          w.contact.support.kind === "ground" &&
-          (w.contact.kind === "bear" || w.contact.kind === "plant") &&
-          (until <= seconds || w.to >= until - 1e-9),
+      return (
+        open.every(
+          (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+            w.contact.support.kind === "ground" &&
+            (w.contact.kind === "bear" || w.contact.kind === "plant") &&
+            (until <= seconds || w.to >= until - 1e-9),
+        ) &&
+        !arriving(
+          windows,
+          seconds,
+          until,
+          new Set<IAutoMovieMotionHumanContactWindow["part"]>(
+            open.map(
+              (
+                w: IAutoMovieMotionHumanAuditMotion.IWindow,
+              ): IAutoMovieMotionHumanContactWindow["part"] => w.contact.part,
+            ),
+          ),
+        )
       );
     if (until > seconds) {
-      // Another support about to take the body (a seat it is being lowered
-      // onto) is the same case as a step being taken: the feet will not be
-      // alone for the hold.
-      for (const window of windows)
-        if (
-          window.contact.part !== "leftFoot" &&
-          window.contact.part !== "rightFoot" &&
-          window.contact.kind !== "grip" &&
-          window.contact.kind !== "strike" &&
-          window.from > seconds &&
-          window.from <= until + 1e-9
-        )
-          return false;
+      if (arriving(windows, seconds, until, FEET)) return false;
       for (const part of ["leftFoot", "rightFoot"] as const) {
         // How long this foot stays planted from the instant on, through
         // plant windows that follow one another without a gap.
