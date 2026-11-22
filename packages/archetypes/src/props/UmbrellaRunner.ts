@@ -40,10 +40,24 @@ export namespace UmbrellaRunner {
   /** The opening table's step, degrees. */
   export const STEP: number = 15;
 
-  /** A rib's hinge id. */
+  /**
+   * A rib's hinge id.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names a rib hinge by its number.
+   * @evidence contracts/development/design.md#principled-representation A template literal `rib` followed by the rib's number.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the umbrella's contacts include it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No restated ids.
+   */
   export type Rib = `rib${number}`;
 
-  /** The runner and the rib hinges. */
+  /**
+   * The runner and the rib hinges.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contacts the runner adds.
+   * @evidence contracts/development/design.md#principled-representation The runner id and every rib hinge.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; `createUmbrella` joins it to its own contacts.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No restated ids.
+   */
   export type Affordance = "runner" | Rib;
 
   /**

@@ -124,11 +124,6 @@ export namespace createHalter {
 
   /**
    * The head a halter is fitted to.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Metres.
-   * @evidence contracts/development/design.md#principled-representation The head capsule's length and radius.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the fit reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IHead {
     /** The head capsule's length from poll to nose, metres. */

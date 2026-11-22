@@ -78,11 +78,6 @@ export function rideRoundabout(
 export namespace rideRoundabout {
   /**
    * How the pusher turns the disc.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation A reader of degrees over seconds and a release second.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `rideRoundabout`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The angle comes from whoever pushes.
    */
   export interface IParams {
     /**
@@ -99,11 +94,6 @@ export namespace rideRoundabout {
 
   /**
    * One turning roundabout's readers.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and clock.
-   * @evidence contracts/development/design.md#principled-representation Degrees per second and world frames over ride seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What a rider's composition and the test read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No reader stores a pose.
    */
   export interface IRide {
     /** The coasting angular speed after release, degrees per second. */

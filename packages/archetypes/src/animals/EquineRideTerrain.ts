@@ -45,14 +45,34 @@ export namespace EquineRideTerrain {
         (point: IAutoMovieVector3) => IAutoMovieVector3
       >
     >;
-    /** A hoof's goal at a film second under the techniques, from its gait's goal in the body's placement. */
+    /**
+     * A hoof's goal at a film second under the techniques, from its gait's goal in the body's placement.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the limb, the film second, the gait's goal and the placement it takes and the goal it returns.
+     * @evidence contracts/development/implementation.md#principled-implementation Passes the footwork, the limb's two joints and the footing to EquineFootwork.limbGoal.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation to the footwork owner.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The techniques and the footing decide the goal; no gait goal is altered here.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Its cost is that of EquineFootwork.limbGoal.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads a different second.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+     */
     goal: (
       limb: QuadrupedBody.Limb,
       seconds: number,
       goal: QuadrupedRidePose.IGoal,
       placement: IAutoMovieTransform,
     ) => QuadrupedRidePose.IGoal;
-    /** A posed model with its tail carried over the footing, when a bank technique meets a face. */
+    /**
+     * A posed model with its tail carried over the footing, when a bank technique meets a face.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the model and placement it takes and the model it returns, the tail carried only when a bank face is met.
+     * @evidence contracts/development/implementation.md#principled-implementation Returns the model unchanged unless a bank or scramble meets a footing, then QuadrupedTail.carry over that footing.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch and one delegation.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tail carries only over an authored footing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Its cost is that of QuadrupedTail.carry.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call poses a different model.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh model and retains nothing.
+     */
     tail: (
       model: Archetype<Id, D>,
       placement: IAutoMovieTransform,

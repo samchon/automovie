@@ -18,10 +18,24 @@ import type { QuadrupedRidePose } from "./QuadrupedRidePose";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace QuadrupedSwingGoal {
-  /** A limb's step at a phase: its stance, whether it is planted, its swing's progress and rise (`QuadrupedHoofTrack.step`). */
+  /**
+   * A limb's step at a phase: its stance, whether it is planted, its swing's progress and rise (`QuadrupedHoofTrack.step`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what a step holds and its source.
+   * @evidence contracts/development/design.md#principled-representation The return type of the hoof track's step, not a second record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `QuadrupedHoofTrack`; named here for the swing goal.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No copy of the record.
+   */
   export type Step = ReturnType<typeof QuadrupedHoofTrack.step>;
 
-  /** The end of the body a limb belongs to, as the gait's lift and fold name it. */
+  /**
+   * The end of the body a limb belongs to, as the gait's lift and fold name it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two ends the gait's lift and fold key on.
+   * @evidence contracts/development/design.md#principled-representation The keys of the gait's lift record, so the two never drift apart.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `QuadrupedGait`; named here for the swing goal.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No restated literals.
+   */
   export type End = keyof QuadrupedGait.IGait["lift"];
 
   /**
@@ -53,11 +67,31 @@ export namespace QuadrupedSwingGoal {
     ground: QuadrupedFooting.IPlan | undefined;
     /** Whether this is a jump's trial assembly, which reads no footing for its footholds. */
     trial: boolean;
-    /** The hoof's foothold mover, clear of the footing's concave edges. */
+    /**
+     * The hoof's foothold mover, clear of the footing's concave edges.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the world point it takes and the cleared point it returns, metres.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback the caller supplies; its implementation is the caller's.
+     */
     clear: (point: IAutoMovieVector3) => IAutoMovieVector3;
     /** Whether the swing is carried by the flying body of a jump. */
     carried: boolean;
-    /** The course state at a second with the body's displayed placement. */
+    /**
+     * The course state at a second with the body's displayed placement.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the film second it takes and the course state it returns.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback the caller supplies; its implementation is the caller's.
+     */
     shown: (seconds: number) => ArchetypeCourse.IState;
     /** The current course state with the body's displayed placement. */
     current: ArchetypeCourse.IState;

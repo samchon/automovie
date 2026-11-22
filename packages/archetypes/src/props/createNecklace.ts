@@ -257,14 +257,6 @@ export namespace createNecklace {
    * @param length The loop's perimeter, metres.
    * @param b The half-breadth, metres.
    * @returns The front-to-back half-axis, metres; `b` when the perimeter is no more than the circle's.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result, the formula and the short-loop case.
-   * @evidence contracts/development/implementation.md#principled-implementation The perimeter grows with the half-axis, so bisection on it converges.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One perimeter function and one bisection.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sixty halvings reach the double's resolution.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A fixed sixty steps.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function depth(length: number, b: number): number {
     const perimeter = (a: number): number =>

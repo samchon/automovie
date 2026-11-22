@@ -11,7 +11,14 @@ import type { QuadrupedFooting } from "./QuadrupedFooting";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No constant: the reach is the pastern's own length, the edges the planes' own bounds.
  */
 export namespace QuadrupedCorner {
-  /** Move a world foothold clear of the concave edges within a reach of it, metres. */
+  /**
+   * Move a world foothold clear of the concave edges within a reach of it, metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the point and the reach in metres and the returned point.
+   * @evidence contracts/development/design.md#principled-representation A function from a world point and a reach to the cleared point.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The one shape `QuadrupedCorner` takes and returns.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
   export type Clear = (
     point: IAutoMovieVector3,
     reach: number,

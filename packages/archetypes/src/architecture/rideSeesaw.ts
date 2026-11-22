@@ -100,11 +100,6 @@ export function rideSeesaw(
 export namespace rideSeesaw {
   /**
    * When the riders push off and how long a rock takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation Ride seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `rideSeesaw`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Push-offs alternate ends by order.
    */
   export interface IParams {
     /** The ride second the beam, held level while the riders sit, is let go; its front end then drops to the ground over one rock. */
@@ -119,11 +114,6 @@ export namespace rideSeesaw {
 
   /**
    * One rocking seesaw's readers.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and clock.
-   * @evidence contracts/development/design.md#principled-representation Degrees and world frames over ride seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What a rider's composition and the test read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No reader stores a pose.
    */
   export interface IRide {
     /** The beam's angle with an end on the ground, degrees. */

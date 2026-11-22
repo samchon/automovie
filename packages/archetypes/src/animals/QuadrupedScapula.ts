@@ -14,10 +14,24 @@ import type { QuadrupedLimb } from "./QuadrupedLimb";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No prismatic slide or stretched bone; the blade turns rigidly within the cited range.
  */
 export namespace QuadrupedScapula {
-  /** A fore limb, the limbs with a shoulder blade. */
+  /**
+   * A fore limb, the limbs with a shoulder blade.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two limbs that have a blade.
+   * @evidence contracts/development/design.md#principled-representation The body's fore limbs, extracted from its limb union.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `QuadrupedBody`; named here for the blade.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No restated literals.
+   */
   export type Fore = Extract<QuadrupedBody.Limb, "leftFore" | "rightFore">;
 
-  /** A shoulder blade's bone, between the trunk and the humerus. */
+  /**
+   * A shoulder blade's bone, between the trunk and the humerus.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the blade bones by their limb.
+   * @evidence contracts/development/design.md#principled-representation The part id of each fore limb's blade, `leftForeScapula` or `rightForeScapula`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the body, the pose and the ride read it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No restated literals.
+   */
   export type Bone = `${Fore}Scapula`;
 
   /** Each fore limb's shoulder blade, which is also the id of the part that draws it. */

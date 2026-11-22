@@ -97,11 +97,6 @@ export namespace rideMovingWalkway {
 
   /**
    * How the band runs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation A positive speed and a direction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `rideMovingWalkway`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No signed speed: the direction is explicit.
    */
   export interface IParams {
     /** Band speed, m/s, in (0, 0.75]. */
@@ -113,11 +108,6 @@ export namespace rideMovingWalkway {
 
   /**
    * One running walkway's readers.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and clock.
-   * @evidence contracts/development/design.md#principled-representation World transforms over ride seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The band and handrail readers a ride uses.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No reader stores a pose.
    */
   export interface IRide {
     /** The band's signed velocity along the walkway's `+Z`, m/s. */

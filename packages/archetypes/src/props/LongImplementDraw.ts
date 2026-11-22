@@ -358,7 +358,14 @@ export namespace LongImplementDraw {
    */
   export type GroundToolContact = "face" | "shaft" | "grip";
 
-  /** The contacts `groundTool` itself builds, which a tool's own contacts join: one grip, or an upper and a lower grip for a two-handed push. */
+  /**
+   * The contacts `groundTool` itself builds, which a tool's own contacts join: one grip, or an upper and a lower grip for a two-handed push.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contacts `groundTool` builds.
+   * @evidence contracts/development/design.md#principled-representation The two contact ids `groundTool` always builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the producers of ground tools join their own.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
+   */
   export type GroundToolBuilt = "face" | "shaft";
 
   /**

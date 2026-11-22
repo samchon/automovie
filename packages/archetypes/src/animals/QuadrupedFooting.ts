@@ -75,7 +75,14 @@ export namespace QuadrupedFooting {
     source: string;
   }
 
-  /** A yielding footing's material. */
+  /**
+   * A yielding footing's material.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the four yielding materials.
+   * @evidence contracts/development/design.md#principled-representation A closed union of `sand`, `mud`, `bog` and `snow`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the footing plan names its material with it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
+   */
   export type Material = "sand" | "mud" | "bog" | "snow";
 
   /**

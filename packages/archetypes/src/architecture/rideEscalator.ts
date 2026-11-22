@@ -94,11 +94,6 @@ export namespace rideEscalator {
 
   /**
    * One running escalator's readers.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and clock.
-   * @evidence contracts/development/design.md#principled-representation World transforms over ride seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The readers a ride, a climb and a handrail grip use.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No reader stores a pose.
    */
   export interface IRide {
     /** The step band of the escalator. */

@@ -44,7 +44,14 @@ export namespace QuadrupedPoleSwing {
     on: number,
   ) => number;
 
-  /** The hoof track's goal at a course state and a swing share. */
+  /**
+   * The hoof track's goal at a course state and a swing share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the course state and the swing share it takes and the aim it returns.
+   * @evidence contracts/development/design.md#principled-representation A function from a course state and a share to the hoof track's aim.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The one reader a pole swing takes for its goal.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
   export type Aim = (
     moment: ArchetypeCourse.IState,
     amount: number,

@@ -103,11 +103,6 @@ export namespace createFoal {
 
   /**
    * The parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Days and metres.
-   * @evidence contracts/development/design.md#principled-representation An age, a mature height and the horse's tack and id.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `createFoal` takes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IParams {
     /** Days from birth, 0 to `WEANING`; 0 when absent. */
@@ -125,11 +120,6 @@ export namespace createFoal {
 
   /**
    * Growth fractions of mature size at an age.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member is a fraction of the mature size.
-   * @evidence contracts/development/design.md#principled-representation Three fractions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `growth`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IGrowth {
     /** The withers height's. */
@@ -147,14 +137,6 @@ export namespace createFoal {
    *
    * @param age Days from birth, 0 to `WEANING`.
    * @returns The fractions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the end values and their sources.
-   * @evidence contracts/development/implementation.md#principled-implementation Linear interpolation between the birth and weaning values.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One share.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by the producer.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function growth(age: number): IGrowth {
     const u: number = age / WEANING;
@@ -172,14 +154,6 @@ export namespace createFoal {
    * @param withers The foal's height at the withers, metres.
    * @param growth Its growth fractions.
    * @returns The profile.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the scaling.
-   * @evidence contracts/development/implementation.md#principled-implementation A bone's fraction of the height is the adult's times its growth over the height's growth: proximal bones grow with the height, so theirs is unchanged.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One profile record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the horse's body.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh profile.
    */
   export function profile(
     withers: number,

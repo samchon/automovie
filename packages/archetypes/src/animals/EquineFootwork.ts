@@ -123,7 +123,17 @@ export namespace EquineFootwork {
     readonly scramble: readonly EquineScramble.IWindow[];
     /** The bank faces' edges, whose crossing pitches the trunk along its support. */
     readonly edges: readonly EquineEdge.IEdge[];
-    /** The root's course distance at a film second. */
+    /**
+     * The root's course distance at a film second.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the film second it takes and the course distance it returns.
+     * @evidence contracts/development/implementation.md#principled-implementation Reads the distance of the admitted course's sample at the second.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One sample and one field read.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The distance is the course's own; nothing is interpolated here.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One course sample per call.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads a different second.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+     */
     readonly distance: (second: number) => number;
   }
 
@@ -255,9 +265,11 @@ export namespace EquineFootwork {
         edges.push(...EquineEdge.of(course.legs, index, plan, hooves));
         cues.push(
           { seconds: window.from, label: "bankScrambleStart" },
-          ...window.bounds.slice(1, -1).map(
-            (seconds: number): IInstant => ({ seconds, label: "bankBound" }),
-          ),
+          ...window.bounds
+            .slice(1, -1)
+            .map(
+              (seconds: number): IInstant => ({ seconds, label: "bankBound" }),
+            ),
           { seconds: window.to, label: "bankScrambleEnd" },
         );
         continue;

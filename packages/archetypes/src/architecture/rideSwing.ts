@@ -121,11 +121,6 @@ export function rideSwing(
 export namespace rideSwing {
   /**
    * How the swing is set going and pumped.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation The pendulum length, start angle, half swings and increment.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `rideSwing`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No velocity input: the ride starts at a turning point.
    */
   export interface IParams {
     /** Pivot to the seated centre of mass, metres. */
@@ -146,11 +141,6 @@ export namespace rideSwing {
 
   /**
    * One running swing's readers.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and clock.
-   * @evidence contracts/development/design.md#principled-representation The half-swing time, the turning angles and two readers.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What a rider's composition and the test read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No reader stores a pose.
    */
   export interface IRide {
     /** Seconds from one turning point to the next. */

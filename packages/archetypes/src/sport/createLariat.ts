@@ -227,11 +227,6 @@ export namespace createLariat {
 
   /**
    * The lariat's standing part between two held ends.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation points: The rope's points from one end to the other, world metres. taut: Whether the ends are as far apart as the rope is long. sag: How far its middle hangs below the straight line, metres.
-   * @evidence contracts/development/design.md#principled-representation A polyline and its tension state.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `standing`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IStanding {
     /** The rope's points from one end to the other, world metres. */
@@ -252,14 +247,6 @@ export namespace createLariat {
    * @param length The standing part's length, metres.
    * @param segments How many straight pieces it is laid in.
    * @returns The laid rope.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both shapes and when each holds.
-   * @evidence contracts/development/implementation.md#principled-implementation A shallow parabola's arc length is the chord plus 8 d^2 / 3 D, so the sag d for a rope of length L over a chord D is the square root of 3 D (L - D) / 8; a chord at least L is straight.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One sag, one loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A chord longer than the rope is laid straight and reported taut; nothing stretches it further.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the segments.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns new points.
    */
   export function standing(
     from: IAutoMovieVector3,

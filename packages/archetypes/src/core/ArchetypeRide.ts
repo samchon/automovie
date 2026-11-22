@@ -87,7 +87,17 @@ export namespace ArchetypeRide {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The reader is the performer's; the line owner invents no hand position.
    */
   export interface ILineHeld {
-    /** The held point in the world, metres, at a film second. */
+    /**
+     * The held point in the world, metres, at a film second.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the film second it takes and the world point it returns, metres.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback the caller supplies; its implementation is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback the caller supplies; its implementation is the caller's.
+     */
     held: (seconds: number) => IAutoMovieVector3;
     /** Absent: a held point is on neither model. */
     leader?: never;

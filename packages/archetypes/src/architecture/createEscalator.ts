@@ -303,11 +303,6 @@ export namespace createEscalator {
   /**
    * The step band in the escalator's frame: metres along the band from
    * the lower comb to each transition and to the upper comb.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names each length and angle with its unit.
-   * @evidence contracts/development/design.md#principled-representation The closed-form band derived once from the model's dimensions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `station` and `rideEscalator`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Derived only from the recorded dimensions.
    */
   export interface IProfile {
     /** Step pitch along the band, metres. */

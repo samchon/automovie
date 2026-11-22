@@ -325,14 +325,6 @@ export namespace createTree {
    * @param value The count asked for.
    * @returns It, or 0 when absent.
    * @throws {RangeError} For a count that is not a whole number from 0 to `MAX_BRANCHES`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the default and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A whole number inside the admitted range.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One check.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses rather than clamps.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function branchCount(value: number | undefined): number {
     const count: number = value ?? 0;
@@ -364,14 +356,6 @@ export namespace createTree {
    * @param diameter The branch's diameter, metres.
    * @param distance The load's distance from the trunk face, metres.
    * @returns The load, newtons.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the beam rule and the units.
-   * @evidence contracts/development/implementation.md#principled-implementation The elementary bending stress of a round section at the root of a cantilever.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No safety factor: the load is where the root fails.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function cantilever(
     rupture: number,
