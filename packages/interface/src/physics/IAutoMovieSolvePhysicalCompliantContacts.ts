@@ -56,7 +56,7 @@ export namespace IAutoMovieSolvePhysicalCompliantContacts {
     /** Local completed native-step second assigned by the simulation caller. */
     seconds: number;
 
-    /** World application point in metres, admitted to native precision. */
+    /** World application point in metres, in world metres. */
     point: IAutoMovieVector3;
 
     /** World unit normal pointing from the first outer collider to the second. */
@@ -65,12 +65,12 @@ export namespace IAutoMovieSolvePhysicalCompliantContacts {
     /** Normal impulse before explicit response gains, N s. */
     impulse: number;
 
-    /** Actual transferred normal impulse on each mapped side, after response gain and native f32 rounding. */
+    /** Actual transferred normal impulse on each mapped side, after response gain. */
     appliedImpulse: {
-      /** Normal impulse actually transferred to handle's dynamic parent in N s after gain and f32 rounding; zero without a dynamic parent. */
+      /** Normal impulse actually transferred to handle's dynamic parent in N s after gain; zero without a dynamic parent. */
       a: number;
 
-      /** Normal impulse actually transferred to other's dynamic parent in N s after its gain and f32 rounding; may differ from a. */
+      /** Normal impulse actually transferred to other's dynamic parent in N s after its gain; may differ from a. */
       b: number;
     };
 

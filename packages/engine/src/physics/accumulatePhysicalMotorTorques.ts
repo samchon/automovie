@@ -4,10 +4,10 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 
 /**
  * Map a Cartesian actuator demand through virtual work, tau=J^T wrench
@@ -29,7 +29,7 @@ export function accumulatePhysicalMotorTorques(input: {
   /** Admitted articulated geometry. */ profile: IAutoMoviePhysicalProfile;
   /** Current actual native segments. */ segments: ReadonlyMap<
     string,
-    RigidBody
+    AutoMovieXpbdBody
   >;
   /** Actuator path from proximal to distal. */ chain: readonly string[];
   /** Actual segment carrying the application point, independent of the support endpoint owner. */ carrier: string;
@@ -58,7 +58,7 @@ export function accumulatePhysicalMotorTorques(input: {
           candidate.child === bone,
       );
     if (!joint) continue;
-    const parent: RigidBody = input.segments.get(joint.parent)!;
+    const parent: AutoMovieXpbdBody = input.segments.get(joint.parent)!;
     const frame: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
       parent.rotation(),
       joint.parentFrame.rotation,

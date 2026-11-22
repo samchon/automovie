@@ -10,7 +10,6 @@ import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { admitPhysicalContactBindings } from "./admitPhysicalContactBindings";
 import { admitPhysicalTargetMotion } from "./admitPhysicalTargetMotion";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
-import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 
 /**
  * Admit every sampled ownership, effort and world pose before target fitting or native allocation.
@@ -137,7 +136,9 @@ export function admitPhysicalTargets(
       if (
         !pose?.position ||
         !pose.rotation ||
-        ![pose.position.x, pose.position.y, pose.position.z].every(scalar) ||
+        ![pose.position.x, pose.position.y, pose.position.z].every(
+          Number.isFinite,
+        ) ||
         ![
           pose.rotation.x,
           pose.rotation.y,

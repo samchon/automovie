@@ -1,4 +1,6 @@
 import {
+  AutoMovieXpbdBody,
+  AutoMovieXpbdWorld,
   bindPhysicalWorld,
   physicalSupportPoint,
   samplePhysicalTarget,
@@ -12,7 +14,6 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3 as V,
 } from "@automovie/interface";
-import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -37,7 +38,6 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A translating authored endpoint reaches its complete interval goal and retains the matching derivative under both fitting owners.).
  */
 export async function test_physical_support_target_clock(): Promise<void> {
-  await RAPIER.init();
   const body: IAutoMoviePhysicalSimulationInput.IBody =
     PhysicalSupportFixtures.body(PhysicalModelFixtures.quadrupod(), 1 / 120);
   body.balance!.iterations = 32;
@@ -59,26 +59,27 @@ export async function test_physical_support_target_clock(): Promise<void> {
     PhysicalFixtures.input([body], 1 / 120);
   input.substeps = 8;
   input.floor = 0;
-  input.internalIterations = 1;
-  const world: World = new RAPIER.World(input.gravity);
-  try {
+  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(input.gravity);
+  {
     const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
       world,
       input,
       false,
     );
     const root: IAutoMoviePhysicalSegment = body.profile.segments[0]!;
-    const base: RigidBody = bound.segments.get(body.id)!.get(root.bone)!;
-    base.setTranslation(
-      { ...base.translation(), y: base.translation().y - 0.015 },
-      true,
-    );
+    const base: AutoMovieXpbdBody = bound.segments
+      .get(body.id)!
+      .get(root.bone)!;
+    base.setTranslation({
+      ...base.translation(),
+      y: base.translation().y - 0.015,
+    });
     const foot: string = pattern.limbs[0]!.bone;
-    const carrier: RigidBody = bound.segments.get(body.id)!.get(foot)!;
-    carrier.setTranslation(
-      { ...carrier.translation(), x: carrier.translation().x + 0.02 },
-      true,
-    );
+    const carrier: AutoMovieXpbdBody = bound.segments.get(body.id)!.get(foot)!;
+    carrier.setTranslation({
+      ...carrier.translation(),
+      x: carrier.translation().x + 0.02,
+    });
     const state: IAutoMoviePhysicalRecoveryState = {
       last: "supported",
       steps: [],
@@ -270,7 +271,5 @@ export async function test_physical_support_target_clock(): Promise<void> {
           nclose(goals[foot]!.pose.position.x, original.x + 0.001, 1e-5),
         );
     }
-  } finally {
-    world.free();
   }
 }

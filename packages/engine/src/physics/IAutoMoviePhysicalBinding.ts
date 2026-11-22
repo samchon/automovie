@@ -11,8 +11,9 @@ import type {
   IAutoMovieSamplePhysicalAuthoredTargets,
   IAutoMovieSolvePhysicalCompliantContacts,
 } from "@automovie/interface";
-import type { ImpulseJoint, RigidBody } from "@dimforge/rapier3d-compat";
 
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
 
 /**
@@ -28,14 +29,14 @@ export interface IAutoMoviePhysicalBinding {
     string,
     IAutoMoviePhysicalProfile
   >;
-  /** Immobile position-kinematic floor; omitted only while native binding is being constructed. */ floor?: RigidBody;
+  /** Immobile position-kinematic floor; omitted only while the binding is being constructed. */ floor?: AutoMovieXpbdBody;
   /** Scene/body segment keys to live rigid bodies. */ bodies: Map<
     string,
-    RigidBody
+    AutoMovieXpbdBody
   >;
-  /** Body/joint keys to native joint constraints. */ joints: Map<
+  /** Body/joint keys to solver joints. */ joints: Map<
     string,
-    ImpulseJoint
+    AutoMovieXpbdJoint
   >;
   /** Contact source identity indexed by collider handle. */ colliders: Map<
     number,
@@ -47,7 +48,7 @@ export interface IAutoMoviePhysicalBinding {
   >;
   /** Bodies whose persistent motor forces were already cleared on withdrawal. */ released: Set<string>;
   /** Bodies whose declared contact-triggered withdrawal has actually occurred. */ contactReleased: Set<string>;
-  /** Current native dynamic ownership, rebuilt from native body types after restore. */ dynamic: Map<
+  /** Current dynamic ownership, rebuilt from the bodies' kinds after restore. */ dynamic: Map<
     string,
     Set<string>
   >;
@@ -55,9 +56,9 @@ export interface IAutoMoviePhysicalBinding {
     string,
     Record<string, IAutoMoviePhysicalHandoff>
   >;
-  /** Actual native ownership transitions, shared with the replay cache. */ ownership: IAutoMoviePhysicalOwnershipEvent[];
+  /** Actual ownership transitions, shared with the replay cache. */ ownership: IAutoMoviePhysicalOwnershipEvent[];
   /** Virtual requested/allocated support demand, never a measured solver impulse. */ supportWrenches: IAutoMoviePhysicalSupportWrench[];
-  /** Explicit root-withdrawal quality policies currently applied during protective joint effort. */ reflexQuality: Set<string>;
+
   /** At most one transient set of recovery motor goals per body and cached interval. */ planned: Map<
     string,
     IAutoMoviePhysicalTargetInterval.IPlan & {
@@ -70,9 +71,9 @@ export interface IAutoMoviePhysicalBinding {
     string,
     IAutoMoviePhysicalTargetInterval.IPlan
   >;
-  /** Reused per-body segment maps; no native wrappers escape the run. */ segments: Map<
+  /** Reused per-body segment maps; no solver bodies escape the run. */ segments: Map<
     string,
-    Map<string, RigidBody>
+    Map<string, AutoMovieXpbdBody>
   >;
   /** Joint postorder for linear-work downstream gravity moments. */ gravityOrder: Map<
     string,
@@ -111,7 +112,7 @@ export interface IAutoMoviePhysicalBinding {
     string,
     IAutoMovieSamplePhysicalAuthoredTargets.IPlan
   >;
-  /** Fitted interval endpoints; native substeps interpolate one coherent moving reference instead of holding its first sample. */ contactTargets: Map<
+  /** Fitted interval endpoints; solver substeps interpolate one coherent moving reference instead of holding its first sample. */ contactTargets: Map<
     string,
     IAutoMoviePhysicalTargetInterval.IPlan
   >;

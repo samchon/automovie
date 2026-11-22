@@ -6,41 +6,45 @@ import type {
   IAutoMoviePhysicalProfile,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type {
-  RigidBody,
-  TempContactManifold,
-  World,
-} from "@dimforge/rapier3d-compat";
 
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import { physicalSupportPoint } from "./physicalSupportPoint";
-import { readPhysicalManifoldImpulses } from "./readPhysicalManifoldImpulses";
-import { visitPhysicalNative } from "./visitPhysicalNative";
 
 /**
- * Read touching upward native floor constraints before recent positive surface impulses. Native points retain their actual combined friction; receipt-only compliant contacts use the declared average with the floor's friction 0.7. No projected sole or future contact is invented. A native point counts as loaded only from the impulse the solver applied to it (`readPhysicalManifoldImpulses`), never from a stale impulse left on a point the solver dropped.
+ * Read each limb's actual floor support: the rigid floor contacts the
+ * world's last step solved on the limb's patch colliders, then recent
+ * positive compliant-surface impulses on the same patch. No projected sole
+ * or future contact is invented; a limb with no sample returns nothing.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Read touching upward native floor constraints before recent positive surface impulses) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Read touching upward native floor constraints before recent positive surface impulses) directly over its typed inputs (`input`) as nested iteration of depth 3 (flatMap over input.pattern.limbs; for-of over input.colliders; for loop bounded by i < manifold.numContacts()), delegating to `patches.includes`, `visitPhysicalNative`, `manifold.normal`, `manifold.numContacts`, `manifold.contactDist`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Beyond structural 0, 1 and 2 the body uses the literals 0.5, 0.7, whose basis this answer does not independently establish and a reviewer must confirm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 131 lines and 1 top-level statements that reuses `patches.includes`, `visitPhysicalNative`, `manifold.normal`, `manifold.numContacts`, `manifold.contactDist` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 4 non-null assertion(s); these are the remaining shortcuts and are not justified here.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is nested iteration of depth 3 (flatMap over input.pattern.limbs; for-of over input.colliders; for loop bounded by i < manifold.numContacts()), performed once per call with 9 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 9 allocation sites become the returned value or die with the call, so nothing grows.
+ * A rigid floor manifold supports the limb when its normal, taken from the
+ * limb's collider toward the floor, points down by more than 60 degrees
+ * (`y < -0.5`, the cosine of that cone). Each of its points the step found
+ * pressing (separation not positive where the contact was found) is a sample carrying the pair's
+ * combined friction as the step used it (`manifold.friction`), and a point
+ * that received a positive normal impulse marks the limb loaded. A
+ * compliant receipt counts only while its latest sample at or before
+ * `seconds` is still within its duration plus one substep, pressed with a
+ * positive impulse that the limb's side actually received, with the floor
+ * on the other side of the same 60-degree cone; it carries the mean of its
+ * material's friction and the floor's 0.7, the coefficient the binding
+ * gives the floor collider, and marks the limb loaded. Samples at the same
+ * horizontal position on the same carrier are one application point.
+ *
+ * @param input The world, owner, patch pattern, segment bodies, collider identities, receipts and clock.
+ * @returns One support per limb with samples: the limb's declared world point, its sample points and samples, and whether it is loaded.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States both sources, the cone and its cosine, the pressing and loaded tests, the friction each sample carries, the receipt window and the merge of equal points.
+ * @evidence contracts/development/implementation.md#principled-implementation The manifold points and impulses are those the world's position solve applied (Mueller et al. 2020, sec. 3.5), so a pressing point is a real floor constraint and a positive impulse a real load; the compliant law's receipts carry the impulse each side received. 0.5 is the cone's cosine and 0.7 the binding's floor friction.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Per limb, one pass over the step's manifolds and one over the receipts, with a local patch-owner test and point merge; contact detection is the world's and receipts are recordPhysicalContact's.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the body's own patch colliders against the floor count; no pattern, scene or shape kind has its own rule. Non-null assertions read receipt samples the loop bounds and the segment body the binding created for the limb's bone.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Per limb, linear in the step's manifold points and in the receipts with their samples, plus the material lookups.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads one completed step's manifolds, which the next step replaces; nothing is reusable across calls.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned supports and their copied points are the caller's.
  */
-export function collectPhysicalSupports(input: {
-  /** Current native world, outside a solver invocation. */ world: World;
-  /** Source body identity. */ body: string;
-  /** Source material and shape ownership. */ profile: IAutoMoviePhysicalProfile;
-  /** Explicit support paths and patch owners. */ pattern: IAutoMovieFootfallPattern;
-  /** Actual segment wrappers. */ segments: ReadonlyMap<string, RigidBody>;
-  /** Scene collider ownership. */ colliders: ReadonlyMap<
-    number,
-    IAutoMovieContactReceipt["a"]
-  >;
-  /** Completed contact samples. */ contacts: readonly IAutoMovieContactReceipt[];
-  /** Current local seconds and native timestep. */ seconds: number;
-  dt: number;
-}): IAutoMovieCollectPhysicalSupports.ISupport[] {
+export function collectPhysicalSupports(
+  input: collectPhysicalSupports.IInput,
+): IAutoMovieCollectPhysicalSupports.ISupport[] {
   return input.pattern.limbs.flatMap(
     (
       limb: IAutoMovieFootfallPattern["limbs"][number],
@@ -49,53 +53,23 @@ export function collectPhysicalSupports(input: {
       const samples: IAutoMovieCollectPhysicalSupports.IPoint[] = [];
       const seen: Set<string> = new Set();
       let loaded: boolean = false;
-      for (const [handle, identity] of input.colliders)
-        if (identity.body === input.body && patches.includes(identity.bone)) {
-          visitPhysicalNative(
-            (visitor: (other: number) => void): void =>
-              input.world.narrowPhase.contactPairsWith(handle, visitor),
-            (other: number): void => {
-              if (input.colliders.get(other)?.body !== "floor") return;
-              visitPhysicalNative(
-                (
-                  visitor: (
-                    manifold: TempContactManifold,
-                    flipped: boolean,
-                  ) => void,
-                ): void =>
-                  input.world.narrowPhase.contactPair(
-                    handle,
-                    other,
-                    input.world.bodies,
-                    visitor,
-                  ),
-                (manifold: TempContactManifold, flipped: boolean): void => {
-                  if (manifold.normal().y * (flipped ? -1 : 1) >= -0.5) return;
-                  const applied: number[] = readPhysicalManifoldImpulses(
-                    input.world,
-                    manifold,
-                    flipped ? other : handle,
-                    flipped ? handle : other,
-                  );
-                  for (let i: number = 0; i < manifold.numContacts(); i++)
-                    if (manifold.contactDist(i) <= 0 && applied[i]! > 0)
-                      loaded = true;
-                  for (
-                    let i: number = 0;
-                    i < manifold.numSolverContacts();
-                    i++
-                  ) {
-                    if (manifold.solverContactDist(i) > 0) continue;
-                    const point: IAutoMovieVector3 | null =
-                      manifold.solverContactPoint(i);
-                    if (point)
-                      append(point, manifold.friction(), identity.bone);
-                  }
-                },
-              );
-            },
-          );
+      for (const manifold of input.world.manifolds()) {
+        const first: IAutoMovieContactReceipt["a"] | undefined =
+          input.colliders.get(manifold.a.handle);
+        const second: IAutoMovieContactReceipt["a"] | undefined =
+          input.colliders.get(manifold.b.handle);
+        const ours: boolean = owns(first) && second?.body === "floor";
+        if (!ours && !(owns(second) && first?.body === "floor")) continue;
+
+        // The manifold normal runs from the first collider to the second.
+        if (manifold.normal.y * (ours ? 1 : -1) >= -0.5) continue;
+        const carrier: string = (ours ? first : second)!.bone;
+        for (const point of manifold.points) {
+          if (point.separation > 0) continue;
+          if (point.impulse > 0) loaded = true;
+          append(point.point, manifold.friction, carrier);
         }
+      }
       for (const receipt of input.contacts) {
         const first: boolean =
           receipt.a.body === input.body &&
@@ -152,7 +126,7 @@ export function collectPhysicalSupports(input: {
           first ? receipt.a.bone : receipt.b.bone,
         );
       }
-      const rigid: RigidBody = input.segments.get(limb.bone)!;
+      const rigid: AutoMovieXpbdBody = input.segments.get(limb.bone)!;
       return samples.length
         ? [
             {
@@ -172,7 +146,18 @@ export function collectPhysicalSupports(input: {
           ]
         : [];
 
-      /** Equal horizontal native witnesses describe the same floor application point. */
+      /** Whether an identified collider is one of this limb's patch colliders on the body. */
+      function owns(
+        identity: IAutoMovieContactReceipt["a"] | undefined,
+      ): boolean {
+        return (
+          identity !== undefined &&
+          identity.body === input.body &&
+          patches.includes(identity.bone)
+        );
+      }
+
+      /** Equal horizontal witnesses on one carrier describe the same floor application point. */
       function append(
         point: IAutoMovieVector3,
         friction: number,
@@ -185,4 +170,45 @@ export function collectPhysicalSupports(input: {
       }
     },
   );
+}
+
+/**
+ * The input {@link collectPhysicalSupports} reads: one body's limbs against
+ * the world's last step and the run's compliant receipts at one local time.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents each input member with its owner, frame, unit and timebase.
+ * @evidence contracts/development/design.md#principled-representation The world and segment bodies as the binding built them, scene identities as strings, receipts as the interface records, local seconds and the solver substep in seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Built by trackPhysicalWorld and advancePhysicalBalance; every member is read, the substep widening the receipt window by one step.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member, any, unknown or cast; the profile, pattern and receipts are the interface's own types.
+ */
+export namespace collectPhysicalSupports {
+  /** What one support reading needs. */
+  export interface IInput {
+    /** The world, between steps; its last step's manifolds are read. */
+    world: AutoMovieXpbdWorld;
+
+    /** Scene identity of the body whose limbs are read. */
+    body: string;
+
+    /** The body's profile: its materials' friction and compliance. */
+    profile: IAutoMoviePhysicalProfile;
+
+    /** The limbs, their patch colliders' bones and declared local points. */
+    pattern: IAutoMovieFootfallPattern;
+
+    /** The body's segment bodies by bone. */
+    segments: ReadonlyMap<string, AutoMovieXpbdBody>;
+
+    /** Scene identity of every bound collider, by handle. */
+    colliders: ReadonlyMap<number, IAutoMovieContactReceipt["a"]>;
+
+    /** The run's completed contact receipts. */
+    contacts: readonly IAutoMovieContactReceipt[];
+
+    /** Local seconds of the reading. */
+    seconds: number;
+
+    /** The solver substep, seconds. */
+    dt: number;
+  }
 }

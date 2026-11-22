@@ -176,7 +176,7 @@ export async function test_physical_point_bounds(): Promise<void> {
       value.reference.bone = "absent";
     },
     (value: Bound): void => {
-      value.source.localPoint.x = 1e100;
+      value.source.localPoint.x = Infinity;
     },
     (value: Bound): void => {
       value.chain = ["root"];

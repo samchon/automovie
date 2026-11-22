@@ -501,9 +501,6 @@ importers:
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
-      '@dimforge/rapier3d-compat':
-        specifier: 0.21.0
-        version: 0.21.0
     devDependencies:
       '@ttsc/evidence':
         specifier: catalog:samchon
@@ -961,9 +958,6 @@ importers:
         specifier: catalog:samchon
         version: 15.4.1(ttsc@0.37.1(typescript@7.0.2))
     devDependencies:
-      '@dimforge/rapier3d-compat':
-        specifier: 0.21.0
-        version: 0.21.0
       '@napi-rs/canvas':
         specifier: 1.0.1
         version: 1.0.1
@@ -1198,9 +1192,6 @@ packages:
 
   '@dimforge/rapier3d-compat@0.12.0':
     resolution: {integrity: sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow==}
-
-  '@dimforge/rapier3d-compat@0.21.0':
-    resolution: {integrity: sha512-tCl1HPGwOhn5aCQbgqWbOH+Nx/5fnr3IPAnzQuR7zIhC/raqi2yxC6LhvZqjdI2El5hQgY5RDAwDrAjAi2FdPA==}
 
   '@emnapi/core@2.0.0-beta.2':
     resolution: {integrity: sha512-MzCVoWtcg4Pm2B3je5mMvYMvj3MmBKw+fU7vbsJc9/iT8ip6/eYIHo/Dsm/mr+wsHB6SEyJDuxB09Yy6r/8+4A==}
@@ -5088,8 +5079,6 @@ snapshots:
       parse-cache-control: 1.0.1
 
   '@dimforge/rapier3d-compat@0.12.0': {}
-
-  '@dimforge/rapier3d-compat@0.21.0': {}
 
   '@emnapi/core@2.0.0-beta.2':
     dependencies:

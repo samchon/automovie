@@ -1,11 +1,14 @@
-import { physicalGravityTorques } from "@automovie/engine";
+import {
+  AutoMovieXpbdBody,
+  AutoMovieXpbdWorld,
+  physicalGravityTorques,
+} from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalSegment,
   IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
-import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -24,7 +27,6 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A one-kilogram link COM at half a metre plus a two-kilogram payload at one metre require 24.525 Nm.).
  */
 export async function test_physical_gravity_feedforward(): Promise<void> {
-  await RAPIER.init();
   const profile: P = PhysicalFixtures.sphere();
   const root: IAutoMoviePhysicalSegment = profile.segments[0]!;
   root.neutral.position = { x: 0, y: 0, z: 0 };
@@ -63,56 +65,46 @@ export async function test_physical_gravity_feedforward(): Promise<void> {
     axes: [],
   };
   profile.joints = [hinge, attachment];
-  const world: World = new RAPIER.World({ x: 0, y: 0, z: 0 });
-  try {
-    const segments: Map<string, RigidBody> = new Map(
-      profile.segments.map(
-        (segment: (typeof profile.segments)[number]): [string, RigidBody] => {
-          const body: RigidBody = world.createRigidBody(
-            RAPIER.RigidBodyDesc.dynamic()
-              .setTranslation(
-                segment.neutral.position.x,
-                segment.neutral.position.y,
-                segment.neutral.position.z,
-              )
-              .setRotation(segment.neutral.rotation)
-              .setAdditionalMassProperties(
-                segment.mass,
-                segment.centerOfMass,
-                segment.inertia,
-                segment.inertiaRotation,
-              ),
-          );
-          body.recomputeMassPropertiesFromColliders();
-          return [segment.bone, body];
-        },
-      ),
-    );
-    const torques: ReturnType<typeof physicalGravityTorques> =
-      physicalGravityTorques(profile, [attachment, hinge], segments, {
-        x: 0,
-        y: -9.81,
-        z: 0,
-      });
-    const actual: NonNullable<ReturnType<typeof torques.joints.get>> =
-      torques.joints.get("hinge")!;
-    TestValidator.predicate(
-      "rotated downstream mass moment",
-      Math.abs(actual.z - 24.525) < 1e-5 &&
-        Math.hypot(actual.x, actual.y) < 1e-5,
-    );
-    TestValidator.predicate(
-      "root counter-moment uses its actual force application point",
-      Math.abs(torques.root.x - 24.525) < 1e-5 &&
-        Math.hypot(torques.root.y, torques.root.z) < 1e-5,
-    );
-    const distal: NonNullable<ReturnType<typeof torques.joints.get>> =
-      torques.joints.get("attachment")!;
-    TestValidator.predicate(
-      "payload lies at its own attachment pivot",
-      Math.hypot(distal.x, distal.y, distal.z) < 1e-6,
-    );
-  } finally {
-    world.free();
-  }
+  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({
+    x: 0,
+    y: 0,
+    z: 0,
+  });
+  const segments: Map<string, AutoMovieXpbdBody> = new Map(
+    profile.segments.map(
+      (segment: IAutoMoviePhysicalSegment): [string, AutoMovieXpbdBody] => {
+        const body: AutoMovieXpbdBody = world.createBody(true, segment.neutral);
+        body.setMass(
+          segment.mass,
+          segment.centerOfMass,
+          segment.inertia,
+          segment.inertiaRotation,
+        );
+        return [segment.bone, body];
+      },
+    ),
+  );
+  const torques: ReturnType<typeof physicalGravityTorques> =
+    physicalGravityTorques(profile, [attachment, hinge], segments, {
+      x: 0,
+      y: -9.81,
+      z: 0,
+    });
+  const actual: NonNullable<ReturnType<typeof torques.joints.get>> =
+    torques.joints.get("hinge")!;
+  TestValidator.predicate(
+    "rotated downstream mass moment",
+    Math.abs(actual.z - 24.525) < 1e-5 && Math.hypot(actual.x, actual.y) < 1e-5,
+  );
+  TestValidator.predicate(
+    "root counter-moment uses its actual force application point",
+    Math.abs(torques.root.x - 24.525) < 1e-5 &&
+      Math.hypot(torques.root.y, torques.root.z) < 1e-5,
+  );
+  const distal: NonNullable<ReturnType<typeof torques.joints.get>> =
+    torques.joints.get("attachment")!;
+  TestValidator.predicate(
+    "payload lies at its own attachment pivot",
+    Math.hypot(distal.x, distal.y, distal.z) < 1e-6,
+  );
 }

@@ -7,10 +7,10 @@ import type {
   IAutoMoviePreparePhysicalGeometry,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
@@ -48,14 +48,14 @@ export function assertPhysicalReturnPath(
     Record<string, IAutoMovieRigidTransform>
   > = Object.fromEntries(
     [...bound.segments].map(
-      ([id, segments]: [string, Map<string, RigidBody>]): [
+      ([id, segments]: [string, Map<string, AutoMovieXpbdBody>]): [
         string,
         Record<string, IAutoMovieRigidTransform>,
       ] => [
         id,
         Object.fromEntries(
           [...segments].map(
-            ([bone, rigid]: [string, RigidBody]): [
+            ([bone, rigid]: [string, AutoMovieXpbdBody]): [
               string,
               IAutoMovieRigidTransform,
             ] => [
@@ -128,9 +128,11 @@ export function assertPhysicalReturnPath(
             physicalSupportPoint(child, joint.childFrame.position),
           ),
         );
+        // The return poses are composed in float64; 64 ulps of their scale bound
+        // the rounding of the few quaternion products that place an anchor.
         const rounding: number =
           64 *
-          2 ** -23 *
+          Number.EPSILON *
           Math.max(
             1,
             Vector3.length(parent.position),
@@ -172,7 +174,8 @@ export function assertPhysicalReturnPath(
           error >
           body.handoffLimits!.maximumJointViolation *
             (transitions[joint.child] ? fade : 1) +
-            64 * 2 ** -23
+            // 64 ulps of the composed rotations' float64 rounding.
+            64 * Number.EPSILON
         )
           throw new Error(
             `Physical return violates joint limit envelope: ${body.id}/${joint.id} at ${seconds}: ${error} rad`,

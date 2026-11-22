@@ -4,15 +4,14 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { physicalHullFaces } from "./physicalHullFaces";
 
 /**
  * Admit geometry and observed frames without borrowing the native mass/tree contract. Every collider still has a finite solid shape, material, local frame and known joint carriers.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Admit geometry and observed frames without borrowing the native mass/tree contract) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Admit geometry and observed frames without borrowing the native mass/tree contract) directly over its typed inputs (`geometry`) as nested iteration of depth 3 (every over [value.position.x, value.position.y, val; every over [ value.rotation.x, value.ro; for-of over geometry.materials), delegating to `value.trim`, `scalar`, `Math.fround`, `Number.isFinite`, `Math.abs`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (11 throw sites). Beyond structural 0, 1 and 2 the body uses the literal 0.000001, whose basis this answer does not independently establish and a reviewer must confirm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 143 lines and 12 top-level statements that reuses `value.trim`, `scalar`, `Math.fround`, `Number.isFinite`, `Math.abs` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Admit geometry and observed frames without borrowing the native mass/tree contract) directly over its typed inputs (`geometry`) as nested iteration of depth 3 (every over [value.position.x, value.position.y, val; every over [ value.rotation.x, value.ro; for-of over geometry.materials), delegating to `value.trim`, `Number.isFinite`, `Number.isFinite`, `Math.abs`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (11 throw sites). Beyond structural 0, 1 and 2 the body uses the literal 0.000001, whose basis this answer does not independently establish and a reviewer must confirm.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 143 lines and 12 top-level statements that reuses `value.trim`, `Number.isFinite`, `Number.isFinite`, `Math.abs` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 2 non-null assertion(s); these are the remaining shortcuts and are not justified here.
  * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `geometry`; the dominant cost is nested iteration of depth 3 (every over [value.position.x, value.position.y, val; every over [ value.rotation.x, value.ro; for-of over geometry.materials), performed once per call with 21 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
@@ -22,18 +21,20 @@ export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
   const name: (value: string) => boolean = (value: string): boolean =>
     typeof value === "string" && value.trim().length > 0;
   const positive: (value: number) => boolean = (value: number): boolean =>
-    scalar(value) &&
+    Number.isFinite(value) &&
     value > 0 &&
-    Math.fround(value) > 0 &&
-    Number.isFinite(Math.fround(1 / value));
+    value > 0 &&
+    Number.isFinite(1 / value);
   const nonnegative: (value: number) => boolean = (value: number): boolean =>
-    scalar(value) && value >= 0 && (value === 0 || Math.fround(value) > 0);
+    Number.isFinite(value) && value >= 0 && (value === 0 || value > 0);
   const transform: (value: IAutoMovieRigidTransform) => boolean = (
     value: IAutoMovieRigidTransform,
   ): boolean =>
     !!value?.position &&
     !!value.rotation &&
-    [value.position.x, value.position.y, value.position.z].every(scalar) &&
+    [value.position.x, value.position.y, value.position.z].every(
+      Number.isFinite,
+    ) &&
     [
       value.rotation.x,
       value.rotation.y,
@@ -126,7 +127,7 @@ export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
           shape.points.length < 4 ||
           !shape.points.every(
             (point: (typeof shape.points)[number]): boolean =>
-              !!point && [point.x, point.y, point.z].every(scalar),
+              !!point && [point.x, point.y, point.z].every(Number.isFinite),
           )
         )
           throw new Error("Invalid motion geometry hull");

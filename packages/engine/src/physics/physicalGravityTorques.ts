@@ -5,10 +5,10 @@ import type {
   IAutoMoviePhysicalSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 
 /** Counter actual downstream gravitational moments through the same bounded joint motors.
  * Joints arrive in postorder, so one mass/first-moment accumulation includes
@@ -26,7 +26,7 @@ import { Vector3 } from "../math/Vector3";
 export function physicalGravityTorques(
   profile: IAutoMoviePhysicalProfile,
   order: readonly IAutoMoviePhysicalJoint[],
-  segments: ReadonlyMap<string, RigidBody>,
+  segments: ReadonlyMap<string, AutoMovieXpbdBody>,
   gravity: IAutoMovieVector3,
 ): IAutoMoviePhysicalGravityTorques.IResult {
   const loads: Map<string, { mass: number; moment: IAutoMovieVector3 }> =
@@ -48,8 +48,8 @@ export function physicalGravityTorques(
     );
   const result: Map<string, IAutoMovieVector3> = new Map();
   for (const joint of order) {
-    const child: RigidBody = segments.get(joint.child)!;
-    const parent: RigidBody = segments.get(joint.parent)!;
+    const child: AutoMovieXpbdBody = segments.get(joint.child)!;
+    const parent: AutoMovieXpbdBody = segments.get(joint.parent)!;
     const load: { mass: number; moment: IAutoMovieVector3 } = loads.get(
       joint.child,
     )!;

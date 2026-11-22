@@ -1,4 +1,5 @@
 import {
+  AutoMovieXpbdWorld,
   Vector3,
   bindPhysicalWorld,
   collectPhysicalSupports,
@@ -7,12 +8,11 @@ import {
 import type {
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulationInput,
-  IAutoMovieRigidTransform,
+  IAutoMovieSamplePhysicalTarget,
   IAutoMoviePhysicalProfile as P,
   IAutoMovieFootfallPattern as Pattern,
   IAutoMovieVector3 as V,
 } from "@automovie/interface";
-import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -31,7 +31,6 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A real floor constraint owns a stationary floor-compatible endpoint.).
  */
 export async function test_physical_support_departure(): Promise<void> {
-  await RAPIER.init();
   const root: IAutoMoviePhysicalSegment = structuredClone(
     PhysicalFixtures.sphere(0.03).segments[0]!,
   );
@@ -135,10 +134,13 @@ export async function test_physical_support_departure(): Promise<void> {
   const input: IAutoMoviePhysicalSimulationInput.IInput =
     PhysicalFixtures.input([body], 1 / 120);
   Object.assign(input, { floor: 0, substeps: 1, contactTolerance: 0.0001 });
-  const world: World = new RAPIER.World({ x: 0, y: 0, z: 0 });
-  try {
-    world.timestep = 1 / 120;
-    world.integrationParameters.normalizedPredictionDistance = 0;
+  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({
+    x: 0,
+    y: 0,
+    z: 0,
+  });
+  world.timestep = 1 / 120;
+  {
     const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
       world,
       input,
@@ -169,32 +171,24 @@ export async function test_physical_support_departure(): Promise<void> {
         body.targets[0]!,
       );
       if (kind === "reserved") target.unavailableSupports = ["foot"];
-      const goals: Parameters<typeof trackPhysicalSupports>[0]["goals"] =
-        Object.fromEntries(
-          profile.segments.map(
-            (
-              segment: IAutoMoviePhysicalSegment,
-            ): [
-              string,
-              {
-                pose: IAutoMovieRigidTransform;
-                velocity: V;
-                angularVelocity: V;
+      const goals: trackPhysicalSupports.IInput["goals"] = Object.fromEntries(
+        profile.segments.map(
+          (
+            segment: IAutoMoviePhysicalSegment,
+          ): [string, IAutoMovieSamplePhysicalTarget.IResult] => [
+            segment.bone,
+            {
+              pose: structuredClone(segment.neutral),
+              velocity: {
+                x: 0,
+                y: kind === "moving" && segment.bone === "foot" ? 0.1 : 0,
+                z: 0,
               },
-            ] => [
-              segment.bone,
-              {
-                pose: structuredClone(segment.neutral),
-                velocity: {
-                  x: 0,
-                  y: kind === "moving" && segment.bone === "foot" ? 0.1 : 0,
-                  z: 0,
-                },
-                angularVelocity: { x: 0, y: 0, z: 0 },
-              },
-            ],
-          ),
-        );
+              angularVelocity: { x: 0, y: 0, z: 0 },
+            },
+          ],
+        ),
+      );
       goals.foot!.pose.position.x = 0.31;
       goals.foot!.pose.position.y = kind === "elevated" ? 0.2 : 0.1;
       const torques: Map<string, V> = new Map();
@@ -223,7 +217,5 @@ export async function test_physical_support_departure(): Promise<void> {
         kind === "stance" ? demand === 0 : demand > 0.001,
       );
     }
-  } finally {
-    world.free();
   }
 }

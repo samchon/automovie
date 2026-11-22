@@ -7,24 +7,26 @@ import type {
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import RAPIER, { type RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalRotationVector as Rotation } from "./PhysicalRotationVector";
-import { assertPhysicalNativeMotion } from "./assertPhysicalNativeMotion";
+import { assertPhysicalFiniteMotion } from "./assertPhysicalFiniteMotion";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
-import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
-import { physicalNativeVector } from "./physicalNativeVector";
 import { physicalSupportPoint } from "./physicalSupportPoint";
+import { stabilizePhysicalJointReturn } from "./stabilizePhysicalJointReturn";
 
 /**
  * Switch native ownership at declared subtree boundaries. Activation retains
  * the actual transform and explicitly carries the native kinematic COM and
  * angular velocities. Return uses cubic Hermite corrections in parent-local
  * transforms; SO(3)'s left Jacobian preserves the initial angular derivative.
+ * A return starts from the solved joint rotation post-stabilized onto the
+ * joint's limit box (Cline and Pai 2003), removing the drift finite solver
+ * iterations leave, and records that projection's angle on its event.
  * Both colliders and cache readers follow these same native placements. This
  * never blends a rendered skeleton over a different physical body.
  *
@@ -44,7 +46,7 @@ export function advancePhysicalOwnership(input: {
     string,
     IAutoMovieSamplePhysicalTarget.IResult
   >;
-  /** Exact next native tick; native f32 timesteps never establish event time. */ tick: number;
+  /** Exact next solver tick; floating-point timesteps never establish event time. */ tick: number;
   /** Declared integer native ticks per second. */ nativeRate: number;
 }): Set<string> {
   const seconds: number = input.tick / input.nativeRate;
@@ -76,7 +78,7 @@ export function advancePhysicalOwnership(input: {
   }
   const selected: Set<string> = selection.bones;
   let owned: Set<string> | undefined;
-  const segments: Map<string, RigidBody> = input.bound.segments.get(
+  const segments: Map<string, AutoMovieXpbdBody> = input.bound.segments.get(
     input.body.id,
   )!;
   const transitions: Record<string, IAutoMoviePhysicalHandoff> =
@@ -100,16 +102,14 @@ export function advancePhysicalOwnership(input: {
   const actual: Record<string, IAutoMovieSamplePhysicalTarget.IResult> =
     Object.fromEntries(
       [...segments].map(
-        ([bone, rigid]: [string, RigidBody]): [
+        ([bone, rigid]: [string, AutoMovieXpbdBody]): [
           string,
           IAutoMovieSamplePhysicalTarget.IResult,
         ] => [
           bone,
           {
             pose: { position: rigid.translation(), rotation: rigid.rotation() },
-            velocity: rigid.velocityAtPoint(
-              physicalNativeVector(rigid.translation()),
-            ),
+            velocity: rigid.velocityAtPoint(rigid.translation()),
             angularVelocity: rigid.angvel(),
           },
         ],
@@ -156,11 +156,11 @@ export function advancePhysicalOwnership(input: {
     );
   for (const segment of ordered) {
     const bone: string = segment.bone;
-    const rigid: RigidBody = segments.get(bone)!;
+    const rigid: AutoMovieXpbdBody = segments.get(bone)!;
     if (selected.has(bone)) {
       delete transitions[bone];
       if (!rigid.isDynamic()) {
-        assertPhysicalNativeMotion(
+        assertPhysicalFiniteMotion(
           segment,
           actual[bone]!.pose,
           actual[bone]!.velocity,
@@ -168,9 +168,9 @@ export function advancePhysicalOwnership(input: {
         );
         const velocity: IAutoMovieVector3 = rigid.linvel();
         const angular: IAutoMovieVector3 = rigid.angvel();
-        rigid.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
-        rigid.setLinvel(velocity, true);
-        rigid.setAngvel(angular, true);
+        rigid.setDynamic(true);
+        rigid.setLinvel(velocity);
+        rigid.setAngvel(angular);
         input.bound.ownership.push({
           body: input.body.id,
           bone,
@@ -186,10 +186,16 @@ export function advancePhysicalOwnership(input: {
     const parent: string | undefined = joint?.parent;
     writable(bone);
     if (rigid.isDynamic()) {
-      const solved: IAutoMovieSamplePhysicalTarget.IResult = relative(
+      const drifted: IAutoMovieSamplePhysicalTarget.IResult = relative(
         actual[bone]!,
         parent ? actual[parent]! : undefined,
       );
+
+      // The return starts from the solved state post-stabilized onto the
+      // joint's limits, and the projection's angle is recorded on its event.
+      const stabilized: stabilizePhysicalJointReturn.IResult =
+        stabilizePhysicalJointReturn(drifted, joint);
+      const solved: IAutoMovieSamplePhysicalTarget.IResult = stabilized.result;
       const intended: IAutoMovieSamplePhysicalTarget.IResult = relative(
         before[bone]!,
         parent ? before[parent]! : undefined,
@@ -238,12 +244,13 @@ export function advancePhysicalOwnership(input: {
           ),
         ),
       };
-      rigid.setBodyType(RAPIER.RigidBodyType.KinematicPositionBased, true);
+      rigid.setDynamic(false);
       input.bound.ownership.push({
         body: input.body.id,
         bone,
         seconds: previousSeconds,
         kind: "return",
+        ...(joint === undefined ? {} : { stabilization: stabilized.angle }),
       });
     }
     if (transitions[bone]?.completed) delete transitions[bone];
@@ -400,14 +407,14 @@ export function advancePhysicalOwnership(input: {
     return input.goals[bone]!;
   }
 
-  /** Validate the same actual collider/display trajectory before passing it through the native f32 boundary. */
+  /** Validate the same actual collider/display trajectory before handing it to the solver. */
   function write(
     segment: IAutoMoviePhysicalSegment,
     joint?: IAutoMoviePhysicalJoint,
   ): void {
     const bone: string = segment.bone;
     const goal: IAutoMovieSamplePhysicalTarget.IResult = input.goals[bone]!;
-    assertPhysicalNativeMotion(
+    assertPhysicalFiniteMotion(
       segment,
       goal.pose,
       goal.velocity,
@@ -418,12 +425,10 @@ export function advancePhysicalOwnership(input: {
         goal.pose,
         joint.childFrame.position,
       );
-      if (![anchor.x, anchor.y, anchor.z].every(scalar))
-        throw new Error(
-          `Derived native joint anchor exceeds f32 range: ${joint.id}`,
-        );
+      if (![anchor.x, anchor.y, anchor.z].every(Number.isFinite))
+        throw new Error(`Derived joint anchor is not finite: ${joint.id}`);
     }
-    const rigid: RigidBody = segments.get(bone)!;
+    const rigid: AutoMovieXpbdBody = segments.get(bone)!;
     rigid.setNextKinematicTranslation(goal.pose.position);
     rigid.setNextKinematicRotation(goal.pose.rotation);
   }

@@ -11,9 +11,9 @@ import type {
   IAutoMovieTrackPhysicalBalanceTargets,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Vector3 } from "../math/Vector3";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import { choosePhysicalSupportFit } from "./choosePhysicalSupportFit";
@@ -76,7 +76,9 @@ export function trackPhysicalBalanceTargets(input: {
         input.state,
         input.step / input.settings.rate,
       );
-    const base: RigidBody = bound.segments.get(body.id)!.get(input.root.bone)!;
+    const base: AutoMovieXpbdBody = bound.segments
+      .get(body.id)!
+      .get(input.root.bone)!;
     const root: { bone: string; pose: IAutoMovieRigidTransform } = {
       bone: input.root.bone,
       pose: { position: base.translation(), rotation: base.rotation() },

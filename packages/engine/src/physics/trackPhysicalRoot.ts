@@ -6,21 +6,21 @@ import type {
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalTracking as Tracking } from "./AutoMoviePhysicalTracking";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
-import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
 import { distributePhysicalSupportWrench } from "./distributePhysicalSupportWrench";
+import { physicalCentroidalTask } from "./physicalCentroidalTask";
 import { physicalJointInertia } from "./physicalJointInertia";
-import { physicalNativeVector } from "./physicalNativeVector";
 
 /**
- * Realize one bounded root demand through an external wrench or feasible actual-support joint torques.
+ * Realize one bounded root demand through an external wrench, or under internal actuation as the root task of the motors' whole-body solve.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Realize one bounded root demand through an external wrench or feasible actual-support joint torques) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Realize one bounded root demand through an external wrench or feasible actual-support joint torques) directly over its typed inputs (`input`) as nested iteration of depth 3 (map over (["x", "y", "z"] as const); filter over ( body.supportTracking?.pattern ??; flatMap over supports .filter((support: (type), delegating to `Vector3.add`, `Tracking.force`, `Vector3.subtract`, `base.translation`, `base.velocityAtPoint`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Realize one bounded root demand through an external wrench, or under internal actuation as the root task of the motors' whole-body solve) as stated in this comment.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Realize one bounded root demand through an external wrench, or under internal actuation as the root task of the motors' whole-body solve) directly over its typed inputs (`input`) as nested iteration of depth 3 (map over (["x", "y", "z"] as const); filter over ( body.supportTracking?.pattern ??; flatMap over supports .filter((support: (type), delegating to `Vector3.add`, `Tracking.force`, `Vector3.subtract`, `base.translation`, `base.velocityAtPoint`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 165 lines and 8 top-level statements that reuses `Vector3.add`, `Tracking.force`, `Vector3.subtract`, `base.translation`, `base.velocityAtPoint` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 7 non-null assertion(s); these are the remaining shortcuts and are not justified here.
  * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is nested iteration of depth 3 (map over (["x", "y", "z"] as const); filter over ( body.supportTracking?.pattern ??; flatMap over supports .filter((support: (type), performed once per call with 14 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
@@ -54,7 +54,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
     ? Tracking.force(
         Vector3.subtract(rootGoal, base.translation()),
         Vector3.subtract(
-          base.velocityAtPoint(physicalNativeVector(base.translation())),
+          base.velocityAtPoint(base.translation()),
           rootIntent.velocity,
         ),
         body.profile.mass,
@@ -82,6 +82,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
       );
   }
   let rootTorque: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  let orientation: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   if (rootDynamic && body.rootTorque && rootStrength > 0) {
     const axes: IAutoMoviePhysicalJointAxis[] = (["x", "y", "z"] as const).map(
       (axis: "x" | "y" | "z"): IAutoMoviePhysicalJointAxis => ({
@@ -92,16 +93,17 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
         ...body.rootTorque!,
       }),
     );
+    orientation = Tracking.torque(
+      base.rotation(),
+      rootIntent.pose.rotation,
+      Vector3.subtract(base.angvel(), rootIntent.angularVelocity),
+      axes,
+      physicalJointInertia({ x: 0, y: 0, z: 0, w: 1 }, base),
+      dt,
+      rootStrength,
+    ).torque;
     const torque: IAutoMovieVector3 = Vector3.add(
-      Tracking.torque(
-        base.rotation(),
-        rootIntent.pose.rotation,
-        Vector3.subtract(base.angvel(), rootIntent.angularVelocity),
-        axes,
-        physicalJointInertia({ x: 0, y: 0, z: 0, w: 1 }, base),
-        dt,
-        rootStrength,
-      ).torque,
+      orientation,
       Vector3.scale(gravity, rootStrength),
     );
     const limit: number = body.rootTorque.maximumTorque * rootStrength;
@@ -147,49 +149,61 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
             }),
           ),
       );
-    const allocated: IAutoMovieDistributePhysicalSupportWrench.IResult =
-      distributePhysicalSupportWrench({
-        origin: base.worldCom(),
-        force,
-        torque: rootTorque,
-        maximumForce: body.maximumRootForce * rootStrength,
-        points,
-      });
+    // The supports' ground reaction is the body's momentum task inside the
+    // motors' solve, with the contacts and the joints (the whole-body
+    // contact-wrench program restricted to that task,
+    // solveXpbdArticulationContacts), not a split made here and pushed
+    // through the legs' J^T beforehand.
+    const task: AutoMovieXpbdWorld.IRootTask = physicalCentroidalTask({
+      profile: body.profile,
+      segments: bound.segments.get(body.id)!,
+      goals: input.goals,
+      root: bound.order.get(body.id)![0]!.bone,
+      rootGoal,
+      rootVelocity: rootIntent.velocity,
+      stiffness: body.rootStiffness * rootStrength,
+      damping: body.rootDamping * rootStrength,
+      maximumForce: body.maximumRootForce * rootStrength,
+      weight: body.compensateGravity
+        ? Vector3.scale(
+            settings.gravity,
+            body.profile.mass *
+              rootStrength *
+              (body.mode.kind === "exaggerated" ? body.mode.gravity : 1),
+          )
+        : { x: 0, y: 0, z: 0 },
+      torque: orientation,
+      dt,
+    });
+    if (points.length > 0) input.world.rootTasks.set(base, task);
+    // The cache keeps the demand's feasible split over the measured support
+    // points at its instants, a diagnostic of what the supports were asked.
     if (
       Math.round(seconds * settings.rate * settings.substeps!) %
         settings.substeps! ===
       0
-    )
+    ) {
+      const allocated: IAutoMovieDistributePhysicalSupportWrench.IResult =
+        distributePhysicalSupportWrench({
+          origin: task.origin,
+          force: task.force,
+          torque: task.torque,
+          maximumForce: body.maximumRootForce * rootStrength,
+          points,
+        });
       bound.supportWrenches.push({
         body: body.id,
         seconds: step / settings.rate,
-        origin: base.worldCom(),
-        requested: { force, torque: rootTorque },
+        origin: task.origin,
+        requested: { force: task.force, torque: task.torque },
         allocated: { force: allocated.force, torque: allocated.torque },
         residual: allocated.residual,
         pointCount: allocated.forces.length,
       });
-    // Allocation preserves input order, including coincident points on different carriers.
-    for (const [index, contact] of allocated.forces.entries()) {
-      const limb: (typeof limbs)[number] = limbs.find(
-        (candidate: (typeof limbs)[number]): boolean =>
-          candidate.bone === contact.bone,
-      )!;
-      accumulatePhysicalMotorTorques({
-        profile: body.profile,
-        segments: bound.segments.get(body.id)!,
-        chain: limb.chain,
-        carrier: points[index]!.carrier,
-        point: contact.point,
-        force: contact.force,
-        torque: { x: 0, y: 0, z: 0 },
-        reverse: true,
-        torques: actuation,
-      });
     }
   } else if (rootDynamic && !actuation) {
-    base.addForce(physicalNativeVector(force), true);
-    base.addTorque(physicalNativeVector(rootTorque), true);
+    base.addForce(force);
+    base.addTorque(rootTorque);
   }
 }
 
@@ -207,7 +221,7 @@ export namespace trackPhysicalRoot {
     /** Admitted global physical settings. */ settings: IAutoMoviePhysicalSimulationInput.IInput;
     /** Admitted provider and controller. */ body: IAutoMoviePhysicalSimulationInput.IBody;
     /** Transient native maps and prediction destination. */ bound: Bound;
-    /** Native root wrapper. */ base: RigidBody;
+    /** Native root wrapper. */ base: AutoMovieXpbdBody;
     /** Whether the root is currently dynamically owned. */ rootDynamic: boolean;
     /** Independent root motor intent captured before actual-root fitting. */ rootIntent: IAutoMovieSamplePhysicalTarget.IResult;
     /** Effective effort after physical balance assessment. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
@@ -222,5 +236,9 @@ export namespace trackPhysicalRoot {
     /** Enclosing cache interval. */ step: number;
     /** Exact declared native tick time. */ seconds: number;
     /** Native integration duration. */ dt: number;
+    /** The world whose motors' solve takes the root's task. */ world: AutoMovieXpbdWorld;
+    /** Every segment's sampled goal, with the balance's root offset; the momentum task's reference pose. */ goals: Readonly<
+      Record<string, IAutoMovieSamplePhysicalTarget.IResult>
+    >;
   }
 }

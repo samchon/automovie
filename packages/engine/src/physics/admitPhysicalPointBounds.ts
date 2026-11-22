@@ -7,7 +7,6 @@ import type {
 } from "@automovie/interface";
 
 import { isPhysicalActuatorChain } from "./isPhysicalActuatorChain";
-import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 
 /**
  * Admit candidate-relative point intervals without inventing anatomy, axes or a goal point.
@@ -36,7 +35,7 @@ export function admitPhysicalPointBounds(
     : undefined;
   const point: (value: IAutoMovieVector3) => boolean = (
     value: IAutoMovieVector3,
-  ): boolean => !!value && [value.x, value.y, value.z].every(scalar);
+  ): boolean => !!value && [value.x, value.y, value.z].every(Number.isFinite);
   for (const bound of bounds) {
     const reference: IAutoMoviePhysicalProfile | undefined =
       bound?.reference &&
@@ -80,14 +79,14 @@ export function admitPhysicalPointBounds(
       (bound.minimum === undefined && bound.maximum === undefined) ||
       [bound.minimum, bound.maximum].some(
         (value: number | undefined): boolean =>
-          value !== undefined && !scalar(value),
+          value !== undefined && !Number.isFinite(value),
       ) ||
       (bound.minimum ?? -Infinity) > (bound.maximum ?? Infinity) ||
       !Number.isSafeInteger(bound.iterations) ||
       bound.iterations < 1 ||
       bound.iterations > 32 ||
       !(bound.tolerance > 0) ||
-      !scalar(bound.tolerance)
+      !Number.isFinite(bound.tolerance)
     )
       throw new Error("Invalid physical point relationship");
     ids.add(bound.id);

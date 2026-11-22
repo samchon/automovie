@@ -1,4 +1,5 @@
 import {
+  AutoMovieXpbdWorld,
   AutoMoviePhysicalSimulation as Simulation,
   Vector3,
   bindPhysicalWorld,
@@ -10,12 +11,11 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
-import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
-/** Thirty native steps: settling, then a loaded window. */
+/** Thirty fixed steps: settling, then a loaded window. */
 const DURATION: number = 0.25;
 
 /** Start of the loaded window, seconds. */
@@ -27,17 +27,17 @@ const PENETRATION: number = 0.002;
 /** The declared contact law reaches the real immobile floor.
  *
  * Scenarios:
- * 1. One native step from the same 2 mm floor penetration pushes a pad out faster at 240 Hz than at 60 Hz, so the declared frequency governs the floor contact rather than a fixed body's unexposed 60 Hz law.
- * 2. Over a settled window, the floor's native impulse receipts carry the pad's weight m g within 10 %, without double-counted samples.
+ * 1. One fixed step from the same 2 mm floor penetration pushes a pad out faster at 240 Hz than at 60 Hz, so the declared frequency governs the floor contact.
+ * 2. Over a settled window, the floor's solver impulse receipts carry the pad's weight m g within 10 %, without double-counted samples.
  * 3. Every retained checkpoint restores the floor at its declared pose with all six coordinates and zero velocities.
  *
- * Checkpoint continuation belongs to the native simulation units; the stiffness of each frequency is Rapier's.
+ * Checkpoint continuation belongs to the simulation units. A compliant contact of natural frequency f corrects the fraction (2 pi f h)^2 / (1 + (2 pi f h)^2) of its depth beyond the allowed error in one substep h (Macklin, Mueller and Chentanez 2016), which grows with f, so the 240 Hz pad leaves faster.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Vector3`, `AutoMoviePhysicalSimulation`, `bindPhysicalWorld` on in-memory inputs and asserts the returned observations through 1x TestValidator.equals; 3 numbered scenarios (first: One native step from the same 2 mm floor penetration pushes a pad out faster at 240 Hz than at 60 Hz, so the...; last: Every retained checkpoint restores the floor at its declared pose with all six coordinates and zero...). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Vector3`, `AutoMoviePhysicalSimulation`, `bindPhysicalWorld` on in-memory inputs and asserts the returned observations through 1x TestValidator.equals; 3 numbered scenarios (first: One fixed step from the same 2 mm floor penetration pushes a pad out faster at 240 Hz than at 60 Hz, so the...; last: Every retained checkpoint restores the floor at its declared pose with all six coordinates and zero...). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
- * @evidence contracts/development/testing.md#distinguishing-cases Contributes 3 numbered scenarios (first: One native step from the same 2 mm floor penetration pushes a pad out faster at 240 Hz than at 60 Hz, so the...; last: Every retained checkpoint restores the floor at its declared pose with all six coordinates and zero...), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contributes 3 numbered scenarios (first: One fixed step from the same 2 mm floor penetration pushes a pad out faster at 240 Hz than at 60 Hz, so the...; last: Every retained checkpoint restores the floor at its declared pose with all six coordinates and zero...), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_floor_frequency`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One native step from the same 2 mm floor penetration pushes a pad out faster at 240 Hz than at 60 Hz, so the declared frequency governs...).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One fixed step from the same 2 mm floor penetration pushes a pad out faster at 240 Hz than at 60 Hz, so the declared frequency governs...).
  */
 export async function test_physical_floor_frequency(): Promise<void> {
   const mass: number = 0.6;
@@ -141,33 +141,30 @@ export async function test_physical_floor_frequency(): Promise<void> {
       ) /
     (DURATION - LOADED);
   if (Math.abs(force - mass * 9.81) > 0.1 * mass * 9.81)
-    findings.push(`native solved load ${force} N`);
+    findings.push(`solved load ${force} N`);
   if (run.cache.checkpoints.size < 3)
     findings.push(`only ${run.cache.checkpoints.size} checkpoints`);
   for (const snapshot of run.cache.checkpoints.values()) {
-    const world: World = RAPIER.World.restoreSnapshot(snapshot);
-    try {
-      const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
-        world,
-        run.input,
-        true,
-      );
-      const floor: NonNullable<typeof bound.floor> = bound.floor!;
-      const rotation: ReturnType<typeof floor.rotation> = floor.rotation();
-      if (
-        !floor.isKinematic() ||
-        Vector3.length(
-          Vector3.subtract(floor.translation(), { x: 0, y: -0.5, z: 0 }),
-        ) > 1e-8 ||
-        Math.hypot(rotation.x, rotation.y, rotation.z) > 1e-8 ||
-        Math.abs(rotation.w - 1) > 1e-8 ||
-        Vector3.length(floor.linvel()) > 1e-8 ||
-        Vector3.length(floor.angvel()) > 1e-8
-      )
-        findings.push("floor moved in a native checkpoint");
-    } finally {
-      world.free();
-    }
+    const world: AutoMovieXpbdWorld =
+      AutoMovieXpbdWorld.restoreSnapshot(snapshot);
+    const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
+      world,
+      run.input,
+      true,
+    );
+    const floor: NonNullable<typeof bound.floor> = bound.floor!;
+    const rotation: ReturnType<typeof floor.rotation> = floor.rotation();
+    if (
+      !floor.isKinematic() ||
+      Vector3.length(
+        Vector3.subtract(floor.translation(), { x: 0, y: -0.5, z: 0 }),
+      ) > 1e-8 ||
+      Math.hypot(rotation.x, rotation.y, rotation.z) > 1e-8 ||
+      Math.abs(rotation.w - 1) > 1e-8 ||
+      Vector3.length(floor.linvel()) > 1e-8 ||
+      Vector3.length(floor.angvel()) > 1e-8
+    )
+      findings.push("floor moved in a solver checkpoint");
   }
   TestValidator.equals(
     "all actual floor law, load and checkpoint observations",
