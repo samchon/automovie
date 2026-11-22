@@ -13,12 +13,14 @@ import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
+  HumanHand,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
@@ -171,15 +173,17 @@ function umbrella(
       at: { out: 0.05, up: shoulder + 0.05, forward: 0.25 },
       seconds: 0.4,
     })
-    .walk({ to: { x: 0, y: 0, z: 2 } });
+    .walk({ to: { x: 0, y: 0, z: 2 } }, "share");
   const partner: everydayTake.IOther = {
     subject: "partner",
     body,
     at: { x: -apart, y: 0, z: 0 },
     yaw: 0,
+    // The partner steps off with the holder, side by side under it.
     chain: HumanChain.subject("partner")
-      .stand({ seconds: 3.5, sway: 0 })
-      .walk({ to: { x: -apart, y: 0, z: 2 } }),
+      .stand({ seconds: 0.5, sway: 0 })
+      .walk({ to: { x: -apart, y: 0, z: 2 } })
+      .sync({ of: "share", event: "start" }),
   };
   const take: HumanPerformance = play(label, body, props, chain, [partner]);
   const operate: IAutoMovieMotionHumanSegment = named(take, "workHeld")[1]!;
@@ -224,17 +228,22 @@ function umbrella(
         Vector3.add(runner.frame.translation, { x: 0, y: travel, z: 0 }),
       ),
     );
-    stays = Math.max(
-      stays,
-      Vector3.distance(
-        take.bones("actor", t).get("leftHand")!.worldPosition,
-        point,
+    // The hand's grip site, where it closes on the runner.
+    const hand: IAutoMovieResolvedBone = take
+      .bones("actor", t)
+      .get("leftHand")!;
+    const site: IAutoMovieVector3 = Vector3.add(
+      hand.worldPosition,
+      Quaternion.rotateVector(
+        hand.worldRotation,
+        HumanHand.offset(body, "left", "grip").point,
       ),
     );
+    stays = Math.max(stays, Vector3.distance(site, point));
   }
   checks.check(
     `${label}: the pushing hand stays on the runner (${stays.toFixed(3)} m)`,
-    stays <= 0.12,
+    stays <= ON,
   );
   const walk: IAutoMovieMotionHumanSegment = named(take, "walk")[0]!;
   const radius: number = createUmbrella.MODELS.classic.canopy! / 2;
