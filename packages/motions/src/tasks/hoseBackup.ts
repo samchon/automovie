@@ -204,7 +204,6 @@ export function hoseBackup(
         to: clock.duration,
         span: { start: 0, ready, relax: done, end: clock.duration },
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-        disc: 0,
         weight: (seconds: number): number =>
           clock.envelope(["start", "ready"], ["relax", "end"], seconds),
         // The hand keeps that grip as the line carries it.

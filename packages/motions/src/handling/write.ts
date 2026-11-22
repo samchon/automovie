@@ -281,7 +281,10 @@ function planWrite(
       context.tempo,
     ),
     rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-    // A point target leaves the millimetre allowance to the arm solver.
+    // The stroke asks the tool's tip on a point, and the tip declares no
+    // width, so the site has no radius of its own: the planner admits only
+    // its own convergence (`HumanArmTrajectoryTerms.TOLERANCE`, 1 mm), which
+    // is no physical tolerance of the mark.
     disc: 0,
     weight: (seconds: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], seconds),

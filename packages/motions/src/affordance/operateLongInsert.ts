@@ -336,7 +336,10 @@ export function operateLongInsert(
       to: duration,
       span: { start: 0, ready, relax, end: duration },
       rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-      disc: 0,
+      // The hands carry the rigid staff, so a hand off its site moves the
+      // insertion off its line by as much: the hand may land within half the
+      // width the insertion is aimed at, the width its movement time reads.
+      disc: props.width / 2,
       weight: (seconds: number): number =>
         clock.envelope(["start", "ready"], ["relax", "end"], seconds),
       goal: (

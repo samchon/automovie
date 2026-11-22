@@ -260,7 +260,6 @@ function plan(
             context.tempo,
           ),
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-          disc: 0,
           weight: (seconds: number): number =>
             clock.envelope(["start", "ready"], ["relax", "end"], seconds),
           goal: (

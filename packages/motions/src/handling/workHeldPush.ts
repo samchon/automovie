@@ -211,7 +211,6 @@ export function workHeldPush(
           end: clock.duration,
         },
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
-        disc: 0,
         weight: (seconds: number): number =>
           clock.envelope(["start", "ready"], ["relax", "end"], seconds),
         goal: (
@@ -374,7 +373,6 @@ function present(
     to: clock.duration,
     span: { start: 0, ready, relax: clock.duration, end: clock.duration },
     rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-    disc: 0,
     weight: (seconds: number): number => {
       const u: number =
         ready > 0 ? Math.min(1, Math.max(0, seconds / ready)) : 1;

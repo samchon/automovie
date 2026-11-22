@@ -353,7 +353,6 @@ function arm(
       context.tempo,
     ),
     rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-    disc: 0,
     weight: (seconds: number): number => {
       const u: number =
         ready > 0 ? Math.min(1, Math.max(0, seconds / ready)) : 1;
