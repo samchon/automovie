@@ -32,8 +32,8 @@ import { LongToolStroke } from "./LongToolStroke";
 /** Seconds the hands take to bring the tool from where it is held to the stroke's start, and back after: provisional. */
 const REACH: number = 0.6;
 
-/** The farthest a trailing hand reaches from its shoulder at a stroke's contact, over the arm's length: provisional, a straight arm with the shoulder drawn forward. */
-const REACH_LIMIT: number = 1.1;
+/** The farthest a trailing hand's grip reaches from its shoulder at a stroke's contact, over the arm's length to the grip: provisional, a straight arm with the shoulder drawn forward. */
+const REACH_LIMIT: number = 1.05;
 
 /** The deepest a trunk bows toward a low work point, degrees: provisional. */
 const BOW: number = 45;
@@ -116,7 +116,7 @@ export namespace longTool {
       undefined,
       new Set<AutoMovieHumanoidBone>([
         "hips",
-        "upperChest",
+        "chest",
         "leftUpperArm",
         "rightUpperArm",
       ]),
@@ -132,13 +132,33 @@ export namespace longTool {
       length,
       forward: axes({ x: 0, y: 0, z: 1 }),
       leadward: axes({ x: lead === "left" ? 1 : -1, y: 0, z: 0 }),
-      chest: bones.get("upperChest")!.worldPosition,
+      chest: bones.get("chest")!.worldPosition,
       hips,
       trail: shoulder(trail),
       lead: shoulder(lead),
     });
-    const arm: number = body.measure.upperArm + body.measure.forearm;
-    const far: number = Vector3.distance(stroke.contact, shoulder(trail));
+    // The shoulder to the closed hand's grip: the arm and half the hand.
+    const arm: number =
+      body.measure.upperArm + body.measure.forearm + body.measure.hand / 2;
+    // The trunk bows toward a low work point about the hips, which brings
+    // the shoulder forward and down: the contact is reached from there.
+    const down: number = Math.max(
+      0,
+      Math.min(1, (hips.y - params.at.y) / body.measure.hipHeight),
+    );
+    const bowed: IAutoMovieVector3 = Vector3.add(
+      hips,
+      Quaternion.rotateVector(
+        Quaternion.fromAxisAngle(
+          Vector3.normalize(
+            Vector3.cross({ x: 0, y: 1, z: 0 }, axes({ x: 0, y: 0, z: 1 })),
+          ),
+          BOW * down,
+        ),
+        Vector3.subtract(shoulder(trail), hips),
+      ),
+    );
+    const far: number = Vector3.distance(stroke.contact, bowed);
     if (far > REACH_LIMIT * arm)
       throw new HumanRefusal({
         kind: "reach",
@@ -179,10 +199,6 @@ export namespace longTool {
           ? 0
           : ((seconds - REACH) / period) % 1,
       );
-    const down: number = Math.max(
-      0,
-      Math.min(1, (hips.y - params.at.y) / body.measure.hipHeight),
-    );
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...(["left", "right"] as const).map(
         (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({

@@ -119,9 +119,9 @@ export namespace holdInfant {
       body,
       entry.pose,
       undefined,
-      new Set<AutoMovieHumanoidBone>(["upperChest", `${side}UpperArm`]),
+      new Set<AutoMovieHumanoidBone>(["chest", `${side}UpperArm`]),
     );
-    const chest: IAutoMovieVector3 = bones.get("upperChest")!.worldPosition;
+    const chest: IAutoMovieVector3 = bones.get("chest")!.worldPosition;
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
     )!.worldPosition;

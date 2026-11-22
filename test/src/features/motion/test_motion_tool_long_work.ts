@@ -72,20 +72,20 @@ export function test_motion_tool_long_work(): void {
       {
         row: "chop",
         tool: createForestAxe({}, 1),
-        at: { x: 0, y: 0.5, z: 0.8 },
+        at: { x: 0, y: 0.5, z: 0.6 },
       },
       {
         row: "sideChop",
         tool: createForestAxe({}, 1),
-        at: { x: 0, y: 1, z: 0.8 },
+        at: { x: 0, y: 1, z: 0.6 },
       },
       {
         row: "sledge",
         tool: createSledgehammer({}, 1),
-        at: { x: 0, y: 0, z: 0.9 },
+        at: { x: 0, y: 0, z: 0.7 },
       },
-      { row: "dig", tool: createShovel({}, 1), at: { x: 0, y: 0, z: 0.7 } },
-      { row: "rake", tool: createRake({}, 1), at: { x: 0, y: 0, z: 1.1 } },
+      { row: "dig", tool: createShovel({}, 1), at: { x: 0, y: 0, z: 0.55 } },
+      { row: "rake", tool: createRake({}, 1), at: { x: 0, y: 0, z: 0.9 } },
     ];
     for (const stage of stages) strokes(body, profile, stage);
 

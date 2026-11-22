@@ -9,8 +9,11 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,6 +22,8 @@ import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanColliders } from "../posture/HumanColliders";
+import { HumanHand } from "../posture/HumanHand";
 import { AquaticPosture } from "./AquaticPosture";
 
 /** A lifeguard's approach swim, metres per second: provisional, a sustained sprint front crawl. */
@@ -31,13 +36,19 @@ const TOW: number = 0.6;
 const GRIP: number = 0.6;
 
 /** The rescuer's pelvis behind the victim's during the tow, metres: provisional, the rescuer's chest just behind the victim's back. */
-const BEHIND: number = 0.8;
+const BEHIND: number = 0.65;
 
 /** The victim stops this far short of the edge, metres: a reach for the deck. */
 const SHORT: number = 0.5;
 
 /** The towed victim's mouth above the surface, metres: provisional. */
 const CLEAR: number = 0.08;
+
+/** How far short of the hold the crawl stops, metres: provisional, beyond a struggling victim's reach. */
+const STANDOFF: number = 0.8;
+
+/** Seconds before reaching the victim over which the crawl's strokes die away: provisional, about one stroke. */
+const NEAR: number = 1.2;
 
 /** Seconds of one front-crawl arm cycle on the approach: provisional. */
 const STROKE: number = 1.2;
@@ -89,10 +100,22 @@ export namespace AquaticRescue {
       from,
       Vector3.scale(tow.toward, BEHIND),
     );
-    const approach: number = Math.hypot(
+    // The crawl stops `STANDOFF` short of the hold, clear of the victim's
+    // flailing body, and the rescuer glides in onto its side as it takes
+    // the hold.
+    const gap: number = Math.hypot(
       behind.x - entry.posture.root.x,
       behind.z - entry.posture.root.z,
     );
+    const standoff: IAutoMovieVector3 =
+      gap > STANDOFF
+        ? Vector3.add(behind, {
+            x: ((entry.posture.root.x - behind.x) / gap) * STANDOFF,
+            y: 0,
+            z: ((entry.posture.root.z - behind.z) / gap) * STANDOFF,
+          })
+        : behind;
+    const approach: number = Math.max(0, gap - STANDOFF);
     const limit: number = params.seconds ?? Infinity;
     if (approach / SWIM > limit)
       throw new HumanRefusal({
@@ -112,8 +135,17 @@ export namespace AquaticRescue {
     const hold: number = arrive + GRIP;
     const duration: number = hold + tow.seconds;
     // The approach is a front crawl: the arms recover over the water in turn.
-    const swimAt = (t: number): IAutoMovieMotionHumanPosture => {
-      const stroke: number = Math.sin((2 * Math.PI * t) / STROKE);
+    // The crawl's strokes shorten over the last `NEAR` seconds of the
+    // approach, so the arms do not reach into the victim the rescuer comes
+    // up behind.
+    const swimAt: (t: number) => IAutoMovieMotionHumanPosture = (
+      t: number,
+    ): IAutoMovieMotionHumanPosture => {
+      const near: number = Math.max(
+        0,
+        Math.min(1, (approach / SWIM - t) / NEAR),
+      );
+      const stroke: number = near * Math.sin((2 * Math.PI * t) / STROKE);
       return AquaticPosture.key(
         entry.posture,
         ExerciseKey.from(
@@ -121,8 +153,8 @@ export namespace AquaticRescue {
           { pitch: 80, neck: -20 },
           // The recovering arm swings wide of the head.
           { hip: 5, knee: 10, raise: 40, elbow: 20 },
-          { shoulder: 100 + 70 * stroke },
-          { shoulder: 100 - 70 * stroke },
+          { shoulder: 95 + 60 * stroke },
+          { shoulder: 95 - 60 * stroke },
         ),
       );
     };
@@ -152,13 +184,19 @@ export namespace AquaticRescue {
         t < arrive
           ? Vector3.lerp(
               { ...entry.posture.root, y: 0 },
-              { ...behind, y: 0 },
+              { ...standoff, y: 0 },
               t / arrive,
             )
-          : Vector3.add(
-              { ...behind, y: 0 },
-              Vector3.scale(tow.toward, along(tow, t - hold)),
-            );
+          : t < hold
+            ? Vector3.lerp(
+                { ...standoff, y: 0 },
+                { ...behind, y: 0 },
+                minimumJerk.share((t - arrive) / GRIP),
+              )
+            : Vector3.add(
+                { ...behind, y: 0 },
+                Vector3.scale(tow.toward, along(tow, t - hold)),
+              );
       const hips: IAutoMovieVector3 = hipsAt(shaped).get("hips")!.worldPosition;
       const placed: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
         shaped,
@@ -226,10 +264,32 @@ export namespace AquaticRescue {
       if (held !== undefined) return held;
       const sternum: IAutoMovieHumanoidSurfaces.IFrame =
         victim.body.surfaces.regions.sternum;
-      const chest: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-        sternum,
-        victim.bones(start + hold, new Set([sternum.bone])).get(sternum.bone)!,
-      ).point;
+      const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
+        resolveAutoMovieHumanoidSurfaces.place(
+          sternum,
+          victim
+            .bones(start + hold, new Set([sternum.bone]))
+            .get(sternum.bone)!,
+        );
+      const chest: IAutoMovieVector3 = placed.point;
+      // The palm lies on the sternum, facing into it, the fingers across
+      // the victim's chest: the hand rests on the skin, not in it.
+      const palm: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+        body,
+        "left",
+        "palm",
+      );
+      const across: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.cross(placed.normal, tow.toward),
+      );
+      const rotation: IAutoMovieQuaternion = HumanHand.align(palm, {
+        normal: Vector3.scale(placed.normal, -1),
+        forward: across,
+      });
+      const wrist: IAutoMovieVector3 = Vector3.subtract(
+        chest,
+        Quaternion.rotateVector(rotation, palm.point),
+      );
       const own: IAutoMovieResolvedBone = chestAt(bodyAt(hold)).get("chest")!;
       const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
         point: IAutoMovieVector3,
@@ -240,7 +300,35 @@ export namespace AquaticRescue {
         );
       held = {
         on: "chest",
-        point: local(chest),
+        point: local(wrist),
+        rotation: Quaternion.multiply(
+          Quaternion.inverse(own.worldRotation),
+          rotation,
+        ),
+        contact: palm.point,
+        // The victim's body, as it was where the hold was taken, rides the
+        // rescuer's chest with the hand: the arm keeps clear of it on its way
+        // and lays the hand on it.
+        clearanceOn: {
+          clear: [],
+          rests: HumanColliders.placed(
+            victim.body,
+            victim.bones(start + hold, HumanColliders.bones(victim.body)),
+          ).map(
+            (
+              segment: IAutoMovieMotionHumanColliders.IPlaced,
+            ): IAutoMovieMotionHumanColliders.IPlaced => ({
+              ...segment,
+              pose: {
+                position: local(segment.pose.position),
+                rotation: Quaternion.multiply(
+                  Quaternion.inverse(own.worldRotation),
+                  segment.pose.rotation,
+                ),
+              },
+            }),
+          ),
+        },
         bend: local(
           Vector3.add(
             Vector3.subtract(chest, Vector3.scale(tow.toward, 0.25)),

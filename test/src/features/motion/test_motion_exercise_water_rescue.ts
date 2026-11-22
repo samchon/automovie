@@ -177,7 +177,7 @@ function rescue(body: IAutoMovieMotionHumanBody): void {
       Vector3.distance(
         HumanHand.frame(body, film.bones("rescuer", seconds), "left", "palm")
           .point,
-        film.bones("victim", seconds).get("upperChest")!.worldPosition,
+        film.bones("victim", seconds).get("chest")!.worldPosition,
       ),
     );
   }
@@ -428,7 +428,7 @@ function liftOut(body: IAutoMovieMotionHumanBody): void {
     "victim",
     film.duration,
   );
-  const chest: IAutoMovieVector3 = last.get("upperChest")!.worldPosition;
+  const chest: IAutoMovieVector3 = last.get("chest")!.worldPosition;
   TestValidator.predicate(
     "the victim lies on the deck behind the edge",
     chest.z < 0 &&
