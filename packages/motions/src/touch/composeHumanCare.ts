@@ -14,7 +14,8 @@ import type {
  *
  * Compressions follow the American Heart Association 2020 adult guideline:
  * 100 to 120 a minute, 30 compressions to 2 breaths. Both palms press the
- * partner's lower sternum, one hand over the other.
+ * partner's lower sternum, one hand over the other, the arms straight
+ * (`arms: "straight"`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each act, its rhythm and its source.
  * @evidence contracts/development/design.md#principled-representation Each act is data over the shipped kneel and touch actions, targeting the partner's named regions.
@@ -80,6 +81,7 @@ export namespace composeHumanCare {
       other: { kind: "person", subject: partner, region: "sternum" },
       kind: "press",
       with: "palm",
+      arms: "straight",
       count: COMPRESSIONS,
       hold: 0,
     });

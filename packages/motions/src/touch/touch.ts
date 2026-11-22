@@ -337,7 +337,8 @@ export namespace touch {
             ...(grounded ? { feet: context.entry.feet } : {}),
             fixed: context.carrier === undefined,
             side: first,
-            share: REACH,
+            // Straight arms lock the elbow and reach the arm's whole length.
+            share: p.arms === "straight" ? 1 : REACH,
             wrist: (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
               arm(posture).point,
             arm,

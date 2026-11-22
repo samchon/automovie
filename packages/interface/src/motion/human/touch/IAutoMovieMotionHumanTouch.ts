@@ -61,6 +61,18 @@ import type { IAutoMovieMotionHumanTouchSite } from "./IAutoMovieMotionHumanTouc
  */
 export namespace IAutoMovieMotionHumanTouch {
   /**
+   * How a touch's arms hold on their regions: `relaxed`, the elbow never
+   * locked, or `straight`, the elbow locked and the arm's whole length
+   * reached.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each value's meaning.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the two arm holds the touch's reach share reads.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two holds the touch law distinguishes.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A named alias instead of an inline union on the parameter.
+   */
+  export type Arms = "relaxed" | "straight";
+
+  /**
    * Parameters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
@@ -119,6 +131,16 @@ export namespace IAutoMovieMotionHumanTouch {
      * holds it. `natural` when absent.
      */
     elbow?: "natural" | "level";
+
+    /**
+     * How the arms hold while the hands are on their regions: `relaxed`, the
+     * elbow never locked, the wrist kept within a share of the arm's length
+     * (`touch.REACH`), or `straight`, the elbow locked and the whole arm's
+     * length reached, as chest compressions are given with the arms straight
+     * and the shoulders over the hands (American Heart Association 2020).
+     * `relaxed` when absent.
+     */
+    arms?: IAutoMovieMotionHumanTouch.Arms;
 
     /** The other hand's region, touched the same way at the same time; one hand when absent. */
     other?: IAutoMovieMotionTarget;
