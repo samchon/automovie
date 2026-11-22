@@ -11,7 +11,7 @@ import type {
 import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** A scene's contact function: a contact's world frame at a film second. */
 type Contact = (id: string, at: number) => IAutoMovieTransform;
@@ -39,7 +39,7 @@ const MOVE: number = 20;
  * @evidence contracts/development/testing.md#distinguishing-cases A receiver publishing moving contact frames versus one that publishes none.
  * @evidence contracts/development/testing.md#execution-ownership A deterministic in-memory performance with one performer and two props.
  */
-export function test_motion_put_down_moving_socket(): void {
+export function test_motion_prehension_put_down_moving_socket(): void {
   const post: IAutoMovieVector3 = { x: -0.05, y: 0, z: 0.45 };
   const moving: Contact = (_id: string, at: number): IAutoMovieTransform => {
     const rise: number = Math.max(0, at - MOVE);

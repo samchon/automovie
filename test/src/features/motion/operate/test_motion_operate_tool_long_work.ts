@@ -15,17 +15,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanLabour,
   HumanChain,
   HumanHand,
-  HumanLabour,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+
+const { HumanLabour } = AutoMovieMotionHumanLabour;
 
 /** A long-tool row and its tool. */
 type Row = "chop" | "sideChop" | "sledge" | "dig" | "rake";
@@ -65,7 +67,7 @@ const REST: IAutoMovieVector3 = { x: -0.3, y: 0, z: 0.3 };
  * @evidence contracts/development/testing.md#distinguishing-cases Five strokes, a reachable and an unreachable work point, two bodies.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances of generated bodies and archetypes.
  */
-export function test_motion_tool_long_work(): void {
+export function test_motion_operate_tool_long_work(): void {
   for (const profile of ["m-average", "f-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(profile);
     const stages: readonly IStage[] = [

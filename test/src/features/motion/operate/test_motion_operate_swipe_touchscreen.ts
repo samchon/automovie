@@ -10,16 +10,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  swipeTouchscreen,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+
+const { swipeTouchscreen } = AutoMovieMotionHumanOperate;
 
 /**
  * A registered index-finger swipe traverses the glass, holds contact through
@@ -39,7 +41,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Both swipe directions on tilted glass detect projected, missing or reversed motion, and an outside endpoint detects clamping.
  * @evidence contracts/development/testing.md#execution-ownership A motion feature test runs the registered law on the public chain and performance APIs.
  */
-export function test_human_motion_swipe_touchscreen(): void {
+export function test_motion_operate_swipe_touchscreen(): void {
   const Chain: ReturnType<
     typeof HumanChain.extend<{ swipeTouchscreen: typeof swipeTouchscreen }>
   > = HumanChain.extend({ swipeTouchscreen });

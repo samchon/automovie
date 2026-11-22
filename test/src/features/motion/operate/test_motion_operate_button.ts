@@ -22,15 +22,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  button,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+
+const { button } = AutoMovieMotionHumanOperate;
 
 /** Sites on the assembled panel, including the slider carrying the button. */
 type Site = "rim" | "opening" | "slide" | "center" | "push";
@@ -62,7 +64,7 @@ const RADIUS: number = Math.hypot(WIDE / 2, WIDE / 2, TALL / 2);
  * @evidence contracts/development/testing.md#distinguishing-cases The off-center trajectory crosses the same plane and uses the same travel, but misses the hole. Separate moving and static contacts check both hands without reading the action's target callbacks.
  * @evidence contracts/development/testing.md#execution-ownership A motion feature test on one polygon-man body, with actual authored part bindings and no external host.
  */
-export function test_human_motion_button(): void {
+export function test_motion_operate_button(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const shoulder: IAutoMovieVector3 = body.rest.get("rightUpperArm")!;
   const side: number = Math.sign(shoulder.x);

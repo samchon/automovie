@@ -14,13 +14,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   HumanChain,
-  HumanManipulate,
   HumanPerformance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+
+const { HumanManipulate } = AutoMovieMotionHumanOperate;
 
 /**
  * Coordinated thumb and index contact on a fixed garment prop (#3420).
@@ -35,7 +37,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Opposite hands, different digits, distinct sockets and one shared instant distinguish the two intended contacts from a single press or a swapped assignment.
  * @evidence contracts/development/testing.md#execution-ownership A motions unit test on one polygon-man body, discovered by its exported name and using no host.
  */
-export function test_human_motion_buttoning_contacts(): void {
+export function test_motion_operate_buttoning_contacts(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const rightShoulder: IAutoMovieVector3 = body.rest.get("rightUpperArm")!;
   const leftShoulder: IAutoMovieVector3 = body.rest.get("leftUpperArm")!;

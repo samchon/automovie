@@ -20,7 +20,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * The staged pour visibly tips a held glass about its lip over a fixed cup.
@@ -44,7 +44,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Samples the upright and tilted poses, both sides of the capacity threshold, backward seeking and insufficient source volume. The rigid native props expose a uniform pose reader, while true and unknown articulation declarations still refuse.
  * @evidence contracts/development/testing.md#execution-ownership Builds short polygon-body performances in memory without a renderer or external state.
  */
-export function test_human_motion_pour(): void {
+export function test_motion_operate_pour(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const source: ReturnType<typeof createDrinkware> = createDrinkware(
     { kind: "glass", fill: 150 / 473 },

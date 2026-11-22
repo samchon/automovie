@@ -16,7 +16,7 @@ import type {
 import { HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** Standard gravity, m/s^2 (CGPM 1901). */
 const G: number = 9.80665;
@@ -107,7 +107,7 @@ const cord = (
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test that prepares one polygon man; no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the cast and the four scenarios with their bounds.
  */
-export function test_motion_contact_soft_grasp(): void {
+export function test_motion_prehension_soft_grasp(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const domain: IAutoMovieSoftBodyDomain = cord(body, LINKS, LENGTH, 4);
   const lanyard: IAutoMovieMotionHumanProp = {

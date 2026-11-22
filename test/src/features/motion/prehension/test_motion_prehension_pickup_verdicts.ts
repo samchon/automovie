@@ -3,8 +3,8 @@ import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A floor pickup of a ball and the pass that follows it pass the shipped
@@ -28,7 +28,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases The two extreme bodies and the average one; the pass after the pickup exercises the cut out of a holding hand.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances of one polygon man and one ball.
  */
-export function test_motion_handling_pickup_verdicts(): void {
+export function test_motion_prehension_pickup_verdicts(): void {
   const ball: ReturnType<typeof createBall> = createBall({
     kind: "basketball",
   });

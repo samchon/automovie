@@ -16,11 +16,11 @@ import {
   HumanPerformance,
   HumanRefusal,
   poseBones,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A stagehand sets a parcel onto a translating socket and opens the hand
@@ -40,7 +40,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Omits the source socket in the origin case and changes only track rotation in the invalid cases. Samples distinguish placement, opening continuity and mounted travel.
  * @evidence contracts/development/testing.md#execution-ownership Builds one polygon body and in-memory performances with the same carrier path and seat geometry.
  */
-export function test_human_motion_moving_socket_put_down(): void {
+export function test_motion_prehension_moving_socket_put_down(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const hand: IAutoMovieResolvedBone = poseBones(

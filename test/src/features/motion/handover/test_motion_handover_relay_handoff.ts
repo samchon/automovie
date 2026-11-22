@@ -18,7 +18,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A relay baton serves the relay pass: the incoming runner pushes the baton's `front` end into the outgoing runner's palm, and the baton rides the outgoing hand from then on.
@@ -36,7 +36,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and two two-person performances; it runs locally and wherever CI runs the archetype tests.
  * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage and the 3 scenarios with their bounds.
  */
-export function test_motion_archetype_relay_handoff(): void {
+export function test_motion_handover_relay_handoff(): void {
   const baton: ReturnType<typeof createRelayBaton> = createRelayBaton({
     length: 0.3,
   });

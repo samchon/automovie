@@ -15,15 +15,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  composeHumanToolWork,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+
+const { composeHumanToolWork } = AutoMovieMotionHumanOperate;
 
 /** The tool contract's working contact bound, metres. */
 const CONTACT: number = 0.01;
@@ -57,7 +59,7 @@ const HAMMER: number = 0.2;
  * @evidence contracts/development/testing.md#distinguishing-cases Both band boundaries, kneeling and seated work on two bodies and the refusal; standing work is useTool's own specification.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory performance through the public chain.
  */
-export function test_human_motion_tool_bases(): void {
+export function test_motion_operate_tool_bases(): void {
   const stature: number = 1.75;
   TestValidator.equals(
     "the base bands",

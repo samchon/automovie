@@ -1,9 +1,9 @@
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import { HumanChain, HumanRefusal } from "@automovie/motions";
 
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanLaw } from "../internal/motionHumanLaw";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanLaw } from "../../internal/motionHumanLaw";
 
 /**
  * Two statures of horizontal separation exceed the planted kisser's reach.
@@ -16,7 +16,7 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  * @evidence contracts/development/testing.md#distinguishing-cases The original distant stage measures horizontal refusal independently of the two close-contact scenes.
  * @evidence contracts/development/testing.md#execution-ownership One attempted performance.
  */
-export function test_motion_contact_hand_grip_refusal(): void {
+export function test_motion_prehension_hand_grip_refusal(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const a: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const b: IAutoMovieMotionHumanBody = motionHumanBody("m-large");

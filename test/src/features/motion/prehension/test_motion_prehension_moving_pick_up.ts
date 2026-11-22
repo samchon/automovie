@@ -11,17 +11,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanPrehension,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  pickUpMoving,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose, qclose, vclose } from "../internal/predicates";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose, qclose, vclose } from "../../internal/predicates";
+
+const { pickUpMoving } = AutoMovieMotionHumanPrehension;
 
 /**
  * Intercept a glass on a translating support and take custody at closure.
@@ -39,7 +41,7 @@ import { nclose, qclose, vclose } from "../internal/predicates";
  * @evidence contracts/development/testing.md#distinguishing-cases An entry-frame reach misses the displaced glass. A continuing mount cannot lift and a premature handover cannot continue translating after the cut. A zero quaternion has no rigid rotation even when the computed mount looks valid.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous specification owns its performances and pure frame readers.
  */
-export function test_human_motion_moving_pick_up(): void {
+export function test_motion_prehension_moving_pick_up(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };

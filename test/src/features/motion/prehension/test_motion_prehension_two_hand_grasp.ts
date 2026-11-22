@@ -15,7 +15,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A mug passed between unequal-height performers changes its rigid attachment
@@ -31,7 +31,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Builds one portable two-person performance through the public handover composition and observes its event boundaries.
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the transfer instant, both attachment frames and their accuracy requirements.
  */
-export function test_motion_contact_two_hand_grasp(): void {
+export function test_motion_prehension_two_hand_grasp(): void {
   const giver: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const receiver: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const mug: ReturnType<typeof createDrinkware> = createDrinkware({

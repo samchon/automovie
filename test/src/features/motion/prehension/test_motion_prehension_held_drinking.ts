@@ -16,8 +16,8 @@ import type {
 import { HumanChain, HumanObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanLaw } from "../internal/motionHumanLaw";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanLaw } from "../../internal/motionHumanLaw";
 
 /**
  * A glass picked up for drinking must remain attached at its grip and bring its own rim to the lips.
@@ -32,7 +32,7 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  * @evidence contracts/development/testing.md#execution-ownership Runs the named public operation in memory and samples its observable outputs.
  * @evidence contracts/development/common.md#meaningful-documentation States the phase, coordinate frame and quantitative basis of the check.
  */
-export function test_motion_contact_held_drinking(): void {
+export function test_motion_prehension_held_drinking(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const model: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",

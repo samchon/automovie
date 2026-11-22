@@ -17,17 +17,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   HumanVerdicts,
-  write,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanLaw } from "../internal/motionHumanLaw";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanLaw } from "../../internal/motionHumanLaw";
+
+const { write } = AutoMovieMotionHumanOperate;
 
 /** Position a model's contact in the world from its displayed prop frame. */
 const place = (
@@ -51,7 +53,7 @@ const place = (
  * @evidence contracts/development/testing.md#distinguishing-cases A planar endpoint trace on a rigid sheet differs from a face contact on a moving body. Both compare actual contact during work against pickup. The same writing placement rejects a genuinely articulated map.
  * @evidence contracts/development/testing.md#execution-ownership Uses in-memory public films and one canonical body with no capture host.
  */
-export function test_archetype_catalogue_tools_personal_motion(): void {
+export function test_motion_operate_tools_personal_motion(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const bench: number = body.measure.waistHeight;
   const right: number = -body.measure.shoulderHalfWidth;
@@ -100,7 +102,7 @@ export function test_archetype_catalogue_tools_personal_motion(): void {
               [0, 0],
               [0.01, 0],
             ],
-            seconds: 0.6,
+            duration: 0.6,
           }).node,
       }),
     );

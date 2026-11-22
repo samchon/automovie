@@ -25,9 +25,9 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 
-import { everydayTake } from "../internal/everydayTake";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** A hand stays on the part it works within this, metres. */
 const ON: number = 0.03;
@@ -67,7 +67,7 @@ const SHUT: number = 0.5;
  * @evidence contracts/development/testing.md#distinguishing-cases Right against left hand, furled against open, open against closed, reachable against distant runner, held against unheld scissors.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_human_motion_handheld_mechanisms(): void {
+export function test_motion_prehension_handheld_mechanisms(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);

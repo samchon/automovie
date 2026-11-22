@@ -15,17 +15,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanPrehension,
   AutoMovieMotionHumanStance,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
   poseBones,
-  putDownAperture,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+
+const { putDownAperture } = AutoMovieMotionHumanPrehension;
 
 /**
  * A held solid object aligns at an opening, moves to a seat, and stays on
@@ -47,7 +49,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Checks two insertion directions and body proportions, three incompatible requests and ordinary placement.
  * @evidence contracts/development/testing.md#execution-ownership Uses local canonical skeleton fixtures and the in-memory resolver without a viewer.
  */
-export function test_human_motion_put_down_aperture(): void {
+export function test_motion_prehension_put_down_aperture(): void {
   const Chain: IAutoMovieMotionHumanChain.IExtension<{
     putDownAperture: typeof putDownAperture;
   }> = HumanChain.extend({ putDownAperture });

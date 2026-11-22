@@ -11,8 +11,8 @@ import type {
 import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose, qclose, vclose } from "../internal/predicates";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose, qclose, vclose } from "../../internal/predicates";
 
 /**
  * A standing performer can turn a single supported leaf or unfold a supported
@@ -36,7 +36,7 @@ import { nclose, qclose, vclose } from "../internal/predicates";
  * @evidence contracts/development/testing.md#distinguishing-cases Opposite fold directions, two body sizes, independent pre-existing cover state, during the stroke and after release. Out-of-order reads distinguish prepared and ordinary hinge display while observing the same external articulation calls.
  * @evidence contracts/development/testing.md#execution-ownership Runs two in-memory public performances with canonical bodies.
  */
-export function test_human_motion_operate_paper(): void {
+export function test_motion_operate_paper(): void {
   for (const kind of ["book", "map"] as const) {
     const book: boolean = kind === "book";
     const body: IAutoMovieMotionHumanBody = motionHumanBody(

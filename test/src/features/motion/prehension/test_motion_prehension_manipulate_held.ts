@@ -29,18 +29,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   HumanChain,
-  HumanManipulate,
   HumanPerformance,
   HumanRefusal,
   poseBones,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
-import { qclose } from "../internal/qclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
+import { qclose } from "../../internal/qclose";
+
+const { HumanManipulate } = AutoMovieMotionHumanOperate;
 
 /** The per-press contact bound in the specification (#3446), metres. */
 const CONTACT: number = 0.002;
@@ -83,7 +85,7 @@ const HOLDERS: readonly AutoMovieHumanoidBone[] = [
  * @evidence contracts/development/testing.md#distinguishing-cases Two distinct contacts after carrier displacement with intervening and releasing samples distinguish rigid following from a world-fixed finger target or a whole-hand motion. The same pad without its hold, and a mechanically articulated site, are refused.
  * @evidence contracts/development/testing.md#execution-ownership One polygon man and one performance with no arm IK targets, viewers, clocks or host dependencies.
  */
-export function test_human_motion_manipulate_held(): void {
+export function test_motion_prehension_manipulate_held(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const fingerAngles: IAutoMovieMotionHumanPosture["joints"] = {};

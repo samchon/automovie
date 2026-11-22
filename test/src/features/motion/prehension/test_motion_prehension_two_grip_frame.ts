@@ -13,11 +13,11 @@ import {
   AutoMovieMotionHumanTarget,
   HumanHand,
   poseBones,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * Two palms hold a moving rigid rod and leave it continuously.
@@ -31,7 +31,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Reads the public operation directly in memory.
  * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
  */
-export function test_motion_dynamics_two_grip_frame(): void {
+export function test_motion_prehension_two_grip_frame(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const quiet: IAutoMovieMotionHumanPosture =
     AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);

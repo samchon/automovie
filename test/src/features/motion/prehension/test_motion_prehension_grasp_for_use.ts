@@ -15,18 +15,18 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanStance,
+  AutoMovieMotionHumanStrike,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  StrikingHeld,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanLaw } from "../internal/motionHumanLaw";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanLaw } from "../../internal/motionHumanLaw";
 
 /**
  * A grip selected while planning a pickup must be one of the grip transforms
@@ -43,7 +43,7 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  * @evidence contracts/development/testing.md#distinguishing-cases The object starts free and finishes held. The handover test owns the transfer between two attached hands.
  * @evidence contracts/development/testing.md#execution-ownership Builds one in-memory performance with one real pickup and a local action observing its entry.
  */
-export function test_motion_contact_grasp_for_use(): void {
+export function test_motion_prehension_grasp_for_use(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const admissions: string[] = checkSupportEntries(body);
   const candidates: IAutoMovieRigidTransform[] = [];
@@ -68,8 +68,12 @@ export function test_motion_contact_grasp_for_use(): void {
       >,
     ): IAutoMovieMotionHumanActionPlan => {
       actual.push(
-        StrikingHeld.of(context, "right", context.params.prop, points).held!
-          .frame,
+        AutoMovieMotionHumanStrike.StrikingHeld.of(
+          context,
+          "right",
+          context.params.prop,
+          points,
+        ).held!.frame,
       );
       return AutoMovieMotionHumanStance.stand.plan({
         ...context,

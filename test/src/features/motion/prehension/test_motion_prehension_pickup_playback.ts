@@ -18,8 +18,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { qclose, vclose } from "../internal/predicates";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { qclose, vclose } from "../../internal/predicates";
 
 /**
  * A fixed pickup preserves its displayed loading phase when sought in any
@@ -35,7 +35,7 @@ import { qclose, vclose } from "../internal/predicates";
  * @evidence contracts/development/testing.md#distinguishing-cases Includes both sides of the phase, its exact endpoints and a repeated interior sample after a rewind.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous test owns both in-memory polygon-body performances and the ordinary-reader law.
  */
-export function test_motion_handling_pickup_playback(): void {
+export function test_motion_prehension_pickup_playback(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const props: IAutoMovieMotionHumanPickUp.IParams = {
     prop: "glass",

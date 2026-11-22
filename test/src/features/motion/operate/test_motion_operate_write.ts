@@ -16,20 +16,22 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   AutoMovieMotionHumanStance,
   HumanChain,
   HumanHand,
   HumanPerformance,
   HumanRefusal,
   poseBones,
-  resolveHumanPosture,
-  write,
 } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
-import { qclose } from "../internal/qclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
+import { qclose } from "../../internal/qclose";
+
+const { write } = AutoMovieMotionHumanOperate;
 
 /** Each leg of the authored test stroke is a centimetre long. */
 const EDGE: number = 0.01;
@@ -57,7 +59,7 @@ const BOUND: number = 0.001;
  * @evidence contracts/development/testing.md#distinguishing-cases A translated, rotated writing affordance and an angled polyline distinguish the surface frame from world axes and a single straight reach. A mechanically moving nib is refused.
  * @evidence contracts/development/testing.md#execution-ownership One in-memory performance and one planned arm trajectory on a polygon man. No host or capture.
  */
-export function test_human_motion_write(): void {
+export function test_motion_operate_write(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const at: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const initial: IAutoMovieMotionHumanPosture =

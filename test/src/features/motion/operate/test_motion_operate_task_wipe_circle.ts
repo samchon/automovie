@@ -7,7 +7,7 @@ import type {
 import { HumanChain, HumanHand, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * The displayed palm wipes a horizontal circle at the original stroke timing.
@@ -22,7 +22,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Out-of-order samples include both phase boundaries and interior reads that use the prepared contact stroke.
  * @evidence contracts/development/testing.md#execution-ownership One polygon man, one placed wipe and six displayed bone samples run in the motion suite.
  */
-export function test_motion_task_wipe_circle(): void {
+export function test_motion_operate_task_wipe_circle(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const centre: IAutoMovieVector3 = {
     x: -0.15,

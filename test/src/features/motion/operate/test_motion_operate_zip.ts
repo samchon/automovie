@@ -19,15 +19,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  zip,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+
+const { zip } = AutoMovieMotionHumanOperate;
 
 /** The stops on the fixture are inset from its nominal 20 cm zipper. */
 const STROKE: number = 0.18;
@@ -50,7 +52,7 @@ const STROKE: number = 0.18;
  * @evidence contracts/development/testing.md#distinguishing-cases Checks both travel directions, retention before and after release, and independent malformed models and requests.
  * @evidence contracts/development/testing.md#execution-ownership A motion feature test using the canonical polygon body and the public bag producer.
  */
-export function test_human_motion_zip(): void {
+export function test_motion_operate_zip(): void {
   const model: ReturnType<typeof createZipperPouch> = createZipperPouch();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const shoulder: IAutoMovieVector3 = body.rest.get("rightUpperArm")!;
