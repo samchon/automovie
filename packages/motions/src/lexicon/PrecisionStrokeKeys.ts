@@ -63,7 +63,10 @@ export namespace PrecisionStrokeKeys {
           goal.point,
           Quaternion.rotateVector(goal.rotation, goal.contact),
         );
+      // The tool's task points turn with the asked attitude, so they are
+      // released with it.
       delete place.contact;
+      delete place.limits;
       delete place.rotation;
       out[limb] = place;
     }

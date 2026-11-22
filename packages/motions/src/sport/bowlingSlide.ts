@@ -267,10 +267,12 @@ function plan(
       // The foot pitches toes down by its shank's forward lean over it, the
       // line from the hip leaning and the bent knee tilting the shank on
       // from that line (law of cosines over the thigh and the shank), so the
-      // unloaded ankle keeps the angle it stood with; the pitch fades as the
-      // step travels, so the foot sets down flat without turning its toe, and the foot is raised until its toe clears the
-      // floor while it swings.
-      const pitched: IAutoMovieMotionHumanFoot.IPlacement = {
+      // unloaded ankle keeps the angle it stood with until the step has
+      // travelled; as it sets down in the last third the pitch fades about
+      // its toe, which stays where it is over the floor while the heel comes
+      // down, and the foot is raised until its toe clears the floor while it
+      // swings.
+      const turn = (share: number): IAutoMovieMotionHumanFoot.IPlacement => ({
         ankle: trailingAnkle,
         rotation: HumanFoot.rotation(
           HumanFoot.heading(feet[trail].rotation),
@@ -279,10 +281,28 @@ function plan(
               tilt(reached, trailingAnkle) -
               lean(rest, feet[trail].ankle) -
               tilt(rest, feet[trail].ankle)) *
-              (1 - step),
+              share,
         ),
-      };
-      // In the slide the toe drags on the approach (its declared bearing
+      });
+      const landing: number = minimumJerk.share(
+        Math.min(
+          1,
+          Math.max(
+            0,
+            ((time - to) / (settle - to) - (1 - TERMINAL)) / TERMINAL,
+          ),
+        ),
+      );
+      const leaned: IAutoMovieMotionHumanFoot.IPlacement = turn(1);
+      const flattened: IAutoMovieMotionHumanFoot.IPlacement = turn(1 - landing);
+      const toe: IAutoMovieVector3 = Vector3.subtract(
+        HumanFoot.point(body, trail, "toe", leaned),
+        HumanFoot.point(body, trail, "toe", flattened),
+      );
+      const pitched: IAutoMovieMotionHumanFoot.IPlacement = {
+        ankle: Vector3.add(trailingAnkle, { x: toe.x, y: 0, z: toe.z }),
+        rotation: flattened.rotation,
+      }; // In the slide the toe drags on the approach (its declared bearing
       // contact) and is only kept out of the floor; in the recovery step it
       // swings clear of it.
       const lifted: number =
@@ -295,7 +315,7 @@ function plan(
         under <= 0
           ? pitched
           : {
-              ankle: { ...trailingAnkle, y: trailingAnkle.y + under },
+              ankle: { ...pitched.ankle, y: pitched.ankle.y + under },
               rotation: pitched.rotation,
             };
       return {
