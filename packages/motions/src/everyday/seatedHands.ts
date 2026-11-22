@@ -23,6 +23,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handReach } from "./handReach";
 import type { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { prepareThighSkin } from "./prepareThighSkin";
+import { seatedFlatHand } from "./seatedFlatHand";
 
 /** A hand's breadth across the palm as a share of its length (provisional anthropometric ratio). */
 const PALM_BREADTH: number = 0.45;
@@ -250,6 +251,7 @@ export namespace seatedHands {
             };
     }
     return flattened(
+      body,
       { ...posture, limbs },
       SIDES.filter(
         (side: AutoMovieHumanSide): boolean => rests[side] !== undefined,
@@ -330,11 +332,13 @@ export namespace seatedHands {
     );
     if (share >= 1)
       return flattened(
+        body,
         { ...posture, limbs: { ...posture.limbs, ...goals } },
         sides,
         1,
       );
     const shaped: IAutoMovieMotionHumanPosture = flattened(
+      body,
       posture,
       sides,
       share,
@@ -411,32 +415,23 @@ export namespace seatedHands {
     );
   }
 
-  /** Actuate the fingers of each placed hand along with its wrist. */
+  /**
+   * Actuate the fingers of each placed hand along with its wrist: the flat
+   * hand with its thumb's metacarpal twisted until the thumb clears the
+   * palmar plane (`bendFloorHand`), so a palm laid on a thigh or an armrest
+   * does not drive its thumb into it.
+   */
   function flattened(
+    body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     sides: readonly AutoMovieHumanSide[],
     share: number,
   ): IAutoMovieMotionHumanPosture {
-    if (sides.length === 0) return posture;
-    const joints: IAutoMovieMotionHumanPosture["joints"] = {
-      ...posture.joints,
-    };
+    let out: IAutoMovieMotionHumanPosture = posture;
     for (const side of sides) {
-      const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
-        side,
-        "flat",
-      );
-      for (const bone of Object.keys(flat) as AutoMovieHumanoidBone[]) {
-        const from = joints[bone] ?? [0, 0, 0];
-        const to = flat[bone]!;
-        joints[bone] = [
-          from[0] + share * (to[0] - from[0]),
-          from[1] + share * (to[1] - from[1]),
-          from[2] + share * (to[2] - from[2]),
-        ];
-      }
+      out = seatedFlatHand(body, out, side, share);
     }
-    return { ...posture, joints };
+    return out;
   }
 
   /** Measure only target surfaces this invocation will return. */

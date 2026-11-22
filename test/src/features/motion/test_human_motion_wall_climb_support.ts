@@ -20,6 +20,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { collectTakeClean } from "../internal/collectTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanStance } from "../internal/motionHumanStance";
 
@@ -46,7 +47,32 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * @evidence contracts/development/testing.md#execution-ownership This named unit builds two performances with the shared polygon-man body and reads the displayed contact poses in memory.
  */
 export function test_human_motion_wall_climb_support(): void {
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const failures: string[] = [];
+  for (const key of BODIES)
+    try {
+      take(key, failures);
+    } catch (error) {
+      failures.push(
+        `${key}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  TestValidator.equals("wall climb", failures, []);
+}
+
+/** The two canonical bodies. */
+const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
+
+/** A canonical body's key. */
+type BodyKey = "m-average" | "f-small";
+
+/**
+ * The take on one body, its verdicts recorded.
+ *
+ * @param key The body.
+ * @param failures Where a verdict fault is recorded.
+ */
+function take(key: BodyKey, failures: string[]): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
   const standing: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     motionHumanStance(body);
   const leftToe: IAutoMovieVector3 = standing.get("leftToes")!.worldPosition;
@@ -111,7 +137,7 @@ export function test_human_motion_wall_climb_support(): void {
   const params: IAutoMovieMotionHumanSupport.IParams = wallClimbSupport(route);
   const first: IAutoMovieMotionHumanSupport.IStance = params.stances[0]!;
   for (const pause of [false, true]) {
-    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+    const performance: HumanPerformance = new HumanPerformance({
       seed: "wall-climb-support",
       performers: [
         {
@@ -127,6 +153,7 @@ export function test_human_motion_wall_climb_support(): void {
         pause ? { ...params, stances: [first, ...params.stances] } : params,
       ).node,
     });
+    collectTakeClean(`${key} wall climb performance`, performance, failures);
     const segment: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
     /** Read the film share of a named support key. */
     const share = (name: string): number =>

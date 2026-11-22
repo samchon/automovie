@@ -28,6 +28,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { collectTakeClean } from "../internal/collectTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanStance } from "../internal/motionHumanStance";
 import { nclose } from "../internal/nclose";
@@ -281,6 +282,9 @@ function verifyRoute(
 ): void {
   const { size, body, wallZ, props }: IFixture = fixture;
   const film: HumanPerformance = fixture.play(fixture.route);
+  const verdicts: string[] = [];
+  collectTakeClean(`${size} wall route`, film, verdicts);
+  for (const verdict of verdicts) check(false, verdict);
   const segment: IAutoMovieMotionHumanSegment = film.segments("climber")[0]!;
   const duration: number = segment.plan.duration;
   const event = (name: string): number =>

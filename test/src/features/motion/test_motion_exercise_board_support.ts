@@ -19,6 +19,7 @@ import { HumanChain, HumanPerformance, HumanSurface } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { collectTakeClean } from "../internal/collectTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanLaw } from "../internal/motionHumanLaw";
 import { motionHumanStance } from "../internal/motionHumanStance";
@@ -48,12 +49,37 @@ const GEOMETRY: number = 0.001;
  * @evidence contracts/development/testing.md#execution-ownership This named in-memory case reads a public performance and archetype fixtures with no native host or playback visual requirement.
  */
 export function test_motion_exercise_board_support(): void {
+  const failures: string[] = [];
+  for (const key of BODIES)
+    try {
+      take(key, failures);
+    } catch (error) {
+      failures.push(
+        `${key}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  TestValidator.equals("board support", failures, []);
+}
+
+/** The two canonical bodies. */
+const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
+
+/** A canonical body's key. */
+type BodyKey = "m-average" | "f-small";
+
+/**
+ * The take on one body, its verdicts recorded.
+ *
+ * @param key The body.
+ * @param failures Where a verdict fault is recorded.
+ */
+function take(key: BodyKey, failures: string[]): void {
   const surfboard: ReturnType<typeof createSurfboard> = createSurfboard({
     model: "6'0",
   });
   const deck: number = surfboard.affordance("deck").frame.translation.y;
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
   const stance: motionHumanLaw.Bones = motionHumanStance(body);
   const left: IAutoMovieVector3 = stance.get("leftToes")!.worldPosition;
   const right: IAutoMovieVector3 = stance.get("rightToes")!.worldPosition;
@@ -114,6 +140,7 @@ export function test_motion_exercise_board_support(): void {
         } satisfies IAutoMovieMotionHumanSurface.IBoardRideParams).node,
     }),
   );
+  collectTakeClean(`${key} board ride`, film.performance, failures);
   const riding: IAutoMovieMotionHumanSegment = film.performance
     .segments("a")
     .find(

@@ -18,6 +18,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { collectTakeClean } from "../internal/collectTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 
@@ -40,7 +41,32 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership A discoverable in-memory test of registered surface actions on the rendered average Human and a seeded production skate.
  */
 export function test_motion_exercise_ice_support(): void {
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const failures: string[] = [];
+  for (const key of BODIES)
+    try {
+      take(key, failures);
+    } catch (error) {
+      failures.push(
+        `${key}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  TestValidator.equals("ice support", failures, []);
+}
+
+/** The two canonical bodies. */
+const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
+
+/** A canonical body's key. */
+type BodyKey = "m-average" | "f-small";
+
+/**
+ * The take on one body, its verdicts recorded.
+ *
+ * @param key The body.
+ * @param failures Where a verdict fault is recorded.
+ */
+function take(key: BodyKey, failures: string[]): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
   const equipment: ReturnType<typeof createIceSkate> = createIceSkate({}, 8);
   const performed = (
     skate: IAutoMovieMotionHumanSurface.ISkateParams,
@@ -71,6 +97,7 @@ export function test_motion_exercise_ice_support(): void {
     },
   };
   const film: HumanPerformance = performed(skate);
+  collectTakeClean(`${key} ice crossover`, film, failures);
   const segment: IAutoMovieMotionHumanSegment = film.segments("skater")[0]!;
   const findings: string[] = [];
   const check = (label: string, valid: boolean): void => {
@@ -144,6 +171,7 @@ export function test_motion_exercise_ice_support(): void {
       clearance: 0.055,
     },
   });
+  collectTakeClean(`${key} ice figure step`, figure, failures);
   check(
     "a figure entry leaves and regains the left blade without lifting the right",
     point(figure.bones("skater", 1.075).get("leftFoot")!, skatePivots.left).y >
@@ -188,6 +216,7 @@ export function test_motion_exercise_ice_support(): void {
       heel: 35,
     } satisfies IAutoMovieMotionHumanSurface.ICurlDeliveryParams).node,
   });
+  collectTakeClean(`${key} ice support slide`, slide, failures);
   const shown: ReturnType<typeof slide.bones> = slide.bones("skater", 1);
   const leading: ReturnType<typeof HumanFoot.sockets> = HumanFoot.sockets(
     body,

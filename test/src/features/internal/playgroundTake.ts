@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 import { HumanPerformance } from "@automovie/motions";
 
-import { assertTakeClean } from "./assertTakeClean";
+import { collectTakeClean } from "./collectTakeClean";
 
 /**
  * What the playground ride specs share: the rides' tolerance, the
@@ -94,10 +94,7 @@ export namespace playgroundTake {
     take: HumanPerformance,
     failures: string[],
   ): void {
-    try {
-      assertTakeClean(label, take);
-    } catch (error) {
-      failures.push(error instanceof Error ? error.message : String(error));
-    }
+    collectTakeClean(label, take, failures);
+
   }
 }

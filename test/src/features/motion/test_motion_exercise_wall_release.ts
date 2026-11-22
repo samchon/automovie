@@ -10,6 +10,7 @@ import type {
 import { HumanChain, HumanHand, wallClimbSupport } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { collectTakeClean } from "../internal/collectTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanLaw } from "../internal/motionHumanLaw";
 import { motionHumanStance } from "../internal/motionHumanStance";
@@ -35,7 +36,32 @@ const CONTACT: number = 0.01;
  * @evidence contracts/development/testing.md#execution-ownership The discoverable in-memory unit runs one staged polygon-body performance and one rejected route.
  */
 export function test_motion_exercise_wall_release(): void {
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const failures: string[] = [];
+  for (const key of BODIES)
+    try {
+      take(key, failures);
+    } catch (error) {
+      failures.push(
+        `${key}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  TestValidator.equals("wall release", failures, []);
+}
+
+/** The two canonical bodies. */
+const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
+
+/** A canonical body's key. */
+type BodyKey = "m-average" | "f-small";
+
+/**
+ * The take on one body, its verdicts recorded.
+ *
+ * @param key The body.
+ * @param failures Where a verdict fault is recorded.
+ */
+function take(key: BodyKey, failures: string[]): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
   const stance: motionHumanLaw.Bones = motionHumanStance(body);
   const left: IAutoMovieVector3 = stance.get("leftToes")!.worldPosition;
   const right: IAutoMovieVector3 = stance.get("rightToes")!.worldPosition;
@@ -102,6 +128,7 @@ export function test_motion_exercise_wall_release(): void {
     HumanChain.subject("a").support(wallClimbSupport(route)),
     [wall],
   );
+  collectTakeClean(`${key} wall release`, film.performance, failures);
   const segment: IAutoMovieMotionHumanSegment =
     film.performance.segments("a")[0]!;
   const free: number = motionHumanLaw.event(film, "free");

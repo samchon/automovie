@@ -24,6 +24,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { collectTakeClean } from "../internal/collectTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanStance } from "../internal/motionHumanStance";
 import { nclose } from "../internal/nclose";
@@ -184,6 +185,7 @@ function skate(
         .skateboardPhrase({ on: "board", seconds: duration, lead }).node,
     });
   const film: HumanPerformance = build(track);
+  collectTakeClean("take", film, failures);
   const action: IAutoMovieMotionHumanSegment = film.segments("rider")[1]!;
   const clock = (share: number): number => action.start + share * duration;
   const deckSole: IAutoMovieVector3 = local(
@@ -339,6 +341,7 @@ function surf(
       }).node,
     });
   const film: HumanPerformance = build(track);
+  collectTakeClean("take", film, failures);
   const action: IAutoMovieMotionHumanSegment = film.segments("rider")[1]!;
   const firstFoot: number =
     transfer === "overlap" ? phases.overlap : phases.flight;
