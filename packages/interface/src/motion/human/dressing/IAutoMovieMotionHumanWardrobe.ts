@@ -19,14 +19,20 @@ export namespace IAutoMovieMotionHumanWardrobe {
   /**
    * The modes that thread or clear one sleeve or move the zip with one hand.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Sided: The modes that thread or clear one sleeve or move the zip with one hand.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the four one-sided modes: thread or clear a sleeve, close or open the zip.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the modes that act on one side, the discriminant of `ISide`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `ISide.kind` reads it and `wardrobe` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per mode, so a one-sided mode cannot carry the jacket's or the foot's members.
    */
   export type Sided = "sleeveIn" | "sleeveOut" | "closeZip" | "openZip";
 
   /**
    * The seated modes that put footwear on or take it off one foot.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Footwear: The seated modes that put footwear on or take it off one foot.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two seated footwear modes, on and off.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the footwear modes, the discriminant of `IFoot`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IFoot.kind` reads it and `wardrobe` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per mode, so a footwear mode cannot carry the jacket's or the sleeve's members.
    */
   export type Footwear = "footwearOn" | "footwearOff";
 

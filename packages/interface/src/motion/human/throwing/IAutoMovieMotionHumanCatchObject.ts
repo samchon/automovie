@@ -112,7 +112,10 @@ export namespace IAutoMovieMotionHumanCatchObject {
   /**
    * The staged catch law: a catch law whose plan publishes its object path (`IPlan`), so a law built on it reads the path.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IStageLaw: The staged catch law: a catch law whose plan publishes its object path (`IPlan`), so a law built on it reads the path.
+   * @evidence contracts/development/common.md#meaningful-documentation States that the law takes staged parameters and that its plan publishes the object path.
+   * @evidence contracts/development/design.md#principled-representation An action law over `IStageParams` whose `plan` narrows the result to `IPlan`, so the object path is part of the law's type.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One override of the action law's `plan`; `stageCatch` implements it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: every other member is the action law's own.
    */
   export interface IStageLaw extends IAutoMovieMotionHumanActionLaw<IStageParams> {
     /**
@@ -120,7 +123,14 @@ export namespace IAutoMovieMotionHumanCatchObject {
      *
      * @param context The action's context.
      * @returns The plan with its object path.
-     * @evidence contracts/development/common.md#meaningful-documentation Documents plan: Plan a staged catch.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the input context and that the result carries the object path.
+     * @evidence contracts/development/implementation.md#principled-implementation stageCatch reads the anchored action's one launch of the ball, plans the arms with the base catch law at the realized or authored interception, and admits the hold only when the recorded flight's centre matches the plan's within the 1e-6 m flight parity.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The base catch law owns arm goals and timing; the staged plan adds only the launch check and the capture-bearing holds.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing, foreign or missed launch is refused; no second trajectory or grip proxy replaces the recorded flight.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One base plan and a constant number of flight reads per call, beyond the base catch law's own cost.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The base catch law's plan is reused rather than recomputed; the interception is read from the performance's prop reader.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan retains the base plan, the capture's launch reference and its match closure for as long as the performance holds the plan.
      */
     plan(context: IAutoMovieMotionHumanActionContext<IStageParams>): IPlan;
   }

@@ -45,7 +45,10 @@ export namespace IAutoMovieMotionHumanTapDance {
    *
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IParams: Parameters.
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default, and the type states who checks it.
+   * @evidence contracts/development/design.md#principled-representation The step, the tempo in beats per minute or a cue-track lock, a whole repeat count and the leading foot.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The members tapDance.plan reads; `lock` reuses the dance law's own type.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: every member applies to every step, and the tempo and count ranges remain for runtime admission.
    */
   export interface IParams {
     /** The step. */

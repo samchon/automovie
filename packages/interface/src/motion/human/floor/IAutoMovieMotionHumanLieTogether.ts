@@ -33,7 +33,10 @@ export namespace IAutoMovieMotionHumanLieTogether {
   /**
    * Spooning behind the partner, or the head on the partner's chest.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Way: Spooning behind the partner, or the head on the partner's chest.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two ways of lying together.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the two ways, each fixing which side both bodies lie on and what touches what.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The action's `way` member reads it and `lieTogether` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per way, with no optional fields to combine.
    */
   export type Way = "spoon" | "chest";
 }

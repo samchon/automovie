@@ -91,7 +91,14 @@ export namespace IAutoMovieMotionHumanStrikingBlade {
      *
      * @param seconds Seconds since the action's start.
      * @returns The displacement, world metres.
-     * @evidence contracts/development/common.md#meaningful-documentation Documents member: A displacement added to the path's hand point at a second since the action's start, world metres: the landing's following of a target that moves after the stroke is planned.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument's timebase, the result's frame and unit, its purpose and the default when absent.
+     * @evidence contracts/development/implementation.md#principled-implementation The following is a displacement added to the path's hand point at each second, while the arm's reference at the decisive pose is planned on the path alone.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The path keeps the stroke's own shape and `follow` carries only the target's later motion, so two strokes that follow each other never wait on each other's plan.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The signature admits no fixture or scene input, only the action's seconds.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: the stroke planner that sets it supplies the body and answers for its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: the stroke planner that sets it supplies the body and decides what it shares.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: the stroke planner that sets it supplies the body and owns what it retains.
      */
     follow?(seconds: number): IAutoMovieVector3;
 

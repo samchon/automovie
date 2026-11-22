@@ -22,7 +22,10 @@ export namespace IAutoMovieMotionHumanFirefight {
   /**
    * A hose team member's role.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Role: A hose team member's role.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two hose-team roles; the namespace states what the nozzle operator does.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the nozzle operator and the backup member on one hose line.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The hose drill's parameters read it and `hoseLine.plan` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per role, with no optional fields to combine.
    */
   export type Role = "nozzle" | "backup";
 

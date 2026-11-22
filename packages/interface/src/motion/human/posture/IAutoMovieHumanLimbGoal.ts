@@ -130,7 +130,10 @@ export namespace IAutoMovieHumanLimbGoal {
   /**
    * The performer's own bones a hand is laid on.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents OwnRests: The performer's own bones a hand is laid on.
+   * @evidence contracts/development/common.md#meaningful-documentation States that the list names the performer's own bones a hand is laid on; `restsOwn` states their effect on the fit.
+   * @evidence contracts/development/design.md#principled-representation A read-only list of humanoid bones, so only the rig's own bones can be named.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The goal's `restsOwn` member; the arm fit reads it to treat contact with those bones as placement rather than collision.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Duplicate bones are not ruled out by the type and have no extra effect.
    */
   export type OwnRests = readonly AutoMovieHumanoidBone[];
 

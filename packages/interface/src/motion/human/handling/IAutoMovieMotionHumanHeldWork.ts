@@ -84,7 +84,10 @@ export namespace IAutoMovieMotionHumanHeldWork {
   /**
    * A digit of one hand.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Digit: A digit of one hand.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the five digits of one hand.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the five digits, so an unknown digit cannot be named.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IDigit.digit` reads it to choose the digit a drive keeps on its contact.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per digit, with no optional fields to combine.
    */
   export type Digit = "thumb" | "index" | "middle" | "ring" | "little";
 

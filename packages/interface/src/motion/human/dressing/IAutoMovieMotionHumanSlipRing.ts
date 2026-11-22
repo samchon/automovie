@@ -36,7 +36,10 @@ export namespace IAutoMovieMotionHumanSlipRing {
   /**
    * The fingers a ring is worn on.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Finger: The fingers a ring is worn on.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the four fingers a ring can be slipped onto.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the non-thumb fingers, so a thumb or an unknown finger cannot be named.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The `finger` member of the slip-ring action reads it to choose the finger's bones.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per finger, with no optional fields to combine.
    */
   export type Finger = "index" | "middle" | "ring" | "little";
 }

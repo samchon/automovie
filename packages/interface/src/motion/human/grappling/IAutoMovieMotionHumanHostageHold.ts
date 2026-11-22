@@ -15,7 +15,10 @@ export namespace IAutoMovieMotionHumanHostageHold {
   /**
    * Where the holding arm lies across the hostage.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Arm: Where the holding arm lies across the hostage.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two places the holding arm lies across.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the two arm placements, across the chest or the neck.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IParams.arm` reads it and `hostageHold.plan` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per placement, with no optional fields to combine.
    */
   export type Arm = "chest" | "neck";
 

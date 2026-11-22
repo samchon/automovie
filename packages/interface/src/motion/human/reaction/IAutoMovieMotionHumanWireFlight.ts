@@ -23,14 +23,20 @@ export namespace IAutoMovieMotionHumanWireFlight {
   /**
    * The body's shape in the air.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Shape: The body's shape in the air.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the flight shapes; the namespace states the posture of each.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the shapes the body holds along the wire path.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IParams` reads it and `wireFlight.plan` chooses the held posture by it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per shape, with no optional fields to combine.
    */
   export type Shape = "superman" | "hover" | "seated" | "stride" | "limp";
 
   /**
    * A hand or a foot that touches a surface in the air.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Part: A hand or a foot that touches a surface in the air.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the four end effectors that can touch a surface in the air.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the two hands and two feet, by side.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The flight's touch records read it to choose the limb `wireFlight.plan` places on the surface.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per hand or foot, with no optional fields to combine.
    */
   export type Part = "leftHand" | "rightHand" | "leftFoot" | "rightFoot";
 

@@ -41,7 +41,10 @@ export namespace IAutoMovieMotionHumanLieOnSurface {
   /**
    * The lying positions on the surface: on the back, or on the side that turns toward the head end from the edge.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Position: The lying positions on the surface: on the back, or on the side that turns toward the head end from the edge.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two lying positions and which side the lateral one lies on.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the lying positions the route from the edge reaches, so an unreachable position such as prone cannot be named.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The action's `position` member reads it to choose the end of the route.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per position, with no optional fields to combine.
    */
   export type Position = "supine" | "lateral";
 }

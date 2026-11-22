@@ -33,7 +33,10 @@ export namespace IAutoMovieMotionHumanCaneSweep {
   /**
    * The two-point touch, the tip lifted between touches, or constant contact, the tip sliding along the floor.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Technique: The two-point touch, the tip lifted between touches, or constant contact, the tip sliding along the floor.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two cane techniques and how the tip meets the floor in each.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the two long-cane techniques, lifted touches or sliding contact.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The sweep's technique member reads it and the cane-sweep law branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per technique, with no optional fields to combine.
    */
   export type Technique = "twoPoint" | "constant";
 }

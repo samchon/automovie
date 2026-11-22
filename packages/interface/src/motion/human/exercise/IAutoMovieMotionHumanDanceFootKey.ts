@@ -32,7 +32,14 @@ export interface IAutoMovieMotionHumanDanceFootKey {
    *
    * @param seconds Action seconds within the dwell.
    * @returns The placement.
-   * @evidence contracts/development/common.md#meaningful-documentation Documents member: The placement while it dwells, for a foot that turns as it bears (a pirouette's supporting foot); `place` throughout when absent.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when a key supplies it, the argument's timebase and range, and the default when absent.
+   * @evidence contracts/development/implementation.md#principled-implementation A turning dwell is a placement as a function of action seconds; DanceFootwork reads it within the dwell and `place` otherwise.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The dance law that turns a bearing foot owns the turn; the shared footwork only samples it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The signature admits no fixture or scene input, only the action's seconds.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: the dance law that sets it supplies the body and answers for its cost.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: the dance law that sets it supplies the body and decides what it shares.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: the dance law that sets it supplies the body and owns what it retains.
    */
   hold?(seconds: number): IAutoMovieMotionHumanFoot.IPlacement;
 }

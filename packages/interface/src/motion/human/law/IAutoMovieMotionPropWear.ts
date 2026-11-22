@@ -26,21 +26,17 @@ export interface IAutoMovieMotionPropWear {
   link?: IAutoMovieMotionPropWear.ILink;
 }
 
-/**
- * Companion types of {@link IAutoMovieMotionPropWear}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a link binds and how far it lets the parts part.
- * @evidence contracts/development/design.md#principled-representation A link is a second end and a slack: the wearer's other bone, or a target in the scene, and the most the two ends may separate.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two kinds of second end the arrest and captive scenes bind and one length.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Exactly one end kind is required, and a negative or non-finite slack is refused when the performance is built.
- */
+/** Companion types of {@link IAutoMovieMotionPropWear}. */
 export namespace IAutoMovieMotionPropWear {
   /**
    * The second end of a binding: while the prop is worn, the bound ends keep
    * the places they had when it was put on, never more than `slack` apart,
    * until a later grip takes the prop off and the parts are freed.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents ILink: The second end of a binding: while the prop is worn, the bound ends keep the places they had when it was put on, never more than `slack` apart, until a later grip takes the prop off and the parts are freed.
+   * @evidence contracts/development/common.md#meaningful-documentation States what a link binds, how far it lets the ends separate, in metres, and when it frees them.
+   * @evidence contracts/development/design.md#principled-representation A link is a second end and a slack: the wearer's other bone or a scene target, and the most the two ends may separate, metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two kinds of second end the arrest and captive scenes bind, and one length, read by performance prop placement.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The two ends are optional fields rather than a union; exactly one end kind is required, and naming both or neither or a negative or non-finite slack is refused when the performance is built.
    */
   export interface ILink {
     /** The wearer's other bound bone, such as the other wrist; absent when the prop binds to a target. */

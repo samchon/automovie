@@ -24,7 +24,10 @@ export namespace IAutoMovieMotionHumanTrampoline {
    *
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and support refusals.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IParams: Parameters.
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default, and the type states who checks it.
+   * @evidence contracts/development/design.md#principled-representation The trampoline by scene id, a whole bounce count, the apex as the feet's height above the bed in metres, and the apex shape.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The four members trampolineBounce.plan reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: every member applies to every bounce; an apex beyond the legs' push remains for the law's runtime refusal.
    */
   export interface IParams {
     /** The trampoline's scene id; the jumper stands on its bed as the action starts. */

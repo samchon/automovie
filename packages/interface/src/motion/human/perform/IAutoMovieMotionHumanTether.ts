@@ -35,7 +35,10 @@ export namespace IAutoMovieMotionHumanTether {
   /**
    * A prop's named point.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IEnd: A prop's named point.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the prop and its point by id.
+   * @evidence contracts/development/design.md#principled-representation A prop by scene subject and one of its affordances by id, resolved to a world point at each second.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, used for the line's far end and the driving articulation, and resolved by HumanPerformanceTether.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An unknown prop or point is not ruled out by the type and is refused by HumanPerformanceTether at runtime.
    */
   export interface IEnd {
     /** The prop's subject. */
@@ -48,14 +51,20 @@ export namespace IAutoMovieMotionHumanTether {
   /**
    * A fixed or a driven length.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Length: A fixed or a driven length.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two ways the line out is given.
+   * @evidence contracts/development/design.md#principled-representation A union discriminated on `kind`: a constant length or one driven by an articulation's travel.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The line's `length` member; HumanPerformanceTether branches on `kind` to measure the line out.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The discriminant keeps a driven length's articulation and rate off a fixed length.
    */
   export type Length = IFree | IDriven;
 
   /**
    * A fixed length of line out.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IFree: A fixed length of line out.
+   * @evidence contracts/development/common.md#meaningful-documentation States the discriminant and the line out in metres.
+   * @evidence contracts/development/design.md#principled-representation A constant length of line out, metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The discriminant and one length, read by HumanPerformanceTether.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A length of no line is not ruled out by the type and is refused by HumanPerformanceTether at runtime.
    */
   export interface IFree {
     /** The discriminant. */
@@ -68,7 +77,10 @@ export namespace IAutoMovieMotionHumanTether {
   /**
    * A length paid in by an articulation's travel: `metres - per × travel`, never below zero.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IDriven: A length paid in by an articulation's travel: `metres - per × travel`, never below zero.
+   * @evidence contracts/development/common.md#meaningful-documentation States the length rule, its floor at zero, and each member's unit.
+   * @evidence contracts/development/design.md#principled-representation The line out at zero travel in metres, the driving articulation by prop and id, and a rate in metres per unit of its travel.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The discriminant and the three inputs of the length rule, read by HumanPerformanceTether.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The rate's unit follows the articulation's travel unit and is not encoded in the type; an unknown articulation is refused at runtime.
    */
   export interface IDriven {
     /** The discriminant. */
@@ -87,7 +99,10 @@ export namespace IAutoMovieMotionHumanTether {
   /**
    * The line as it lies at a second.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents ISpan: The line as it lies at a second.
+   * @evidence contracts/development/common.md#meaningful-documentation States the ends, the length, the taut flag and the points, with their frame and unit.
+   * @evidence contracts/development/design.md#principled-representation World metres for the ends and the points along the line, metres of line out, and whether it runs straight.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanPerformanceTether.span produces it and HumanPerformance returns it to readers of a line at a second.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts `taut` and the point count are not tied by the type: two points when taut and a catenary when slack remain the producer's invariant.
    */
   export interface ISpan {
     /** The near end, world metres. */

@@ -224,7 +224,10 @@ export namespace IAutoMovieMotionHumanArmGeometry {
   /**
    * What carries an obstacle shape: a rig bone, or a subject and part (`subject:part`) of a segment no human body carries (`IAutoMovieMotionHumanColliders.IExternal`).
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Segment: What carries an obstacle shape: a rig bone, or a subject and part (`subject:part`) of a segment no human body carries (`IAutoMovieMotionHumanColliders.IExternal`).
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two carriers of an obstacle shape and the `subject:part` form of the external one.
+   * @evidence contracts/development/design.md#principled-representation A rig bone or a template literal with a colon, so an external segment is always written as subject and part.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Names the segment an obstacle belongs to in the arm geometry's records, for rig bones and `IAutoMovieMotionHumanColliders.IExternal` segments alike.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The template admits any colon-joined string; whether the subject and part exist remains for the runtime that resolves them.
    */
   export type Segment = AutoMovieHumanoidBone | `${string}:${string}`;
 }

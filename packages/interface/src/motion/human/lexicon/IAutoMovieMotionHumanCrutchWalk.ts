@@ -45,7 +45,10 @@ export namespace IAutoMovieMotionHumanCrutchWalk {
   /**
    * The clinical crutch gaits.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Pattern: The clinical crutch gaits.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the three clinical crutch gaits; the law states each one's order.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the gaits in Physiopedia's crutch-gait classification that the law performs.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The walk's `pattern` member reads it and HumanCrutchWalk's plan branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per gait, with no optional fields to combine.
    */
   export type Pattern = "threePoint" | "swingTo" | "swingThrough";
 
@@ -61,7 +64,13 @@ export namespace IAutoMovieMotionHumanCrutchWalk {
     /**
      * From one crutch's staged floor frame, the walk's parameters, the crutch's side and the walk's first film second (zero when absent), the crutch's world frame at each film second.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents track: From one crutch's staged floor frame, the walk's parameters, the crutch's side and the walk's first film second (zero when absent), the crutch's world frame at each film second.
+     * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the start's default, the reader's timebase and the result's frame.
+     * @evidence contracts/development/implementation.md#principled-implementation HumanCrutchWalk carries each crutch by the stations' displacement, turning about its own tip as the body's centre carries it to first order, and blends each advance by minimum jerk with a lift. The current implementation ignores `side`, so both crutches follow the same displacement from their own start frames.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The law owns the stations' clock and advances; the scene's two crutch props only read frames from the returned reader.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every crutch frame derives from the stations the law plans, with no separately authored prop path; the first-order turn about the tip is stated, not hidden.
+     * @evidence contracts/development/implementation.md#efficient-algorithms The advances are built once per call, linear in the stations; each read scans them up to the current one, linear in the station count.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned reader reuses its one list of advances for every film second; the plan builds its own from the same clock.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the start frame and one advance per station for as long as the scene holds it.
      */
     track: (
       start: IAutoMovieRigidTransform,

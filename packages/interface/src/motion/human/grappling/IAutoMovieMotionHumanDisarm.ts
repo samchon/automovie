@@ -23,7 +23,10 @@ export namespace IAutoMovieMotionHumanDisarm {
   /**
    * The weapon the technique is staged for.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Kind: The weapon the technique is staged for.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two weapons a disarm is staged for; the namespace states each technique.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the weapons with a staged technique, so an unstaged weapon cannot be named.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IParams.kind` reads it and `disarm.plan` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per weapon, with no optional fields to combine.
    */
   export type Kind = "knife" | "handgun";
 

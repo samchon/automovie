@@ -26,14 +26,20 @@ export namespace IAutoMovieMotionHumanCollapse {
   /**
    * Where the body goes down.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Direction: Where the body goes down.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the four directions of a collapse; the namespace states each one's path and terminal pose.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the directions the body can go down in, relative to its heading or in place.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IParams` reads it and `collapse.plan` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per direction; the side a sideways fall needs is a separate member the other directions leave unread.
    */
   export type Direction = "backward" | "forward" | "sideways" | "inPlace";
 
   /**
    * How the body meets the floor.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Tone: How the body meets the floor.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two tones; the namespace states how each meets the floor.
+   * @evidence contracts/development/design.md#principled-representation A closed union of an unbraced fall and one that breaks the fall.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IParams` reads it and `collapse.plan` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per tone, with no optional fields to combine.
    */
   export type Tone = "limp" | "protective";
 

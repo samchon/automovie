@@ -40,7 +40,10 @@ export namespace IAutoMovieMotionHumanSabre {
   /**
    * A sabre carriage: `slope`, upright against the right shoulder, or `engage`, level forward at the charge.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Carry: A sabre carriage: `slope`, upright against the right shoulder, or `engage`, level forward at the charge.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two carriages and where the blade is in each.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the march carriage and the charge carriage of the 1908 thrusting pattern.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The act's `carry` member reads it as the carriage it begins in, and `HumanSabre` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per carriage, with no optional fields to combine.
    */
   export type Carry = "slope" | "engage";
 }

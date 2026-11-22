@@ -37,7 +37,10 @@ export namespace IAutoMovieMotionHumanGroupDance {
    *
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IParams: Parameters.
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default, and the type states who checks it.
+   * @evidence contracts/development/design.md#principled-representation The dance, the tempo in beats per minute, the repeats, the circle's centre in world metres and size, the neighbours by scene id, and the timing variation in seconds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The members groupDance.plan and its line, circle and conga courses read; `lock` reuses the dance law's own type.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One record with members per dance rather than a union on `kind`: the circle's and the conga's members are optional fields the other dances leave unused, and their presence per dance remains for the law.
    */
   export interface IParams {
     /** The dance. */

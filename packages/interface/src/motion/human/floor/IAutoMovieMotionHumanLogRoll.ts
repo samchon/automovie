@@ -1,5 +1,5 @@
-import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 
 /**
@@ -37,7 +37,10 @@ export namespace IAutoMovieMotionHumanLogRoll {
   /**
    * The positions a log roll ends in.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents End: The positions a log roll ends in.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two end positions, on the back or on the front.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the positions a whole number of half turns about the long axis reaches from lying.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The action's `end` member reads it to round a place's half turns.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per position, with no optional fields to combine.
    */
   export type End = "supine" | "prone";
 }

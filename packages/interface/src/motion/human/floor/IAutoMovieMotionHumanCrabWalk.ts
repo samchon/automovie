@@ -20,7 +20,10 @@ export namespace IAutoMovieMotionHumanCrabWalk {
   /**
    * Which end of the body leads the travel.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Lead: Which end of the body leads the travel.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two leading ends, feet first or head first.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the two travel directions along the body's long axis.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IParams.lead` reads it and `crabWalk.plan` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per lead, with no optional fields to combine.
    */
   export type Lead = "feet" | "head";
 

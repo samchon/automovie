@@ -27,7 +27,10 @@ export namespace IAutoMovieMotionHumanThrown {
   /**
    * The stunt rig that throws the body.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Rig: The stunt rig that throws the body.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two rigs; the namespace states each one's stunt practice and take-off shape.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the air ram's blast and the ratchet's jerk-back.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IParams` reads it and `thrown.plan` chooses the take-off shape by it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per rig, with no optional fields to combine.
    */
   export type Rig = "blast" | "jerkBack";
 

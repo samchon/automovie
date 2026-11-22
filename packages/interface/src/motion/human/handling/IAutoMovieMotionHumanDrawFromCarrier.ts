@@ -70,7 +70,10 @@ export namespace IAutoMovieMotionHumanDrawFromCarrier {
    * along the moving line; it is worn again on the bone it hung from where
    * the draw leaves it.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IPull: The other hand's share of a long draw.
+   * @evidence contracts/development/common.md#meaningful-documentation States when a long draw needs the other hand, how the carrier moves with it, the trunk turn's unit and default, and where the carrier is worn after.
+   * @evidence contracts/development/design.md#principled-representation The carrier's throat affordance by id and the trunk's turn away from the drawing side in degrees; the carrier's slide and turn follow from the arm's reach rather than being supplied.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by the draw law for a blade longer than the drawing arm's reach.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the carrier moves by the least that brings the hand within reach, not by an authored amount.
    */
   export interface IPull {
     /** The carrier's affordance the other hand grips, at its throat. */

@@ -27,7 +27,10 @@ export namespace IAutoMovieMotionHumanJuggle {
    *
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IParams: Parameters.
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default, and the height states how the flight and holds follow from it.
+   * @evidence contracts/development/design.md#principled-representation The pattern, the balls by scene id in hand order, the throw height in metres, the throw count and the dropped throws by one-based count.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The members juggle.plan reads; the timing is derived from the height by Shannon's theorem, not supplied.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The ball count each pattern admits and a too-short vacancy are not encoded in the type and remain for juggle.plan's runtime refusals.
    */
   export interface IParams {
     /** The pattern. */

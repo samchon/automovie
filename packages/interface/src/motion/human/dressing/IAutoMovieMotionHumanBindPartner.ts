@@ -28,19 +28,15 @@ export interface IAutoMovieMotionHumanBindPartner extends Omit<
   link: IAutoMovieMotionHumanBindPartner.ILink;
 }
 
-/**
- * Companion types of {@link IAutoMovieMotionHumanBindPartner}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the link's ends and length.
- * @evidence contracts/development/design.md#principled-representation The second end is a partner's region or a scene target, resolved to a bone or kept as the target.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One second end and one length.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Exactly one end is required.
- */
+/** Companion types of {@link IAutoMovieMotionHumanBindPartner}. */
 export namespace IAutoMovieMotionHumanBindPartner {
   /**
    * The second end of the binding and its slack.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents ILink: The second end of the binding and its slack.
+   * @evidence contracts/development/common.md#meaningful-documentation States the two alternative second ends, the slack's unit and what it bounds.
+   * @evidence contracts/development/design.md#principled-representation The second end is a partner's region or a scene target; the slack is metres of free length between the two ends.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One second end and one length, read by the bind-partner law.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The two ends are optional fields rather than a union, so naming both or neither end and a bad slack remain for the law's runtime refusal.
    */
   export interface ILink {
     /** The partner's other bound region, such as the other wrist; absent when the restraint binds to a target. */

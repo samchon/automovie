@@ -39,7 +39,17 @@ export namespace IAutoMovieScheduleWalk {
     /** The cue tracks of the laws. */
     tracks: Map<string, readonly IAutoMovieScheduleCue[]>;
 
-    /** Places a subject's waiting parallel part on a law's read (`IAutoMovieScheduleContext.demand`); absent where the walk places in declaration order only. */
+    /**
+     * Places a subject's waiting parallel part on a law's read (`IAutoMovieScheduleContext.demand`); absent where the walk places in declaration order only.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what the member places, the contract it carries and when it is absent.
+     * @evidence contracts/development/implementation.md#principled-implementation resolveAutoMovieSchedule sets it to its depth-first topological placement over the laws' reads, and AutoMovieSchedulePlace hands it on unchanged as the context's demand.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The walk carries the resolver's closure so the placement routines pass it to the laws without knowing the parallel parts.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The walk only carries the closure; a cycle it reports is refused by the law, never resolved by a default order.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Each call scans the waiting parts at most twice, linear in their count, plus the placement of the one part it finds.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work A part is placed once and leaves the waiting list, so a repeated demand never places it again.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains only the walk's shrinking waiting list and a depth counter, dropped with the walk.
+     */
     demand?: (subject: string) => IAutoMovieScheduleContext.Demand;
 
     /** The index of the entry the last placed intent pushed. */

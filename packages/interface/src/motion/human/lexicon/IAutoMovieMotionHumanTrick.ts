@@ -28,7 +28,10 @@ export namespace IAutoMovieMotionHumanTrick {
    * - `backDrag`: hanging head down over the croup, both feet in their straps;
    * - `pickup`: leaning down along `side` with that hand on `object`, the other hand on the horn and the other foot in its strap.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Kind: A trick-riding figure: - `seat`: back in the seat; - `hippodrome`: standing on the seat, the feet under the hippodrome strap; - `sideDrag`: hanging head down along `side`, the foot on that side in its strap; - `backDrag`
+   * @evidence contracts/development/common.md#meaningful-documentation States each figure's body placement and which straps, sides and hands it uses.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the trick-saddle figures, each held on the saddle's own contacts.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IFigure.kind` reads it and `HumanTrick` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per figure; a figure's side and pickup object are members of `IFigure` the other figures leave unused.
    */
   export type Kind = "seat" | "hippodrome" | "sideDrag" | "backDrag" | "pickup";
 

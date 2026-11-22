@@ -38,14 +38,20 @@ export namespace IAutoMovieMotionHumanPolo {
   /**
    * The horse's side a stroke is made on: `offside`, its right, or `nearside`, its left.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Side: The horse's side a stroke is made on: `offside`, its right, or `nearside`, its left.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the horse's two sides in polo terms and which side each is.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the horse's sides, named as polo names them rather than as the rider's left and right.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The stroke's `side` member reads it and `HumanPolo` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per side, with no optional fields to combine.
    */
   export type Side = "offside" | "nearside";
 
   /**
    * A stroke: `forehand`, swung forward through the ball, or `backhand`, swung back through it.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Stroke: A stroke: `forehand`, swung forward through the ball, or `backhand`, swung back through it.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two strokes and the swing direction of each.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the forehand and backhand swings through the ball.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The stroke's `stroke` member reads it and `HumanPolo` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per stroke, with no optional fields to combine.
    */
   export type Stroke = "forehand" | "backhand";
 }

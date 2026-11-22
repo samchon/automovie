@@ -50,7 +50,10 @@ export namespace IAutoMovieMotionHumanBallet {
    *
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IParams: Parameters.
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default, and the type states who checks it.
+   * @evidence contracts/development/design.md#principled-representation The step, the position and movement, the turnout and split in degrees, the turns and the tempo in beats per minute.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The members balletStep.plan and its position, pirouette and jeté courses read; `lock` reuses the dance law's own type.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One record with members per step kind rather than a union on `kind`: a member only another step uses is not refused by step kind; ranges and the hip limits remain for balletStep.plan's runtime refusals.
    */
   export interface IParams {
     /** The step. */

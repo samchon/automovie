@@ -57,7 +57,10 @@ export namespace IAutoMovieMotionHumanUnseat {
    * - `clear`: steps clear on the high side, `side`, landing on the feet as the horse goes down;
    * - `slump`: loses voluntary control and slumps over the neck, staying on or sliding off to `side`.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Fall: How a rider leaves the saddle: - `back`: thrown backward over the croup, landing on the back behind the saddle; - `side`: thrown sideways over the shoulder to `side`; - `forward`: thrown forward over the neck; - `pullDow
+   * @evidence contracts/development/common.md#meaningful-documentation States each way of leaving the saddle, its direction and how it lands or stays on.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the seven ways a rider leaves a moving saddle.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The act's `fall` member reads it and `HumanUnseat` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per way; the drag's stirrup and the slump's mane and stays are optional members of the act the other ways leave unused, and their presence per way remains for the law.
    */
   export type Fall =
     | "back"

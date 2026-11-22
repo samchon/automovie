@@ -18,7 +18,10 @@ export namespace IAutoMovieMotionHumanConduct {
   /**
    * The meter whose figure the baton beats.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Meter: The meter whose figure the baton beats.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the three meters; the namespace states each one's figure.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the meters with a standard beat figure in Rudolf's Grammar of Conducting.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IParams.meter` reads it and `conduct` chooses the figure by it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per meter, so a meter without a figure cannot be named.
    */
   export type Meter = "2/4" | "3/4" | "4/4";
 

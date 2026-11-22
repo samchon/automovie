@@ -14,7 +14,10 @@ export namespace IAutoMovieMotionHumanMedium {
   /**
    * The medium walked through.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Kind: The medium walked through.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the four media a walk passes through.
+   * @evidence contracts/development/design.md#principled-representation A closed union of water and the three yielding layers, each with its own resistance in the law.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IMedium.kind` reads it and `HumanMediumWalk` branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per medium; mud's hold is a member of `IMedium` the other media leave unused.
    */
   export type Kind = "water" | "snow" | "sand" | "mud";
 

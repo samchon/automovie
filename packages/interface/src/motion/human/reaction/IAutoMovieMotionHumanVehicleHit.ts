@@ -22,7 +22,10 @@ export namespace IAutoMovieMotionHumanVehicleHit {
   /**
    * The post-impact trajectory class.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents Trajectory: The post-impact trajectory class.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the four trajectory classes; the namespace states when each occurs and its source.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the frontal impact classes of Ravani, Brougham and Mason (SAE 811024).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface planVehicleHit computes it from the contact and branches on it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per class; the class is computed, never authored.
    */
   export type Trajectory =
     | "forwardProjection"
