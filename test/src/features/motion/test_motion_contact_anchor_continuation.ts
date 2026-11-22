@@ -118,7 +118,12 @@ function fits(name: string, body: IAutoMovieMotionHumanBody): void {
           y: chest.y - 0.25 * reach + move / 2,
           z: chest.z + 0.55 * reach + move,
         },
-        rotation: Quaternion.fromEuler(0, 0, -Math.PI / 2),
+        rotation: Quaternion.fromEuler({
+          x: 0,
+          y: 0,
+          z: -Math.PI / 2,
+          order: "XYZ",
+        }),
         bend: {
           x: chest.x - 0.6 * reach,
           y: chest.y - 0.5 * reach,
@@ -324,10 +329,11 @@ function angles(
     (joint: IAutoMovieJointPose): boolean => joint.bone === bone,
   );
   if (p === undefined || q === undefined) return p === q ? 0 : Infinity;
+  // A null angle is an unset one, zero.
   return Math.max(
-    Math.abs(p.flexion - q.flexion),
-    Math.abs(p.abduction - q.abduction),
-    Math.abs(p.twist - q.twist),
+    Math.abs((p.flexion ?? 0) - (q.flexion ?? 0)),
+    Math.abs((p.abduction ?? 0) - (q.abduction ?? 0)),
+    Math.abs((p.twist ?? 0) - (q.twist ?? 0)),
   );
 }
 
