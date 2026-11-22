@@ -1,17 +1,29 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanLexiconParams,
+  IAutoMovieMotionHumanOperate,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanWeaponPresent,
+  IAutoMovieMotionTarget,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { operate } from "../affordance/operate";
+import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { pickUp } from "../handling/pickUp";
 import { putDown } from "../handling/putDown";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanHand } from "../posture/HumanHand";
 import { release } from "../throwing/release";
 import { HumanArcheryCue } from "./HumanArcheryCue";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
@@ -36,7 +48,8 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  *   hand, performed over `presentBow` (`HumanChain.over`) from the set-up, so
  *   the string is drawn while the bow rises and the bow arm extends (the
  *   shot cycle's set-up and pre-draw, KSL Shot Cycle); the hand takes the
- *   string where the raised bow carries it (`operateDrive.IPart.place`), and
+ *   string where the bow arm carries the bow (`onBowArm`: the grip the bow
+ *   arm's own goal asks, never the bow's displayed frame), and
  *   the string's drive moves the nock and, by `follows`, bends the limbs
  *   (#3476).
  * - `loose`: a release of the drawing hand, or a staged hand-off at `open`
@@ -67,10 +80,30 @@ export namespace HumanArchery {
     handle: "nockGrip",
   });
 
-  /** Set the arrow's nock on the bow's string. */
-  export const nockArrow: IAutoMovieMotionHumanActionLaw<
+  /** The nocking as a plain put-down row, before the arrow's own nock is named. */
+  const nockRow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"]
   > = HumanActionRow.of("nockArrow", putDown, {});
+
+  /** Set the arrow's nock on the bow's string: the arrow's own `nock` socket is the one laid on the receiver when the composition names no other, so the placement holds that socket on the string (a contact task) where the wrist cannot keep the whole attitude. */
+  export const nockArrow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"]
+  > = {
+    ...nockRow,
+    plan: (
+      context: IAutoMovieMotionHumanActionContext<
+        IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"]
+      >,
+    ): IAutoMovieMotionHumanActionPlan =>
+      nockRow.plan({ ...context, params: byNock(context.params) }),
+    // The grasp that takes the arrow is weighed for the same socket.
+    demands: (
+      ahead: IAutoMovieMotionHumanActionLaw.IAhead<
+        IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"]
+      >,
+    ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] =>
+      nockRow.demands?.({ ...ahead, params: byNock(ahead.params) }) ?? [],
+  };
 
   /** Hold the bow out in one hand on the line from the face to the target. */
   export const presentBow: IAutoMovieMotionHumanActionLaw<
@@ -84,10 +117,22 @@ export namespace HumanArchery {
     extended: true,
   });
 
-  /** Draw the string back to the anchor, over `presentBow`. */
-  export const drawBow: IAutoMovieMotionHumanActionLaw<
+  /** The draw as a plain operation row, before the bow is read off the bow arm. */
+  const drawRow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
   > = HumanActionRow.of("drawBow", operate, {});
+
+  /** Draw the string back to the anchor, over `presentBow`: the string is read where the bow arm carries the bow (`onBowArm`). */
+  export const drawBow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
+  > = {
+    ...drawRow,
+    plan: (
+      context: IAutoMovieMotionHumanActionContext<
+        IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
+      >,
+    ): IAutoMovieMotionHumanActionPlan => drawRow.plan(onBowArm(context)),
+  };
 
   /** Open the drawing hand or perform the authored hand-off at the same named event. */
   export const loose: IAutoMovieMotionHumanActionLaw<
@@ -170,6 +215,128 @@ export namespace HumanArchery {
           fix: "use continuation with the depicted crossbow and omit shot",
         });
       return HumanArcheryCue(context, continuation, true);
+    },
+  };
+}
+
+/**
+ * The nocking's parameters with the arrow's own `nock` socket laid on the
+ * receiver when the composition names none.
+ *
+ * @param params The nocking's parameters.
+ * @returns The parameters naming the arrow's socket.
+ */
+function byNock(
+  params: IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"],
+): IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"] {
+  return params.onto === undefined || params.onto.via !== undefined
+    ? params
+    : { ...params, onto: { ...params.onto, via: "nock" } };
+}
+
+/**
+ * The draw's context with the bow read off the bow arm, never off the bow's
+ * displayed frame. The bow is rigid in the other hand's grip frame
+ * (`AutoMovieMotionHumanHeld.of`, read at the entry), so the string the
+ * drawing hand takes rides that grip. Over a carrier (the draw over
+ * `presentBow`), the grip is the one the carrier's own bow-arm goal asks at
+ * the same instant, so the string is where the raised arm puts the bow. On
+ * its own, the draw holds the entry's posture, so the bow stays where the
+ * entry held it. Reading the displayed bow instead would read the very
+ * posture being fitted, since the bow hangs on this performer's own hand.
+ * A draw on a prop the other hand does not hold is left as it is.
+ *
+ * @param context The draw's context.
+ * @returns The context whose bow reader and aim read the bow arm's grip.
+ */
+function onBowArm(
+  context: IAutoMovieMotionHumanActionContext<
+    IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
+  >,
+): IAutoMovieMotionHumanActionContext<
+  IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
+> {
+  const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
+    context.params.mechanism;
+  if (mechanism.kind === "insert" || mechanism.at.kind !== "prop")
+    return context;
+  const bow: string = mechanism.at.subject;
+  const side: AutoMovieHumanSide =
+    (context.params.hand ?? "right") === "left" ? "right" : "left";
+  if (context.entry.holds[side] !== bow) return context;
+  const reader: IAutoMovieMotionHumanPropReader = context.prop(bow);
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    context,
+    side,
+    bow,
+  );
+  const entered: IAutoMovieRigidTransform = reader.frame(context.entry.seconds);
+  const grip: IAutoMovieVector3 = HumanHand.offset(
+    context.body,
+    side,
+    "grip",
+  ).point;
+  const limb: AutoMovieHumanLimb = `${side}Arm`;
+  const carrier: IAutoMovieMotionHumanActionContext.ICarrier | undefined =
+    context.carrier;
+  const frame: (seconds: number) => IAutoMovieRigidTransform = (
+    seconds: number,
+  ): IAutoMovieRigidTransform => {
+    if (carrier === undefined) return entered;
+    const goal: IAutoMovieHumanLimbGoal | undefined = carrier.posture(
+      seconds - context.start,
+    ).limbs[limb];
+    // A goal in a bone's frame or without a turn names no world grip; the
+    // bow is then kept where the entry held it.
+    if (
+      goal === undefined ||
+      goal.on !== undefined ||
+      goal.rotation === undefined
+    )
+      return entered;
+    const socket: IAutoMovieVector3 = Vector3.add(
+      goal.point,
+      Quaternion.rotateVector(goal.rotation, grip),
+    );
+    return {
+      position: Vector3.add(
+        socket,
+        Quaternion.rotateVector(goal.rotation, held.frame.position),
+      ),
+      rotation: Quaternion.normalize(
+        Quaternion.multiply(goal.rotation, held.frame.rotation),
+      ),
+    };
+  };
+  return {
+    ...context,
+    prop: (subject: string): IAutoMovieMotionHumanPropReader =>
+      subject === bow ? { ...reader, frame } : context.prop(subject),
+    aim: (
+      target: IAutoMovieMotionTarget,
+      seconds: number,
+    ): ReturnType<IAutoMovieMotionHumanActionContext["aim"]> => {
+      if (target.kind !== "prop" || target.subject !== bow)
+        return context.aim(target, seconds);
+      const posed: readonly IAutoMovieAffordance[] =
+        reader.prop.articulate?.(reader.state?.(seconds) ?? {}).affordances ??
+        reader.prop.affordances ??
+        [];
+      const contact: IAutoMovieAffordance | undefined = posed.find(
+        (a: IAutoMovieAffordance): boolean => a.id === target.point,
+      );
+      if (contact === undefined) return context.aim(target, seconds);
+      const shown: IAutoMovieRigidTransform = frame(seconds);
+      return {
+        point: Vector3.add(
+          shown.position,
+          Quaternion.rotateVector(shown.rotation, contact.frame.translation),
+        ),
+        normal: Quaternion.rotateVector(
+          Quaternion.multiply(shown.rotation, contact.frame.rotation),
+          { x: 0, y: 1, z: 0 },
+        ),
+      };
     },
   };
 }

@@ -130,6 +130,8 @@ export function test_motion_exercise_archery_take(): void {
             // Brought up over two seconds, the right hand on the string riding
             // up with the bow from the nocking place.
             {
+              gun: "bow",
+              hand: "left",
               target: { kind: "point", at: TARGET, frame: "world" },
               seconds: 2,
             },
