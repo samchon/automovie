@@ -134,6 +134,7 @@ export namespace QuadrupedScapula {
    * @param joint The blade at rest.
    * @param goal The limb's ankle goal, model space.
    * @param reach The limb's radial reach.
+   * @param range The joint's range of motion, degrees, half of it either way; the scapula's when absent, a pelvis's for a hip (`QuadrupedPelvis`).
    * @returns The bound, metres; negative infinity when no turn reaches.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the bound and the unreachable case.
@@ -148,6 +149,7 @@ export namespace QuadrupedScapula {
     joint: IJoint,
     goal: IAutoMovieVector3,
     reach: QuadrupedLimb.IRange,
+    range: number = RANGE,
   ): number {
     const planar: number = leg(reach.maximum, goal.x - joint.glenoid.x);
     if (!(planar >= 0)) return -Infinity;
@@ -161,6 +163,7 @@ export namespace QuadrupedScapula {
     const lift: number = goal.y - joint.pivot.y + leg(span, along);
     const angle: number = clamp(
       turn(joint, { y: goal.y - joint.pivot.y - lift, z: along }),
+      range,
     );
     const moved: IAutoMovieVector3 = glenoid(joint, angle);
     const dz: number = goal.z - moved.z;
@@ -176,6 +179,7 @@ export namespace QuadrupedScapula {
    * @param reach The limb's radial reach.
    * @param height The chosen root translation, metres.
    * @param margin The coordinate roundoff budget, metres: a turned joint is aimed this far inside the reach so the exact limb solve admits it.
+   * @param range The joint's range of motion, degrees, half of it either way; the scapula's when absent.
    * @returns The turn, radians; zero when the rest joint already reaches.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the only-as-needed law.
@@ -192,6 +196,7 @@ export namespace QuadrupedScapula {
     reach: QuadrupedLimb.IRange,
     height: number,
     margin: number,
+    range: number = RANGE,
   ): number {
     const planar: number = leg(reach.maximum, goal.x - joint.glenoid.x);
     const y: number = goal.y - joint.glenoid.y - height;
@@ -211,7 +216,10 @@ export namespace QuadrupedScapula {
       (2 * radius * distance);
     const window: number = Math.acos(Math.max(-1, Math.min(1, cosine)));
     const centre: number = turn(joint, toward);
-    return clamp(Math.max(centre - window, Math.min(centre + window, 0)));
+    return clamp(
+      Math.max(centre - window, Math.min(centre + window, 0)),
+      range,
+    );
   }
 
   /** A sagittal vector: model Y and Z. */
@@ -229,9 +237,9 @@ export namespace QuadrupedScapula {
     return Math.atan2(y * toward.z - z * toward.y, y * toward.y + z * toward.z);
   }
 
-  /** Clamp a turn to half the range either way. */
-  function clamp(angle: number): number {
-    const half: number = (RANGE * Math.PI) / 360;
+  /** Clamp a turn to half a range either way. */
+  function clamp(angle: number, range: number): number {
+    const half: number = (range * Math.PI) / 360;
     return Math.max(-half, Math.min(half, angle));
   }
 

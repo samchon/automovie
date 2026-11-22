@@ -2,6 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { QuadrupedBody } from "./QuadrupedBody";
 import type { QuadrupedLimb } from "./QuadrupedLimb";
+import { QuadrupedPelvis } from "./QuadrupedPelvis";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /**
@@ -35,6 +36,9 @@ elax may lower for a swinging limb. */
 
     /** A fore limb's shoulder blade, whose turn within range may carry the attachment toward the goal and so raise the upper bound. */
     scapula?: QuadrupedScapula.IJoint;
+
+    /** A hind limb's hip on the pelvis (`QuadrupedPelvis`), whose turn within the pelvis's range may carry the attachment toward the goal and so raise the upper bound. */
+    pelvis?: QuadrupedScapula.IJoint;
   }
 
   /**
@@ -66,7 +70,7 @@ elax may lower for a swinging limb. */
    * @throws {RangeError} For malformed/nonrepresentable geometry, horizontal overreach or incompatible whole-body constraints.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Gives the exact geometric interval, above-foot branch, metre frames and physical floor requirement, distinguishing feasibility from path selection.
-   * @evidence contracts/development/implementation.md#principled-implementation Derive each limb's vertical-drop interval from its actual radial reach and fixed horizontal separation, translate it into root coordinates and intersect all four with the actual body-floor lower bound. A fore limb with a shoulder blade takes the highest bound its blade reaches within range (`QuadrupedScapula.high`).
+   * @evidence contracts/development/implementation.md#principled-implementation Derive each limb's vertical-drop interval from its actual radial reach and fixed horizontal separation, translate it into root coordinates and intersect all four with the actual body-floor lower bound. A fore limb with a shoulder blade takes the highest bound its blade reaches within range (`QuadrupedScapula.high`), and the two hinds the highest at which one turn of the pelvis within its range lets both reach (`QuadrupedPelvis.high`); that shared turn is chosen once the root is (`QuadrupedPelvis.turn`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit each complete constraint, derive its two bounds once and accumulate their intersection before one final emptiness check.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Targets, attachments and reach radii remain unchanged. Squared-radius arithmetic is normalized to avoid avoidable overflow; an empty or unrepresentable interval is refused rather than padded or projected.
    * @evidence contracts/development/implementation.md#efficient-algorithms Exactly four constant-size constraints take O(1) work and storage with no root search, event enumeration, physical simulation or retained samples.
@@ -183,6 +187,22 @@ elax may lower for a swinging limb. */
       if (low > bound.minimum) [bound.minimum, bound.lowest] = [low, limb];
       if (high < bound.maximum) [bound.maximum, bound.highest] = [high, limb];
     }
+    // Both hips ride one pelvis: the hinds bound the root jointly.
+    const left: IConstraint | undefined = constraints?.leftHind;
+    const right: IConstraint | undefined = constraints?.rightHind;
+    if (left?.pelvis !== undefined && right?.pelvis !== undefined) {
+      const shared: number = QuadrupedPelvis.high([
+        { joint: left.pelvis, goal: left.goal, reach: left.reach },
+        { joint: right.pelvis, goal: right.goal, reach: right.reach },
+      ]);
+      if (shared < bound.maximum)
+        [bound.maximum, bound.highest] = [
+          shared,
+          limbBounds("leftHind", left)[1] <= limbBounds("rightHind", right)[1]
+            ? "leftHind"
+            : "rightHind",
+        ];
+    }
     return bound;
   }
 
@@ -227,11 +247,18 @@ elax may lower for a swinging limb. */
       goal.z - attachment.z,
     );
     const high: number =
-      constraint.scapula === undefined
-        ? horizontal <= radial.maximum
-          ? goal.y - attachment.y + vertical(radial.maximum, horizontal)
-          : -Infinity
-        : QuadrupedScapula.high(constraint.scapula, goal, radial);
+      constraint.scapula !== undefined
+        ? QuadrupedScapula.high(constraint.scapula, goal, radial)
+        : constraint.pelvis !== undefined
+          ? QuadrupedScapula.high(
+              constraint.pelvis,
+              goal,
+              radial,
+              QuadrupedPelvis.RANGE,
+            )
+          : horizontal <= radial.maximum
+            ? goal.y - attachment.y + vertical(radial.maximum, horizontal)
+            : -Infinity;
     if (!Number.isFinite(horizontal))
       throw new RangeError(`The ${limb} horizontal goal is not finite`);
     const low: number =

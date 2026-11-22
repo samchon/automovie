@@ -13,21 +13,18 @@ import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedCarriage } from "./QuadrupedCarriage";
 import type { QuadrupedFooting } from "./QuadrupedFooting";
 import type { QuadrupedJoints } from "./QuadrupedJoints";
-import { QuadrupedLimb } from "./QuadrupedLimb";
+import type { QuadrupedLimb } from "./QuadrupedLimb";
+import { QuadrupedPelvis } from "./QuadrupedPelvis";
 import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
+import { QuadrupedRideTerminal } from "./QuadrupedRideTerminal";
 import { QuadrupedRootRange } from "./QuadrupedRootRange";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 import { chooseQuadrupedBodyRoot } from "./chooseQuadrupedBodyRoot";
 import type { createQuadruped } from "./createQuadruped";
 
-/** One admitted terminal primitive and its exact fixed-orientation sole offset. */
-interface End {
-  /** Actual chain with its terminal direction constrained by a pose goal. */
-  solver: QuadrupedLimb.IOriented;
-  /** Endpoint height above the terminal primitive's lowest surface, metres. */
-  clearance: number;
-}
+/** The hind limbs, whose hips ride the pelvis. */
+const HINDS: readonly QuadrupedBody.Limb[] = ["leftHind", "rightHind"];
 
 /** One sample's unchanged endpoint, relative fold and fixed neutral attachment. */
 interface Target {
@@ -146,15 +143,14 @@ export namespace QuadrupedRidePose {
         ],
       ),
     );
+    const end = (limb: QuadrupedBody.Limb): QuadrupedRideTerminal.Binding =>
+      QuadrupedRideTerminal.of(
+        limb,
+        source.limbs[limb],
+        parts.get(QuadrupedBody.BONES[limb][3]!),
+      );
     const ends: Readonly<
-      Record<
-        QuadrupedBody.Limb,
-        (
-          orientation: IAutoMovieQuaternion | undefined,
-          lateral: boolean,
-          normal?: IAutoMovieVector3,
-        ) => End
-      >
+      Record<QuadrupedBody.Limb, QuadrupedRideTerminal.Binding>
     > = {
       leftFore: end("leftFore"),
       rightFore: end("rightFore"),
@@ -181,78 +177,6 @@ export namespace QuadrupedRidePose {
     /** Identity of the private chain workspaces and admitted rig in this prepared source. */
     const geometryOwner: object = {};
     return { sample };
-
-    /** Read one actual foot primitive; no endpoint-only ground proxy is retained. */
-    function end(
-      limb: QuadrupedBody.Limb,
-    ): (
-      orientation: IAutoMovieQuaternion | undefined,
-      lateral: boolean,
-      normal?: IAutoMovieVector3,
-    ) => End {
-      const chain: readonly IAutoMovieVector3[] = source.limbs[limb];
-      const terminal: IAutoMovieModelPart | undefined = parts.get(
-        QuadrupedBody.BONES[limb][3]!,
-      );
-      if (
-        terminal?.geometry.type !== "primitive" ||
-        (terminal.geometry.shape.type !== "cylinder" &&
-          terminal.geometry.shape.type !== "capsule")
-      )
-        throw new RangeError(`The ${limb} terminal solid is not a rigid bar`);
-      const dx: number = chain[4]!.x - chain[3]!.x;
-      const dy: number = chain[4]!.y - chain[3]!.y;
-      const dz: number = chain[4]!.z - chain[3]!.z;
-      const length: number = Math.hypot(dx, dy, dz);
-      const axis: IAutoMovieVector3 = {
-        x: dx / length,
-        y: dy / length,
-        z: dz / length,
-      };
-      const shape: typeof terminal.geometry.shape = terminal.geometry.shape;
-      const prepared: QuadrupedLimb.IPrepared = QuadrupedLimb.prepare(
-        chain,
-        limb.endsWith("Fore"),
-      );
-      const defaultSupport: End = support(axis, false);
-      return (
-        orientation: IAutoMovieQuaternion | undefined,
-        lateral: boolean,
-        normal?: IAutoMovieVector3,
-      ): End =>
-        orientation === undefined && !lateral && normal === undefined
-          ? defaultSupport
-          : support(
-              orientation === undefined
-                ? axis
-                : Quaternion.rotateVector(orientation, axis),
-              true,
-              normal,
-            );
-
-      /** Bind the exact support of the current terminal bar in model space. */
-      function support(
-        direction: IAutoMovieVector3,
-        lateral: boolean,
-        normal?: IAutoMovieVector3,
-      ): End {
-        const radial: number =
-          shape.type === "capsule"
-            ? shape.radius
-            : shape.radius *
-              (normal === undefined
-                ? Math.hypot(direction.x, direction.z)
-                : Vector3.length(Vector3.cross(direction, normal)));
-        const vertical: number =
-          normal === undefined ? direction.y : Vector3.dot(normal, direction);
-        const clearance: number = Math.max(0, vertical) * shape.height + radial;
-        if (!(Number.isFinite(clearance) && clearance >= 0))
-          throw new RangeError(
-            `The ${limb} sole clearance is not representable`,
-          );
-        return { solver: prepared.oriented(direction, lateral), clearance };
-      }
-    }
 
     /** Achieve four unchanged foot poses with one explicit whole-body trajectory. */
     function sample(
@@ -327,13 +251,30 @@ export namespace QuadrupedRidePose {
           new Map();
         const turned: Map<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal> =
           new Map(axial);
+        // Both hips ride one pelvis, turned as far as the hind needing it most requires.
+        const pelvis: number = QuadrupedPelvis.turn(
+          HINDS.map((limb: QuadrupedBody.Limb): QuadrupedPelvis.IHip => {
+            const constraint: QuadrupedRootRange.IConstraint =
+              targets.get(limb)!.constraint;
+            return {
+              joint: constraint.pelvis!,
+              goal: constraint.goal,
+              reach: constraint.reach,
+            };
+          }),
+          height,
+          256 * Number.EPSILON * coordinateScale,
+        );
+        if (pelvis !== 0)
+          turned.set(QuadrupedPelvis.BONE, bar(QuadrupedPelvis.BONE, pelvis));
         for (const limb of QuadrupedBody.LIMBS) {
           const target: Target = targets.get(limb)!;
-          const attachment: IAutoMovieVector3 = shoulder(
-            target,
-            height,
-            turned,
-          );
+          const hip: QuadrupedScapula.IJoint | undefined =
+            target.constraint.pelvis;
+          const attachment: IAutoMovieVector3 =
+            hip === undefined
+              ? shoulder(target, height, turned)
+              : QuadrupedScapula.glenoid(hip, pelvis);
           solved.set(
             limb,
             target.solver.solve(
@@ -412,19 +353,27 @@ export namespace QuadrupedRidePose {
           256 * Number.EPSILON * coordinateScale,
         );
         if (angle === 0) return target.attachment;
+        turned.set(blade, bar(blade, angle));
+        return QuadrupedScapula.glenoid(joint, angle);
+      }
+
+      /** An axial bar's goal turned by an angle about model X from its previewed direction. */
+      function bar(
+        bone: QuadrupedPosePlan.Axial,
+        angle: number,
+      ): QuadrupedPosePlan.Goal {
         const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-          preview.frames.get(blade)!.rotation,
+          preview.frames.get(bone)!.rotation,
           { x: 0, y: 1, z: 0 },
         );
-        turned.set(blade, {
+        return {
           kind: "direction",
           direction: {
             x: axis.x,
             y: axis.y * Math.cos(angle) - axis.z * Math.sin(angle),
             z: axis.y * Math.sin(angle) + axis.z * Math.cos(angle),
           },
-        });
-        return QuadrupedScapula.glenoid(joint, angle);
+        };
       }
 
       /** Convert one actual solid's lift to an exact endpoint/ankle constraint. */
@@ -446,7 +395,7 @@ export namespace QuadrupedRidePose {
         )!.translation;
         const surface: QuadrupedFooting.ISurface | undefined = goal.surface;
         const normal: IAutoMovieVector3 | undefined = surface?.normal;
-        const support: End = ends[limb](
+        const support: QuadrupedRideTerminal.IEnd = ends[limb](
           goal.orientation,
           goal.x !== undefined,
           normal,
@@ -476,7 +425,12 @@ export namespace QuadrupedRidePose {
           reach: support.solver.range(goal.fold),
           fold: goal.fold,
           ...(blade === undefined
-            ? {}
+            ? {
+                pelvis: {
+                  pivot: preview.frames.get(QuadrupedPelvis.BONE)!.translation,
+                  glenoid: attachment,
+                },
+              }
             : {
                 scapula: {
                   pivot: preview.frames.get(blade)!.translation,
