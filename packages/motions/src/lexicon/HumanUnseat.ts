@@ -17,6 +17,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KnockdownFloor } from "../reaction/KnockdownFloor";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatDrag } from "./HumanUnseatDrag";
@@ -348,7 +349,11 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     body: context.body,
     plan: goals,
     side,
-    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+    // The course leaves from the arm shown at the release: the carried seat's, not the entry's.
+    rest: AutoMovieMotionHumanArm.angles(
+      resolveHumanPosture(context.body, seatedAt(leave)),
+      side,
+    ),
     span: { start: leave, ready: touch, relax: duration, end: duration },
   });
 }

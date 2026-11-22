@@ -1,5 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -16,6 +18,8 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
+import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
+import { HumanColliders } from "../posture/HumanColliders";
 import { seated } from "../everyday/seated";
 import { sitPlace } from "../everyday/sitPlace";
 import { HumanBound } from "../law/HumanBound";
@@ -41,6 +45,13 @@ const SETTLE: number = 0.3;
 
 /** Seconds the holding hand takes to close on its hold from the take-off (provisional). */
 const GRASP: number = 0.15;
+
+/** A partner's bones a hand resting on the partner keeps clear of: the trunk and the thighs. */
+const PARTNER: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+  ...HumanArmObstacleBones.TRUNK,
+  "leftUpperLeg",
+  "rightUpperLeg",
+]);
 
 /** The share of the flight a held hand keeps its hold for: to the landing, so the support passes from the hold to the seat with no gap. */
 const LET_GO: number = 1;
@@ -269,9 +280,28 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       const point: IAutoMovieVector3 | undefined = held(
         context.start + Math.min(t, LET_GO * flight),
       );
-      return point === undefined || hand === undefined
-        ? world
-        : HumanUnseatPose.reach(world, hand.side, point, 1);
+      if (point === undefined || hand === undefined) return world;
+      const reached: IAutoMovieMotionHumanPosture = HumanUnseatPose.reach(
+        world,
+        hand.side,
+        point,
+        1,
+      );
+      // A hand on a partner rests on the partner's body: its trunk and thighs, placed as displayed, are the colliders the arm keeps clear of up to the wrist.
+      if (hand.partner === undefined) return reached;
+      const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
+        hand.partner,
+      );
+      reached.limbs = {
+        ...reached.limbs,
+        [`${hand.side}Arm`]: {
+          ...reached.limbs[`${hand.side}Arm`]!,
+          rests: HumanColliders.preparePlaced(partner.body, PARTNER)(
+            partner.bones(context.start + Math.min(t, LET_GO * flight), PARTNER),
+          ),
+        },
+      };
+      return reached;
     },
   };
   if (hand === undefined) return goals;
