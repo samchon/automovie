@@ -66,10 +66,11 @@ import { putDownTarget } from "./putDownTarget";
  * carrier (a seated rider's draw), the draw claims only its hands and arms,
  * their goals riding the bone the carrier is worn on so they follow the line
  * as the body moves; there the fit is not judged against the line. With a
- * `pull`, a blade longer than the arm's reach, the other hand turns the
- * carrier about where it hangs toward the drawing shoulder, by the least
- * angle that brings the drawn wrist within reach (`pivoting`), while the
- * trunk turns away, and the blade leaves along the turning line.
+ * `pull`, a blade longer than the arm's reach, the other hand slides the
+ * carrier back along its own line and then turns it about where it hangs
+ * toward the drawing shoulder, each by the least that brings the drawn wrist
+ * within reach (`pivoting`), while the trunk turns away, and the blade
+ * leaves low and in front along the moving line.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the entry state, the path, the timing, the held body, the events and the cut.
  * @evidence contracts/development/design.md#principled-representation The object rides the carrier's own slide socket on the authored line, so the displayed object follows the line exactly; the hand follows it within `GRIP` and owns it from the opening.
@@ -234,13 +235,21 @@ function plan(
     pulled === null || context.carrier !== undefined
       ? context.entry.posture
       : StrikingBlade.turned(context.entry.posture, pulled.turn);
-  // A pulled carrier turns about where it hangs while the slider runs, its
-  // line tipping toward the drawing shoulder, so the blade leaves along the
-  // turning line; otherwise the line holds.
+  // A pulled carrier slides back along its line and turns about where it
+  // hangs while the slider runs, so the blade leaves low and in front along
+  // the moving line; otherwise the line holds.
   const pivot: IPivot | null =
     pulled === null
       ? null
-      : pivoting(context, from, side, turnedAway, wrist, Vector3.length(line));
+      : pivoting(
+          context,
+          from,
+          side,
+          pulled,
+          turnedAway,
+          wrist,
+          Vector3.length(line),
+        );
   const bladeAt: (p: number) => IAutoMovieRigidTransform = (
     p: number,
   ): IAutoMovieRigidTransform =>
@@ -765,7 +774,16 @@ function pulling(
   };
 }
 
-/** A pulled carrier's pivot: the frames its turn about its hanger gives. */
+/** The two roots of a point's slide back along a carrier's line that put it at an arm's reach from a shoulder, metres; the reach holds between them. */
+interface IRoots {
+  /** The lesser root. */
+  low: number;
+
+  /** The greater root. */
+  high: number;
+}
+
+/** A pulled carrier's pivot: the frames its slide and turn about its hanger give. */
 interface IPivot {
   /** The drawn object's world frame at a share of the pivot and a slider travel, metres. */
   blade(share: number, travel: number): IAutoMovieRigidTransform;
@@ -777,24 +795,28 @@ interface IPivot {
 }
 
 /**
- * The pulled carrier's pivot. A long blade is drawn up and across the body:
- * the other hand turns the scabbard about where it hangs (the carrier's
- * `belt` affordance, or its origin where it declares none) so its line tips
- * toward the drawing shoulder, and the blade leaves along the turning line.
- * The turn is about the axis square to the hanger's lines to the drawn wrist
- * and to that shoulder, by the least angle that brings the drawn wrist within
- * `operate.REACH` of the arm's length from the shoulder: with `v` the drawn
- * wrist and `w` the shoulder from the hanger, the wrist turned by `t` toward
- * the shoulder lies `sqrt(|v|^2 + |w|^2 - 2|v||w|cos(phi - t))` from it, `phi`
- * the angle between them, so `t = phi - acos(c)`, `c` the law of cosines'
- * cosine at that reach. A wrist already within it needs no turn; one no turn
- * brings within it turns straight at the shoulder and is refused by the
- * reach check that follows.
+ * The pulled carrier's pivot. A long blade leaves its scabbard low and in
+ * front as the other hand draws the scabbard back: first along its own line,
+ * the frog riding the belt, by the least slide that brings the drawn wrist
+ * within `operate.REACH` of the drawing arm's length from its shoulder, as
+ * far as the pulling hand can carry the throat within its own reach (both
+ * closed form: a point `e` from a shoulder slid back by `r` along the line's
+ * unit direction `d` lies `|e - r d|` from it, so the reach holds between the
+ * roots of `r^2 - 2 r (d.e) + |e|^2 - R^2`); then, for what the slide leaves,
+ * by the least turn about the slid hanger (the carrier's `belt` affordance,
+ * or its origin where it declares none) toward the drawing shoulder: with
+ * `v` the drawn wrist and `w` the shoulder from the hanger, the wrist turned
+ * by `t` lies `sqrt(|v|^2 + |w|^2 - 2|v||w|cos(phi - t))` from the shoulder,
+ * `phi` the angle between them, so `t = phi - acos(c)`, `c` the law of
+ * cosines' cosine at the reach. A wrist already within reach needs neither;
+ * one neither brings within it turns straight at the shoulder and is refused
+ * by the reach check that follows.
  */
 function pivoting(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDrawFromCarrier>,
   from: IAutoMovieMotionHumanDrawFromCarrier.IFrom,
   side: AutoMovieHumanSide,
+  pulled: IPulled,
   posture: IAutoMovieMotionHumanPosture,
   wristOf: (frame: IAutoMovieRigidTransform) => IAutoMovieRigidTransform,
   travel: number,
@@ -842,23 +864,67 @@ function pivoting(
     };
   };
 
-  // The least turn toward the drawing shoulder that brings the drawn wrist
-  // within reach.
-  const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
-    context.body,
-    posture,
-    undefined,
-    undefined,
-    new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]),
-  ).get(`${side}UpperArm`)!.worldPosition;
-  const v: IAutoMovieVector3 = Vector3.subtract(
-    wristOf(slid(travel)).position,
-    hanger,
-  );
-  const w: IAutoMovieVector3 = Vector3.subtract(shoulder, hanger);
+  // The shoulders the two hands work from, and the reach of each arm.
+  const shoulders: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    HumanTrunk.resolve(
+      context.body,
+      posture,
+      undefined,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([
+        `${side}UpperArm`,
+        `${pulled.side}UpperArm`,
+      ]),
+    );
+  const shoulder: IAutoMovieVector3 = shoulders.get(
+    `${side}UpperArm`,
+  )!.worldPosition;
+  const holding: IAutoMovieVector3 = shoulders.get(
+    `${pulled.side}UpperArm`,
+  )!.worldPosition;
   const reach: number =
     operate.REACH *
     (context.body.measure.upperArm + context.body.measure.forearm);
+  const drawn: IAutoMovieVector3 = wristOf(slid(travel)).position;
+
+  // First the slide back along the carrier's own line (the frog riding the
+  // belt): the least that brings the drawn wrist within reach, as far as the
+  // pulling hand can carry the throat. With `d` the line's unit direction, a
+  // point `e` from a shoulder slid back by `r` lies `|e - r d|` from it, so
+  // the reach is met between the roots of `r^2 - 2 r (d.e) + |e|^2 - R^2`.
+  const along: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(slid(travel).position, slid(0).position),
+  );
+  const roots: (e: IAutoMovieVector3) => IRoots | null = (
+    e: IAutoMovieVector3,
+  ): IRoots | null => {
+    const de: number = Vector3.dot(along, e);
+    const disc: number = de * de - Vector3.dot(e, e) + reach * reach;
+    if (!(disc >= 0)) return null;
+    const root: number = Math.sqrt(disc);
+    return { low: de - root, high: de + root };
+  };
+  const most: number = Math.max(
+    0,
+    roots(Vector3.subtract(pulled.wrist.position, holding))?.high ?? 0,
+  );
+  const least: IRoots | null = roots(Vector3.subtract(drawn, shoulder));
+  const back: number = Math.min(
+    most,
+    least === null ? most : Math.max(0, least.low),
+  );
+  const slide: (share: number) => IAutoMovieVector3 = (
+    share: number,
+  ): IAutoMovieVector3 => Vector3.scale(along, -back * share);
+
+  // Then the least turn about the slid hanger toward the drawing shoulder
+  // that brings the drawn wrist the rest of the way within reach.
+  const pivot: IAutoMovieVector3 = Vector3.add(hanger, slide(1));
+  const v: IAutoMovieVector3 = Vector3.subtract(
+    Vector3.add(drawn, slide(1)),
+    pivot,
+  );
+  const w: IAutoMovieVector3 = Vector3.subtract(shoulder, pivot);
   const across: IAutoMovieVector3 = Vector3.cross(v, w);
   const lv: number = Vector3.length(v);
   const lw: number = Vector3.length(w);
@@ -880,6 +946,8 @@ function pivoting(
     share: number,
   ): IAutoMovieQuaternion =>
     Quaternion.fromAxisAngle(axis, (angle * share * 180) / Math.PI);
+  // A frame carried with the carrier: slid back, then turned about the
+  // slid hanger.
   const carry: (
     frame: IAutoMovieRigidTransform,
     share: number,
@@ -888,10 +956,15 @@ function pivoting(
     share: number,
   ): IAutoMovieRigidTransform => {
     const q: IAutoMovieQuaternion = turn(share);
+    const moved: IAutoMovieVector3 = slide(share);
+    const about: IAutoMovieVector3 = Vector3.add(hanger, moved);
     return {
       position: Vector3.add(
-        hanger,
-        Quaternion.rotateVector(q, Vector3.subtract(frame.position, hanger)),
+        about,
+        Quaternion.rotateVector(
+          q,
+          Vector3.subtract(Vector3.add(frame.position, moved), about),
+        ),
       ),
       rotation: Quaternion.normalize(Quaternion.multiply(q, frame.rotation)),
     };
