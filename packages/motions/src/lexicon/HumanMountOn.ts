@@ -338,6 +338,8 @@ export namespace HumanMountOn {
     // As the foot leaves the floor, read once.
     let leaving: HumanMountPush.IRoll | undefined;
     const left = (): HumanMountPush.IRoll => (leaving ??= rolledAt(off));
+    // Each swinging ankle's distance from its hip as it leaves, read once.
+    const departed: Partial<Record<"left" | "right", number>> = {};
     const flight: Record<"left" | "right", readonly [number, number]> = {
       left: [0, 0],
       right: [0, 0],
@@ -450,15 +452,15 @@ export namespace HumanMountOn {
             { x: 0, y: 0, z: 1 },
           );
           const hip: IAutoMovieVector3 = hipsAt(t)[side];
+          const from: HumanMount.IFoot = onFloor[side]
+            ? {
+                ankle: side === push ? left().goal.point : floor[side],
+                bend: planted.bend,
+                yaw: yaw0 + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
+              }
+            : starts[side];
           const course: HumanMount.IFoot = HumanMount.between(
-            onFloor[side]
-              ? {
-                  ankle: side === push ? left().goal.point : floor[side],
-                  bend: planted.bend,
-                  yaw:
-                    yaw0 + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
-                }
-              : starts[side],
+            from,
             places[side].foot,
             share,
             walk.LIFT * m.hipHeight,
@@ -466,13 +468,19 @@ export namespace HumanMountOn {
           );
           // The swinging ankle keeps within the leg's reach of its hip, a
           // little short of straight: a course past it leaves the limb fit
-          // to snap between the poses on its reach.
+          // to snap between the poses on its reach. A leg that left the
+          // floor straighter than that, as an extended push leaves it, bends
+          // to it over the swing rather than at once.
           const fromHip: IAutoMovieVector3 = Vector3.subtract(
             course.ankle,
             hip,
           );
           const span: number = Vector3.length(fromHip);
-          const reach: number = HumanMount.SWING_REACH * (m.thigh + m.shank);
+          const short: number = HumanMount.SWING_REACH * (m.thigh + m.shank);
+          const away: number = (departed[side] ??= Vector3.length(
+            Vector3.subtract(from.ankle, hipsAt(leaves)[side]),
+          ));
+          const reach: number = short + Math.max(0, away - short) * (1 - share);
           const foot: HumanMount.IFoot =
             span <= reach
               ? course
