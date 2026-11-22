@@ -26,6 +26,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { holdInfantCrook } from "./holdInfantCrook";
 
 /** Seconds the arms take to bring the infant into the hold: provisional, an unhurried careful move. */
 const SETTLE: number = 1;
@@ -40,11 +41,14 @@ const PAT: number = 0.03;
  * Hold a taken-up infant (`IAutoMovieMotionHumanHoldInfant`). The infant is
  * rigid in the holding hand from its pick-up (`AutoMovieMotionHumanHeld`),
  * so each hold is a world pose of the infant in the body's frame, read from
- * the upper chest where the body entered, and the holding hand follows from
- * it. In the cradle and the feed the infant lies across the front, face up,
- * its head toward the holding side, and the holding arm's elbow is placed
- * under its nape, so the forearm carries the head; in the cradle the other
- * hand lies under its back, in the feed it holds the bottle's teat at the
+ * the body where it entered, and the holding hand follows from it. In the
+ * cradle and the feed the infant lies across the front, face up, along the
+ * holding forearm: the arm is laid from the shoulder by its own lengths
+ * (the upper arm forward of the trunk, the forearm across the front rising
+ * to the elbow), the infant's seat in the hand and its nape at the elbow's
+ * crook, so the forearm carries the head and the hold stays within the
+ * arm's reach; in the cradle the other
+ * hand lies over its front, opposite its back, in the feed it holds the bottle's teat at the
  * infant's mouth with the base above, tilted so the milk runs down. In the
  * shoulder hold the infant stands against the chest, its head by the
  * holding side's shoulder, and the other palm pats its back `pats` times a
@@ -125,11 +129,36 @@ export namespace holdInfant {
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
     )!.worldPosition;
+    const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+      body,
+      side,
+      "grip",
+    );
 
+    // In the cradle and the feed the holding arm carries the infant: the
+    // upper arm hangs forward of the trunk, the forearm runs across the
+    // front rising to the elbow, the infant's seat is in the hand and its
+    // body lies along the forearm, so its nape comes to the elbow's crook.
+    // The elbow and the wrist are the arm's own lengths from the shoulder,
+    // so the hold, and the rock about it, stay within the arm's reach.
+    const crook: holdInfantCrook.ICrook | undefined =
+      params.hold === "shoulder"
+        ? undefined
+        : holdInfantCrook.of(
+            body,
+            side,
+            params.hold,
+            shoulder,
+            forward,
+            toward,
+          );
+    const face: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.add(UP, Vector3.scale(forward, -0.25)),
+    );
     // The infant's pose in the hold: its seat's place, its body's line
     // (seat to head) and its face's facing.
     const pose: IInfantPose =
-      params.hold === "shoulder"
+      crook === undefined
         ? {
             seat: Vector3.add(
               Vector3.add(chest, Vector3.scale(forward, 0.12)),
@@ -141,24 +170,28 @@ export namespace holdInfant {
             line: UP,
             face: Vector3.scale(forward, -1),
           }
-        : {
-            seat: Vector3.add(
-              Vector3.add(chest, Vector3.scale(forward, 0.28)),
-              Vector3.add(
-                Vector3.scale(UP, params.hold === "feed" ? -0.2 : -0.24),
-                Vector3.scale(toward, -0.12),
+        : ((): IInfantPose => {
+            const line: IAutoMovieVector3 = Vector3.normalize(
+              Vector3.subtract(crook.elbow, crook.wrist),
+            );
+            // The infant's origin that puts the gripping hand's wrist at the
+            // arm's wrist.
+            const hand: IAutoMovieQuaternion = Quaternion.multiply(
+              basis(line, face),
+              Quaternion.inverse(infant.frame.rotation),
+            );
+            return {
+              seat: Vector3.add(
+                Vector3.add(
+                  crook.wrist,
+                  Quaternion.rotateVector(hand, grip.point),
+                ),
+                Quaternion.rotateVector(hand, infant.frame.position),
               ),
-            ),
-            line: Vector3.normalize(
-              Vector3.add(
-                toward,
-                Vector3.scale(UP, params.hold === "feed" ? 0.5 : 0.15),
-              ),
-            ),
-            face: Vector3.normalize(
-              Vector3.add(UP, Vector3.scale(forward, -0.25)),
-            ),
-          };
+              line,
+              face,
+            };
+          })();
     const sway: (t: number) => IAutoMovieVector3 = (
       t: number,
     ): IAutoMovieVector3 =>
@@ -199,6 +232,10 @@ export namespace holdInfant {
         events.push({ name: `pat${k}`, share: (SETTLE + k / rate) / duration });
     events.push({ name: "relax", share: 1 });
 
+    // The infant's front, opposite its back across its body's line, which
+    // the bundle centres.
+    const back: IAutoMovieVector3 = site(infant, "back");
+    const front: IAutoMovieVector3 = { ...back, z: -back.z };
     const posture: (time: number) => IAutoMovieMotionHumanPosture = (
       time: number,
     ): IAutoMovieMotionHumanPosture => {
@@ -216,12 +253,6 @@ export namespace holdInfant {
         frame.position,
         Quaternion.rotateVector(hand, infant.frame.position),
       );
-      const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
-        body,
-        side,
-        "grip",
-      );
-      const nape: IAutoMovieVector3 = world(frame, site(infant, "nape"));
       limbs[`${side}Arm`] = {
         point: Vector3.subtract(
           socket,
@@ -229,7 +260,7 @@ export namespace holdInfant {
         ),
         rotation: hand,
         contact: grip.point,
-        ...(params.hold === "shoulder"
+        ...(crook === undefined
           ? {
               bend: Vector3.add(Vector3.lerp(socket, shoulder, 0.5), {
                 x: 0,
@@ -237,7 +268,7 @@ export namespace holdInfant {
                 z: 0,
               }),
             }
-          : { bend: nape, elbow: "placed" as const }),
+          : { bend: Vector3.add(crook.elbow, sway(t)) }),
       };
       limbs[`${other}Arm`] =
         bottle !== undefined
@@ -248,18 +279,29 @@ export namespace holdInfant {
               world(frame, site(infant, "mouth")),
               frame,
             )
-          : palm(
-              body,
-              other,
-              world(frame, site(infant, "back")),
-              Quaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: -1 }),
-              params.hold === "shoulder"
-                ? PAT *
-                    (0.5 -
-                      0.5 *
-                        Math.cos(2 * Math.PI * rate * Math.max(0, t - SETTLE)))
-                : 0,
-            );
+          : crook === undefined
+            ? palm(
+                body,
+                other,
+                world(frame, site(infant, "back")),
+                Quaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: -1 }),
+                UP,
+                PAT *
+                  (0.5 -
+                    0.5 *
+                      Math.cos(2 * Math.PI * rate * Math.max(0, t - SETTLE))),
+              )
+            : // The cradle's back lies on the holding forearm, so the other
+              // palm lies over the infant's front, opposite its back, the
+              // fingers toward its head.
+              palm(
+                body,
+                other,
+                world(frame, front),
+                Quaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: 1 }),
+                Quaternion.rotateVector(frame.rotation, { x: 0, y: 1, z: 0 }),
+                0,
+              );
       return { ...entry.posture, limbs };
     };
     const plan: IAutoMovieMotionHumanActionPlan = {
@@ -313,12 +355,13 @@ export namespace holdInfant {
     );
   }
 
-  /** A palm laid on a site facing `normal`, off it by `lift`. */
+  /** A palm laid on a site facing `normal`, its fingers toward `forward`, off it by `lift`. */
   function palm(
     body: IAutoMovieMotionHumanActionContext["body"],
     side: AutoMovieHumanSide,
     point: IAutoMovieVector3,
     normal: IAutoMovieVector3,
+    forward: IAutoMovieVector3,
     lift: number,
   ): IAutoMovieHumanLimbGoal {
     const frame: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
@@ -328,7 +371,7 @@ export namespace holdInfant {
     );
     const rotation: IAutoMovieQuaternion = HumanHand.align(frame, {
       normal: Vector3.scale(normal, -1),
-      forward: UP,
+      forward,
     });
     const at: IAutoMovieVector3 = Vector3.add(
       point,

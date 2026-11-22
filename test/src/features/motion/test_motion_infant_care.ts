@@ -93,6 +93,9 @@ function care(body: IAutoMovieMotionHumanBody, profile: string): void {
         .pickUp({ prop: "infant", handle: "seat", hand: "right" })
         .registered("cradleInfant", { prop: "infant", rock: ROCK, seconds: 3 })
         .registered("burpInfant", { prop: "infant", seconds: 2 })
+        // The crib lies below the reach of the standing arm: bend to it.
+        .bend({ toward: { kind: "prop", subject: "crib", point: "surface" } })
+        .until({ event: "deepest" })
         .putDown({ prop: "infant", at, yaw: 0, hand: "right" }).node,
     });
   const film: HumanPerformance = take(

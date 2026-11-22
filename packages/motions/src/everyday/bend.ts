@@ -89,6 +89,9 @@ export namespace bend {
     // A pick up continues the deepest point of a bend, the body held as it
     // is lowered and the arm taken from the target over to the grip.
     pickUp: [{ window: ["deepest", 1], kind: "inertialize", entry: 0 }],
+    // A put down continues it the same way, setting the held prop on a
+    // place below the standing reach.
+    putDown: [{ window: ["deepest", 1], kind: "inertialize", entry: 0 }],
   };
 
   /** A requested shift uses the pelvis over the feet throughout the bend. */
