@@ -8,6 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../actions/walk";
+import { walkFoot } from "../actions/walkFoot";
+import { walkSteps } from "../actions/walkSteps";
 import { HumanBound } from "../law/HumanBound";
 
 /**
@@ -26,10 +28,14 @@ import { HumanBound } from "../law/HumanBound";
  * - Trunk flexion: the forward lean grows to `LEAN` degrees, the stooped
  *   trunk of advanced age (provisional, of the order kyphotic walkers show).
  * - Arm swing: falls to `ARMS` of the ordinary swing (provisional).
+ * - Step width: widens to `WIDTH` hip heights, a wider base (provisional).
+ * - Double support: the swing shortens to `SWING` step periods, so both
+ *   feet stand `1 - SWING` of each step instead of a fifth; older adults
+ *   lengthen their double support (Winter et al. 1990).
+ * - Toe clearance: the least clearance of the swinging foot falls to
+ *   `CLEARANCE` metres, a shuffle's (provisional).
  *
- * The values are provisional where marked. The step's width and the double
- * support's share widen and lengthen with the grade once the gait record
- * carries them (`IAutoMovieMotionHumanWalkGait`).
+ * The values are provisional where marked.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the grade scales, each end and its source.
  * @evidence contracts/development/design.md#principled-representation A row over the walk: the same stepping plan in a gait record graded by one number.
@@ -51,6 +57,15 @@ export namespace HumanFrailWalk {
 
   /** The arm swing at the shuffle's end, as a share of the ordinary swing (provisional). */
   export const ARMS: number = 0.3;
+
+  /** The step width at the shuffle's end, hip heights (provisional: the ordinary walk's 0.1 widened toward a frail walker's wider base). */
+  export const WIDTH: number = 0.18;
+
+  /** The swing at the shuffle's end, step periods: both feet stand 35 % of each step (provisional, after Winter et al. 1990's longer double support). */
+  export const SWING: number = 0.65;
+
+  /** The least toe clearance at the shuffle's end, metres (provisional: a shuffle's foot just over the floor). */
+  export const CLEARANCE: number = 0.005;
 
   /** The grade when the author names none. */
   export const SEVERITY: number = 0.5;
@@ -86,6 +101,9 @@ export namespace HumanFrailWalk {
             swing: base.arms.swing * toward(1, ARMS),
           },
           lean: toward(walk.LEAN, LEAN),
+          width: toward(walkSteps.WIDTH, WIDTH),
+          swing: toward(base.swing, SWING),
+          toeClearance: toward(walkFoot.CLEARANCE, CLEARANCE),
         };
         const params: IAutoMovieMotionHumanWalkParams = {
           to: context.params.to,

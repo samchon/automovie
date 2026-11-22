@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -26,7 +27,7 @@ const SAME: number = 1e-6;
  * Scenarios, on the average man and the small woman, each take clean:
  * 1. Severity 0 is the ordinary walk: the same time over the same way.
  * 2. As the severity grows the walk takes longer and more steps over the same
- *    way, and the trunk leans further forward.
+ *    way on a wider base, and the trunk leans further forward.
  * 3. A severity outside 0 to 1 is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the cases and what each reads.
@@ -88,6 +89,34 @@ export function test_human_motion_frail_walk(): void {
     TestValidator.predicate(
       `${fit}: frailer walks lean further forward`,
       leans[0]! < leans[1]! && leans[1]! < leans[2]!,
+    );
+    // The base: the feet's mean side-to-side distance at the heel strikes.
+    const widths: number[] = films.map((film: HumanPerformance): number => {
+      const strikes: number[] = walked(film)
+        .plan.events.filter((event: IAutoMovieMotionEvent): boolean =>
+          event.name.includes("HeelStrike"),
+        )
+        .map(
+          (event: IAutoMovieMotionEvent): number =>
+            event.share * walked(film).plan.duration,
+        );
+      return (
+        strikes.reduce((sum: number, t: number): number => {
+          const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+            film.bones("a", t);
+          return (
+            sum +
+            Math.abs(
+              bones.get("leftFoot")!.worldPosition.x -
+                bones.get("rightFoot")!.worldPosition.x,
+            )
+          );
+        }, 0) / Math.max(1, strikes.length)
+      );
+    });
+    TestValidator.predicate(
+      `${fit}: frailer walks walk on a wider base (${widths.map((w: number): string => (w * 1000).toFixed(0)).join(", ")} mm)`,
+      widths[0]! < widths[1]! && widths[1]! < widths[2]!,
     );
     TestValidator.predicate(
       `${fit}: a severity past 1 is refused`,
