@@ -28,6 +28,9 @@ const DISTANCE: number = 3;
 /** The grades walked, from the ordinary walk to a shuffle. */
 const GRADES: readonly number[] = [0, 0.5, 1];
 
+/** The anchor the compared walks share, so they draw one stream of seeded step unevenness. */
+const STRIDES: string = "strides";
+
 /** How close the ungraded frail walk keeps to the ordinary walk's time, seconds. */
 const SAME: number = 1e-6;
 
@@ -56,18 +59,25 @@ const EN_BLOC: number = 10;
 export function test_human_motion_frail_walk(): void {
   for (const fit of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
+    // A step's seeded unevenness is drawn on a stream keyed by the action's
+    // anchor, its name when it has none; the walks share one anchor so they
+    // draw the same strides and differ only by their laws.
     const ordinary: HumanPerformance = perform(
       body,
-      HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: DISTANCE } }),
+      HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: DISTANCE } }, STRIDES),
     );
     const films: HumanPerformance[] = GRADES.map(
       (severity: number): HumanPerformance =>
         perform(
           body,
-          HumanChain.subject("a").registered(HumanFrailWalk.frailWalk.name, {
-            to: { x: 0, y: 0, z: DISTANCE },
-            severity,
-          }),
+          HumanChain.subject("a").registered(
+            HumanFrailWalk.frailWalk.name,
+            {
+              to: { x: 0, y: 0, z: DISTANCE },
+              severity,
+            },
+            STRIDES,
+          ),
         ),
     );
     films.forEach((film: HumanPerformance, i: number): void =>
