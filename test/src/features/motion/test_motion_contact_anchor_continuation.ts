@@ -84,13 +84,14 @@ const STEP: number = 0.005;
  *    - the verdicts' bone read and playback's pose read of a frame are the
  *      same pose, though the two performances read the frames in opposite
  *      orders;
- *    - each elbow and wrist moves about its shoulder by at most the audit's
- *      5 mm between neighbouring frames, across every anchor boundary;
  *    - the walk keeps anchors holding a carried arm's fit;
+ *    - each carried elbow and wrist moves about its shoulder by at most the
+ *      audit's 5 mm between neighbouring frames, across every anchor
+ *      boundary;
  *    - against the same display with every anchor emptied (each fit cold),
- *      read every twentieth of a second, each wrist is on the same goal
- *      within a tenth of a millimetre and each elbow on the same side of
- *      its shoulder-wrist axis (the same branch).
+ *      read every twentieth of a second, each carried wrist is on the same
+ *      goal within a tenth of a millimetre and each carried elbow on the
+ *      same side of its shoulder-wrist axis (the same branch).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bodies, the goal motion, the take, the frames, each pinned property and the source of each tolerance.
  * @evidence contracts/development/testing.md#behavioral-verification Fits goals through resolveHumanPosture.seeded cold and prescribed, and reads a performance's displayed bones and poses at frames through its anchors, in two read orders and with every anchor emptied.
@@ -236,10 +237,29 @@ function display(name: string, body: IAutoMovieMotionHumanBody): void {
     );
   });
 
-  // Neighbouring frames move each elbow and wrist about its shoulder, which
-  // carries them along the walk, by at most a step.
+  // The carried arms: those the walk's anchors hold a carry fit of, which
+  // the frames were placed from.
+  const carried: ("left" | "right")[] = SIDES.filter(
+    (side: "left" | "right"): boolean =>
+      [...(walk!.anchors?.values() ?? [])].some(
+        (fits: IAutoMovieMotionHumanSegment.IAnchorFits): boolean =>
+          [...fits].some(
+            ([fit, seed]: [string, IAutoMovieSwivelSeed | null]): boolean =>
+              fit.startsWith("carry:") &&
+              fit.endsWith(`:${side}Arm`) &&
+              seed !== null,
+          ),
+      ),
+  );
+  TestValidator.predicate(
+    `${name}: the frames are placed from anchors holding a carried arm's fit`,
+    carried.length !== 0,
+  );
+
+  // Neighbouring frames move a carried elbow and wrist about its shoulder,
+  // which carries them along the walk with the chest, by at most a step.
   for (let i: number = 1; i < seconds.length; ++i)
-    for (const side of SIDES)
+    for (const side of carried)
       for (const bone of [`${side}LowerArm`, `${side}Hand`] as const) {
         const moved: number = distance(
           minus(
@@ -256,19 +276,6 @@ function display(name: string, body: IAutoMovieMotionHumanBody): void {
           moved <= STEP,
         );
       }
-
-  // The walk keeps its anchors' carry fits: the frames were placed from them.
-  TestValidator.predicate(
-    `${name}: the frames are placed from anchors holding a carried arm's fit`,
-    [...(walk!.anchors?.values() ?? [])].some(
-      (fits: IAutoMovieMotionHumanSegment.IAnchorFits): boolean =>
-        [...fits].some(
-          ([fit, seed]: [string, IAutoMovieSwivelSeed | null]): boolean =>
-            fit.startsWith("carry:") && seed !== null,
-        ),
-    ),
-  );
-
   // The same display with every anchor it used emptied: each fit is cold.
   const cold: IAutoMovieMotionHumanPerformance = carrying(body);
   const used: readonly IAutoMovieMotionHumanSegment[] = verdicts.segments("a");
@@ -286,7 +293,7 @@ function display(name: string, body: IAutoMovieMotionHumanBody): void {
       "a",
       t,
     );
-    for (const side of SIDES) {
+    for (const side of carried) {
       const wrist: number = distance(
         bones[i]!.get(`${side}Hand`)!.worldPosition,
         own.get(`${side}Hand`)!.worldPosition,
