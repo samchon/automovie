@@ -8,6 +8,7 @@ import {
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanMounted,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -38,6 +39,20 @@ const FLEXION: number = 5;
 /** The least nose-up pitch of the trunk against the face while sat, degrees: an authored bound well under the technique's sit. */
 const SAT: number = 10;
 
+/** Seconds a rider's figure change takes. */
+const TRANSFER: number = 0.4;
+
+/** The most a descending rider's trunk leans from upright in space, degrees: authored, well inside the horse's pitch on the face. */
+const UPRIGHT: number = 10;
+
+/** A descending rider's supports: the feet in the stirrups, the hands on the reins given forward. */
+const REINS: IAutoMovieMotionHumanMounted.ISupports = {
+  leftFoot: "leftStirrup",
+  rightFoot: "rightStirrup",
+  leftHand: "leftRein",
+  rightHand: "rightRein",
+};
+
 /** The slide on the face, at a friction. */
 const slide = (friction: number): EquineBank.ISlide => ({
   kind: "bank-slide",
@@ -55,7 +70,7 @@ const slide = (friction: number): EquineBank.ISlide => ({
  * 2. Sat, each hind limb flexes at least 5 degrees more at the stifle and at the hock than when standing at the start, and the trunk pitches at least 10 degrees nose-up against the face, read from the emitted bars.
  * 3. The ride's placement stays continuous onto the level foot, with no jump between reads 20 ms apart across the slide's end.
  * 4. A face steeper than the technique's bound, a face its friction holds, a slide without a run-out at its foot and one without authored footing are refused on the leg's `equineFootwork`.
- * 5. A mounted rider's seat socket stays within 10 mm of the saddle through the slide, and the take passes the shipped take verdicts.
+ * 5. A mounted rider in the descent seat keeps the seat socket within 10 mm of the saddle and the trunk within 10 degrees of upright in space through the slide, and the take passes the shipped take verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Rides the public horse ride over authored footing and reads the emitted hoof, limb and trunk bars against the face, and a mounted rider's seat against the saddle; a hoof off the face, a fore that slides, unflexed hinds, an upright trunk, a jump at the foot or an admitted face out of bounds fails.
@@ -204,8 +219,24 @@ export function test_archetype_equine_bank_slide(): void {
     equineFordRider.mount(mounted, [
       {
         seat: "entered",
-        transfer: 0.4,
-        seconds: mounted.halt - equineFordRider.settled(mounted, body) - 0.4,
+        transfer: TRANSFER,
+        seconds:
+          equineFordRider.WAIT +
+          start -
+          equineFordRider.settled(mounted, body) -
+          TRANSFER,
+        supports: equineFordRider.WADING,
+      },
+      {
+        seat: "descent",
+        transfer: TRANSFER,
+        seconds: end - start - TRANSFER,
+        supports: REINS,
+      },
+      {
+        seat: "entered",
+        transfer: TRANSFER,
+        seconds: mounted.halt - equineFordRider.WAIT - end - TRANSFER,
         supports: equineFordRider.WADING,
       },
     ]),
@@ -232,6 +263,11 @@ export function test_archetype_equine_bank_slide(): void {
     if (!(gap <= TOLERANCE))
       issues.push(
         `rider ${at.toFixed(2)}: seat ${(gap * 1000).toFixed(1)} mm from the saddle`,
+      );
+    const lean: number = HumanSignature.trunk(reader, at);
+    if (!(Math.abs(lean) <= UPRIGHT))
+      issues.push(
+        `rider ${at.toFixed(2)}: trunk ${lean} degrees from upright in space`,
       );
   }
   TestValidator.equals(

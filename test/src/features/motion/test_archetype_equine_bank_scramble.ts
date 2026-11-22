@@ -29,6 +29,12 @@ const SURFACE: number = 0.005;
 /** The contact tolerance of the seated rider specs, metres. */
 const TOLERANCE: number = 0.01;
 
+/** Seconds a rider's figure change takes. */
+const TRANSFER: number = 0.4;
+
+/** The least forward lean of an ascending rider's trunk in space, degrees: authored, a light seat over the withers. */
+const FORWARD: number = 10;
+
 /** The scramble on the face, at a friction and a bound. */
 const scramble = (friction: number, bound: number): EquineScramble.IScramble => ({
   kind: "bank-scramble",
@@ -47,7 +53,7 @@ const scramble = (friction: number, bound: number): EquineScramble.IScramble => 
  * 2. Through the scramble a hoof on its surface at two reads 0.1 s apart stays put (within 5 mm): the standing pair never slides while the other bounds.
  * 3. The ride's placement stays continuous onto the level top, with no jump between reads 20 ms apart across the scramble's end.
  * 4. A face steeper than the technique's bound, a face its friction holds, a scramble without a run-out over the top, one without authored footing and bounds climbing beyond the fores' reach are refused on the leg's `equineFootwork`.
- * 5. A mounted rider's seat socket stays within 10 mm of the saddle through the bounds, and the take passes the shipped take verdicts.
+ * 5. A mounted rider in the ascent seat, the left hand on the mane, rides clear of the saddle (the seat socket more than 10 mm above it) with the trunk at least 10 degrees forward in space at each bound, and the take passes the shipped take verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Rides the public horse ride over authored footing and reads the emitted hooves against the face, and a mounted rider's seat against the saddle; fores landing below the hinds, a standing hoof that slides or floats, a jump at the top or an admitted face out of bounds fails.
@@ -162,8 +168,24 @@ export function test_archetype_equine_bank_scramble(): void {
     equineFordRider.mount(mounted, [
       {
         seat: "entered",
-        transfer: 0.4,
-        seconds: mounted.halt - equineFordRider.settled(mounted, body) - 0.4,
+        transfer: TRANSFER,
+        seconds:
+          equineFordRider.WAIT +
+          start -
+          equineFordRider.settled(mounted, body) -
+          TRANSFER,
+        supports: equineFordRider.WADING,
+      },
+      {
+        seat: "ascent",
+        transfer: TRANSFER,
+        seconds: end - start - TRANSFER,
+        supports: equineFordRider.WADING,
+      },
+      {
+        seat: "entered",
+        transfer: TRANSFER,
+        seconds: mounted.halt - equineFordRider.WAIT - end - TRANSFER,
         supports: equineFordRider.WADING,
       },
     ]),
@@ -178,19 +200,21 @@ export function test_archetype_equine_bank_scramble(): void {
     (seconds: number): number => equineFordRider.WAIT + seconds,
   )) {
     const saddle: IAutoMovieTransform = mounted.part("seat", at);
-    const gap: number = Math.abs(
-      Quaternion.rotateVector(
-        Quaternion.inverse(saddle.rotation),
-        Vector3.subtract(
-          HumanSignature.region(reader, "seat", at),
-          saddle.translation,
-        ),
-      ).y,
-    );
-    if (!(gap <= TOLERANCE))
+    // The light seat rides clear of the saddle, the trunk forward over the withers in space.
+    const clear: number = Quaternion.rotateVector(
+      Quaternion.inverse(saddle.rotation),
+      Vector3.subtract(
+        HumanSignature.region(reader, "seat", at),
+        saddle.translation,
+      ),
+    ).y;
+    if (!(clear > TOLERANCE))
       issues.push(
-        `rider ${at.toFixed(2)}: seat ${(gap * 1000).toFixed(1)} mm from the saddle`,
+        `rider ${at.toFixed(2)}: seat only ${(clear * 1000).toFixed(1)} mm clear of the saddle`,
       );
+    const lean: number = HumanSignature.trunk(reader, at);
+    if (!(lean >= FORWARD))
+      issues.push(`rider ${at.toFixed(2)}: trunk only ${lean} degrees forward in space`);
   }
   TestValidator.equals(
     "the horse scrambles up the bank in bounds and carries its rider over the top",
