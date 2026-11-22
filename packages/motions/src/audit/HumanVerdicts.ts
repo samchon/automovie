@@ -10,6 +10,7 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanPropOutcome,
+  IAutoMovieMotionHumanSimulation,
   IAutoMovieMotionHumanVerdicts,
   IAutoMovieMotionHumanWater,
   IAutoMovieRigidTransform,
@@ -24,6 +25,7 @@ import { AutoMovieMotionHumanAuditRange } from "./AutoMovieMotionHumanAuditRange
 import { AutoMovieMotionHumanAuditSpin } from "./AutoMovieMotionHumanAuditSpin";
 import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditStatics";
 import { AutoMovieMotionHumanAuditTiming } from "./AutoMovieMotionHumanAuditTiming";
+import { solvedHumanAuditSpans } from "./solvedHumanAuditSpans";
 
 /**
  * The verdict report of a performance: every physical bound that holds for
@@ -72,6 +74,11 @@ import { AutoMovieMotionHumanAuditTiming } from "./AutoMovieMotionHumanAuditTimi
  *
  * A performer who swims or climbs a ladder is not carried by the floor, so
  * the floor, plant and balance bounds are left unread for that performer.
+ * Inside a window solved through the engine (`HumanPerformance.simulate`),
+ * the parts the solver owns are judged by the solver's contacts instead of
+ * their declared plants, its owned feet take no unloaded bound and a body
+ * whose root it owns takes no balance judgement (`solvedHumanAuditSpans`);
+ * every check of the displayed bones still reads it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every bound with its limit, who reads the report and what it leaves unread.
  * @evidence contracts/development/implementation.md#principled-implementation Each bound is read by its audit owner; this owner applies the limits, places each finding on its action and gathers them.
@@ -114,8 +121,9 @@ export namespace HumanVerdicts {
     const to: number = span?.to ?? performance.duration;
     HumanBound.within("span.from", from, 0, performance.duration, "s");
     HumanBound.within("span.to", to, from, performance.duration, "s");
+    const remembered: IAutoMovieMotionHumanAuditMotion = remember(performance);
     const motion: IAutoMovieMotionHumanAuditMotion = shifted(
-      remember(performance),
+      remembered,
       from,
       to,
     );
@@ -231,14 +239,34 @@ export namespace HumanVerdicts {
           ),
           AutoMovieMotionHumanAuditStatics.SHARE * person.body.measure.stature,
         );
-        measured(
+        // A foot the solver owns is passive, its range the solver's joint
+        // limit; the unloaded bound is read outside those spans only.
+        for (const [a, b] of solvedHumanAuditSpans.unsolved(
+          performance.simulations?.() ?? [],
           who,
-          who,
-          "unloaded",
-          AutoMovieMotionHumanAuditRange.unloaded(motion, posed, who, rate)
-            .overshoot,
-          ROM_TOLERANCE,
-        );
+          solvedHumanAuditSpans.FEET,
+          from,
+          to,
+        ))
+          measured(
+            who,
+            who,
+            "unloaded",
+            AutoMovieMotionHumanAuditRange.unloaded(
+              shifted(remembered, a, b),
+              {
+                duration: b - a,
+                pose: (
+                  subject: string,
+                  seconds: number,
+                ): ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]> =>
+                  posed.pose(subject, a - from + seconds),
+              },
+              who,
+              rate,
+            ).overshoot,
+            ROM_TOLERANCE,
+          );
       }
       measured(
         who,
@@ -418,9 +446,24 @@ const remember = (
     }
     return found;
   };
+  const simulations: readonly IAutoMovieMotionHumanSimulation[] =
+    performance.simulations?.() ?? [];
   return {
     duration: performance.duration,
-    segments: (subject: string) => performance.segments(subject),
+    segments: (
+      subject: string,
+    ): readonly IAutoMovieMotionHumanAuditMotion.ISpan[] =>
+      simulations.length === 0
+        ? performance.segments(subject)
+        : solvedHumanAuditSpans(
+            performance.segments(subject),
+            subject,
+            performance.performers.find(
+              (p: IAutoMovieMotionHumanPerformer): boolean =>
+                p.subject === subject,
+            )!.body,
+            simulations,
+          ),
     support: (
       support: IAutoMovieMotionHumanContactWindow.Support,
       seconds: number,

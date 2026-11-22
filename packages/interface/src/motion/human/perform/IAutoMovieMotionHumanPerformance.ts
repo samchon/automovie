@@ -23,6 +23,7 @@ import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPropFlight";
 import type { IAutoMovieMotionHumanPropFracture } from "./IAutoMovieMotionHumanPropFracture";
 import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
+import type { IAutoMovieMotionHumanSimulation } from "./IAutoMovieMotionHumanSimulation";
 
 /**
  * A performance of people and props: their chained actions placed on the
@@ -375,6 +376,24 @@ export interface IAutoMovieMotionHumanPerformance {
     /** Resolved target's outward surface normal in world coordinates. */
     normal: IAutoMovieVector3;
   };
+
+  /**
+   * The windows baked through the engine's solver, in bake order
+   * (`HumanPerformance.simulate`); inside each, the solver's contacts take
+   * over the declared plants of the parts it owns, which the verdicts read
+   * (`HumanVerdicts`). Absent or empty for a performance with none.
+   *
+   * @returns Each window, its mode and the engine's simulation of it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.simulations: the solved windows, their order and who reads them.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation is implemented by this signature; the provider is packages/motions/src/perform/HumanPerformance.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns its costs.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature defines no cache; the provider owns its records.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration retains nothing; the provider owns the records' lifetime.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies it.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only.
+   */
+  simulations?(): readonly IAutoMovieMotionHumanSimulation[];
 }
 
 /**

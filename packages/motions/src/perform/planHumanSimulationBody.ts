@@ -1,9 +1,10 @@
 import { ROM_TOLERANCE } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanBody,
   IAutoMoviePerformanceMode,
   IAutoMoviePhysicalContactBinding,
   IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulationInput,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
@@ -31,7 +32,7 @@ import type { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
  * returns to authored motion over the last `handoff` seconds through the
  * engine's continuous return.
  *
- * @param props The performer, its body and samples, the mode and the window's schedule.
+ * @param props The performer, its solved profile and samples, the mode and the window's schedule.
  * @returns The engine body.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what stays authored, what becomes physical and when, the release, the gravity compensation and the hand-back.
@@ -45,7 +46,7 @@ import type { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
 export function planHumanSimulationBody(
   props: planHumanSimulationBody.IProps,
 ): IAutoMoviePhysicalSimulationInput.IBody {
-  const profile: IAutoMovieMotionHumanBody["profile"] = props.body.profile;
+  const profile: IAutoMoviePhysicalProfile = props.profile;
   const children: Map<string, string[]> = new Map();
   for (const joint of profile.joints)
     children.set(joint.parent, [
@@ -53,9 +54,7 @@ export function planHumanSimulationBody(
       joint.child,
     ]);
   const root: string = profile.segments.find(
-    (
-      segment: IAutoMovieMotionHumanBody["profile"]["segments"][number],
-    ): boolean =>
+    (segment: IAutoMoviePhysicalSegment): boolean =>
       !profile.joints.some(
         (joint: IAutoMoviePhysicalJoint): boolean =>
           joint.child === segment.bone,
@@ -182,8 +181,8 @@ export namespace planHumanSimulationBody {
     /** The performer, the body's id. */
     subject: string;
 
-    /** The performer's body. */
-    body: IAutoMovieMotionHumanBody;
+    /** The profile the window solves for the performer, its hands welded with their fingers. */
+    profile: IAutoMoviePhysicalProfile;
 
     /** The window's mode. */
     mode: IAutoMoviePerformanceMode;

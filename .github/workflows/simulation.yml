@@ -1,0 +1,58 @@
+name: simulation
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# A simulated window (#3434) must solve bit for bit alike on every platform:
+# each runner bakes the same window and the last job compares their digests.
+jobs:
+  ubuntu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      digest: ${{ steps.bake.outputs.digest }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22.x
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - run: pnpm install
+      - id: bake
+        run: pnpm --filter @automovie/test simulation:digest
+
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    outputs:
+      digest: ${{ steps.bake.outputs.digest }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22.x
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - run: pnpm install
+      - id: bake
+        run: pnpm --filter @automovie/test simulation:digest
+
+  compare:
+    needs: [ubuntu, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          UBUNTU: ${{ needs.ubuntu.outputs.digest }}
+          WINDOWS: ${{ needs.windows.outputs.digest }}
+        run: |
+          echo "ubuntu:  $UBUNTU"
+          echo "windows: $WINDOWS"
+          test -n "$UBUNTU" && test "$UBUNTU" = "$WINDOWS"

@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanForce,
   IAutoMovieMotionHumanImpulse,
+  IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulationInput,
   IAutoMovieResolvedBone,
@@ -30,6 +31,7 @@ import type {
  *
  * @param forces Every force of the performance.
  * @param bodies The simulated performers' bodies, by subject.
+ * @param profiles The profiles the window solves, by subject: the bodies' with the hands welded.
  * @param bones Each simulated performer's displayed bones, by step.
  * @param clock The window's first film second, interval count and rate.
  * @returns The solver's impulses, in the performance's order.
@@ -45,6 +47,7 @@ import type {
 export function placeHumanSimulationImpulses(
   forces: readonly IAutoMovieMotionHumanForce[],
   bodies: ReadonlyMap<string, IAutoMovieMotionHumanBody>,
+  profiles: ReadonlyMap<string, IAutoMoviePhysicalProfile>,
   bones: ReadonlyMap<
     string,
     readonly Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>[]
@@ -92,7 +95,11 @@ export function placeHumanSimulationImpulses(
         return {
           step,
           body: impulse.subject,
-          bone: placeHumanSimulationImpulses.carrier(body, bone),
+          bone: placeHumanSimulationImpulses.carrier(
+            body,
+            profiles.get(impulse.subject)!,
+            bone,
+          ),
           impulse: { ...impulse.impulse },
           point,
         };
@@ -117,16 +124,18 @@ export namespace placeHumanSimulationImpulses {
   /**
    * The profile segment carrying a rig bone: its own, or its nearest ancestor's.
    *
-   * @param body The body.
+   * @param body The body, for its rig's parents.
+   * @param profile The profile whose segments carry the bone.
    * @param bone The rig bone.
    * @returns The segment's bone; the rig's root when no ancestor carries one.
    */
   export function carrier(
     body: IAutoMovieMotionHumanBody,
+    profile: IAutoMoviePhysicalProfile,
     bone: AutoMovieHumanoidBone,
   ): string {
     const segments: ReadonlySet<string> = new Set(
-      body.profile.segments.map(
+      profile.segments.map(
         (segment: IAutoMoviePhysicalSegment): string => segment.bone,
       ),
     );

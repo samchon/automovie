@@ -7,30 +7,27 @@ import {
   physicalShapePairDistance,
 } from "@automovie/engine";
 import type {
-  AutoMovieHumanForceSite,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerturb,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSimulation,
-  IAutoMovieMotionHumanSimulationWindow,
+  IAutoMovieMotionHumanVerdicts,
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalMaterial,
+  IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalSimulationInput,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  HumanVerdicts,
-} from "@automovie/motions";
+import { HumanPerformance, HumanVerdicts } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { simulatedShoveTake } from "../internal/simulatedShoveTake";
 
 /** A segment's solved world state. */
 type IPose = IAutoMoviePhysicalFrame["bodies"][string][string];
@@ -38,8 +35,16 @@ type IPose = IAutoMoviePhysicalFrame["bodies"][string][string];
 /** Cache intervals per second the window issue fixes (#3434). */
 const RATE: number = 120;
 
-/** When the impulse lands and the reaction starts, film seconds. */
-const STRUCK: number = 0.3;
+/** The checks a solved window hands from the declared plants to the solver's contacts. */
+const SUPERSEDED: readonly string[] = [
+  "slip",
+  "lift",
+  "loose",
+  "afloat",
+  "skate",
+  "balance",
+  "unloaded",
+];
 
 /** A table in front of the body: a 1.2 m by 0.5 m top 0.75 m high, its front edge 0.3 m ahead of the feet. */
 const TABLE: IAutoMovieMotionHumanProp = {
@@ -72,14 +77,15 @@ const TABLE: IAutoMovieMotionHumanProp = {
  * 1. Mode contract: a shove's window in kinematic mode shows the performance's own poses bit for bit.
  * 2. Determinism: two simulated bakes of the shove give the same input identity and the same solved frames.
  * 3. Response and hand-back: the solved head turns away from the kinematic one inside the window, and at the window's end every joint centre is back on the kinematic motion, with no step in position and none in velocity beyond what gravity gives in one interval.
- * 4. A fall-sized push from behind ends with the released body lying on the floor: its lowest collider within the solver's contact tolerance of the floor, none below it, and its hips and head lower than its knees stand.
- * 5. The same push with a table ahead: the falling body never enters the table deeper than skin gives and comes to rest touching it.
+ * 4. A fall-sized push from behind ends with the released body lying on the floor: its lowest collider touching it, none below it beyond the solver's documented resting error, and its hips and head lower than its knees stand.
+ * 5. The same push with a table ahead: the falling body never enters the table deeper than skin gives and comes to rest touching it within the same resting error.
+ * 6. Verdicts in a solved window: the released fall's report holds none of the plant, balance and unloaded checks the solver's contacts supersede, while every check of the displayed bones still reads it.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Bakes windows through `HumanPerformance.simulate` and reads the displayed poses and bones and the engine's solved frames; catches a kinematic mode that departs from the authored motion, a bake that differs between runs, a window with no response, a hand-back with a step, a fall that floats or sinks, and a body that passes through a scene solid.
- * @evidence contracts/development/testing.md#independent-expectations Equality for the mode contract and determinism; contact by the engine's own tolerance read from the admitted input; lying measured against the body's own rest knee height; the response must exceed the range tolerance displayed poses are held to; the velocity bound is gravity's change over one cache interval, which a hand-back that drops the response's velocity exceeds; a body may enter a solid only as deep as the verdicts' skin (`HumanVerdicts.SKIN`).
- * @evidence contracts/development/testing.md#distinguishing-cases A kinematic and a simulated mode of one window; an absorbed shove that hands back and a fall that does not stand again; the same fall with and without a solid in its way; two bodies of opposite size.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory test entered through `test_human_motion_simulated_window`; it runs the WASM solver in process and starts no viewer. Every scenario runs and every failure is gathered before the one assertion.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
+ * @evidence contracts/development/testing.md#behavioral-verification Bakes windows through `HumanPerformance.simulate` and reads the displayed poses and bones, the engine's solved frames and the shipped verdict report; catches a kinematic mode that departs from the authored motion, a bake that differs between runs, a window with no response, a hand-back with a step, a fall that floats or sinks, a body that passes through a scene solid, and a report that still judges a solved body by its kinematic plan.
+ * @evidence contracts/development/testing.md#independent-expectations Equality for the mode contract and determinism. Resting contact is bounded by Rapier's documented contact model under the engine's configured parameters: penetration below `normalized_allowed_linear_error` (the engine's `contactTolerance`) is left uncorrected, and the excess is corrected by the soft contact spring of natural frequency `contact_natural_frequency` (the engine's `contactFrequency`), so a segment bearing a load of `n` times its weight rests up to `tolerance + n g / ?²` deep, `? = 2? f` (rapier.rs IntegrationParameters documentation); `n` is at most the body's mass over the segment's. Lying is measured against the body's own rest knee height; the response must exceed the range tolerance displayed poses are held to; the velocity bound is gravity's change over one cache interval; a body may enter a solid only as deep as the verdicts' skin (`HumanVerdicts.SKIN`).
+ * @evidence contracts/development/testing.md#distinguishing-cases A kinematic and a simulated mode of one window; an absorbed shove whose root stays authored and a fall the solver owns whole; the same fall with and without a solid in its way; two bodies of opposite size.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory test entered through `test_human_motion_simulated_window`; it runs the WASM solver in process and starts no viewer. Every scenario runs and every failure is gathered before the one assertion. The cross-platform digest of scenario 2's window is the `simulation` workflow's.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
  */
 export async function test_human_motion_simulated_window(): Promise<void> {
   const all: motionComplaints.IGatherer = motionComplaints();
@@ -126,17 +132,8 @@ async function shove(
   name: string,
   body: IAutoMovieMotionHumanBody,
 ): Promise<void> {
-  const take: HumanPerformance = perform(
-    body,
-    { bone: "head", point: { x: 0, y: 0.1, z: 0 } },
-    { x: 0, y: 0, z: -0.05 * body.profile.mass },
-    "absorb",
-    [],
-  );
-  const window: IAutoMovieMotionHumanSimulationWindow = {
-    from: STRUCK,
-    to: STRUCK + 1,
-  };
+  const take: HumanPerformance = simulatedShoveTake.shove(body);
+  const window: typeof simulatedShoveTake.WINDOW = simulatedShoveTake.WINDOW;
 
   // 1. Kinematic mode is the performance's own motion.
   const still: HumanPerformance = await take.simulate(window, {
@@ -144,10 +141,10 @@ async function shove(
   });
   for (let step: number = 0; step <= 48; step++) {
     const at: number = window.from + step / 48;
-    all.equals(
-      `${name}: kinematic window pose at ${at} s`,
-      JSON.stringify(still.pose("a", at)),
-      JSON.stringify(take.pose("a", at)),
+    all.check(
+      `${name}: the kinematic window shows the performance's own pose at ${at} s`,
+      JSON.stringify(still.pose("a", at)) ===
+        JSON.stringify(take.pose("a", at)),
     );
   }
 
@@ -204,10 +201,15 @@ async function shove(
   let sharpest: number = 0;
   let where: string = "";
   for (const [bone, placed] of at) {
-    const gap: number = Vector3.length(
-      Vector3.subtract(placed.worldPosition, authored.get(bone)!.worldPosition),
+    farthest = Math.max(
+      farthest,
+      Vector3.length(
+        Vector3.subtract(
+          placed.worldPosition,
+          authored.get(bone)!.worldPosition,
+        ),
+      ),
     );
-    farthest = Math.max(farthest, gap);
     const incoming: IAutoMovieVector3 = Vector3.scale(
       Vector3.subtract(placed.worldPosition, before.get(bone)!.worldPosition),
       1 / delta,
@@ -233,14 +235,14 @@ async function shove(
   verdicts(all, `${name}: simulated shove`, solved);
 }
 
-/** Scenarios 4 and 5: a push from behind the body cannot catch, onto the floor or onto a table. */
+/** Scenarios 4 to 6: a push from behind the body cannot catch, onto the floor or onto a table. */
 async function fall(
   all: motionComplaints.IGatherer,
   name: string,
   body: IAutoMovieMotionHumanBody,
   table: boolean,
 ): Promise<void> {
-  const take: HumanPerformance = perform(
+  const take: HumanPerformance = simulatedShoveTake(
     body,
     { bone: "chest", point: { x: 0, y: 0, z: 0 } },
     { x: 0, y: 0, z: 3 * body.profile.mass },
@@ -250,18 +252,31 @@ async function fall(
 
   // The window runs to the film's end, so the fallen body hands back to
   // nothing and its last solved frame is where the fall came to rest.
+  const from: number = simulatedShoveTake.STRUCK;
   const solved: HumanPerformance = await take.simulate(
-    {
-      from: STRUCK,
-      to: STRUCK + Math.floor((take.duration - STRUCK) * RATE) / RATE,
-    },
+    { from, to: from + Math.floor((take.duration - from) * RATE) / RATE },
     { kind: "simulated" },
   );
   const record: IAutoMovieMotionHumanSimulation = solved.simulations()[0]!;
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    record.simulation.input;
+  const profile: IAutoMoviePhysicalProfile = input.bodies.find(
+    (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
+      candidate.id === "a",
+  )!.profile;
   const frames: readonly IAutoMoviePhysicalFrame[] =
     record.simulation.cache.frames;
   const last: IAutoMoviePhysicalFrame = frames.at(-1)!;
-  const tolerance: number = record.simulation.input.contactTolerance!;
+  const tolerance: number = input.contactTolerance!;
+  const omega: number = 2 * Math.PI * input.contactFrequency!;
+
+  // The documented resting depth of a segment bearing at most the whole body.
+  const resting: (segment: IAutoMoviePhysicalSegment) => number = (
+    segment: IAutoMoviePhysicalSegment,
+  ): number =>
+    tolerance +
+    (Vector3.length(input.gravity) * (profile.mass / segment.mass)) /
+      omega ** 2;
   const label: string = `${name}${table ? " onto the table" : ""}`;
   all.equals(
     `${label}: the push releases the body`,
@@ -270,64 +285,82 @@ async function fall(
   );
   const sunk: number = Math.min(
     ...shapes(
-      body,
+      profile,
       last,
       (
         pose: IPose,
         shape: IAutoMoviePhysicalShape,
         material: IAutoMoviePhysicalMaterial,
+        segment: IAutoMoviePhysicalSegment,
       ): number =>
         physicalShapeBounds.lowest(pose, shape) +
-        (material.maximumCompression ?? 0),
+        (material.maximumCompression ?? 0) +
+        resting(segment),
     ),
   );
   all.check(
-    `${label}: nothing ends under the floor, ${sunk} m`,
-    sunk >= -tolerance,
+    `${label}: nothing ends under the floor beyond its resting depth; least margin ${sunk} m`,
+    sunk >= 0,
   );
   if (table) {
     let deepest: number = 0;
-    for (const frame of frames) {
-      const depth: number = Math.min(
-        ...shapes(
-          body,
-          frame,
-          (pose: IPose, shape: IAutoMoviePhysicalShape): number =>
-            physicalShapePairDistance(
-              pose,
-              shape,
-              TABLE.frame,
-              TABLE.shapes![0]!,
-            ),
+    for (const frame of frames)
+      deepest = Math.max(
+        deepest,
+        -Math.min(
+          ...shapes(
+            profile,
+            frame,
+            (pose: IPose, shape: IAutoMoviePhysicalShape): number =>
+              physicalShapePairDistance(
+                pose,
+                shape,
+                TABLE.frame,
+                TABLE.shapes![0]!,
+              ),
+          ),
         ),
       );
-      deepest = Math.max(deepest, -depth);
-    }
     all.check(
       `${label}: the body enters the table at most ${deepest} m`,
       deepest <= HumanVerdicts.SKIN,
     );
-    const gap: number = Math.min(
+    const gaps: number[] = shapes(
+      profile,
+      last,
+      (pose: IPose, shape: IAutoMoviePhysicalShape): number =>
+        physicalShapePairDistance(pose, shape, TABLE.frame, TABLE.shapes![0]!),
+    );
+    const pressed: number = Math.min(
       ...shapes(
-        body,
+        profile,
         last,
-        (pose: IPose, shape: IAutoMoviePhysicalShape): number =>
+        (
+          pose: IPose,
+          shape: IAutoMoviePhysicalShape,
+          _material: IAutoMoviePhysicalMaterial,
+          segment: IAutoMoviePhysicalSegment,
+        ): number =>
           physicalShapePairDistance(
             pose,
             shape,
             TABLE.frame,
             TABLE.shapes![0]!,
-          ),
+          ) + resting(segment),
       ),
     );
     all.check(
-      `${label}: the body rests on the table, ${gap} m from it`,
-      Math.abs(gap) <= tolerance,
+      `${label}: the body rests on the table, ${Math.min(...gaps)} m from it`,
+      Math.min(...gaps) <= tolerance,
+    );
+    all.check(
+      `${label}: nothing ends in the table beyond its resting depth; least margin ${pressed} m`,
+      pressed >= 0,
     );
   } else {
     const lowest: number = Math.min(
       ...shapes(
-        body,
+        profile,
         last,
         (pose: IPose, shape: IAutoMoviePhysicalShape): number =>
           physicalShapeBounds.lowest(pose, shape),
@@ -344,6 +377,28 @@ async function fall(
         last.bodies.a![bone]!.position.y < knee,
       );
   }
+
+  // 6. The solved window's report holds no superseded check.
+  const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
+    solved,
+    24,
+    {
+      from,
+      to: solved.duration,
+    },
+  );
+  const kept: string[] = report.findings
+    .filter((finding: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
+      SUPERSEDED.includes(finding.check),
+    )
+    .map(
+      (finding: IAutoMovieMotionHumanVerdicts.IFinding): string =>
+        finding.check,
+    );
+  all.check(
+    `${label}: the solved window's report judges no superseded plant check; found ${kept.join(", ")}`,
+    kept.length === 0,
+  );
   verdicts(all, `${label}: simulated fall`, solved);
 }
 
@@ -360,59 +415,34 @@ function verdicts(
   }
 }
 
-/** One performer standing, then struck at a site and answering the impulse with the named outcome. */
-function perform(
-  body: IAutoMovieMotionHumanBody,
-  at: AutoMovieHumanForceSite,
-  impulse: IAutoMovieVector3,
-  outcome: IAutoMovieMotionHumanPerturb.IParams["outcome"],
-  props: IAutoMovieMotionHumanProp[],
-): HumanPerformance {
-  return new HumanPerformance({
-    seed: "simulated-window",
-    performers: [
-      {
-        subject: "a",
-        body,
-        at: { x: 0, y: 0, z: 0 },
-        yaw: 0,
-        proficiency: { level: "trained" },
-      },
-    ],
-    props,
-    forces: [{ kind: "impulse", subject: "a", at, seconds: STRUCK, impulse }],
-    composition: HumanChain.subject("a")
-      .stand({ seconds: STRUCK, sway: 0 })
-      .perturb({ outcome }).node,
-  });
-}
-
 /** The angle between two world rotations, radians. */
 function angle(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number {
   const d: IAutoMovieQuaternion = Quaternion.multiply(Quaternion.inverse(a), b);
   return 2 * Math.atan2(Math.hypot(d.x, d.y, d.z), Math.abs(d.w));
 }
 
-/** A reading of every collider of the body in a solved frame. */
+/** A reading of every collider of the solved profile in a solved frame. */
 function shapes(
-  body: IAutoMovieMotionHumanBody,
+  profile: IAutoMoviePhysicalProfile,
   frame: IAutoMoviePhysicalFrame,
   read: (
     pose: IPose,
     shape: IAutoMoviePhysicalShape,
     material: IAutoMoviePhysicalMaterial,
+    segment: IAutoMoviePhysicalSegment,
   ) => number,
 ): number[] {
-  return body.profile.segments.flatMap(
+  return profile.segments.flatMap(
     (segment: IAutoMoviePhysicalSegment): number[] =>
       segment.shapes.map((shape: IAutoMoviePhysicalShape): number =>
         read(
           frame.bodies.a![segment.bone]!,
           shape,
-          body.profile.materials.find(
+          profile.materials.find(
             (material: IAutoMoviePhysicalMaterial): boolean =>
               material.id === shape.material,
           )!,
+          segment,
         ),
       ),
   );

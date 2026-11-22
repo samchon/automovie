@@ -29,6 +29,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
  *
  * @param performance The performance the window samples.
  * @param bodies The simulated performers' bodies, by subject.
+ * @param profiles The profiles the window solves, by subject: the bodies' with the hands welded.
  * @param targets Each simulated performer's sampled segment poses, by step.
  * @param clock The window's first film second, interval count and rate.
  * @returns The grips, in performer then placement order.
@@ -45,6 +46,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 export function bindHumanSimulationGrips(
   performance: IAutoMovieMotionHumanPerformance,
   bodies: ReadonlyMap<string, IAutoMovieMotionHumanBody>,
+  profiles: ReadonlyMap<string, IAutoMoviePhysicalProfile>,
   targets: ReadonlyMap<
     string,
     readonly Record<string, IAutoMovieRigidTransform>[]
@@ -52,7 +54,7 @@ export function bindHumanSimulationGrips(
   clock: bindHumanSimulationGrips.IClock,
 ): bindHumanSimulationGrips.IGrip[] {
   const grips: bindHumanSimulationGrips.IGrip[] = [];
-  for (const [subject, body] of bodies)
+  for (const subject of bodies.keys())
     for (const segment of performance.segments(subject))
       for (const window of segment.plan.contacts) {
         const support: IAutoMovieMotionHumanContactWindow.Support =
@@ -78,9 +80,11 @@ export function bindHumanSimulationGrips(
         ];
         for (const bone of chain)
           if (
-            !body.profile.segments.some(
-              (s: IAutoMoviePhysicalSegment): boolean => s.bone === bone,
-            )
+            !profiles
+              .get(subject)!
+              .segments.some(
+                (s: IAutoMoviePhysicalSegment): boolean => s.bone === bone,
+              )
           )
             throw new HumanRefusal({
               kind: "parameter",
@@ -94,12 +98,16 @@ export function bindHumanSimulationGrips(
           "region" in support
             ? partner.surfaces.regions[support.region].bone
             : support.bone;
-        const receiver: string = carrier(partner, held);
+        const receiver: string = carrier(
+          partner,
+          profiles.get(support.subject)!,
+          held,
+        );
         const first: readonly [string, string] = nearest(
-          body.profile,
+          profiles.get(subject)!,
           `${side}Hand`,
           targets.get(subject)![span[0]]!,
-          partner.profile,
+          profiles.get(support.subject)!,
           receiver,
           targets.get(support.subject)![span[0]]!,
         );
@@ -196,10 +204,11 @@ function steps(
 /** The profile segment that carries a rig bone: the bone's own, or its nearest ancestor's. */
 function carrier(
   body: IAutoMovieMotionHumanBody,
+  profile: IAutoMoviePhysicalProfile,
   bone: AutoMovieHumanoidBone,
 ): string {
   const segments: ReadonlySet<string> = new Set(
-    body.profile.segments.map((s: IAutoMoviePhysicalSegment): string => s.bone),
+    profile.segments.map((s: IAutoMoviePhysicalSegment): string => s.bone),
   );
   let at: IAutoMovieBone = body.bones.get(bone)!;
   while (!segments.has(at.bone) && at.parent !== null)
@@ -209,7 +218,7 @@ function carrier(
 
 /** The nearest pair of colliders of two segments in their sampled poses. */
 function nearest(
-  a: IAutoMovieMotionHumanBody["profile"],
+  a: IAutoMoviePhysicalProfile,
   boneA: string,
   posesA: Record<string, IAutoMovieRigidTransform>,
   b: IAutoMoviePhysicalProfile,

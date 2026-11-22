@@ -15,6 +15,7 @@ import type {
   IAutoMovieMotionHumanSimulation,
   IAutoMovieMotionHumanSimulationWindow,
   IAutoMoviePerformanceMode,
+  IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
@@ -25,7 +26,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { admitHumanSimulationTargets } from "./admitHumanSimulationTargets";
 import { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
 import { coupleHumanSimulationGrips } from "./coupleHumanSimulationGrips";
 import { placeHumanSimulationColliders } from "./placeHumanSimulationColliders";
@@ -33,6 +33,7 @@ import { placeHumanSimulationImpulses } from "./placeHumanSimulationImpulses";
 import { planHumanSimulationBody } from "./planHumanSimulationBody";
 import { reachHumanSimulation } from "./reachHumanSimulation";
 import { readHumanSimulatedPose } from "./readHumanSimulatedPose";
+import { sampleHumanSimulationTargets } from "./sampleHumanSimulationTargets";
 
 /**
  * The simulated tier (#3434, #3441): a window of a performance baked once
@@ -82,6 +83,9 @@ export namespace HumanPerformanceSimulation {
   export interface IPerformer {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
+
+    /** The profile the window solved: the body's, its hands welded with their fingers. */
+    profile: IAutoMoviePhysicalProfile;
 
     /** The body's rig codec, with its joint axes and the humanoid rest frames. */
     codec: IAutoMoviePoseJointCodec.ICodec;
@@ -176,52 +180,43 @@ export namespace HumanPerformanceSimulation {
         ],
       ),
     );
+    // The profile each performer is solved with and its targets.
+    const sampled: Map<string, sampleHumanSimulationTargets.IResult> = new Map(
+      subjects.map(
+        (subject: string): [string, sampleHumanSimulationTargets.IResult] => [
+          subject,
+          sampleHumanSimulationTargets(
+            bodies.get(subject)!,
+            bones.get(subject)!,
+          ),
+        ],
+      ),
+    );
+    const profiles: Map<string, IAutoMoviePhysicalProfile> = new Map(
+      [...sampled].map(
+        ([subject, read]: [string, sampleHumanSimulationTargets.IResult]): [
+          string,
+          IAutoMoviePhysicalProfile,
+        ] => [subject, read.profile],
+      ),
+    );
     const targets: Map<string, Record<string, IAutoMovieRigidTransform>[]> =
       new Map(
-        subjects.map(
-          (
-            subject: string,
-          ): [string, Record<string, IAutoMovieRigidTransform>[]] => {
-            const carried: ReadonlySet<string> = new Set(
-              bodies
-                .get(subject)!
-                .profile.segments.map(
-                  (segment: IAutoMoviePhysicalSegment): string => segment.bone,
-                ),
-            );
-            return [
-              subject,
-              bones.get(subject)!.map(
-                (
-                  placed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-                ): Record<string, IAutoMovieRigidTransform> =>
-                  admitHumanSimulationTargets(
-                    bodies.get(subject)!.profile,
-                    Object.fromEntries(
-                      [...placed.values()]
-                        .filter((bone: IAutoMovieResolvedBone): boolean =>
-                          carried.has(bone.bone),
-                        )
-                        .map(
-                          (
-                            bone: IAutoMovieResolvedBone,
-                          ): [string, IAutoMovieRigidTransform] => [
-                            bone.bone,
-                            {
-                              position: bone.worldPosition,
-                              rotation: bone.worldRotation,
-                            },
-                          ],
-                        ),
-                    ),
-                  ),
-              ),
-            ];
-          },
+        [...sampled].map(
+          ([subject, read]: [string, sampleHumanSimulationTargets.IResult]): [
+            string,
+            Record<string, IAutoMovieRigidTransform>[],
+          ] => [subject, read.targets],
         ),
       );
     const impulses: IAutoMoviePhysicalSimulationInput.IInput["impulses"] =
-      placeHumanSimulationImpulses(state.forces, bodies, bones, clock);
+      placeHumanSimulationImpulses(
+        state.forces,
+        bodies,
+        profiles,
+        bones,
+        clock,
+      );
 
     // A performer is released from its first impulse when the performance
     // lays it down inside the window (#3430's fall), or from the window's
@@ -265,7 +260,13 @@ export namespace HumanPerformanceSimulation {
     const grips: bindHumanSimulationGrips.IGrip[] =
       mode.kind === "kinematic"
         ? []
-        : bindHumanSimulationGrips(performance, bodies, targets, clock);
+        : bindHumanSimulationGrips(
+            performance,
+            bodies,
+            profiles,
+            targets,
+            clock,
+          );
     const groups: Map<number, Map<string, string>> = coupleHumanSimulationGrips(
       grips,
       releases,
@@ -275,7 +276,7 @@ export namespace HumanPerformanceSimulation {
       (subject: string): IAutoMoviePhysicalSimulationInput.IBody =>
         planHumanSimulationBody({
           subject,
-          body: bodies.get(subject)!,
+          profile: profiles.get(subject)!,
           mode,
           targets: targets.get(subject)!,
           impulses,
@@ -344,6 +345,7 @@ export namespace HumanPerformanceSimulation {
           subject,
           {
             body: bodies.get(subject)!,
+            profile: profiles.get(subject)!,
             codec: poseJointCodec({
               skeleton: bodies.get(subject)!.skeleton,
               jointAxes: HUMANOID_JOINT_AXES,
@@ -414,7 +416,7 @@ export namespace HumanPerformanceSimulation {
       Math.max(0, seconds - reading.record.window.from),
     );
     const owned: Set<string> = new Set(
-      performer.body.profile.segments
+      performer.profile.segments
         .map((segment: IAutoMoviePhysicalSegment): string => segment.bone)
         .filter(
           (bone: string): boolean =>

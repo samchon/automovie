@@ -22,10 +22,11 @@ import type {
  * `inverse(rest) * inverse(parent) * world`, its parent read from the pose
  * being built so a chain of owned bones composes back to the solver's
  * rotations. The articulation is lowered to clinical angles by the rig's
- * codec (`poseJointCodec`) and projected into the range of motion
- * (`IAutoMovieMotionHumanBody.projection`), so a joint the solver leaves a
- * native tolerance past its limit is displayed at the limit, as every
- * displayed pose is. An owned root keeps its own articulation and moves the
+ * codec (`poseJointCodec`), exactly: the codec's angles compose back to the
+ * same rotation, so the displayed bone turns as the solved one does, with no
+ * clamp: the solver's joint limits are the body's clinical ranges read onto
+ * its axes (`AutoMovieHumanCanonicalProfile`), and the display shows what the
+ * solver holds. An owned root keeps its own articulation and moves the
  * pose's root transform instead, so the root bone lies where the solver put
  * it. Bone positions follow from the rotations through the rig's rest
  * translations; the solver's joint drift, within its contact tolerance, is
@@ -38,9 +39,9 @@ import type {
  * @param owned The bones the solver owns at the instant.
  * @returns The displayed pose.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States which bones change, the composition inverted, the range projection, the root case and what is not displayed.
- * @evidence contracts/development/implementation.md#principled-implementation Inverts the forward-kinematics composition bone by bone, parent first, and lowers rotations with the same codec and range projection as ordinary display; the solver's frames are world bone-origin frames (`bindPhysicalWorld` places each rigid body at its bone's origin).
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One walk of the rig; conversions and projection belong to the codec and the body.
+ * @evidence contracts/development/common.md#meaningful-documentation States which bones change, the composition inverted, the exact lowering to angles, the root case and what is not displayed.
+ * @evidence contracts/development/implementation.md#principled-implementation Inverts the forward-kinematics composition bone by bone, parent first, and lowers rotations with the codec ordinary display composes them with; the solver's frames are world bone-origin frames (`bindPhysicalWorld` places each rigid body at its bone's origin).
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One walk of the rig; conversions belong to the codec.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone is special-cased; an unowned bone keeps the kinematic record itself, so a window the solver never takes over is the kinematic pose bit for bit.
  * @evidence contracts/development/implementation.md#efficient-algorithms One pass over the rig's B bones with constant quaternion work each; an empty ownership returns at once.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading; the caller owns any caching.
@@ -109,17 +110,8 @@ export function readHumanSimulatedPose(
       );
       const [flexion, abduction, twist]: [number, number, number] =
         codec.angles(bone.bone, relative);
-      replaced.set(
-        bone.bone,
-        body.projection.values(bone.bone, flexion, abduction, twist),
-      );
-      world.set(
-        bone.bone,
-        Quaternion.multiply(
-          parent,
-          Quaternion.multiply(bone.rest.rotation, articulation(bone.bone)),
-        ),
-      );
+      replaced.set(bone.bone, { bone: bone.bone, flexion, abduction, twist });
+      world.set(bone.bone, solved.rotation);
     } else
       world.set(
         bone.bone,

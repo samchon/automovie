@@ -230,15 +230,23 @@ async function together(
     ],
     composition: { kind: "parallel", parts: [jump("a", 0), jump("b", 1.2)] },
   });
-  const from: number =
-    Math.max(event(take, "a", "takeoff"), event(take, "b", "takeoff")) + 0.05;
-  const to: number =
-    Math.min(event(take, "a", "touchdown"), event(take, "b", "touchdown")) -
-    0.1;
+  // The window is centred on the two apexes, where both bodies are highest,
+  // and spans three quarters of what the shorter flight leaves on each side
+  // of its apex: the centre is then still above standing height at both
+  // ends, so neither the release nor the hand-back nears the floor.
+  const apex: number =
+    (event(take, "a", "apex") + event(take, "b", "apex")) / 2;
+  const half: number =
+    Math.min(
+      apex - Math.max(event(take, "a", "takeoff"), event(take, "b", "takeoff")),
+      Math.min(event(take, "a", "touchdown"), event(take, "b", "touchdown")) -
+        apex,
+    ) * 0.75;
+  const from: number = apex - half;
   const solved: HumanPerformance = await take.simulate(
     {
       from,
-      to: from + Math.floor((to - from) * RATE) / RATE,
+      to: from + Math.floor(2 * half * RATE) / RATE,
       subjects: ["a", "b"],
       released: ["a", "b"],
     },
