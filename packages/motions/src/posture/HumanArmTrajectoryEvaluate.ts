@@ -109,7 +109,7 @@ export function HumanArmTrajectoryEvaluate(
     violation += v;
     // What else bears at this waypoint, read when a site is missed there:
     // the term that keeps the hand off its site.
-    if (term !== "site" && v - slack > (bearing.get(here)?.value ?? -Infinity))
+    if (term !== "site" && term !== "limit" && v - slack > (bearing.get(here)?.value ?? -Infinity))
       bearing.set(here, { value: v - slack, what });
     if (v - slack > M.TOLERANCE) {
       failing[here] = true;
@@ -335,10 +335,12 @@ export function HumanArmTrajectoryEvaluate(
         if (pair.rested) objective += T.LIFT * pair.short * pair.short;
       }
     }
-  // A missed site names what kept the hand off it: an obstacle, a task
-  // point, a speed or another arm, as read at the same waypoint.
+  // A missed site or task point names what kept the hand off it: an
+  // obstacle, a speed or another arm, as read at the same waypoint.
   const holding: IBearing | undefined =
-    worst.term === "site" ? bearing.get(worst.at) : undefined;
+    worst.term === "site" || worst.term === "limit"
+      ? bearing.get(worst.at)
+      : undefined;
   if (holding !== undefined)
     worst = { ...worst, what: `${worst.what}, held off by ${holding.what()}` };
   return {
