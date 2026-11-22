@@ -87,20 +87,20 @@ export namespace SceneFacts {
    * The line a card shows under its title.
    *
    * @param scene The scene.
-   * @returns Such as "3 people, 2 objects, 9 actions".
+   * @param seconds Its baked take's length, when known.
+   * @returns Such as "3 people · 15.2 s".
    */
-  export function counts(scene: IScene): string {
+  export function counts(scene: IScene, seconds?: number): string {
     const plural: (n: number, one: string, many: string) => string = (
       n: number,
       one: string,
       many: string,
     ): string => `${n} ${n === 1 ? one : many}`;
     if (scene.composition === null) return scene.planned?.cast ?? "";
-    const parts: string[] = [plural(scene.cast.length, "person", "people")];
-    const objects: number = scene.composition.objects?.length ?? 0;
-    if (objects !== 0) parts.push(plural(objects, "object", "objects"));
-    parts.push(plural(actions(scene).length, "action", "actions"));
-    return parts.join(", ");
+    const people: string = plural(scene.cast.length, "person", "people");
+    return seconds === undefined
+      ? people
+      : `${people} · ${seconds.toFixed(1)} s`;
   }
 
   /**

@@ -1,12 +1,12 @@
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
+  IAutoMovieHumanCanonicalBody,
   IAutoMovieHumanParameters,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 import { createHumanBody } from "@automovie/motions";
 
 import PEOPLE from "./MOTION_HUMAN_PEOPLE.json";
-import { motionHumanBodyCache } from "./motionHumanBodyCache";
 
 /**
  * A real body for the motion tests: one of the fourteen people of the ANSUR
@@ -19,34 +19,25 @@ import { motionHumanBodyCache } from "./motionHumanBodyCache";
  * harness for the ends of its sweep (the harness is not a package entry
  * point, so a test cannot import it).
  *
- * A body takes seconds to prepare, so each is prepared once for the code as
- * it stands and kept on disk (`motionHumanBodyCache`), read once a process,
- * wrapped and shared by every test of the process; tests must not mutate it.
+ * A body is prepared from the parameters by closed-form placement laws in
+ * tens of milliseconds, so each is prepared once a process, wrapped and
+ * shared by every test of the process; tests must not mutate it.
  *
  * @param name The person.
  * @returns The body.
  */
-export function motionHumanBody(
-  name: motionHumanBody.Name,
-): IAutoMovieMotionHumanBody {
+export function motionHumanBody(name: motionHumanBody.Name): IAutoMovieMotionHumanBody {
   const known: IAutoMovieMotionHumanBody | undefined = BODIES.get(name);
   if (known !== undefined) return known;
   const person: { mass: number; params: unknown } = PEOPLE[name];
   const params: IAutoMovieHumanParameters =
     person.params as IAutoMovieHumanParameters;
-  const prepared: motionHumanBodyCache.IPrepared = motionHumanBodyCache.read(
-    name,
-    { mass: person.mass, params },
-    (): motionHumanBodyCache.IPrepared =>
-      AutoMovieHumanCanonicalBody.prepare(params, {
-        mass: person.mass,
-        id: name,
-      }),
-  );
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
-    prepared.skeleton,
-    prepared.profile,
-  );
+  const prepared: IAutoMovieHumanCanonicalBody.IBody =
+    AutoMovieHumanCanonicalBody.prepare(params, {
+      mass: person.mass,
+      id: name,
+    });
+  const body: IAutoMovieMotionHumanBody = createHumanBody(prepared.skeleton, prepared.profile);
   BODIES.set(name, body);
   return body;
 }

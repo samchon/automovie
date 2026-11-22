@@ -18,7 +18,7 @@ import { WHEELCHAIR_SHEET } from "./WHEELCHAIR_SHEET";
  *
  * The chair stands on its wheels with the middle of its rear axle over the origin's line and its seat's front toward `+Z`: the origin is on the floor under the middle of the seat's rear edge. Its outline reads as a wheelchair by the parts a diffusion model needs: the two big rear wheels standing at the overall width, the small front casters, the seat and its reclined back, the armrests and the push handles rising behind. Each rear wheel spins on a `knob` about its axle, and a self-propelled chair's handrim, the `wheel` a hand turns, rides it, so a hand on the rim goes round with the wheel; `rideWheelchair` turns the wheels by the distance.
  *
- * A seated person's own stroke on the handrims is no motion law yet (#3468's mobility family), so a self-propelled ride is staged as moving the chair with its rims turning, and a pushing attendant holds the handles with `HumanRide`'s hands or a carry.
+ * Stage a seated push and release with `wheelchairHandrimFrame` and `HumanHandrimStroke` on a course authored through `rideWheelchair`. A pushing attendant holds the handles with `HumanRide`'s hands or a carry.
  *
  * @param params The kind, its read model and any dimension the author fixes inside its model's ranges.
  * @param seed The seed that picks the model and draws the footrest's reach and any overall length its row gives as a range; absent, the first model and each range's middle.

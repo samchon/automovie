@@ -1,3 +1,4 @@
+import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieAffordance } from "../../../model/IAutoMovieAffordance";
@@ -6,13 +7,15 @@ import type { IAutoMoviePhysicalShape } from "../../../physics/IAutoMoviePhysica
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieSoftBodyDomain } from "../../../soft/IAutoMovieSoftBodyDomain";
 import type { AutoMovieMotionHumanScheduledInstant } from "../law/AutoMovieMotionHumanScheduledInstant";
+import type { IAutoMovieMotionHumanObject } from "./IAutoMovieMotionHumanObject";
+import type { IAutoMovieMotionHumanTether } from "./IAutoMovieMotionHumanTether";
 
 /**
  * A prop actions can aim at and hands can hold: a subject id, its world
  * frame at rest, and its named points in that frame, such as a heavy bag's
  * striking surface, a pad's face or a cup's handle.
  *
- * The prop stays at its rest frame, or on the bone it is worn on, until a
+ * The prop stays at its rest frame, on the bone it is worn on, or at its initial mount until a
  * hand grips it; while gripped it rides the hand, unless it is a fixture, worn it rides its bone,
  * and it stays where the last grip released it, or flies from a launch and rests where it struck (see `HumanPerformance.prop`). A point's normal points out of the prop's
  * surface.
@@ -84,14 +87,7 @@ export interface IAutoMovieMotionHumanProp {
   point?(
     id: string,
     seconds: number,
-  ):
-    | {
-        /** Contact point on the prop in world metres. */
-        point: IAutoMovieVector3;
-        /** Outward contact normal in world coordinates. */
-        normal: IAutoMovieVector3;
-      }
-    | undefined;
+  ): IAutoMovieMotionHumanProp.IPlacedPoint | undefined;
 
   /**
    * The person and bone the prop is worn on from the film's start, with its
@@ -101,6 +97,16 @@ export interface IAutoMovieMotionHumanProp {
    * absent.
    */
   worn?: IAutoMovieMotionHumanProp.IWorn;
+
+  /**
+   * The socket another prop carries this rigid prop on from the film's start.
+   * The frame follows the posed socket through the first hand closure, which
+   * takes over placement. The target affordance must be declared on the other
+   * prop. Mount chains must end at a prop with no initial mount.
+   * `HumanPerformance` refuses a mounted prop that also declares `worn`,
+   * `motion`, `fixed: true`, or `soft`.
+   */
+  mounted?: IAutoMovieMotionHumanProp.IMounted;
 
   /**
    * Whether the prop is a fixture: a thing set in the scene that bears on
@@ -125,8 +131,17 @@ export interface IAutoMovieMotionHumanProp {
    */
   soft?: IAutoMovieSoftBodyDomain;
 
+  /**
+   * A soft cord whose first and last anchors follow a single declared span.
+   * Absent leaves every soft anchor to its own ordinary binding.
+   */
+  softSpan?: IAutoMovieMotionHumanProp.ISoftSpan;
+
   /** Colliders in the prop's frame, for finger closure until contact and penetration audits. */
   shapes?: readonly IAutoMoviePhysicalShape[];
+
+  /** Whether the model declares internal articulation. Explicit false allows rigid carry even when a uniform model adapter exposes a pose reader. */
+  readonly hasArticulations?: boolean;
 
   /**
    * The prop posed at stated travels of its articulations, for a prop whose
@@ -134,13 +149,13 @@ export interface IAutoMovieMotionHumanProp {
    * and colliders in its own frame with the parts moved. The performance
    * reads it at the travels the drives and tracks give at a second
    * (`HumanPerformance.state`), so a hand reaching a handle after the door
-   * was opened goes to where the handle is. Absent for a rigid prop.
+   * was opened goes to where the handle is. A rigid object's model adapter can also expose this reader.
    *
    * @param state Travel by articulation id, in each articulation's own unit; an articulation left out stays at rest.
    * @returns The posed contacts and colliders.
    * @throws {Error} When a travel lies outside its articulation's range.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.articulate: The prop posed at stated travels of its articulations, for a prop whose parts an act moves (a door's leaf, a trigger, a bowstring): its contacts and colliders in its own frame with the parts moved. The performance reads it at the travels the drives and tracks give at a second (`HumanPerformance.state`), so a hand reaching a handle after the door was opened goes to where the handle is. Absent for a rigid prop.
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.articulate: The prop posed at stated travels of its articulations, for a prop whose parts an act moves (a door's leaf, a trigger, a bowstring): its contacts and colliders in its own frame with the parts moved. The performance reads it at the travels the drives and tracks give at a second (`HumanPerformance.state`), so a hand reaching a handle after the door was opened goes to where the handle is. A rigid object's model adapter can also expose this reader.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
@@ -166,6 +181,14 @@ export interface IAutoMovieMotionHumanProp {
    * (`HumanPropFlight`). Absent when the model declares none.
    */
   body?: IAutoMovieBody;
+
+  /**
+   * Lines from the prop's points to other props' points (#3998): a rod's
+   * fishing line to its lure. A line shorter than the distance between its
+   * ends pulls the far prop toward this one while no hand holds it
+   * (`IAutoMovieMotionHumanTether`). None when absent.
+   */
+  tethers?: readonly IAutoMovieMotionHumanTether[];
 }
 
 /**
@@ -173,6 +196,44 @@ export interface IAutoMovieMotionHumanProp {
  *
  */
 export namespace IAutoMovieMotionHumanProp {
+  /**
+   * Which already placed prop and model line own the endpoints of a soft cord.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two identities, the length in metres and the first/last particle meaning.
+   * @evidence contracts/development/design.md#principled-representation This record selects one model span whose endpoints are resolved at the soft domain's fixed-step boundary.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanObject.cord supplies the binding and the performance soft boundary reads it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The cord does not redeclare any articulation, endpoint coordinates or frame callback.
+   */
+  export interface ISoftSpan {
+    /** Subject id of the rigid prop in the same performance. */
+    owner: string;
+
+    /** Span id on the owner's model. */
+    id: string;
+
+    /** The model span's declared rest length in metres. Absent keeps the domain's supplied rest shape. */
+    length?: number;
+  }
+
+  /**
+   * A moving contact in world space.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame of the point and normal and when full orientation is available.
+   * @evidence contracts/development/design.md#principled-representation Preserves the existing world point and normal records; the world rotation carries the grip tangent of a moving affordance.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanObject.prop supplies the rotation when its callback has a full contact transform; HumanRideHands reads its grip axis.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A point-only provider can omit the rotation; no rotation is inferred from a normal that leaves its tangent undetermined.
+   */
+  export interface IPlacedPoint {
+    /** Contact point on the prop in world metres. */
+    point: IAutoMovieVector3;
+
+    /** Outward contact normal in world coordinates. */
+    normal: IAutoMovieVector3;
+
+    /** World rotation of the placed affordance, when the provider has its full frame. */
+    rotation?: IAutoMovieQuaternion;
+  }
+
   /**
    * One authored attachment of a prop to a subject's bone. Its offset is expressed in that bone's posed frame; performance readers derive any worn interval from this configuration.
    *
@@ -193,6 +254,25 @@ export namespace IAutoMovieMotionHumanProp {
   }
 
   /**
+   * A rigid prop's initial frame relative to a named socket on another prop.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the carrier's prop and socket and defines the child's offset from the posed socket in metres and a unit quaternion.
+   * @evidence contracts/development/design.md#principled-representation A prop id and its affordance id identify a rigid frame. The offset expresses the child frame in that socket, which can be posed by its own articulation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two references and a shared rigid transform let the existing mount reader serve initial and action-authored placement.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The authored relative frame is explicit. HumanPerformance checks references, authority and cycles before resolving the performance.
+   */
+  export interface IMounted {
+    /** Subject id of the prop carrying the socket. */
+    prop: string;
+
+    /** The carrying prop's affordance id. */
+    point: string;
+
+    /** The mounted prop's frame in that posed socket, with finite metre position and unit rotation. */
+    offset: IAutoMovieRigidTransform;
+  }
+
+  /**
    * A prop posed at travels of its articulations, in its own frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation shapes: Its colliders, with the moved parts' colliders moved; absent when the prop declares none.
@@ -206,6 +286,19 @@ export namespace IAutoMovieMotionHumanProp {
 
     /** Its colliders, with the moved parts' colliders moved; absent when the prop declares none. */
     shapes?: readonly IAutoMoviePhysicalShape[];
+
+    /**
+     * The model's authored span endpoints in this posed model's local frame.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the model identity, posed frame and absence when a model supplies no spans.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The posed model's own reader computes its endpoints.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature has no body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No fallback frame or inferred line is part of the signature.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Endpoint lookup belongs to the posed model.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature adds no extra pose; its provider already owns the current one.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources.
+     */
+    span?(id: string): IAutoMovieMotionHumanObject.ISpanEnds;
   }
 
   /**

@@ -35,16 +35,31 @@ export namespace MotionReference {
       MotionSchemas.actions();
     const grammar: unknown = EXPORTS["HUMAN_GRAMMAR"];
 
+    // A row is the same law object its namespace exports, such as
+    // `HumanStrike.jab`, so the first namespace holding it names it.
+    const namespaces: Map<unknown, string> = new Map();
+    for (const [key, value] of Object.entries(EXPORTS))
+      if (
+        /^Human[A-Z]/.test(key) &&
+        typeof value === "object" &&
+        value !== null
+      )
+        for (const law of Object.values(value))
+          if (!namespaces.has(law)) namespaces.set(law, key);
+
     // A name without a schema has no parameters to list, which is not the
     // same as a schema that lists none.
     const row: (
       name: string,
       table: Record<string, MotionSchemas.IMember[]>,
+      law?: unknown,
     ) => IMotionReference.IRow = (
       name: string,
       table: Record<string, MotionSchemas.IMember[]>,
+      law?: unknown,
     ): IMotionReference.IRow => ({
       name,
+      namespace: law === undefined ? null : (namespaces.get(law) ?? null),
       parameters: Object.hasOwn(table, name)
         ? table[name]!.map(parameter)
         : null,
@@ -61,7 +76,7 @@ export namespace MotionReference {
           name,
           rows: members.map(
             (member: { name: string }): IMotionReference.IRow =>
-              row(member.name, rows),
+              row(member.name, rows, member),
           ),
         }),
       ),

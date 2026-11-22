@@ -1,12 +1,10 @@
 # Document layout
 
-Where each creative document, its evidence and its review lives, and how supplied work enters.
-
 ## Documents
 
-Each location is a default, created only when used. The evidence and review locations are the installed evidence package's, whose documentation owns the supported layouts and selectors; the skills show them only here, and [evidence configuration](../evidence/configuration.md) owns their use.
+Create a listed location only when used. The installed evidence package defines supported selectors and layouts. See [configuration](../evidence/configuration.md) for selection.
 
-Commit instructions, creative bodies and evidence answers, and keep review records local. Keep one current record per purpose, identified by its actual inputs. Raw logs, classification tables, performance plans, run records and temporary comparisons belong in ignored `.cache/`, with their relevant conclusions in the current record.
+Commit instructions, bodies and Evidence answers. Keep review records local. Identify each current record by its actual inputs. Keep logs, classifications, performance plans and working comparisons in ignored `.cache/` and copy material conclusions into the current record.
 
 | Location, when used | Owns |
 | --- | --- |
@@ -15,14 +13,13 @@ Commit instructions, creative bodies and evidence answers, and keep review recor
 | `docs/body/settings/outline/index.md` | Domain and file navigation without duplicating facts |
 | `docs/body/brief/<domain>/<subject>.md` | A short's brief, one subject per file in a settings domain |
 | `docs/body/treatments/NNN-event.md` | Flat ordered events, causes, consequences, and information release |
-| `docs/body/scripts/NNN-part/NNN-episode.md` | Executable scenes and release partition, with part indexes |
+| `docs/body/scripts/NNN-part/NNN-episode.md` | First-draft scenes, dialogue and release partition, with part indexes |
 | `docs/body/screenplay/<film>/NNN-<scene>.md` | Complete final audiovisual text, one file per scene |
 | `docs/research/index.md` | The source index |
 | `docs/research/<discipline>/<topic>.md` | The studies of each practice and style |
 | `references/` | Retained research originals that are permitted copies |
 | Ignored `references/private/` | Retained research originals whose rights are unconfirmed |
-| `docs/contracts/work/...`, `docs/contracts/language/...` | This production's own story contracts |
-| `docs/contracts/statements/...` | This production's own contract statements, which no evidence stage selects |
+| `docs/contracts/work/...`, `docs/contracts/language/...` | This production's own story contract items and their criteria |
 | `docs/acceptance/<film>.md` | The film's tracked acceptance record |
 | `docs/acceptance/catalog.md` | The catalog's accepted cases |
 | `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files |
@@ -37,10 +34,24 @@ The research studies hold laws, limits and measurable targets. Their constructio
 
 The production's own story contracts supplement the shared ones and are cited as `work/...` and `language/...`. Discovery writes `work/discovery/results.md` among them.
 
-Both acceptance records are kept under [delivery review](../review/delivery-review.md#acceptance-record), `PROJECT.md` under [project context](../production/project-context.md) and generation requests under [media records](../production/media-records.md).
+The film's record follows [delivery review](../review/delivery-review.md#acceptance-record) and the catalog's follows [catalog review](../motion/catalog-cases.md#record). See [project context](../production/project-context.md) for `PROJECT.md` and [media records](../production/media-records.md) for generation requests.
 
 A part can be an act, a release block or another division suited to the format, and an episode can hold a sequence of a continuous film without forcing an episodic release. Narrative partition and [source organization](../development/source-layout.md) are separate choices.
 
+## Canon records
+
+Give each settings or brief subject one file in its domain. Its production-relative path identifies the subject across scenes and films. Use H1 for the subject, H2 for facets and anchored H3s for facts and decisions. Cite the fact by path and [anchor](layers/notation.md#identities).
+
+For commissioned appearances on a route with no settings or brief, use `docs/instructions/appearance-<subject>.md` as the subject record. Preserve user-fixed interpretations. Embed commissioned [canon references](../image/canon-references.md) from `media/diffusion/images/<domain>/`. Report conflicting sources or instructions and resolve inconsistencies at their owner.
+
+### Scene elements
+
+<!-- @source The opening of [Knives Out](https://rian-johnson.com/pdfs/knives-out.pdf#page=2) describes the rooms along Fran's route. [ScreenSkills](https://www.screenskills.com/skills-checklists/scripted-film-and-tv/props-department/standby-props-skills/) covers prop continuity. [Movie Magic Scheduling](https://mms-docs.ep.com/Elements/ManagingElements.html) tracks named elements across scenes. -->
+
+Identify places, people, props and groups in the scene's [standing state](layers/notation.md#records). Link each subject that has a record. Give a scene-local instance a stable name only when the action tracks it. A house key and a spare key may share a design but change hands separately. Describe other dressing and crowds collectively.
+
+Keep the identity through changes of holder, appearance or camera. Link newly discovered subjects to their [brief](layers/brief.md#growth) or [settings record](layers/settings.md#records) when they belong there. Instructions own shared subjects on routes without canon layers.
+
 ## Intake of existing work
 
-Identify supplied settings, scripts or completed works by their original source revision or retained reference, and record their identity, adopted requirements, fixed quotations and reinterpretation boundaries as [instructions](planning/requirements.md#requirements). Existing finished work supplies material and choices to assess; it approves none of this production's layers. A user's fixed screenplay is the exception: it is the screenplay, kept unchanged in the screenplay location.
+Identify supplied work by revision or retained reference. Record requirements, fixed quotations and reinterpretation limits in [instructions](planning/requirements.md#requirements). Apply the chosen route to any work adapted from it. Store a fixed screenplay verbatim in its designated location.

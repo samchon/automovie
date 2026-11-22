@@ -1,9 +1,13 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanCoupled,
+  IAutoMovieMotionHumanGrapple,
   IAutoMovieMotionHumanMutual,
+  IAutoMovieMotionHumanSupport,
 } from "@automovie/interface";
 
+import { supportAssist } from "../actions/supportAssist";
 import { getUp } from "../floor/getUp";
 
 /**
@@ -41,6 +45,8 @@ import { getUp } from "../floor/getUp";
  * - **helpUp**: helping someone up from the floor, both performing
  *   `support` (#3435), the helped hand gripping the helper's palm until the
  *   feet bear alone.
+ * - **grappling**: both performers follow one authored grappling scene,
+ *   including its lead side, result and clock.
  *
  * Arm wrestling is `HumanSocial.armWrestle` with the author's winner; the
  * loser's trunk turn the winner's torque gives is owed to #3439. A tug of
@@ -48,10 +54,36 @@ import { getUp } from "../floor/getUp";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each record's roles and actions, where the force comes from, the fulcrum table's source and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation Each composition is a mutual record over shipped laws, the vocabulary's form for one thing several people do.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Four records, the throws' fulcrum table and the thrown region that lies on it.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Five records, the throws' fulcrum table and the thrown region that lies on it.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No law is written per hold: the coupling, the response and the support sequence are their owners'.
  */
 export namespace HumanCoupled {
+  /**
+   * Place both roles of an authored grappling scene on the same clock.
+   * The performance registers the `grapple` law for both roles.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Both actors receive the same scene settings and the other actor's subject.
+   */
+  export const grappling: IAutoMovieMotionHumanMutual<
+    IAutoMovieMotionHumanGrapple.IScene,
+    IAutoMovieMotionHumanGrapple.Role
+  > = {
+    name: "grappling",
+    roles: ["initiator", "receiver"],
+    act: (
+      role: IAutoMovieMotionHumanGrapple.Role,
+      params: IAutoMovieMotionHumanGrapple.IScene,
+      cast: Readonly<Record<IAutoMovieMotionHumanGrapple.Role, string>>,
+    ): IAutoMovieMotionHumanMutual.IAct => ({
+      name: "grapple",
+      params: {
+        ...params,
+        role,
+        partner: cast[role === "initiator" ? "receiver" : "initiator"],
+      },
+    }),
+  };
+
   /** One person carries another: the bearer `bearing`, the borne `borne`, coupled. */
   export const carry: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanCoupled.ICarry,
@@ -94,68 +126,70 @@ export namespace HumanCoupled {
    */
   export const helpUp: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanCoupled.IHelpUp,
-    "helper" | "helped"
+    IAutoMovieMotionHumanSupport.AssistRole
   > = {
     name: "helpUp",
     roles: ["helper", "helped"],
     act: (
-      role: "helper" | "helped",
+      role: IAutoMovieMotionHumanSupport.AssistRole,
       params: IAutoMovieMotionHumanCoupled.IHelpUp,
-      cast: Readonly<Record<"helper" | "helped", string>>,
+      cast: Readonly<Record<IAutoMovieMotionHumanSupport.AssistRole, string>>,
     ): IAutoMovieMotionHumanMutual.IAct => {
-      const side: "left" | "right" = params?.hand ?? "right";
-      const part: "leftHand" | "rightHand" =
-        side === "left" ? "leftHand" : "rightHand";
-      const feet = [
+      const side: AutoMovieHumanSide = params?.hand ?? "right";
+      const part: IAutoMovieMotionHumanSupport.Part = `${side}Hand`;
+      const feet: readonly IAutoMovieMotionHumanSupport.IContact[] = [
         { part: "leftFoot", kind: "bear" },
         { part: "rightFoot", kind: "bear" },
       ] as const;
-      if (role === "helper")
-        return {
-          name: "support",
-          params: {
-            stances: [
-              {
-                contacts: [
-                  ...feet,
-                  {
-                    part,
-                    kind: "grip",
-                    target: {
-                      kind: "person",
-                      subject: cast.helped,
-                      region: side === "left" ? "wristLeft" : "wristRight",
-                    },
-                  },
-                ],
-                // The hand goes down to a wrist on the floor: the fit starts
-                // from the squat, as `getUp` keys it.
-                prefer: getUp.POSES.squat,
-              },
-            ],
-          },
-        };
-      const grip = {
+      const partner: string = cast[role === "helper" ? "helped" : "helper"];
+      const grip: IAutoMovieMotionHumanSupport.IContact = {
         part,
         kind: "grip",
         target: {
           kind: "person",
-          subject: cast.helper,
+          subject: partner,
           region: side === "left" ? "palmLeft" : "palmRight",
         },
-      } as const;
+      };
+      const seconds: number = supportAssist.step();
+      const paramsOf: IAutoMovieMotionHumanSupport.IParams = {
+        assist: { role, partner, side },
+        stances: [
+          {
+            contacts:
+              role === "helped"
+                ? [{ part: "back", kind: "bear" }, grip]
+                : [...feet, grip],
+            ...(role === "helped" ? {} : { prefer: getUp.POSES.squat }),
+            seconds,
+            event: "take",
+          },
+          {
+            contacts:
+              role === "helped"
+                ? [{ part: "seat", kind: "bear" }, ...feet, grip]
+                : [...feet, grip],
+            prefer: role === "helped" ? getUp.POSES.sit : getUp.POSES.squat,
+            seconds,
+            event: "seat",
+          },
+          {
+            contacts: [...feet, grip],
+            prefer: getUp.POSES.squat,
+            seconds,
+            event: "lift",
+          },
+          {
+            contacts: feet,
+            prefer: getUp.POSES.stood,
+            seconds,
+            event: "standing",
+          },
+        ],
+      };
       return {
         name: "support",
-        params: {
-          stances: [
-            {
-              contacts: [{ part: "seat", kind: "bear" }, ...feet, grip],
-              prefer: getUp.POSES.sit,
-            },
-            { contacts: [...feet, grip], prefer: getUp.POSES.squat },
-            { contacts: feet },
-          ],
-        },
+        params: paramsOf,
       };
     },
   };

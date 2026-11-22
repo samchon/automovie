@@ -1,16 +1,19 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, RigidCarrierSample, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSeated,
   IAutoMoviePhysicalShape,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanObjectCord } from "./HumanObjectCord";
 
 /**
  * Attach actions to an object: an object says where a person meets it
@@ -72,15 +75,15 @@ export namespace HumanObject {
    * @param motion Where it is at a film second, for an object that moves by itself, such as a vehicle on its course; it stays at its placement when absent.
    * @param contact The world frame of one of its contacts at a film second, for an object whose parts move within it, such as a pedal on its crank (an archetype ride's `frame`); each contact moves rigidly with the object when absent.
    * @param tracks The object's own movements after a trigger, each an articulation's travel from its start (`IHumanProp.tracks`); none when absent.
-   * @returns The prop, posed by its drives and tracks when the object articulates (`IHumanProp.articulate`).
+   * @returns The prop with any declared articulation capability, and with its pose reader for drives and tracks when the model supplies one.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the prop offers the actions and how a contact becomes a target.
    * @evidence contracts/development/implementation.md#principled-implementation A contact frame's translation is its point and its rotated `+Y` its outward normal, the affordance record's own convention.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the affordances.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The colliders are the object's own when it gives them, and absent otherwise.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the affordances.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the object's affordances and colliders for as long as the prop is held.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work An exact native model and callback pair can pass its existing stationary domains to the prop reader without invoking either callback.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prop owns its affordances, colliders and any issued carrier domain metadata for its lifetime.
    */
   export function prop(
     subject: string,
@@ -98,7 +101,7 @@ export namespace HumanObject {
       ),
     );
     const shapes: IAutoMoviePhysicalShape[] | undefined = model.shapes?.();
-    return {
+    const prop: IAutoMovieMotionHumanProp = {
       subject,
       frame: frame(placement),
       points: Object.fromEntries(
@@ -122,6 +125,9 @@ export namespace HumanObject {
         ? {}
         : { body: model.body }),
 
+      ...(model.hasArticulations === undefined
+        ? {}
+        : { hasArticulations: model.hasArticulations }),
       // An object whose parts move is posed by the performance's state.
       ...(model.articulate === undefined
         ? {}
@@ -136,6 +142,9 @@ export namespace HumanObject {
               return {
                 affordances: posed.affordances ?? [],
                 ...(moved === undefined ? {} : { shapes: moved }),
+                ...(posed.span === undefined
+                  ? {}
+                  : { span: posed.span.bind(posed) }),
               };
             },
           }),
@@ -151,13 +160,12 @@ export namespace HumanObject {
             point: (
               id: string,
               seconds: number,
-            ):
-              | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
-              | undefined => {
+            ): IAutoMovieMotionHumanProp.IPlacedPoint | undefined => {
               if (!ids.has(id)) return undefined;
               const at: IAutoMovieTransform = contact(id, seconds);
               return {
                 point: at.translation,
+                rotation: at.rotation,
                 normal: Quaternion.rotateVector(at.rotation, {
                   x: 0,
                   y: 1,
@@ -167,6 +175,28 @@ export namespace HumanObject {
             },
           }),
     };
+    RigidCarrierSample.adapt(prop, model, motion, contact);
+    return prop;
+  }
+
+  /**
+   * Create a soft cord on a model span's own endpoints and rest length.
+   * The owning prop and returned cord both belong in the performance props.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the model and line identity and how to supply the result.
+   * @evidence contracts/development/implementation.md#principled-implementation HumanObjectCord discretizes the existing model line in world metres and binds both endpoints to the owning prop.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This is the object authoring entry. The cord's domain construction belongs to HumanObjectCord.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The author supplies no second endpoint declaration. The cord constructor refuses invalid span and domain inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One call to the linear cord discretization and domain validator.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the provider's public span reader and the existing soft solver settings.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a soft prop and its finite domain. Film-state ownership stays with the performance.
+   */
+  export function cord(
+    model: IAutoMovieMotionHumanObject.ISpanModel,
+    span: string,
+    props: IAutoMovieMotionHumanObject.ICord,
+  ): IAutoMovieMotionHumanProp {
+    return HumanObjectCord(model, span, props);
   }
 
   /**
@@ -236,8 +266,12 @@ export namespace HumanObject {
         Quaternion.rotateVector(world.rotation, found.frame.translation),
       ),
       yaw: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
+      ...tilted(Quaternion.multiply(world.rotation, found.frame.rotation)),
       ...(found.depth === undefined ? {} : { depth: found.depth }),
       ...(found.back === undefined ? {} : { back: found.back }),
+      ...(found.workingSeat === undefined
+        ? {}
+        : { workingSeat: found.workingSeat }),
       ...(found.astride === undefined ? {} : { astride: found.astride }),
       ...(found.mount === undefined ? {} : { mount: found.mount }),
       ...(Object.keys(rests).length === 0 ? {} : { footrests: rests }),
@@ -308,4 +342,28 @@ export namespace HumanObject {
     );
     return { left: placed(ends[0]!), right: placed(ends[1]!) };
   }
+}
+
+/**
+ * A seat's pitch and roll in the world, as a posture's, when the seat is not level.
+ *
+ * @param rotation The seat's world rotation.
+ * @returns The tilt, empty for a level seat.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what is returned.
+ * @evidence contracts/development/implementation.md#principled-implementation The posture angles of the seat's rotation (`resolveHumanPosture.angles`), kept when either exceeds a millionth of a degree.
+ * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One read.
+ * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record.
+ */
+function tilted(
+  rotation: IAutoMovieQuaternion,
+): Pick<IAutoMovieMotionHumanSeated.ISeat, "pitch" | "roll"> {
+  const angles: ReturnType<typeof resolveHumanPosture.angles> =
+    resolveHumanPosture.angles(rotation);
+  return Math.abs(angles.pitch) < 1e-6 && Math.abs(angles.roll) < 1e-6
+    ? {}
+    : { pitch: angles.pitch, roll: angles.roll };
 }

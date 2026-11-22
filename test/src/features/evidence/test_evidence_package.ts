@@ -11,6 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture";
+import { repositoryRoot } from "../internal/repositoryRoot";
 
 /**
  * The package's one-object factory keeps coding ordinary and narrative explicit.
@@ -25,6 +26,7 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 7. Enabled research and behavior stages require each study's detached answers and each law's answers: a law missing one behaviors answer fails, and the complete law passes with its study named in prose and no study tag.
  * 8. An enabled composition stage over a film folder of scene files requires every section and beat realized and every scene file ordered: a scene citing one of two beats fails, citing its whole scene file covers both, and a film ordering one of two scene files fails until it orders both.
  * 9. Narrative mode none adds no instruction relation without instructions or without composition, and otherwise requires every instruction section realized: one realized section of two fails, excluding the other fails, and a film realizing it passes.
+ * 10. Film composition reports all three missing catalog inputs together. A catalog case cannot supply a beat missing from the production scene.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage, outline stage inheritance, discovery after a closed layer turns disabled and the scene-file composition relations.
  * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass. The route contract supplies the closed-layer expectation: a layer the user disabled after it closed must not break the layers still running, so its findings in the shared discovery record must still resolve. The layout contract supplies the composition expectations: each scene file maps to one scene composition and the film orders every scene file of its folder.
@@ -33,10 +35,8 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
  */
 export async function test_evidence_package(): Promise<void> {
-  const cache: string = path.resolve(
-    __dirname,
-    "../../../../packages/template/.cache",
-  );
+  const repository: string = repositoryRoot();
+  const cache: string = path.join(repository, "packages/template/.cache");
   fs.mkdirSync(cache, { recursive: true });
   const root: string = fs.realpathSync.native(
     fs.mkdtempSync(path.join(cache, "evidence-package-")),
@@ -49,18 +49,15 @@ export async function test_evidence_package(): Promise<void> {
     for (const location of [coding, narrative, long, production]) {
       fs.mkdirSync(location);
       for (const [file, owner] of [
-        ["development/common.md", "../../../../.agents/skills/contracts"],
-        ["development/design.md", "../../../../.agents/skills/contracts"],
-        ["development/testing.md", "../../../../.agents/skills/contracts"],
-        [
-          "development/implementation.md",
-          "../../../../.agents/skills/contracts",
-        ],
+        ["development/common.md", ".agents/skills/contracts"],
+        ["development/design.md", ".agents/skills/contracts"],
+        ["development/testing.md", ".agents/skills/contracts"],
+        ["development/implementation.md", ".agents/skills/contracts"],
       ] as const)
         ProductionWorkflowFixture.write(
           location,
           `.agents/skills/contracts/${file}`,
-          fs.readFileSync(path.resolve(__dirname, owner, file), "utf8"),
+          fs.readFileSync(path.join(repository, owner, file), "utf8"),
         );
     }
     ProductionWorkflowFixture.write(
@@ -236,7 +233,7 @@ export async function test_evidence_package(): Promise<void> {
     ProductionWorkflowFixture.write(
       long,
       "docs/contracts/work/discovery/results.md",
-      "<!--\n@evidenceExclude shared/discovery/common.md#scope The settings fixture needs no additional common rule.\n@evidenceExclude shared/discovery/settings.md#scope The settings fixture needs no additional canon rule.\n-->\n# Discovery\n\nOnly settings is submitted.\n",
+      "<!--\n@evidenceExclude discovery/common.md#scope The settings fixture needs no additional common rule.\n@evidenceExclude discovery/settings.md#scope The settings fixture needs no additional canon rule.\n-->\n# Discovery\n\nOnly settings is submitted.\n",
     );
     const settings: IEvidenceConfig = createEvidenceConfig({
       location: long,
@@ -289,7 +286,7 @@ export async function test_evidence_package(): Promise<void> {
     ProductionWorkflowFixture.write(
       long,
       "docs/contracts/work/discovery/results.md",
-      `<!--\n${["common", "narratives", "settings", "treatments"].map((group: string): string => `@evidenceExclude shared/discovery/${group}.md#scope The fixture needs no additional ${group} rule.`).join("\n")}\n-->\n# Discovery\n\nSettings closed; treatments is submitted.\n`,
+      `<!--\n${["common", "narratives", "settings", "treatments"].map((group: string): string => `@evidenceExclude discovery/${group}.md#scope The fixture needs no additional ${group} rule.`).join("\n")}\n-->\n# Discovery\n\nSettings closed; treatments is submitted.\n`,
     );
     const handed: IEvidenceConfig = createEvidenceConfig({
       location: long,
@@ -328,20 +325,20 @@ export async function test_evidence_package(): Promise<void> {
       JSON.stringify(running.report.diagnostics),
     );
 
-    // A study answers the story research principles; a law answers the
-    // behaviors contract and owes no study citation.
+    // The study answers the research principles. The law cites its study
+    // inside the behaviors checklist answer.
     for (const file of [
       "development/behaviors.md",
       "development/composition.md",
-      "story/shared/principles/research.md",
+      "story/principles/research.md",
     ])
       ProductionWorkflowFixture.write(
         production,
         `.agents/skills/contracts/${file}`,
         fs.readFileSync(
-          path.resolve(
-            __dirname,
-            "../../../../packages/template/scaffold/instructions/.agents/skills/contracts",
+          path.join(
+            repository,
+            "packages/template/scaffold/instructions/.agents/skills/contracts",
             file,
           ),
           "utf8",
@@ -363,11 +360,11 @@ export async function test_evidence_package(): Promise<void> {
       [
         "# docs/research/footwork/lead-step.md",
         "",
-        "## @evidence shared/principles/research.md#depicted-practice",
+        "## @evidence principles/research.md#depicted-practice",
         "",
         "The study gives the lead step's length and the rear foot's follow.",
         "",
-        "## @evidence shared/principles/research.md#traceable-sources",
+        "## @evidence principles/research.md#traceable-sources",
         "",
         "The step length is a direct observation of a retained clip.",
         "",
@@ -482,6 +479,29 @@ export async function test_evidence_package(): Promise<void> {
         " * @evidence docs/body/screenplay/bout/001-ring.md#s01-b01 The scene realizes the feint.",
       ),
     );
+    assert.throws(
+      (): IEvidenceConfig =>
+        createEvidenceConfig({
+          location: production,
+          development: { composition: "evidence" },
+        }),
+      /Missing: src\/composition\/films\/catalog\.ts, docs\/acceptance\/catalog\.md, src\/composition\/scenes\/catalog/,
+    );
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/films/catalog.ts",
+      compose("catalog", ""),
+    );
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/scenes/catalog/step/case.ts",
+      compose("step", ""),
+    );
+    ProductionWorkflowFixture.write(
+      production,
+      "docs/acceptance/catalog.md",
+      "# Reviewed cases\n\n## Step\n\nFoot support observed in the catalog.\n",
+    );
     const composed: IEvidenceConfig = createEvidenceConfig({
       location: production,
       research: "evidence",
@@ -491,6 +511,24 @@ export async function test_evidence_package(): Promise<void> {
       createEvidenceConfigPlan(composed, stagedFile),
     );
     assert.equal(partial.report.success, false);
+    // A showcase cannot supply the actual scene's missing beat.
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/scenes/catalog/step/case.ts",
+      compose(
+        "step",
+        " * @evidence docs/body/screenplay/bout/001-ring.md#s01-b02 The catalog exhibits this action.",
+      ),
+    );
+    const showcaseOnly: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
+      createEvidenceConfigPlan(composed, stagedFile),
+    );
+    assert.equal(showcaseOnly.report.success, false);
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/scenes/catalog/step/case.ts",
+      compose("step", ""),
+    );
     ProductionWorkflowFixture.write(
       production,
       "src/composition/scenes/bout/001-ring/ring.ts",

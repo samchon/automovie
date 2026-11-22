@@ -1,16 +1,16 @@
-import { Vector3, minimumJerk, physicalShapeBounds } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   AutoMovieMotionHumanChannel,
   IAutoMovieMotionClock,
-  IAutoMovieMotionClockPhase,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanExerciseKey,
-  IAutoMovieMotionHumanPlaced,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanWorkout,
@@ -22,19 +22,21 @@ import type {
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { floorEntry } from "../floor/floorEntry";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanColliders } from "../posture/HumanColliders";
-import { HumanFrame } from "../posture/HumanFrame";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutBodyweight } from "./WorkoutBodyweight";
+import { WorkoutDance } from "./WorkoutDance";
 import { WorkoutEquipment } from "./WorkoutEquipment";
 import { WorkoutFeet } from "./WorkoutFeet";
 import { WorkoutFloor } from "./WorkoutFloor";
@@ -46,6 +48,13 @@ import { WorkoutPlace } from "./WorkoutPlace";
 import { WorkoutPoses } from "./WorkoutPoses";
 import { WorkoutStanding } from "./WorkoutStanding";
 import { WorkoutSupport } from "./WorkoutSupport";
+import { hangRings } from "./hangRings";
+import { prepareWorkoutBlends } from "./prepareWorkoutBlends";
+import { workoutContacts } from "./workoutContacts";
+import { workoutFloorClearance } from "./workoutFloorClearance";
+import { workoutFloorStance } from "./workoutFloorStance";
+import { workoutLaidHands } from "./workoutLaidHands";
+import { workoutSpans } from "./workoutSpans";
 
 /**
  * An exercise, a stretch or a pose done on a support that is not only the
@@ -66,7 +75,9 @@ import { WorkoutSupport } from "./WorkoutSupport";
  * Events: `enter`; for each repetition `r` the kind's own pairs (such as
  * `lower1`, `bottom1`, `press1`, `top1`; `reach1`, `reachEnd1` for a held
  * pose); `release` and `relax`. With `stay`, the body is left on its
- * support and the plan declares that base.
+ * support and the plan declares that base. A succeeding exercise with the
+ * same floor stance uses the incoming palms and bearing pins. An already
+ * lowered entry approaches the first key from its displayed posture.
  *
  * First pass limits: the way down from standing and back is a blend of the
  * two postures with the root carried between them and kept above the floor,
@@ -103,19 +114,8 @@ export namespace workout {
     ...WorkoutStanding.KINDS,
     ...WorkoutPoses.KINDS,
     ...WorkoutHanging.KINDS,
+    ...WorkoutDance.KINDS,
   };
-
-  /** One span of the plan: from an instant, between two keys. */
-  interface ISpan {
-    /** The instant that opens the span. */
-    from: string;
-
-    /** The key at its start. */
-    a: IAutoMovieMotionHumanExerciseKey.IKey;
-
-    /** The key at its end. */
-    b: IAutoMovieMotionHumanExerciseKey.IKey;
-  }
 
   /**
    * Plan an exercise.
@@ -128,9 +128,9 @@ export namespace workout {
    * @evidence contracts/development/implementation.md#principled-implementation One clock of spans, each between two keys; the posture at a second is the two keys' blend placed by the kind's pin, and on the way from and to standing the root is carried between the standing root and the pinned one; on the way off a bar the body is raised by whatever its colliders would sink beyond the share of the supported posture's own sink the way has reached, the reading the floor audit makes, so the floor is a constraint and the way meets the supported posture continuously.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock and spans, the pin's place, the posture function, the laid hands, the supports.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lengths follow from the body; the floor rule reads the body's own shapes; the first pass limits are stated on the namespace.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three forward kinematics per evaluated second on the way down and up (the pin and the two floor readings), one while working, plus one arm solve per laid hand.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the keyed pin, the colliders' placement the floor audit reads, the placed arm and the standing plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock, the spans and the pin's place.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each time query finds its span in O(log spans), blends prepared joints and requests only observed pin/collider ancestry. Actual neutral collider names, including mirrored entries, prepare floor selection once; changing floor readings and laid-hand fits remain where needed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed key pairs share joint preparation, repeated endpoint keys share one supported floor reading, and the first laid-hand targets share one exact hand-bone map. The time-only primitive reads no earlier channel; its synchronous parent FK/ROM loans serve actual pin, floor and load observations without retaining a current pose.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns O(spans) clocks/blend closures and at most one floor scalar per fixed endpoint key; no pose reader or time-query history is retained.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWorkout.IParams>,
@@ -142,11 +142,26 @@ export namespace workout {
     HumanBound.whole("reps", reps);
     if (p.hold !== undefined) HumanBound.least("hold", p.hold, 0, "s");
     const stay: boolean = p.stay === true;
+    const floor: workoutFloorStance.IEntry = workoutFloorStance.of(
+      context,
+      kind,
+    );
+    const heldFloorStance: boolean = floor.held;
+    const entered: IAutoMovieMotionHumanPosture | null = floor.entered;
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const standing: IAutoMovieMotionHumanPosture = stand
-      .plan({ ...context, params: { seconds: 1 } })
-      .posture(0);
+    const restoresStance: boolean = entered !== null && !stay;
+    const standPlan: IAutoMovieMotionHumanActionPlan = stand.plan({
+      ...context,
+      params: restoresStance ? { seconds: 1, sway: 0 } : { seconds: 1 },
+    });
+    const standing: IAutoMovieMotionHumanPosture = standPlan.posture(0);
+    // The opening standing reference can inherit a low root. A floor rise
+    // returns to the same fully settled foot placement that stand solves.
+    const recovery: ReturnType<typeof GymnasticsFlight.freeze> | null =
+      restoresStance
+        ? GymnasticsFlight.freeze(body, standPlan.posture(standPlan.duration))
+        : null;
 
     // The support a prop gives: its affordance's place as the action starts.
     const borne: IAutoMovieVector3 | null =
@@ -156,43 +171,31 @@ export namespace workout {
       borne?.y,
     );
     const first: IAutoMovieMotionHumanWorkoutKind.IStep = route[0]!;
-    const stayed = (step: IAutoMovieMotionHumanWorkoutKind.IStep): number =>
-      step.held === true && p.hold !== undefined ? p.hold : step.hold;
-
-    // The spans: down from standing, the repetitions, up again.
-    const phases: IAutoMovieMotionClockPhase[] = [];
-    const spans: ISpan[] = [];
-    const held: string[] = [];
-    const span = (
-      from: string,
-      seconds: number,
-      a: IAutoMovieMotionHumanExerciseKey.IKey,
-      b: IAutoMovieMotionHumanExerciseKey.IKey,
-    ): void => {
-      phases.push({ name: from, seconds });
-      spans.push({ from, a, b });
-    };
-    const stood: IAutoMovieMotionHumanExerciseKey.IKey =
+    const neutral: IAutoMovieMotionHumanExerciseKey.IKey =
       ExerciseKey.standing(body);
-    span("enter", kind.enter, stood, first.key);
-    let last: IAutoMovieMotionHumanExerciseKey.IKey = first.key;
-    for (let r: number = 1; r <= reps; r++) {
-      for (let i: number = 1; i <= route.length; i++) {
-        const step: IAutoMovieMotionHumanWorkoutKind.IStep =
-          route[i % route.length]!;
-        const key: IAutoMovieMotionHumanExerciseKey.IKey =
-          i < route.length && kind.alternate === true && r % 2 === 0
-            ? ExerciseKey.mirror(step.key)
-            : step.key;
-        span(`${step.leave}${r}`, step.seconds, last, key);
-        span(`${step.event}${r}`, stayed(step), key, key);
-        if (step.held === true) held.push(`${step.event}${r}`);
-        last = key;
-      }
-    }
-    if (!stay) span("release", kind.enter, last, stood);
-    const left: IAutoMovieMotionHumanExerciseKey.IKey = stay ? last : stood;
-    span("relax", 0, left, left);
+    const stood: IAutoMovieMotionHumanExerciseKey.IKey =
+      recovery === null
+        ? neutral
+        : { ...neutral, joints: recovery.posture.joints };
+    // Even a standing first key gives the second hand time to approach
+    // before its declared grip. The 0.25 s setup is an authored stage beat.
+    const loaded: boolean = p.load?.other !== undefined;
+    const { phases, spans, between, held }: workoutSpans.IPlanned =
+      workoutSpans.of({
+        kind,
+        route,
+        reps,
+        stay,
+        hold: p.hold,
+        stood,
+        setup: heldFloorStance
+          ? 0.25
+          : loaded
+            ? Math.max(0.25, kind.enter)
+            : kind.enter,
+        // Let the next action inherit the recovered two-foot stance.
+        relax: recovery === null ? 0 : 0.12,
+      });
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(phases),
       modifiers,
@@ -205,39 +208,68 @@ export namespace workout {
     const footed: (
       placed: IAutoMovieMotionHumanPosture,
     ) => IAutoMovieMotionHumanPosture = WorkoutFeet.keep(context, kind, yaw);
-    const at: IAutoMovieVector3 = WorkoutPlace.of({
-      context,
-      kind,
-      standing,
-      first: first.key,
-      borne,
-    });
+    const at: IAutoMovieVector3 = WorkoutPlace.of(
+      { context, kind, standing, first: first.key, borne },
+      heldFloorStance,
+    );
+    const pins: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+      kind.pin.map(
+        (pin: IAutoMovieMotionHumanExerciseKey.Pin): AutoMovieHumanoidBone =>
+          pin === "gripLeft" || pin === "gripRight"
+            ? body.surfaces.sockets[pin].bone
+            : pin,
+      ),
+    );
+    const starts: number[] = spans.map((span: workoutSpans.ISpan): number =>
+      clock.at(span.from),
+    );
+    const blends: ReturnType<typeof prepareWorkoutBlends> =
+      prepareWorkoutBlends(spans);
+    const floorBones: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+      [...HumanColliders.bones(body)].filter(
+        (bone: AutoMovieHumanoidBone): boolean =>
+          !(kind.hands === true && ARM.test(bone)),
+      ),
+    );
+    const floorClearance: ReturnType<typeof workoutFloorClearance> =
+      workoutFloorClearance(body, floorBones);
 
     // How far the supported posture at the far end of each way down or up
     // sinks itself, by span, read once.
-    const far: Map<number, number> = new Map();
-    const posture = (seconds: number): IAutoMovieMotionHumanPosture => {
-      let index: number = 0;
-      for (let i: number = 0; i < spans.length; i++)
-        if (seconds >= clock.at(spans[i]!.from)) index = i;
-      const s: ISpan = spans[index]!;
-      const opened: number = clock.at(s.from);
+    const far: Map<IAutoMovieMotionHumanExerciseKey.IKey, number> = new Map();
+    function posture(
+      seconds: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieMotionHumanPosture {
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution(resolution);
+      const project: ReturnType<typeof prepareHumanPostureProjection> =
+        projection ?? prepareHumanPostureProjection(body);
+      const pinned: (
+        key: IAutoMovieMotionHumanExerciseKey.IKey,
+      ) => IAutoMovieMotionHumanPosture = (
+        key: IAutoMovieMotionHumanExerciseKey.IKey,
+      ): IAutoMovieMotionHumanPosture =>
+        ExerciseKey.pinned(body, key, yaw, kind.pin, at, pins, read, project);
+      let lo: number = 0;
+      let hi: number = starts.length;
+      while (lo < hi) {
+        const mid: number = Math.floor((lo + hi) / 2);
+        if (seconds >= starts[mid]!) lo = mid + 1;
+        else hi = mid;
+      }
+      const index: number = Math.max(0, lo - 1);
+      const s: workoutSpans.ISpan = spans[index]!;
+      const opened: number = starts[index]!;
       const length: number =
-        (index + 1 < spans.length
-          ? clock.at(spans[index + 1]!.from)
-          : duration) - opened;
+        (index + 1 < spans.length ? starts[index + 1]! : duration) - opened;
       const x: number =
         length > 1e-9
           ? Math.min(1, Math.max(0, (seconds - opened) / length))
           : 1;
-      const u: number = minimumJerk(x).s;
-      const placed: IAutoMovieMotionHumanPosture = ExerciseKey.pinned(
-        body,
-        ExerciseKey.blend(s.a, s.b, u),
-        yaw,
-        kind.pin,
-        at,
-      );
+      const u: number = minimumJerk.share(x);
+      const placed: IAutoMovieMotionHumanPosture = pinned(blends[index]!(u));
       // A stance is where the body already stands.
       if (kind.anchor === "stance") return footed(placed);
       // How far the body is on its support: carried there from standing.
@@ -246,7 +278,13 @@ export namespace workout {
       if (down >= 1) return placed;
       const carried: IAutoMovieMotionHumanPosture = {
         ...placed,
-        root: Vector3.lerp(standing.root, placed.root, down),
+        root: Vector3.lerp(
+          s.b === stood && recovery !== null
+            ? recovery.posture.root
+            : standing.root,
+          placed.root,
+          down,
+        ),
       };
       if (kind.base === "hanging") return carried;
 
@@ -257,33 +295,13 @@ export namespace workout {
       // sinks itself, so the way meets that posture continuously. Hands laid
       // on the floor are placed by the arm's solve after this, so a kind
       // that lays them is read without its keyed arms.
-      const sunk = (posture: IAutoMovieMotionHumanPosture): number => {
-        let lowest: number = 0;
-        for (const segment of HumanColliders.placed(
-          body,
-          poseBones(body, resolveHumanPosture(body, posture)),
-        )) {
-          if (kind.hands === true && ARM.test(segment.bone)) continue;
-          for (const shape of segment.shapes)
-            lowest = Math.min(
-              lowest,
-              physicalShapeBounds(segment.pose, shape).min.y,
-            );
-        }
-        return -lowest;
-      };
-      const supported: number =
-        far.get(index) ??
-        sunk(
-          ExerciseKey.pinned(
-            body,
-            s.a === stood ? s.b : s.a,
-            yaw,
-            kind.pin,
-            at,
-          ),
-        );
-      far.set(index, supported);
+      const sunk: (current: IAutoMovieMotionHumanPosture) => number = (
+        current: IAutoMovieMotionHumanPosture,
+      ): number => floorClearance(current, read, project);
+      const endpoint: IAutoMovieMotionHumanExerciseKey.IKey =
+        s.a === stood ? s.b : s.a;
+      const supported: number = far.get(endpoint) ?? sunk(pinned(endpoint));
+      far.set(endpoint, supported);
       const rise: number = Math.max(0, sunk(carried) - down * supported);
       return rise === 0
         ? carried
@@ -291,13 +309,37 @@ export namespace workout {
             ...carried,
             root: { ...carried.root, y: carried.root.y + rise },
           };
-    };
+    }
 
     const work: string = spans[1]!.from;
-    const present = (seconds: number): number =>
-      stay
+    const workAt: number = clock.at(work);
+    const from: number = heldFloorStance ? 0 : workAt / duration;
+    const to: number = stay ? 1 : clock.at("release") / duration;
+    const present = (seconds: number): number => {
+      if (heldFloorStance)
+        return stay ? 1 : 1 - clock.progress("release", "relax", seconds);
+      return stay
         ? clock.progress("enter", work, seconds)
         : clock.envelope(["enter", work], ["release", "relax"], seconds);
+    };
+    const workoutPosture: IAutoMovieMotionHumanPrimitive["write"] = (
+      _base,
+      seconds,
+      _before,
+      resolution,
+      projection,
+    ) => posture(seconds, resolution, projection);
+    const enterPosture: IAutoMovieMotionHumanPrimitive["write"] =
+      entered === null
+        ? workoutPosture
+        : floorEntry.down(
+            body,
+            entered,
+            workAt,
+            (seconds: number): number =>
+              minimumJerk.share(clock.progress("enter", work, seconds)),
+            workoutPosture,
+          );
     const channels: AutoMovieMotionHumanChannel[] = [
       "root",
       "trunk",
@@ -309,83 +351,82 @@ export namespace workout {
     const load: IAutoMovieMotionHumanWorkoutLoad.ILoad | null =
       p.load === undefined
         ? null
-        : WorkoutLoad.of(context, p.load, kind.midfoot === true);
-    const primitives: IAutoMovieMotionHumanPrimitive[] = [
-      {
-        channels,
-        from: 0,
-        to: duration,
-        write: (
-          _: IAutoMovieMotionHumanPosture,
-          seconds: number,
-        ): IAutoMovieMotionHumanPosture =>
-          load === null ? posture(seconds) : load.apply(posture(seconds)),
-      },
-    ];
-    if (kind.hands === true) {
-      // The palms are laid under where the first posture has the hands.
-      const set: IAutoMovieMotionHumanPosture = ExerciseKey.pinned(
-        body,
-        first.key,
-        yaw,
-        kind.pin,
-        at,
-      );
-      const forward: IAutoMovieVector3 = HumanFrame.point(
-        { origin: { x: 0, y: 0, z: 0 }, yaw },
-        { x: 0, y: 0, z: 1 },
-      );
-      for (const side of ["left", "right"] as const) {
-        const wrist: IAutoMovieVector3 = ExerciseKey.mean(body, set, [
-          `${side}Hand`,
-        ]);
-        const laid: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.wrist(
-          body,
-          side,
-          {
-            point: { x: 0, y: 0, z: 0 },
-            facing: { x: 0, y: -1, z: 0 },
-            forward,
-          },
-        );
-        const point: IAutoMovieVector3 = {
-          x: wrist.x - laid.x,
-          y: 0,
-          z: wrist.z - laid.z,
-        };
-        primitives.push(
-          ...AutoMovieMotionHumanPlaced.arm({
-            body,
-            side,
-            from: 0,
-            to: duration,
-            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-            weight: present,
-            place: (): ReturnType<
-              IAutoMovieMotionHumanPlaced.IArm["place"]
-            > => ({
-              point,
-              facing: { x: 0, y: -1, z: 0 },
-              forward,
-            }),
-          }),
-        );
-      }
-    }
+        : WorkoutLoad.of(
+            context,
+            p.load,
+            kind.midfoot === true,
+            p.kind === "cleanAndJerk" || p.kind === "snatch",
+            from,
+          );
 
-    const from: number = clock.at(work) / duration;
-    const to: number = stay ? 1 : clock.at("release") / duration;
-    const contacts: IAutoMovieMotionHumanContactWindow[] = kind.supports.map(
-      (
-        support: IAutoMovieMotionHumanWorkoutKind.ISupport,
-      ): IAutoMovieMotionHumanContactWindow => ({
-        part: support.part,
-        kind: support.kind,
-        from,
-        to,
-        support: { kind: "ground" },
-      }),
-    );
+    /** The time-only keyed contribution, including any load owned by the exercise. */
+    const write: IAutoMovieMotionHumanPrimitive["write"] = (
+      base: IAutoMovieMotionHumanPosture,
+      seconds: number,
+      _before?: IAutoMovieMotionHumanPrimitive.Reader,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieMotionHumanPosture => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution(resolution);
+      const project: ReturnType<typeof prepareHumanPostureProjection> =
+        projection ?? prepareHumanPostureProjection(body);
+      const placed: IAutoMovieMotionHumanPosture = enterPosture(
+        base,
+        seconds,
+        undefined,
+        read,
+        project,
+      );
+      return load === null ? placed : load.apply(placed, read, project);
+    };
+    // The support hand must seat at every authored work key. Entry blends
+    // may approach the bar before the declared second grip begins.
+    const admit: IAutoMovieMotionHumanWorkoutLoad.ILoad["admit"] = load?.admit;
+    if (admit !== undefined) {
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
+      const project: ReturnType<typeof prepareHumanPostureProjection> =
+        prepareHumanPostureProjection(body);
+      const tested: Set<IAutoMovieMotionHumanExerciseKey.IKey> = new Set();
+      const firstWork: number = clock.at(work);
+      spans.forEach((span: workoutSpans.ISpan, index: number): void => {
+        const at: number = starts[index]!;
+        if (at < firstWork || at > to * duration || tested.has(span.a)) return;
+        tested.add(span.a);
+        admit(write(standing, at, undefined, read, project));
+      });
+    }
+    const contacts: IAutoMovieMotionHumanContactWindow[] = workoutContacts.of({
+      kind,
+      prop: p.on?.prop,
+      spans,
+      starts,
+      between,
+      clock,
+      from,
+      to,
+      recovers: recovery !== null,
+    });
+    const hung: typeof write = hangRings(write, context, contacts, duration);
+    const primitives: IAutoMovieMotionHumanPrimitive[] = [
+      { channels, reads: [], from: 0, to: duration, write: hung },
+    ];
+    if (kind.hands === true)
+      primitives.push(
+        ...workoutLaidHands.of({
+          context,
+          kind,
+          first: first.key,
+          yaw,
+          at,
+          pins,
+          held: heldFloorStance,
+          restored: recovery?.pose,
+          present,
+          clock,
+        }),
+      );
     const posed: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
@@ -398,18 +439,60 @@ export namespace workout {
         : {
             ...posed,
             contacts: [...posed.contacts, ...load.contacts],
+            ...(loaded
+              ? {
+                  events: [
+                    ...posed.events,
+                    { name: "loadReady", share: from },
+                  ].sort((a, b): number => a.share - b.share),
+                }
+              : {}),
             holds: load.holds,
             hands: load.hands,
           };
-    return stay
+    const result: IAutoMovieMotionHumanActionPlan = stay
       ? {
           ...composed,
           base:
             kind.base === "seated" ? { kind: "seated" } : { kind: kind.base },
         }
       : composed;
-  }
 
+    // Keep repetition selection in the indexed clock, including zero-length
+    // keys. Laid hands still read the earlier channels through composition.
+    const merge: ReturnType<typeof HumanChannels.prepareMerge> =
+      HumanChannels.prepareMerge(channels);
+    HumanPreparedPlayback.attach(result, body, {
+      mode: "posture",
+      phases: [
+        {
+          from: 0,
+          to: duration,
+          sample: (
+            ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+          ): IAutoMovieMotionHumanPlayback.ISample => {
+            const [seconds, demand, resolution, projection] = args;
+            return {
+              posture:
+                kind.hands === true || demand !== undefined
+                  ? posed.posture(...args)
+                  : merge(
+                      standing,
+                      hung(
+                        standing,
+                        seconds,
+                        undefined,
+                        resolution,
+                        projection,
+                      ),
+                    ),
+            };
+          },
+        },
+      ],
+    });
+    return result;
+  }
   /** The colliders of an arm, from the shoulder out. */
   const ARM: RegExp = /(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/;
 }

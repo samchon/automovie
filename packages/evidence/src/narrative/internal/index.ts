@@ -1,5 +1,4 @@
 export * from "./AUTHORED_LAYERS";
-export * from "./REALIZED_LAYERS";
 export * from "./SETTINGS_DOMAINS";
 export * from "./claims";
 export * from "./collectProductionClaims";

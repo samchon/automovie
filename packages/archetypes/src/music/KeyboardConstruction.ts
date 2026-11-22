@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { PianoPedalConstruction } from "./PianoPedalConstruction";
 import type { createInstrument } from "./createInstrument";
 
 /** The builder the construction fills. */
@@ -16,7 +17,7 @@ type Drawn = Partial<Record<createInstrument.Dimension, number>>;
 const v: typeof Vector3.create = Vector3.create;
 
 /**
- * How {@link createInstrument} builds an upright piano: its case, its keyboard of 88 keys numbered from the bottom, and its fallboard.
+ * How {@link createInstrument} builds an upright piano with its case, keyboard of 88 keys numbered from the bottom, fallboard and damper pedal.
  *
  * The piano stands with its back at the origin's `Z` and the keyboard toward `+Z`, centred on `X`; a player faces it along `-Z`, so the bass, at the player's left, is at `-X`.
  *
@@ -80,8 +81,8 @@ export namespace KeyboardConstruction {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States how the keys are laid and where each is pressed.
    * @evidence contracts/development/implementation.md#principled-implementation Every key's place follows from its number: the count of white keys below it sets its `X`, and its colour sets its length and height; the keyboard is the drawn octave times the 52 white keys over seven, centred on the case.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The case and cheeks, the key bed, the keys in one pass, the fallboard, then the keybed contact.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pedals, music desk or action; the keys' thickness and the cheeks' and the fallboard's sizes are construction estimates, none placing a contact.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the case and damper pedal, then the key bed, keys, fallboard and keybed contact.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The keys' thickness and the cheeks' and the fallboard's sizes are construction estimates. The separate damper pedal construction states its contact geometry.
    * @evidence contracts/development/implementation.md#efficient-algorithms One part and one contact per key, ninety-odd parts, in one pass over the keys.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one instrument.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -102,6 +103,7 @@ export namespace KeyboardConstruction {
     builder.box("case", v(width, height, back), v(0, height / 2, back / 2), {
       color: "#1d1b1a",
     });
+    PianoPedalConstruction(builder, back);
     for (const [id, sign] of [
       ["cheek-left", 1],
       ["cheek-right", -1],

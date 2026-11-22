@@ -1,9 +1,9 @@
-import {
-  type AutoMoviePathGround,
-  type IAutoMovieFollowPathMotion,
+import type {
+  AutoMoviePathGround,
+  IAutoMovieFollowPathMotion,
   IAutoMovieKeyframe,
-  type IAutoMoviePathFrame,
-  type IAutoMoviePathLocomotion,
+  IAutoMoviePathFrame,
+  IAutoMoviePathLocomotion,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -16,6 +16,9 @@ const IDENTITY_ROT: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** Module-owned private world-up scalars, prepared only at an emitted frame. */
+let yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined;
 
 const RAD2DEG: number = 180 / Math.PI;
 
@@ -52,9 +55,9 @@ interface ISegment {
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The baker owns path length, heading and repeated root placement; supplied gait articulation remains source content, ground is a scalar/callback seam, and later plantStanceFeet owns contact correction.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid authored scalars, coincident XZ, nonfinite/lost cumulative arc and unrepresentable cycle/duration arithmetic refuse before repetition; finite ground samples are required. Turn-window and minimum-stretch constants express stated path tolerances rather than fixture-specific steering.
  * @evidence contracts/development/common.md#meaningful-documentation States XZ metres, ignored waypoint Y, sampled height, model +Z heading, corner window, exact arrival, source gait admission and out-of-scope pathfinding; outputs report baseline frames separately from carried gait sway/bob.
- * @evidence contracts/development/implementation.md#efficient-algorithms For W waypoints and F baked frames, preparation is O(W), segment lookup O(log W) per frame and output O(F), replacing two repeated linear segment scans. Each actual ground callback is sampled once per emitted path frame and output population grows with requested cycles.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The frame's located segment is reused for position/yaw, and fixed segments/corner windows serve the whole bake; source gait values are reused without caching effectful ground samples across requests.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned motion/sidecar arrays grow with baked frame population and belong to the caller; source nested joints/expression and authored nonnull scale may remain shared, but fallback identity scale is freshly owned per output frame. No retained path cache or handles exist.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For W waypoints and F baked frames, preparation is O(W), segment lookup O(log W) per frame and output O(F), replacing two repeated linear segment scans. Private canonical +Y magnitude work is prepared at the first actual emitted-frame axis-angle read and reused; each yaw retains its original trigonometry. Each ground callback is sampled once per emitted frame and output grows with requested cycles. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The frame's located segment serves position/yaw, fixed segments/corner windows serve the bake and one module-owned lazy reader shares only the private unchanged +Y axis scalars. Each source yaw and actual quaternion are computed anew after the original ground/profile reads. Gait values share without caching effectful ground samples or yaw results across requests.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned motion/sidecar arrays grow with baked frame population and belong to the caller; source nested joints/expression and authored nonnull scale may remain shared, but fallback identity scale is freshly owned per output frame. The module additionally retains at most one lazy fixed-axis reader with UP/direction-length metadata until module release; no path, ground callback, emitted frame or quaternion result is retained in it. No retained path cache or handles exist.
  */
 export const followPathMotion: (
   props: IAutoMovieFollowPathMotion.IProps,
@@ -110,7 +113,8 @@ export const followPathMotion: (
       const z: number = seg.z + seg.dirZ * (s - seg.from);
       const y: number = groundHeightAt(props.ground, x, z);
       const yawDeg: number = yawAt(segments, halfWindows, s, index);
-      const facing: IAutoMovieQuaternion = Quaternion.fromAxisAngle(UP, yawDeg);
+      const facing: IAutoMovieQuaternion = (yawRotation ??=
+        Quaternion.prepareAxisAngle(UP))(yawDeg);
       const baseRoot: IAutoMovieKeyframe["pose"]["root"] = k.pose.root;
       frames.push({
         time: globalT,

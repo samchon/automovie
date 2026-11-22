@@ -25,9 +25,13 @@ export interface IAutoMovieHumanLimbGoal {
    * `"strain"` takes, among the places that leave the hand's rotation
    * error least, the one where the arm strains least, read from the fit's
    * own sweep (`AutoMovieMotionHumanBend.strainOf`), with `bend` serving only
-   * where no place is legal. Absent, `bend` decides; a leg ignores it.
+   * where no place is legal. `"placed"` says `bend` is itself the elbow's
+   * place, which the law's own elbow search chose (`AutoMovieMotionHumanBend.solve`):
+   * the fit takes the swivel that puts the elbow there, refined locally, and
+   * sweeps only where that is not legal, so the place is searched once.
+   * Absent, `bend` decides; a leg ignores it.
    */
-  elbow?: "strain";
+  elbow?: IAutoMovieHumanLimbGoal.Elbow;
 
   /** The hand's or foot's world rotation from its rest, when the law sets it. */
   rotation?: IAutoMovieQuaternion;
@@ -90,6 +94,14 @@ export interface IAutoMovieHumanLimbGoal {
   clear?: readonly IAutoMovieMotionHumanColliders.IPlaced[];
 
   /**
+   * Colliders of subjects that are no human body (a prop, an animal: the
+   * horse a rider's sabre must clear), placed in the world, which the arm
+   * keeps clear of as it does `clear`, each named in a refusal by its
+   * subject and part. Ignored on a leg.
+   */
+  clearExternal?: readonly IAutoMovieMotionHumanColliders.IExternal[];
+
+  /**
    * Another body's colliders, placed in the world, the goal lays the hand
    * on (the partner's segment a palm rests on): the forearm keeps clear of
    * them as of `clear`, except that near the wrist it asks no more room
@@ -97,4 +109,51 @@ export interface IAutoMovieHumanLimbGoal {
    * (`HumanArmClearance`). Ignored on a leg.
    */
   rests?: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+
+  /**
+   * The performer's own segments the hand is laid on (a pocket's thigh, a
+   * holster's hip): on the hold the hand's and its digits' contact with them
+   * is its placement, not a collision; the rest of the arm keeps clear of
+   * them. None when absent.
+   */
+  restsOwn?: IAutoMovieHumanLimbGoal.OwnRests;
+
+  /** Collider frames of a rigidly carried partner in this goal's `on` frame. */
+  clearanceOn?: IAutoMovieHumanLimbGoal.IClearance;
+}
+
+/**
+ * Companion types of {@link IAutoMovieHumanLimbGoal}.
+ *
+ */
+export namespace IAutoMovieHumanLimbGoal {
+  /** The performer's own bones a hand is laid on. */
+  export type OwnRests = readonly AutoMovieHumanoidBone[];
+
+  /**
+   * Clear and resting segments expressed in the goal's attachment frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Clear segments obstruct the arm fit. Rests identify intentional hand contact in the same attachment frame.
+   * @evidence contracts/development/design.md#principled-representation Separate arrays distinguish obstacles from permitted contact while preserving the same placed geometry.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The limb goal supplies both sets to the fitter. The readonly arrays allow the fitter to borrow them.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both lists use the collider owner's placed segments and share its geometry definition.
+   */
+  export interface IClearance {
+    /** Segments the arm clears throughout its fit. */
+    clear: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+
+    /** Segments the hand is placed on, with the same allowances as `rests`. */
+    rests: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+  }
+
+  /**
+   * How an arm's elbow is decided (`IAutoMovieHumanLimbGoal.elbow`): by its
+   * own sweep's least strain, or at the place the law's elbow search chose.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two decisions and where each comes from.
+   * @evidence contracts/development/design.md#principled-representation A closed set of named decisions the fit reads.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two decisions a goal states today; absence leaves the bend hint to decide.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No decision is inferred from anything but this field.
+   */
+  export type Elbow = "strain" | "placed";
 }

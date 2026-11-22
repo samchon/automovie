@@ -1,3 +1,4 @@
+import type { IAutoMovieStageSupportWindow } from "../authoring/IAutoMovieStageSupportWindow";
 import type { IAutoMovieMountBinding } from "../harness/IAutoMovieMountBinding";
 import type { IAutoMovieScene } from "../scene/IAutoMovieScene";
 import type { IAutoMovieConstraintViolation } from "../validation/IAutoMovieConstraintViolation";
@@ -28,9 +29,9 @@ export namespace IAutoMovieStagedSet {
    * Staging was coherent; the set is ready for blocking and performance.
    *
    * @evidence contracts/development/design.md#principled-representation Returned only when every placement, camera aim, light, space and fog check passed, with each actor's `facingDeg` turned into a rotation about `+Y` and each camera's `lookAt` into the shortest-arc rotation that aims its `-Z` at the point.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The scene the renderer and later stages read, plus the mounts the scene cannot express; blocking and performance take this variant as their staged input type.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Blocking and performance read this scene record. Mounts and actor support timelines sit beside the rendered scene because they belong to the staged performance.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Mount bindings are carried as authored, and a mount's rig and bone preconditions are left to the performance stage, the first place with skeleton access, rather than assumed here.
-   * @evidence contracts/development/common.md#meaningful-documentation States what success guarantees and, per field, what the scene holds and how mounts relate to riders.
+   * @evidence contracts/development/common.md#meaningful-documentation States what success guarantees, what the scene holds, and how mounts and scoped ground relate to staged actors.
    */
   export interface ISuccess {
     /** Discriminator. */
@@ -44,6 +45,15 @@ export namespace IAutoMovieStagedSet {
 
     /** One validated persistent coupling per mounted rider, in actor order. */
     mounts: IAutoMovieStagedSet.IMount[];
+
+    /** Actor-owned ground windows admitted against the scene space. */
+    supports?: readonly {
+      /** Staged actor id. */
+      node: string;
+
+      /** Windows on this shot's local clock, in authored order. */
+      windows: readonly IAutoMovieStageSupportWindow[];
+    }[];
   }
 
   /**

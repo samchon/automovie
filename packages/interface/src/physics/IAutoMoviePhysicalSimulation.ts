@@ -1,3 +1,4 @@
+import type { IAutoMoviePhysicalCoupledTargetFit } from "./IAutoMoviePhysicalCoupledTargetFit";
 import type { IAutoMoviePhysicalSimulationInput } from "./IAutoMoviePhysicalSimulationInput";
 import type { IAutoMoviePhysicsCache } from "./IAutoMoviePhysicsCache";
 
@@ -43,6 +44,13 @@ export interface IAutoMoviePhysicalSimulation {
    * does not measure native motor impulse. The list may be empty.
    */
   readonly tracking: IAutoMoviePhysicalSimulationInput.IDiagnostic[];
+
+  /**
+   * Successful geometric target fits owned by this completed live simulation,
+   * indexed by authored output step and exact group id. The residual is for
+   * the fitted motor goals. Actual displayed poses remain available in cache.
+   */
+  readonly coupledTargetFits?: IAutoMoviePhysicalCoupledTargetFit.ISeries;
 
   /**
    * Read each joint's shortest authored-relative angular error in radians at

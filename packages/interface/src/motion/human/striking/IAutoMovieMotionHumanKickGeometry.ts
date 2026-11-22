@@ -1,5 +1,8 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
+import type { IAutoMoviePoseResolution } from "../../../pose/IAutoMoviePoseResolution";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotionHumanActionContext";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
@@ -22,9 +25,12 @@ export interface IAutoMovieMotionHumanKickGeometry {
    * The whole posture.
    *
    * @param seconds Seconds since the kick's start.
-   * @returns The posture, the guard and the kicking leg's goal included.
+   * @param channels Optional observational demand; limb-only contact reads may omit unused guard goals while preserving the complete kicking leg/base.
+   * @param resolution Optional exact FK supplier borrowed only by this synchronous course evaluation.
+   * @param projection Optional genuine same-body ROM metadata borrowed only within this synchronous unchanged-table operation.
+   * @returns The demanded posture, with guard and kicking leg included when demand is omitted.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.posture: The whole posture.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines local seconds, supported observation demand and same-body unchanged-table loan lifetime.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
@@ -32,7 +38,12 @@ export interface IAutoMovieMotionHumanKickGeometry {
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
    */
-  posture(seconds: number): IAutoMovieMotionHumanPosture;
+  posture(
+    seconds: number,
+    channels?: readonly AutoMovieMotionHumanChannel[],
+    resolution?: IAutoMoviePoseResolution.ISource,
+    projection?: (pose: IAutoMoviePose) => IAutoMoviePose,
+  ): IAutoMovieMotionHumanPosture;
 
   /** The horizontal unit line from the kicker toward the target the body's carriage was committed on. */
   line: IAutoMovieVector3;
@@ -47,6 +58,8 @@ export interface IAutoMovieMotionHumanKickGeometry {
    * @param seconds Seconds since the start: the clock of the support foot's step.
    * @param carriage The carriage shown in full at contact.
    * @param turning The second the pelvis's turn, lean and travel over the support foot are read at; `seconds` when absent, so a withdrawal can play the turn back while the step keeps its own clock.
+   * @param resolution Optional exact reader borrowed only within this synchronous person's evaluation.
+   * @param projection Optional genuine same-body ROM metadata borrowed only within this synchronous unchanged-table operation.
    * @returns The posture, both leg goals being the stance's.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.base: The body's posture without the kicking leg's goal, under a given carriage.
@@ -61,6 +74,8 @@ export interface IAutoMovieMotionHumanKickGeometry {
     seconds: number,
     carriage: IAutoMovieMotionHumanKickGeometry.ICarriage,
     turning?: number,
+    resolution?: IAutoMoviePoseResolution.ISource,
+    projection?: (pose: IAutoMoviePose) => IAutoMoviePose,
   ): IAutoMovieMotionHumanPosture;
 
   /**
@@ -87,6 +102,7 @@ export interface IAutoMovieMotionHumanKickGeometry {
    * @param clock Seconds since the start on the leg's own clock, which a withdrawal runs backwards.
    * @param base The body's posture the leg hangs from.
    * @param shift How far the launch plant has moved, world metres: zero on the approach, the replant's share on a withdrawal.
+   * @param hip Optional kicking hip already read from this exact body/base within the current synchronous evaluation.
    * @returns The leg's goal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.leg: The kicking leg's goal on its free path, as if the leg met nothing, under a given body.
@@ -101,6 +117,7 @@ export interface IAutoMovieMotionHumanKickGeometry {
     clock: number,
     base: IAutoMovieMotionHumanPosture,
     shift: IAutoMovieVector3,
+    hip?: IAutoMovieVector3,
   ): IAutoMovieMotionHumanKickGeometry.ILeg;
 
   /** The kicking ankle at the launch, world metres. */
@@ -206,6 +223,9 @@ export namespace IAutoMovieMotionHumanKickGeometry {
 
     /** The support foot's step-up along the line, metres. */
     step: number;
+
+    /** How far the pelvis drives along the line from the chamber key to the contact, metres: a push kick's thrust of the hips behind the foot, zero for a round kick. */
+    drive: number;
   }
 
   /**
@@ -225,13 +245,16 @@ export namespace IAutoMovieMotionHumanKickGeometry {
 
     /** The foot's world rotation from its rest. */
     rotation: IAutoMovieQuaternion;
+
+    /** The toes' extension from the foot, degrees, while the foot rocks on its forefoot; none when flat. */
+    toes?: number;
   }
 
   /**
-   * What a redirect keeps of its source: the committed line and the support foot's step.
+   * What a redirect keeps of its source: the committed line, the support foot's step and the pelvis's drive.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation step: The source's step-up, metres.
-   * @evidence contracts/development/design.md#principled-representation step: The source's step-up, metres.
+   * @evidence contracts/development/common.md#meaningful-documentation step: The source's step-up, metres. drive: The source's pelvis drive, metres.
+   * @evidence contracts/development/design.md#principled-representation step: The source's step-up, metres. drive: The source's pelvis drive, metres.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/KickGeometry.ts (KickGeometry.build, kept).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
@@ -241,5 +264,8 @@ export namespace IAutoMovieMotionHumanKickGeometry {
 
     /** The source's step-up, metres. */
     step: number;
+
+    /** The source's pelvis drive, metres. */
+    drive: number;
   }
 }

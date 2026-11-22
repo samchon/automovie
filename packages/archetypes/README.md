@@ -37,22 +37,47 @@ An archetype serialises as a plain model. Retain that serialised data when the m
 
 ## Entry points
 
-Each family is also a subpath, such as `@automovie/archetypes/furniture`.
+Each family is also a subpath, such as `@automovie/archetypes/furniture`. Select a producer by the vehicle, instrument, fixture or prop the scene places. For example, `createRowboat` exposes its oar frames, `createUprightPiano` its keys and pedal, `createDrawerUnit` its sliding contacts, and `createPaper({ format: "foldedMap" })` its fold sites.
 
-| Subpath | Producers |
+| Subpath | Selected producers |
 | --- | --- |
-| `/props` | `createDrinkware`, `createDevice`, `createSmoking`, `createStationery`, `createCareItem`, `createBag`, `createBox`, `createTool`, `createLongTool`, `createVessel`, `createWearable`, `createKeyboard`, `createCleaning`, `createTray`, `createTorch`, `createTableware`, `createFood`, `createLight`, `createUmbrella`, `createMobilityAid` |
-| `/furniture` | `createSeat`, `createBed`, `createTable`, `createStorage`, `createLoad`, `createBarrel`, `createLectern`, `createHighChair`, `createConsole`, `createSafe`, `createShowcase` |
-| `/architecture` | `createDoor`, `createWindow`, `createSwitch`, `createStairs`, `createRamp`, `createWall`, `createBar`, `createLadder`, `createKerb`, `createTap`, `createSanitary`, `createAppliance`, `createObstacle`, `createStreetFixture`, `createBin`, `createMachine`, `createGate`, `createElevator`, `createValve`, `createHandhold`, `createCellFront`, `createMirror`, `createBoard`, `createSaloonDoor`, `createControl`, `createHatch`, `createBeerTap` |
-| `/vehicles` | `createCar`, `createBicycle`, `createMotorcycle`, `createCart`, `createPram`, `createWheelchair`, `createBoat`, `createDeck`, and the rides `driveCar`, `rideBicycle`, `rideMotorcycle`, `rideWheelchair`, `rowBoat` |
-| `/animals` | Eight kinds through `createQuadruped`, shared body/rig `QuadrupedBody` and `QuadrupedSkeleton`, actual equipment, `rideQuadruped`/`rideHorse`, measured and authored gait tables, `QuadrupedRest`, and source-aware `EquineGoniometry` |
-| `/weapons` | `createHandgun`, `createHolster`, `createMagazine`, `createLongGun`, `createClub`, `createSword`, `createShield`, `createArmour`, `createPolearm`, `createProjectile`, `createBow`, `createCannon`, `createSiegeEngine`, `createPell`, `createWeaponLoop`, `createWeaponRack` |
+| `/props` | `createPhone`, `createCamera`, `createRemote`, `createTablet`, `createRadio`, `createDesktopKeyboard`, `createLaptop`, `createPaper`, `createPen`, `createHat`, `createHammer`, `createScrewdriver`, `createCane`, `createWalker`, `createCookingPot`, `createCarryBasket`, `createCandle`, `createPendantLamp`, `createCargoPod` |
+| `/furniture` | `createSeat`, `createPlatformBed`, `createGurney`, `createCrib`, `createTable`, `createBookcase`, `createHingedCabinet`, `createDrawerUnit`, `createSafe`, `createShowcase` |
+| `/architecture` | `createDoor`, `createWindow`, `createStairs`, `createRamp`, `createRefrigerator`, `createRange`, `createWashingMachine`, `createVendingMachine`, `createWashbasin`, `createBathtub`, `createFireHydrant`, `createBollard`, `createJerseyBarrier`, `createRopeStanchions` |
+| `/vehicles` | `createCar`, `createBicycle`, `createMotorcycle`, `createShoppingTrolley`, `createWheelbarrow`, `createRickshaw`, `createHorseCart`, `createRowboat`, `createCanoe`, `createPullingBoat`, `driveCar`, `rideBicycle`, `rideMotorcycle`, `rideWheelchair`, `rowBoat` |
+| `/animals` | `createHorse`, `createPony`, `createDonkey`, `createMule`, `createDog`, `createCat`, `createOx`, `createCamel`, `createDeer`, shared body and rig `QuadrupedBody` and `QuadrupedSkeleton`, equipment, `rideQuadruped` and `rideHorse`, gait tables, `QuadrupedRest`, and `EquineGoniometry` |
+| `/weapons` | `createHandgun`, `createStageHolster`, `createStageBladeCarrier`, `createStageQuiver`, `createPracticeBaton`, `createCostumeHelmet`, `createCostumeCuirass`, `assembleCostumeArmour`, `createSword`, `createShield`, `createPell` |
 | `/gym` | `createBarbell`, `createDumbbell`, `createKettlebell`, `createBench`, `createPullUpBar`, `createParallelBars`, `createPlyoBox`, `createRack`, `createSled`, `createRowingMachine`, `createExerciseBike`, `createExerciseMat`, `createJumpRope`, `createRing`, `createBoxingGlove`, `createHeavyBag` |
-| `/sport` | `createVaultingPole`, `createHighJump`, `createLandingMat`, `createVaultingTable`, `createBall`, `createRacket`, `createGolfClub`, `createGlove`, `createJavelin`, `createShot`, `createDiscus`, `createHammerThrow`, `createHurdle`, `createStartingBlock`, `createRelayBaton`, `createPoolEdge`, `createGoal`, `createStick`, `createCue`, `createCueTable`, `createSurfboard`, `createSki`, `createSkateboard` |
-| `/music` | `createInstrument`, `createMicrophone` |
+| `/sport` | `createSphericalBall`, `createOvalBall`, `createPuck`, `createFieldGoal`, `createBasketballHoop`, `createVolleyballNet`, `createTennisNet`, `createIceHockeyStick`, `createFieldHockeyStick`, `createLacrosseCrosse`, `createCricketBat`, `createBaseballBat`, `createRacket`, `createCueTable`, `createKendoArmour` |
+| `/music` | `createUprightPiano`, `createGuitar`, `createViolin`, `createSideDrum`, `createBugle`, `createMicrophone` |
 | `/nature` | `createFireRing`, `createRock`, `createTent`, `createTree` |
 
-Each producer's JSDoc states how the thing stands in its own space, and its namespace lists its kinds, affordance ids, dimensions and bands (`createSeat.BANDS`).
+Each producer's JSDoc describes its frame and inputs. Its companion types name the supported contacts. A producer that uses bands documents them in its source records.
+
+Existing dispatcher names continue to read saved recipes with their original `kind`, dimensions and seed. For example, `createDevice({ kind: "camera" }, seed)` selects the same camera as `createCamera({}, seed)`. The gallery opens old addresses at the corresponding named producer and retains the selected shape or format and view state.
+
+### Environments
+
+Import place builders from `@automovie/archetypes/environments`. Give each placed item a local name, a module to build, and its position or a named attachment. The environment supplies the set and walkable space to the shot program, and the models, props, world design and object motions to the compile runtime.
+
+```ts
+import { createEnvironment, createTerrain } from "@automovie/archetypes/environments";
+
+const park = createEnvironment({
+  id: "park",
+  seed: 7,
+  items: {
+    ground: {
+      use: createTerrain({ size: [28, 18] }),
+      at: { x: -14, y: 0, z: -9 },
+    },
+  },
+});
+```
+
+Add buildings, furnished rooms and rides as named items. Resolve a motion target through the item's named frame, such as a door's threshold or a chair's seat. Spread `park.stage` into the shot's stage and `park.runtime` into the runtime passed to `compileDefinedShot`. The shot retains its own camera, cast and choreography.
+
+In the production's set source, resize a room by editing its `[x, z, width, depth]` rectangle in local metres. Move a named entrance with its `offset` in metres along the selected wall. An action can target the `seat` affordance on the placed prop `park/cafe/table-1/chair-near`. If an attachment target is missing, check the item, level and local name against `park.anchors`. If a bridge between named openings is refused, align the span perpendicular to both walls and fit its width to the narrower clear opening.
 
 ### Articulation
 
@@ -102,7 +127,7 @@ The dog table includes a measured walking interval and two faster experimental p
 
 ### Mass and colliders
 
-`archetype.body` carries the mass and the centre of mass, `archetype.properties.inertia` the inertia about it, and `archetype.moment(point, direction)` the moment about a line. `archetype.shapes()` gives one collider per part in the engine's contact shapes, for a hand to close on.
+`archetype.body` carries the mass and the centre of mass, `archetype.properties.inertia` the inertia about it, and `archetype.moment(point, direction)` the moment about a line. `archetype.shapes()` gives one collider per solid primitive or declared convex cell. A producer can use separate solid parts for contact while visual meshes supply details such as racket strings or net twine.
 
 ## Inspection
 

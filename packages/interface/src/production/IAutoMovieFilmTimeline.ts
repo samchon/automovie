@@ -96,6 +96,9 @@ export interface IAutoMovieFilmTimeline {
       /** Optional authored speaker identity; absence leaves it unspecified. */
       speaker?: string;
 
+      /** Preferred edge for the horizontal WebVTT cue. Omit to use automatic line placement. */
+      placement?: "top" | "bottom";
+
       /** Inclusive film-global caption frame. */
       startFrame: number;
 

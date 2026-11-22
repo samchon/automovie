@@ -68,7 +68,7 @@ interface IKey {
  * - `push-in` dollies from 1.25 to 0.8 times the framed distance, eased in and out over eight segments.
  * - `orbit` swings 45 degrees about world up around the start aim, eased over eight segments.
  * - `truck` slides one framed distance toward the camera's screen-left while looking at the subject, eased over eight segments and riding the subject's animated base when it has one; a camera staged straight above or below uses world -X as screen-left.
- * - `follow` re-frames against the animated base at 4 Hz, at least two keys, or holds one framed key when the subject does not move.
+ * - `follow` re-frames against the animated base at 4 Hz, at least two keys, or holds one framed key for an unsampled subject. Authored lookahead changes aim by reading the subject ahead of the key time up to the shot end. Translation uses the current sample.
  * - `whip` keeps the staged position and turns from the staged rotation onto the aim within 0.2 seconds, without solving a distance.
  *
  * Keys are linear, so the gap between two entries plays as a re-frame move, and a key landing within 1e-9 s of the previous one replaces it, the later framing winning. Entries must be sorted by `start` and must not overlap, which `performShot` checks. Returns null for no entries, and throws an `Error` for a framing or move outside the grammar.
@@ -83,7 +83,7 @@ interface IKey {
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One compiler owns the whole framing grammar and every move's path, keyed into one two-track clip; resolving subjects belongs to `performShot` and the grammar tables to their constants, and coverage takes reuse this function with their own camera.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Names no subject or camera; +Z bearing and world -X screen-left are stated geometric-degeneracy fallbacks. Unknown framing/move and a follow key count outside safe-integer representation throw; the count gate prevents nonprogressing enumeration without an arbitrary workload cap.
  * @evidence contracts/development/common.md#meaningful-documentation States the distance and aim solve, the bearing rule and its fallback, each move's path with its constants, span and auto-duration rules, key merging, the input preconditions, the null and error returns, and each parameter's role, units and default.
- * @evidence contracts/development/implementation.md#efficient-algorithms Local construction is linear in the emitted keys: moves emit at most nine keys except follow, whose count grows with four samples per second. Each key adds a look rotation, while truck and follow also invoke the subject's supplied at callback, whose delegated cost is additional. Both output tracks are built from the same key list.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Local construction is linear in the emitted keys: moves emit at most nine keys except follow, whose count grows with four samples per second. Each key adds a look rotation, while truck and follow invoke the subject's at callback and lookahead can add one forward sample per key. Callback work is additional. Both output tracks are built from the same key list.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one camera's entries, called once per take; the hero and coverage takes have different cameras and entries, so nothing is shared between calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the key list is a local bounded by the keys above, and the returned clip is a fresh value owned by the caller.
  */
@@ -172,13 +172,19 @@ export function compileCameraMove(
         ? { x: -1, y: 0, z: 0 }
         : Vector3.normalize(side);
 
-    function framedAt(base: IAutoMovieVector3, d: number): IKey {
+    /** Fit position to the current base and orient toward the selected aim base. */
+    function framedAt(
+      base: IAutoMovieVector3,
+      d: number,
+      aimBase: IAutoMovieVector3 = base,
+    ): IKey {
       const aim: IAutoMovieVector3 = aimOf(base);
       const pos: IAutoMovieVector3 = Vector3.add(
         aim,
         Vector3.scale(bearing, d),
       );
-      return { t: 0, pos, rot: lookRotation(Vector3.subtract(aim, pos)) };
+      const target: IAutoMovieVector3 = aimBase === base ? aim : aimOf(aimBase);
+      return { t: 0, pos, rot: lookRotation(Vector3.subtract(target, pos)) };
     }
 
     switch (action.move) {
@@ -247,9 +253,16 @@ export function compileCameraMove(
           throw new Error(
             "camera follow cannot enumerate a key count that is not a safe integer",
           );
+        const lookahead: number = action.lookahead ?? 0;
         for (let k: number = 0; k < steps; ++k) {
           const t: number = t0 + ((t1 - t0) * k) / (steps - 1);
-          const f: IKey = framedAt(subject.at(t), distance);
+          const base: IAutoMovieVector3 = subject.at(t);
+          const aimTime: number = Math.min(t + lookahead, shotDuration);
+          // Sample the current base before a future read can reuse its storage.
+          const f: IKey =
+            aimTime > t
+              ? framedAt({ ...base }, distance, subject.at(aimTime))
+              : framedAt(base, distance);
           push(t, f.pos, f.rot);
         }
         break;

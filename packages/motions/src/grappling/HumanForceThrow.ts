@@ -59,15 +59,15 @@ export namespace HumanForceThrow {
    * @evidence contracts/development/implementation.md#principled-implementation The fulcrum is the thrower's region on its placed posture at the broken base; the frozen body turns about it by `HumanForceExchange.swing`, whose start rate is the pull's speed across the fulcrum line, whose drive is the pull's moment about the fulcrum while it lasts, and whose inertia is the body's composite tensor on the swing's axis plus the parallel-axis term; after release the centre follows the parabola and the orientation the conserved angular momentum `R I ω` (`integrateAirborneRotation`); the landing is the first integrator step at which the lowest joint reaches the floor.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fulcrum, swing, release state, flight, landing, plan.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A swing that stops is refused; the landing is searched, never set.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One swing and one flight integration at plan time, and a landing search over the flight's steps reading the trunk's joints.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The inertia, the integrators and the region places are their owners'.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the swing's and the flight's trajectories for as long as the performance does.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One swing and one flight retain their original integration budgets. The native fixed-shape constructor copies the actual full local bone map, propagates explicit zero bone rates and reduces its inertia/momentum once in O(B+S) for B bones and S mass parts. The engine may solve a supported principal/spherical residual-only rotation exactly; general anisotropic rotation keeps its original numerical integration over this same fixed tensor. If native rate propagation is unavailable, the original one-instant history path remains. The unchanged landing grid still evaluates every actual joint offset, requesting only its exact rotated Y component and omitting unused X/Z outputs and vector records.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged local frozen-shape map is actual complete geometry held throughout this throw's flight, so the native fixed constructor owns a copied whole-curve tensor and zero-relative-momentum proof rather than inferring constancy from callback samples. Its identity reaches the actual flight integrator directly, preserving numeric fallback for unsupported physical classes. The original single-instant reduction remains when fixed construction is unavailable. Release angle/rate, inverse heading and fixed joint offsets are also shared under their exact fixed-input contracts.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The native fixed history is cleared in finally after flight construction, including an integration failure; completed playback retains only numeric flight data. An unavailable native constructor uses the original temporary history, cleared after its one rigid-shape measurement. Rigid instants and landing offsets end with synchronous planning; the plan retains its original physical scalars, inverse heading and completed swing/flight trajectories without a shape-history owner.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanForceResponse.IParams>,
     props: IAutoMovieMotionHumanForceThrow.IProps,
   ): IAutoMovieMotionHumanActionPlan {
-    const { model, direction, broken, frozen } = props;
+    const { model, direction, broken, frozen }: IAutoMovieMotionHumanForceThrow.IProps = props;
     const body: IAutoMovieMotionHumanBody = context.body;
     const by: string | undefined = context.params.by;
     const fulcrum: AutoMovieHumanoidRegion | undefined = context.params.fulcrum;
@@ -130,33 +130,36 @@ export namespace HumanForceThrow {
         ),
       0,
     );
-    const swing: IAutoMovieMotionHumanForceExchange.ISwing | null =
-      HumanForceExchange.swing({
-        mass: model.mass,
-        inertia: about,
-        radius,
-        angle: start,
-        rate: (props.speed * Vector3.dot(direction, tangent)) / radius,
+    const swing: IAutoMovieMotionHumanForceExchange.ISwing | null = HumanForceExchange.swing({
+      mass: model.mass,
+      inertia: about,
+      radius,
+      angle: start,
+      rate: (props.speed * Vector3.dot(direction, tangent)) / radius,
 
-        // A horizontal pull at the grips turns the body about the fulcrum by
-        // its force times the grips' height above it.
-        torque: props.force * (props.grip - point.y),
-        until: props.remaining,
-      });
+      // A horizontal pull at the grips turns the body about the fulcrum by
+      // its force times the grips' height above it.
+      torque: props.force * (props.grip - point.y),
+      until: props.remaining,
+    });
     if (swing === null)
       throw new HumanRefusal({
         kind: "parameter",
         axis: "outcome",
         value: "thrown",
         feasible: null,
-        reason: `the momentum the pull left does not carry the body over the thrower's ${fulcrum}`,
+        reason: `the momentum the pull left does not carry the body over the thrower's ${fulcrum}: at the broken base (${broken.toFixed(3)} s) the centre stands ${(centre.y - point.y).toFixed(3)} m above the fulcrum and ${Vector3.dot(r, direction).toFixed(3)} m along the pull, ${((start * 180) / Math.PI).toFixed(1)} degrees from its vertical, turning at ${((props.speed * Vector3.dot(direction, tangent)) / radius).toFixed(3)} rad/s`,
         fix: "pull harder, or bring the fulcrum under the body's centre",
       });
-    const turnAt = (angle: number): IAutoMovieQuaternion =>
+    const turnAt: (angle: number) => IAutoMovieQuaternion = (angle: number): IAutoMovieQuaternion =>
       Quaternion.fromAxisAngle(axis, ((angle - start) * 180) / Math.PI);
     const release: number = broken + swing.release;
-    const turned: IAutoMovieQuaternion = turnAt(swing.angle(swing.release));
-    const rate: number = swing.rate(swing.release);
+    const state: { angle: number; rate: number } = swing.sample?.(swing.release) ?? {
+      angle: swing.angle(swing.release),
+      rate: swing.rate(swing.release),
+    };
+    const turned: IAutoMovieQuaternion = turnAt(state.angle);
+    const rate: number = state.rate;
     const from: IAutoMovieVector3 = Vector3.add(
       point,
       Quaternion.rotateVector(turned, r),
@@ -170,12 +173,13 @@ export namespace HumanForceThrow {
     // The flight lasts at most until the centre itself reaches the floor.
     const fall: number =
       (velocity.y + Math.sqrt(velocity.y * velocity.y + 2 * g * from.y)) / g;
-    const path = (tau: number): IAutoMovieVector3 => ({
+    const path: (tau: number) => IAutoMovieVector3 = (tau: number): IAutoMovieVector3 => ({
       x: from.x + velocity.x * tau,
       y: from.y + velocity.y * tau - (g * tau * tau) / 2,
       z: from.z + velocity.z * tau,
     });
     const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(frozen);
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(heading);
     const own: IAutoMovieMotionHumanPosture = {
       ...frozen,
       root: { x: 0, y: 0, z: 0 },
@@ -189,35 +193,59 @@ export namespace HumanForceThrow {
       Quaternion.rotateVector(turned, apply(tensor, axis)),
       rate,
     );
-    const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
-      integrateAirborneRotation({
-        history: integrateAirborneRotation.history(model, () => local),
+
+    // This authored geometry is held for the entire rigid flight. Its copied
+    // native constructor proves that fact without inspecting callback samples.
+    const end: number = Math.max(fall, integrateMotionTrajectory.STEP);
+    const fixed: integrateAirborneRotation.ICachedHistory | undefined =
+      Number.isFinite(end)
+        ? integrateAirborneRotation.fixed(model, body.skeleton, local, { from: 0, to: end })
+        : undefined;
+    let rigid: IAutoMovieIntegrateAirborneRotation.IInstant | undefined;
+    if (fixed === undefined) {
+      const history: integrateAirborneRotation.ICachedHistory =
+        integrateAirborneRotation.history(model, () => local);
+      try {
+        rigid = history(0);
+      } finally {
+        history.clear();
+      }
+    }
+    let flight: IAutoMovieIntegrateAirborneRotation.IFlight;
+    try {
+      flight = integrateAirborneRotation({
+        history: fixed ?? ((): IAutoMovieIntegrateAirborneRotation.IInstant => rigid!),
         t0: 0,
-        t1: Math.max(fall, integrateMotionTrajectory.STEP),
+        t1: end,
         q0: Quaternion.normalize(Quaternion.multiply(turned, heading)),
         momentum,
       });
-    const turnIn = (tau: number): IAutoMovieQuaternion =>
+    } finally {
+      fixed?.clear();
+    }
+    const turnIn: (tau: number) => IAutoMovieQuaternion = (tau: number): IAutoMovieQuaternion =>
       Quaternion.normalize(
         Quaternion.multiply(
           flight.orientation(tau),
-          Quaternion.inverse(heading),
+          inverse,
         ),
       );
 
     // The landing: the first step at which the lowest joint reaches the floor.
-    const lowest = (tau: number): number => {
+    const offsets: IAutoMovieVector3[] = Array.from(
+      shape.values(),
+      (bone: IAutoMovieResolvedBone): IAutoMovieVector3 =>
+        Vector3.subtract(bone.worldPosition, centre),
+    );
+    const lowest: (tau: number) => number = (tau: number): number => {
       const c: IAutoMovieVector3 = path(tau);
       const q: IAutoMovieQuaternion = turnIn(tau);
       let low: number = Number.POSITIVE_INFINITY;
-      for (const bone of shape.values())
+      for (const offset of offsets)
         low = Math.min(
           low,
           c.y +
-            Quaternion.rotateVector(
-              q,
-              Vector3.subtract(bone.worldPosition, centre),
-            ).y,
+            Quaternion.rotateVectorY(q, offset),
         );
       return low;
     };
@@ -303,8 +331,7 @@ export namespace HumanForceThrow {
     }
     const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
       body.surfaces.regions[at];
-    return resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
-      .point;
+    return resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
   }
 
   /** A vector's component by index. */

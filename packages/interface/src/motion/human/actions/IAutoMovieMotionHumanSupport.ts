@@ -1,5 +1,7 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
+import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanBalance";
 
 /**
  * Moving the body's weight across a sequence of supports: each stance's
@@ -58,11 +60,52 @@ export namespace IAutoMovieMotionHumanSupport {
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
+    /**
+     * A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift
+     * of its part, scaled by its weight between its two event-named instants,
+     * each field absent taking the law's recommendation. Absent, none: the
+     * posture is the law's own kinematic one with no balance shift or
+     * centre-of-mass reading.
+     */
+    balance?: IAutoMovieMotionHumanBalance;
+
     /** The stances, in order; the body enters the first from where it stands. */
     stances: readonly IAutoMovieMotionHumanSupport.IStance[];
 
     /** The surface a row's `on` contacts touch: a box's top to vault, a ledge to scramble onto, a table's edge to slide off; refused where a contact names `on` and this is absent. */
     on?: IAutoMovieMotionTarget;
+
+    /** A paired support whose two matching hand contacts move through one shared course. */
+    assist?: IAssist;
+  }
+
+  /**
+   * The paired support's role in an assisted rise.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The helper receives the other person's weight and the helped person moves from seated support to the feet.
+   * @evidence contracts/development/design.md#principled-representation Each role has distinct support keys and the roles use the same hand-contact course.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Support uses the role only when an action declares an assisted rise.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The role changes the authored stance, not the reach or refusal allowance.
+   */
+  export type AssistRole = "helper" | "helped";
+
+  /**
+   * Partners and the hand used to take weight during an assisted rise.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the support roles, participating subject and the side of both hands.
+   * @evidence contracts/development/design.md#principled-representation The concrete keyed hand course arises from the two rendered bodies; author parameters only identify its participants.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanCoupled.helpUp authors the paired roles and the support plan reads them together once.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The action's own contact windows and reach constraints still apply.
+   */
+  export interface IAssist {
+    /** The role this performer takes. */
+    role: AssistRole;
+
+    /** The other role's subject id. */
+    partner: string;
+
+    /** The hand each participant contributes to the clasp. */
+    side: AutoMovieHumanSide;
   }
 
   /**
@@ -88,6 +131,9 @@ export namespace IAutoMovieMotionHumanSupport {
 
     /** The posture the stance's solve stays nearest, by its whole body's tilt and its joints (degrees); the posture the body enters with when absent. A stance without targets is shaped by it: kneeling, squatting, standing. */
     prefer?: IAutoMovieMotionHumanLieDown.IPose;
+
+    /** The parts the stance lets go free: each lifts off the contact it bore by in the stance before and hangs as the stance's posture carries it, bearing on nothing, instead of holding its last place until another contact of its limb replaces it; none when absent. */
+    free?: readonly IAutoMovieMotionHumanSupport.Part[];
   }
 
   /**
@@ -120,7 +166,7 @@ export namespace IAutoMovieMotionHumanSupport {
    *
    * @evidence contracts/development/common.md#meaningful-documentation A body part that bears: a foot on its ball and toes, a hand on its palm, a knee on the shin's top, the seat on the buttocks, the back or the front of the trunk lying on it.
    * @evidence contracts/development/design.md#principled-representation Closed choices "leftFoot", "rightFoot", "leftHand", "rightHand", "leftKnee", "rightKnee", "seat", "back", "front" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/supportContact.ts (supportContact.window, part); actions/supportContact.ts (supportContact.limb, part); actions/supportContact.ts (supportContact.onFloor, part); actions/supportContact.ts (supportContact.pinned, part); floor/getUp.ts (getUp.plan.stances, part); lexicon/HumanSupportRows.ts (on, part).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/supportContact.ts (supportContact.window, part); actions/supportContact.ts (supportContact.limb, part); actions/supportContact.ts (supportContact.onFloors, parts);floor/getUp.ts (getUp.plan.stances, part); lexicon/HumanSupportRows.ts (on, part).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in supportContact.window.
    */
   export type Part =

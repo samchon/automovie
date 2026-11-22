@@ -12,9 +12,14 @@ import type {
 
 import { stand } from "../actions/stand";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { seated } from "./seated";
+import { seatedHands } from "./seatedHands";
 
 /**
  * Shifting along a bench while seated: the seat socket slides sideways
@@ -44,21 +49,18 @@ import { seated } from "./seated";
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation Effector goals (sockets, footprints, the gaze line) solved by the shared inverse kinematics, with balance and timing from the cited laws.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance and every posture reads it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
 export namespace shift {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "shift";
 
+  /** The share of the slide over which the buttocks unweight at its start, and bear fully again before its end (provisional). */
+  const UNWEIGHT: number = 0.15;
+
   /** Cancel table: after setting down a shift may continue sitting. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     rise: [
-      { window: ["seatContact", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["seatContact", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
     shift: [{ window: ["seatContact", 1], kind: "inertialize", entry: 0 }],
   };
@@ -69,6 +71,14 @@ export namespace shift {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the shift exceeds the planted legs' side reach.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States context/plan and lateral-reach refusal; the namespace gives world-metre socket travel, action seconds and seat/plant conventions.
+   * @evidence contracts/development/implementation.md#principled-implementation The original minimum-jerk seat-socket slide derives the root under unchanged heading, while native planted-leg goals and thigh hand-rest targets keep their original geometry.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate side reach/base, prepare fixed feet, then evaluate the original socket course and hand-rest owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original body-scaled side bound and high-seat refusal remain, with no moved plant, added base transition, changed contact time or relaxed range.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed heading/contact/knee coefficients prepare once; each query evaluates socket/root geometry and current thigh frames. Native phases transport prepared skin hits and use prepared flat-hand extent readers.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body/entry heading/ankles share leg metadata and fixed local thigh and flat-hand geometry. Current knee/root targets stay fresh and hand observations borrow parent FK/ROM sources only during that synchronous call.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its fixed entry/feet and scalar timing until release; current hand maps and borrowed FK/ROM sources end on return or throw and never enter its retained geometry.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanShift.IParams>,
@@ -89,15 +99,7 @@ export namespace shift {
     const under: number = seated.floor(body, context.entry);
 
     // The shift pushes off the feet planted on the floor, which a high seat takes off it.
-    if (
-      (start.y - under) / seated.popliteal(body) > seated.RATIO[1] &&
-      (["left", "right"] as const).some(
-        (side: "left" | "right"): boolean =>
-          !context.entry.feet[side].planted ||
-          context.entry.feet[side].ankle.y >
-            under + body.measure.ankleHeight + 0.5 * body.measure.thighRadius,
-      )
-    )
+    if (seated.perched(body, context.entry, start, under))
       throw new HumanRefusal({
         kind: "base",
         axis: "base",
@@ -117,9 +119,13 @@ export namespace shift {
       context.entry,
       entry.yaw,
     );
-    const lift: number = 0.15 * slide;
-    const set: number = 0.85 * slide;
-    return {
+    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
+      body,
+      entry.yaw,
+    );
+    const lift: number = UNWEIGHT * slide;
+    const set: number = (1 - UNWEIGHT) * slide;
+    const planned: IAutoMovieMotionHumanActionPlan = {
       duration,
       // A shift slides along the seat it was entered on and stays seated on
       // it (#3363: a base transition declares the base it ends in).
@@ -154,22 +160,51 @@ export namespace shift {
           support: HumanSupportFrame.contact(context, "seat"),
         },
       ],
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const s: number = minimumJerk(t / slide).s;
-        const socket: IAutoMovieVector3 = {
-          x: start.x + (goal.x - start.x) * s,
-          y: start.y,
-          z: start.z + (goal.z - start.z) * s,
-        };
-        const root: IAutoMovieVector3 = seated.root(body, socket, entry);
-        const posture: IAutoMovieMotionHumanPosture = {
-          ...entry,
-          root,
-          limbs: stand.legs(body, root, entry.yaw, feet),
-        };
-        return seated.arms(body, posture, 1);
-      },
+      posture: (seconds, channels, resolution, projection) =>
+        read(seconds, channels, resolution, projection),
     };
+    const bounds: readonly number[] = [0, lift, set, slide, duration];
+    let palms: ReturnType<typeof prepareSeatedPalms> | undefined;
+    HumanPreparedPlayback.attach(planned, body, {
+      mode: "posture",
+      prepare: (): void => {
+        // A world digit goal can change the flat hand's local articulation.
+        palms = entry.digits === undefined ? prepareSeatedPalms(body, entry) : undefined;
+      },
+      phases: bounds.slice(0, -1).map((from, index) => ({
+        from,
+        to: bounds[index + 1]!,
+        sample: (seconds, channels, resolution, projection) =>
+          palms !== undefined && entry.digits === undefined &&
+          prepareHumanPoseResolution.isNativeSource(resolution)
+            ? { posture: read(seconds, channels, resolution, projection, palms) }
+            : undefined,
+      })),
+    });
+    return planned;
+
+    /** Follow the authored socket and observe the current legs at their plants. */
+    function read(
+      seconds: number,
+      _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      prepared?: ReturnType<typeof prepareSeatedPalms>,
+    ): IAutoMovieMotionHumanPosture {
+      const t: number = Math.min(duration, Math.max(0, seconds));
+      const s: number = minimumJerk.share(t / slide);
+      const socket: IAutoMovieVector3 = {
+        x: start.x + (goal.x - start.x) * s,
+        y: start.y,
+        z: start.z + (goal.z - start.z) * s,
+      };
+      const root: IAutoMovieVector3 = seated.root(body, socket, entry);
+      const posture: IAutoMovieMotionHumanPosture = {
+        ...entry,
+        root,
+        limbs: legged(root, feet),
+      };
+      return seatedHands.arms(body, posture, 1, resolution, projection, prepared);
+    }
   }
 }

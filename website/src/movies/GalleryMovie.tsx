@@ -95,11 +95,11 @@ export default function GalleryMovie(props: {
   const head: (title: string) => ReactElement = (
     title: string,
   ): ReactElement => (
-    <header className="am-app-head">
-      <nav aria-label="Breadcrumb" className="am-lede">
-        {/* A full navigation, as a card's link takes: each object page
+    <header className="am-archetype-head">
+      <nav aria-label="Breadcrumb" className="am-crumbs">
+        {/* A full navigation, as a card's link takes: each archetype's page
             reads its address when it mounts. */}
-        <a href={`${SITE_BASE}/objects/`}>All objects</a>
+        <a href={`${SITE_BASE}/archetypes/`}>Archetypes</a>
       </nav>
       <h1>{title}</h1>
     </header>
@@ -108,7 +108,7 @@ export default function GalleryMovie(props: {
   if (loaded.kind !== "ready" || request === null)
     return (
       <main className="am-app">
-        {head("Objects")}
+        {head("Archetypes")}
         {loaded.kind === "failed" ? (
           <div className="am-alert" role="alert">
             <h2>The packages did not load</h2>
@@ -137,7 +137,7 @@ export default function GalleryMovie(props: {
 
   return (
     <main className="am-app">
-      {head(subject?.label ?? "Objects")}
+      {head(subject?.label ?? "Archetypes")}
       <div className="am-gallery am-gallery-detail">
         <GalleryViewport
           adapter={loaded.adapter}

@@ -67,7 +67,9 @@ export function animalAttachmentObserver(
     const ids: readonly string[] = fore
       ? [`${limb}Humerus`, `${limb}Radius`, `${limb}Cannon`, `${limb}Pastern`]
       : [`${limb}Femur`, `${limb}Tibia`, `${limb}Cannon`, `${limb}Pastern`];
-    const parent: string = fore ? "trunk" : "hindquarters";
+    // A fore limb hangs from its shoulder blade, which hangs from the trunk.
+    const parent: string = fore ? `${limb}Scapula` : "hindquarters";
+    if (fore) attached(parent, "trunk");
     attached(ids[0]!, parent);
     let previous: IAutoMovieVector3 | undefined;
     for (const id of ids) {
@@ -143,10 +145,12 @@ export function animalAttachmentObserver(
           rightRein: "rein-right",
         } as Readonly<Record<string, string>>
       )[contact.id];
-      if (rod === undefined)
+      // A pack saddle's tie is a rein fastening with no laid rod: it rides on the trunk with the saddle.
+      if (rod === undefined && contact.id !== "tie")
         throw new Error(`Unsupported actual rein ${contact.id}`);
-      animalReinObserver(need(current, rod), posed, label, findings);
-      if (handContacts.includes(contact.id)) {
+      if (rod !== undefined)
+        animalReinObserver(need(current, rod), posed, label, findings);
+      if (rod !== undefined && handContacts.includes(contact.id)) {
         point(
           `${contact.id} hand remains on actual trunk`,
           local(frame(need(current, "trunk")), posed.frame.translation),
@@ -184,6 +188,7 @@ export function animalAttachmentObserver(
               rightStirrup: "stirrup-right",
               leftLoad: "trunk",
               rightLoad: "trunk",
+              tie: "trunk",
             } as Readonly<Record<string, string>>
           )[contact.id];
     if (carrier === undefined) continue;

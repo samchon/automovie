@@ -4,31 +4,88 @@
    draws the navigation bar and the theme switch, and everything below it is
    laid out here from the tokens. DESIGN.md states the layout in words. */
 
-.automovie-site-logo {
+/* The faces everywhere, Nextra's chrome included. */
+html {
+  font-family: var(--am-font-sans);
+}
+
+body {
+  background: var(--am-bg);
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--am-font-mono);
+}
+
+/* The docs read in the display face for their headings. */
+.nextra-content h1,
+article h1 {
+  font-family: var(--am-font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.am-logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  font-weight: 800;
-  font-size: 1.1rem;
+  gap: 0.55rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
 }
 
-/* The footer's lines, stacked and centred at every width. */
-.automovie-site-footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  text-align: center;
+/* The footer: the brand, then a column per group of links. */
+.am-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
+  gap: 2rem;
+  width: 100%;
+  font-size: 0.875rem;
 }
 
-.automovie-site-footer-links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1.25rem;
-  font-weight: 600;
+.am-footer-brand p {
+  margin: 0.75rem 0 0;
+  max-width: 22rem;
+  color: var(--am-fg-muted);
+  line-height: 1.55;
 }
 
+.am-footer-legal a {
+  text-decoration: underline;
+}
+
+.am-footer-column h2 {
+  margin: 0 0 0.75rem;
+  color: var(--am-fg-muted);
+  font: 600 0.75rem var(--am-font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.am-footer-column ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-footer-column a:hover {
+  color: var(--am-accent);
+}
+
+@media (max-width: 760px) {
+  .am-footer {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .am-footer-brand {
+    grid-column: 1 / -1;
+  }
+}
 /* The application frame */
 .am-app {
   box-sizing: border-box;
@@ -110,6 +167,11 @@
   margin-top: var(--am-space-3);
 }
 
+/* A label heading a stack sits on its own line, above what it labels. */
+.am-stack > .am-label {
+  display: block;
+}
+
 /* A live region stays mounted while it has nothing to say, taking no room. */
 .am-stack > [role="status"]:empty {
   margin-top: 0;
@@ -186,16 +248,19 @@
   opacity: 0.55;
 }
 
+/* The one primary action reads as the site's primary buttons do: ink, and
+   amber while pointed at. */
 .am-app button.am-primary {
-  border-color: var(--am-accent-bg);
-  background: var(--am-accent-bg);
-  color: var(--am-accent-fg);
-  font-weight: 700;
+  border-color: var(--am-fg);
+  background: var(--am-fg);
+  color: var(--am-bg);
+  font-weight: 600;
 }
 
 .am-app button.am-primary:hover:not(:disabled) {
+  border-color: var(--am-accent-bg);
   background: var(--am-accent-bg);
-  filter: brightness(1.08);
+  color: var(--am-accent-fg);
 }
 
 .am-app :is(input, select, textarea, button, canvas, summary, a):focus-visible {
@@ -389,337 +454,34 @@
   font-weight: 700;
 }
 
-/* Playground: the composition on the left, the result on the right */
-.am-split {
-  display: grid;
-  grid-template-columns: var(--am-side) minmax(0, 1fr);
-  align-items: start;
-  gap: var(--am-space-4);
-}
-
-/* The panel is as tall as the window below the page's heading row, so its
-   foot with the Perform button is on screen before any scrolling. */
-.am-pane-compose {
-  position: sticky;
-  top: calc(var(--am-navbar) + var(--am-space-4));
-  max-height: calc(100dvh - var(--am-navbar) - var(--am-head));
-  overflow-y: auto;
-}
-
-.am-pane-result {
-  min-width: 0;
-}
-
-.am-pane-result > * + * {
-  margin-top: var(--am-space-4);
-}
-
-@media (max-width: 1279px) {
-  .am-split {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .am-tabs {
-    display: flex;
-  }
-
-  .am-pane-compose {
-    position: static;
-    max-height: none;
-    overflow-y: visible;
-  }
-
-  .am-split[data-pane="compose"] .am-pane-result,
-  .am-split[data-pane="result"] .am-pane-compose {
-    display: none;
-  }
-}
-
-.am-performer {
-  margin: 0;
-  border: 1px solid var(--am-border);
-  border-radius: var(--am-radius);
-  background: var(--am-bg);
-  padding: var(--am-space-3);
-  min-width: 0;
-}
-
-.am-performer > * + * {
-  margin-top: var(--am-space-3);
-}
-
-.am-performer legend {
-  padding: 0 var(--am-space-1);
-  font-weight: 700;
-}
-
-.am-action {
-  border: 1px solid var(--am-border);
-  border-left: 3px solid var(--am-accent);
-  border-radius: var(--am-radius);
-  background: var(--am-bg-panel);
-  padding: var(--am-space-2);
-}
-
-.am-action > * + * {
-  margin-top: var(--am-space-2);
-}
-
-.am-action-nested {
-  border-left-color: var(--am-border-control);
-  background: var(--am-bg);
-}
-
-.am-action[data-refused="true"] {
-  border-color: var(--am-danger-border);
-  border-left-color: var(--am-danger);
-  background: var(--am-danger-soft);
-}
-
-.am-action-refusal {
-  color: var(--am-danger);
-  font-size: var(--am-text-sm);
-}
-
-/* The foot reaches over the panel's own padding, so nothing of the editor
-   shows under it. */
-.am-sticky-actions {
-  position: sticky;
-  bottom: calc(-1 * var(--am-space-3));
-  margin: var(--am-space-3) calc(-1 * var(--am-space-3)) calc(-1 * var(--am-space-3));
-  border-top: 1px solid var(--am-border);
-  background: var(--am-bg-panel);
-  padding: var(--am-space-3);
-}
-
-/* The inspector of @automovie/viewer brings its own light styling, so it
-   sits on a light surface in both themes. */
-/* Inside it the page's reset is undone, so the inspector's buttons and
-   fields look as the browser draws them. */
-.am-instrument :is(button, input, select, textarea) {
-  all: revert;
-}
-
-.am-instrument {
-  max-height: 44rem;
-  overflow: auto;
-  border: 1px solid var(--am-border);
-  border-radius: var(--am-radius);
-  background: #ffffff;
-  color: #1b1f26;
-  color-scheme: light;
-  padding: var(--am-space-2);
-}
-
-/* Timeline */
-.am-track {
-  display: flex;
-  align-items: center;
-  gap: var(--am-space-2);
-  margin-bottom: var(--am-space-1);
-}
-
-.am-track-name {
-  flex: 0 0 2.5rem;
-  font-family: var(--am-font-mono);
-  font-weight: 700;
-}
-
-.am-track-bars {
-  position: relative;
-  flex: 1 1 0;
-  height: 1.75rem;
-  border: 1px solid var(--am-border);
-  border-radius: var(--am-radius);
-  background: var(--am-bg-inset);
-  overflow: hidden;
-}
-
-.am-span {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  overflow: hidden;
-  border-right: 2px solid var(--am-bg-inset);
-  background: var(--am-accent-bg);
-  color: var(--am-accent-fg);
-  padding: 0 var(--am-space-1);
-  font-size: var(--am-text-xs);
-  font-weight: 600;
-  line-height: 1.75rem;
-  white-space: nowrap;
-}
-
-.am-span-overlay {
-  top: 55%;
-  background: var(--am-fg-muted);
-  color: var(--am-bg);
-  line-height: 0.8rem;
-}
-
-.am-event {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  margin-left: -1px;
-  background: var(--am-fg);
-}
-
-.am-ruler {
-  display: flex;
-  justify-content: space-between;
-  margin: 0 0 var(--am-space-2) calc(2.5rem + var(--am-space-2));
-  color: var(--am-fg-muted);
-  font-family: var(--am-font-mono);
-  font-size: var(--am-text-xs);
-}
-
-/* 3D viewport */
-.am-viewport {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  min-height: 16rem;
-  max-height: calc(100dvh - var(--am-navbar) - 11rem);
-  overflow: hidden;
-  border: 1px solid var(--am-border);
-  border-radius: var(--am-radius);
-  background: var(--am-viewport);
-}
-
-.am-viewport-canvas {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100% !important;
-  height: 100% !important;
-  cursor: grab;
-
-  /* A vertical swipe scrolls the page; a horizontal one turns the model. */
-  touch-action: pan-y;
-}
-
-.am-viewport-canvas:active {
-  cursor: grabbing;
-}
-
-.am-viewport-tags {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.am-viewport-tag {
-  position: absolute;
-  top: 0;
-  left: 0;
-  margin: 0.35rem 0 0 0.35rem;
-  border-radius: 3px;
-  background: var(--am-viewport-tag-bg);
-  color: var(--am-viewport-tag-fg);
-  padding: 0 0.3rem;
-  font-family: var(--am-font-mono);
-  font-size: var(--am-text-xs);
-  line-height: 1.4;
-  white-space: nowrap;
-}
-
-.am-viewport-status {
-  position: absolute;
-  left: var(--am-space-2);
-  bottom: var(--am-space-2);
-  border-radius: var(--am-radius);
-  background: var(--am-bg);
-  color: var(--am-fg);
-  padding: var(--am-space-1) var(--am-space-2);
-  font-size: var(--am-text-sm);
-}
-
-.am-viewport-error {
-  position: absolute;
-  inset: var(--am-space-3);
-  overflow: auto;
-  border: 1px solid var(--am-danger-border);
-  border-radius: var(--am-radius);
-  background: var(--am-danger-soft);
-  padding: var(--am-space-3);
-}
-
-.am-viewport-error strong {
-  display: block;
-  margin-bottom: var(--am-space-2);
-  color: var(--am-danger);
-}
-
-/* An archetype's page: the view and the facts; pages.css places them */
-.am-gallery {
-  display: grid;
-  align-items: start;
-  gap: var(--am-space-4);
-}
-
-.am-viewport-region {
-  grid-area: view;
-  min-width: 0;
-}
-
-.am-gallery-facts {
-  grid-area: facts;
-  min-width: 0;
-}
-
-.am-count {
-  border-radius: 999px;
-  background: var(--am-bg-hover);
-  color: var(--am-fg-muted);
-  padding: 0 0.45rem;
-  font-size: var(--am-text-xs);
-  font-variant-numeric: tabular-nums;
-}
-
-@media (max-width: 767px) {
-  .am-viewport {
-    aspect-ratio: 1 / 1;
-  }
-}
-
-.am-slider {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 5.5rem;
-  align-items: center;
-  gap: var(--am-space-2);
-}
-
-.am-band-text {
-  display: block;
-  margin-top: var(--am-space-1);
-  color: var(--am-fg-muted);
-  font-size: var(--am-text-xs);
-}
-
-.am-band {
-  position: relative;
-  height: 0.5rem;
-  min-width: 7rem;
-  border-radius: 999px;
-  background: var(--am-bg-hover);
-}
-
-.am-band-mark {
-  position: absolute;
-  top: -0.2rem;
-  width: 0.2rem;
-  height: 0.9rem;
-  margin-left: -0.1rem;
-  border-radius: 1px;
-  background: var(--am-accent);
-}
-
+/* Under reduced motion nothing on any page eases or animates. */
 @media (prefers-reduced-motion: reduce) {
-  .am-app * {
+  *,
+  *::before,
+  *::after {
     transition: none !important;
+    animation: none !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Nextra's footer and its theme switch, on the site's panel ground. */
+div:has(> footer) {
+  border-top: 1px solid var(--am-border);
+  background: var(--am-bg-panel) !important;
+}
+
+/* The heading row of an application page: the playground and an archetype. */
+.am-app .am-app-head h1 {
+  font-family: var(--am-font-display);
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* The title over a table a docs page draws from a package, as a caption
+   would be, outside the table so the table can scroll on its own. */
+.am-table-title {
+  margin: 1.25em 0 0.5em;
+  font-weight: 600;
 }

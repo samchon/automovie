@@ -375,15 +375,6 @@ function quadraticBounds(
     pending.push(left, right);
     visits += 2;
   }
-  console.log("independent conic perimeter enclosure:", {
-    a,
-    b,
-    r,
-    lower,
-    upper,
-    gap: upper - lower,
-    visits,
-  });
   return [lower, upper];
 }
 

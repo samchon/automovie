@@ -4,7 +4,9 @@ How to change part of an accepted image and keep the rest.
 
 ## Instruction edits
 
-Repair the completed inspection's findings together, naming the corrections and what must stay. Restate the subject's defining traits so the model does not redesign it. Compare the whole result before another round; when repeated edits lose detail, return to the frozen canon references.
+<!-- @source [FreqEdit](https://arxiv.org/abs/2512.01755) examines detail lost over successive image edits. -->
+
+Edit all findings from one inspection together. State corrections, defining traits and what to preserve. Check the whole result before the next round. Return to frozen canon references when detail drifts.
 
 ## Masks and markup
 

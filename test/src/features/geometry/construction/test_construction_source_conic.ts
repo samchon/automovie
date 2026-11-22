@@ -225,14 +225,6 @@ export function test_construction_source_conic(): void {
             const fourth: number = ConstructionConicOracle.fourth(patch);
             if (!Number.isFinite(fourth))
               failures.push("nonfinite fourth derivative observation");
-            console.log("source conic fixed-step scale:", {
-              box: base,
-              q,
-              reverse,
-              angle: patch.angle,
-              fourth,
-              hSquaredFourth: 1e-10 * fourth,
-            });
           }
           const first: [number, number, number, number, number, number] =
             AutoMovieConicHermite.jet(patch, 0);

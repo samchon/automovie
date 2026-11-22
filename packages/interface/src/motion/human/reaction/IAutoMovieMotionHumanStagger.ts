@@ -19,11 +19,12 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * footstep region allows, and the body is caught once the extrapolated
  * centre of mass lies inside the base the two feet make. The region is the
  * stance foot's: within its direction's longest recovery step of where the
- * foot stood beside the stance foot, and inside the legs' own reachable set
- * from the pelvis the centre of mass carries at the landing, the trunk free
- * to tilt, the landing foot to turn out and the two legs clear of each other
- * as the tangle audit reads them (`walkStanceCourse`, `walkLegClearance`); a
- * step past it shortens toward the stance foot. The legs may cross: a
+ * foot stood beside the stance foot; a step past it shortens toward the
+ * stance foot. The legs then admit each step at its mid-swing and its
+ * landing, under the pelvis the centre of mass carries there: each planted
+ * leg's reach, knee flexion and thigh extension as a two-bone chain, and
+ * crossed legs clear of each other as the tangle audit reads them
+ * (`staggerAdmission`, `walkLegClearance`). The legs may cross: a
  * footstep planner's region on the stepping foot's own side of the stance
  * foot (Deits and Tedrake 2014) keeps a walking robot's legs apart, but it
  * forbids the crossover step people take in most lateral recoveries, so it
@@ -57,21 +58,20 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * of mass follows it, `x' = omega0 (xi - x)`, until both rest within a
  * millimetre.
  *
- * The body over its feet is one stance course (`walkStanceCourse`): the
- * pelvis's drop, each planted foot's pitch about its ball and its turn on
- * the floor, and the trunk's tilt about the hips, as one trajectory
- * optimisation, the pelvis carrying the centre of mass on its course less
- * the shift the trunk's tilt makes of it. The legs' reach, the hip's
- * extension and rotation and the ankle's range are its constraints, with the
- * feet bearing the centre of pressure and the caught extrapolated centre of
- * mass, so a backward landing carries the pelvis back over the rear foot by
- * bending the trunk against the fall, the hip strategy (Horak and Nashner
- * 1986, J Neurophysiol 55:1369), because the ranges ask for it rather than
- * by a rule. A stance whose leg leans further to its side than the ankle's
- * 25 degrees rolls onto its edge; a stepping foot first rises clear of the
+ * The body over its feet is read at each second from prepared courses
+ * (`StaggerFeet`): the trunk bends about the hips against the fall, the hip
+ * strategy (Horak and Nashner 1986, J Neurophysiol 55:1369), by the
+ * inclination of the extrapolated centre of mass's lead over the pendulum's
+ * length, bounded by the hip's extension (`staggerLean`); the pelvis carries
+ * the centre of mass's course less the shift that tilt makes of it, and is
+ * lowered to the height its planted legs allow, as the walk settles its
+ * pelvis (`walkReach.ground`), each heel rising about its ball where the
+ * ankle runs out of room. A stance whose leg leans further to its side than
+ * the ankle's inversion or eversion rolls onto its edge
+ * (`walkReachStance.SIDE`); a stepping foot first rises clear of the
  * floor by the minimum toe clearance of walking (`walkFoot.CLEARANCE`,
  * Killeen et al. 2017), over the share of its swing a walking foot takes to set down
- * from that height, then swings as a walking foot swings (`walkFoot.swing`)
+ * from that height, then swings as a walking foot swings (`walkFoot.prepareSwing`)
  * to the stance it lands in, held inside its leg's ranges and as high over
  * the floor as its swing carries it (`walkReach.swing`), so it leaves and
  * joins its stances where they stand.

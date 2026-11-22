@@ -4,15 +4,15 @@ import manifest from "@automovie/archetypes/package.json";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * The family table names every family the package exports as a subpath, and the families together hold every producer the root exports, each once.
+ * The package exports its model families and a separate environment authoring entry.
  *
  * Scenarios:
- * 1. The table's keys are exactly the subpaths of the manifest's `exports` other than the root and the manifest itself.
+ * 1. The families, root, manifest and environment authoring entry account for every source and published export path.
  * 2. Every `create*` function the root exports is held by exactly one family, and every producer a family holds is the root's own export.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the published table, the package's root exports and its manifest, the three a consumer reads.
- * @evidence contracts/development/testing.md#independent-expectations The subpaths are read from the manifest and the producers from the root by their naming rule, not from the table under test.
- * @evidence contracts/development/testing.md#distinguishing-cases A family missing from the table fails the first scenario; a producer in no family or in two fails the second.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the family table, the root module and the manifest's source and published export maps.
+ * @evidence contracts/development/testing.md#independent-expectations The manifest declares the paths independently of the table, and the root's naming rule identifies all of its model producers.
+ * @evidence contracts/development/testing.md#distinguishing-cases A missing family, a duplicate role for the environment path, or a different release export list fails the first scenario. A producer in no family or in two fails the second.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over module exports, discovered by its exported name; it builds no model and starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
  */
@@ -22,14 +22,24 @@ export function test_archetype_families(): void {
     b: string,
   ): number => a.localeCompare(b);
 
-  // 1. The families are the subpaths.
+  // 1. The model families and the explicitly separate entry points cover the manifest.
+  const paths: string[] = [
+    ".",
+    "./package.json",
+    "./environments",
+    ...Object.keys(ARCHETYPE_FAMILIES).map(
+      (family: string): string => `./${family}`,
+    ),
+  ].sort(byName);
   TestValidator.equals(
-    "the families are the manifest's subpaths",
-    Object.keys(ARCHETYPE_FAMILIES).sort(byName),
-    Object.keys(manifest.exports)
-      .filter((key: string): boolean => key !== "." && key !== "./package.json")
-      .map((key: string): string => key.slice(2))
-      .sort(byName),
+    "the model families and authoring entry match the source exports",
+    Object.keys(manifest.exports).sort(byName),
+    paths,
+  );
+  TestValidator.equals(
+    "the model families and authoring entry match the published exports",
+    Object.keys(manifest.publishConfig.exports).sort(byName),
+    paths,
   );
 
   // 2. Every producer in exactly one family.

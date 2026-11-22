@@ -3,6 +3,7 @@ import type { IAutoMovieTransform } from "@automovie/interface";
 
 import { ArchetypeFrame } from "../core";
 import { QuadrupedBody } from "./QuadrupedBody";
+import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /** The actual closed rigid vocabulary; no body or species is reconstructed. */
 const BONES: readonly QuadrupedBody.Bone[] = [
@@ -11,6 +12,7 @@ const BONES: readonly QuadrupedBody.Bone[] = [
   "neck",
   "head",
   "tail",
+  ...Object.values(QuadrupedScapula.BONES),
   ...QuadrupedBody.LIMBS.flatMap(
     (limb: QuadrupedBody.Limb): QuadrupedBody.Bone[] => [
       ...QuadrupedBody.BONES[limb],
@@ -36,7 +38,7 @@ export namespace QuadrupedRigDelta {
    * @throws {RangeError} For incomplete/unknown vocabularies, invalid rigid frames or unrepresentable derived translations.
    * @evidence contracts/development/common.md#meaningful-documentation States complete same-rig maps, world metre units, independent output and rigid/nonfinite refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Current rotation times inverse-neutral rotation gives the carrier turn; current origin minus that turn applied to the neutral origin gives the rigid translation, preserving every carrier-local point.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit both complete twenty-one-frame maps, then compute one quaternion/vector pair per actual bone through the engine owners.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit both complete twenty-three-frame maps, then compute one quaternion/vector pair per actual bone through the engine owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No omitted frame, scaled geometry, nearest-bone guess, alternate root or species branch substitutes for the actual admitted rigid maps.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(B) admission, work and fresh output for the fixed actual vocabulary; no source model, geometry buffer or FK traversal is rebuilt.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each consumer shares the returned delta per carrier across all its attached parts/contacts; queries at other frames are evaluated afresh.

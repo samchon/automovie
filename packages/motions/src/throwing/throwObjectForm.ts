@@ -8,6 +8,12 @@ import type {
  * and its hand's places by style, each with its source or marked provisional
  * where no study read gives the value. Read by `throwObject`.
  *
+ * Rugby uses the side-to-side reactive releases assessed by Pavely et al.
+ * (PMID 19897167). Gridiron delivery uses the shoulder loading and torso
+ * reversal phases in PMID 40719675 (PMCID PMC12317801). The grounded snap
+ * is released between the centre's legs toward the quarterback. Sport
+ * coefficients are provisional staging values.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds and its reader; each member states its unit, source or provisional status.
  * @evidence contracts/development/design.md#principled-representation One closed style union and one table per coefficient keyed by it.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The style and the seven tables the throw's plan reads.
@@ -21,6 +27,12 @@ export namespace throwObjectForm {
     overarm: 20,
     underarm: 40,
     toss: 50,
+    windmill: 2,
+    cricket: -4,
+    bowling: -1,
+    rugby: 18,
+    gridironPass: 17,
+    gridironSnap: 22,
   };
 
   /** Seconds before and after the release through which the hand holds the launch velocity (provisional). */
@@ -33,6 +45,12 @@ export namespace throwObjectForm {
     overarm: 0.5,
     underarm: 0.45,
     toss: 0.35,
+    windmill: 0.64,
+    cricket: 0.42,
+    bowling: 0.58,
+    rugby: 0.3,
+    gridironPass: 0.45,
+    gridironSnap: 0.24,
   };
 
   /** The trunk's turn toward the throwing side in the windup, degrees (provisional). */
@@ -42,6 +60,12 @@ export namespace throwObjectForm {
     overarm: 40,
     underarm: 20,
     toss: 10,
+    windmill: 31,
+    cricket: 30,
+    bowling: 19,
+    rugby: 30,
+    gridironPass: 35,
+    gridironSnap: 0,
   };
 
   /**
@@ -56,6 +80,12 @@ export namespace throwObjectForm {
     overarm: 30,
     underarm: 0,
     toss: 0,
+    windmill: 7,
+    cricket: 21,
+    bowling: 39,
+    rugby: 6,
+    gridironPass: 12,
+    gridironSnap: 52,
   };
 
   /**
@@ -68,6 +98,7 @@ export namespace throwObjectForm {
     Partial<Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>>
   > = {
     overarm: 22.5,
+    gridironPass: 35,
   };
 
   /**
@@ -98,6 +129,38 @@ export namespace throwObjectForm {
       chamber: { x: 0.2, y: -0.75, z: -0.1 },
       release: { x: 0.1, y: -0.4, z: 0.55 },
       finish: { x: 0.05, y: -0.2, z: 0.6 },
+    },
+    // Provisional landmarks in arm lengths. The windmill's chamber ends
+    // the arm circle and its release runs close to the throwing hip.
+    windmill: {
+      chamber: { x: 0.26, y: -0.82, z: -0.16 },
+      release: { x: 0.22, y: -0.89, z: 0.18 },
+      finish: { x: 0.25, y: -0.05, z: 0.77 },
+    },
+    cricket: {
+      chamber: { x: 0.29, y: -0.32, z: -0.76 },
+      release: { x: 0.06, y: 0.91, z: 0.13 },
+      finish: { x: -0.38, y: -0.71, z: 0.36 },
+    },
+    bowling: {
+      chamber: { x: 0.23, y: -0.5, z: -0.79 },
+      release: { x: 0.13, y: -0.94, z: 0.12 },
+      finish: { x: 0.23, y: -0.3, z: 0.79 },
+    },
+    rugby: {
+      chamber: { x: -0.1, y: -0.58, z: 0.38 },
+      release: { x: -0.85, y: -0.38, z: 0.24 },
+      finish: { x: -1.05, y: -0.35, z: 0.2 },
+    },
+    gridironPass: {
+      chamber: { x: 0.4, y: 0.38, z: -0.42 },
+      release: { x: 0.15, y: 0.55, z: 0.43 },
+      finish: { x: -0.36, y: -0.42, z: 0.52 },
+    },
+    gridironSnap: {
+      chamber: { x: -0.28, y: -0.73, z: 0.29 },
+      release: { x: -0.28, y: -0.45, z: -0.76 },
+      finish: { x: -0.18, y: -0.52, z: -0.45 },
     },
   };
 }

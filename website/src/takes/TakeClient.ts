@@ -1,4 +1,3 @@
-import type { IHumanEntry } from "../human/structures/IHumanEntry";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
 import type { IPlaygroundRefusal } from "../playground/structures/IPlaygroundRefusal";
 import type { IPlaygroundVerdicts } from "../playground/structures/IPlaygroundVerdicts";
@@ -75,7 +74,6 @@ export namespace TakeClient {
   const queue: IJob[] = [];
   const pool: IWorker[] = [];
   const takes: Map<string, IEntry> = new Map();
-  const bodies: Map<string, Promise<IHumanEntry>> = new Map();
 
   /** The worker that last built each composition, by its JSON, so its verdicts are read where its performance is kept. */
   const builders: Map<string, IWorker> = new Map();
@@ -151,35 +149,6 @@ export namespace TakeClient {
           ? answer.refusal.message
           : `The take worker answered verdicts with ${answer.kind}`,
     );
-  }
-
-  /**
-   * One of the site's bodies with its measures, prepared once per page.
-   *
-   * @param id A key of `PLAYGROUND_BODIES`.
-   * @returns Its id, label and measures.
-   * @throws {Error} When no body has that id or the worker fails.
-   */
-  export function body(id: string): Promise<IHumanEntry> {
-    let known: Promise<IHumanEntry> | undefined = bodies.get(id);
-    if (known === undefined) {
-      known = enqueue(
-        { kind: "body", id: next++, body: id },
-        null,
-      ).response.then((answer: ITakeResponse): IHumanEntry => {
-        if (answer.kind === "body") return answer.body;
-        throw new Error(
-          answer.kind === "error"
-            ? answer.message
-            : `The take worker answered a body with ${answer.kind}`,
-        );
-      });
-      known.catch((): void => {
-        bodies.delete(id);
-      });
-      bodies.set(id, known);
-    }
-    return known;
   }
 
   /** One caller's wait on a cached take, which it may abandon. */

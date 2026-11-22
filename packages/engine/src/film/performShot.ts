@@ -1,49 +1,58 @@
-import {
+import type {
   IAutoMovieActionCall,
-  type IAutoMovieActionSynthesizer,
+  IAutoMovieActionSynthesizer,
   IAutoMovieBeatEndState,
   IAutoMovieCamera,
   IAutoMovieClip,
   IAutoMovieCompiledFormation,
-  type IAutoMovieCompiledPerformance,
+  IAutoMovieCompiledPerformance,
   IAutoMovieConstraintViolation,
-  type IAutoMovieCoupleObjects,
-  type IAutoMovieEnginePerformShotActionPlan,
-  type IAutoMovieEnginePerformShotGateContext,
+  IAutoMovieCoupleObjects,
+  IAutoMovieEnginePerformShotActionPlan,
+  IAutoMovieEnginePerformShotGateContext,
   IAutoMovieFormationMotion,
   IAutoMovieInteractionEvent,
   IAutoMovieLight,
-  type IAutoMovieMaskedContent,
+  IAutoMovieMaskedContent,
   IAutoMovieMotion,
-  type IAutoMoviePerformShotCoverageJob,
-  type IAutoMoviePerformShotProps,
+  IAutoMoviePerformShotCoverageJob,
+  IAutoMoviePerformShotProps,
   IAutoMoviePerformance,
-  type IAutoMoviePerformedShot,
+  IAutoMoviePerformedShot,
+  IAutoMoviePracticalSurfaceTrack,
   IAutoMovieQuaternion,
   IAutoMovieSceneNode,
   IAutoMovieScript,
   IAutoMovieShot,
   IAutoMovieShotPerformance,
   IAutoMovieSkeleton,
-  type IAutoMovieStagedSet,
-  type IAutoMovieValidation,
+  IAutoMovieStagedSet,
+  IAutoMovieValidation,
   IAutoMovieVector3,
-  type IAutoMovieViolationCollector,
+  IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
+import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { compilePerformance } from "../perform/compilePerformance";
 import { scenePlacements } from "../perform/scenePlacements";
 import { sampleFormationMotion } from "../sampleFormationMotion";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { transformFormationPoint } from "../transformFormationPoint";
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { admitShotEditorialMarkers } from "../validation/admitShotEditorialMarkers";
 import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
+import { appendPolygonBodyCuesArtifact } from "../validation/appendPolygonBodyCuesArtifact";
+import { appendPracticalSurfacesArtifact } from "../validation/appendPracticalSurfacesArtifact";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { validateMotion } from "../validation/validateMotion";
 import { validateShotArtifact } from "../validation/validateShotArtifact";
+import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compilePerformShotCameras } from "./compilePerformShotCameras";
 import { compilePerformShotLaunches } from "./compilePerformShotLaunches";
+import { compilePerformShotPracticalLights } from "./compilePerformShotPracticalLights";
+import { copyPolygonBodyCue } from "./copyPolygonBodyCue";
 import { coupleObjects } from "./coupleObjects";
+import { createPerformShotSubjectFramer } from "./createPerformShotSubjectFramer";
 import { gateAuthoredObjectMotions } from "./gateAuthoredObjectMotions";
 import { gatePerformShotActions } from "./gatePerformShotActions";
 import { gatePerformShotBlocking } from "./gatePerformShotBlocking";
@@ -69,12 +78,13 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
  *
  * The performing list is `revise.final` when the revise pass produced one and `draft` otherwise. The stages run in order, and the first stage group that reports a violation returns every violation of that group and stops:
  *
- * 1. Input: unique script beat ids, the shot's `lightMotions` against the staged lights, a planned beat, a positive duration, every action by {@link gatePerformShotActions}, the live camera's moves by {@link gatePerformShotFrameOverlaps}, same-actor content overlaps by {@link gatePerformShotRegionOverlaps}, the blocking by {@link gatePerformShotBlocking}, and the cameras by {@link gatePerformShotCamera}.
+ * 1. Input: unique script beat ids, the shot's `lightMotions` against the staged lights and its polygon body cues against staged rigs and practical surface tracks against the staged nodes and registered models, a planned beat, a positive duration, authored editorial markers, every action by {@link gatePerformShotActions}, the live camera's moves by {@link gatePerformShotFrameOverlaps}, same-actor content overlaps by {@link gatePerformShotRegionOverlaps}, the blocking by {@link gatePerformShotBlocking}, and the cameras by {@link gatePerformShotCamera}.
  * 2. Launches: each flight is solved and its recoil scheduled by {@link compilePerformShotLaunches}.
  * 3. Performance: the stage list compiles, stance feet are planted by {@link plantPerformShotStanceFeet}, every channel a region mask would drop is reported at the author's `region` (or `onHit`) field, and every clip must pass `validateMotion` against its rig.
  * 4. Coupling: per-beat `attachTo` handoffs and staged mounts are baked by {@link coupleObjects}.
  * 5. Authored object clips are gated by {@link gateAuthoredObjectMotions}.
- * 6. Cameras: the live camera's move and each coverage take compile through the framing grammar, subjects measured by {@link createPerformShotSubjectFramer}, and any physical clearance envelope is checked by {@link compileCameraClearanceReports}.
+ * 6. Practical lights bind staged emitters to the final object clips and share light channel admission with authored clips.
+ * 7. Cameras: the live camera's move and each coverage take compile through the framing grammar, subjects measured by {@link createPerformShotSubjectFramer}, and any physical clearance envelope is checked by {@link compileCameraClearanceReports}.
  *
  * A shot with no frame action is locked off on the scene's first camera. Positional targets resolve against every staged placement, cameras included, so an actor may look down the lens, but a camera performs only frame. Only a camera subject may name a formation. The assembled artifact is checked independently and a failure throws as a compilation defect. This does not prove every possible authored failure was located earlier: typed outer containers, generated event-id collisions, mutable callbacks and downstream arithmetic remain distinct exception boundaries.
  *
@@ -83,8 +93,8 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No beat, actor, camera or prop is special-cased; every refusal carries a path into the author's input, and the artifact check throws rather than downgrading an engine defect into an authoring violation.
  * @evidence contracts/development/common.md#meaningful-documentation States which list performs, every stage in order with its owner, the stop-at-first-failing-group rule, the locked-off fallback, how cameras and formations may be targeted, and when and why it throws; each input field documents its meaning and what omitting it does.
  * @evidence contracts/development/implementation.md#efficient-algorithms Gates include pairwise same-actor region overlap checks and sorted frame spans, so their cost is not uniformly linear; delegated launch, planting, camera, clip and artifact checks add their own population costs. Synthesis is invoked at most once per action object and actor within this call.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Synthesis is memoized per action object and actor, so the overlap gate, the launch probe and the performance compile share one clip per pair; the staged lookup tables are built once into the gate context, and model extents once per node in the subject framer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synthesis memo is a `WeakMap` keyed by the caller's action objects and is dropped with the call, as are the gate context and the framer; the caller owns the returned shot, motions and plants.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Synthesis is memoized per action/actor, sharing one clip across overlap, launch and performance stages; staged lookups and per-node subject extents prepare once. After rig/clip admission, each attachment bake receives a genuine immutable snapshot of its actual fixed parent rig/mappings, sharing only static prerequisites and exact demanded-bone dependencies across its current samples. Stable gate/compile inputs remain the premise; target callbacks and pose samples are not memoized by this FK owner.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The call releases its synthesis WeakMap, gate context and framer. Each synchronous attachment bake releases its prepared demand/operation rows before returning only numeric tracks; no FK reader enters the returned shot. The caller owns the returned shot, motions and plants.
  */
 export function performShot(
   props: IAutoMoviePerformShotProps,
@@ -190,6 +200,50 @@ export function performShot(
       `shot duration must be a finite number > 0 seconds, but was ${describeInvalidValue(performance.duration)}`,
       performance.duration,
     );
+  const editorialMarkers: IAutoMovieShot["editorialMarkers"] =
+    admitShotEditorialMarkers(
+      performance.editorialMarkers,
+      performance.duration,
+      out.items,
+    );
+  appendPolygonBodyCuesArtifact(
+    props.polygonBodyCues,
+    staged.scene.nodes,
+    performance.duration,
+    out,
+    skeleton,
+  );
+  const polygonBodyCues: IAutoMovieShot["polygonBodyCues"] =
+    out.items.length === 0
+      ? props.polygonBodyCues?.map(copyPolygonBodyCue)
+      : undefined;
+  appendPracticalSurfacesArtifact(
+    props.practicalSurfaces,
+    staged.scene.nodes,
+    performance.duration,
+    out.items,
+    props.models ?? [],
+  );
+  const practicalSurfaces: IAutoMovieShot["practicalSurfaces"] =
+    out.items.length === 0
+      ? props.practicalSurfaces?.map(
+          (
+            track: IAutoMoviePracticalSurfaceTrack,
+          ): IAutoMoviePracticalSurfaceTrack => ({
+            node: track.node,
+            part: track.part,
+            keys: track.keys.map(
+              ({
+                time,
+                material,
+              }: IAutoMoviePracticalSurfaceTrack["keys"][number]): IAutoMoviePracticalSurfaceTrack["keys"][number] => ({
+                time,
+                material,
+              }),
+            ),
+          }),
+        )
+      : undefined;
   const actions: IAutoMovieActionCall[] =
     performance.revise.final ?? performance.draft;
   const plan: IAutoMovieEnginePerformShotActionPlan = gatePerformShotActions(
@@ -231,14 +285,17 @@ export function performShot(
   );
   const motions: Record<string, IAutoMovieMotion> = compiled.performances;
   const plants: IAutoMoviePerformedShot.ISuccess["plants"] =
-    plantPerformShotStanceFeet({
-      staged,
-      motions,
-      previous: props.previous,
-      skeleton,
-      jointAxes: props.jointAxes,
-      restFrames: props.restFrames,
-    });
+    plantPerformShotStanceFeet(
+      {
+        staged,
+        motions,
+        previous: props.previous,
+        skeleton,
+        jointAxes: props.jointAxes,
+        restFrames: props.restFrames,
+      },
+      { duration: performance.duration, out },
+    );
   for (const drop of compiled.masked)
     out.push(
       "type",
@@ -262,7 +319,7 @@ export function performShot(
   }
   if (out.items.length > 0) return failure();
 
-  // 4. Coupling, now that the parents' poses have compiled.
+  // 4. Admitted parent rigs can prepare only their demanded attachment ancestry.
   const coupled: IAutoMovieCoupleObjects.IResult = coupleObjects({
     attachments: plan.attachments,
     mounts: staged.mounts,
@@ -271,6 +328,7 @@ export function performShot(
     skeleton,
     jointAxes: props.jointAxes,
     restFrames: props.restFrames,
+    prepareRig: prepareSkeletonPoseResolution,
     duration: performance.duration,
   });
   objectMotions.push(...coupled.clips);
@@ -294,7 +352,12 @@ export function performShot(
   if (out.items.length > 0) return failure();
   objectMotions.push(...authored);
 
-  // 6. Cameras.
+  // 6. Bind practical lights to the completed object clips.
+  const resolvedLightMotions: IAutoMovieClip[] | undefined =
+    compilePerformShotPracticalLights(props, objectMotions, lightMotions, out);
+  if (out.items.length > 0) return failure();
+
+  // 7. Cameras.
   const liveCamera: string = cameras.liveCamera!;
   const camera: Pick<
     IAutoMovieShot,
@@ -337,13 +400,18 @@ export function performShot(
       }),
     ),
     objectMotions,
-    ...(lightMotions === undefined ? {} : { lightMotions }),
+    ...(resolvedLightMotions === undefined
+      ? {}
+      : { lightMotions: resolvedLightMotions }),
+    ...(practicalSurfaces === undefined ? {} : { practicalSurfaces }),
+    ...(polygonBodyCues === undefined ? {} : { polygonBodyCues }),
     events: [...events].sort(
       (a: IAutoMovieInteractionEvent, b: IAutoMovieInteractionEvent): number =>
         a.time - b.time ||
         EVENT_KIND_ORDER[a.kind] - EVENT_KIND_ORDER[b.kind] ||
         compareCodeUnits(a.id, b.id),
     ),
+    ...(editorialMarkers === undefined ? {} : { editorialMarkers }),
     cameraIntent: camera.cameraIntent,
     coverage: camera.coverage,
     ...(camera.cameraClearance === undefined

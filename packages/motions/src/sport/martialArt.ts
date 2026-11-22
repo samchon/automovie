@@ -9,8 +9,10 @@ import type {
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanMartialArt,
+  IAutoMovieMotionHumanPlaced,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionManner,
@@ -29,6 +31,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
+import { MartialArtStancePhrase } from "./MartialArtStancePhrase";
 
 /**
  * Martial-art forms other than kickboxing (#3252): the karate horse stance
@@ -38,10 +41,11 @@ import { HumanFrame } from "../posture/HumanFrame";
  * - Horse stance: the left foot steps out until the feet stand two
  *   shoulder widths apart (provisional) and the hips sink a fifth of the
  *   thigh (provisional), held, and the foot steps back.
- * - Choku-zuki: from the horse stance, each fist drives from its chamber at
- *   the hip (waist height, at the shoulder's side) to the midline at chest
- *   height an arm's reach ahead, the other fist pulled back to its chamber
- *   at the same time (hikite). Each punch extends in 0.2 s and stays 0.2 s,
+ * - Choku-zuki: each fist leaves a waist-high chamber outside the live
+ *   shoulder and passes around the flank before reaching the midline at
+ *   chest height. The other fist returns to its chamber (hikite). Upper-arm
+ *   and forearm radii provide provisional clearance for the tucked elbow
+ *   as it turns. Each punch extends in 0.2 s and stays 0.2 s,
  *   inside the 400 ms a choku-zuki takes (VencesBrito et al. 2011); the
  *   hands alternate.
  * - Tai chi push: the lead foot steps ahead 0.35 statures (provisional)
@@ -51,10 +55,11 @@ import { HumanFrame } from "../posture/HumanFrame";
  *   ahead, then shifts back over 3 s, and the foot returns over 3 s: the
  *   slow, continuous form of tai chi (Wu and Hitt 2005).
  *
- * Forms are authored as ordered technique lists; no named form's content is
- * shipped. Not drafted: front and back stances as their own rows, blocks,
- * taekwondo's back and turning kicks, judo and wrestling (the grappling
- * owner's) and the tai chi gait.
+ * The karate and tai chi stance phrases link their own support transfers
+ * and arm carriage on a single clock. The taekwondo and Muay Thai solo
+ * resets share that support and recovery clock under their styles' low and
+ * high guards. Their distinct pelvis paths and guard sites are authored
+ * blocking for screen animation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each technique's geometry, timing with its source, provisional values and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record of root, leg and placed-arm rows on one clock.
@@ -89,7 +94,7 @@ export namespace martialArt {
    * @evidence contracts/development/implementation.md#principled-implementation A stance entered by a step and a sink, then the technique's arm rows on named places.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, stance rows, then the technique's rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body measures and named places only; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per arm per second.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each arm keeps its existing fitting. The karate pulse reads at most two candidate starts, independent of punch count.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the leg arc and the placed arm.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
@@ -97,16 +102,31 @@ export namespace martialArt {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMartialArt.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanMartialArt.IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
+      body.measure;
     const count: number = p.count ?? 4;
     const hold: number = p.seconds ?? 1;
     HumanBound.whole("count", count);
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
+    if (
+      p.kind === "karateStanceTransfer" ||
+      p.kind === "taiChiTransfer" ||
+      p.kind === "taekwondoStanceReset" ||
+      p.kind === "muayThaiStanceReset" ||
+      p.kind === "capoeiraGinga" ||
+      p.kind === "sumoShiko" ||
+      p.kind === "wingChunStance"
+    )
+      return MartialArtStancePhrase(context, p.kind, hold, modifiers);
+
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const axes = { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw };
+    const axes: IAutoMovieMotionHumanFrame = {
+      origin: { x: 0, y: 0, z: 0 },
+      yaw: entry.yaw,
+    };
     const forward: IAutoMovieVector3 = HumanFrame.point(axes, {
       x: 0,
       y: 0,
@@ -143,7 +163,7 @@ export namespace martialArt {
       }),
       modifiers,
     );
-    const into = (s: number): number =>
+    const into: (s: number) => number = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);
     // The span the arms are planned over: the reach to the place, the hold and the return.
     const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
@@ -152,7 +172,9 @@ export namespace martialArt {
       relax: clock.at("relax"),
       end: clock.at("end"),
     };
-    const root = (
+    const root: (
+      offset: (s: number) => IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanPrimitive = (
       offset: (s: number) => IAutoMovieVector3,
     ): IAutoMovieMotionHumanPrimitive => ({
       channels: ["root"],
@@ -166,7 +188,11 @@ export namespace martialArt {
         root: Vector3.add(posture.root, offset(s)),
       }),
     });
-    const lead = (
+    const lead: (
+      side: "left" | "right",
+      by: IAutoMovieVector3,
+      s: number,
+    ) => IAutoMovieMotionHumanFoot.IPlacement = (
       side: "left" | "right",
       by: IAutoMovieVector3,
       s: number,
@@ -180,8 +206,12 @@ export namespace martialArt {
         0.03 * m.stature,
         into(s),
       );
-    const bearing = (s: number): boolean => into(s) <= 0 || into(s) >= 1;
-    const stepped = (
+    const bearing: (s: number) => boolean = (s: number): boolean =>
+      into(s) <= 0 || into(s) >= 1;
+    const stepped: (
+      side: "left" | "right",
+      by: IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanPrimitive = (
       side: "left" | "right",
       by: IAutoMovieVector3,
     ): IAutoMovieMotionHumanPrimitive =>
@@ -196,17 +226,28 @@ export namespace martialArt {
         ): IAutoMovieMotionHumanFoot.IPlacement => lead(side, by, s),
         planted: bearing,
       });
-    const rest = (
+    const rest: (
+      side: "left" | "right",
+    ) => IAutoMovieMotionHumanArmAngles.IAngles = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
+    // The right foot stands throughout; the left steps out over the way into
+    // the stance and back over the way out of it, and bears between.
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         part: "rightFoot",
         kind: "plant",
         from: 0,
         to: 1,
+        support: { kind: "ground" },
+      },
+      {
+        part: "leftFoot",
+        kind: "plant",
+        from: clock.at("ready") / clock.duration,
+        to: clock.at("relax") / clock.duration,
         support: { kind: "ground" },
       },
     ];
@@ -235,25 +276,40 @@ export namespace martialArt {
     }
     if (p.kind === "chokuZuki") {
       // Punch i starts at `ready + 2 i PUNCH`, by the right hand first.
-      const start = (i: number): number =>
-        clock.at("ready") + 2 * i * PUNCH * modifiers.tempo;
-      const extended = (side: "left" | "right", s: number): number => {
-        let w: number = 0;
-        for (let i: number = 0; i < count; i++) {
-          if ((i % 2 === 0) !== (side === "right")) continue;
-          const a: number = start(i);
-          const len: number = PUNCH * modifiers.tempo;
-          const rise: number = Math.min(1, Math.max(0, (s - a) / len));
-          const fall: number = Math.min(
-            1,
-            Math.max(0, (s - a - 2 * len) / len),
-          );
-          const ease = (u: number): number => u * u * (3 - 2 * u);
-          w = Math.max(w, ease(rise) - ease(fall));
-        }
-        return w;
+      const ready: number = clock.at("ready");
+      const len: number = PUNCH * modifiers.tempo;
+      const start: (i: number) => number = (i: number): number =>
+        ready + 2 * i * PUNCH * modifiers.tempo;
+      const ease: (u: number) => number = (u: number): number =>
+        u * u * (3 - 2 * u);
+      const extended: (side: "left" | "right", s: number) => number = (
+        side: "left" | "right",
+        s: number,
+      ): number => {
+        const first: number = side === "right" ? 0 : 1;
+        if (s < start(first)) return 0;
+
+        // Each arm's three-unit pulse fits inside its four-unit period.
+        // Check the next authored start to preserve the exact phase if
+        // floating-point division rounds the estimated cycle down.
+        let i: number = first + 2 * Math.floor((s - start(first)) / (4 * len));
+        if (s >= start(i + 2)) i += 2;
+        if (i >= count) return 0;
+        const a: number = start(i);
+        const rise: number = Math.min(1, Math.max(0, (s - a) / len));
+        const fall: number = Math.min(1, Math.max(0, (s - a - 2 * len) / len));
+        return Math.max(0, ease(rise) - ease(fall));
       };
-      for (const side of ["left", "right"] as const)
+      for (const side of ["left", "right"] as const) {
+        const outward: number = side === "left" ? 1 : -1;
+        const chamberOffset: IAutoMovieVector3 = {
+          x: outward * (m.upperArmRadius + m.forearmRadius),
+          y: m.waistHeight - m.shoulderHeight,
+          z:
+            AutoMovieMotionHumanTargetGrid.DISTANCES.close *
+              (m.upperArm + m.forearm) +
+            m.forearmRadius / 2,
+        };
         primitives.push(
           ...AutoMovieMotionHumanPlaced.arm({
             body,
@@ -263,15 +319,36 @@ export namespace martialArt {
             rest: rest(side),
             weight: into,
             span,
+            // The clock is the law's own, lengthened by a slower tempo.
+            together: AutoMovieMotionHumanArm.together(
+              context.handover,
+              true,
+              context.tempo,
+            ),
             surface: "fist",
             shape: "fist",
-            place: (posture: IAutoMovieMotionHumanPosture, s: number) => {
-              const chamber: IAutoMovieVector3 =
-                AutoMovieMotionHumanPlaced.grid(body, posture, side, {
-                  height: "waist",
-                  lateral: "shoulder",
-                  distance: "close",
-                });
+            place: (
+              posture: IAutoMovieMotionHumanPosture,
+              s: number,
+              resolution?: Parameters<
+                IAutoMovieMotionHumanActionPlan["posture"]
+              >[2],
+            ) => {
+              const axes: IAutoMovieMotionHumanFrame = {
+                origin: { x: 0, y: 0, z: 0 },
+                yaw: posture.yaw,
+              };
+              const shoulder: IAutoMovieVector3 =
+                AutoMovieMotionHumanPlaced.joint(
+                  body,
+                  posture,
+                  `${side}UpperArm`,
+                  resolution,
+                );
+              const chamber: IAutoMovieVector3 = HumanFrame.point(
+                { ...axes, origin: shoulder },
+                chamberOffset,
+              );
               const aim: IAutoMovieVector3 = HumanFrame.point(
                 {
                   origin: { x: posture.root.x, y: 0, z: posture.root.z },
@@ -285,21 +362,37 @@ export namespace martialArt {
                   z: m.upperArm + m.forearm,
                 },
               );
+              const phase: number = extended(side, s);
+
+              // A shallow outward arc clears the flank as the forearm turns
+              // out of or back into chamber. Its endpoint is the same midline.
               return {
-                point: Vector3.lerp(chamber, aim, extended(side, s)),
-                facing: HumanFrame.point(
-                  { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-                  { x: 0, y: 0, z: 1 },
+                point: Vector3.add(
+                  Vector3.lerp(chamber, aim, phase),
+                  HumanFrame.point(axes, {
+                    x: outward * m.forearmRadius * 2 * phase * (1 - phase),
+                    y: 0,
+                    z: 0,
+                  }),
                 ),
+                facing: HumanFrame.point(axes, { x: 0, y: 0, z: 1 }),
               };
             },
             bend: "tucked",
           }),
         );
+      }
     }
     if (p.kind === "taiChiPush") {
       const stride: number = 0.35 * m.stature * modifiers.extent;
-      const shift = (s: number): number =>
+      const arm: number = m.upperArm + m.forearm;
+      const near: number = AutoMovieMotionHumanTargetGrid.DISTANCES.near * arm;
+      const far: number = AutoMovieMotionHumanTargetGrid.DISTANCES.far * arm;
+      const inside: number =
+        (1 - AutoMovieMotionHumanTargetGrid.LATERALS.inside) *
+        m.shoulderHalfWidth;
+      const below: number = m.chestHeight - m.shoulderHeight;
+      const shift: (s: number) => number = (s: number): number =>
         clock.envelope(["strokeStart", "stroke"], ["stroke", "strokeEnd"], s);
       // The hips travel between the feet and sink until each bearing leg
       // reaches its foot: the bow stance's depth follows from the stride.
@@ -346,19 +439,33 @@ export namespace martialArt {
             rest: rest(side),
             weight: into,
             span,
-            place: (posture: IAutoMovieMotionHumanPosture, s: number) => ({
-              point: Vector3.lerp(
-                AutoMovieMotionHumanPlaced.grid(body, posture, side, {
-                  height: "chest",
-                  lateral: "inside",
-                  distance: "near",
-                }),
-                AutoMovieMotionHumanPlaced.grid(body, posture, side, {
-                  height: "chest",
-                  lateral: "inside",
-                  distance: "far",
-                }),
-                shift(s),
+            together: AutoMovieMotionHumanArm.together(
+              context.handover,
+              true,
+              context.tempo,
+            ),
+            place: (
+              posture: IAutoMovieMotionHumanPosture,
+              s: number,
+              resolution?: Parameters<
+                IAutoMovieMotionHumanActionPlan["posture"]
+              >[2],
+            ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => ({
+              point: Vector3.add(
+                AutoMovieMotionHumanPlaced.joint(
+                  body,
+                  posture,
+                  `${side}UpperArm`,
+                  resolution,
+                ),
+                HumanFrame.point(
+                  { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+                  {
+                    x: side === "left" ? -inside : inside,
+                    y: below,
+                    z: near + (far - near) * shift(s),
+                  },
+                ),
               ),
               facing: HumanFrame.point(
                 { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },

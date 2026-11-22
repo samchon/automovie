@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
+import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
 
 /**
  * The contacts of several moving weapons with several bodies that may each
@@ -27,8 +28,9 @@ import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
  * every moving weapon's first time of impact against the bodies it does not
  * belong to, stop only the earliest, and re-evaluate every other weapon
  * against the poses that stop produces, until no weapon meets anything.
- * Each first impact is found by a fixed-step scan of the signed gap and 24
- * bisections of the first crossing, so the result is deterministic; a
+ * Each first impact is found by a fixed-step scan of the signed gap and a
+ * bracketed root search of the first crossing to a nanosecond
+ * (`firstAutoMovieContactImpact`), so the result is deterministic; a
  * contact shorter than one step (a weapon and a body passing through each
  * other within it) is the scan's stated blind spot, so the step must stay
  * below the time either needs to cross the other's thickness. A weapon
@@ -37,12 +39,20 @@ import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
  * meets nothing; the steps are the same as a scan of the whole span, so the
  * result is too, and a performance of many strikes scans each strike over
  * its own window instead of over the whole performance. Since only the
- * earliest impact is stopped, each round scans the weapons in the order
- * they become live and no weapon past the earliest impact found so far: one
- * that becomes live after it cannot be earlier. Ties in
+ * earliest impact is stopped, each round reads the moving weapons' scans
+ * together, one grid step at a time and in the order the weapons become
+ * live: the step at which a first scan finds a contact ends the round, so
+ * no weapon is read past the earliest impact, and one that becomes live
+ * after it cannot be earlier. Ties in
  * time are broken by the weapons' ids, and a weapon that touches the moment
  * another stops is stopped at that same second, so the result does not
  * depend on the order the weapons are listed in.
+ *
+ * A weapon may produce both endpoints together through `sample`; this
+ * replaces its separate endpoint calls for that exact query. The declared
+ * presence of `tail` still fixes its sphere or capsule kind. Samples are
+ * recomputed at every query and after each committed stop, including when
+ * two events share the same second.
  *
  * Initial penetration or touch is a contact. A body may explicitly certify
  * that this initial episode was resolved and is departing: either no new
@@ -61,20 +71,26 @@ import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
  * second against the striker's body: neither limb is driven on into the one
  * that has already stopped on it.
  *
+ * Weapons may be the capsules of one rigid part (`group`): an arm's upper
+ * arm, forearm and fist. The part stops where any of its capsules first
+ * meets a body, so once one stops, the others are scanned no more and give
+ * no event: what they touch afterwards is the stopped part resting on the
+ * body it met, not a second strike.
+ *
  * This resolves simultaneous strikes consistently: two fists crossing each
  * other's arms, two shins meeting, a block that arrives first. It is a
  * kinematic resolution of contact times, not a force simulation.
  *
  * @param input The weapons, the bodies and the span.
  * @returns The stops, in time order.
- * @throws {Error} When the span or the step is not positive, a weapon id repeats, a weapon's live span is not finite or ends before it begins, a tail radius is given without a tail or is not a finite non-negative length, a capsule weapon meets a body that measures no segment, a departure witness is invalid, or a body names a carried weapon that is not its own.
+ * @throws {Error} When the span or the step is not positive, the span or step is not finite or the scan grid's step count over the span is not a safe integer (a RangeError from the scan), a weapon id repeats, a weapon's live span is not finite or ends before it begins, a tail radius is given without a tail or is not a finite non-negative length, a sample changes its declared sphere/capsule kind, a capsule weapon meets a body that measures no segment, a departure witness is invalid, or a body names a carried weapon that is not its own.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the method, its determinism, its tie rule and what it does not model.
+ * @evidence contracts/development/common.md#meaningful-documentation States the method, its determinism, its tie rule, the rigid-part group rule and what it does not model.
  * @evidence contracts/development/implementation.md#principled-implementation The time-ordered event loop of impulse-based simulation over continuous first-impact times.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop orders events; firstAutoMovieContactImpact owns the single first-impact search, pair distances and departure admission.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop orders events; firstAutoMovieContactImpact owns the single first-impact scan, pair distances and departure admission, and each round reads the weapons' scans in step. sampleAutoMovieContactWeapon owns optional combined endpoint production for the scan and mutual-contact queries.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid spans, steps and repeated ids throw, and a capsule weapon is never reduced to its end points when a body cannot measure a segment: that throws. Initial overlap remains a contact unless explicit physical departure is certified; a witness must have finite positive actual clearance. No clock nudge or permanent collider exclusion is used.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each event re-scans the remaining weapons, each over samples inside its own live span and no later than the earliest impact already found. Each initially contacting pair may additionally invoke its physical departure model once and validate one witness. Sequential strikes avoid scanning every weapon over the whole performance after every event.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work All sphere/capsule/tapered pair measurements and first-impact scans share firstAutoMovieContactImpact; stop-dependent certificates are rebuilt for each search rather than reused after the pose changes.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each event re-scans the remaining weapons, each over samples inside its own live span, all a grid step at a time, so that no weapon is sampled past the step in which the round's earliest impact is found; the other weapons of a stopped group are not scanned again. Each initially contacting pair may additionally invoke its physical departure model once and validate one witness. Sequential strikes avoid scanning every weapon over the whole performance after every event.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All sphere/capsule/tapered pair measurements and first-impact scans share firstAutoMovieContactImpact; stop-dependent certificates are rebuilt for each search rather than reused after the pose changes. Combined endpoints share only one actual producer invocation within a query, with no time or stop-state cache. Legacy mutual-contact tail demand remains conditional on a carried query.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function resolveAutoMovieContactEvents(
@@ -106,6 +122,10 @@ export function resolveAutoMovieContactEvents(
       );
   }
   const stopped: Map<string, number> = new Map();
+
+  // Groups whose part has stopped: their remaining weapons meet nothing more,
+  // and they are not added to the stops, which name only weapons that met.
+  const halted: Set<string> = new Set();
   const events: IAutoMovieResolveContactEvents.IEvent[] = [];
   // In the order the weapons become live, so the earliest impact is found
   // early and bounds the scans after it; ties in time go to the lesser id.
@@ -122,25 +142,42 @@ export function resolveAutoMovieContactEvents(
   for (;;) {
     let best: IAutoMovieResolveContactEvents.IEvent | undefined;
     const after: number = events.at(-1)?.seconds ?? input.from;
+
+    // The moving weapons' scans of this search, read together a grid step at
+    // a time: every scan reads the same seconds, a contact found at a step
+    // lies in the bracket that step closes, and a scan still clear there can
+    // only meet something later. So the step at which the first scan finds a
+    // contact ends the search for all, and no weapon is read past the
+    // earliest contact. A weapon that becomes live after the earliest contact
+    // found so far cannot be earlier, and is not read.
+    const scans: IScanned[] = [];
     for (const weapon of weapons) {
-      if (stopped.has(weapon.id)) continue;
+      if (
+        stopped.has(weapon.id) ||
+        (weapon.group !== undefined && halted.has(weapon.group))
+      )
+        continue;
       if (best !== undefined && (weapon.from ?? -Infinity) > best.seconds)
         break;
-      const hit: { against: string; seconds: number } | undefined =
-        firstAutoMovieContactImpact(
+      const scan: firstAutoMovieContactImpact.IScan =
+        firstAutoMovieContactImpact.scan(
           weapon,
           input,
           stopped,
           Math.max(input.from, after),
-          best?.seconds ?? Infinity,
         );
-      if (
-        hit !== undefined &&
-        (best === undefined ||
-          hit.seconds < best.seconds ||
-          (hit.seconds === best.seconds && weapon.id < best.weapon))
-      )
-        best = { weapon: weapon.id, ...hit };
+      scans.push({ weapon, scan });
+      best = earlier(best, weapon, scan.start());
+    }
+    while (best === undefined) {
+      let step: number = Infinity;
+      for (const { scan } of scans) step = Math.min(step, scan.step());
+      if (step === Infinity) break;
+      for (const { weapon, scan } of scans) {
+        if (best !== undefined && (weapon.from ?? -Infinity) > best.seconds)
+          break;
+        if (scan.step() === step) best = earlier(best, weapon, scan.advance());
+      }
     }
     if (best === undefined) return events;
 
@@ -151,7 +188,14 @@ export function resolveAutoMovieContactEvents(
       (w: IAutoMovieResolveContactEvents.IWeapon): boolean =>
         w.id === best!.weapon,
     )!;
-    const p: IAutoMovieVector3 = striker.position(best.seconds, stopped);
+    const frame: IAutoMovieResolveContactEvents.IWeaponFrame | undefined =
+      striker.sample === undefined
+        ? undefined
+        : sampleAutoMovieContactWeapon(striker, best.seconds, stopped);
+    const p: IAutoMovieVector3 =
+      frame === undefined
+        ? striker.position(best.seconds, stopped)
+        : frame.position;
     const own: string | undefined = input.bodies
       .find(
         (b: IAutoMovieResolveContactEvents.IBody): boolean =>
@@ -159,23 +203,54 @@ export function resolveAutoMovieContactEvents(
       )
       ?.carried?.(
         p,
-        striker.tail?.(best.seconds, stopped) ?? p,
+        frame === undefined
+          ? (striker.tail?.(best.seconds, stopped) ?? p)
+          : (frame.tail ?? p),
         best.seconds,
         stopped,
         striker.owner,
       );
     stopped.set(best.weapon, best.seconds);
     events.push(best);
+    if (striker.group !== undefined) halted.add(striker.group);
     if (own === undefined) continue;
-    if (
-      !weapons.some(
+    const carried: IAutoMovieResolveContactEvents.IWeapon | undefined =
+      weapons.find(
         (w: IAutoMovieResolveContactEvents.IWeapon): boolean =>
           w.id === own && w.owner === best!.against,
-      )
-    )
+      );
+    if (carried === undefined)
       throw new Error(`Body ${best.against} carries no contact weapon ${own}`);
-    if (stopped.has(own)) continue;
+    if (
+      stopped.has(own) ||
+      (carried.group !== undefined && halted.has(carried.group))
+    )
+      continue;
     stopped.set(own, best.seconds);
     events.push({ weapon: own, against: striker.owner, seconds: best.seconds });
+    if (carried.group !== undefined) halted.add(carried.group);
   }
+}
+
+/** One moving weapon with its scan of the current search. */
+interface IScanned {
+  /** The weapon. */
+  weapon: IAutoMovieResolveContactEvents.IWeapon;
+
+  /** Its scan. */
+  scan: firstAutoMovieContactImpact.IScan;
+}
+
+/** The earlier of the contact found so far and a weapon's own, when it has one: the lesser second, then the lesser weapon id. */
+function earlier(
+  best: IAutoMovieResolveContactEvents.IEvent | undefined,
+  weapon: IAutoMovieResolveContactEvents.IWeapon,
+  hit: { against: string; seconds: number } | undefined,
+): IAutoMovieResolveContactEvents.IEvent | undefined {
+  return hit !== undefined &&
+    (best === undefined ||
+      hit.seconds < best.seconds ||
+      (hit.seconds === best.seconds && weapon.id < best.weapon))
+    ? { weapon: weapon.id, ...hit }
+    : best;
 }

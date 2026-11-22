@@ -3,7 +3,7 @@ import type { IAutoMovieMotionHumanHandspring } from "./IAutoMovieMotionHumanHan
 /**
  * A handspring vault (#3377): a front handspring whose hands land on a
  * prop's top, a vaulting table, a box or a plyometric box, and fly from
- * it to the floor beyond.
+ * it to a chosen mat or the floor beyond.
  *
  * The motion is the handspring's (`handspring.over`) with the hands bearing
  * on the prop's `surface` affordance, read where the prop stands as the
@@ -36,5 +36,8 @@ export namespace IAutoMovieMotionHumanVault {
   export interface IParams extends IAutoMovieMotionHumanHandspring.IParams {
     /** The prop vaulted over, its subject id; its `surface` is where the hands land. */
     on: string;
+
+    /** Optional landing mat subject. Its `surface` sets foot contact, touchdown time and the landing support. */
+    landOn?: string;
   }
 }

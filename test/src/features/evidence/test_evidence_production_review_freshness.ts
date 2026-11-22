@@ -33,7 +33,7 @@ export async function test_evidence_production_review_freshness(): Promise<void>
     const reviewPath: string =
       "docs/review/draft/scripts/round-1/001-part/001-scene.md";
     const review: string =
-      "# First\n\n## Scene {#scene}\n<!--\n@evidence 001-part/001-scene.md#scene Read the full scene.\n@evidence shared/principles/review.md#scope Compared the complete scene.\n";
+      "# First\n\n## Scene {#scene}\n<!--\n@evidence 001-part/001-scene.md#scene Read the full scene.\n@evidence principles/review.md#scope Compared the complete scene.\n";
     ProductionWorkflowFixture.write(
       root,
       "docs/body/scripts/001-part/001-scene.md",
@@ -46,7 +46,7 @@ export async function test_evidence_production_review_freshness(): Promise<void>
     );
     ProductionWorkflowFixture.write(
       root,
-      ".agents/skills/contracts/story/shared/principles/review.md",
+      ".agents/skills/contracts/story/principles/review.md",
       "# Review\n\n## Scope {#scope}\n\nRead the complete target.\n",
     );
     const props: IProductionConfigProps = ProductionWorkflowFixture.props(root);

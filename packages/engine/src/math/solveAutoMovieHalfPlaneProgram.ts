@@ -22,17 +22,23 @@ import type { IAutoMovieSolveHalfPlaneProgram } from "@automovie/interface";
  * same incremental method on the projected half-planes of the planes that
  * bound it.
  *
+ * The first `hard` half-planes stay hard in that fallback: the paper's
+ * obstacle half-planes, which the projected programs carry unchanged while
+ * only the later ones are relaxed. When the hard half-planes leave no point
+ * of the disc between them, every half-plane is relaxed alike.
+ *
  * @param lines The half-planes, in order.
  * @param radius The disc's radius about the origin, positive.
  * @param preferred The preferred point.
+ * @param hard How many leading half-planes the fallback keeps, from 0 (the default) to their count.
  * @returns The point found, and whether every half-plane holds at it.
- * @throws {Error} When the radius is not positive and finite, a direction is not a unit vector, or a value is not finite: a caller's defect.
+ * @throws {Error} When the radius is not positive and finite, `hard` is not a whole count within the half-planes, a direction is not a unit vector, or a value is not finite: a caller's defect.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the problem, the half-plane convention, the incremental method, the fallback and their source.
- * @evidence contracts/development/implementation.md#principled-implementation The cited paper's two-dimensional incremental linear program with its one-dimensional subproblem and its three-dimensional program for the infeasible case.
+ * @evidence contracts/development/implementation.md#principled-implementation The cited paper's two-dimensional incremental linear program with its one-dimensional subproblem and its three-dimensional program for the infeasible case, which carries the leading `hard` half-planes unchanged as the paper's program carries its obstacle half-planes.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the input, run the two-dimensional program, fall back to the three-dimensional one from the half-plane it failed on.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No half-plane is dropped or softened: an infeasible set is answered by the least worst violation, and the result says it is.
- * @evidence contracts/development/implementation.md#efficient-algorithms Expected linear in the half-planes for the feasible program, at worst quadratic, and cubic at worst for the fallback, on the few neighbours of one agent.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Expected linear in the half-planes for the feasible program, at worst quadratic, and cubic at worst for the fallback, on the few neighbours of one agent. The admission reads each half-plane's values in place, with no array a half-plane (a crowd solves one program an agent at every stage of every step).
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; nothing is kept between calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -40,27 +46,47 @@ export function solveAutoMovieHalfPlaneProgram(
   lines: readonly IAutoMovieSolveHalfPlaneProgram.ILine[],
   radius: number,
   preferred: IAutoMovieSolveHalfPlaneProgram.IPoint,
+  hard: number = 0,
 ): IAutoMovieSolveHalfPlaneProgram.IResult {
   if (!(radius > 0) || !Number.isFinite(radius))
     throw new Error(
       `solveAutoMovieHalfPlaneProgram: the radius ${radius} is not positive and finite`,
     );
+  if (!Number.isSafeInteger(hard) || hard < 0 || hard > lines.length)
+    throw new Error(
+      `solveAutoMovieHalfPlaneProgram: hard ${hard} is not a count within the ${lines.length} half-planes`,
+    );
   if (!Number.isFinite(preferred.x) || !Number.isFinite(preferred.y))
     throw new Error(
       "solveAutoMovieHalfPlaneProgram: the preferred point must be finite",
     );
-  for (const [i, line] of lines.entries()) {
-    const values: number[] = [
-      line.point.x,
-      line.point.y,
-      line.direction.x,
-      line.direction.y,
-    ];
-    if (!values.every(Number.isFinite))
+  // Every half-plane is admitted before any is used: its four values read
+  // once each in order, with no record a half-plane.
+  for (let i: number = 0; i < lines.length; ++i) {
+    const line: ILine = lines[i]!;
+    if (
+      !(
+        Number.isFinite(line.point.x) &&
+        Number.isFinite(line.point.y) &&
+        Number.isFinite(line.direction.x) &&
+        Number.isFinite(line.direction.y)
+      )
+    )
       throw new Error(
         `solveAutoMovieHalfPlaneProgram: half-plane ${i} holds a value that is not finite`,
       );
-    if (Math.abs(Math.hypot(line.direction.x, line.direction.y) - 1) > 1e-6)
+    // The squared length decides a direction plainly inside or outside the
+    // unit band (its square lies within 1 - 2e-6 + 1e-12 to 1 + 2e-6 + 1e-12),
+    // with room to spare for the rounding of either form; only a square near
+    // the band's edge takes the length itself.
+    const dx: number = line.direction.x;
+    const dy: number = line.direction.y;
+    const square: number = dx * dx + dy * dy;
+    if (Math.abs(square - 1) < UNIT_INSIDE) continue;
+    if (
+      Math.abs(square - 1) > UNIT_OUTSIDE ||
+      Math.abs(Math.hypot(dx, dy) - 1) > 1e-6
+    )
       throw new Error(
         `solveAutoMovieHalfPlaneProgram: half-plane ${i}'s direction is not a unit vector`,
       );
@@ -74,7 +100,13 @@ export function solveAutoMovieHalfPlaneProgram(
   if (planar.failed >= lines.length)
     return { point: planar.point, feasible: true };
   return {
-    point: program3(lines, planar.failed, radius, planar.point),
+    point: program3(
+      lines,
+      planar.failed,
+      radius,
+      planar.point,
+      planar.failed < hard ? 0 : hard,
+    ),
     feasible: false,
   };
 }
@@ -84,6 +116,12 @@ type ILine = IAutoMovieSolveHalfPlaneProgram.ILine;
 
 /** Below this, two directions count as parallel and a determinant as zero. */
 const EPSILON: number = 1e-9;
+
+/** A squared direction length this close to 1 has its length inside the 1e-6 unit band: (1 - 1e-6)^2 = 1 - 2e-6 + 1e-12 bounds it, less a margin far above rounding. */
+const UNIT_INSIDE: number = 1.99e-6;
+
+/** A squared length this far from 1 has its length outside the band: (1 + 1e-6)^2 = 1 + 2e-6 + 1e-12 bounds it, plus the same margin. */
+const UNIT_OUTSIDE: number = 2.01e-6;
 
 /** The determinant of two plane vectors, `a.x b.y - a.y b.x`. */
 function det(a: IPoint, b: IPoint): number {
@@ -196,13 +234,15 @@ function program2(
  * The three-dimensional program from the half-plane the two-dimensional one
  * failed on: the point of the disc whose greatest signed distance into the
  * half-planes is least, each violated half-plane in turn bounding the
- * earlier ones by the bisector of the two.
+ * earlier ones by the bisector of the two. The first `hard` half-planes are
+ * carried unchanged, as the paper carries its obstacles'.
  */
 function program3(
   lines: readonly ILine[],
   begin: number,
   radius: number,
   start: IPoint,
+  hard: number,
 ): IPoint {
   let point: IPoint = start;
   let distance: number = 0;
@@ -215,8 +255,8 @@ function program3(
       }) <= distance
     )
       continue;
-    const projected: ILine[] = [];
-    for (let j: number = 0; j < i; ++j) {
+    const projected: ILine[] = lines.slice(0, hard);
+    for (let j: number = hard; j < i; ++j) {
       const other: ILine = lines[j]!;
       const determinant: number = det(line.direction, other.direction);
       let at: IPoint;

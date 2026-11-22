@@ -2,6 +2,7 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 
 /**
  * The borne body of a coupled carry placed on its bearer (#3437): the carry's
@@ -30,6 +31,25 @@ export namespace IAutoMovieMotionHumanCarriedCouplingPose {
 
     /** Unit, out of the borne body. */
     normal: IAutoMovieVector3;
+
+    /** The fingers' tangent in the same frame, when the row directs them. */
+    forward?: IAutoMovieVector3;
+  }
+
+  /**
+   * A bearing hand's contact and the borne segments expressed in the
+   * bearing anchor's frame. Applying the displayed anchor pose puts the
+   * point and collider frames in world metres and rotates the outward
+   * unit normal and optional finger tangent without translating either.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the common frame, units and distinct point and direction transforms.
+   * @evidence contracts/development/design.md#principled-representation The point and normal come from the actual held surface. Clearance partitions the placed borne segments into permitted resting surfaces and the other segments the arm must clear.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface resolveCarriedHoldGeometry constructs one grip per occupied hand and HumanCarriedGrip tests its actual hand and arm against that geometry.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The grip uses the measured segment shapes and the signed surface normal of the named region. A hand without a grip has no clearance record.
+   */
+  export interface IGrip extends IHold {
+    /** The carried body the bearing arm clears or rests its hand on. */
+    clearance: IAutoMovieHumanLimbGoal.IClearance;
   }
 
   /**
@@ -61,8 +81,8 @@ export namespace IAutoMovieMotionHumanCarriedCouplingPose {
     anchor: AutoMovieHumanoidBone;
     /** Left and right hand holds in that order; null for a hand that does not hold. */
     places: readonly [
-      IAutoMovieMotionHumanCarriedCouplingPose.IHold | null,
-      IAutoMovieMotionHumanCarriedCouplingPose.IHold | null,
+      IAutoMovieMotionHumanCarriedCouplingPose.IGrip | null,
+      IAutoMovieMotionHumanCarriedCouplingPose.IGrip | null,
     ];
   };
 

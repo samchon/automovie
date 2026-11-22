@@ -383,10 +383,8 @@ export namespace AutoMovieHumanConicSection {
     ): [AutoMovieVector2Tuple, AutoMovieVector2Tuple] => {
       const extreme = (j: number): boolean =>
         ["u", "v"].includes(base.anchors[(j + K) % K]!.kind);
-      let before: number = k;
-      while (!extreme(before)) before = (before + K - 1) % K;
-      let after: number = (k + 1) % K;
-      while (!extreme(after)) after = (after + 1) % K;
+      const before: number = around(k, K, -1, extreme, "featured");
+      const after: number = around((k + 1) % K, K, 1, extreme, "featured");
       return [
         chain.points[before] as AutoMovieVector2Tuple,
         chain.points[after] as AutoMovieVector2Tuple,
@@ -568,7 +566,8 @@ export namespace AutoMovieHumanConicSection {
 
   /**
    * The two extremes a feature anchor `k` stands between: the nearest `u` or `v` anchor before it and the nearest after it, in the
-   * layout's order (round the end of the list for a closed layout). Every feature of a run shares this frame and its chord.
+   * layout's order (round the end of the list for a closed layout). Every feature of a run shares this frame and its chord. Each
+   * direction reads every anchor at most once and throws for a layout with no extreme, which frames no feature.
    */
   export function frame(
     k: number,
@@ -577,11 +576,10 @@ export namespace AutoMovieHumanConicSection {
     const K: number = layout.anchors.length;
     const extreme = (j: number): boolean =>
       ["u", "v"].includes(layout.anchors[j]!.kind);
-    let before: number = (k + K - 1) % K;
-    while (!extreme(before)) before = (before + K - 1) % K;
-    let after: number = (k + 1) % K;
-    while (!extreme(after)) after = (after + 1) % K;
-    return [before, after];
+    return [
+      around((k + K - 1) % K, K, -1, extreme, "frame"),
+      around((k + 1) % K, K, 1, extreme, "frame"),
+    ];
   }
 
   /**
@@ -640,17 +638,17 @@ export namespace AutoMovieHumanConicSection {
       t,
     };
   }
-  /** The nearest resolved anchors before and after anchor `k`. */
+  /** The nearest resolved anchors before and after anchor `k`, each direction reading every anchor at most once; throws when none is resolved. */
   export function neighbours(
     k: number,
     done: readonly (AutoMovieVector2Tuple | null)[],
   ): IAutoMovieHumanConicSection.NeighboursResult {
     const K: number = done.length;
-    let before: number = (k + K - 1) % K;
-    while (done[before] === null) before = (before + K - 1) % K;
-    let after: number = (k + 1) % K;
-    while (done[after] === null) after = (after + 1) % K;
-    return [before, after];
+    const resolved = (j: number): boolean => done[j] !== null;
+    return [
+      around((k + K - 1) % K, K, -1, resolved, "neighbours"),
+      around((k + 1) % K, K, 1, resolved, "neighbours"),
+    ];
   }
 
   /**
@@ -940,4 +938,25 @@ export namespace AutoMovieHumanConicSection {
   ): IAutoMovieViewChain.ISection {
     return AutoMovieViewChain.of(resolve(values, layout).input);
   }
+}
+
+/**
+ * The first index a ring's anchor qualifies at, from `start` round the ring
+ * of `K` anchors in the direction `step`, each anchor read at most once: a
+ * ring none of whose anchors qualifies is refused, where a scan that only
+ * stopped on a qualifying anchor would circle it without end.
+ */
+function around(
+  start: number,
+  K: number,
+  step: 1 | -1,
+  qualifies: (j: number) => boolean,
+  owner: string,
+): number {
+  let j: number = start;
+  for (let read: number = 0; read < K; read++) {
+    if (qualifies(j)) return j;
+    j = (j + step + K) % K;
+  }
+  throw new Error(`${owner}: no anchor of the ring of ${K} qualifies`);
 }

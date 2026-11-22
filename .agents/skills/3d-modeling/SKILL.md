@@ -5,7 +5,7 @@ description: Crafts, generates, conditions, rigs and inspects 3D assets.
 
 # 3D modeling
 
-An asset is reproducible, rigged when it moves, and judged on screen. Before choosing a source, read what the project's own instructions say each asset must show and control. The user chooses whether to craft a form, generate it, or use an existing mesh.
+Read the asset's required appearance and controls. Use the source the user chooses. Keep assets reproducible, rig moving assets when needed and inspect them in use.
 
 | Read | For |
 | --- | --- |
@@ -19,6 +19,6 @@ An asset is reproducible, rigged when it moves, and judged on screen. Before cho
 | [Rigging](rigging.md) | Adding or changing a skeleton, skin, attachment or deformation control |
 | [Inspecting a form](inspection.md) | Inspecting a form's measures, coverage, construction or light |
 
-Mesh recovery also covers reconstructing saved coefficients and judging a reverse render. Modularization applies whatever the asset's source.
+Mesh recovery covers saved coefficients and reverse renders. Modularization applies to every source.
 
-Package documentation owns data formats and callable behavior. Completed generation, fitting, compilation or tests establish no visual result; [visual debugging](../visual-debugging/SKILL.md) owns how one is captured, compared and corrected.
+Package documentation defines formats and APIs. Use [visual debugging](../visual-debugging/SKILL.md) to verify appearance.

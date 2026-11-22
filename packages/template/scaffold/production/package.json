@@ -2,7 +2,7 @@
   "name": "{{name}}",
   "private": true,
   "type": "module",
-  "version": "0.2.0",
+  "version": "0.3.4",
   "license": "MIT",
   "description": "An AutoMovie coding-agent production repository.",
   "engines": {
@@ -19,7 +19,8 @@
     "capture": "automovie capture --module src/subjects.ts",
     "review": "automovie review",
     "review:setup": "playwright-core install ffmpeg chromium-headless-shell",
-    "physics": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/physics.ts"
+    "physics": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/physics.ts",
+    "motion:take": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/motionTake.ts"
   },
   "dependencies": {
     "@automovie/archetypes": "catalog:automovie",
@@ -48,6 +49,7 @@
     "@wrtnlabs/evidence": "catalog:samchon",
     "@types/three": "catalog:three",
     "@types/react": "catalog:react",
+    "esbuild": "catalog:vite",
     "vite": "catalog:vite",
     "ffmpeg-static": "catalog:media"
   }

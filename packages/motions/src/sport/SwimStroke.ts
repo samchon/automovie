@@ -5,12 +5,14 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSwimStroke,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { ExerciseKey } from "../exercise/ExerciseKey";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
 
 /**
@@ -56,21 +58,24 @@ export namespace SwimStroke {
     "leftUpperLeg",
     "rightUpperLeg",
   ];
+  /** The pin mean reads only the two hip origins after full canonical admission. */
+  const HIP_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set(HIPS);
 
   /** A backstroke key: one arm's shoulder flexion and abduction, the other's, and which leg is up. */
-  const back = (
+  function back(
     body: IAutoMovieMotionHumanBody,
     right: readonly [number, number],
     left: readonly [number, number],
     kick: number,
-  ): IAutoMovieMotionHumanExerciseKey.IKey =>
-    ExerciseKey.from(
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
+    return ExerciseKey.from(
       body,
       { pitch: -90, neck: 10 },
       { ankle: -40, elbow: 5 },
       { shoulder: left[0], raise: left[1], hip: 10 * kick, knee: 10 },
       { shoulder: right[0], raise: right[1], hip: -10 * kick, knee: 10 },
     );
+  }
 
   /**
    * The strokes on a body (provisional angles, seconds and speeds).
@@ -95,7 +100,19 @@ export namespace SwimStroke {
     >
   > {
     return {
-      breaststroke: {
+      breaststroke: keyed(body, "breaststroke"),
+      backstroke: keyed(body, "backstroke"),
+      float: keyed(body, "float"),
+    };
+  }
+
+  /** Build only the selected stroke's keys; the public table requests each row explicitly. */
+  function keyed(
+    body: IAutoMovieMotionHumanBody,
+    name: IAutoMovieMotionHumanSwimStroke.Name,
+  ): IAutoMovieMotionHumanSwimStroke.IStroke {
+    if (name === "breaststroke")
+      return {
         supine: false,
         speed: 0.9,
         keys: [
@@ -148,8 +165,9 @@ export namespace SwimStroke {
             0.3,
           ],
         ],
-      },
-      backstroke: {
+      };
+    if (name === "backstroke")
+      return {
         supine: true,
         speed: 1,
         keys: [
@@ -158,21 +176,20 @@ export namespace SwimStroke {
           [back(body, [0, 5], [178, 5], 1), 0.35],
           [back(body, [90, 5], [20, 85], -1), 0.35],
         ],
-      },
-      float: {
-        supine: true,
-        speed: 0,
-        keys: [
-          [
-            ExerciseKey.from(
-              body,
-              { pitch: -90, neck: 5 },
-              { spread: 15, ankle: -30, raise: 70, elbow: 10 },
-            ),
-            2,
-          ],
+      };
+    return {
+      supine: true,
+      speed: 0,
+      keys: [
+        [
+          ExerciseKey.from(
+            body,
+            { pitch: -90, neck: 5 },
+            { spread: 15, ankle: -30, raise: 70, elbow: 10 },
+          ),
+          2,
         ],
-      },
+      ],
     };
   }
 
@@ -185,23 +202,35 @@ export namespace SwimStroke {
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
    * @evidence contracts/development/implementation.md#principled-implementation The second gives the cycle and the place in it; the two keys around that place are blended in joint space on minimum-jerk progress and pinned by the hip joints on the point the plane carries along.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The cycle's times, the travelling point, the posture, the events.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The speed is constant, stated on the namespace; a stroke of one key is held.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per evaluated second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exercise keys' blend and pin.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the stroke's table row.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The staged speed is divided by the tempo that stretches the keys. The stationary option fixes the hip target for an external translation model. A stroke of one key is held.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Every stroke read, including a stationary single key, performs actual canonical admission and pin FK with only the pin hips' ancestry requested. Fixed key-pair union preparation retains the original interpolation and pin mean.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed key pairs and ordered joint unions are shared; every actual query constructs and pins its current key instead of replaying a completed posture.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its selected stroke row and fixed key-pair readers until released, without storing a completed pinned posture or queried-time cache.
    */
   export function plan(
     props: IAutoMovieMotionHumanSwimStroke.IPlanProps,
   ): IAutoMovieMotionHumanActionPlan {
-    const stroke: IAutoMovieMotionHumanSwimStroke.IStroke = strokes(props.body)[
-      props.stroke
-    ];
+    const stroke: IAutoMovieMotionHumanSwimStroke.IStroke = keyed(
+      props.body,
+      props.stroke,
+    );
     const spans: readonly number[] = stroke.keys.map(
       ([, seconds]: readonly [
         IAutoMovieMotionHumanExerciseKey.IKey,
         number,
       ]): number => seconds * props.tempo,
     );
+    const blends: ((share: number) => IAutoMovieMotionHumanExerciseKey.IKey)[] =
+      stroke.keys.map(
+        (
+          [to]: readonly [IAutoMovieMotionHumanExerciseKey.IKey, number],
+          i: number,
+        ): ((share: number) => IAutoMovieMotionHumanExerciseKey.IKey) =>
+          ExerciseKey.prepareBlend(
+            stroke.keys[(i + stroke.keys.length - 1) % stroke.keys.length]![0],
+            to,
+          ),
+      );
     const period: number = spans.reduce(
       (sum: number, seconds: number): number => sum + seconds,
       0,
@@ -212,6 +241,12 @@ export namespace SwimStroke {
       { x: 0, y: 0, z: stroke.supine ? -1 : 1 },
     );
     const depth: number = props.body.measure.chestDepth / 2;
+
+    // The stroke's tempo stretches its keys, so it stretches the glide the
+    // keys drive as well: the hips cover a cycle's distance in its time, as
+    // the crawl's do (`swim`).
+    const speed: number =
+      props.stationary === true ? 0 : stroke.speed / props.tempo;
     const events: IAutoMovieMotionEvent[] = [
       ...Array.from(
         { length: props.cycles },
@@ -222,43 +257,67 @@ export namespace SwimStroke {
       ),
       { name: "relax", share: 1 },
     ];
-    return {
+    /** The actual time determines both the cyclic shape and the moving pin. */
+    const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
+      seconds: number,
+      _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture => {
+      const t: number = Math.min(duration, Math.max(0, seconds));
+      let within: number = t - Math.floor(t / period) * period;
+      if (t >= duration) within = 0;
+
+      // The key being reached and how far: key 0 is reached last.
+      let index: number = 1 % stroke.keys.length;
+      for (let k: number = 1; k <= stroke.keys.length; k++) {
+        index = k % stroke.keys.length;
+        const span: number = spans[index]!;
+        if (within <= span || k === stroke.keys.length) {
+          within = span > 0 ? Math.min(1, within / span) : 1;
+          break;
+        }
+        within -= span;
+      }
+      const u: number = minimumJerk.share(within);
+      return ExerciseKey.pinned(
+        props.body,
+        blends[index]!(u),
+        props.entry.yaw,
+        HIPS,
+        {
+          x: props.entry.root.x + along.x * speed * t,
+          y: props.water - depth,
+          z: props.entry.root.z + along.z * speed * t,
+        },
+        HIP_BONES,
+        resolution,
+        projection,
+      );
+    };
+    const result: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
       contacts: [],
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        let within: number = t - Math.floor(t / period) * period;
-        if (t >= duration) within = 0;
-
-        // The key being reached and how far: key 0 is reached last.
-        let index: number = 1 % stroke.keys.length;
-        for (let k: number = 1; k <= stroke.keys.length; k++) {
-          index = k % stroke.keys.length;
-          const span: number = spans[index]!;
-          if (within <= span || k === stroke.keys.length) {
-            within = span > 0 ? Math.min(1, within / span) : 1;
-            break;
-          }
-          within -= span;
-        }
-        const u: number = minimumJerk(within).s;
-        const from: IAutoMovieMotionHumanExerciseKey.IKey =
-          stroke.keys[
-            (index + stroke.keys.length - 1) % stroke.keys.length
-          ]![0];
-        return ExerciseKey.pinned(
-          props.body,
-          ExerciseKey.blend(from, stroke.keys[index]![0], u),
-          props.entry.yaw,
-          HIPS,
-          {
-            x: props.entry.root.x + along.x * stroke.speed * t,
-            y: props.water - depth,
-            z: props.entry.root.z + along.z * stroke.speed * t,
-          },
-        );
-      },
+      posture,
     };
+
+    // Cycle selection uses the exact local second, including the final return
+    // to the first key. Playback retains the one period already owned here.
+    HumanPreparedPlayback.attach(result, props.body, {
+      mode: "posture",
+      phases: [
+        {
+          from: 0,
+          to: duration,
+          sample: (
+            ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+          ): IAutoMovieMotionHumanPlayback.ISample => ({
+            posture: posture(...args),
+          }),
+        },
+      ],
+    });
+    return result;
   }
 }

@@ -19,8 +19,8 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * jump in speed. Without it the depth is `depth p`, and the prop is left
  * home.
  *
- * @evidence contracts/development/common.md#meaningful-documentation tip: The held prop's working point that leads into the socket; `tip` when absent. depth: How far the working point goes in, metres; positive.
- * @evidence contracts/development/design.md#principled-representation tip: The held prop's working point that leads into the socket; `tip` when absent. depth: How far the working point goes in, metres; positive.
+ * @evidence contracts/development/common.md#meaningful-documentation tip: The held prop's working point that leads into the socket; `tip` when absent. depth: How far the working point goes in, metres; positive; the socket's declared depth when absent.
+ * @evidence contracts/development/design.md#principled-representation tip: The held prop's working point that leads into the socket; `tip` when absent. depth: How far the working point goes in, metres; positive; the socket's declared depth when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateInsert.ts (operateInsert.depth, mechanism); affordance/operateInsert.ts (operateInsert.travel, mechanism); affordance/operateInsert.ts (operateInsert.tool, mechanism); affordance/operateInsert.ts (operateInsert.target, mechanism); affordance/operateInsert.ts (operateInsert.target, socket).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -28,8 +28,8 @@ export namespace IAutoMovieMotionHumanOperateInsert {
   /**
    * A held prop inserted into a socket.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation tip: The held prop's working point that leads into the socket; `tip` when absent. depth: How far the working point goes in, metres; positive.
-   * @evidence contracts/development/design.md#principled-representation tip: The held prop's working point that leads into the socket; `tip` when absent. depth: How far the working point goes in, metres; positive.
+   * @evidence contracts/development/common.md#meaningful-documentation tip: The held prop's working point that leads into the socket; `tip` when absent. depth: How far the working point goes in, metres; positive; the socket's declared depth when absent.
+   * @evidence contracts/development/design.md#principled-representation tip: The held prop's working point that leads into the socket; `tip` when absent. depth: How far the working point goes in, metres; positive; the socket's declared depth when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateInsert.ts (operateInsert.depth, mechanism); affordance/operateInsert.ts (operateInsert.travel, mechanism); affordance/operateInsert.ts (operateInsert.tool, mechanism); affordance/operateInsert.ts (operateInsert.target, mechanism).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
@@ -46,8 +46,8 @@ export namespace IAutoMovieMotionHumanOperateInsert {
     /** The socket: its mouth, its normal pointing out along the axis. */
     into: IAutoMovieMotionTarget;
 
-    /** How far the working point goes in, metres; positive. */
-    depth: number;
+    /** How far the working point goes in, metres; positive. The socket's own declared depth (IAutoMovieAffordance.depth, a bore's length) when absent. */
+    depth?: number;
 
     /** Whether the prop is drawn back out over the stroke's second half. */
     withdraw?: boolean;

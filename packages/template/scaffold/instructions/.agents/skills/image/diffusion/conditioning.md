@@ -6,7 +6,7 @@ Conditioning uses a render to guide an image's pose, camera and shape, while fro
 
 When an endpoint accepts a render as an ordinary reference image, label its role as pose and camera and name what must match. Use a clear pose with every limb visible. This reference and any layout boxes guide the result without imposing exact geometry.
 
-For stronger structural guidance, choose a checkpoint and endpoint with compatible pose, depth, edge or normal controls, and match the adapter to the base model. Render the controls from the scene rather than estimate them from the hint's RGB image, in the adapter's convention under [channel alignment](../../motion/control-channels.md#channel-alignment). Use its recommended strengths, with masks where supported and a coarse shape's strength under [dense channels](../../motion/control-channels.md#dense-channels), and align every channel to the output size.
+Choose compatible controls, checkpoint, endpoint and adapter. Render controls from the scene in the adapter's convention under [channel alignment](../../motion/control-channels.md#channel-alignment). Match output size and use supported masks and strengths. See [dense channels](../../motion/control-channels.md#dense-channels) for coarse shapes.
 
 To restyle the render itself, combine image-to-image strength with structural controls where supported. Neither controls nor a fixed seed guarantee identical pixels; compare the output's pose, silhouette and camera against the render under shot frames.
 
@@ -18,7 +18,7 @@ Render the hint's first frame at the video model's output size and aspect, cropp
 
 Generate the shot frame from the render and canon references through a route above, with the canon references' prompt wording. [Overlay](../../visual-debugging/comparison.md#reading-the-difference) the result on the render and repair displaced silhouettes, horizon or facing.
 
-Make a last frame or a keyframe the same way, from the hint's frame there, where the model takes one and the shot needs it: a matched cut, an outcome a still-frame model must keep, a subject that enters after the first frame, or a look that a request taking the hint only as a reference must hold.
+When supported, derive needed last frames or keyframes from matching hint frames for cuts, still-frame outcomes, later entrances or appearance in loose-reference requests.
 
 ## Place angles
 
@@ -26,4 +26,4 @@ Make a place's view at each camera angle a scene uses by rendering the set's coa
 
 ## Control images
 
-A subject whose build or shape departs from what the model draws by default, such as a child or an unusual object, takes a control image beside its canon reference prompt. Render it from the subject's entity in a neutral pose and pass it loosely, as [dense channels](../../motion/control-channels.md#dense-channels) sets.
+For shapes a model renders poorly by default, add a neutral control render from the entity beside its canon reference. Apply it loosely under [dense channels](../../motion/control-channels.md#dense-channels).

@@ -15,6 +15,8 @@ import type {
 
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
+import { walk } from "../actions/walk";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/seated";
@@ -77,7 +79,7 @@ export namespace HumanMountOff {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Choose the side, place the standing feet, time the descent, find when each foot leaves and lands, then one posture function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The side defaults to the left only for a seat the entered sit names as astride; after any other entry the composition states it. The timing shares and the constants of `HumanMount` are provisional and named.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning scans the time at 60 Hz three times, each step one forward-kinematics pass of the pelvis; a posture costs one such pass and the limb fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The floor places and the feet's instants are computed once per instance and every posture reads them.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The floor places and foot instants are computed once per instance; each posture passes its caller's forward-kinematics reader and range-of-motion projector to the hands' fit (`seated.arms`).
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
    */
   export function plan(
@@ -89,6 +91,10 @@ export namespace HumanMountOff {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const entry: IAutoMovieMotionHumanEntryState = context.entry;
     const yaw: number = entry.posture.yaw;
+    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
+      body,
+      yaw,
+    );
     const pitch0: number = entry.posture.pitch;
     const sat: IAutoMovieMotionHumanBase.ISeat | undefined =
       entry.base.kind === "seated" ? entry.base.seat : undefined;
@@ -163,34 +169,36 @@ export namespace HumanMountOff {
       AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const seatOff: number = 0.15 * duration;
     const hop: number = sideways ? HumanMount.HOP * m.thigh : 0;
-    const upright: IAutoMovieMotionHumanPosture["joints"] =
-      standUpright.of(body).joints;
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
+      ...stand.relaxed(body),
+      ...standUpright.of(body).joints,
+    };
     const crossing: readonly [number, number] = sideways
       ? [0.3 * duration, 0.8 * duration]
       : [seatOff, 0.8 * duration];
     const frameAt = (t: number): Frame => {
-      const across: number = minimumJerk(
+      const across: number = minimumJerk.share(
         (t - crossing[0]) / (crossing[1] - crossing[0]),
-      ).s;
+      );
       const socket: IAutoMovieVector3 = {
         x: start.x + (goal.x - start.x) * across,
         y:
           start.y +
-          hop * minimumJerk((t - seatOff) / (0.2 * duration)).s +
+          hop * minimumJerk.share((t - seatOff) / (0.2 * duration)) +
           (goal.y - start.y - hop) *
-            minimumJerk((t - 0.35 * duration) / (0.5 * duration)).s,
+            minimumJerk.share((t - 0.35 * duration) / (0.5 * duration)),
         z: start.z + (goal.z - start.z) * across,
       };
       const lean: number =
         t < 0.4 * duration
           ? pitch0 +
-            (HumanMount.LEAN - pitch0) * minimumJerk(t / (0.4 * duration)).s
+            (HumanMount.LEAN - pitch0) * minimumJerk.share(t / (0.4 * duration))
           : HumanMount.LEAN *
-            (1 - minimumJerk((t - 0.4 * duration) / (0.6 * duration)).s);
+            (1 - minimumJerk.share((t - 0.4 * duration) / (0.6 * duration)));
       const tilt: {
         pitch: number;
         joints: IAutoMovieMotionHumanPosture["joints"];
-      } = HumanTrunk.incline({ ...stand.relaxed(body), ...upright }, lean);
+      } = HumanTrunk.incline(relaxed, lean);
       return {
         root: seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 }),
         yaw,
@@ -219,16 +227,17 @@ export namespace HumanMountOff {
     };
 
     // A leg reaches a place within its reachable band, or as far as it stands stretched in the quiet stance the getting off ends in, which holds it nearer straight than the band's edge.
+    const standingReach: Record<"left" | "right", number> = {
+      left: Math.max(span[1], stretch(duration, "left", landing.left)),
+      right: Math.max(span[1], stretch(duration, "right", landing.right)),
+    };
     const reaches = (
       t: number,
       side: "left" | "right",
       ankle: IAutoMovieVector3,
     ): boolean => {
       const d: number = stretch(t, side, ankle);
-      return (
-        d >= span[0] &&
-        d <= Math.max(span[1], stretch(duration, side, landing[side])) + 1e-6
-      );
+      return d >= span[0] && d <= standingReach[side];
     };
     const first = (
       after: number,
@@ -296,14 +305,16 @@ export namespace HumanMountOff {
           kind: "plant",
           from: 0,
           to: flight[side][0] / duration,
-          support: { kind: "ground" },
+          // The foot bears where the entry held it, a stirrup or a rest.
+          support: HumanSupportFrame.contact(context, part),
         });
       contacts.push({
         part,
         kind: "plant",
         from: flight[side][1] / duration,
         to: 1,
-        support: { kind: "ground" },
+        // It lands on the floor under the seat, at that floor's height.
+        support: { kind: "ground", height: under.origin.y },
       });
     }
     return {
@@ -314,13 +325,16 @@ export namespace HumanMountOff {
       ],
       contacts,
       base: { kind: "standing" },
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const frame: Frame = frameAt(t);
-        const standing: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(
-          body,
+        const standing: IAutoMovieMotionHumanPosture["limbs"] = legged(
           frame.root,
-          yaw,
           landing,
         );
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
@@ -347,8 +361,8 @@ export namespace HumanMountOff {
                   bend: down.bend,
                   yaw: yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
                 },
-                minimumJerk((t - departs) / (arrives - departs)).s,
-                0.1 * m.shank,
+                minimumJerk.share((t - departs) / (arrives - departs)),
+                walk.LIFT * m.hipHeight,
                 sideways && side === leader ? over : undefined,
               ),
               false,
@@ -357,7 +371,9 @@ export namespace HumanMountOff {
         return seated.arms(
           body,
           { ...frame, roll: 0, limbs },
-          1 - minimumJerk(t / (0.3 * duration)).s,
+          1 - minimumJerk.share(t / (0.3 * duration)),
+          resolution,
+          projection,
         );
       },
     };

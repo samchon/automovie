@@ -7,19 +7,19 @@ description: Defines the automovie product contract, package boundaries and comm
 
 ## Product contract
 
-AutoMovie produces film-generation diffusion hints from an LLM-authored screenplay: readable geometry, staging, motion and timing, reproducible frame to frame. A change that buys visual richness with determinism, authorability or review cost delivers the wrong thing.
+AutoMovie produces reproducible geometry, staging, motion and timing from an LLM-authored screenplay for film diffusion. Preserve determinism, authorability and reviewability when adding visual detail.
 
 ### Coarse models, detailed motion
 
-A production's person is the polygon man, drawn by `render` from the canonical body `human` prepares, and every other model is as simple as identification allows. Motion is authored in detail and must realize the intended performance and interactions accurately.
+The `render` package draws the polygon man from the canonical body `human` prepares. Author motion that realizes the intended performance and interactions.
 
-Develop on the coarse models with verified motion. Detail is an option of the same entity that a delivery switches on, such as a detailed Human surface a commission selects, so scene intent never depends on surface complexity.
+Develop and verify motion on coarse models. Enable detail on the same entity for delivery when commissioned.
 
 ### Representations
 
 By default a person is the polygon man, an object comes from `archetypes`, and anything else is a coarse form. An object the hint does not need stays a screenplay description.
 
-Fixed 2D images, generated or imported 3D assets and code-authored models are detail options, used only where a commission asks for them and the installed package contracts support them. Recover lofting curves only when deformation, parameter control or internalization requires them, never for an asset usable as supplied. Generated multiview images alone do not establish calibrated or recoverable geometry.
+Use supported, commissioned 2D images, external meshes or crafted forms. Recover curves only for deformation, parametric control or internalization. Require independent evidence of calibration and recoverability before recovering from generated views.
 
 ### Commissions
 
@@ -35,15 +35,15 @@ Supporting stills or isolated clips do not complete a film-generation hint.
 
 A production's performance is kinematic, authored and verified against the engine's supported constraints. Simulation serves only a response the screenplay decides and the kinematic performance cannot show.
 
-Inspect the requested artifact and disclose unverified stages, because accurate conditioning does not guarantee an external generator's result.
+Inspect the commissioned artifact and report unverified stages.
 
 A production records its adopted decisions in its own `PROJECT.md` and its creative instructions in `docs/instructions`.
 
 ### Authorable capability
 
-A capability the authoring agent cannot drive is not a capability. Hence authorable types in `interface`, closed unions instead of construction kits, and a formation as a count and a layout. `interface` and `engine` grow toward representing every object and motion, so each new axis is additive, never a rewrite.
+Put authorable types in `interface`. Use closed unions and parameters. Extend `interface` and `engine` with additive axes for new objects and motions.
 
-Product packages and the shipped scaffold hold general capability, never finished content such as catalog entries or profile libraries. Extend the engine when authoring is blocked, not to hand someone a finished chair; pre-built content also voids the subject-independence benchmark.
+Product packages and the scaffold provide general capability. Extend the engine when it cannot express commissioned work. Keep finished content in productions to preserve the subject-independence benchmark.
 
 ## Out of scope
 
@@ -90,13 +90,13 @@ Inventories are in the [root README](../../../README.md#packages) and the packag
 
 `archetypes` covers objects, furniture, architecture, vehicles, animals and weapons, and no product package depends on it. `render` also owns frame schedules and encoding plans, and launches nothing. `cli` installs `template/scaffold`.
 
-`interface` owns pure contracts reached through the main public APIs of `engine`, `human`, `motions`, `recovery`, `ingest` and `render`, including their input, result and callback contracts. Runtime implementations stay in those packages. Frontend contracts and declarations requiring an implementation dependency stay with their owners. Archetype assets and producer APIs, evidence tooling, scaffold APIs, CLI hosts, viewer state and test support retain their package ownership; new assets use the existing common model, affordance, body, rig and geometry contracts without adding catalogue entries to `interface`.
+`interface` owns the pure contracts exposed by `engine`, `human`, `motions`, `recovery`, `ingest` and `render`, including inputs, results and callbacks. Keep runtime code, frontend contracts and types with implementation dependencies in their owning packages. Reuse common model, affordance, body, rig and geometry types for new assets.
 
 Only `render` and `viewer` import `three.js` in their public surface. A package's subject module, kept out of its barrel, may import it to build what the shared instrument draws, which is how the Human figure is inspected.
 
 ### Hosts
 
-`render` reaches files, processes and the page only through what a host injects, and imports no `node:` module and no React, so one rule runs the same in a page, a Node host and a unit test against an in-memory host. A rule that does not depend on one production belongs in `render` with a logic unit test, and a host holds wiring only. The page is `viewer`'s interactive display, and the Node host that drives FFmpeg and a headless browser is `cli`.
+Inject files, processes and pages into `render` through hosts. Keep `node:` and React imports out. Test reusable behavior with an in-memory host. `viewer` owns display and `cli` owns FFmpeg and browser capture.
 
 ### Motion
 
@@ -104,15 +104,13 @@ Only `render` and `viewer` import `three.js` in their public surface. A package'
 
 ### Recovery
 
-`recovery` owns its algorithms, policy, workflows and hosts, and none of its algorithms move into `engine`. Its pure public contracts stay in `interface`, existing reusable mathematics and surface generation stay in `engine`, and display stays in `viewer`.
+Keep recovery algorithms, policy, workflows and hosts in `recovery`. Keep its pure contracts in `interface`, shared math and surface generation in `engine`, and display in `viewer`.
 
 ### Productions
 
-Productions live in the [automovie-examples](https://github.com/samchon/automovie-examples) repository. A local clone sits at the ignored `examples/` as its own pnpm workspace with its own lockfile, linking this repository's packages by relative path, so this repository's workspace and lockfile never depend on its presence.
+Productions live in [automovie-examples](https://github.com/samchon/automovie-examples). Its optional local checkout, `examples/`, keeps an independent pnpm workspace and lockfile and links this repository's packages by relative path.
 
 ## Commands
-
-These are the commands and versions the tree does not show:
 
 - The workspace runs Node 22.23.2, and `human` and generated projects require at least that.
 - `pnpm run build` compiles with correctness lint and the shared native declaration guards.

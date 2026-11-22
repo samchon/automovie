@@ -20,7 +20,7 @@ import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidB
  *
  * @evidence contracts/development/common.md#meaningful-documentation pose: The segment's posed frame, world metres: the bone's world transform applied to the segment's neutral offset from the bone's rest joint. distance: Metres, negative inside. point: The point on the collider surface, world metres.
  * @evidence contracts/development/design.md#principled-representation pose: The segment's posed frame, world metres: the bone's world transform applied to the segment's neutral offset from the bone's rest joint. distance: Metres, negative inside. point: The point on the collider surface, world metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkLegBinding.ts (walkLegBinding.relative, a); actions/walkLegBinding.ts (walkLegBinding.relative, b); actions/walkLegBinding.ts (walkLegBinding.inside, shape); actions/walkLegBinding.ts (walkLegBinding.planar, shape); actions/walkLegClearance.ts (walkLegClearance.placed, return); actions/walkLegClearance.ts (walkLegClearance.reading.segmentsOf, return).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkLegBinding.ts (walkLegBinding.prepareRelative, a); actions/walkLegBinding.ts (walkLegBinding.prepareRelative, b); actions/walkLegBinding.ts (walkLegBinding.prepareInside, shape); actions/walkLegClearance.ts (walkLegClearance.excess.segments).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMovieRigidTransform, IAutoMoviePhysicalShape, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanColliders {
@@ -29,18 +29,46 @@ export namespace IAutoMovieMotionHumanColliders {
    *
    * @evidence contracts/development/common.md#meaningful-documentation pose: The segment's posed frame, world metres: the bone's world transform applied to the segment's neutral offset from the bone's rest joint.
    * @evidence contracts/development/design.md#principled-representation pose: The segment's posed frame, world metres: the bone's world transform applied to the segment's neutral offset from the bone's rest joint.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkLegBinding.ts (walkLegBinding.relative, a); actions/walkLegBinding.ts (walkLegBinding.relative, b); actions/walkLegBinding.ts (walkLegBinding.inside, shape); actions/walkLegBinding.ts (walkLegBinding.planar, shape); actions/walkLegClearance.ts (walkLegClearance.placed, return); actions/walkLegClearance.ts (walkLegClearance.reading.segmentsOf, return).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkLegBinding.ts (walkLegBinding.prepareRelative, a); actions/walkLegBinding.ts (walkLegBinding.prepareRelative, b); actions/walkLegBinding.ts (walkLegBinding.prepareInside, shape); actions/walkLegClearance.ts (walkLegClearance.excess.segments).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMovieRigidTransform, IAutoMoviePhysicalShape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
-  export interface IPlaced {
-    /** The rig bone that carries the segment. */
+  export interface IPlaced extends IFramed {
+    /** The resolved rig bone carrying this segment. */
     bone: AutoMovieHumanoidBone;
+  }
 
-    /** The segment's posed frame, world metres: the bone's world transform applied to the segment's neutral offset from the bone's rest joint. */
+  /**
+   * A collider segment's world frame and its shapes, whatever carries it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's frame and ownership.
+   * @evidence contracts/development/design.md#principled-representation A placed frame and its borrowed shapes, the part every obstacle reading needs.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Extended by the body's placed segments (`IPlaced`) and by another subject's (`IExternal`).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieRigidTransform and IAutoMoviePhysicalShape identities.
+   */
+  export interface IFramed {
+    /** Current world segment frame, including its neutral offset and turn. */
     pose: IAutoMovieRigidTransform;
 
-    /** The segment's shapes, each placed by `pose` composed with its own transform. */
+    /** Existing neutral shape definitions, borrowed without mutation. */
     shapes: readonly IAutoMoviePhysicalShape[];
+  }
+
+  /**
+   * A collider segment of another subject than a human body, a prop or an
+   * animal (a horse's neck, a table's top), placed in the world: an obstacle
+   * a limb keeps clear of, named by its subject and part in a refusal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the segment is and how it is named.
+   * @evidence contracts/development/design.md#principled-representation The frame and shapes of any obstacle, with the scene subject and its own part name in place of a rig bone.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by a limb goal's external clearance (`IAutoMovieHumanLimbGoal.clearExternal`).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A prop is never named as a rig bone.
+   */
+  export interface IExternal extends IFramed {
+    /** The scene subject the segment belongs to. */
+    subject: string;
+
+    /** The segment's own part name within its subject. */
+    part: string;
   }
 
   /**
@@ -68,10 +96,10 @@ export namespace IAutoMovieMotionHumanColliders {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieHumanoidBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IHit {
-    /** The point on the collider surface, world metres. */
+    /** Accepted ray point, world metres; the start itself when already inside. */
     point: IAutoMovieVector3;
 
-    /** The surface's outward unit normal there. */
+    /** Normalized central-difference direction; the existing zero vector when its gradient is zero. */
     normal: IAutoMovieVector3;
 
     /** The bone of the segment that was hit. */

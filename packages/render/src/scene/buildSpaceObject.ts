@@ -22,12 +22,10 @@ import { SPACE_GROUP_NAME } from "./SPACE_GROUP_NAME.js";
  * unlike a `GridHelper`, which is a `LineSegments` and must be hidden before
  * every structural pass.
  *
- * The ordinary material writes neither colour nor depth. A support patch is a
- * semantic declaration used by grounding and locomotion, not proof that an
- * authored slab, terrain mesh, or platform exists. Drawing the declaration in
- * beauty would let a missing physical floor look complete, and writing only
- * depth would still let it occlude authored geometry. Guide passes replace the
- * material and therefore keep the structural geometry #1173 introduced.
+ * A patch with an authored opaque color uses the same mesh in the beauty and
+ * guide passes. An uncolored support patch writes neither color nor depth in
+ * beauty, leaving any independently built floor to supply its appearance. All
+ * patches remain structural guide geometry when a guide replaces the material.
  *
  * The engine decomposes each footprint into its actual convex pieces, including
  * notches and holes. Floors and ramps fan those pieces; heightfields clip them
@@ -41,9 +39,9 @@ import { SPACE_GROUP_NAME } from "./SPACE_GROUP_NAME.js";
  * and contributes no mesh rather than an invalid geometry.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Uses the engine's actual footprint decomposition, height-rule tessellation, +Y winding and shared smooth normals, then realizes Float32 indexed geometry; admitted metre/Y-up surfaces satisfy engine premises, and bilinear cell interiors remain planar approximations rather than exact grounding geometry.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns only the Three group/geometry realization of semantic support surfaces; the engine owns tessellation and guide passes own material replacement, while beauty/depth writes of the ordinary material are disabled.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Draws every nondegenerate declared surface through the same tessellator without fixture paths or replacement height rules; invisible beauty material reflects semantic-support versus authored physical floor responsibilities.
- * @evidence contracts/development/common.md#meaningful-documentation Gives structural-pass purpose, hidden beauty behavior, actual region handling, metres/Y-up winding, degenerate omission and the heightfield interior approximation.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns the Three mesh and opaque or guide-only material. The engine owns tessellation, and the guide passes own material replacement.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The appearance option changes only the one mesh's material. No fixture paths, duplicate visual geometry or replacement height rules participate.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives structural coverage, color opt-in, footprint regions, metre/Y-up winding, degenerate omission and the heightfield interior approximation.
  * @evidence contracts/development/implementation.md#efficient-algorithms Builds one mesh per nondegenerate surface and copies each emitted position/normal/index once; engine cost depends on convex pieces and touched heightfield cells, and output memory grows with tessellated vertices/triangles rather than scene raster size.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine tessellation implementation but creates fresh scene-owned Three resources per build; mutable support surfaces have no immutable revision key here, so no cross-scene geometry cache is assumed.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Transfers new geometries/materials to the returned group and retains no separate registry; population is bounded by this space's nondegenerate surfaces and tessellation output. No disposer or partial-build rollback is exposed here, so scene-host retirement and construction-failure cleanup remain a gap rather than guaranteed release.
@@ -68,7 +66,17 @@ export const buildSpaceObject: (space: IAutoMovieSpace) => THREE.Group = (
       THREE.Object3DEventMap
     > = new THREE.Mesh(
       geometry,
-      new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }),
+      new THREE.MeshBasicMaterial(
+        surface.color === undefined
+          ? { colorWrite: false, depthWrite: false }
+          : {
+              color: new THREE.Color(
+                surface.color.r,
+                surface.color.g,
+                surface.color.b,
+              ),
+            },
+      ),
     );
     mesh.name = surface.id;
     group.add(mesh);

@@ -1,17 +1,13 @@
 # Brief
 
-A short's canon: the few decisions its screenplay cites, under the brief questions in the [story contracts](../../contracts/story/SKILL.md). Write it after discovery, studying what [when to study](../planning/research.md#when-to-study) assigns it.
+A short's brief establishes the facts its screenplays and designers rely on. One brief can serve several films. Write it after discovery, using the [research required for this layer](../planning/research.md#when-to-study).
 
 ## What it holds
 
-Hold only what the [needed-decisions question](../../contracts/story/shared/principles/brief.md#needed-decisions) lists: the decisions about the people, places and recurring props that several scenes must keep true. Everything else, such as a person or object only one scene shows, the camera and the sound, is decided in the screenplay, which code then cites, because a brief decision binds every scene that cites it.
+Before drafting the screenplay, give each known individually cast character and each planned scene location a [subject record](../document-layout.md#canon-records). One set can contain several rooms or zones. Include recurring props, props whose identity or operation drives an event, and subjects with commissioned appearance references. A crowd can have one group record.
 
-## Records
-
-Give each subject one file under the [document layout](../document-layout.md#documents), in the settings domain of its kind: `cast` for people, `sets` for places and `props` for recurring props. Each file has one H1 naming the subject, an H2 per facet and an H3 per decision with an explicit anchor; the screenplay cites a decision by its path and anchor, which stays stable under [identities](notation.md#identities).
-
-User-fixed interpretations and canon references follow [settings records](settings.md#records).
+Settle any rule, group role, layout or prop behavior on which the premise depends, even for one scene. The [brief criteria](../../contracts/story/principles/brief.md#needed-decisions) set the detail each subject needs. The screenplay owns [scene elements](../document-layout.md#scene-elements), who acts when, the camera and sound.
 
 ## Growth
 
-The brief grows as the screenplay is written. After the pass closes, a decision of a kind the brief holds that one scene makes and another must keep is added under [concretization](../correction/repair.md#concretization).
+If writing or staging reveals another subject or fact within this scope, the writer updates its record and links to it from each affected scene before that scene goes forward. Cite the establishing beat when the screenplay first makes the decision. For a closed pass, follow [repair](../correction/repair.md#closed-passes).

@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { ArchetypeArticulation } from "./ArchetypeArticulation";
+import { ArchetypeArticulation } from "./ArchetypeArticulation";
 import { ArchetypeBody } from "./ArchetypeBody";
 import type { ArchetypeConvexCell } from "./ArchetypeConvexCell";
 import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
@@ -23,6 +23,7 @@ import { ArchetypeShapes } from "./ArchetypeShapes";
 import { ArchetypeSite } from "./ArchetypeSite";
 import { ArchetypeSpan } from "./ArchetypeSpan";
 import type { IArchetypeProps } from "./IArchetypeProps";
+import { archetypeAffordance } from "./archetypeAffordance";
 import { poseArchetype } from "./poseArchetype";
 import { reposeArchetype } from "./reposeArchetype";
 
@@ -33,15 +34,13 @@ import { reposeArchetype } from "./reposeArchetype";
  *
  * - `affordance(id)` and `site(id, u, v)` give a contact and a place on it, with `id` checked against the producer's closed id type at compile time and refused at run time with the ids that exist;
  * - `articulate(state)` gives the archetype with its articulations at the stated travels, parts and carried affordances moved with them, followers set by their leaders and spans laid again between their ends; `travel(id)` gives any articulation's travel, a follower's included, and `span(id)` a span's ends and slack. The travels live on the instance only: a serialised posed archetype is a picture of that pose and carries no state, so articulate from the archetype a producer returned, never from a copy read back;
- * - `dimensions` gives the value drawn for each free dimension, `provenance` the band each was drawn in and the model picked on each axis, and `properties` the mass, centre of mass and inertia;
+ * - `dimensions` gives each free dimension and `provenance` its source. Physical models carry mass, centre and inertia in `properties`. For visual models both `properties` and `body` are null.
  * - `shapes()` gives colliders for a hand to close on, and `placed(id, placement)` a contact's frame in the world;
  * - `surface(part)` gives what a part's surface is made of and `friction(part, against)` its measured friction against another material, while `body` carries the static and kinetic friction of what the model rests on against its ground ({@link ArchetypeFriction}).
- *
  * Lengths are metres, masses kilograms and angles degrees. The model's space has `+Y` up and `+Z` to the front of a thing that has one; an archetype that stands on the floor has its origin on the floor.
- *
  * @template Id The archetype's affordance ids, a closed union the producer declares.
  * @template Dimension The archetype's free dimensions, a closed union the producer declares.
- *
+ * @template Physical Mass properties or null for a visual-only model.
  * @evidence contracts/development/common.md#meaningful-documentation States that the instance is a model, which members serialise, each accessor's purpose, the units and the model's axes.
  * @evidence contracts/development/design.md#principled-representation A model plus read-only derived views of it; the state that distinguishes an articulated copy lives in private fields, so the serialised model stays the single truth of what is drawn and what is touched.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Contacts, sites, articulation, mass properties and colliders serve the prop axis (#3358); convexCells additionally preserves actual wall correspondence in placed assemblies. Type parameters carry the producer's closed contact ids.
@@ -50,6 +49,7 @@ import { reposeArchetype } from "./reposeArchetype";
 export class Archetype<
   Id extends string = string,
   Dimension extends string = string,
+  Physical extends ArchetypeMass.IProperties | null = ArchetypeMass.IProperties,
 > implements IAutoMovieModel {
   /** Model id, unique in a scene; the producer's `id` parameter or its own name. */
   public readonly id: string;
@@ -66,8 +66,8 @@ export class Archetype<
   /** Always null: an archetype is a rigid or articulated object, never a humanoid rig. */
   public readonly skeleton: null = null;
 
-  /** Mass, centre of mass and contact coefficients; the centre is at rest and does not follow articulation. */
-  public readonly body: IAutoMovieBody;
+  /** Rest mass, centre and contact coefficients, or null for a visual-only model. */
+  public readonly body: Physical extends null ? null : IAutoMovieBody;
 
   /** The contacts at the current articulation state. */
   public readonly affordances: IAutoMovieAffordance[];
@@ -79,7 +79,7 @@ export class Archetype<
   public readonly asset: null = null;
 
   /** What the producer built, at rest. */
-  readonly #rest: Archetype.IProps<Id, Dimension>;
+  readonly #rest: Archetype.IProps<Id, Dimension, Physical>;
 
   /** The travel of each articulation that is away from rest. */
   readonly #state: Partial<Record<Id, number>>;
@@ -95,21 +95,18 @@ export class Archetype<
    * @throws {ArchetypeRefusal} Through the articulation and {@link ArchetypeSpan.pose} owners for unsupported travels, invalid line geometry or incompatible held contacts.
    */
   public constructor(
-    props: Archetype.IProps<Id, Dimension>,
+    props: Archetype.IProps<Id, Dimension, Physical>,
     state: Partial<Record<Id, number>> = {},
   ) {
-    const travels: Map<string, number> = new Map();
-    for (const id of Object.keys(state) as Id[]) {
-      const travel: number | undefined = state[id];
-      if (travel !== undefined) travels.set(id, travel);
-    }
-
-    const posed: ArchetypeArticulation.IResult = poseArchetype(props, travels);
+    const posed: ArchetypeArticulation.IResult = poseArchetype(
+      props,
+      ArchetypeArticulation.travels(state),
+    );
     this.id = props.id;
     this.name = props.name;
     this.parts = posed.parts;
     this.#travels = posed.travels;
-    this.body = ArchetypeBody(props);
+    this.body = ArchetypeBody<Physical>(props);
     this.affordances = posed.affordances;
     this.materials = props.materials;
     this.#rest = props;
@@ -131,8 +128,8 @@ export class Archetype<
     return this.#rest.provenance;
   }
 
-  /** Mass, centre of mass and inertia about it, at rest. */
-  public get properties(): ArchetypeMass.IProperties {
+  /** Rest mass, centre of mass and inertia, or null for a visual-only model. */
+  public get properties(): Physical {
     return this.#rest.properties;
   }
 
@@ -149,6 +146,11 @@ export class Archetype<
   /** The travel of each articulation that was set, by id; a follower's is read through `travel`. */
   public get state(): Partial<Record<Id, number>> {
     return this.#state;
+  }
+
+  /** Whether the resolved model declares any articulation, including at rest. */
+  public get hasArticulations(): boolean {
+    return this.#travels.size > 0;
   }
 
   /** The spans this archetype lays between moving frames, at rest. */
@@ -243,22 +245,7 @@ export class Archetype<
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   public affordance(id: Id): IAutoMovieAffordance {
-    const found: IAutoMovieAffordance | undefined = this.affordances.find(
-      (a: IAutoMovieAffordance): boolean => a.id === id,
-    );
-    if (found !== undefined) return found;
-    throw new ArchetypeRefusal({
-      kind: "affordance",
-      archetype: this.#rest.archetype,
-      axis: "affordance",
-      value: id,
-      feasible: {
-        kind: "alternatives",
-        values: this.affordances.map((a: IAutoMovieAffordance): string => a.id),
-      },
-      reason: `${this.name ?? this.id} has no affordance "${id}"`,
-      fix: "name one of the affordances this archetype declares",
-    });
+    return archetypeAffordance(this, id, this.#rest.archetype);
   }
 
   /**
@@ -319,10 +306,30 @@ export class Archetype<
    */
   public articulate(
     state: Partial<Record<Id, number>>,
-  ): Archetype<Id, Dimension> {
-    return new Archetype<Id, Dimension>(this.#rest, state);
+  ): Archetype<Id, Dimension, Physical> {
+    return new Archetype<Id, Dimension, Physical>(this.#rest, state);
   }
 
+  /**
+   * Prepare selected contact frames for ordinary rigid archetypes; subclasses and flexible spans need the complete pose.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Returns the rest graph's reader of absolute travels, or undefined when full articulation owns additional behavior.
+   * @evidence contracts/development/implementation.md#principled-implementation Only the unchanged native articulation of a span-free model has no later span or override effects.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A capability check followed by the rest graph reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the original rest frames even when the receiver is already posed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The rest index is prepared once per reader.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same projection as complete articulation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns the rest graph until released.
+   */
+  public static projection(
+    model: Archetype<string, string, ArchetypeMass.IProperties | null>,
+  ): ReturnType<typeof ArchetypeArticulation.prepare> | undefined {
+    if (!(#rest in model)) return undefined;
+    if (Object.getPrototypeOf(model) !== Archetype.prototype) return undefined;
+    if (Object.hasOwn(model, "articulate")) return undefined;
+    if (model.#rest.spans.length) return undefined;
+    return ArchetypeArticulation.prepare(model.#rest.archetype, model.#rest);
+  }
   /**
    * This archetype with its rest parts replaced, keeping identity, materials, dimensions and rest mass properties. A rig may supply current contact frames; omitted frames retain rest contact origins. Declared spans are rebuilt and explicitly held line axes follow their current geometry.
    *
@@ -341,8 +348,8 @@ export class Archetype<
   public reposed(
     parts: IAutoMovieModelPart[],
     frames?: ReadonlyMap<string, IAutoMovieTransform>,
-  ): Archetype<Id, Dimension> {
-    return new Archetype<Id, Dimension>(
+  ): Archetype<Id, Dimension, Physical> {
+    return new Archetype<Id, Dimension, Physical>(
       reposeArchetype(this.#rest, parts, frames),
     );
   }
@@ -405,18 +412,20 @@ export class Archetype<
   /**
    * The archetype's colliders at the current articulation state, in the model's space.
    *
-   * @returns One solid per part, as {@link ArchetypeShapes} maps them.
+   * @returns The admitted part solids, or an empty list for a visual-only model.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the state and the space.
-   * @evidence contracts/development/implementation.md#principled-implementation The parts' own primitive or explicitly declared convex-cell solids, under current part transforms; the shared owner states primitive approximation bounds.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the owner it calls.
+   * @evidence contracts/development/implementation.md#principled-implementation Physical models use their own primitive or declared convex-cell solids under current transforms. A visual-only model supplies no colliders.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A visual model returns an empty list. The physical branch calls the shared shape owner once.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The render mesh of a visual-only model cannot admit a collider.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in parts plus declared cell corners; computed on request because most archetypes are never grasped.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual cells reuse their generating boundary. Collider outputs are independent; callers needing repeated contact queries can retain that result.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   public shapes(): IAutoMoviePhysicalShape[] {
-    return ArchetypeShapes.of(this.parts, this.#rest.cells);
+    return this.#rest.properties === null
+      ? []
+      : ArchetypeShapes.of(this.parts, this.#rest.cells);
   }
 
   /**
@@ -425,11 +434,12 @@ export class Archetype<
    * @param through A point of the line in the model's space, metres.
    * @param direction The line's direction; any length.
    * @returns The moment, kg m squared.
+   * @throws {ArchetypeRefusal} When the model is visual only.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the use.
    * @evidence contracts/development/implementation.md#principled-implementation The parallel-axis theorem over the archetype's own mass properties.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the owner it calls.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Refuse a missing mass record, then call the parallel-axis owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A visual-only model supplies no fallback inertia.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ArchetypeMass.about`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -438,7 +448,17 @@ export class Archetype<
     through: IAutoMovieVector3,
     direction: IAutoMovieVector3,
   ): number {
-    return ArchetypeMass.about(this.#rest.properties, through, direction);
+    const properties: ArchetypeMass.IProperties | null = this.#rest.properties;
+    if (properties === null)
+      throw new ArchetypeRefusal({
+        archetype: this.archetype,
+        kind: "parameter",
+        axis: "body",
+        value: null,
+        reason: "a visual-only model has no moment of inertia",
+        fix: "select a model with physical mass properties",
+      });
+    return ArchetypeMass.about(properties, through, direction);
   }
 
   /**
@@ -449,7 +469,7 @@ export class Archetype<
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and when nothing breaks.
    * @evidence contracts/development/implementation.md#principled-implementation `ArchetypeFracture.split` over the rest record, each record made an archetype at rest.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One split, then one construction per record.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A visual-only model never splits. A physical split yields one construction per record.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the owner it calls.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, through `split`.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ArchetypeFracture.split`.
@@ -458,8 +478,12 @@ export class Archetype<
   public broken(
     hit: ArchetypeFracture.IHit,
   ): ArchetypeFracture.IPieces<Id, Dimension> | null {
+    if (this.#rest.properties === null) return null;
     const split: ArchetypeFracture.IBroken<Id, Dimension> | null =
-      ArchetypeFracture.split(this.#rest, hit);
+      ArchetypeFracture.split(
+        this.#rest as Archetype.IProps<Id, Dimension>,
+        hit,
+      );
     if (split === null) return null;
     return {
       remainder:
@@ -479,9 +503,7 @@ export class Archetype<
   }
 }
 
-/**
- * Companion types of {@link Archetype}.
- */
+/** Companion types of {@link Archetype}. */
 export namespace Archetype {
   /**
    * What a producer built: the archetype at rest, as {@link IArchetypeProps} records it.
@@ -494,5 +516,7 @@ export namespace Archetype {
   export type IProps<
     Id extends string,
     Dimension extends string,
-  > = IArchetypeProps<Id, Dimension>;
+    Physical extends ArchetypeMass.IProperties | null =
+      ArchetypeMass.IProperties,
+  > = IArchetypeProps<Id, Dimension, Physical>;
 }

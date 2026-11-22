@@ -3,6 +3,7 @@ import type {
   IAutoMovieRandom,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
 import { StrikingSkill } from "./StrikingSkill";
 
 /**
@@ -31,11 +32,12 @@ import { StrikingSkill } from "./StrikingSkill";
  * solves `t_start`, and splits it into a reaction time and a lead, each in its
  * range. When the bands do not meet, the attacker's strike duration is
  * stretched or shortened within its own allowed factor first; if no factor
- * suffices, the nearest plausible margin is used and a warning names the
- * shortfall. An implausible reaction time is never used.
+ * suffices, the forced outcome is refused with the outcomes plausible timing
+ * does reach, since the outcome is the author's input and must not change
+ * silently. An implausible reaction time is never used.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the start law, the margin bands, the evidence behind anticipation and how a forced outcome is realised or reported.
- * @evidence contracts/development/design.md#principled-representation The outcome as a closed union of the three margin bands, the timing in film seconds, and a decision that carries the realised reaction, lead, stretch and warnings.
+ * @evidence contracts/development/common.md#meaningful-documentation States the start law, the margin bands, the evidence behind anticipation and how a forced outcome is realised or refused.
+ * @evidence contracts/development/design.md#principled-representation The outcome as a closed union of the three margin bands, the timing in film seconds, and a decision that carries the realised reaction, lead and stretch.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The types and the classify, band and decide functions the defence law and its tests read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's random stream and the skill types.
  */
@@ -96,11 +98,12 @@ export namespace DefenceOutcome {
    * @param forced The outcome to force, when the author declares one.
    * @returns The decision.
    * @throws {Error} When the contact is not after the launch, the movement time is not positive, the telegraph leaves [0, 1] or the stretch band excludes 1.
+   * @throws {HumanRefusal} A `parameter` refusal on `outcome` when no plausible timing inside the attack's stretch band meets the forced outcome, with the outcomes it does meet.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two modes, the refusals and that warnings report an unmet forced outcome.
+   * @evidence contracts/development/common.md#meaningful-documentation States the two modes and both kinds of refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Unforced: the skill's ex-Gaussian reaction and a uniform lead give the margin. Forced: the plausible margin band, linear in the attack's stretch, is met in closed form, a margin drawn strictly inside the intersection and split into an in-band reaction and lead.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Validation, the unforced draw, then the stretch, the margin and the split for a forced outcome.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid timing throws; an unmeetable forced outcome uses the nearest plausible margin and says so in a warning rather than an implausible reaction time; the 2 % inset keeps a draw off a band's exclusive edge.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid timing throws; an unmeetable forced outcome is refused with the reachable outcomes, never realised in another band or with an implausible reaction time; the 2 % inset keeps a draw off a band's exclusive edge.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs and the given stream.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -134,7 +137,6 @@ export namespace DefenceOutcome {
         margin,
         stretch: 1,
         hit: input.hit,
-        warnings: [],
       };
     }
 
@@ -175,18 +177,36 @@ export namespace DefenceOutcome {
     const [q0, q1] = plausible(factor);
     const low: number = Math.max(q0, wanted[0]);
     const high: number = Math.min(q1, wanted[1]);
-    const warnings: string[] = [];
-    let margin: number;
-    if (low <= high) {
-      // A strictly-inside draw: the late band's ends are exclusive.
-      const span: number = high - low;
-      margin = low + span * (0.02 + 0.96 * random.float(0));
-    } else {
-      margin = q1 < wanted[0] ? q1 : q0;
-      warnings.push(
-        `A ${forced} defence needs a margin in [${wanted[0].toFixed(3)}, ${wanted[1].toFixed(3)}] s, but plausible timing gives [${q0.toFixed(3)}, ${q1.toFixed(3)}] s even at attack stretch ${factor.toFixed(3)}; the nearest plausible margin ${margin.toFixed(3)} s is used`,
-      );
+
+    // An outcome plausible timing cannot produce, at any stretch the attack
+    // allows, is refused with the outcomes it can produce: the outcome is the
+    // author's input, and a defence that lands in another band would change
+    // it silently. The plausible margins over the whole stretch band run from
+    // the shortest attack's latest start to the longest attack's earliest.
+    if (!(low <= high)) {
+      const reach: readonly [number, number] = [
+        plausible(sLow)[0],
+        plausible(sHigh)[1],
+      ];
+      const reachable: IAutoMovieMotionHumanDefenceOutcome.Outcome[] = (
+        ["inTime", "late", "fail"] as const
+      ).filter((outcome: IAutoMovieMotionHumanDefenceOutcome.Outcome): boolean => {
+        const [b0, b1] = band(outcome, input.movement);
+        return Math.max(b0, reach[0]) <= Math.min(b1, reach[1]);
+      });
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "outcome",
+        value: forced,
+        feasible: { kind: "alternatives", values: reachable },
+        reason: `a ${forced} defence needs a margin in [${wanted[0].toFixed(3)}, ${wanted[1].toFixed(3)}] s, but plausible timing gives [${q0.toFixed(3)}, ${q1.toFixed(3)}] s even at attack stretch ${factor.toFixed(3)}`,
+        fix: "force an outcome plausible timing reaches, let the attack's duration stretch further, or give the attack more telegraph",
+      });
     }
+
+    // A strictly-inside draw: the late band's ends are exclusive.
+    const margin: number =
+      low + (high - low) * (0.02 + 0.96 * random.float(0));
 
     // Split the start into a reaction and a lead: the lead's share of its band
     // is drawn, the reaction follows, and if it leaves its band it is clamped
@@ -217,7 +237,6 @@ export namespace DefenceOutcome {
       margin: realisedMargin,
       stretch: factor,
       hit,
-      warnings,
     };
   }
 }

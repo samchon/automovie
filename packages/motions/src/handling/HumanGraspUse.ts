@@ -1,35 +1,31 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieAffordance,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGrasp,
   IAutoMovieMotionHumanGraspUse,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanStrikingHeld,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
-import { HumanHand } from "../posture/HumanHand";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGraspDemand } from "./HumanGraspDemand";
+import { HumanGraspUsePreparation } from "./HumanGraspUsePreparation";
 import { HumanGraspWorn } from "./HumanGraspWorn";
 
 /**
@@ -109,7 +105,9 @@ export namespace HumanGraspUse {
     side: AutoMovieHumanSide,
     yaw: number,
   ): IAutoMovieVector3 {
-    const joint = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+    const joint: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
+      bone: AutoMovieHumanoidBone,
+    ): IAutoMovieVector3 =>
       bones.get(bone)?.worldPosition ?? { x: 0, y: 0, z: 0 };
     const shoulder: IAutoMovieVector3 = joint(`${side}UpperArm`);
     const elbow: IAutoMovieVector3 = joint(`${side}LowerArm`);
@@ -131,6 +129,7 @@ export namespace HumanGraspUse {
    * the plane the body faces.
    *
    * @param props The action's context, the prop and its handle, the hand, the hand the arm shows for the candidate grasp, the use, and how far the closed hand at a wrist keeps out of the body's other parts, metres, negative inside (every roll alike when absent).
+   * @param closure The prop's world frame at grasp closure, or the entry frame when omitted.
    * @returns The key pose.
    * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop declares no such working point, listing its contacts; a `parameter` refusal on `use` for an `along` line ahead of the body, listing the other lines.
    *
@@ -138,162 +137,36 @@ export namespace HumanGraspUse {
    * @evidence contracts/development/implementation.md#principled-implementation The tool is rigid in the hand from the grasp on, so the hand's rotation there is the candidate grasp's rotation turned by the shortest turn that takes the tool's line, as it lies now, onto the asked line, or, laid along a surface, the working point's own face onto the surface; worn, the thing's own worn frame, the one `dress` puts it at (`HumanWorn.frame`), so the grasp is judged at the very pose it is put on in (`HumanGraspWorn`). Every key is judged in the unit of what it places, metres, read off the fitted hand (`HumanGrasp.IKey.judge`): a tool on a line by the measure the law presenting it judges a held tool by (`StrikingHeld.strayed`, its working point and its line a tool's length behind, so a grip that keeps the point and turns the line is counted), the tool read from the candidate grip as a held tool is read (`StrikingHeld.read`); a tool laid along a surface by its working point. The roll about that line, or the turn about the surface's normal, is free in a use that names only that much: the shared chooser takes it (`HumanFreedomChoice`, a wrapped freedom), the roll whose key the arm, fitted within its ranges, leaves the working point nearest, as a law presenting the tool takes it (`StrikingRoll`), so the grasp is judged at the roll the law will use.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The two contacts, the two lines, the turn between them, the place, the roll.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lines that oppose each other turn about the body's left instead of an undefined axis. Given the closed hand's clearance, its depth inside the body adds to a roll's miss. The place's shares of the arm (0.6 ahead, 0.1 below) are provisional and named at the code.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The chooser's fits, each roll fitted once, its elbow placed by the fit's own sweep (`HumanPosture.IGoal.elbow`) with no search of its own, kept in a map, however often the search returns to it.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the entry pose's bones once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned key retains its immutable body and pose inputs; the roll-search map is local to the call and is released before return.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The chooser's fits, each roll fitted once and kept in a map however often the search returns to it, its elbow placed by the fit's own sweep (`HumanPosture.IGoal.elbow`) and only the hand bone placed for the judge.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the entry pose's needed bones once.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The roll-score map lives for the call and is cleared before return; the key's judge holds its tool or contact geometry only.
    */
   export function presented(
     props: IAutoMovieMotionHumanGraspUse.IPresentedProps,
+    closure?: IAutoMovieRigidTransform,
   ): IAutoMovieMotionHumanGrasp.IKey {
-    const context: (typeof props)["context"] = props.context;
-    const held: IAutoMovieMotionHumanPropReader = context.prop(props.prop);
-    const contact = (id: string): IAutoMovieAffordance | undefined =>
-      (held.prop.affordances ?? []).find(
-        (affordance: IAutoMovieAffordance): boolean => affordance.id === id,
-      );
-    const handle: IAutoMovieAffordance | undefined = contact(props.handle);
-    const tip: IAutoMovieAffordance | undefined = contact(props.use.tip);
-    if (handle === undefined || tip === undefined)
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "use",
-        value: `${props.prop}.${props.use.tip}`,
-        feasible: {
-          kind: "alternatives",
-          values: (held.prop.affordances ?? []).map(
-            (affordance: IAutoMovieAffordance): string => affordance.id,
-          ),
-        },
-        reason: `${props.prop} declares no ${props.use.tip}, the working point its use names`,
-        fix: "name one of the prop's contacts as the tip, or pick the prop up without a use",
-      });
-
-    // The tool's line as it lies now, and the line asked: forward of the
-    // body, risen by the use's angle.
-    const lying: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(
-        held.frame(context.start).rotation,
-        Vector3.subtract(tip.frame.translation, handle.frame.translation),
-      ),
+    const {
+      context,
+      held,
+      world,
+      tip,
+      at,
+      site,
+      laid,
+      ahead,
+      socket,
+      roll: rollAt,
+    }: HumanGraspUsePreparation.IPrepared = HumanGraspUsePreparation.of(
+      props,
+      closure,
     );
-    const yaw: number = (context.entry.posture.yaw * Math.PI) / 180;
-    const rise: number = (RISE[props.use.line] * Math.PI) / 180;
-    const forward: IAutoMovieVector3 = {
-      x: Math.sin(yaw),
-      y: 0,
-      z: Math.cos(yaw),
-    };
-
-    // Ahead of the body the tool's line runs away from it. At the mouth or
-    // a region it runs back into the body, from the hand before it to the
-    // working point there: a line that ran forward would put the handle
-    // inside the head.
-    const at: AutoMovieHumanoidRegion | undefined =
-      props.use.at === "mouth"
-        ? "mouth"
-        : typeof props.use.at === "object"
-          ? props.use.at.region
-          : undefined;
-    const level: number = at === undefined ? 1 : -1;
-
-    // At the mouth or a region, the tool's working point goes there and
-    // the wrist follows from the hand's rotation: the point is rigid in the
-    // hand, at the offset it has in the candidate grasp.
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      context.body,
-      context.entry.pose,
-    );
-    const region:
-      | IAutoMovieMotionHumanBody["surfaces"]["regions"]["mouth"]
-      | undefined =
-      at === undefined ? undefined : context.body.surfaces.regions[at];
-    const bearer: IAutoMovieResolvedBone | undefined =
-      region === undefined ? undefined : bones.get(region.bone);
-    const placed:
-      | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
-      | undefined =
-      region !== undefined && bearer !== undefined
-        ? resolveAutoMovieHumanoidSurfaces.place(region, bearer)
-        : undefined;
-    const site: IAutoMovieVector3 | undefined = placed?.point;
-    if (
-      (props.use.line === "along" || props.use.line === "worn") &&
-      placed === undefined
-    )
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "use",
-        value: props.use.line,
-        feasible: {
-          kind: "alternatives",
-          values: ["forearm", "oblique", "square", "across"],
-        },
-        reason:
-          "a tool laid along a surface needs a surface of the performer's own body to lie on, and this use is ahead of the body",
-        fix: "name the mouth or a region as the use's place, or another line",
-      });
-
-    // What is laid and onto what: the tool's line onto the asked line,
-    // turned about it; laid along a surface, the working point's own face
-    // onto the surface, turned about its normal. A line across the body
-    // runs level toward the other hand: the body's left from the right
-    // hand, its right from the left.
-    const face: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(
-        held.frame(context.start).rotation,
-        Quaternion.rotateVector(tip.frame.rotation, { x: 0, y: 1, z: 0 }),
-      ),
-    );
-    const from: IAutoMovieVector3 = props.use.line === "along" ? face : lying;
-    const asked: IAutoMovieVector3 =
-      props.use.line === "along"
-        ? Vector3.scale(Vector3.normalize(placed!.normal), -1)
-        : props.use.line === "across"
-          ? {
-              x: (props.side === "right" ? 1 : -1) * Math.cos(yaw),
-              y: 0,
-              z: (props.side === "right" ? -1 : 1) * Math.sin(yaw),
-            }
-          : {
-              x: level * forward.x * Math.cos(rise),
-              y: Math.sin(rise),
-              z: level * forward.z * Math.cos(rise),
-            };
-
-    // The shortest turn from one to the other; directions that oppose each
-    // other turn about the body's left, which keeps the turn in the plane
-    // the body faces.
-    const across: IAutoMovieVector3 = Vector3.cross(from, asked);
-    const axis: IAutoMovieVector3 =
-      Vector3.length(across) > 1e-9
-        ? Vector3.normalize(across)
-        : { x: Math.cos(yaw), y: 0, z: -Math.sin(yaw) };
-    const laid: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.fromAxisAngle(
-        axis,
-        (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(from, asked)))) * 180) /
-          Math.PI,
-      ),
-      props.wrist.rotation,
-    );
-    // Ahead of the body the tool's grip goes to the place a law presents it
-    // at (`place`), the grip socket there and the wrist following.
-    const ahead: IAutoMovieVector3 = place(
-      bones,
-      props.side,
-      context.entry.posture.yaw,
-    );
-    const socket: IAutoMovieVector3 = HumanHand.offset(
-      context.body,
-      props.side,
-      "grip",
-    ).point;
 
     // Worn: the key is the thing on the place it is worn (`HumanGraspWorn`).
     if (props.use.line === "worn")
       return HumanGraspWorn.key({
         context,
         held,
+        world,
         tip,
         at: at!,
         site: site!,
@@ -306,11 +179,8 @@ export namespace HumanGraspUse {
       Quaternion.inverse(props.wrist.rotation),
       Vector3.subtract(
         Vector3.add(
-          held.frame(context.start).position,
-          Quaternion.rotateVector(
-            held.frame(context.start).rotation,
-            tip.frame.translation,
-          ),
+          world.position,
+          Quaternion.rotateVector(world.rotation, tip.frame.translation),
         ),
         props.wrist.point,
       ),
@@ -323,7 +193,7 @@ export namespace HumanGraspUse {
               context.body,
               props.side,
               props.prop,
-              held.frame(context.start),
+              world,
               held.prop.affordances ?? [],
               props.wrist,
             ),
@@ -339,9 +209,11 @@ export namespace HumanGraspUse {
     // closed hand's depth inside the body added as a cost. A law that
     // presents the tool chooses its roll the same way (`StrikingRoll`), so
     // the grasp is judged at the roll the law will take.
-    const keyed = (roll: number): IAutoMovieMotionHumanHand.IWrist => {
+    const keyed: (roll: number) => IAutoMovieMotionHumanHand.IWrist = (
+      roll: number,
+    ): IAutoMovieMotionHumanHand.IWrist => {
       const rolled: IAutoMovieQuaternion = Quaternion.normalize(
-        Quaternion.multiply(Quaternion.fromAxisAngle(asked, roll), laid),
+        Quaternion.multiply(rollAt(roll), laid),
       );
       return {
         point: Vector3.subtract(
@@ -372,7 +244,9 @@ export namespace HumanGraspUse {
 
     // A use's key is the same contact-pivot goal and two-point measure the
     // presenting action uses; fitting only the wrist judges another task.
-    const key = (roll: number): IAutoMovieMotionHumanGrasp.IKey => {
+    const key: (roll: number) => IAutoMovieMotionHumanGrasp.IKey = (
+      roll: number,
+    ): IAutoMovieMotionHumanGrasp.IKey => {
       const wrist: IAutoMovieMotionHumanHand.IWrist = keyed(roll);
       if (tool !== undefined)
         return HumanGraspDemand.key(context.body, {
@@ -409,9 +283,14 @@ export namespace HumanGraspUse {
       };
     };
 
-    // Each roll fitted once, however often the search comes back to it.
+    // Each roll fitted once, however often the search comes back to it: the
+    // arm alone, on the entry's pose resolved once without it, each roll
+    // continued from the fit of the roll before (adjacent rolls turn the
+    // hand a step), never the whole body fitted cold per roll.
     const fitted: Map<number, number> = new Map();
-    const missed = (roll: number): number => {
+    let base: IAutoMoviePose | undefined;
+    let previous: IAutoMovieSwivelSeed | null = null;
+    const missed: (roll: number) => number = (roll: number): number => {
       const known: number | undefined = fitted.get(roll);
       if (known !== undefined) return known;
       const candidate: IAutoMovieMotionHumanGrasp.IKey = key(roll);
@@ -424,10 +303,36 @@ export namespace HumanGraspUse {
         bend: hang,
         elbow: "strain",
       };
+      if (base === undefined) {
+        const without: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...posture.limbs,
+        };
+        delete without[`${props.side}Arm`];
+        base = resolveHumanPosture(context.body, {
+          ...posture,
+          limbs: without,
+        });
+      }
+      const arm: IAutoMovieSeededChainFit = HumanLimbFit.fit(
+        context.body,
+        base,
+        `${props.side}Arm`,
+        limbs[`${props.side}Arm`]!,
+        ["left", "right"],
+        undefined,
+        previous === null
+          ? undefined
+          : { ...previous, tolerance: hingedArmSwivel.RESOLUTION },
+      );
+      previous = arm.seed;
+      // Both judges read the hand bone alone (the grip socket and the held
+      // point ride it), so only the hand is placed.
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(
           context.body,
-          resolveHumanPosture(context.body, { ...posture, limbs }),
+          arm.pose,
+          undefined,
+          new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]),
         );
       const hand: IAutoMovieResolvedBone = bones.get(`${props.side}Hand`)!;
       const kept: number =
@@ -444,14 +349,21 @@ export namespace HumanGraspUse {
       fitted.set(roll, miss);
       return miss;
     };
-    const seeds: number[] = [0];
-    for (let k: number = ROLL; k <= 180; k += ROLL)
-      seeds.push(...(k < 180 ? [k, -k] : [k]));
+    // The hand's own order of rolls, and its refinement's first sense with it.
+    const seeds: number[] = HumanFreedomChoice.turns(ROLL, props.side);
     const roll: number = HumanFreedomChoice.chosen({
       tried: seeds.map((degrees: number): number[] => [degrees]),
-      freedoms: [{ kind: "wrapped", step: ROLL, period: 360 }],
+      freedoms: [
+        {
+          kind: "wrapped",
+          step: props.side === "left" ? -ROLL : ROLL,
+          period: 360,
+        },
+      ],
       judge: (values: readonly number[]): number[] => [missed(values[0]!)],
     }).values[0]!;
-    return key(roll);
+    const selected: IAutoMovieMotionHumanGrasp.IKey = key(roll);
+    fitted.clear();
+    return selected;
   }
 }

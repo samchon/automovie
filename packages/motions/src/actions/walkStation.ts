@@ -3,7 +3,6 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanFormation,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanWalkGait,
   IAutoMovieMotionHumanWalkPace,
   IAutoMovieMotionHumanWalkStation,
@@ -13,6 +12,7 @@ import type {
 
 import { HumanFormation } from "../ensemble/HumanFormation";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { WalkPath } from "./WalkPath";
 import { walkPaced } from "./walkPaced";
 
@@ -50,21 +50,22 @@ import { walkPaced } from "./walkPaced";
  * @param from The film second the walker's plan begins.
  * @param rests The film second the point comes to rest.
  * @returns The plan at the point's speed.
+ * @throws {HumanRefusal} When the clock would need more than `TICKS` entries, a station kept past the longest walk timed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the law and its sources, what it does not do and how the way is finished, how the point and the plan are read.
  * @evidence contracts/development/implementation.md#principled-implementation The cited first-order law is integrated exactly over each `TICK` for a speed held constant in it; the travelled length is turned into the plan's second through the plan's own way, and `walkPaced` plays the plan on that clock. Speed is continuous where the plan's own clock takes over because that clock starts at the rate the speed has there.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the point's speeds, read the plan's way, integrate the two phases into one clock, hand it to `walkPaced`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `GAIN` is the cited fit; `FASTEST`, `STEP`, `TICK`, `SAMPLES` and `CRUISE` are named and provisional. The speed bound is the gait's, not a clamp of what was asked: the walker then arrives late, as stated.
- * @evidence contracts/development/implementation.md#efficient-algorithms One reading of the point every `STEP` seconds and `SAMPLES` postures of the plan, once per plan; each tick of the clock costs one search of the way.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache beyond the readings and the clock built once.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the clock for as long as the returned plan is held.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `GAIN` is the cited fit; `FASTEST`, `STEP`, `TICK`, `SAMPLES` and `CRUISE` are named and provisional. The speed bound is the gait's, not a clamp of what was asked: the walker then arrives late, as stated. A clock that runs out of entries is refused, never jumped to the plan's end.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One reading of the point every `STEP` seconds and `SAMPLES` horizontal path reads, once per plan; each clock tick costs one logarithmic way search. Plans without a horizontal projection still share one FK workspace for their root-only reads.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan's root-distance samples share only an FK workspace, which changes no posture; every sample and timing step is computed, without a pose-result cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The construction releases its FK workspace and temporary speed/distance samples on return or throw; walkPaced holds only the plan and the numeric clock until released, without a queried-pose history.
  */
 export function walkStation(
-  plan: IAutoMovieMotionHumanActionPlan,
+  plan: walkStation.IPlan,
   where: (seconds: number) => IAutoMovieVector3,
   from: number,
   rests: number,
-): IAutoMovieMotionHumanActionPlan {
+): walkStation.IPlan {
   // The point's speed between readings.
   const count: number = Math.ceil((rests - from) / walkStation.STEP);
   if (count < 1) return plan;
@@ -79,21 +80,26 @@ export function walkStation(
     led += length;
     before = now;
   }
+  if (led < 1e-6) return plan;
 
   // The plan's way: the length its root has travelled at each sampled second.
   const seconds: number[] = [0];
   const lengths: number[] = [0];
-  let root: IAutoMovieMotionHumanPosture["root"] = plan.posture(0).root;
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
+    plan.horizontalRoot === undefined ? prepareHumanPoseResolution() : undefined;
+  const rootAt: walkStation.HorizontalRoot = plan.horizontalRoot ??
+    ((t: number): walkStation.HorizontalPoint => plan.posture(t, ["root"], resolution).root);
+  let root: walkStation.HorizontalPoint = rootAt(0);
   for (let i: number = 1; i <= walkStation.SAMPLES; ++i) {
     const t: number = (i / walkStation.SAMPLES) * plan.duration;
-    const now: IAutoMovieMotionHumanPosture["root"] = plan.posture(t).root;
+    const now: walkStation.HorizontalPoint = rootAt(t);
     seconds.push(t);
     lengths.push(lengths[i - 1]! + Math.hypot(now.x - root.x, now.z - root.z));
     root = now;
   }
   const whole: number = lengths[walkStation.SAMPLES]!;
-  if (led < 1e-6 || whole < 1e-9) return plan;
-  const rate = (i: number): number =>
+  if (whole < 1e-9) return plan;
+  const rate: (i: number) => number = (i: number): number =>
     (lengths[i]! - lengths[i - 1]!) / (seconds[i]! - seconds[i - 1]!);
   const rates: number[] = seconds
     .slice(1)
@@ -109,9 +115,14 @@ export function walkStation(
       brake = lengths[i]!;
       break;
     }
-  const secondAt = (length: number): number => {
+  const secondAt: (length: number) => number = (length: number): number => {
     let i: number = 1;
-    while (i < walkStation.SAMPLES && lengths[i]! < length) ++i;
+    let high: number = walkStation.SAMPLES;
+    while (i < high) {
+      const middle: number = (i + high) >>> 1;
+      if (lengths[middle]! < length) i = middle + 1;
+      else high = middle;
+    }
     const span: number = lengths[i]! - lengths[i - 1]!;
     return (
       seconds[i - 1]! +
@@ -157,6 +168,17 @@ export function walkStation(
     pace = 1 + (pace - 1) * decay;
     clock.push(Math.min(plan.duration, planned));
   }
+
+  // A clock that ran out of entries before the plan's end would jump to it.
+  if (planned < plan.duration - 1e-9)
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "station.until",
+      value: rests,
+      feasible: null,
+      reason: `the station keeps the walker for longer than ${(walkStation.TICKS * tick).toFixed(0)} s, the longest a walk is timed for`,
+      fix: "end the station sooner, or split the walk",
+    });
   clock[clock.length - 1] = plan.duration;
   return walkPaced(plan, tick, clock);
 }
@@ -166,10 +188,22 @@ export function walkStation(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each constant states its unit, and its source or that it is provisional.
  * @evidence contracts/development/design.md#principled-representation A cited rate, a dimensionless factor, intervals in seconds and counts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The numbers the function reads, and the station's readers the walk family calls: `resolve` (the way), `rests` (its end), `point` (the dressed slot) and `cadenced` (a called gait's way on it), with `IStationed`, `SPACING` and `DRESS_FREQUENCY`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The numbers the function reads, and the station's readers the walk family calls: `resolve` (the way), `rests` (its end), `point` (the dressed slot) and `cadenced` (a called gait's way on it), with `SPACING` and `DRESS_FREQUENCY`; the stationed parameters' type is the interface's `IAutoMovieMotionHumanWalkStation.IStationed`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Named and marked, not numbers inside the function.
  */
 export namespace walkStation {
+  /** The world axes which contribute to travelled ground distance. */
+  export type HorizontalPoint = Pick<IAutoMovieVector3, "x" | "z">;
+
+  /** Read the displayed root's horizontal coordinates at an action-local second. */
+  export type HorizontalRoot = (seconds: number) => HorizontalPoint;
+
+  /** The placed walking plan, with its exact horizontal-only projection when available. */
+  export interface IPlan extends IAutoMovieMotionHumanActionPlan {
+    /** The same horizontal coordinates that a root posture request would read. */
+    horizontalRoot?: HorizontalRoot;
+  }
+
   /** The gain of speed matching, per second: a follower's acceleration per unit of speed difference from the leader (Rio, Rhea and Warren 2014, J Vis 14(2):4, Table 1). */
   export const GAIN: number = 1.87;
 
@@ -207,9 +241,7 @@ export namespace walkStation {
    * @returns The context the stepping plan reads.
    * @throws {HumanRefusal} When the station ends before the action starts, or a guide frame's station names no end.
    */
-  export function resolve<
-    P extends IAutoMovieMotionHumanWalkStation.IStationed,
-  >(
+  export function resolve<P extends IAutoMovieMotionHumanWalkStation.IStationed>(
     context: IAutoMovieMotionHumanActionContext<P>,
   ): IAutoMovieMotionHumanActionContext<P> {
     const station: IAutoMovieMotionHumanFormation.IStation | undefined =
@@ -229,8 +261,7 @@ export namespace walkStation {
         k === count ? Math.max(from, until) : from + k * HumanFormation.SAMPLE;
       samples.push({ seconds, ...at(seconds) });
     }
-    const last: IAutoMovieMotionHumanFormation.ISample =
-      samples[samples.length - 1]!;
+    const last: IAutoMovieMotionHumanFormation.ISample = samples[samples.length - 1]!;
     const via: IAutoMovieVector3[] = [];
     let kept: IAutoMovieVector3 = context.entry.posture.root;
     for (const s of samples.slice(0, -1))
@@ -333,8 +364,7 @@ export namespace walkStation {
     if (!(span > 0)) return {};
 
     // The plan's own way, as the stepping plan lays it: from the feet's midpoint through `via` to `to`.
-    const feet: IAutoMovieMotionHumanActionContext["entry"]["feet"] =
-      context.entry.feet;
+    const feet: IAutoMovieMotionHumanActionContext["entry"]["feet"] = context.entry.feet;
     const way: WalkPath = new WalkPath(
       [
         {
@@ -353,13 +383,9 @@ export namespace walkStation {
       context,
       station,
     );
-    if (
-      Math.hypot(
-        where(from + span).x - where(from).x,
-        where(from + span).z - where(from).z,
-      ) < 1e-6
-    )
-      return {};
+    const begins: IAutoMovieVector3 = where(from);
+    const ends: IAutoMovieVector3 = where(from + span);
+    if (Math.hypot(ends.x - begins.x, ends.z - begins.z) < 1e-6) return {};
 
     // The walker's share: where the slot projects onto the way, never back, no faster than it can step.
     const rate: number = (FASTEST * cruise) / way.length;
@@ -398,8 +424,7 @@ export namespace walkStation {
     const read: IAutoMovieMotionHumanFormation.Reader = (
       subject: string,
       t: number,
-    ): IAutoMovieMotionHumanActionContext.IRoot =>
-      context.performer(subject).root(t);
+    ): IAutoMovieMotionHumanActionContext.IRoot => context.performer(subject).root(t);
     const dress: { bound: number; seed: string } | undefined = station.dress;
     if (dress === undefined || !(dress.bound > 0))
       return (seconds: number): IAutoMovieVector3 =>

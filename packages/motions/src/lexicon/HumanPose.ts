@@ -106,8 +106,25 @@ export namespace HumanPose {
     IAutoMovieMotionHumanLexiconParams["pose"]["wince"]
   > = HumanActionRow.of("wince", flinch, { intensity: 0.4 });
 
-  /** A stumble from a shove at walking speed (1.2 m/s, provisional). */
+  /**
+   * A stumble from a shove that the body steps out of: a push of 0.5 m/s from
+   * ahead, the speed whose extrapolated centre of mass a 9 degree backward
+   * lean gives a small woman's pendulum (`omega l sin 9`, 0.50 m/s; 0.54 m/s
+   * on the average man's), the largest backward lean young adults recover from by
+   * stepping (Pitts et al. 2024, Appl Ergon 117:104236, unloaded: 9
+   * degrees backward, 20 forward). A shove at walking speed, 1.2 m/s, is a
+   * fall for every body: four recovery steps catch at most 0.95 m/s
+   * pushed backward on the small woman and 1.17 m/s on the average man.
+   * Those limits are people's: released from a backward lean, young adults
+   * recover by stepping from at most 16.4 +- 3.1 degrees (Telonio, Cyr,
+   * Moglo and Smeesters 2005, ISB XX abstract 430), and more steps do not
+   * raise the lean recovered from (Cyr, Moglo and Smeesters 2005, ISB XX
+   * abstract 401: 30.4, 33.2 and 32.2 degrees forward with one step, two
+   * and no limit); the same pendulum reads 16.4 degrees as 0.90 m/s on the
+   * small woman and 0.97 m/s on the average man, and 1.2 m/s as a lean of
+   * 22.0 and 20.3 degrees, past the measured threshold.
+   */
   export const stumble: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["stumble"]
-  > = HumanActionRow.of("stumble", stagger, { speed: 1.2 });
+  > = HumanActionRow.of("stumble", stagger, { speed: 0.5 });
 }

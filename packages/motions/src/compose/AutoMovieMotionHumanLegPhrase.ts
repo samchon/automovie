@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanContactWindow,
@@ -21,7 +21,7 @@ import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a phrase is and what it is built on.
  * @evidence contracts/development/design.md#principled-representation A phrase is one foot's stance, its clock with the standard instants and an optional contact, the arm's phrase mirrored.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The phrase record, the contact window, the blend of two placements and the four phrases; split from `AutoMovieMotionHumanLeg` so each file holds one responsibility.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The phrase record, contact window, raw/fixed-pair placement interpolation and four phrases; fixed exercise/stretch endpoints use the prepared interpolation while changing phrase callbacks retain their live raw path.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanFoot.IPlacement`, the clock and the leg's movement; no action name appears.
  */
 export namespace AutoMovieMotionHumanLegPhrase {
@@ -114,18 +114,84 @@ export namespace AutoMovieMotionHumanLegPhrase {
   }
 
   /**
-   * A placement raised until no point of its sole lies under the floor its
-   * stance stands on: a foot that pitches while it is still low would
-   * otherwise carry its toes or its heel through the floor on the way to and
-   * from a chamber.
+   * Prepare repeated interpolation of one unchanged pair of placements.
+   * The ankle still extrapolates outside the unit interval, while the
+   * quaternion receives the original explicit [0, 1] clamp.
+   *
+   * @param from The unchanged departure placement, borrowed for this reader.
+   * @param to The unchanged arrival placement, borrowed for this reader.
+   * @returns A reader producing a fresh ankle, rotation and placement at every actual share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed borrowed endpoints, fresh output ownership and the distinct unclipped ankle/clipped rotation policies.
+   * @evidence contracts/development/implementation.md#principled-implementation Native Vector3.prepareLerp retains between's a+(b-a)*share component arithmetic, and Quaternion.prepareSlerp retains its shorter-arc choice, interpolation threshold, actual weights and final normalization after the same explicit rotation clamp.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed quaternion reader and one lazy fixed ankle reader feed the two original placement fields; dynamic phrase callbacks continue using between with their current endpoints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No share, endpoint, interpolation or ownership shortcut is introduced. The ankle extrapolates unchanged, rotation still clamps, and even endpoint queries compute fresh records with the native arithmetic.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The first actual read prepares fixed endpoint vector differences and quaternion metadata once across Q evaluations; every query still computes the current affine point, spherical weights and normalization. Runtime speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller establishes unchanged placement point/rotation values for this reader's lifetime; changed endpoints require a new preparation. No current share, ankle, rotation or achieved posture is reused.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action retains its two fixed placements, one bounded quaternion reader and at most one six-scalar vector reader until release; returned placements retain no reader or query history.
+   */
+  export function prepareBetween(
+    from: IAutoMovieMotionHumanFoot.IPlacement,
+    to: IAutoMovieMotionHumanFoot.IPlacement,
+  ): (share: number) => IAutoMovieMotionHumanFoot.IPlacement {
+    const rotation: ReturnType<typeof Quaternion.prepareSlerp> =
+      Quaternion.prepareSlerp(from.rotation, to.rotation);
+    let ankle: ReturnType<typeof Vector3.prepareLerp> | undefined;
+    return (share: number): IAutoMovieMotionHumanFoot.IPlacement => {
+      ankle ??= Vector3.prepareLerp(from.ankle, to.ankle);
+      return {
+        ankle: ankle(share),
+        rotation: rotation(Math.min(1, Math.max(0, share))),
+      };
+    };
+  }
+
+  /**
+   * The lowest sole point's least height over the floor in mid-swing,
+   * metres: the minimum toe clearance of normal gait, 12.9 mm (Winter 1992,
+   * Can J Sport Sci 17(1):1-6).
+   */
+  const TOE_CLEARANCE: number = 0.0129;
+
+  /**
+   * The share of the stance blend, by the clock's minimum-jerk envelope,
+   * under which a foot moves only vertically: the last third of its transit,
+   * terminal swing in Perry and Burnfield's phases (Gait Analysis, 2nd ed.),
+   * in which the foot is already over its landing place and comes down onto
+   * it. On leaving, the same third lifts it before it travels.
+   */
+  const TERMINAL: number = minimumJerk.share(1 / 3);
+
+  /**
+   * A foot in transit between its stance and a moving placement at a share
+   * of the stance blend: it lifts off before it travels and is over its
+   * landing place before it sets down (`TERMINAL`), its sole clears the floor
+   * its stance stands on by the minimum toe clearance in between, and no
+   * point of its sole ever lies under that floor. At share 0 it stands on its
+   * stance; at share 1 it is the moving placement itself, so a target on the
+   * floor or on a ball is reached exactly.
    */
   const cleared = (
     props: Pick<
       IAutoMovieMotionHumanLegPhrase.IPhrase,
       "body" | "side" | "stance"
     >,
-    placement: IAutoMovieMotionHumanFoot.IPlacement,
+    moving: IAutoMovieMotionHumanFoot.IPlacement,
+    share: number,
   ): IAutoMovieMotionHumanFoot.IPlacement => {
+    const stance: IAutoMovieMotionHumanFoot.IPlacement = props.stance;
+    const lifted: number = Math.min(1, Math.max(0, share));
+    const across: number = minimumJerk.share(
+      Math.min(1, Math.max(0, (lifted - TERMINAL) / (1 - TERMINAL))),
+    );
+    const placement: IAutoMovieMotionHumanFoot.IPlacement = {
+      ankle: {
+        x: stance.ankle.x + (moving.ankle.x - stance.ankle.x) * across,
+        y: stance.ankle.y + (moving.ankle.y - stance.ankle.y) * share,
+        z: stance.ankle.z + (moving.ankle.z - stance.ankle.z) * across,
+      },
+      rotation: Quaternion.slerp(stance.rotation, moving.rotation, lifted),
+    };
     const lowest = (foot: IAutoMovieMotionHumanFoot.IPlacement): number =>
       Math.min(
         ...(["heel", "ball", "toe"] as const).map(
@@ -133,7 +199,9 @@ export namespace AutoMovieMotionHumanLegPhrase {
             HumanFoot.point(props.body, props.side, point, foot).y,
         ),
       );
-    const under: number = lowest(props.stance) - lowest(placement);
+    const clearance: number =
+      TOE_CLEARANCE * Math.min(1, lifted / TERMINAL, (1 - lifted) / TERMINAL);
+    const under: number = lowest(stance) + clearance - lowest(placement);
     return under <= 0
       ? placement
       : {
@@ -141,7 +209,6 @@ export namespace AutoMovieMotionHumanLegPhrase {
           rotation: placement.rotation,
         };
   };
-
   /** Whether a phrase's foot stands on its stance: only at the clock's two ends. */
   const grounded =
     (clock: IAutoMovieMotionClock) =>
@@ -172,19 +239,18 @@ export namespace AutoMovieMotionHumanLegPhrase {
       side: props.side,
       from: 0,
       to: props.clock.duration,
-      placement: (posture: IAutoMovieMotionHumanPosture, seconds: number) =>
-        cleared(
+      placement: (posture: IAutoMovieMotionHumanPosture, seconds: number) => {
+        const weight: number = props.clock.envelope(
+          ["start", "stroke"],
+          ["relax", "end"],
+          seconds,
+        );
+        return cleared(
           props,
-          between(
-            props.stance,
-            extended(props, props.stance, props.raised(posture, seconds)),
-            props.clock.envelope(
-              ["start", "stroke"],
-              ["relax", "end"],
-              seconds,
-            ),
-          ),
-        ),
+          extended(props, props.stance, props.raised(posture, seconds)),
+          weight,
+        );
+      },
       planted: grounded(props.clock),
     });
   }
@@ -283,19 +349,21 @@ export namespace AutoMovieMotionHumanLegPhrase {
             ["strokeStart", "stroke", "strokeEnd"],
             seconds,
           );
+          const weight: number = clock.envelope(
+            ["start", "ready"],
+            ["relax", "end"],
+            seconds,
+          );
           return cleared(
             props,
-            between(
-              props.stance,
-              p <= 0
-                ? chamber
-                : between(
-                    chamber,
-                    extended(props, chamber, props.target(posture, seconds)),
-                    p,
-                  ),
-              clock.envelope(["start", "ready"], ["relax", "end"], seconds),
-            ),
+            p <= 0
+              ? chamber
+              : between(
+                  chamber,
+                  extended(props, chamber, props.target(posture, seconds)),
+                  p,
+                ),
+            weight,
           );
         },
         planted: grounded(clock),

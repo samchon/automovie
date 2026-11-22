@@ -1,7 +1,10 @@
+import { integrateAirborneRotation } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanScheduledInstant,
   IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanBallPlay,
+  IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformanceAim,
   IAutoMovieMotionHumanPerformanceState,
@@ -9,7 +12,9 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropFlight,
+  IAutoMovieMotionHumanPropFracture,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanTether,
   IAutoMovieMotionTarget,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
@@ -18,14 +23,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBallPlay } from "../sport/HumanBallPlay";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanPerformanceSite } from "./HumanPerformanceSite";
 import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPropFlight } from "./HumanPropFlight";
+import { HumanPropFracture } from "./HumanPropFracture";
+import { HumanSegment } from "./HumanSegment";
 
 /**
  * A performance of people and props: their chained actions placed on the
@@ -39,13 +49,18 @@ import { HumanPropFlight } from "./HumanPropFlight";
  * (an intent's `until`) is legal only inside a window of the cut action's
  * interrupt table for the next action; otherwise construction throws with
  * the legal windows. A `proximity` cut is found by scanning the 24 Hz grid for
- * the first frame within the distance and bisecting 20 times, about 1e-7 s,
+ * the first frame within the distance and closing on the crossing by a
+ * bracketed root search to `HumanPerformanceSchedule.CUT`, about 4e-8 s,
  * deterministic on a fixed grid whose last sample is the action's end; a
  * distance never met leaves the action uncut. Given rules, the placed schedule is checked
  * with the engine's legality check and a violation refuses the performance.
  * An input equal to one the process resolved recently reads that resolution
  * again (`HumanPerformanceState.of`): the resolution is a pure function of
  * its input.
+ * Authored airborne turn counts use staged rigid rotation by default, keeping
+ * the law's centre path, heading and articulation. Explicit physical mode
+ * solves their angular momentum instead; a supplied momentum always uses
+ * physical integration regardless of this authored-turn policy.
  *
  * Sampling a person at a second takes the active action's posture, resolves
  * it to a pose, adds the decaying inertialization offset of the transition
@@ -74,9 +89,13 @@ export class HumanPerformance {
    * Resolve a performance.
    *
    * @param input The chain seed, the performers, the props and the composition.
+   * @param observation Optional native airborne-work observer. This explicit diagnostic request resolves a fresh performance instead of reading or populating the whole-performance memo; the authored input and physical admission are unchanged.
    */
-  public constructor(input: IAutoMovieMotionHumanPerformance.IInput) {
-    this.resolved = HumanPerformanceState.of(input);
+  public constructor(
+    input: IAutoMovieMotionHumanPerformance.IInput,
+    observation?: ReturnType<typeof integrateAirborneRotation.observe>,
+  ) {
+    this.resolved = HumanPerformanceState.of(input, observation);
     this.schedule = this.resolved.schedule;
     this.duration = this.resolved.duration;
     this.performers = this.resolved.performers;
@@ -147,6 +166,48 @@ export class HumanPerformance {
   }
 
   /**
+   * A prop's named point as a world frame at a film second (`HumanPerformanceSite`).
+   *
+   * @param subject The prop.
+   * @param point The point's name.
+   * @param seconds Film seconds.
+   * @returns The point's world frame, metres.
+   * @throws {HumanRefusal} When the prop or its point is unknown.
+   */
+  public site(
+    subject: string,
+    point: string,
+    seconds: number,
+  ): IAutoMovieRigidTransform {
+    return HumanPerformanceSite(this.resolved, subject, point, seconds);
+  }
+
+  /**
+   * A line between props at a film second (`IAutoMovieMotionHumanTether`):
+   * its ends, its line out, whether it runs taut, and the points it is
+   * drawn through, straight when taut and a catenary when slack.
+   *
+   * @param subject The prop the line runs from.
+   * @param id The line's id on that prop.
+   * @param seconds Film seconds.
+   * @returns The line as it lies.
+   */
+  public tether(
+    subject: string,
+    id: string,
+    seconds: number,
+  ): IAutoMovieMotionHumanTether.ISpan {
+    return HumanPerformanceTether.span(
+      this.resolved,
+      subject,
+      id,
+      seconds,
+      (prop: string, at: number): IAutoMovieRigidTransform =>
+        HumanPerformanceRead.prop(this.resolved, prop, at),
+    );
+  }
+
+  /**
    * One input per coupled degree of freedom a prop's acts or tracks have
    * moved by a film second (`HumanPerformanceObject.state`), in the latest
    * begun writer's coordinate. A later writer of another coordinate of the
@@ -182,15 +243,59 @@ export class HumanPerformance {
   }
 
   /**
+   * One ball's play (`HumanBallPlay.read`): its hand holds, launches and
+   * flight contacts in film order, for a sport to credit its result.
+   *
+   * @param subject The ball.
+   * @returns The play; no events for a ball never held or launched.
+   */
+  public play(subject: string): IAutoMovieMotionHumanBallPlay {
+    return HumanBallPlay.read(this.resolved, subject);
+  }
+
+  /**
    * Every hit of the performance in time order, or those on one person or
-   * prop (`HumanPerformanceHits`): melee stops, blasts and flights' first
-   * contacts, each as the one shared interaction record.
+   * prop (`HumanPerformanceHits`): melee stops, blasts and flight contacts,
+   * each as the one shared interaction record.
    *
    * @param subject The struck person or prop; every hit when absent.
    * @returns The hits.
    */
   public hits(subject?: string): readonly IAutoMovieInteractionEvent[] {
     return HumanPerformanceHits.hits(this.resolved, subject);
+  }
+
+  /**
+   * Stage the model's replacement at a recorded hit on the placed prop.
+   *
+   * @param request The recorded hit, placed prop, its model and the authored split budget.
+   * @returns The replacement plan, or null for a missing hit or an intact model.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the exact hit and when the model stays intact.
+   * @evidence contracts/development/implementation.md#principled-implementation Looks up a recorded hit on the chosen subject and passes its film clock and this performance's prop reader to the breakaway planner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The performance supplies its existing event and prop placement. HumanPropFracture owns the split's staging.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No derived strike strength or fabricated hit. The named model owns acceptance of the authored budget.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Selects the hit in one pass over the subject's records, then prepares one replacement.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the performance hit and frame readers. Call once and sample the returned plan during playback.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The performance retains no fracture plans. A returned plan with a remainder borrows the performance's prop reader for its lifetime.
+   */
+  public fracture<Piece extends IAutoMovieMotionHumanObject.IModel>(
+    request: IAutoMovieMotionHumanPropFracture.IRequest<Piece>,
+  ): IAutoMovieMotionHumanPropFracture.IPlan<Piece> | null {
+    const subject: string = request.subject;
+    if (!this.resolved.props.has(subject)) return null;
+    const hit: IAutoMovieInteractionEvent | undefined = this.hits(subject).find(
+      (event: IAutoMovieInteractionEvent): boolean =>
+        event.kind === "hit" && event.id === request.hit,
+    );
+    return hit === undefined
+      ? null
+      : HumanPropFracture(
+          request,
+          hit,
+          (seconds: number): IAutoMovieRigidTransform =>
+            this.prop(subject, seconds),
+        );
   }
 
   /**

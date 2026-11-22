@@ -102,7 +102,7 @@ export namespace HumanProxemics {
    * @param self The approaching person.
    * @param other The other person; the approaching person when absent (a prop or point target).
    * @returns Metres; positive.
-   * @throws {HumanRefusal} When a metre request is not positive.
+   * @throws {HumanRefusal} When a metre request is not positive, or two people's hands cannot meet ahead of their chests at the handover height.
    */
   export function gap(
     request: IAutoMovieMotionHumanProxemics.Band | number,
@@ -120,7 +120,16 @@ export namespace HumanProxemics {
         other.waistHeight +
         other.chestHeight) /
       4;
-    return Math.max(0.05, reach(self, height) + reach(other, height));
+    const meeting: number = reach(self, height) + reach(other, height);
+    if (!(meeting > 0))
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "at",
+        value: request,
+        reason: `the two hands cannot meet ahead of the chests at a ${height.toFixed(3)} m handover height: their reaches sum to ${meeting.toFixed(3)} m`,
+        fix: "give the gap in metres, or hand over between people whose arms reach that height",
+      });
+    return meeting;
   }
 
   /**
@@ -162,24 +171,4 @@ export namespace HumanProxemics {
     };
   }
 
-  /**
-   * A body measure scaled to another stature by one ratio, the proportional
-   * estimate used when only a partner's height is known: segment lengths of
-   * adults scale nearly in proportion to stature (Drillis and Contini, via
-   * Winter, Biomechanics and Motor Control of Human Movement, fig. 4.1).
-   *
-   * @param measure A measure.
-   * @param ratio The stature ratio.
-   * @returns The scaled measure; mass scales with the cube.
-   */
-  export function scaled(
-    measure: IAutoMovieBodyMeasure,
-    ratio: number,
-  ): IAutoMovieBodyMeasure {
-    const out: IAutoMovieBodyMeasure = { ...measure };
-    for (const key of Object.keys(measure) as (keyof IAutoMovieBodyMeasure)[])
-      out[key] =
-        key === "mass" ? measure[key] * ratio ** 3 : measure[key] * ratio;
-    return out;
-  }
 }

@@ -7,6 +7,7 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanTouch,
@@ -17,7 +18,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditDifference,
   AutoMovieMotionHumanAuditMotion,
   AutoMovieMotionHumanTouchEffector,
   AutoMovieMotionHumanTouchForm,
@@ -27,13 +27,19 @@ import {
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
+import { motionHumanJointText } from "./motionHumanJointText";
 import { motionHumanLaw } from "./motionHumanLaw";
+import { motionHumanLawTouchMirror } from "./motionHumanLawTouchMirror";
 
 /**
  * Everything one touch owes on screen, read off the displayed bones, as
  * complaints: the row of a touch on the performer's own body, or on a
- * partner standing ahead. It is read in parts so each spec runs within the
- * time a test may take.
+ * partner standing ahead. The row's film is performed once and every
+ * expectation reads that film. One whole-film audit covers 1, and the
+ * contact and return observations cover 2 to 7.
+ * The mirror 8 performs the right-hand row again only when a partner's sway
+ * must be stilled for it; a self-directed row's film is its own right-hand
+ * side.
  *
  * The performer `a` stands at the origin heading +Z; a partner `b` stands
  * `gap` metres ahead, facing `a` or turned away. The right hand takes the
@@ -41,7 +47,8 @@ import { motionHumanLaw } from "./motionHumanLaw";
  * the signed distance from the region's point, placed on the displayed bone
  * that carries it, to that hand's own colliders, so 0 is skin on skin.
  *
- * 1. The generic audit of `a` is clean, and of `b` when there is one.
+ * 1. The generic audit of the touching performer is clean. The passive
+ *    partner supplies the moving target; the standing law owns its audit.
  * 2. No elbow of `a` travels more than 80 mm in one 1/24 s frame.
  * 3. Each hand is on its region, within 10 mm, at `ready` and at `relax`.
  * 4. A kind that lifts (a tap, a pat) comes down the row's count of times
@@ -63,7 +70,8 @@ import { motionHumanLaw } from "./motionHumanLaw";
  *    own region the row touches is presented, not idle (`touchPresented`):
  *    from `ready` to `relax` it holds within 10 mm of where it is at
  *    `ready` in that frame, the bound a held effector keeps (6).
- * 8. A one-hand row performed by the left hand on the mirrored region is
+ * 8. On a selected reflection witness, a one-hand row performed by the
+ *    left hand on the mirrored region is
  *    the mirror image of the right hand's film within 5 mm on every bone of
  *    `a`, in the world, read 4 times a second. A mirror relation holds only
  *    when the whole input is mirrored, and a partner's seeded postural sway
@@ -77,31 +85,27 @@ import { motionHumanLaw } from "./motionHumanLaw";
  *
  * @param label The row's name, the complaints' prefix.
  * @param params The row.
- * @param part Which expectations are read: an audit part (1, of both people, `motionHumanLaw.auditPart`), `film` (2 to 7) or `mirror` (8, on a one-hand row).
  * @param partner The partner's place, when the target is a person.
- * @param name The body both people have.
  * @returns One complaint per expectation that does not hold, with its measured numbers; empty when the row is right.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists every expectation with its bound and how the distance is read.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists every expectation with its bound, how the distance is read and which films are performed.
  * @evidence contracts/development/implementation.md#principled-implementation Contact is the hand's own collider on the region's point of the displayed body, not the law's goal; the kind's shape is its definition as a lift or a travel.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One film, the two distance readers, then one block per expectation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every expectation is evaluated and reported; none stops the others.
- * @evidence contracts/development/implementation.md#efficient-algorithms Every expectation reads the film's remembered frames on the 24 Hz grid.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `motionHumanLaw` for the film, the events, the travel and the audit.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One film, the audit's parts and the film's checks on it, then the mirror (`motionHumanLawTouchMirror`); a failing complaint's joint text comes from `motionHumanJointText`.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every expectation is evaluated and reported; none stops the others, and no bound differs from the part-by-part reading it replaces.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One film per row instead of one per expectation group, its remembered 24 Hz frames shared by the audit's parts and the film's checks; a complaint's joint dumps are resolved only when it fails.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A self-directed row's right-hand mirror film has the same input as its film (a partner's stilling applies only to a partner), so the film stands for it; `motionHumanLaw` owns the film, the events, the travel and the audit.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The films are local and released on return.
  */
 export function motionHumanLawTouch(
   label: string,
   params: IAutoMovieMotionHumanTouch.IParams,
-  part: motionHumanLaw.AuditPart | "film" | "mirror",
-  partner?: { facing: boolean; gap: number },
-  name: motionHumanBody.Name = "m-average",
+  partner?: motionHumanLawTouch.IPartner,
 ): string[] {
-  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   // The partner stands still for a mirror (8), with its own sway otherwise.
   const perform = (
     row: IAutoMovieMotionHumanTouch.IParams,
-    still: boolean = false,
+    still: boolean,
   ): motionHumanLaw.IFilm => {
     const a: IAutoMovieMotionHumanChain = HumanChain.subject("a").act(
       "touch",
@@ -131,7 +135,70 @@ export function motionHumanLawTouch(
           }).node,
         );
   };
-  const film: motionHumanLaw.IFilm = perform(params, part === "mirror");
+  const film: motionHumanLaw.IFilm = perform(params, false);
+  return [
+    ...motionHumanLaw.audit(film, `${label} a`, "a", body),
+    ...expectations(label, params, body, film),
+    ...(partner === undefined || partner.mirror
+      ? motionHumanLawTouchMirror(
+          label,
+          params,
+          partner === undefined ? film : undefined,
+          perform,
+        )
+      : []),
+  ];
+}
+
+/** The facing and turned stages of the partner contact witnesses. */
+export namespace motionHumanLawTouch {
+  /**
+   * Staging for one unilateral touch on a passive partner.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies facing, separation in metres and whether the fixture supplies a reflection comparison.
+   * @evidence contracts/development/design.md#principled-representation A partner placement and a separately selected test observation describe the public stage.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface These members configure the two-person performance and the optional additional reflected pair.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A reflection uses both real mirrored performances on the original still-partner stage; no synthetic pose is substituted.
+   */
+  export interface IPartner {
+    /** The partner faces the toucher; otherwise both face forward. */
+    facing: boolean;
+    /** Distance between the two roots, metres. */
+    gap: number;
+    /** This row represents a reflection of the moving arm on a stilled partner. */
+    mirror: boolean;
+  }
+}
+/** Millimetres of a length in metres, to one decimal. */
+function mm(metres: number): string {
+  return (metres * 1000).toFixed(1);
+}
+
+/** The length of a vector, metres. */
+function length(v: IAutoMovieVector3): number {
+  return Math.hypot(v.x, v.y, v.z);
+}
+
+/** The difference of two vectors. */
+function minus(a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 {
+  return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
+}
+
+/**
+ * Expectations 2 to 7 of `motionHumanLawTouch`, on the row's film.
+ *
+ * @param label The row's name.
+ * @param params The row.
+ * @param body The body both people have.
+ * @param film The row's film.
+ * @returns One complaint per expectation that does not hold.
+ */
+function expectations(
+  label: string,
+  params: IAutoMovieMotionHumanTouch.IParams,
+  body: IAutoMovieMotionHumanBody,
+  film: motionHumanLaw.IFilm,
+): string[] {
   const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
   const form: IAutoMovieMotionHumanTouchForm.IForm =
     AutoMovieMotionHumanTouchForm.FORMS[kind];
@@ -144,12 +211,6 @@ export function motionHumanLawTouch(
   const hand: number = body.measure.hand;
   const count: number =
     params.count ?? (["tap", "pat", "rub", "scratch"].includes(kind) ? 3 : 1);
-  const mm = (metres: number): string => (metres * 1000).toFixed(1);
-  const length = (v: IAutoMovieVector3): number => Math.hypot(v.x, v.y, v.z);
-  const minus = (
-    a: IAutoMovieVector3,
-    b: IAutoMovieVector3,
-  ): IAutoMovieVector3 => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
   const wrist = (side: "left" | "right", t: number): IAutoMovieVector3 =>
     film.bones("a", t).get(`${side}Hand`)!.worldPosition;
   const owner = (target: IAutoMovieMotionTarget): string =>
@@ -167,13 +228,16 @@ export function motionHumanLawTouch(
       film.bones(owner(target), t).get(frame.bone)!,
     ).point;
   };
+  // A hand's own bones, the colliders its distance is read from.
+  const own: Record<"left" | "right", RegExp> = {
+    left: /^left(Hand|Thumb|Index|Middle|Ring|Little)/,
+    right: /^right(Hand|Thumb|Index|Middle|Ring|Little)/,
+  };
   const fingers = (side: "left" | "right", t: number): motionHumanLaw.Bones =>
     new Map(
       [...film.bones("a", t)].filter(
-        ([bone]: [AutoMovieHumanoidBone, unknown]) =>
-          new RegExp(`^${side}(Hand|Thumb|Index|Middle|Ring|Little)`).test(
-            bone,
-          ),
+        ([bone]: [AutoMovieHumanoidBone, unknown]): boolean =>
+          own[side].test(bone),
       ),
     );
   const gap = (
@@ -214,84 +278,29 @@ export function motionHumanLawTouch(
   ];
   const out: string[] = [];
 
-  if (part !== "film" && part !== "mirror")
-    return [
-      ...motionHumanLaw.auditPart(film, `${label} a`, "a", body, part),
-      ...(partner === undefined
-        ? []
-        : motionHumanLaw.auditPart(film, `${label} b`, "b", body, part)),
-    ];
-  if (part === "mirror") {
-    if (params.other !== undefined) return out;
-    const flip = (target: IAutoMovieMotionTarget): IAutoMovieMotionTarget =>
-      ({
-        ...target,
-        region: (target as { region: string }).region.replace(
-          /Left|Right/,
-          (found: string): string => (found === "Left" ? "Right" : "Left"),
-        ),
-      }) as IAutoMovieMotionTarget;
-    const left: motionHumanLaw.IFilm = perform(
-      {
-        ...params,
-        target: flip(params.target),
-        side: "left",
-      },
-      true,
-    );
-    const mirrored = AutoMovieMotionHumanAuditDifference.measure(
-      film,
-      left,
-      "a",
-      { mirror: 0, rate: 4 },
-    );
-    // Each film's acting arm and trunk at the second, as clinical triples
-    // that a mirror keeps equal, so a miss says which joint differs.
-    const acting = (shown: motionHumanLaw.IFilm, side: string): string =>
-      shown.performance
-        .pose("a", mirrored.distance.seconds)
-        .joints.filter((joint: IAutoMovieJointPose): boolean =>
-          [
-            "hips",
-            "spine",
-            "chest",
-            `${side}UpperArm`,
-            `${side}LowerArm`,
-            `${side}Hand`,
-          ].includes(joint.bone),
-        )
-        .map(
-          (joint: IAutoMovieJointPose): string =>
-            `${joint.bone.replace(side, "")} ${(joint.flexion ?? 0).toFixed(1)}/${(joint.abduction ?? 0).toFixed(1)}/${(joint.twist ?? 0).toFixed(1)}`,
-        )
-        .join(", ");
-    return motionHumanLaw.expect(
-      `${label}: the left-hand touch is ${mm(mirrored.distance.value)} mm off the right-hand touch's mirror at ${mirrored.distance.seconds.toFixed(2)} s on ${mirrored.distance.where} (limit 5.0; right ${acting(film, "right")}; left ${acting(left, "left")})`,
-      mirrored.distance.value <= 0.005 && mirrored.duration <= 1e-9,
-    );
-  }
   for (const bone of ["rightLowerArm", "leftLowerArm"] as const) {
-    const elbow = motionHumanLaw.travel(film, "a", bone);
+    const elbow: IAutoMovieMotionHumanAuditMeasure = motionHumanLaw.travel(
+      film,
+      "a",
+      bone,
+    );
     // The arm's joints at the frame's two ends, so a complaint says which
     // joint moved: the clearing turns only the upper arm's abduction and the
     // elbow's flexion, a fit every joint.
     const side: "left" | "right" = bone === "rightLowerArm" ? "right" : "left";
     const arm = (t: number): string =>
-      film.performance
-        .pose("a", t)
-        .joints.filter((joint: IAutoMovieJointPose): boolean =>
-          [`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`].includes(
-            joint.bone,
-          ),
-        )
-        .map(
-          (joint: IAutoMovieJointPose): string =>
-            `[${(joint.flexion ?? 0).toFixed(0)}, ${(joint.abduction ?? 0).toFixed(0)}, ${(joint.twist ?? 0).toFixed(0)}]`,
-        )
-        .join(" ");
+      motionHumanJointText(
+        film,
+        t,
+        [`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`],
+        (joint: IAutoMovieJointPose): string =>
+          `[${(joint.flexion ?? 0).toFixed(0)}, ${(joint.abduction ?? 0).toFixed(0)}, ${(joint.twist ?? 0).toFixed(0)}]`,
+        " ",
+      );
     out.push(
       ...motionHumanLaw.expect(
-        `${label}: ${bone} travels ${mm(elbow.value)} mm in the frame from ${elbow.seconds.toFixed(3)} s (limit 80.0; the arm ${arm(elbow.seconds)} then ${arm(elbow.seconds + 1 / 24)}; at ready ${ready.toFixed(2)} s ${arm(ready)}, at relax ${relax.toFixed(2)} s ${arm(relax)}, at the end ${arm(film.duration)})`,
+        (): string =>
+          `${label}: ${bone} travels ${mm(elbow.value)} mm in the frame from ${elbow.seconds.toFixed(3)} s (limit 80.0; the arm ${arm(elbow.seconds)} then ${arm(elbow.seconds + 1 / 24)}; at ready ${ready.toFixed(2)} s ${arm(ready)}, at relax ${relax.toFixed(2)} s ${arm(relax)}, at the end ${arm(film.duration)})`,
         elbow.value <= 0.08,
       ),
     );
@@ -304,27 +313,21 @@ export function motionHumanLawTouch(
       : [["left", params.other] as ["left", IAutoMovieMotionTarget]]),
   ];
   for (const [side, target] of hands) {
-    for (const [event, t] of [
-      ["ready", ready],
-      ["relax", relax],
+    const gaps: number[] = held.map((t: number): number =>
+      gap(side, target, t),
+    );
+    for (const [event, far] of [
+      ["ready", gaps[0]!],
+      ["relax", gaps[gaps.length - 1]!],
     ] as const) {
-      const far: number = gap(side, target, t);
       out.push(
         ...motionHumanLaw.expect(
-          `${label}: the ${side} hand is ${mm(far)} mm off its region at ${event} (limit 10.0)`,
+          (): string =>
+            `${label}: the ${side} hand is ${mm(far)} mm off its region at ${event} (limit 10.0)`,
           far <= 0.01,
         ),
       );
     }
-    const gaps: number[] = held.map((t: number): number =>
-      gap(side, target, t),
-    );
-    const arrived: IAutoMovieVector3 = offset(side, target, ready);
-    const moved: number = Math.max(
-      ...held.map((t: number): number =>
-        length(minus(offset(side, target, t), arrived)),
-      ),
-    );
     if (form.lift > 0) {
       let downs: number = 0;
       let apart: boolean = false;
@@ -339,24 +342,37 @@ export function motionHumanLawTouch(
       const peak: number = Math.max(...gaps);
       out.push(
         ...motionHumanLaw.expect(
-          `${label}: the ${side} hand comes down ${downs} times (expected ${count})`,
+          (): string =>
+            `${label}: the ${side} hand comes down ${downs} times (expected ${count})`,
           downs === count,
         ),
         ...motionHumanLaw.expect(
-          `${label}: the ${side} hand lifts ${mm(peak)} mm (band ${mm(0.5 * form.lift * hand)} to ${mm(form.lift * hand + 0.01)})`,
+          (): string =>
+            `${label}: the ${side} hand lifts ${mm(peak)} mm (band ${mm(0.5 * form.lift * hand)} to ${mm(form.lift * hand + 0.01)})`,
           peak >= 0.5 * form.lift * hand && peak <= form.lift * hand + 0.01,
         ),
       );
     } else {
+      const arrived: IAutoMovieVector3 = offset(side, target, ready);
+      const moved: number = Math.max(
+        0,
+        ...held
+          .slice(1)
+          .map((t: number): number =>
+            length(minus(offset(side, target, t), arrived)),
+          ),
+      );
       const reach: number = form.travel * hand;
       const worst: number = Math.max(...gaps);
       out.push(
         ...motionHumanLaw.expect(
-          `${label}: the ${side} hand is ${mm(worst)} mm off its region during the contact (limit ${mm(0.01 + reach)})`,
+          (): string =>
+            `${label}: the ${side} hand is ${mm(worst)} mm off its region during the contact (limit ${mm(0.01 + reach)})`,
           worst <= 0.01 + reach,
         ),
         ...motionHumanLaw.expect(
-          `${label}: the ${side} effector moves ${mm(moved)} mm on its region (band ${mm(0.5 * reach)} to ${mm(reach + 0.01)})`,
+          (): string =>
+            `${label}: the ${side} effector moves ${mm(moved)} mm on its region (band ${mm(0.5 * reach)} to ${mm(reach + 0.01)})`,
           moved >= 0.5 * reach && moved <= reach + 0.01,
         ),
       );
@@ -369,7 +385,8 @@ export function motionHumanLawTouch(
     );
     out.push(
       ...motionHumanLaw.expect(
-        `${label}: the ${side} hand ends ${mm(back)} mm from its entry (limit 10.0)`,
+        (): string =>
+          `${label}: the ${side} hand ends ${mm(back)} mm from its entry (limit 10.0)`,
         back <= 0.01,
       ),
     );
@@ -392,42 +409,44 @@ export function motionHumanLawTouch(
       body.surfaces.regions[params.target.region].bone,
     );
   if (presented) {
+    const atReady: IAutoMovieVector3 = hung(ready);
     const moved: number = Math.max(
-      ...held.map((t: number): number => length(minus(hung(t), hung(ready)))),
+      ...held
+        .slice(1)
+        .map((t: number): number => length(minus(hung(t), atReady))),
     );
     out.push(
       ...motionHumanLaw.expect(
-        `${label}: the presented hand moves ${mm(moved)} mm in the trunk's frame while it is touched (limit 10.0)`,
+        (): string =>
+          `${label}: the presented hand moves ${mm(moved)} mm in the trunk's frame while it is touched (limit 10.0)`,
         moved <= 0.01,
       ),
     );
   }
   if (params.other === undefined && !presented) {
     // The idle wrist strays from where it hangs from the chest.
+    const atEntry: IAutoMovieVector3 = hung(0);
     const strays: number[] = times.map((t: number): number =>
-      length(minus(hung(t), hung(0))),
+      length(minus(hung(t), atEntry)),
     );
     const strayed: number = Math.max(...strays);
     // Where the idle arm is when it strays farthest, so a complaint says
     // whether the arm itself or the trunk under it moved.
     const when: number = times[strays.indexOf(strayed)] ?? 0;
-    const joints = (t: number): string =>
-      film.performance
-        .pose("a", t)
-        .joints.filter((joint: IAutoMovieJointPose): boolean =>
-          ["hips", "spine", "chest", "leftUpperArm", "leftLowerArm"].includes(
-            joint.bone,
-          ),
-        )
-        .map(
-          (joint: IAutoMovieJointPose): string =>
-            `${joint.bone} ${(joint.flexion ?? 0).toFixed(0)}/${(joint.abduction ?? 0).toFixed(0)}/${(joint.twist ?? 0).toFixed(0)}`,
-        )
-        .join(", ") +
+    const trunk = (t: number): string =>
+      motionHumanJointText(
+        film,
+        t,
+        ["hips", "spine", "chest", "leftUpperArm", "leftLowerArm"],
+        (joint: IAutoMovieJointPose): string =>
+          `${joint.bone} ${(joint.flexion ?? 0).toFixed(0)}/${(joint.abduction ?? 0).toFixed(0)}/${(joint.twist ?? 0).toFixed(0)}`,
+        ", ",
+      ) +
       `, hips at ${((p: IAutoMovieVector3): string => `${(p.x * 1000).toFixed(0)}/${(p.y * 1000).toFixed(0)}/${(p.z * 1000).toFixed(0)} mm`)(film.bones("a", t).get("hips")!.worldPosition)}`;
     out.push(
       ...motionHumanLaw.expect(
-        `${label}: the idle hand strays ${mm(strayed)} mm in the trunk's frame (limit 80.0) at ${when.toFixed(3)} s (${joints(when)}; at 0 s ${joints(0)})`,
+        (): string =>
+          `${label}: the idle hand strays ${mm(strayed)} mm in the trunk's frame (limit 80.0) at ${when.toFixed(3)} s (${trunk(when)}; at 0 s ${trunk(0)})`,
         strayed <= 0.08,
       ),
     );

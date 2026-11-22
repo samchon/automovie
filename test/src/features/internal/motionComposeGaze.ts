@@ -18,7 +18,7 @@ import {
   stand,
 } from "@automovie/motions";
 
-import { motionComplaints } from "./motionComplaints";
+import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
 
 /**
@@ -39,8 +39,7 @@ import { motionHumanBody } from "./motionHumanBody";
  * (positive down). An eye's error is the angle between its displayed forward
  * axis and the line from its displayed place to the target.
  *
- * Scenarios, on one body of the sweep (the `test_human_motion_compose_gaze_*`
- * specs run one body each):
+ * Scenarios, on one body of `test_human_motion_compose_gaze`:
  * 1. `look` at full weight with the head recruited puts both eyes on targets
  *    at (0, 0), (10, 0), (-12, 8), (40, 0), (-50, 20), (0, -25) and (60, 30)
  *    within 0.5 degrees, keeps the head still for the three within the eyes'
@@ -58,16 +57,18 @@ import { motionHumanBody } from "./motionHumanBody";
  *    ends, recruits the head by default and only the eyes when asked.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Reads the owner's results on a real body through the public functions and the resolver, as the scenarios state.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One body's cells, gathered as complaints and asserted once.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Collects one body's geometric readings in the owning test's complaint gatherer.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every failing cell is named with its body, its parameters and its numbers; no cell is sampled away for time.
  * @evidence contracts/development/implementation.md#efficient-algorithms One body per call.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The owning test runs the same checks on each relevant body geometry.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The postures live as long as the call; the body is the shared fixture's.
  */
-export function motionComposeGaze(name: motionHumanBody.Name): void {
+export function motionComposeGaze(
+  name: motionHumanBody.Name,
+  all: motionComplaints.IGatherer,
+): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const RAD: number = Math.PI / 180;
-  const all: motionComplaints.IGatherer = motionComplaints();
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: 0.25,
     wait: 0.125,
@@ -315,5 +316,4 @@ export function motionComposeGaze(name: motionHumanBody.Name): void {
         miss(bones(eyes.write(standing, 0.625)), far) <= 0.5,
     );
   }
-  all.assert(`the gaze holds on every body (${name})`);
 }

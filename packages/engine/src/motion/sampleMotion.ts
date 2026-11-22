@@ -24,7 +24,7 @@ const IDENTITY_TRANSFORM: IAutoMovieTransform = Transform.identity();
 /**
  * Sample caller-admitted clinical motion at finite seconds using clamped or looping clip time and the outgoing segment's easing. Ordered finite keyframes and valid pose/easing data are validateMotion's premise. End samples shallowly share frame data; interior samples interpolate joints, roots and expressions, treating unauthored values as neutral.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Uses the shared lower-bound segment search with earlier-segment exact-key ties, interpolates clinical axes linearly through easing, root translation/scale by lerp and rotation by slerp; null axes/roots/expressions are neutral, with null retained only when both sides omit that value.
+ * @evidence contracts/development/implementation.md#principled-implementation Pose and root projections evaluate the same time interval and easing, omitting only fields their callers never read. Uses the shared lower-bound segment search with earlier-segment exact-key ties, interpolates clinical axes linearly through easing, root translation/scale by lerp and rotation by slerp; null axes/roots/expressions are neutral, with null retained only when both sides omit that value.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One sampler owns sparse-to-dense clinical interpolation; named/bezier easing and segment search have shared owners, while expression channels blend separately from pose geometry.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Empty keyframes throw and caller admission owns finite clock/ordered keys; differing expression presets switch at eased midpoint and cubicBezier requires authored controls rather than a fabricated curve. These conventions are explicit API semantics.
  * @evidence contracts/development/common.md#meaningful-documentation States finite/admitted motion premise, local-time clamp/wrap, exact endpoint sharing, neutral treatment and the distinct interpolation laws.
@@ -32,22 +32,63 @@ const IDENTITY_TRANSFORM: IAutoMovieTransform = Transform.identity();
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One segment/eased progress serves pose and expression; joint maps remove repeated linear bone lookup, while no cache assumes keyframes or expression arrays remain unchanged across calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Interior results own new interpolated records and endpoint wrappers share original root/joints/expression; temporary maps/sets are call-local, and no frame history, handle or task persists.
  */
-export const sampleMotion: (
+export function sampleMotion(
   motion: IAutoMovieMotion,
   seconds: number,
-) => IAutoMovieMotionSample = (
+): IAutoMovieMotionSample {
+  return readAt(motion, seconds, toSample, between);
+}
+
+/**
+ * Pose and root projections for geometry and world placement.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Both readers share the full sampler's time, easing and endpoint ownership.
+ * @evidence contracts/development/design.md#principled-representation Pose and root queries return the corresponding part of a full motion sample.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Geometry readers need body poses, while placement and camera consumers need their roots.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts All projections use the same segment selection and the same interpolation for the values they return.
+ */
+export namespace sampleMotion {
+  /**
+   * Sample the clinical pose of admitted motion at clip-local seconds.
+   * This uses the full sample's skeleton, joint order, easing and neutral
+   * values. Endpoint pose wrappers borrow their key's joints and root.
+   *
+   */
+  export function pose(
+    motion: IAutoMovieMotion,
+    seconds: number,
+  ): IAutoMoviePose {
+    return readAt(motion, seconds, poseAtKey, poseBetween);
+  }
+
+  /**
+   * Sample the root of an admitted motion, borrowing endpoint transforms.
+   *
+   */
+  export function root(
+    motion: IAutoMovieMotion,
+    seconds: number,
+  ): IAutoMovieTransform | null {
+    return readAt(motion, seconds, rootAtKey, rootBetween);
+  }
+}
+
+/** Select the clamped or wrapped key or eased segment for the requested projection. */
+function readAt<T>(
   motion: IAutoMovieMotion,
   seconds: number,
-): IAutoMovieMotionSample => {
+  endpoint: (motion: IAutoMovieMotion, key: IAutoMovieKeyframe) => T,
+  interior: (motion: IAutoMovieMotion, lo: IAutoMovieKeyframe, hi: IAutoMovieKeyframe, t: number) => T,
+): T {
   const frames: IAutoMovieKeyframe[] = motion.keyframes;
   if (frames.length === 0)
     throw new Error(`motion "${motion.id}" must have keyframes to sample`);
 
   const time: number = normalizeTime(seconds, motion.duration, motion.loop);
 
-  if (time <= frames[0]!.time) return toSample(motion, frames[0]!);
+  if (time <= frames[0]!.time) return endpoint(motion, frames[0]!);
   const last: IAutoMovieKeyframe = frames[frames.length - 1]!;
-  if (time >= last.time) return toSample(motion, last);
+  if (time >= last.time) return endpoint(motion, last);
 
   // Precondition: the clip has strictly increasing keyframe times (the contract
   // validateMotion enforces), so the binary search lands on a segment with a
@@ -66,11 +107,49 @@ export const sampleMotion: (
       ? cubicBezierEasing(lo.bezier, linearT)
       : ease(lo.easing, linearT);
 
+  return interior(motion, lo, hi, t);
+}
+
+function poseAtKey(motion: IAutoMovieMotion, key: IAutoMovieKeyframe): IAutoMoviePose {
+  return { ...key.pose, skeleton: motion.skeleton };
+}
+
+function poseBetween(
+  motion: IAutoMovieMotion,
+  lo: IAutoMovieKeyframe,
+  hi: IAutoMovieKeyframe,
+  t: number,
+): IAutoMoviePose {
+  return interpolatePose(motion.skeleton, lo.pose, hi.pose, t);
+}
+
+function rootAtKey(
+  _motion: IAutoMovieMotion,
+  key: IAutoMovieKeyframe,
+): IAutoMovieTransform | null {
+  return key.pose.root;
+}
+
+function rootBetween(
+  _motion: IAutoMovieMotion,
+  lo: IAutoMovieKeyframe,
+  hi: IAutoMovieKeyframe,
+  t: number,
+): IAutoMovieTransform | null {
+  return lerpTransform(lo.pose.root, hi.pose.root, t);
+}
+
+function between(
+  motion: IAutoMovieMotion,
+  lo: IAutoMovieKeyframe,
+  hi: IAutoMovieKeyframe,
+  t: number,
+): IAutoMovieMotionSample {
   return {
-    pose: interpolatePose(motion.skeleton, lo.pose, hi.pose, t),
+    pose: poseBetween(motion, lo, hi, t),
     expression: interpolateExpression(lo.expression, hi.expression, t),
   };
-};
+}
 
 const normalizeTime: (
   seconds: number,
@@ -92,7 +171,7 @@ const toSample: (
   motion: IAutoMovieMotion,
   frame: IAutoMovieKeyframe,
 ): IAutoMovieMotionSample => ({
-  pose: { ...frame.pose, skeleton: motion.skeleton },
+  pose: poseAtKey(motion, frame),
   expression: frame.expression,
 });
 

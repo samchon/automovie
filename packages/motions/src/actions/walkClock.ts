@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanFormation,
   IAutoMovieMotionHumanWalkGait,
   IAutoMovieMotionHumanWalkParams,
+  IAutoMovieMotionHumanWalkSteps,
 } from "@automovie/interface";
 
 import { HUMAN_ATTRIBUTE_EFFECTS } from "../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
@@ -11,7 +12,9 @@ import { HumanAttribute } from "../ensemble/HumanAttribute";
 import { HumanSkill } from "../skill/HumanSkill";
 import { walkCadence } from "./walkCadence";
 import { walkStation } from "./walkStation";
+import { walkSteps } from "./walkSteps";
 import { walkTempo } from "./walkTempo";
+import { walkWindows } from "./walkWindows";
 
 /**
  * A stepping plan's timing, the last step of `walk.locomote`: the steps
@@ -24,7 +27,7 @@ import { walkTempo } from "./walkTempo";
  * provisional), which each step's own draw carries as the square root of two
  * times that, two independent steps making a stride (`walkTempo`). On a beat
  * track a locked walker lands each strike by its phase correction toward its
- * beat (`walkCadence`, `walkTempo.entrained`). A cadenced gait keeps its
+ * beat (`walkCadence`, `walkTempo.entrainment`). A cadenced gait keeps its
  * count, its station kept by the length of its steps when it was planned
  * (`walkStation.cadenced`); any other keeps its station by matching the
  * slot's speed (`walkStation`).
@@ -32,6 +35,7 @@ import { walkTempo } from "./walkTempo";
  * @param context The walk's context, its station resolved.
  * @param planned The stepping plan on its own clock.
  * @param gait The gait.
+ * @param clock The entrained clock already used to plan a timed station, when present.
  * @returns The plan on its film clock.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three timings, their sources and when each applies.
@@ -46,23 +50,13 @@ export function walkClock(
   context: IAutoMovieMotionHumanActionContext<
     Omit<IAutoMovieMotionHumanWalkParams, "pace">
   >,
-  planned: IAutoMovieMotionHumanActionPlan,
+  planned: walkStation.IPlan,
   gait: IAutoMovieMotionHumanWalkGait,
-): IAutoMovieMotionHumanActionPlan {
-  const entrained: number[] | null =
-    context.params.cadence === undefined
-      ? null
-      : walkCadence.strikes(
-          context,
-          context.params.cadence,
-          walkTempo.strikes(planned),
-        );
-  const tempo: IAutoMovieMotionHumanActionPlan =
-    entrained !== null
-      ? walkTempo.entrained(
-          planned,
-          entrained.map((s: number): number => s - context.start),
-        )
+  clock: walkTempo.IClock | null = walkClock.entrainment(context, planned),
+): walkStation.IPlan {
+  const tempo: walkStation.IPlan =
+    clock !== null
+      ? walkTempo.playback(planned, clock)
       : walkTempo(
           planned,
           (index: number): number =>
@@ -90,11 +84,87 @@ export function walkClock(
  * Companions of {@link walkClock}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the member reads.
- * @evidence contracts/development/design.md#principled-representation A factor on the speed, from the attribute table.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `weary`, which `walk.locomote` reads.
+ * @evidence contracts/development/design.md#principled-representation Keeps the station's travel in film-local seconds and maps the step planner's local seconds to it. Fatigue comes from the attribute table.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `weary` supplies the member's pace and `steps` plans a station on the clock playback uses.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The factor's values are the table's, not restated.
  */
 export namespace walkClock {
+  /**
+   * Fit a designated station's film-time travel to the same clock used by
+   * the step events and playback. At a fixed step frequency, walkers change
+   * step length with speed (https://doi.org/10.1038/s41597-022-01817-1).
+   *
+   * @param context The resolved walk's cue, discipline and time origin.
+   * @param input The step planner's inputs, including any film-time travel.
+   * @returns The step plan and any cue clock already prepared for it.
+   */
+  export function steps(
+    context: IAutoMovieMotionHumanActionContext<
+      Omit<IAutoMovieMotionHumanWalkParams, "pace">
+    >,
+    input: IAutoMovieMotionHumanWalkSteps.IInput,
+  ): {
+    plan: IAutoMovieMotionHumanWalkSteps.IPlan;
+    clock?: walkTempo.IClock | null;
+  } {
+    let plan: ReturnType<typeof walkSteps.plan> = walkSteps.plan(input);
+    const travel: IAutoMovieMotionHumanWalkSteps.IInput["travel"] =
+      input.travel;
+    if (travel === undefined || context.params.cadence === undefined)
+      return { plan };
+
+    const opening: walkSteps.IOpening = plan.opening;
+    for (;;) {
+      const clock: walkTempo.IClock | null = entrainment(context, {
+        duration: plan.duration,
+        events: walkWindows.of(plan).events,
+      });
+      if (clock === null) return { plan, clock };
+
+      // Footprints and pelvis both read the station in film seconds. Fit
+      // again if a different strike closes the new plan. The fixed opening
+      // and step period keep the shared prefix of each clock identical.
+      const start: number = clock.toFilm(opening.seconds);
+      const fitted: ReturnType<typeof walkSteps.plan> = walkSteps.plan(
+        {
+          ...input,
+          travel: (seconds: number): number =>
+            travel(clock.toFilm(seconds + opening.seconds) - start),
+        },
+        opening,
+      );
+      if (fitted.duration === plan.duration) return { plan: fitted, clock };
+      plan = fitted;
+    }
+  }
+
+  /**
+   * Read the cue and phase correction for this sequence of heel strikes.
+   *
+   * @param context The current walk's cue, discipline and time origin.
+   * @param planned The nominal action's events and duration.
+   * @returns The two-way film clock, or null when the gait is unlocked.
+   */
+  export function entrainment(
+    context: IAutoMovieMotionHumanActionContext<
+      Omit<IAutoMovieMotionHumanWalkParams, "pace">
+    >,
+    planned: Pick<IAutoMovieMotionHumanActionPlan, "duration" | "events">,
+  ): walkTempo.IClock | null {
+    if (context.params.cadence === undefined) return null;
+    const strikes: walkTempo.IStrike[] = walkTempo.strikes(planned);
+    const seconds: number[] | null = walkCadence.strikes(
+      context,
+      context.params.cadence,
+      strikes,
+    );
+    return seconds === null
+      ? null
+      : (walkTempo.entrainment(
+          strikes,
+          seconds.map((s: number): number => s - context.start),
+        ) ?? null);
+  }
   /**
    * The factor a member's fatigue puts on a walk's speed
    * (`HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace`, fresh when absent): 1 for a

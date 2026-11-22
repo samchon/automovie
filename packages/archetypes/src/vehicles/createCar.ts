@@ -15,7 +15,7 @@ import { CarRear } from "./CarRear";
 /**
  * A car: a sedan, a hatchback, a panel van or a crew-cab pickup, with doors, windows, a bonnet and a boot, tailgate or sliding door that open, reclining seats, the driver's controls, and road wheels that steer and spin.
  *
- * The car stands on its wheels with the middle of its wheelbase over the origin, its front toward `+Z`. The body is an open frame (a floor, a bonnet, a roof on pillars and low door panels) so the seats and the controls show through it. The driver sits on the side `drive` names; `left` is `+X`. Everything a driver's and a passenger's act reads is an affordance: the doors' hinges with their handles and the openings behind them, the windows that slide down and the openings above them, the seats and their reclining backs, the steering wheel, the accelerator, the bonnet, and what the class carries behind the cabin: a boot's lid and `load` floor, a van's sliding door and `cargo` floor, a pickup's tailgate and `bed`. The front road wheels steer as the steering wheel turns, and every road wheel spins on a `knob` that `driveCar` turns by the distance covered. Getting in by a front door is `HumanTravelCar.getIn`; getting out, and in by a rear door, a sliding door or over a tailgate, has no motion law yet, so those openings serve static staging until one is written (#3498).
+ * The car stands on its wheels with the middle of its wheelbase over the origin, its front toward `+Z`. The body is an open frame (a floor, a bonnet, a roof on pillars and low door panels) so the seats and the controls show through it. The driver sits on the side `drive` names; `left` is `+X`. Everything a driver's and a passenger's act reads is an affordance: the doors' hinges with their handles and the openings behind them, the windows that slide down and the openings above them, the seats and their reclining backs, the steering wheel, the accelerator, the bonnet, and what the class carries behind the cabin: a boot's lid and `load` floor, a van's sliding door and `cargo` floor, a pickup's tailgate and `bed`. The front road wheels steer as the steering wheel turns, and every road wheel spins on a `knob` that `driveCar` turns by the distance covered. Getting in by a front door is `HumanTravelCar.getIn`. The opt-in `HumanTravelCarExit.getOut` stages exit from the rear bench through an already-open adjacent rear door. Rear-door entry, sliding doors and tailgates serve static staging (#3498).
  *
  * @param params The class, its read model and tyre, the driving side and any dimension the author fixes.
  * @param seed The seed that picks the model and its tyre and draws every dimension left free inside its band; absent, the first model and tyre, and each dimension the middle of its band.
@@ -226,6 +226,8 @@ export namespace createCar {
    * - `wheel`: the steering wheel, its axis toward the driver; its travel is half the lock-to-lock turn to either side, positive to the left.
    * - `frontLeftWheel`, `frontRightWheel`: the front road wheels' steering, each about the upright through its centre, positive to the left, following `wheel` by its Ackermann angle (`ackermann`), so the inner wheel of a turn steers more than the outer; a `wheel` articulation because a road wheel steers to either side of straight, which a `knob`'s range from 0 does not allow.
    * - `frontLeftSpin`, `frontRightSpin`, `rearLeftSpin`, `rearRightSpin`: each road wheel's roll about its axle, a positive travel rolling it forward, the front pair riding their steering.
+   * - `rightSteeringGrip`: the steering wheel's right rim, carried by the wheel's turn.
+   * - `driverLeftRest`, `passengerLeftRest`, `passengerRightRest`: named sole contact points on the front cabin floor.
    * - `accelerator`: the accelerator pedal under the driver's right foot.
    * - `bonnet`: the bonnet's hinge at its rear edge; a positive travel lifts its front.
    * - `boot`, `load`: a sedan's boot lid or a hatchback's tailgate, a positive travel lifting it, and the boot's floor.
@@ -266,6 +268,10 @@ export namespace createCar {
     | "frontRightSpin"
     | "rearLeftSpin"
     | "rearRightSpin"
+    | "rightSteeringGrip"
+    | "driverLeftRest"
+    | "passengerLeftRest"
+    | "passengerRightRest"
     | "accelerator"
     | "bonnet"
     | "boot"

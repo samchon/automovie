@@ -101,11 +101,14 @@ export namespace AutoMovieMotionHumanAuditRange {
    * A foot bearing the body dorsiflexes as far as the loaded limit
    * (`ANKLE_DORSIFLEXION.loaded`); a foot that bears no weight reaches only
    * the passive, unloaded one (`ANKLE_DORSIFLEXION.unloaded`), read here
-   * apart from the range table's one limit for the joint. A foot bears weight while a plant window on the ground holds
-   * it, the windows the contact audit reads
-   * (`AutoMovieMotionHumanAuditMotion.windows`), so a foot's load has one
-   * source. At each grid instant each foot outside such a window is read:
-   * its dorsiflexion past the unloaded limit overshoots.
+   * apart from the range table's one limit for the joint. A foot bears
+   * weight while a plant, a pivot or a bearing slide window holds it, on the ground or on a prop or a
+   * person that bears it (a tread, a deck, a partner's hands), the windows the
+   * contact audit reads (`AutoMovieMotionHumanAuditMotion.windows`), so a
+   * foot's load has one source. At each grid instant each foot outside such a
+   * window is read: its dorsiflexion past the unloaded limit overshoots. An
+   * instant whose plants hold both feet has nothing to read, and its pose is
+   * not resolved.
    *
    * @param motion The motion's windows.
    * @param posed The motion's poses.
@@ -118,7 +121,7 @@ export namespace AutoMovieMotionHumanAuditRange {
    * @evidence contracts/development/implementation.md#principled-implementation The unloaded limit applies exactly where the declared plants say a foot bears nothing.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One walk over the grid and two feet.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-finite angle reads as `Infinity`; no foot or instant is exempt.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One pose and one window test per foot per instant.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One window test per foot per instant, and one pose only at an instant where some foot bears nothing: a reading of both planted feet is zero whatever the pose, so it is not resolved.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid and the windows are `IAutoMovieMotionHumanAuditMotion`'s, the limit the engine's.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -136,20 +139,28 @@ export namespace AutoMovieMotionHumanAuditRange {
     const plants: IAutoMovieMotionHumanAuditMotion.IWindow[] =
       HumanAuditMotion.windows(motion, subject).filter(
         (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
-          w.contact.kind === "plant" && w.contact.support.kind === "ground",
+          w.contact.kind === "plant" ||
+          w.contact.kind === "pivot" ||
+          w.contact.kind === "bear",
+      );
+    const bears = (part: "leftFoot" | "rightFoot", seconds: number): boolean =>
+      plants.some(
+        (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+          w.contact.part === part &&
+          w.from <= seconds + 1e-9 &&
+          seconds <= w.to + 1e-9,
       );
     let past: number = 0;
     for (const t of frames) {
+      // The reading concerns only a foot that bears nothing, so an instant
+      // where the plants bear both feet reads no pose.
+      const left: boolean = bears("leftFoot", t);
+      const right: boolean = bears("rightFoot", t);
+      if (left && right) continue;
       let faulted: boolean = false;
       for (const joint of posed.pose(subject, t).joints) {
         if (joint.bone !== "leftFoot" && joint.bone !== "rightFoot") continue;
-        const bearing: boolean = plants.some(
-          (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
-            w.contact.part === joint.bone &&
-            w.from <= t + 1e-9 &&
-            t <= w.to + 1e-9,
-        );
-        if (bearing) continue;
+        if (joint.bone === "leftFoot" ? left : right) continue;
         const flexion: number = joint.flexion ?? 0;
         const value: number = Number.isFinite(flexion)
           ? flexion - ANKLE_DORSIFLEXION.unloaded

@@ -14,6 +14,7 @@ import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
+import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
@@ -63,7 +64,7 @@ export function racketCases(
       "readyPosition",
       "splitStep",
       "golfAddress",
-    ] as IAutoMovieMotionHumanRacket.Kind[]) {
+    ] as const satisfies readonly IAutoMovieMotionHumanRacket.Position[]) {
       const name: string = `racket-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
       try {
@@ -81,18 +82,7 @@ export function racketCases(
           composition: HumanChain.subject("a").act("racket", { kind }).node,
         });
       } catch (error) {
-        out.push({
-          name,
-          times: [{ seconds: 0, label: "refused" }],
-          performers: [],
-          verdicts: [
-            {
-              name: "planned",
-              passed: false,
-              detail: (error as Error).message,
-            },
-          ],
-        });
+        out.push(FamilyCaseKit.refused(name, error));
         continue;
       }
       const ready: number = TouchVerdicts.event(performance, "a", "ready");

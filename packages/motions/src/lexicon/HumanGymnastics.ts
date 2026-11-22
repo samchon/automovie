@@ -3,9 +3,16 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
+import { juggle } from "../exercise/juggle";
+import { lineWalk as lineWalkLaw } from "../exercise/lineWalk";
+import { stiltWalk } from "../exercise/stiltWalk";
+import { trampolineBounce } from "../exercise/trampolineBounce";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { fieldThrow as fieldThrowLaw } from "../sport/fieldThrow";
 import { handspring } from "../sport/handspring";
 import { highJump } from "../sport/highJump";
+import { horizontalJump } from "../sport/horizontalJump";
+import { hurdleClear as hurdleClearLaw } from "../sport/hurdleClear";
 import { poleVault } from "../sport/poleVault";
 import { roundOff } from "../sport/roundOff";
 import { squatVault } from "../sport/squatVault";
@@ -69,4 +76,39 @@ export namespace HumanGymnastics {
   export const vaultOnPole: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["vaultOnPole"]
   > = HumanActionRow.of("vaultOnPole", poleVault, {});
+
+  /** A long jump out of a run into the sand of the pit the composition names, to the distance it gives. */
+  export const longJump: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gymnastics"]["longJump"]
+  > = HumanActionRow.of("longJump", horizontalJump, {});
+
+  /** A hurdle cleared out of a run, landing on the lead foot for the run to take the stride on. */
+  export const hurdleClear: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gymnastics"]["hurdleClear"]
+  > = HumanActionRow.of("hurdleClear", hurdleClearLaw, {});
+
+  /** A shot, discus or hammer thrown from a circle, or a javelin thrown out of a run, to the distance the composition gives. */
+  export const fieldThrow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gymnastics"]["fieldThrow"]
+  > = HumanActionRow.of("fieldThrow", fieldThrowLaw, {});
+
+  /** A walk heel to toe along a beam or a rope, arms out for balance. */
+  export const lineWalk: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gymnastics"]["lineWalk"]
+  > = HumanActionRow.of("lineWalk", lineWalkLaw, {});
+
+  /** Toss juggling: a cascade or a shower. */
+  export const juggling: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gymnastics"]["juggling"]
+  > = HumanActionRow.of("juggling", juggle, {});
+
+  /** A walk on stilts. */
+  export const stilts: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gymnastics"]["stilts"]
+  > = HumanActionRow.of("stilts", stiltWalk, {});
+
+  /** Bouncing on a trampoline. */
+  export const trampoline: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gymnastics"]["trampoline"]
+  > = HumanActionRow.of("trampoline", trampolineBounce, {});
 }

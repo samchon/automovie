@@ -1,13 +1,18 @@
 import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 
-import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
+import { HumanQuadraticInterior } from "./HumanQuadraticInterior";
+import type { HumanQuadraticInteriorSession } from "./HumanQuadraticInteriorSession";
+import { HumanQuadraticModel } from "./HumanQuadraticModel";
+import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
+import { HumanQuadraticSolve } from "./HumanQuadraticSolve";
+import { HumanQuadraticValue } from "./HumanQuadraticValue";
 
 /**
  * A convex quadratic program with banded curvature and sparse rows, solved
  * by OSQP (Stellato, Banjac, Goulart, Bemporad and Boyd 2020, "OSQP: an
  * operator splitting solver for quadratic programs", Math Program Comput
- * 12:637): minimise `½ xᵀPx + qᵀx` over rows `l <= a·x <= u`, each row hard
- * (projected onto its interval) or soft (an exact l1 penalty `weight ×` its
+ * 12:637): minimise `1/2 x^T P x + q^T x` over rows `l <= a.x <= u`, each row hard
+ * (projected onto its interval) or soft (an exact l1 penalty `weight` times its
  * distance from the interval, whose proximal step is a soft threshold toward
  * it), the form of the convex subproblem of TrajOpt's sequential convex
  * optimisation (Schulman et al. 2014, IJRR 33:1251).
@@ -29,13 +34,30 @@ import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
  *   kept when its residuals are no larger.
  *
  * The curvature and the rows only couple variables within `band` of each
- * other, so every linear system is the banded reduced form `P + σI + Aᵀ
- * diag(ρ) A` (the paper's indirect form), factored by a banded Cholesky
+ * other, so every linear system is the banded reduced form `P + sigma I + A^T
+ * diag(rho) A` (the paper's indirect form), factored by a banded Cholesky
  * factorisation (`HumanQuadraticBand`). A warm start carries the iterates of
- * a solve of the same rows with other bounds.
+ * a solve of the same rows with other bounds. A one-shot `solve` prepares
+ * its own data; a caller that keeps a preparation (an interior session, a
+ * fixed model) shares it only after exact P, q, ordered nonzero A and
+ * scaling comparisons (`HumanQuadraticPreparation`). prepare additionally snapshots
+ * a fixed convexification for bound-only retries and bounded exact factor
+ * and scratch reuse; each solve computes its own iterates and resets rho.
+ * Costs use w=band+1, S supplied curvature entries, Z stored row entries
+ * and m rows, including diagonal systems and supplied curvature padding.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the convex objective, hard and soft rows, OSQP stages, band representation, warm iterates and exact numeric preparation sharing.
+ * @evidence contracts/development/design.md#principled-representation Groups the convex program, ordered sparse rows and unscaled primal-dual state; their interfaces state numeric and dimensional premises while runtime admission checks finite structure.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the solver, fixed-matrix preparation, objective and keyed multipliers used by motion planners; matrix admission and banded algebra remain internal modules.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps the generic numeric program independent of bodies and action names; positive semidefinite curvature remains an explicit caller premise rather than a validated type guarantee.
  */
 export namespace HumanQuadraticProgram {
-  /** The relative accuracy a solve's iterates and multipliers are known to: the residual tests' relative tolerance (OSQP's eps_rel). */
+  /**
+   * Relative residual tolerance, OSQP's eps_rel; it does not bound each
+   * variable's error independently of conditioning.
+   *
+   * Names the inherited relative residual tolerance and distinguishes residual convergence from a componentwise solution-error guarantee.
+   */
   export const TOLERANCE: number = 1e-3;
 
   /**
@@ -45,258 +67,129 @@ export namespace HumanQuadraticProgram {
    * @param problem The problem solved.
    * @param state Its solve's iterates.
    * @returns Each keyed row's multiplier.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Transfers the unscaled Lagrange multiplier attached to each constraint key, the existing SQP warm-start correspondence; callers supply the state of this ordered problem.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass extracts keyed rows from the solved state, leaving numeric preparation and later convexification with their owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads actual solved multipliers; a repeated key keeps its last row by Map semantics and no action-specific mapping is substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(m) time and at most one Map entry per distinct key, where m is the row count.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Supplies the current multipliers for matching constraints in another convexification; it rebuilds the map because the latest solve may change every multiplier.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates one caller-owned map per extraction and retains no state in the module.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the keyed SQP transfer, compatible-state premise, result ownership and repeated-key behavior.
    */
   export function multipliers(
     problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
     state: IAutoMovieMotionHumanQuadraticProgram.IState,
   ): Map<string, number> {
     const out: Map<string, number> = new Map();
-    problem.rows.forEach(
-      (row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): void => {
-        if (row.key !== undefined) out.set(row.key, state.y[r]!);
-      },
-    );
+    problem.rows.forEach((row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): void => {
+      if (row.key !== undefined) out.set(row.key, state.y[r]!);
+    });
     return out;
   }
 
   /**
    * The minimiser.
    *
-   * @param problem The problem.
+   * @param problem The problem; its numeric storage remains unchanged during this synchronous solve.
    * @param warm The iterates of a solve of the same rows; zero when absent.
    * @param duals Multipliers by row key from a solve of other rows that linearise the same constraints, read when `warm` is absent.
-   * @returns The iterates, unscaled; `x` is the minimiser.
+   * @returns The unscaled iterates and termination status; `x` is a minimiser only when solved or polished.
+   * @throws {RangeError} For malformed or nonfinite input, noninvertible scaling, or nonfinite numerical results.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the cited OSQP scaled ADMM equations, unscaled residual and infeasibility tests, adaptive rho and active-set polishing for caller-supplied convex P; termination status distinguishes a residual solution from an unfinished iterate.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation owns admitted numeric equivalence, Band owns linear algebra, and the shared HumanQuadraticSolve owns independent iterates, prox steps, termination and unscaling for this one-shot entry and prepared models.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves existing rho, sigma, relaxation, iteration and residual parameters. Nonfinite operands restore original zero terms instead of concealing IEEE-754 failures or rejecting truly empty rows; admitted inputs remain unchanged during the synchronous solve, and Band documents the unchanged diagonal guard.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Finite ADMM iterations take O(n*w+Z+m), with at most 4000 iterations; exceptional products may revisit R original row entries. Preparation scans original storage, while initial factors, adaptive refactors and polishing have their documented S-aware costs.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A one-shot solve prepares and factors its own data, sharing nothing with another call. Original-order topology positions serve current rhs contributions, each row product feeds its prox, consumed rhs/xt/before supply scratch and rho changes recompute thresholds/products. Accepted polish iterates transfer without copying; each unscale producer checks its final value before the original rejection phase.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Selected ADMM or accepted-polish iterates transfer independently of scratch/warm/cache data after unscaling. Thresholds, borrowed raw rows and at most R restored exceptional coefficients release with this solve, as do rejected polish data. Its preparation and initial factor are released with it; nothing is retained by a module.
+   * @evidence contracts/development/common.md#meaningful-documentation Describes all OSQP stages, warm and keyed-dual inputs, convergence limits, rejection conditions, mutable output ownership and the preparation lifetime.
    */
   export function solve(
     problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
     warm?: IAutoMovieMotionHumanQuadraticProgram.IState,
     duals?: ReadonlyMap<string, number>,
   ): IAutoMovieMotionHumanQuadraticProgram.IState {
-    const s: B.IScaled = B.scaled(problem);
-    const { n, m, start, cols, vals, lo, hi, weight, d, e } = s;
-    const c: number = s.c;
-    // Each row's step size: an equality row's a thousand times the step, a
-    // row bounded on neither side the least (section 5.2).
-    let base: number = RHO0;
-    const rho: Float64Array = new Float64Array(m);
-    const steps = (): void => {
-      for (let r: number = 0; r < m; ++r)
-        rho[r] =
-          lo[r] === -Infinity && hi[r] === Infinity
-            ? RHO_MIN
-            : lo[r] === hi[r]
-              ? EQUALITY * base
-              : base;
-    };
-    steps();
-    let factor: Float64Array[] = B.factor(s, rho, SIGMA);
-
-    // The iterates in the scaled problem: x̄ = D⁻¹x, z̄ = E z, ȳ = c E⁻¹ y.
-    const x: Float64Array = new Float64Array(n);
-    const z: Float64Array = new Float64Array(m);
-    const y: Float64Array = new Float64Array(m);
-    if (warm !== undefined) {
-      for (let i: number = 0; i < n; ++i) x[i] = warm.x[i]! / d[i]!;
-      for (let r: number = 0; r < m; ++r) {
-        z[r] = warm.z[r]! * e[r]!;
-        y[r] = (c * warm.y[r]!) / e[r]!;
-      }
-    } else
-      problem.rows.forEach(
-        (row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): void => {
-          // A solve of new rows starts from the multipliers of the rows they
-          // linearise again (`IRow.key`), the primal at the iterate itself.
-          const known: number | undefined =
-            row.key === undefined || duals === undefined
-              ? undefined
-              : duals.get(row.key);
-          if (known !== undefined) y[r] = (c * known) / e[r]!;
-          z[r] = Math.min(hi[r]!, Math.max(lo[r]!, 0));
-        },
-      );
-
-    const rhs: Float64Array = new Float64Array(n);
-    const xt: Float64Array = new Float64Array(n);
-    const tilde: Float64Array = new Float64Array(m);
-    const before: Float64Array = new Float64Array(m);
-    let status: IAutoMovieMotionHumanQuadraticProgram.IState["status"] =
-      "unfinished";
-    let residual: { primal: number; dual: number } = {
-      primal: Infinity,
-      dual: Infinity,
-    };
-    for (let it: number = 0; it < ITERATIONS; ++it) {
-      // The ADMM step (algorithm 1), in the reduced form.
-      for (let i: number = 0; i < n; ++i) rhs[i] = SIGMA * x[i]! - s.q[i]!;
-      for (let r: number = 0; r < m; ++r) {
-        const w: number = rho[r]! * z[r]! - y[r]!;
-        for (let a: number = start[r]!; a < start[r + 1]!; ++a)
-          rhs[cols[a]!]! += vals[a]! * w;
-      }
-      B.substitute(factor, n, s.band, rhs, xt);
-      for (let r: number = 0; r < m; ++r) {
-        let v: number = 0;
-        for (let a: number = start[r]!; a < start[r + 1]!; ++a)
-          v += vals[a]! * xt[cols[a]!]!;
-        tilde[r] = v;
-      }
-      for (let i: number = 0; i < n; ++i)
-        x[i] = ALPHA * xt[i]! + (1 - ALPHA) * x[i]!;
-      for (let r: number = 0; r < m; ++r) {
-        before[r] = y[r]!;
-        const relaxed: number = ALPHA * tilde[r]! + (1 - ALPHA) * z[r]!;
-        const v: number = relaxed + y[r]! / rho[r]!;
-        const l: number = lo[r]!;
-        const u: number = hi[r]!;
-        let next: number;
-        if (weight[r]! < 0) next = Math.min(u, Math.max(l, v));
-        else {
-          const t: number = weight[r]! / rho[r]!;
-          next =
-            v > u + t ? v - t : v > u ? u : v < l - t ? v + t : v < l ? l : v;
-        }
-        y[r] = y[r]! + rho[r]! * (relaxed - next);
-        z[r] = next;
-      }
-      if ((it + 1) % CHECK !== 0 && it + 1 < ITERATIONS) continue;
-
-      // Termination on the unscaled residuals (section 3.4).
-      const at: B.IResiduals = B.residuals(s, x, z, y);
-      residual = { primal: at.primal, dual: at.dual };
-      if (
-        at.primal <= ABSOLUTE + RELATIVE * at.primalScale &&
-        at.dual <= ABSOLUTE + RELATIVE * at.dualScale
-      ) {
-        status = "solved";
-        break;
-      }
-      // A certificate of primal infeasibility of the hard rows (section 3.4).
-      if (B.infeasible(s, y, before, INFEASIBLE)) {
-        status = "infeasible";
-        break;
-      }
-      // The step size balancing the scaled residuals (section 5.2).
-      const ratio: number = Math.sqrt(
-        at.scaledPrimal /
-          Math.max(1e-12, at.scaledPrimalScale) /
-          Math.max(1e-12, at.scaledDual / Math.max(1e-12, at.scaledDualScale)),
-      );
-      const next: number = Math.min(RHO_MAX, Math.max(RHO_MIN, base * ratio));
-      if (next > ADAPT * base || next < base / ADAPT) {
-        base = next;
-        steps();
-        factor = B.factor(s, rho, SIGMA);
-      }
-    }
-
-    // Polishing on the active set (section 4).
-    if (status === "solved") {
-      const polished:
-        | { x: Float64Array; z: Float64Array; y: Float64Array }
-        | undefined = B.polish(s, z, y, DELTA, REFINE);
-      if (polished !== undefined) {
-        const at: B.IResiduals = B.residuals(
-          s,
-          polished.x,
-          polished.z,
-          polished.y,
-        );
-        const primalOk: boolean =
-          at.primal <= residual.primal ||
-          at.primal <= ABSOLUTE + RELATIVE * at.primalScale;
-        const dualOk: boolean =
-          at.dual <= residual.dual ||
-          at.dual <= ABSOLUTE + RELATIVE * at.dualScale;
-        if (primalOk && dualOk) {
-          x.set(polished.x);
-          z.set(polished.z);
-          y.set(polished.y);
-          residual = { primal: at.primal, dual: at.dual };
-          status = "polished";
-        }
-      }
-    }
-
-    // The unscaled iterates: x = D x̄, z = E⁻¹ z̄, y = E ȳ / c.
-    const out: IAutoMovieMotionHumanQuadraticProgram.IState = {
-      x: new Float64Array(n),
-      z: new Float64Array(m),
-      y: new Float64Array(m),
-      status,
-      residual,
-    };
-    for (let i: number = 0; i < n; ++i) out.x[i] = d[i]! * x[i]!;
-    for (let r: number = 0; r < m; ++r) {
-      out.z[r] = z[r]! / e[r]!;
-      out.y[r] = (e[r]! * y[r]!) / c;
-    }
-    return out;
+    return HumanQuadraticSolve(
+      problem.rows,
+      Preparation.scaled(problem),
+      TOLERANCE,
+      warm,
+      duals,
+    );
   }
 
   /**
-   * The value of `½ xᵀPx + qᵀx` plus each soft row's penalty: a trust
+   * Prepare one fixed numeric convexification for solves with other intervals.
+   * The model snapshots P, q and all ordered row coefficients; changing them
+   * requires a new model, while each solve receives its current row bounds.
+   *
+   * @param problem Finite convex banded data, unchanged while preparation admits and snapshots it.
+   * @returns A model owning preparation, exact factors and reusable scratch.
+   * @throws {RangeError} For the same malformed data or scaling failures as solve.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates admission and modified Ruiz equilibration to the same numeric owner as one-shot solve; a copied fixed matrix defines the model while intervals remain solve inputs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Exposes the fixed-matrix producer through the existing quadratic namespace and delegates its state and lifetime to HumanQuadraticModel.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Snapshots generic numeric data without trusting mutable input identity, changing solver tolerances or retaining an answer; every call still runs OSQP on its supplied bounds.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation takes its documented O(S+R+10*(n*w+Z+m)) miss cost or exact-match scan, then O(R+m) copying for original zero preservation and O(n+m) scratch allocation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed P/q/A and row order are immutable owned dependencies; the consumer supplies only current intervals, weights and keys, and rebuilds this model for a new convexification.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one caller-owned model retaining its scaled matrices, copied original rows, O(n+m) scratch and at most three workspace factor owners plus its initial factor, each with upper/forward layouts; outputs and warm iterates remain independent and only discarded candidates may supply reset scratch.
+   * @evidence contracts/development/common.md#meaningful-documentation States snapshot semantics, model invalidation, changing inputs, preparation failure and ownership.
+   */
+  export function prepare(problem: IAutoMovieMotionHumanQuadraticProgram.IProblem): HumanQuadraticModel.IModel {
+    return HumanQuadraticModel.of(problem, TOLERANCE);
+  }
+
+  /**
+   * The minimiser by the interior-point method (`HumanQuadraticInterior`),
+   * for a caller whose curvature is badly conditioned for the operator
+   * splitting of `solve`: a second-order method's iteration count does not
+   * grow with that conditioning.
+   *
+   * @param problem The problem; its numeric storage remains unchanged during this synchronous solve.
+   * @param session The caller's session of solves of one optimisation (`HumanQuadraticInteriorSession.ISession`): its first solve's scales serve the later ones, a solve of the same rows starts from the one before, and the solver's scratch is kept between them; absent, the solve is alone and cold.
+   * @returns The unscaled iterates with status `solved`, to the interior method's own accuracy; undefined when it did not converge, and the caller solves by `solve` or a prepared model.
+   * @throws {RangeError} For malformed or nonfinite input or noninvertible scaling, as `solve` throws.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the primal-dual predictor-corrector iteration documented with its derivation at `HumanQuadraticInterior`, on the same admitted and equilibrated data as `solve`, or on the session's scales.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation; the method, its parameters, its session and its failure cases have one owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A solve that misses its accuracy returns nothing instead of an approximate iterate; no row or penalty differs from `solve`'s reading of the problem.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(n w^2) an iteration for n variables and band w, a bounded number of iterations; no speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the numeric preparation of `solve` for exactly equal data, and with a session its scales, scratch and last point as `HumanQuadraticInterior` states.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Without a session all scratch is released on return; a session keeps what `HumanQuadraticInteriorSession.ISession` states until its caller drops it; the returned arrays are the caller's.
+   * @evidence contracts/development/common.md#meaningful-documentation States when to use it, the session, the absent result's meaning and the failure cases.
+   */
+  export function interior(
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+    session?: HumanQuadraticInteriorSession.ISession,
+  ): IAutoMovieMotionHumanQuadraticProgram.IState | undefined {
+    return HumanQuadraticInterior(problem, session);
+  }
+
+  /**
+   * The value of `1/2 x^T P x + q^T x` plus each soft row's penalty: a trust
    * region's model of the merit.
    *
    * @param problem The problem.
-   * @param x The variables.
+   * @param x Finite current variables, or the exact zero origin when absent; problem data must already be admitted finite.
+   * @param observe Optional synchronous read-only consumer of each soft row's actual interval excess in row order; it must not mutate problem or x.
    * @returns The value.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the symmetric banded quadratic objective and each soft interval's exact l1 distance; callers supply compatible admitted finite data and current finite variables, with finite-coefficient zero products known exactly at the absent-vector origin.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates current-x and admitted-origin calculations to HumanQuadraticValue, sharing each computed interval excess with an optional same-call model diagnostic consumer.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves original nonzero/duplicate contribution order and every scalar association. Same-call finite x permits exact-zero omission; nonfinite x retains the full original product path. Hard rows add no objective penalty by definition, and this reader performs no admission or overflow certification.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Current-x evaluation takes O(n*w+R+m), including finite-x proof, for R supplied soft entries and m rows; finite x skips exact-zero off-diagonal/row multiplications. Origin costs O(m), with O(1) auxiliary storage and no zero vector.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads current mutable data, sharing each row product/excess with its synchronous observer and xi/P rows within current curvature evaluation. One finite-x proof permits zero-product omission; origin products are already proved zero by admission, and no values survive across trials.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Uses scalar accumulators and retains no data after returning the objective value.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the quadratic and soft-penalty expression, admitted-origin mode, ordered read-only observer and compatible finite-input premise.
    */
   export function value(
     problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
-    x: Float64Array,
+    x?: Float64Array,
+    observe?: (row: IAutoMovieMotionHumanQuadraticProgram.IRow, miss: number) => void,
   ): number {
-    let v: number = 0;
-    for (let i: number = 0; i < problem.n; ++i) {
-      v += problem.q[i]! * x[i]!;
-      v += 0.5 * problem.p[i]![0]! * x[i]! * x[i]!;
-      for (let j: number = 1; j <= problem.band && i + j < problem.n; ++j)
-        v += problem.p[i]![j]! * x[i]! * x[i + j]!;
-    }
-    for (const row of problem.rows) {
-      if (row.weight === undefined) continue;
-      let s: number = 0;
-      for (let a: number = 0; a < row.index.length; ++a)
-        s += row.coef[a]! * x[row.index[a]!]!;
-      v += row.weight * Math.max(0, row.l - s, s - row.u);
-    }
-    return v;
+    return HumanQuadraticValue(problem, x, observe);
   }
 }
 
-/** The step size the solve starts from (OSQP's default). */
-const RHO0: number = 0.1;
 
-/** The least and the greatest step size (OSQP's bounds). */
-const RHO_MIN: number = 1e-6;
-const RHO_MAX: number = 1e6;
 
-/** An equality row's step size as a multiple of the others' (OSQP's). */
-const EQUALITY: number = 1e3;
-
-/** The factor the estimated step size must leave the current one by before the system is factored again (OSQP's adaptive tolerance). */
-const ADAPT: number = 5;
-
-/** The proximal term that keeps the step's system definite (OSQP's σ). */
-const SIGMA: number = 1e-6;
-
-/** Over-relaxation (OSQP's α). */
-const ALPHA: number = 1.6;
-
-/** ADMM iterations per solve at most, a guard behind the residual test (OSQP's default). */
-const ITERATIONS: number = 4000;
-
-/** Iterations between two residual tests (OSQP's default). */
-const CHECK: number = 25;
-
-/** The residual tests' absolute and relative tolerances (OSQP's defaults). */
-const ABSOLUTE: number = 1e-3;
-const RELATIVE: number = HumanQuadraticProgram.TOLERANCE;
-
-/** The primal infeasibility certificate's tolerance (OSQP's default). */
-const INFEASIBLE: number = 1e-4;
-
-/** The polishing system's regularisation (OSQP's δ). */
-const DELTA: number = 1e-6;
-
-/** Iterative refinement steps of the polishing solve (OSQP's default). */
-const REFINE: number = 3;

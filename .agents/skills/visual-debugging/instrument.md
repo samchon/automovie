@@ -1,26 +1,26 @@
 # Instrument
 
-The instrument draws, plans, records and compares the stills of a capture. This page owns what it offers against this skill's requirements and what it leaves out by decision; the [`render` README](../../../packages/render/README.md) owns the request keys and maps each to the requirement it serves.
+The [render README](../../../packages/render/README.md) documents request keys.
 
 ## Drawing
 
 ### One request, one picture
 
-A request is plain text: named values that an inspector page's address, a command line and a component's props carry under the same names, read by one reader in `render`. The same text gives the same picture in every host, and the instrument writes a request back as text, so a view worked out on the page repeats as a capture.
+The inspector URL, CLI and component props use the same text request parsed by `render`. Copy its serialized request to reproduce a view in another host.
 
 ### Selection by identity
 
-Objects and marks are named by paths, the names from the scene down joined by `/`. One pattern grammar selects, hides, labels, colors and frames them, which serves the [selections](capture.md#subject) a judgment needs. A pattern that selects nothing is refused.
+Use scene paths joined with `/` to [select](capture.md#subject), hide, label, color or frame objects and marks. An empty match is refused.
 
 A sweep expands a pattern into units and plans each unit alone and with the neighbors whose boxes lie within a stated margin; a unit with no neighbor is drawn once.
 
 ### Marks
 
-A mark is plain data that any owner hands over: a path, a kind with its legend label and color, one shape from a closed set (points, a polyline, segments or arrows), a flag for an anomaly, and the object it follows. A new kind of finding therefore [needs no new pass](passes.md#marking-what-a-measurement-found).
+Owners supply [marks](passes.md#marking-what-a-measurement-found) as paths, kinds, legend labels, colors, points, polylines, segments or arrows, anomaly flags and followed objects.
 
-The instrument itself measures mesh edges and mesh defects and samples trails. The engine supplies marks for any articulated body, each flagged where it breaks its bound: bones and joints, contact forces, the center of mass against the base of support, range-of-motion overshoot, slip of a planted contact and mesh clearance.
+The instrument measures mesh edges, defects and trails. The engine supplies articulated marks for bones, joints, contact forces, balance, range of motion, contact slip and clearance. Flag failed bounds.
 
-A capture asks for marks by kind, and a kind the subject does not supply is refused before drawing. Two kinds never share a color in one picture, a flagged mark takes the flag color, and the legend counts the marks of each kind. Labels do not overlap, and a label dropped for lack of room is reported.
+Refuse unsupported mark kinds before drawing. Give each kind a distinct color and count. Flagged marks use the flag color. Keep labels apart and report dropped labels.
 
 ### Views and passes
 
@@ -32,21 +32,21 @@ A view is one of three things:
 
 A named direction may be orthographic for scale-true lengths, and may frame only a selected part or only the flagged marks.
 
-A named direction is fitted over every second the capture plans, so one camera holds across times and travel reads as travel. Asked to follow, it is fitted at each drawn second alone: a traveling subject stays large in every cell, but times share no camera and the travel is read from trails.
+A named direction uses one camera fitted across the planned times. A follow view fits each time separately. Use trails to track travel in follow views.
 
-The record keeps the camera each cell resolved to and the fixed view text that draws it again. A later round copies that text as is, so the [comparison](comparison.md#matched-cells) pairs cells drawn through the same camera even when what is drawn changes.
+Reuse each recorded camera's fixed request text in later [comparisons](comparison.md#matched-cells).
 
-A pass is a shade plus the marks drawn over it: a guide pass, a clay shade for form without color, or a shade by the side each face shows. Surfaces can be left out so the marks stand alone, cut by a section plane, or drawn through by the marks. Mark width is stated in output pixels, so a mark survives reduction into a sheet cell. The passes of one capture share each view's camera.
+A pass combines shade and marks. It can hide or section surfaces or draw marks through them. Set mark width in output pixels. Keep the same camera across passes of a view.
 
 ### Motion
 
-Motion is read from stills in [time order](capture.md#times): the marks a subject hands over for each drawn second, and trails that draw where selected objects travel over a window of seconds around the drawn one, with a tick per sample and the drawn second emphasized.
+Read stills in [time order](capture.md#times). Trails mark selected paths with a tick per sample and highlight the captured instant.
 
 ## Capture output
 
 ### Plan
 
-A capture is planned as a list of cells before anything is drawn: each fixed by selection, time, view and pass, in that order, with a stable name. Times are an even sampling moved onto the subject's own frames, five a second unless stated, or exact seconds, joined by every frame within a stated window around each event, three frames on each side unless stated.
+Plan cells before drawing, ordered by selection, time, view and pass, with stable names. Use five samples a second snapped to source frames by default, or exact times. Include all frames in each event window, three before and after by default.
 
 The plan refuses, naming the cause:
 
@@ -58,47 +58,47 @@ The plan refuses, naming the cause:
 
 ### Reader budget
 
-Sheets are laid out for the reader budget that [Stills and sheets](capture.md#stills-and-sheets) states, with 1568 px and 200 px as the defaults. Each cell's caption sits in a strip under it that is counted against the longest edge and never taken from the cell, and a still is never enlarged. Cells are reduced by averaging, or by the nearest pixel where a review reads exact pixel values.
+Follow the [reader budget](capture.md#stills-and-sheets). Default to a 1568 px longest edge and 200 px minimum cell edge. Captions count toward sheet size outside the cell. Downsample by averaging or nearest pixel for exact values. Keep stills at or below source size.
 
 ### Record
 
-A capture writes its stills, sheets and one record into its own folder, or into a named round beneath it. The record is first written as unfinished, listing every file the capture is about to write, and rewritten as complete once the last file is written. A folder holding a file no record of it lists is refused untouched, and an interrupted capture is replaced by the next run.
+Write stills, sheets and record in the capture or round folder. List files before writing and mark complete after the last write. Refuse folders with unlisted files. Replace interrupted captures on rerun.
 
-The complete record keeps the source revision, the request as text, the reader budget and layout, the planned times and event windows, and one row per planned cell. A drawn cell's row holds its file, content hash, backend and resolved camera, and the paths each of its selection, hide, label, color and focus patterns matched, listed by their topmost paths with a count. A failed cell's row holds its cause, and the sheet shows a marked cell in its place.
+Record revision, request, budget, layout, times and event windows. Per drawn cell, record path, hash, backend, camera and topmost matches and counts for each pattern. Record and mark failed cells with their cause.
 
 ### Comparison
 
-A capture compared against an earlier round pairs cells as [comparison](comparison.md#matched-cells) requires: selection, second, view and pass agree and the resolved cameras do not differ. A pair drawn by one backend is measured pixel by pixel at a stated tolerance, with a difference image for a changed pair. The comparison sheets show each pair's earlier still, its later still and their difference.
+Match cells under [comparison](comparison.md#matched-cells). Compare same-backend pixels at the stated tolerance. Show the earlier still, later still and difference for each changed pair.
 
 ### Video files
 
-An encoded or generated file is sampled from its own frames. Its cuts are detected at a stated score threshold, FFmpeg's default of 10 on its 0 to 100 scale unless stated, and every frame within the window around each cut and event is extracted by index, captioned by frame and second. Compared against the source's round, its cells pair by second. The record lists every detected cut with its score, so a file without cuts records zero at the threshold used.
+Sample the video itself. Detect cuts at the configured FFmpeg threshold (default 10/100). Extract cut and event windows by frame index. Label frame and second. Match source cells by second. Record cut scores or zero cuts.
 
 ## Left out by decision
 
 | Capability | Reason |
 | --- | --- |
 | Field shades and raking light rigs | Coarse models are judged by silhouette and construction |
-| Ghost poses | A sheet of stills in time order is the onion skin, and trails carry the motion inside one still |
+| Ghost poses | Use time-ordered stills and trails |
 | Round comparison inside the page | The capture writes comparison sheets, which are read as stills |
 | Sound | Outside the product's scope for 3D hints |
 
-The field shades are skin weight heat maps, texture-coordinate checkers and curvature shades. A production that needs such a field hands it over as marks, as [inspecting a form](../3d-modeling/inspection.md#fields-judged-only-where-needed) says.
+Supply skin weights, UVs and curvature as marks when needed under [form inspection](../3d-modeling/inspection.md#fields-judged-only-where-needed).
 
 ## Hosts
 
 ### The inspector page
 
-A production's development page is the `viewer` package's inspector, mounted over the same subjects module that the capture command draws, so the page offers exactly the subjects a capture can take; the [`viewer` README](../../../packages/viewer/README.md#inspector-page) owns its mount.
+Mount the [viewer inspector](../../../packages/viewer/README.md#inspector-page) over the same subject module as capture.
 
 The page's state is one request: every panel edits it, the address carries it, and the page shows the capture command that repeats the picture. An address the grammar refuses opens the request that asks for nothing and shows the refusal.
 
-A package or folder without a page of its own, such as one holding motion cases, gets the same page from the `automovie` command's inspect mode. It serves the inspector over any module that exports its subjects, refuses a request the capture would refuse before serving, and prints the address whose query is the request.
+Use the CLI's inspect mode for modules without their own page. It validates the request and prints the inspector URL.
 
 ### The capture command
 
-The `automovie` command of the `cli` package captures from a production's folder; the [`render` README](../../../packages/render/README.md#request-keys) lists its options with the request keys. It takes the same keys as a page's address, plus its own: which subject module to draw or which video file to sample, the root folder, and whether the browser draws in software or on the GPU.
+Run `automovie` in the production folder. Use the [request keys](../../../packages/render/README.md#request-keys) and select the subject module or video, root and browser backend.
 
-A drawn subject comes from the production's own draw-only page, built with the production's bundler and drawn in headless Chromium, so the stills come from the same function the page uses. Software drawing is the default, because it removes GPU driver variation; the record names the backend either way. A video file is sampled through FFmpeg, from the production's own copy or one the environment names, and its clock and raster are read from the file.
+Draw the production's own bundled page in headless Chromium. Default to software rendering and record the backend. Sample video via FFmpeg from the production's file or the environment-named path, using its clock and size.
 
-The record's revision is the production's commit, marked when the working tree differs from it. The command exits with a failure when any cell was not drawn, and it prints every such cell with its cause and every unmatched or changed pair of a comparison.
+Record the production commit and whether the working tree differs from it. Exit with failure for any missing cell. Print failures and causes, and list unmatched or changed pairs.

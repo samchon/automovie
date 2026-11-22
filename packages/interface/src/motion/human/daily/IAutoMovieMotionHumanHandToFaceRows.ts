@@ -51,7 +51,7 @@ export namespace IAutoMovieMotionHumanHandToFaceRows {
    * The tasks.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The tasks.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "drink", "sip", "eat", "bite", "phone", "read", "brushTeeth", "comb", "washFace", "wipeMouth" distinguish the admitted cases.
+   * @evidence contracts/development/design.md#principled-representation Closed choices "drink", "sip", "eat", "bite", "phone", "read", "brushTeeth", "comb", "washFace", "wipeMouth", "pinchNose" distinguish the admitted cases.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: daily/handToFace.ts (handToFace.ROWS); daily/handToFaceRows.ts (handToFaceRows.ROWS); executable/cases/handToFaceCases.ts (handToFaceCases).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in handToFace.ROWS.
    */
@@ -65,7 +65,8 @@ export namespace IAutoMovieMotionHumanHandToFaceRows {
     | "brushTeeth"
     | "comb"
     | "washFace"
-    | "wipeMouth";
+    | "wipeMouth"
+    | "pinchNose";
 
   /**
    * One task's row.

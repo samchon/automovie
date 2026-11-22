@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -51,6 +52,31 @@ export namespace ArchetypeTowing {
       };
 
   /**
+   * One authored ground plane under a horizontal world point: a point on it and its upward unit normal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names a world-metre point on the plane and its upward unit normal.
+   * @evidence contracts/development/design.md#principled-representation A point and a normal fix one plane, the form an authored footing's landing query returns.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read only by `prepare`'s terrain support; a footing owner adapts its own surfaces to it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No height field or inferred terrain: the caller names the plane under each queried point.
+   */
+  export interface IPlane {
+    /** A point on the plane, world metres. */
+    point: IAutoMovieVector3;
+    /** Its upward unit normal. */
+    normal: IAutoMovieVector3;
+  }
+
+  /**
+   * The authored ground plane under a horizontal world point, for a single axle drawn over sloped ground.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Takes world X and Z in metres and returns the plane under that point.
+   * @evidence contracts/development/design.md#principled-representation A pure query over the scene's authored ground, so the wheels' support is the ground under the axle rather than under the leader.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplied by a caller that owns footing, such as a draft take, and read by `prepare`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A query that finds no plane must refuse; it never returns a default height.
+   */
+  export type Ground = (x: number, z: number) => IPlane;
+
+  /**
    * Prepared geometric operations read by the existing planar heading integrator.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Exposes actual front steering, rear/front separation, height-dependent projected reach and a supported rigid pose with real articulation travels.
@@ -76,6 +102,18 @@ export namespace ArchetypeTowing {
      */
     height: (hitch: number, ground: number) => { reach: number; pitch: number };
     /**
+     * The ground datum under the axle for a hitch and a heading: the course datum without declared terrain, else the height that puts the actual wheel on the authored plane under the axle.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Inputs are the world hitch point, the planar heading in radians and the course datum in metres; the output is the world datum `height` and `pose` read, metres.
+     * @evidence contracts/development/implementation.md#principled-implementation On a plane of upward normal n the wheel's centre stands r/n_y above the plane under it; the axle lies `reach` behind the hitch along the heading, so the lever circle and the plane's line along the heading intersect in one quadratic, solved in closed form and re-solved while the plane under the solved axle changes.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Without terrain return the datum; with it solve the circle-line intersection on the queried plane.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A plane sloping across the axle, an unreachable lever or a plane that will not settle under the axle refuses; no wheel is lifted or sunk to hide it.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plane query, at most four queries.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the lever, wheel clearance and refusal of `prepare` with `height` and `pose`.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains nothing.
+     */
+    ground: (hitch: IAutoMovieVector3, theta: number, datum: number) => number;
+    /**
      * Place the supported vehicle and return actual front/drawbar travels.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Hitch is a world point, ground a world Y datum, theta/phi are planar link headings in radians, and output is a rigid model placement plus source articulation degrees.
@@ -98,11 +136,30 @@ export namespace ArchetypeTowing {
   }
 
   /**
+   * What `prepare` reads of a towed ride's options: explicit axle and front data, producer support and optional authored ground.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names each optional geometry declaration and its unit.
+   * @evidence contracts/development/design.md#principled-representation Each member is an independent declaration; contradictions between them are refused at runtime by `prepare`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The subset of `ArchetypeRide.towed`'s options this owner reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Ground is admitted only with single-axle support, the one support whose body may pitch onto it.
+   */
+  export interface IOptions<Id extends string> {
+    /** Explicit model-space axle point, metres. */
+    axle?: IAutoMovieVector3;
+    /** Explicit front steering pivot and articulation. */
+    front?: IFront<Id>;
+    /** Producer-read actual support. */
+    support?: Support<Id>;
+    /** Authored ground under a single axle; the course datum when absent. */
+    ground?: Ground;
+  }
+
+  /**
    * Admit one producer-declared towing geometry without inferring a vehicle kind.
    *
    * @param trailer Actual neutral source, with its own coupling/articulation frames.
    * @param coupling Source coupling contact id.
-   * @param options Existing explicit axle/front data plus optional actual support.
+   * @param options Existing explicit axle/front data plus optional actual support, and optional authored ground under a single axle.
    * @returns Shared height/projection/placement operations for this source.
    * @throws {ArchetypeRefusal} For contradictory geometry, invalid points/axes, unsupported heights or an unreachable vertical hitch.
    *
@@ -117,13 +174,15 @@ export namespace ArchetypeTowing {
   export function prepare<Id extends string, D extends string>(
     trailer: Archetype<Id, D>,
     coupling: Id,
-    options: {
-      axle?: IAutoMovieVector3;
-      front?: IFront<Id>;
-      support?: Support<Id>;
-    },
+    options: IOptions<Id>,
   ): IPrepared<Id> {
     const support: Support<Id> | undefined = options.support;
+    const terrain: Ground | undefined = options.ground;
+    if (terrain !== undefined && support?.kind !== "singleAxle")
+      refuse(
+        "ground",
+        "Authored ground under the axle needs declared single-axle support",
+      );
     if (support === null || options.axle === null || options.front === null)
       refuse("support", "Towing geometry declarations cannot be null");
     if (
@@ -312,10 +371,82 @@ export namespace ArchetypeTowing {
         Math.atan2(qy, qz) - Math.atan2(vertical, forward * reach);
       return { reach, pitch: Math.atan2(Math.sin(angle), Math.cos(angle)) };
     }
+    /** The datum that seats the actual wheel on the authored plane under the solved axle. */
+    function ground(
+      hitch: IAutoMovieVector3,
+      theta: number,
+      datum: number,
+    ): number {
+      if (terrain === undefined) return datum;
+      const sin: number = Math.sin(theta);
+      const cos: number = Math.cos(theta);
+      let reach: number = Math.abs(qz);
+      let plane: IPlane = terrain(hitch.x - sin * reach, hitch.z - cos * reach);
+      for (let attempt: number = 0; attempt < 4; attempt++) {
+        const { point, normal } = plane;
+        if (
+          !(normal.y > 0) ||
+          ![point.y, normal.x, normal.z].every(Number.isFinite)
+        )
+          refuse("ground", "The ground under the axle must face up");
+        if (Math.abs(normal.x * cos - normal.z * sin) > 64 * Number.EPSILON)
+          refuse(
+            "ground",
+            "A single axle cannot stand level across ground that slopes along it",
+          );
+        const base: number =
+          point.y -
+          (normal.x * (hitch.x - point.x) + normal.z * (hitch.z - point.z)) /
+            normal.y;
+        const slope: number = -(normal.x * sin + normal.z * cos) / normal.y;
+        const centre: number = pivot.y / normal.y;
+        const k: number = hitch.y - base - centre;
+        const a: number = 1 + slope * slope;
+        const disc: number =
+          k * k * slope * slope - a * (k * k - radius * radius);
+        if (!(disc >= 0))
+          refuse(
+            "ground",
+            "The hitch height has no reach within the actual lever over this ground",
+          );
+        reach = (-k * slope + Math.sqrt(disc)) / a;
+        if (!(Number.isFinite(reach) && reach > 0))
+          refuse(
+            "ground",
+            "The actual lever has no forward reach over this ground",
+          );
+        const solved: number = base - slope * reach + centre - pivot.y;
+        const next: IPlane = terrain(
+          hitch.x - sin * reach,
+          hitch.z - cos * reach,
+        );
+        if (
+          next.normal.x === normal.x &&
+          next.normal.y === normal.y &&
+          next.normal.z === normal.z &&
+          Math.abs(
+            (next.point.y - point.y) * normal.y +
+              normal.x * (next.point.x - point.x) +
+              normal.z * (next.point.z - point.z),
+          ) <=
+            64 *
+              Number.EPSILON *
+              Math.max(1, Math.abs(point.y), Math.abs(next.point.y))
+        )
+          return solved;
+        plane = next;
+      }
+      return refuse(
+        "ground",
+        "The axle's ground plane does not settle; author a plane under the whole wheel track",
+      );
+    }
     return {
-      front: front === null ? null : { pivot: { ...front.pivot }, turn: front.turn },
+      front:
+        front === null ? null : { pivot: { ...front.pivot }, turn: front.turn },
       body,
       height,
+      ground,
       pose: (
         hitch: IAutoMovieVector3,
         ground: number,
@@ -368,9 +499,19 @@ export namespace ArchetypeTowing {
     };
 
     /** Coordinate contradictions are refused, rather than choosing one input silently. */
-    function same(a: IAutoMovieVector3 | null | undefined, b: IAutoMovieVector3 | null | undefined): boolean {
-      return a !== null && a !== undefined && b !== null && b !== undefined &&
-        a.x === b.x && a.y === b.y && a.z === b.z;
+    function same(
+      a: IAutoMovieVector3 | null | undefined,
+      b: IAutoMovieVector3 | null | undefined,
+    ): boolean {
+      return (
+        a !== null &&
+        a !== undefined &&
+        b !== null &&
+        b !== undefined &&
+        a.x === b.x &&
+        a.y === b.y &&
+        a.z === b.z
+      );
     }
 
     /** A missing declared freedom is an actionable model/support refusal. */
@@ -384,6 +525,53 @@ export namespace ArchetypeTowing {
         reason,
         fix: "Supply compatible producer towing geometry and a reachable hitch without lifting its grounded supports.",
       });
+    }
+  }
+
+  /**
+   * Refuse a front axle whose required steering exceeds its lock.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the actual front axle articulation and the completed planar heading trajectory in radians.
+   * @evidence contracts/development/implementation.md#principled-implementation Measure the maximum absolute link-heading difference across the existing knots against the articulation's own degree limit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Apply one knot scan for a steerable axle and a single original refusal when it exceeds the lock.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No different sampling time, steering clamp or substitute articulation limit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(K) reads for K prepared knots, O(1) auxiliary space.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read the existing continuous heading trajectory at its knots without a new integration.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous validation keeps only the current maximum.
+   */
+  export function checkSteering<Id extends string, D extends string>(
+    trailer: Archetype<Id, D>,
+    front: IFront<Id> | null,
+    heading: IAutoMovieIntegrateMotionTrajectory.ITrajectory,
+  ): void {
+    // A front axle turned past its lock at any knot refuses the course, naming the most it needed.
+    if (front !== null) {
+      const lock: number = trailer.affordance(front.turn).travel ?? 0;
+      let most: number = 0;
+      for (let k: number = 0; k < heading.knots; k++) {
+        const x: readonly number[] = heading.at(
+          Math.min(heading.t0 + k * heading.h, heading.t1),
+        ).x;
+        most = Math.max(
+          most,
+          Math.abs((x[0]! - x[1]!) / ArchetypeUnits.DEGREE),
+        );
+      }
+      if (most > lock)
+        throw new ArchetypeRefusal({
+          kind: "parameter",
+          archetype: trailer.archetype,
+          axis: "front",
+          value: most,
+          feasible: {
+            kind: "range",
+            minimum: 0,
+            maximum: lock,
+            unit: "degrees",
+          },
+          reason: `the leader's path turns the front axle ${most} degrees, past its ${lock} degree lock`,
+          fix: "lead the trailer on wider turns",
+        });
     }
   }
 }

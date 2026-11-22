@@ -1,6 +1,6 @@
-import {
+import type {
   IAutoMovieMotion,
-  type IAutoMovieQuaternion,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -8,6 +8,9 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { timeScaleMotion } from "./timeScaleMotion";
 import { travelMotion } from "./travelMotion";
+
+/** Module-owned private world-up scalars, acquired only for actual facing. */
+let yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined;
 
 const assertFiniteVector: (label: string, vector: IAutoMovieVector3) => void = (
   label: string,
@@ -25,9 +28,9 @@ const assertFiniteVector: (label: string, vector: IAutoMovieVector3) => void = (
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This function owns distance/speed sizing and optional heading, while timeScaleMotion owns clip-clock compression and travelMotion owns cycle repetition and root placement.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid scalar/vector admission throws; the half-speed floor is an explicit locomotion sizing policy rather than a named-body adjustment, and faceTravel only yaws so vertical direction components do not pitch the rig.
  * @evidence contracts/development/common.md#meaningful-documentation States distance/speed units, exact-arrival sizing, short-trip compression, default strafe behavior and the horizontal-only facing rule.
- * @evidence contracts/development/implementation.md#efficient-algorithms Sizing is constant work; delegated baking scales with chosen cycle count C times gait keyframes K, plus one O(K) clock copy for short-trip compression, with no additional trajectory sampling.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The normalized heading serves velocity and facing; unchanged gait data are passed directly unless the one-cycle short-trip policy requires a new clock.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the baked clip and keyframes; intermediate compressed clips are call-local and no gait cache, physics handle or task is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Sizing is constant work; delegated baking scales with chosen cycle count C times gait keyframes K, plus one O(K) clock copy for short-trip compression, with no additional trajectory sampling. Optional facing shares the private unchanged +Y magnitude preparation after first actual use and still computes every yaw's original trigonometry. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The normalized heading serves velocity and facing; unchanged gait data pass directly unless short-trip sizing requires a new clock. One module-owned lazy reader shares only private canonical +Y axis scalars, after the original scalar/vector/clock admission, without retaining heading, yaw or quaternion answers.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the baked clip and keyframes; intermediate compressed clips are call-local. The module additionally retains at most one lazy reader and its private fixed +Y direction/length metadata until module release, acquired only for actual facing. No gait, heading, angle, quaternion result, physics handle or task is retained.
  */
 export const locomoteMotion: (
   id: string,
@@ -85,8 +88,7 @@ export const locomoteMotion: (
     distance / (cycles * base.duration),
   );
   const facing: IAutoMovieQuaternion | undefined = faceTravel
-    ? Quaternion.fromAxisAngle(
-        { x: 0, y: 1, z: 0 },
+    ? (yawRotation ??= Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 }))(
         (Math.atan2(heading.x, heading.z) * 180) / Math.PI,
       )
     : undefined;

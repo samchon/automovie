@@ -16,25 +16,23 @@ import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
  * tree at `props.skills`, by default the production's own `.agents/skills`.
  * Entities answer with their types, classes, functions and methods, because an
  * entity is a class whose methods are its capabilities. Behaviors (laws,
- * interactions and consequences) answer their checklist alone: most only
- * compose installed actions and follow no study, and a study can serve the
- * screenplay without any code, so neither direction of a study relation
- * holds for every production. A law names the study it follows in its
- * answer, which review judges.
+ * interactions and consequences) answer the behaviors checklist. For skilled
+ * practice, the studied laws answer cites the observations used to coordinate
+ * even installed actions. A study can also serve the screenplay alone.
  * Scenes cite the screenplay scene file, or the sections and beats of it they
  * realize, and every H2 section and H3 beat must be realized; films cite each
- * scene file they order, and every scene file must belong to a film. With
+ * scene file they order, and every scene file must belong to a film. Catalog
+ * scenes and the catalog film answer the composition checklist alone. With
  * `instructions`, the composition and entities must also realize every
  * instruction section, which no narrative layer then cites, with no
- * exclusion. Entities answer their checklist alone too, because their
- * settings citations are judged by review rather than required for every
- * settings heading.
+ * exclusion. The public configuration adds coverage of the route's subject
+ * records when entities or composition are submitted.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Native TypeScript claims carry the checklist, and a second Markdown reference uses native target coverage to make the screenplay-section-and-beat-to-scene and scene-file-to-film relations mechanical, while entities and behaviors carry the checklist alone; `instructions` adds the instruction-to-code relation with the same coverage, no checklist and no exclusion, because a user requirement cannot be waived by its realizer.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One table maps each checklist population to its stage, folders, symbol kinds and cited population, and the one instruction relation, which has no checklist, follows it; disabled stages produce no claim, and the one props object carries the stages, the instruction switch and where the checklists are read.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Source folders are the scaffold layout's documented locations, not fixture paths; nothing is inferred from file presence.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states each stage's respondents, the relation it enforces and which skills tree holds the checklists; the `skills` member states its form and default, and `instructions` when the code must realize every instruction section.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds at most five fixed-size claim trees in constant time; it performs no discovery or file I/O.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Builds at most six fixed-size claim trees in constant time without file I/O.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Fresh objects are returned so one configuration's edits cannot reach another; there is no expensive shared work.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned claims; nothing is retained.
  */
@@ -85,16 +83,31 @@ export function createDevelopmentContractClaims(
     {
       stage: "composition",
       name: "scenes",
-      files: ["src/composition/scenes/**/*.ts"],
+      files: [
+        "src/composition/scenes/**/*.ts",
+        "!src/composition/scenes/catalog/**",
+      ],
       symbol: ["function"],
       cited: { type: "markdown", files: screenplay, symbol: ["h2", "h3"] },
     },
     {
       stage: "composition",
       name: "films",
-      files: ["src/composition/films/**/*.ts"],
+      files: [
+        "src/composition/films/**/*.ts",
+        "!src/composition/films/catalog.ts",
+      ],
       symbol: ["function"],
       cited: { type: "markdown", files: screenplay, symbol: "file" },
+    },
+    {
+      stage: "composition",
+      name: "review catalog",
+      files: [
+        "src/composition/scenes/catalog/**/*.ts",
+        "src/composition/films/catalog.ts",
+      ],
+      symbol: ["function"],
     },
   ];
   const claims: IEvidenceClaim[] = populations
@@ -121,7 +134,12 @@ export function createDevelopmentContractClaims(
     claims.push({
       name: "the code realizes every instruction section",
       type: "typescript",
-      files: ["src/composition/**/*.ts", "src/entities/**/*.ts"],
+      files: [
+        "src/composition/**/*.ts",
+        "!src/composition/scenes/catalog/**",
+        "!src/composition/films/catalog.ts",
+        "src/entities/**/*.ts",
+      ],
       symbol: ["type", "function"],
       reference: {
         type: "markdown",

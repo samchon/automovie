@@ -12,6 +12,7 @@ import { TestValidator } from "@nestia/e2e";
 import type { Profiler } from "node:inspector";
 import { Session } from "node:inspector/promises";
 
+import { moduleFunctionCoverage } from "../../internal/moduleFunctionCoverage";
 import { nclose } from "../../internal/nclose";
 
 /** Actual local Cartesian total2 returned by the native station reader. */
@@ -50,11 +51,6 @@ export async function test_construction_owned_section_reader(): Promise<void> {
   ask("original errors", originals, failures);
   try {
     const readings: { phases: number; validations: number }[] = await work();
-    console.log({
-      ownedSectionValidationWork: readings,
-      ceiling: 2,
-      scope: "one public control plus private station; no f1 time/heap claim",
-    });
     if (
       readings.some(
         (reading: { phases: number; validations: number }): boolean =>
@@ -283,6 +279,7 @@ async function work(): Promise<{ phases: number; validations: number }[]> {
   try {
     session.connect();
     connected = true;
+    await session.post("Debugger.enable");
     await session.post("Profiler.enable");
     await session.post("Profiler.startPreciseCoverage", {
       callCount: true,
@@ -300,16 +297,14 @@ async function work(): Promise<{ phases: number; validations: number }[]> {
         close(read(i / 17), expected(1, i / 17), 1);
       const coverage: Profiler.TakePreciseCoverageReturnType =
         await session.post("Profiler.takePreciseCoverage");
-      const functions: Profiler.FunctionCoverage[] = coverage.result
-        .filter((script: Profiler.ScriptCoverage): boolean =>
-          /[/\\]AutoMovieViewSection(?:Field|Reading)\.ts$/.test(script.url),
-        )
-        .flatMap(
-          (script: Profiler.ScriptCoverage): Profiler.FunctionCoverage[] =>
-            script.functions.filter(
-              (fn: Profiler.FunctionCoverage): boolean =>
-                fn.functionName === "validate",
-            ),
+      // The validator by its module, whether that module runs as its own
+      // script or inside a bundle's chunk.
+      const functions: Profiler.FunctionCoverage[] =
+        await moduleFunctionCoverage(
+          session,
+          coverage,
+          /[/\\]AutoMovieViewSection(?:Field|Reading)\.ts$/u,
+          "validate",
         );
       if (functions.length !== 1)
         throw new Error(
@@ -339,6 +334,11 @@ async function work(): Promise<{ phases: number; validations: number }[]> {
     if (connected) {
       try {
         await session.post("Profiler.disable");
+      } catch (error: unknown) {
+        cleanup.push(error);
+      }
+      try {
+        await session.post("Debugger.disable");
       } catch (error: unknown) {
         cleanup.push(error);
       }

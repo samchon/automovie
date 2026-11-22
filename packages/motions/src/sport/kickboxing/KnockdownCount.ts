@@ -79,7 +79,7 @@ export namespace KnockdownCount {
       "neutralB",
       margin,
     );
-    const d = (p: IAutoMovieVector3): number =>
+    const d: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
       Math.hypot(p.x - fallen.x, p.z - fallen.z);
     return d(a) >= d(b) ? a : b;
   }

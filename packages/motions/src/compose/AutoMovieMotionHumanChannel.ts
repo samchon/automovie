@@ -57,9 +57,7 @@ export namespace AutoMovieMotionHumanChannel {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function of(
-    bone: AutoMovieHumanoidBone,
-  ): AutoMovieMotionHumanChannelContract {
+  export function of(bone: AutoMovieHumanoidBone): AutoMovieMotionHumanChannelContract {
     const side: "left" | "right" | undefined = bone.startsWith("left")
       ? "left"
       : bone.startsWith("right")
@@ -99,15 +97,11 @@ export namespace AutoMovieMotionHumanChannel {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function digit(
-    bone: AutoMovieHumanoidBone,
-  ): AutoMovieHumanDigit | undefined {
+  export function digit(bone: AutoMovieHumanoidBone): AutoMovieHumanDigit | undefined {
     const found: RegExpMatchArray | null = bone.match(
       /^(left|right)(Thumb|Index|Middle|Ring|Little)/,
     );
-    return found === null
-      ? undefined
-      : (`${found[1]}${found[2]}` as AutoMovieHumanDigit);
+    return found === null ? undefined : (`${found[1]}${found[2]}` as AutoMovieHumanDigit);
   }
 
   /**
@@ -126,18 +120,12 @@ export namespace AutoMovieMotionHumanChannel {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function claims(
-    claims: readonly AutoMovieMotionHumanChannelClaim[],
-    claim: AutoMovieMotionHumanChannelClaim,
-  ): boolean {
+  export function claims(claims: readonly AutoMovieMotionHumanChannelClaim[], claim: AutoMovieMotionHumanChannelClaim): boolean {
     if (claims.includes(claim)) return true;
     const side: RegExpMatchArray | null = claim.match(
       /^(left|right)(Thumb|Index|Middle|Ring|Little)$/,
     );
-    return (
-      side !== null &&
-      claims.includes(`${side[1]}Hand` as AutoMovieMotionHumanChannelClaim)
-    );
+    return ( side !== null && claims.includes(`${side[1]}Hand` as AutoMovieMotionHumanChannelClaim));
   }
 
   /**
@@ -180,8 +168,8 @@ export namespace AutoMovieMotionHumanChannel {
    * @evidence contracts/development/common.md#meaningful-documentation States what is copied, what stays and what happens to a field the written posture no longer sets.
    * @evidence contracts/development/implementation.md#principled-implementation Each field goes to the posture of its owner: the channels' fields from the written posture, the rest from the base, so a primitive cannot change a part it did not claim.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two passes over the joints, one over the four limbs, and four scalar choices.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An owned joint or limb goal absent from the written posture is cleared and not inherited from the base, so a primitive can release a goal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the joints the two postures hold.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An owned joint or limb goal absent from the written posture is cleared. Every digit reads only its selected source; optional-field presence never probes an unselected source. Root/trunk membership and selected getter reads retain their original order and frequency.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the joints the two postures hold: each record's own keys are listed once and each value read by its key, with no pair record per joint.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `of` for every joint.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -190,36 +178,84 @@ export namespace AutoMovieMotionHumanChannel {
     written: IAutoMovieMotionHumanPosture,
     channels: readonly AutoMovieMotionHumanChannelClaim[],
   ): IAutoMovieMotionHumanPosture {
-    const owns = (channel: AutoMovieMotionHumanChannelContract): boolean =>
-      channels.includes(channel);
+    return merged(
+      base,
+      written,
+      (channel: AutoMovieMotionHumanChannelContract): boolean => channels.includes(channel),
+      (bone: AutoMovieHumanoidBone): boolean => covers(channels, bone),
+      (digit: AutoMovieHumanDigit): boolean => AutoMovieMotionHumanChannel.claims(channels, digit),
+    );
+  }
+
+  /**
+   * Prepare the immutable claim decisions of repeated posture merges.
+   * Actual joint triples, goals, roots and optional fields remain inputs of
+   * every call, and the returned records keep merge's original ownership.
+   *
+   * @param channels The fixed channel/digit/trunk-turn claims, copied at preparation.
+   * @returns The same merge with claim membership and encountered bone ownership shared.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the fixed copied claims, actual per-call posture data and fresh result/borrowed payload ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Channel partition and digit coverage depend only on fixed claims and a bone's closed name, so their exact boolean decisions may be shared while all numeric and optional source values remain freshly read.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared merge body serves cold and prepared callers; preparation owns only the fixed channel/digit sets and lazy bone-classification map.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Absent owned joints, goals and rotations are still cleared; bone insertion order, aliases and borrowed payloads remain unchanged. No posture result, input identity or fit is cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation scans C claims and ten digit names once. Each merge retains its O(Jb+Jw) joint traversal and fixed limb/digit reads; each encountered bone's channel/digit parsing runs once per prepared reader instead of on both sides of every merge. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same fixed claims share only name-membership decisions, across distinct postures and exact seconds. The copied claim list isolates caller edits, and changed claims require a new preparation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning plan or synchronous overlay query retains C copied claims, channel/digit sets and at most one boolean per encountered closed bone name until released. No pose, numeric record, time history or external handle is retained.
+   */
+  export function prepareMerge(
+    channels: readonly AutoMovieMotionHumanChannelClaim[],
+  ): (base: IAutoMovieMotionHumanPosture, written: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanPosture {
+    const fixed: readonly AutoMovieMotionHumanChannelClaim[] = [...channels];
+    const owned: ReadonlySet<AutoMovieMotionHumanChannelClaim> = new Set(fixed);
+    const digits: ReadonlySet<AutoMovieHumanDigit> = new Set(
+      HumanPosture.DIGITS.filter((digit: AutoMovieHumanDigit): boolean => claims(fixed, digit)),
+    );
+    const bones: Map<AutoMovieHumanoidBone, boolean> = new Map();
+    const coversBone = (bone: AutoMovieHumanoidBone): boolean => {
+      let known: boolean | undefined = bones.get(bone);
+      if (known === undefined) bones.set(bone, (known = covers(fixed, bone)));
+      return known;
+    };
+    const owns = (channel: AutoMovieMotionHumanChannelContract): boolean => owned.has(channel);
+    const ownsDigit = (digit: AutoMovieHumanDigit): boolean => digits.has(digit);
+    return (base: IAutoMovieMotionHumanPosture, written: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture =>
+      merged(base, written, owns, coversBone, ownsDigit);
+  }
+
+  /** Keep cold and prepared selection identical, including property insertion order. */
+  function merged(
+    base: IAutoMovieMotionHumanPosture,
+    written: IAutoMovieMotionHumanPosture,
+    owns: (channel: AutoMovieMotionHumanChannelContract) => boolean,
+    coversBone: (bone: AutoMovieHumanoidBone) => boolean,
+    ownsDigit: (digit: AutoMovieHumanDigit) => boolean,
+  ): IAutoMovieMotionHumanPosture {
+    // Each record's own keys in their order, then each value read by its key:
+    // the order `Object.entries` gives, without a pair per joint.
     const joints: IAutoMovieMotionHumanPosture["joints"] = {};
-    for (const [bone, angles] of Object.entries(base.joints) as [
-      AutoMovieHumanoidBone,
-      readonly [number, number, number],
-    ][])
-      if (!covers(channels, bone)) joints[bone] = angles;
-    for (const [bone, angles] of Object.entries(written.joints) as [
-      AutoMovieHumanoidBone,
-      readonly [number, number, number],
-    ][])
-      if (covers(channels, bone)) joints[bone] = angles;
+    const kept: IAutoMovieMotionHumanPosture["joints"] = base.joints;
+    for (const bone of Object.keys(kept) as AutoMovieHumanoidBone[]) {
+      const angles: readonly [number, number, number] | undefined = kept[bone];
+      if (!coversBone(bone)) joints[bone] = angles;
+    }
+    const taken: IAutoMovieMotionHumanPosture["joints"] = written.joints;
+    for (const bone of Object.keys(taken) as AutoMovieHumanoidBone[]) {
+      const angles: readonly [number, number, number] | undefined = taken[bone];
+      if (coversBone(bone)) joints[bone] = angles;
+    }
 
     // Each digit's goal goes with its digit; a posture that has none keeps
     // none, so a merge without digit goals is the merge it always was.
-    const digits: NonNullable<IAutoMovieMotionHumanPosture["digits"]> = {};
+    let digits: NonNullable<IAutoMovieMotionHumanPosture["digits"]> | undefined;
     for (const d of HumanPosture.DIGITS) {
       const goal: IAutoMovieHumanDigitGoal | undefined = (
-        AutoMovieMotionHumanChannel.claims(channels, d) ? written : base
+        ownsDigit(d) ? written : base
       ).digits?.[d];
-      if (goal !== undefined) digits[d] = goal;
+      if (goal !== undefined) (digits ??= {})[d] = goal;
     }
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-    for (const limb of [
-      "leftArm",
-      "rightArm",
-      "leftLeg",
-      "rightLeg",
-    ] as const) {
+    for (const limb of LIMBS) {
       const goal: IAutoMovieHumanLimbGoal | undefined = (
         owns(limb) ? written : base
       ).limbs[limb];
@@ -238,8 +274,16 @@ export namespace AutoMovieMotionHumanChannel {
       roll: owns("trunk") ? written.roll : base.roll,
       joints,
       limbs,
-      ...(Object.keys(digits).length === 0 ? {} : { digits }),
+      ...(digits === undefined ? {} : { digits }),
       ...(rotation === undefined ? {} : { rotation }),
     };
   }
 }
+
+/** The four limbs a merge reads a goal of, in the order it writes them. */
+const LIMBS: readonly ["leftArm", "rightArm", "leftLeg", "rightLeg"] = [
+  "leftArm",
+  "rightArm",
+  "leftLeg",
+  "rightLeg",
+];

@@ -26,6 +26,17 @@
  * space's extent, `ATTEMPTS` times at most, and the path leaves the start
  * for that state, the planner growing its tree from there; a start no draw
  * repairs has no path.
+ *
+ * Every step of a tree is `RANGE` of the extent long, so connecting a tree to
+ * a vertex `d` away ends after at most `d / range` steps; a space whose
+ * extent is zero or not finite steps no length (or none that is a number), a
+ * connection would add the same vertex without end, and such a query is
+ * refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the planner and its sources, the time-indexed variant, the start repair, the step that bounds a connection and the refused extent.
+ * @evidence contracts/development/design.md#principled-representation A query is a joint space's two configurations, its sampler, its validity reading, its extent and its optional rising coordinate; the result is a path of configurations or none.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The query, the planner, and the distance, interpolation and seeded generator it and its arm-seed caller read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint, arm or body is named; the step, spacing and repair are OMPL's and MoveIt's defaults as shares of the extent.
  */
 export namespace HumanArmConnect {
   /** A query. */
@@ -49,8 +60,13 @@ export namespace HumanArmConnect {
    *
    * @param query The query.
    * @returns The path's vertices from the start to the goal, or `null` when the goal is invalid, the start is invalid and no draw near it repairs it, or the trees did not meet.
+   * @throws {RangeError} For an extent that is not positive and finite, across which no step advances a tree.
    */
   export function connect(query: IQuery): number[][] | null {
+    if (!(Number.isFinite(query.extent) && query.extent > 0))
+      throw new RangeError(
+        `A joint space's extent must be positive and finite for a tree to step across it, not ${query.extent}`,
+      );
     if (!query.valid(query.goal)) return null;
     const range: number = RANGE * query.extent;
     const resolution: number = RESOLUTION * query.extent;

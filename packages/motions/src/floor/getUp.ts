@@ -1,7 +1,9 @@
-import { Quaternion } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
+  IAutoMovieJointPose,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -13,7 +15,10 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupport,
   IAutoMovieMotionManner,
+  IAutoMovieMotionTarget,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
@@ -21,6 +26,7 @@ import { support } from "../actions/support";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { floorEntry } from "./floorEntry";
 import { lieDown } from "./lieDown";
@@ -73,13 +79,8 @@ export namespace getUp {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["standing", 1], kind: "inertialize", entry: 0 }],
   };
-
   /** The patterns of {@link Pattern}, as data. */
-  export const PATTERNS = [
-    "symmetric",
-    "rotation",
-  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanGetUp.Pattern>[];
-
+  export const PATTERNS: readonly ["symmetric", "rotation"] = ["symmetric", "rotation"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanGetUp.Pattern>[];
   /** The share of the trained young adult's supine-to-stand time a body takes, seconds (Ulbrich et al. 2000: 2.6 s). */
   export const SECONDS: number = 2.6;
 
@@ -90,7 +91,10 @@ export namespace getUp {
    * kneel on the trailing knee with the leading foot flat ahead; standing.
    */
   export const POSES: Readonly<
-    Record<IAutoMovieMotionHumanGetUp.Stage, IAutoMovieMotionHumanLieDown.IPose>
+    Record<
+      IAutoMovieMotionHumanGetUp.Stage,
+      IAutoMovieMotionHumanLieDown.IPose
+    >
   > = {
     sit: lieDown.POSES.sit,
     squat: keyed(40, { hip: 120, knee: 100, ankle: 20, shoulder: 60 }),
@@ -144,10 +148,7 @@ export namespace getUp {
   };
   /** The routes, each a list of postures with the event of its arrival. */
   export const ROUTES: Readonly<
-    Record<
-      IAutoMovieMotionHumanGetUp.Pattern,
-      readonly (readonly [IAutoMovieMotionHumanGetUp.Stage, string])[]
-    >
+    Record<IAutoMovieMotionHumanGetUp.Pattern, readonly (readonly [IAutoMovieMotionHumanGetUp.Stage, string])[]>
   > = {
     symmetric: [
       ["sit", "seated"],
@@ -216,10 +217,7 @@ export namespace getUp {
 
     // From the back the whole route; from the front it starts past the roll,
     // and from the hands and knees past the hands and knees as well.
-    const route: readonly (readonly [
-      IAutoMovieMotionHumanGetUp.Stage,
-      string,
-    ])[] =
+    const route: readonly (readonly [ IAutoMovieMotionHumanGetUp.Stage, string])[] =
       kind !== "lying"
         ? ROUTES.rotation.slice(2)
         : supine
@@ -243,8 +241,9 @@ export namespace getUp {
     // it lay.
     // The leading foot steps ahead into the half kneel, and the trailing foot
     // steps up beside it to stand.
+    const floorFeet: FootTargets = pattern === "symmetric" ? symmetricFeet(context.body, entered, stood) : {};
     const stances: IAutoMovieMotionHumanSupport.IStance[] = route.map(
-      ([key, event], i: number): IAutoMovieMotionHumanSupport.IStance => ({
+      ([key, event]: (typeof route)[number], i: number): IAutoMovieMotionHumanSupport.IStance => ({
         contacts: BEARS[key].map(
           (
             part: IAutoMovieMotionHumanSupport.Part | "lead" | "trail",
@@ -256,6 +255,7 @@ export namespace getUp {
                   ? `${trail}Knee`
                   : part,
             kind: "bear",
+            ...(part === "leftFoot" ? floorFeet.left : part === "rightFoot" ? floorFeet.right : {}),
             ...((key === "halfKneel" && part === `${lead}Foot`) ||
             (key === "stood" &&
               route[i - 1]?.[0] === "halfKneel" &&
@@ -268,18 +268,37 @@ export namespace getUp {
         prefer:
           key === "stood"
             ? stood
-            : key === "halfKneel" && lead === "left"
-              ? mirrored(POSES.halfKneel)
+            : key === "halfKneel"
+              ? halfKneeling(lead)
               : POSES[key],
         turn: supine && pattern === "rotation" ? 180 : 0,
         event,
       }),
     );
+    if (kind === "lying" && pattern === "rotation") {
+      // The palms take the upper body's weight before the trunk leaves the
+      // floor for the hand-and-knee stance (VanSant 1988).
+      // Introduce their contact within the original quadruped phase.
+      const index: number = supine ? 1 : 0;
+      const handsAndKnees: IAutoMovieMotionHumanSupport.IStance = stances[index]!;
+      const placement: IAutoMovieMotionHumanSupport.IStance = {
+        ...handsAndKnees,
+        prefer: PUSH,
+        contacts: [
+          { part: "front", kind: "bear" },
+          ...handsAndKnees.contacts.filter((contact: IAutoMovieMotionHumanSupport.IContact): boolean => contact.part.endsWith("Hand")),
+        ],
+        seconds: phase / 2,
+        event: "palmsDown",
+      };
+      stances.splice(index, 1, placement, { ...handsAndKnees, seconds: phase / 2 });
+    }
     const planned: IAutoMovieMotionHumanActionPlan = support.plan({
       ...context,
       params: { stances },
     });
-    return { ...planned, base: { kind: "standing" } };
+    planned.base = { kind: "standing" };
+    return planned;
   }
   /**
    * Standing as the stand law's quiet stance, the posture every performer
@@ -291,29 +310,40 @@ export namespace getUp {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the posture is and who reads it.
    * @evidence contracts/development/implementation.md#principled-implementation The stand law's own posture, its leg goals resolved to joints, so a rise ends where a performer starts.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture resolve.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One actual posture resolve precedes one ordered copy into the existing typed joint record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No joint is typed here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One resolve per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `stand.posture` and `resolveHumanPosture`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One original resolve per plan followed by O(J) output copying for J joints, without a second tuple/map array and Object.fromEntries conversion.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses stand.posture and the actual ordinary resolver, retaining live fit-memory behavior on every call rather than introducing a body-owned quiet-pose cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns its own joint dictionary/triples and retains no pose, reader, body result or history.
    */
-  export function quiet(
-    body: IAutoMovieMotionHumanBody,
-  ): IAutoMovieMotionHumanLieDown.IPose {
-    return {
-      pitch: 0,
-      roll: 0,
-      joints: Object.fromEntries(
-        resolveHumanPosture(
-          body,
-          stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
-        ).joints.map((j): [string, readonly [number, number, number]] => [
-          j.bone,
-          [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0],
-        ]),
-      ) as IAutoMovieMotionHumanJoints.Angles,
-    };
+  export function quiet(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanLieDown.IPose {
+    const pose: IAutoMoviePose = resolveHumanPosture(
+      body,
+      stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
+    );
+    const joints: IAutoMovieMotionHumanJoints.Angles = {};
+    for (let i: number = 0; i < pose.joints.length; ++i) {
+      const joint: IAutoMovieJointPose = pose.joints[i]!;
+      joints[joint.bone] = [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
+    }
+    return { pitch: 0, roll: 0, joints };
   }
+  /**
+   * The half-kneeling key with the specified leading foot. The other knee
+   * is the bearing knee. The same key seeds transfers onto a raised knee.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which side names the key and which site bears.
+   * @evidence contracts/development/implementation.md#principled-implementation The route's own half-kneel pose, with its limb roles mirrored when the other foot leads.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Uses the existing authored key and mirror helper.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No limb angles or surface coordinates are added.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Copies only the named body key's joints on a mirror.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The canonical authored key is the source.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No runtime data is retained.
+   */
+  export function halfKneeling(lead: AutoMovieHumanSide): IAutoMovieMotionHumanLieDown.IPose {
+    return lead === "left" ? mirrored(POSES.halfKneel) : POSES.halfKneel;
+  }
+
   /** A floor posture from its tilt and symmetric limb angles. */
   function keyed(
     pitch: number,
@@ -335,9 +365,7 @@ export namespace getUp {
   }
 
   /** A posture with its left and right sides exchanged. */
-  function mirrored(
-    pose: IAutoMovieMotionHumanLieDown.IPose,
-  ): IAutoMovieMotionHumanLieDown.IPose {
+  function mirrored(pose: IAutoMovieMotionHumanLieDown.IPose): IAutoMovieMotionHumanLieDown.IPose {
     const joints: IAutoMovieMotionHumanJoints.Angles = {};
     for (const [bone, angles] of Object.entries(pose.joints) as [
       AutoMovieHumanoidBone,
@@ -351,3 +379,45 @@ export namespace getUp {
     return { ...pose, joints };
   }
 }
+
+/** The new supports established before the symmetric crouch. */
+type FootTargets = Partial<Record<AutoMovieHumanSide, IFootTarget>>;
+
+/** A newly placed foot's fixed world target. */
+interface IFootTarget {
+  target: IAutoMovieMotionTarget;
+}
+
+/** Named toe joints demanded on the seated and upright keys. */
+const TOE_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftToes", "rightToes"]);
+
+/**
+ * Place the unplanted feet at the sit key's preferred centre with their
+ * eventual quiet stance's separation. Only the new placement is set here;
+ * the same two contacts persist through squat and stand.
+ */
+function symmetricFeet(
+  body: IAutoMovieMotionHumanBody,
+  entry: IAutoMovieMotionHumanPosture,
+  stood: IAutoMovieMotionHumanLieDown.IPose,
+): FootTargets {
+  const seated = getUp.POSES.sit;
+  const feet = (key: IAutoMovieMotionHumanLieDown.IPose): Record<AutoMovieHumanSide, IAutoMovieVector3> => {
+    const read = poseBones(body, resolveHumanPosture(body, { ...entry, ...key, limbs: {} }), undefined, TOE_BONES);
+    return { left: read.get("leftToes")!.worldPosition, right: read.get("rightToes")!.worldPosition };
+  };
+  const sitting = feet(seated);
+  const standing = feet(stood);
+  const centre = Vector3.scale(Vector3.add(sitting.left, sitting.right), 0.5);
+  const across = Vector3.scale(Vector3.subtract(standing.left, standing.right), 0.5);
+  return {
+    left: { target: { kind: "point", at: { ...Vector3.add(centre, across), y: 0 }, frame: "world" } },
+    right: { target: { kind: "point", at: { ...Vector3.subtract(centre, across), y: 0 }, frame: "world" } },
+  };
+}
+
+/** Prone key with both elbows near right angles as the palms take the press. */
+const PUSH: IAutoMovieMotionHumanLieDown.IPose = {
+  ...lieDown.POSES.prone,
+  joints: { ...lieDown.POSES.prone.joints, leftLowerArm: [90, 0, 0], rightLowerArm: [90, 0, 0] },
+};

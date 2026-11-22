@@ -15,6 +15,7 @@ import type {
 
 import { QuadrupedBody } from "./QuadrupedBody";
 import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
+import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /**
  * Prepare shared world-goal lowering for the actual quadruped rigid tree.
@@ -59,6 +60,7 @@ export function QuadrupedPoseAngles(
     "neck",
     "head",
     "tail",
+    ...Object.values(QuadrupedScapula.BONES),
   ]);
   return resolve;
 

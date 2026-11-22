@@ -49,7 +49,7 @@ import type { IAutoMovieMotionHumanProxemics } from "./IAutoMovieMotionHumanProx
  * `LAG` after they stop, which keeps the follower behind a leader on the
  * leader's own line. Where their way bends by more than `BEND` the walk
  * goes by the places they passed, and with `track: "pace"` it matches
- * their speed instead of waiting (`walkFollowed`; Rio, Rhea and Warren
+ * their speed instead of waiting (`walkStation`; Rio, Rhea and Warren
  * 2014).
  *
  * Events are the walk's (each foot's toe-offs and heel strikes,
@@ -106,7 +106,7 @@ export namespace IAutoMovieMotionHumanApproach {
      * the walk begins late enough to arrive just after them. The person is
      * then composed before this performer, or the read is refused. With
      * `pace` the walk instead matches the person's speed on the way
-     * (`walkFollowed`), so the gap holds while they walk, and closes to
+     * (`walkStation`), so the gap holds while they walk, and closes to
      * the stop once they have stopped. Absent, the target is read once,
      * where it is when the approach begins.
      */

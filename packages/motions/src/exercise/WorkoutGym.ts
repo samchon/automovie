@@ -23,12 +23,12 @@ import { WorkoutStance } from "./WorkoutStance";
  * (NSCA's Essentials of Strength Training and Conditioning, 4th ed.,
  * exercise technique chapters); none is a measured value.
  *
- * First pass: no bar, dumbbell or bell is held, so a hand's place is what
- * the arm's angles give; the wall of a wall sit is a place, not a prop; the
- * clean and the snatch show their positions in
- * order at a keyed tempo, not the bar's flight; a step-up, an incline or
- * decline push-up and a hip thrust are `WorkoutEquipment`'s (they need a
- * box or bench under a hand, a foot or the back).
+ * A loaded take fits its hands to the authored prop through `WorkoutLoad`.
+ * The snatch and clean-and-jerk use separate catches and recoveries from the
+ * IWF's definitions (https://iwf.sport/weightlifting_/rules/). The trajectories are keyed kinematic staging. Nagao and Yamashita's example snatch
+ * bar path (https://doi.org/10.1371/journal.pone.0263224, Fig. 3) motivates
+ * preserving the continuous fore-aft path through turnover. The wall sit
+ * uses a place. `WorkoutEquipment` owns bench and box support.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the kinds, the sources and that the angles are provisional, and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise: data over the one planner.
@@ -262,8 +262,22 @@ export namespace WorkoutGym {
       ],
     ),
 
-    /** A power clean as its positions: the start over the bar, the full extension on the toes, the catch in a quarter squat with the hands at the shoulders, and standing up with them. */
+    /** A power clean with the pull, catch and standing rack on separate events. */
     powerClean: WorkoutStance.of(
+      WorkoutStance.ANKLES,
+      WorkoutStance.FEET,
+      1,
+      1,
+      clean,
+    ),
+
+    /**
+     * A clean followed by a squat jerk. The IWF separates the rack and
+     * standing recovery from the dip, drive and overhead receive; the
+     * squat receive follows the shape compared with the lunge-style jerk
+     * in PMID 39337870. The transition durations are authored staging values.
+     */
+    cleanAndJerk: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       1,
@@ -271,32 +285,38 @@ export namespace WorkoutGym {
       (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+        ...clean(body),
         WorkoutKind.step(
-          squat(65, 75, 25, { shoulder: 65, raise: 0, elbow: 3 })(body),
-          1,
-          "set",
-          "start",
+          squat(5, 32, 13, { shoulder: 85, raise: 5, elbow: 145 })(body),
           0.3,
+          "dip",
+          "jerkDip",
         ),
         WorkoutKind.step(
-          key({ pitch: -5 }, { hip: -5, ankle: -15, elbow: 3 })(body),
-          0.45,
-          "pull",
-          "extension",
+          key({}, { shoulder: 135, raise: 12, elbow: 65 })(body),
+          0.18,
+          "drive",
+          "jerkDrive",
         ),
         WorkoutKind.step(
-          squat(10, 55, 18, { shoulder: 85, raise: 5, elbow: 145 })(body),
-          0.3,
-          "turnOver",
-          "catch",
-          0.2,
+          squat(10, 100, 28, { shoulder: 167, raise: 15, elbow: 3 })(body),
+          0.28,
+          "receive",
+          "jerkCatch",
+          0.15,
+        ),
+        WorkoutKind.step(
+          key({}, { shoulder: 170, raise: 15, elbow: 3 })(body),
+          0.85,
+          "standOverhead",
+          "jerkOverhead",
+          0.5,
         ),
         WorkoutKind.step(
           key({}, { shoulder: 85, raise: 5, elbow: 145 })(body),
-          0.8,
-          "recover",
-          "rack",
-          0.5,
+          0.6,
+          "lowerToRack",
+          "resetRack",
         ),
       ],
     ),
@@ -343,4 +363,39 @@ export namespace WorkoutGym {
       ],
     ),
   };
+
+  /** The clean's shared pull, receiving support and rack. */
+  function clean(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanWorkoutKind.IStep[] {
+    return [
+      WorkoutKind.step(
+        squat(65, 75, 25, { shoulder: 65, raise: 0, elbow: 3 })(body),
+        1,
+        "set",
+        "start",
+        0.3,
+      ),
+      WorkoutKind.step(
+        key({ pitch: -5 }, { hip: -5, ankle: -15, elbow: 3 })(body),
+        0.45,
+        "pull",
+        "extension",
+      ),
+      WorkoutKind.step(
+        squat(10, 55, 18, { shoulder: 85, raise: 5, elbow: 145 })(body),
+        0.3,
+        "turnOver",
+        "catch",
+        0.2,
+      ),
+      WorkoutKind.step(
+        key({}, { shoulder: 85, raise: 5, elbow: 145 })(body),
+        0.8,
+        "recover",
+        "rack",
+        0.5,
+      ),
+    ];
+  }
 }

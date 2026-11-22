@@ -1,5 +1,5 @@
 /**
- * The knee strike's form: the angles, shares and rounds its solve and its
+ * The knee strike's form: the angles and shares its solve and its
  * course are built from. Every value is a provisional reading of coaching
  * photographs unless its comment names a source.
  */
@@ -56,11 +56,4 @@ export namespace KneeForm {
 
   /** How far past the nape the clinching hands hold, metres (provisional: the hands cupped behind the neck). */
   export const CLINCH_DEPTH: number = 0.03;
-
-  /**
-   * How many times the knee is solved again from the hip the solved carriage
-   * leaves it: the support leg lowers the pelvis as it travels, which moves
-   * the hip the solve started from.
-   */
-  export const ROUNDS: number = 3;
 }

@@ -27,6 +27,9 @@ export namespace MotionUsage {
 
     /** The parameters of the scene's first performer action of that name; null when the scene names it only as a mutual action, which no one performs alone. */
     params: Record<string, unknown> | null;
+
+    /** Whether that action runs over a carrier in the scene. */
+    overlay: boolean;
   }
 
   /**
@@ -44,44 +47,54 @@ export namespace MotionUsage {
       // The scene's first performer action of the name, overlays included,
       // in the order the chains are written.
       let params: Record<string, unknown> | null = null;
-      const visit: (action: IPlaygroundComposition.IAction) => void = (
+      let overlay: boolean = false;
+      const visit = (
         action: IPlaygroundComposition.IAction,
+        layered: boolean,
       ): void => {
-        if (action.name === name) params ??= action.params;
-        action.over?.forEach(visit);
+        if (action.name === name && params === null) {
+          params = action.params;
+          overlay = layered;
+        }
+        action.over?.forEach((inner): void => visit(inner, true));
       };
       for (const performer of scene.composition.performers)
-        performer.actions.forEach(visit);
+        performer.actions.forEach((action): void => visit(action, false));
       const mutual: boolean = scene.composition.mutuals.some(
         (m: IPlaygroundComposition.IMutual): boolean => m.name === name,
       );
       if (params === null && !mutual) continue;
       scenes.push({ id: scene.id, title: scene.title });
-      first ??= { scene: scene.id, params };
+      first ??= { scene: scene.id, params, overlay };
     }
     return { scenes, first };
   }
+
+  /** Seconds a trial of one motion alone stands before the motion starts. */
+  export const OPENING: number = 0.5;
 
   /** What a "Try it" link opens, and what it says. */
   export interface ITrial {
     /** The link's text. */
     label: string;
 
+    /** Whether the motion is tried by one person alone, rather than in the first scene that performs it. */
+    alone: boolean;
+
+    /** The scene it is tried in; null when it is tried alone. */
+    scene: string | null;
+
     /** The playground composition it opens. */
     composition: IPlaygroundComposition;
   }
 
   /**
-   * What a "Try it" link opens. The name is tried alone, one person
-   * performing it with the parameters of its first use, only when that use
-   * is a performer's action, its parameters name no one and nothing of its
-   * scene, its scene carries no authored forces, and they hold every parameter the schema requires; a name no
-   * scene uses is tried alone with no parameters when its schema requires
-   * none. Otherwise the first scene using it that plays on the installed
-   * packages is opened, since a mutual action needs its partners, a named
-   * person, object or authored impulse needs its scene context, and a missing required parameter would be
-   * refused; a refused scene is never opened, and with no scene that plays
-   * there is no trial.
+   * What a "Try it" link opens. A primary action is tried alone when its
+   * first use supplies every required parameter and needs no other person,
+   * object or authored force. An unused action can be tried alone when it
+   * has no required parameters. A use that needs its scene, including an
+   * overlay on a carrier or a mutual action, opens the first playing scene
+   * that performs it.
    *
    * @param name The action's or row's name.
    * @param parameters Its parameters from its schema; null when the release ships no schema, when nothing is known to be required.
@@ -99,6 +112,7 @@ export namespace MotionUsage {
     );
     if (
       params !== null &&
+      use.first?.overlay !== true &&
       (scene?.composition?.forces?.length ?? 0) === 0 &&
       (scene === undefined ||
         scene.composition === null ||
@@ -110,6 +124,8 @@ export namespace MotionUsage {
     )
       return {
         label: "Try it alone",
+        alone: true,
+        scene: null,
         composition: {
           version: 1,
           seed: "try",
@@ -122,7 +138,7 @@ export namespace MotionUsage {
               yaw: 0,
               proficiency: "trained",
               actions: [
-                { name: "stand", params: { seconds: 0.5 } },
+                { name: "stand", params: { seconds: OPENING } },
                 { name, params },
               ],
             },
@@ -141,6 +157,8 @@ export namespace MotionUsage {
     if (playing === undefined || playing.composition === null) return null;
     return {
       label: `Try it in ${playing.title}`,
+      alone: false,
+      scene: playing.id,
       composition: {
         ...playing.composition,
         version: PlaygroundAddress.VERSION,

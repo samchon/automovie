@@ -83,20 +83,16 @@ export namespace AutoMovieMotionMeeting {
           reason: `a ${kind.name} has no role "${role.name}"; its roles are ${kind.roles.join(", ")}`,
           fix: "name one of the kind's roles",
         });
-    const ordered: IAutoMovieMotionMeetingRole[] = [...roles].sort(
-      (
-        a: IAutoMovieMotionMeetingRole,
-        b: IAutoMovieMotionMeetingRole,
-      ): number =>
-        a.name !== b.name
-          ? a.name < b.name
-            ? -1
-            : 1
-          : a.subject < b.subject
-            ? -1
-            : a.subject > b.subject
-              ? 1
-              : 0,
+    const ordered: IAutoMovieMotionMeetingRole[] = [...roles].sort((a: IAutoMovieMotionMeetingRole, b: IAutoMovieMotionMeetingRole): number =>
+      a.name !== b.name
+        ? a.name < b.name
+          ? -1
+          : 1
+        : a.subject < b.subject
+          ? -1
+          : a.subject > b.subject
+            ? 1
+            : 0,
     );
     const solid: boolean = ordered.length === kind.roles.length;
     const floors: IAutoMovieVector3[] = ordered.map(
@@ -122,38 +118,35 @@ export namespace AutoMovieMotionMeeting {
           ? ordered[0]!.posture.yaw
           : (Math.atan2(across.x, across.z) * 180) / Math.PI,
     };
-    const world: Record<string, IAutoMovieVector3> =
-      solid && kind.place !== undefined
-        ? kind.place(ordered)
-        : Object.fromEntries(
-            Object.entries(kind.contacts).map(
-              ([name, place]: [string, IAutoMovieMotionHumanTarget.IDefault]): [
-                string,
-                IAutoMovieVector3,
-              ] => [
-                name,
-                mean(
-                  ordered.map(
-                    (r: IAutoMovieMotionMeetingRole): IAutoMovieVector3 =>
-                      AutoMovieMotionHumanTarget.fallback(
-                        r.body,
-                        r.posture,
-                        place,
-                      ).point,
-                  ),
-                ),
-              ],
-            ),
-          );
+    const surfaces: Record<string, IAutoMovieMotionMeetingKind.ISurface> | undefined =
+      solid ? kind.surfaces?.(ordered) : undefined;
+    let world: Record<string, IAutoMovieVector3>;
+    let normals: Record<string, IAutoMovieVector3> | undefined;
+    if (surfaces !== undefined) {
+      const axes: IAutoMovieMotionHumanFrame = {
+        origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw,
+      };
+      world = {};
+      normals = {};
+      for (const [name, surface] of Object.entries(surfaces)) {
+        world[name] = surface.point;
+        normals[name] = HumanFrame.local(axes, surface.normal);
+      }
+    } else if (solid && kind.place !== undefined) world = kind.place(ordered);
+    else world = Object.fromEntries(
+      Object.entries(kind.contacts).map(
+        ([name, place]: [string, IAutoMovieMotionHumanTarget.IDefault]): [string, IAutoMovieVector3] => [
+          name,
+          mean(ordered.map((r: IAutoMovieMotionMeetingRole): IAutoMovieVector3 =>
+            AutoMovieMotionHumanTarget.fallback(r.body, r.posture, place).point)),
+        ],
+      ),
+    );
     const timings: IAutoMovieMotionMeetingTiming[] = ordered.map(
-      (r: IAutoMovieMotionMeetingRole): IAutoMovieMotionMeetingTiming =>
-        kind.timing(r, world),
+      (r: IAutoMovieMotionMeetingRole): IAutoMovieMotionMeetingTiming => kind.timing(r, world),
     );
     const latest = (key: keyof IAutoMovieMotionMeetingTiming): number =>
-      context.start +
-      Math.max(
-        ...timings.map((t: IAutoMovieMotionMeetingTiming): number => t[key]),
-      );
+      context.start + Math.max(...timings.map((t: IAutoMovieMotionMeetingTiming): number => t[key]));
 
     // A window moves the whole meeting later to its start and holds the
     // contact to its end.
@@ -186,6 +179,7 @@ export namespace AutoMovieMotionMeeting {
     return {
       kind: kind.name,
       frame,
+      ...(normals === undefined ? {} : { normals }),
       contacts: Object.fromEntries(
         Object.entries(world).map(
           ([name, point]: [string, IAutoMovieVector3]): [
@@ -196,9 +190,7 @@ export namespace AutoMovieMotionMeeting {
       ),
       instants,
       roles: ordered.map(
-        (
-          r: IAutoMovieMotionMeetingRole,
-        ): Pick<IAutoMovieMotionMeetingRole, "name" | "subject"> => ({
+        (r: IAutoMovieMotionMeetingRole): Pick<IAutoMovieMotionMeetingRole, "name" | "subject"> => ({
           name: r.name,
           subject: r.subject,
         }),
@@ -245,6 +237,13 @@ export namespace AutoMovieMotionMeeting {
         fix: "name one of the meeting's contacts",
       });
     const point: IAutoMovieVector3 = HumanFrame.point(meeting.frame, local);
+    const surface: IAutoMovieVector3 | undefined = meeting.normals?.[contact];
+    if (surface !== undefined)
+      return {
+        point,
+        solid: meeting.solid,
+        normal: HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: meeting.frame.yaw }, surface),
+      };
     const back: IAutoMovieVector3 = {
       x: posture.root.x - point.x,
       y: 0,
@@ -278,10 +277,7 @@ export namespace AutoMovieMotionMeeting {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function local(
-    meeting: IAutoMovieMotionMeeting,
-    start: number,
-  ): IAutoMovieMotionMeetingTiming {
+  export function local(meeting: IAutoMovieMotionMeeting, start: number): IAutoMovieMotionMeetingTiming {
     return {
       ready: meeting.instants.ready - start,
       stroke: meeting.instants.stroke - start,

@@ -13,6 +13,7 @@ import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
+import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
@@ -75,18 +76,7 @@ export function baseballCases(
           composition: HumanChain.subject("a").act("baseball", { kind }).node,
         });
       } catch (error) {
-        out.push({
-          name,
-          times: [{ seconds: 0, label: "refused" }],
-          performers: [],
-          verdicts: [
-            {
-              name: "planned",
-              passed: false,
-              detail: (error as Error).message,
-            },
-          ],
-        });
+        out.push(FamilyCaseKit.refused(name, error));
         continue;
       }
       const ready: number = TouchVerdicts.event(performance, "a", "ready");
@@ -124,14 +114,13 @@ export function baseballCases(
         case "groundBall": {
           const glove: IAutoMovieVector3 =
             AutoMovieMotionHumanTouchEffector.point(body, bones, "left", palm);
-          verdicts.push(
-            everydayVerdicts.within(
-              "glove palm above the floor",
-              Math.abs(glove.y),
-              0.1,
-              "mm",
-            ),
-          );
+          // Above the floor and within 100 mm of it: a palm under the floor
+          // is not near it.
+          verdicts.push({
+            name: "glove palm above the floor",
+            passed: glove.y >= 0 && glove.y <= 0.1,
+            detail: `${(glove.y * 1000).toFixed(1)} mm (0 to 100.0 mm)`,
+          });
           break;
         }
         case "battingStance": {

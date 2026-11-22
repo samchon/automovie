@@ -1,9 +1,12 @@
 import type { IAutoMovieRandom } from "../../../core/IAutoMovieRandom";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMoviePoseResolution } from "../../../pose/IAutoMoviePoseResolution";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieScheduleCue } from "../../composition/IAutoMovieScheduleCue";
 import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActionKey";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import type { IAutoMovieMotionHumanArmPlanned } from "../compose/IAutoMovieMotionHumanArmPlanned";
 import type { IAutoMovieMotionMeeting } from "../compose/IAutoMovieMotionMeeting";
 import type { IAutoMovieMotionMeetingKind } from "../compose/IAutoMovieMotionMeetingKind";
 import type { IAutoMovieMotionHumanAttribute } from "../ensemble/IAutoMovieMotionHumanAttribute";
@@ -11,7 +14,9 @@ import type { IAutoMovieMotionHumanForce } from "../perform/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanObstacle } from "../perform/IAutoMovieMotionHumanObstacle";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanSkill";
+import type { AutoMovieMotionHumanScheduledInstant } from "./AutoMovieMotionHumanScheduledInstant";
 import type { IAutoMovieMotionHumanActionLaw } from "./IAutoMovieMotionHumanActionLaw";
+import type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionHumanEntryState } from "./IAutoMovieMotionHumanEntryState";
 import type { IAutoMovieMotionHumanPerformerReader } from "./IAutoMovieMotionHumanPerformerReader";
@@ -53,11 +58,26 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
   /** Film second of the action's time zero. */
   start: number;
 
+  /** The film second of an earlier anchor or cue, when planning in a performance. */
+  instant?: IAutoMovieMotionHumanActionContext.Instant;
+
   /** A factor on every span of the action that physics does not fix, over its manner's own tempo (`AutoMovieMotionManner.of`): 1 when absent, and more where the action is replanned to take the time its planned motion needs within the speed bound (Hollerbach 1984's time scaling, applied where the action is placed). */
   tempo?: number;
 
   /** The action this one is performed over, when it is an overlay: a wave during a walk. The carrier keeps the root and the legs and whatever else it does not yield; this action writes only the channels it claims, on the carrier's posture of the same instant. Absent for an action that carries the body itself. */
   carrier?: IAutoMovieMotionHumanActionContext.ICarrier;
+
+  /**
+   * The arm solutions handed between the plans of this one action: the
+   * solutions the last plan of the same action in the same performance
+   * reached (an alignment trial's, a replan's over another span), by the
+   * arms solved together, and the map this plan's solutions are written
+   * into for the next. A plan's arm groups read and write it
+   * (`AutoMovieMotionHumanArmPlanned.together`); a solution handed on is
+   * only the start of the next solve, which admits its own result. Absent,
+   * every solve starts from its course.
+   */
+  handover?: IAutoMovieMotionHumanActionContext.IHandover;
 
   /**
    * A target's world point and outward unit normal at a film second.
@@ -267,6 +287,16 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
 /** Contracts used by jump.plan, run.plan, stand.plan, support.plan. */
 export namespace IAutoMovieMotionHumanActionContext {
   /**
+   * Resolve an event of an earlier action or a cue track into film seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the admitted sources and output timebase.
+   * @evidence contracts/development/design.md#principled-representation Reuses the scheduled instant representation, with numeric film time as the result.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Balance calls the existing performance resolver through the action context.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No duration share substitutes for the foreign named event.
+   */
+  export type Instant = (at: AutoMovieMotionHumanScheduledInstant) => number;
+
+  /**
    * The action an overlay is performed over.
    *
    * @evidence contracts/development/common.md#meaningful-documentation support: What the carrier stands on when it is not the ground: the first prop its plan plants a foot on (a stance on a cart's bed), so an overlay that begins with it is carried by that prop (`HumanSupportFrame`). Absent on the ground.
@@ -282,7 +312,9 @@ export namespace IAutoMovieMotionHumanActionContext {
      * Its posture under the overlay.
      *
      * @param seconds Seconds of the overlay's own clock.
-     * @returns The carrier's posture at that instant; its last posture once it has ended.
+     * @param channels Optional requested channels; omitted for a whole-posture read.
+     * @param resolution Optional same-body exact FK source borrowed only by this synchronous posture call, never retained by the carrier or returned posture.
+     * @returns The carrier's posture at that instant; its last posture once it has ended. Only requested channels are valid when supplied.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.ICarrier.posture: Its posture under the overlay.
      * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionContext.ICarrier.posture is used through packages/motions/src/perform/HumanPerformancePlace.ts.
@@ -292,7 +324,10 @@ export namespace IAutoMovieMotionHumanActionContext {
      * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionContext.ICarrier.posture is used through packages/motions/src/perform/HumanPerformancePlace.ts.
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionContext.ICarrier.posture is used through packages/motions/src/perform/HumanPerformancePlace.ts.
      */
-    posture(seconds: number): IAutoMovieMotionHumanPosture;
+    posture(seconds: number,
+      channels?: readonly AutoMovieMotionHumanChannel[],
+      resolution?: IAutoMoviePoseResolution.ISource,
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture;
 
     /** What the carrier stands on when it is not the ground: the first prop its plan plants a foot on (a stance on a cart's bed), so an overlay that begins with it is carried by that prop (`HumanSupportFrame`). Absent on the ground. */
     support?: IAutoMovieMotionHumanContactWindow.Support;
@@ -344,5 +379,22 @@ export namespace IAutoMovieMotionHumanActionContext {
 
     /** Which occurrence of the action's id in the performer's chain this is, from 0. */
     index: number;
+  }
+
+  /**
+   * The arm solutions handed from one plan of an action to the next
+   * (`IHumanActionContext.handover`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each member holds and who reads and writes it.
+   * @evidence contracts/development/design.md#principled-representation The solutions are the planner's own handover records (`IAutoMovieMotionHumanArmPlanned.IWarm`), keyed as its groups key them.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What the last plan wrote, read; what this plan writes, filled. The performance owns both, per action.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No verdict, pose or trajectory is handed on: a solution starts a solve that admits its own result, so a stale one costs time, never a wrong plan.
+   */
+  export interface IHandover {
+    /** The solutions the last plan of this action reached; absent for its first plan. */
+    warm?: ReadonlyMap<string, IAutoMovieMotionHumanArmPlanned.IWarm>;
+
+    /** Where this plan's solutions are written, for the next plan of this action. */
+    last: Map<string, IAutoMovieMotionHumanArmPlanned.IWarm>;
   }
 }

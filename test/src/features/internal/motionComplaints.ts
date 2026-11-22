@@ -16,7 +16,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/implementation.md#principled-implementation Each expectation is recorded with its label when it does not hold; the final assertion compares the record with the empty list, so its message lists every failed cell.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One list and four small closures over it.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refusal that does not throw is recorded like any other failure; nothing is swallowed.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per expectation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per expectation that holds; a lazy label is built only for one that fails.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A recorder coordinates no work.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The list lives as long as the test holds the gatherer.
  */
@@ -24,8 +24,8 @@ export function motionComplaints(): motionComplaints.IGatherer {
   const list: string[] = [];
   return {
     list,
-    check: (label: string, holds: boolean): void => {
-      if (!holds) list.push(label);
+    check: (label: string | (() => string), holds: boolean): void => {
+      if (!holds) list.push(typeof label === "string" ? label : label());
     },
     equals: (label: string, actual: unknown, expected: unknown): void => {
       const a: string = JSON.stringify(actual);
@@ -60,8 +60,12 @@ export namespace motionComplaints {
     /** Every failed expectation so far. */
     list: string[];
 
-    /** Records the label when the condition does not hold. */
-    check: (label: string, holds: boolean) => void;
+    /**
+     * Records the label when the condition does not hold. A label given as a
+     * function is built only then, so a label that resolves poses or
+     * readings only to describe a failure costs nothing on success.
+     */
+    check: (label: string | (() => string), holds: boolean) => void;
 
     /** Records the label with both values when they differ as JSON. */
     equals: (label: string, actual: unknown, expected: unknown) => void;

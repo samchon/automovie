@@ -1,8 +1,10 @@
 "use client";
 
 import {
+  type Dispatch,
   type ReactElement,
   type RefObject,
+  type SetStateAction,
   useCallback,
   useEffect,
   useRef,
@@ -72,22 +74,33 @@ type Pane = "compose" | "result";
  * @returns The page.
  */
 export default function PlaygroundMovie(): ReactElement {
-  const [loaded, setLoaded] = useState<Loaded>({ kind: "loading" });
-  const [composition, setComposition] = useState<IPlaygroundComposition>(
+  const [loaded, setLoaded]: [Loaded, Dispatch<SetStateAction<Loaded>>] =
+    useState<Loaded>({ kind: "loading" });
+  const [composition, setComposition]: [
+    IPlaygroundComposition,
+    Dispatch<SetStateAction<IPlaygroundComposition>>,
+  ] = useState<IPlaygroundComposition>(
     (): IPlaygroundComposition => structuredClone(FIRST),
   );
 
   // The composition the outcome belongs to: a refusal is shown on the action
   // it names only while that composition is the one being edited.
-  const [performed, setPerformed] = useState<IPlaygroundComposition | null>(
-    null,
-  );
-  const [outcome, setOutcome] = useState<Outcome>({ kind: "none" });
-  const [verdicts, setVerdicts] = useState<PlaygroundVerdicts.State>({
-    kind: "idle",
-  });
-  const [notice, setNotice] = useState<string | null>(null);
-  const [pane, setPane] = useState<Pane>("compose");
+  const [performed, setPerformed]: [
+    IPlaygroundComposition | null,
+    Dispatch<SetStateAction<IPlaygroundComposition | null>>,
+  ] = useState<IPlaygroundComposition | null>(null);
+  const [outcome, setOutcome]: [Outcome, Dispatch<SetStateAction<Outcome>>] =
+    useState<Outcome>({ kind: "none" });
+  const [verdicts, setVerdicts]: [
+    PlaygroundVerdicts.State,
+    Dispatch<SetStateAction<PlaygroundVerdicts.State>>,
+  ] = useState<PlaygroundVerdicts.State>({ kind: "idle" });
+  const [notice, setNotice]: [
+    string | null,
+    Dispatch<SetStateAction<string | null>>,
+  ] = useState<string | null>(null);
+  const [pane, setPane]: [Pane, Dispatch<SetStateAction<Pane>>] =
+    useState<Pane>("compose");
 
   // Each build takes a number; a result that is no longer the latest is dropped.
   const generation: RefObject<number> = useRef<number>(0);

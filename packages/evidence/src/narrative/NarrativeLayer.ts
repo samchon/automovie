@@ -3,8 +3,8 @@
  *
  * `treatments` fixes what happens as one flat ordered sequence of event units,
  * grouped by nothing and partitioned for no reader. `scripts` designs
- * the part and episode partition and its scene-level dramatic progression.
- * `screenplay` writes the final visible action, dialogue, sound, and edit intent.
+ * the part and episode partition, scene progression and draft exchanges.
+ * `screenplay` authors the final action, dialogue, sound and edit from those decisions.
  *
  * @evidence contracts/development/design.md#principled-representation The closed union names flat treatments, partitioned scripts and final screenplay, retaining their distinct authoring responsibilities.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Three literals keep treatments, scripts and final screenplay distinct without another runtime hierarchy.

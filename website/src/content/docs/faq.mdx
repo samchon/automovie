@@ -1,0 +1,29 @@
+---
+title: FAQ
+---
+
+# FAQ
+
+## Coding agents
+
+Any coding agent that reads `AGENTS.md` or `CLAUDE.md` works. The scaffold writes both, and `CLAUDE.md` points to `AGENTS.md`.
+
+## Your own screenplay
+
+At intake you choose whether your screenplay is fixed or refined. A fixed screenplay is used exactly as given and never edited; a missing exchange or an unperformable beat goes back to you. A refined one enters as material for the route's layers.
+
+## The evidence graph
+
+The scaffold's default checks the source and tests against the development checklists. The narrative stages turn on for a route that runs narrative passes. A screenplay written directly, without passes, uses `narrative: { mode: "none" }`, and the code then cites the instructions it realizes.
+
+## Choosing a video model
+
+The agent chooses the model with you for each production and records it in `PROJECT.md`. The model decides which control channels the hint needs and how each request is planned.
+
+## Example productions
+
+Example productions live in [automovie-examples](https://github.com/samchon/automovie-examples). On this site, [Scene studies](/scenes/) plays composed scenes, [Motions](/motions/) shows the action vocabulary, and [Playground](/playground/) shows a refusal on the action it names, with its fix.
+
+## License
+
+AutoMovie is released under the [MIT license](https://github.com/samchon/automovie/blob/master/LICENSE).

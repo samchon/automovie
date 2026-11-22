@@ -36,9 +36,9 @@ import { HUMAN_DRILL_CADENCES } from "./HUMAN_DRILL_CADENCES";
  * told apart by kind:
  *
  * - `march` keeps the drill's cadence, 120 steps a minute, and its step,
- *   30 inches (0.76 m) for a soldier whose hip stands 0.93 m high, scaled by
- *   the body's hip height (US Army TC 3-21.5, quick time; the scaling and
- *   the reference hip height are provisional). The cadence governs: the way
+ *   30 inches (0.762 m) for every marcher, as the regulation prescribes one
+ *   step to all so the ranks keep their dress (US Army TC 3-21.5, quick
+ *   time). The cadence governs: the way
  *   is covered in the whole number of steps nearest it in drill steps, so
  *   over a way that is not a whole number of them the step gives and the
  *   cadence stays.
@@ -53,7 +53,7 @@ import { HUMAN_DRILL_CADENCES } from "./HUMAN_DRILL_CADENCES";
  *   stealthy gait has been read).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each entry is, which are rows and which run a gait of their own, with the march's source and what is provisional.
- * @evidence contracts/development/design.md#principled-representation A row is data over a law that already fits the body; a styled gait is a law record over the walk's own stepping planner, with the gait as a Froude number and steps in hip heights, so each fits any body.
+ * @evidence contracts/development/design.md#principled-representation A row is data over a law that already fits the body; a styled gait is a law record over the walk's own stepping planner, with the gait as a Froude number and steps in hip heights, so each fits any body; the drill's step is the regulation's absolute pace, one for the whole formation.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The family's entries and the two styled gaits' constants; a production registers the ones it uses.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No entry writes steps of its own: every one is planned by `walk.locomote`.
  */
@@ -105,8 +105,8 @@ export namespace HumanGait {
   > = HumanActionRow.of("sprint", run, { pace: "sprint" });
 
   /**
-   * The march: steps a minute, the step in hip heights (0.76 m at a 0.93 m
-   * hip, the hip height the walk's paces are referred to), and the arm's
+   * The march: steps a minute, the step in metres (the regulation's 30
+   * inches, the same for every marcher), and the arm's
    * swing. TC 3-21.5 gives the arm 9 inches to the front and 6 to the rear
    * of the trouser seam, about 17 degrees each way on a 0.65 m arm
    * (unverified in the current edition); the elbow nearly straight is
@@ -120,7 +120,7 @@ export namespace HumanGait {
     unevenness: number;
   }> = {
     cadence: 120,
-    step: 0.76 / 0.93,
+    step: 0.762,
     arms: { shoulder: 17, elbow: 10, swing: 0 },
     unevenness: 0.5,
   };
@@ -171,7 +171,7 @@ export namespace HumanGait {
           context.params.station;
         const count: number =
           station === undefined
-            ? Math.max(2, Math.round(way / (drill.step * l)))
+            ? Math.max(2, Math.round(way / drill.step))
             : Math.max(
                 2,
                 Math.round(
@@ -180,11 +180,7 @@ export namespace HumanGait {
                     60,
                 ),
               );
-        // The stepping plan measures the way along its own path; 2 % of slack
-        // keeps it on this count of steps. Its period is the longest step at
-        // the speed (`WalkPace`), so the speed is the slack step's at the
-        // cadence, and the drill step itself is taken at the cadence.
-        const step: number = (1.02 * way) / count;
+        const step: number = counted(way, count);
         const speed: number = (step * cadence) / 60;
         return {
           ...walk.walking((speed * speed) / (AutoMovieGravity.STANDARD * l)),
@@ -197,14 +193,14 @@ export namespace HumanGait {
     );
 
   /**
-   * Double time: steps a minute and the step in hip heights. TC 3-21.5
+   * Double time: steps a minute and the step in metres. TC 3-21.5
    * gives 180 steps a minute; the 30-inch step of quick time is kept
    * (unverified in the current edition), which at that cadence is a jog's
    * speed, so the body runs it in the jog's gait.
    */
   export const DOUBLE: Readonly<{ cadence: number; step: number }> = {
     cadence: 180,
-    step: 0.76 / 0.93,
+    step: 0.762,
   };
 
   /** Double time: the drill step at 180 a minute, run as a jog that keeps the count. */
@@ -216,11 +212,13 @@ export namespace HumanGait {
       ): IAutoMovieMotionHumanWalkGait => {
         const l: number = context.body.measure.hipHeight;
 
-        // As the march: the nearest whole number of drill steps, with its
-        // slack, taken at the cadence.
+        // As the march: the nearest whole number of drill steps, taken at the
+        // cadence.
         const way: number = distance(context);
-        const step: number =
-          (1.02 * way) / Math.max(2, Math.round(way / (DOUBLE.step * l)));
+        const step: number = counted(
+          way,
+          Math.max(2, Math.round(way / DOUBLE.step)),
+        );
         const speed: number = (step * DOUBLE.cadence) / 60;
         return {
           ...run.GAITS.jog,
@@ -234,30 +232,22 @@ export namespace HumanGait {
 
   /** A sneak: slow short steps on bent knees, the arms held still and close. */
   export const sneak: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
-    styled("sneak", (): IAutoMovieMotionHumanWalkGait => {
-      const walking: IAutoMovieMotionHumanWalkGait = walk.walking(SNEAK.froude);
-      return {
-        ...walking,
-        step: (froude: number): number => SNEAK.step * walking.step(froude),
-        bob: { mean: -SNEAK.drop, amplitude: 0 },
-        arms: SNEAK.arms,
-      };
-    });
+    styled(
+      "sneak",
+      (): IAutoMovieMotionHumanWalkGait =>
+        sneaking({ bob: { mean: -SNEAK.drop, amplitude: 0 } }),
+    );
 
   /** How far the pelvis rides below a walk's in a prowl, the sneak's crouched variant, hip heights (provisional). */
   export const PROWL: number = 0.12;
 
   /** A prowl: the sneak on deeply bent knees. */
   export const prowl: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
-    styled("prowl", (): IAutoMovieMotionHumanWalkGait => {
-      const walking: IAutoMovieMotionHumanWalkGait = walk.walking(SNEAK.froude);
-      return {
-        ...walking,
-        step: (froude: number): number => SNEAK.step * walking.step(froude),
-        bob: { mean: -PROWL, amplitude: 0 },
-        arms: SNEAK.arms,
-      };
-    });
+    styled(
+      "prowl",
+      (): IAutoMovieMotionHumanWalkGait =>
+        sneaking({ bob: { mean: -PROWL, amplitude: 0 } }),
+    );
 
   /**
    * The trunk's forward lean of each mood's walk, degrees (provisional): a
@@ -307,18 +297,10 @@ export namespace HumanGait {
       "stiffLimp",
       (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.ILimp>,
-      ): IAutoMovieMotionHumanWalkGait => {
-        const walking: IAutoMovieMotionHumanWalkGait = walk.walking(
-          LIMP.froude,
-        );
-        const side: "left" | "right" = context.params.side ?? "right";
-        return {
-          ...walking,
-          step: (froude: number): number => LIMP.step * walking.step(froude),
-          limp: { side, share: LIMP.share },
-          stiff: side,
-        };
-      },
+      ): IAutoMovieMotionHumanWalkGait => ({
+        ...limping(context.params),
+        stiff: context.params.side ?? "right",
+      }),
     );
 
   /** How far a tiptoe holds the heels off the floor, degrees about the toes' joint (provisional). */
@@ -326,15 +308,10 @@ export namespace HumanGait {
 
   /** A tiptoe: the sneak's slow short steps on the balls of the feet, the heels never set down. */
   export const tiptoe: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
-    styled("tiptoe", (): IAutoMovieMotionHumanWalkGait => {
-      const walking: IAutoMovieMotionHumanWalkGait = walk.walking(SNEAK.froude);
-      return {
-        ...walking,
-        step: (froude: number): number => SNEAK.step * walking.step(froude),
-        arms: SNEAK.arms,
-        heels: TIPTOE,
-      };
-    });
+    styled(
+      "tiptoe",
+      (): IAutoMovieMotionHumanWalkGait => sneaking({ heels: TIPTOE }),
+    );
 
   /** A limp: an antalgic gait, the spared leg stood on briefly. */
   export const limp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.ILimp> =
@@ -342,16 +319,7 @@ export namespace HumanGait {
       "limp",
       (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.ILimp>,
-      ): IAutoMovieMotionHumanWalkGait => {
-        const walking: IAutoMovieMotionHumanWalkGait = walk.walking(
-          LIMP.froude,
-        );
-        return {
-          ...walking,
-          step: (froude: number): number => LIMP.step * walking.step(froude),
-          limp: { side: context.params.side ?? "right", share: LIMP.share },
-        };
-      },
+      ): IAutoMovieMotionHumanWalkGait => limping(context.params),
     );
 
   /**
@@ -381,13 +349,7 @@ export namespace HumanGait {
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IParams>,
       ): IAutoMovieMotionHumanActionPlan => {
         const l: number = context.body.measure.hipHeight;
-        const feet: IAutoMovieMotionHumanActionContext["entry"]["feet"] =
-          context.entry.feet;
-        const from: IAutoMovieVector3 = {
-          x: (feet.left.ankle.x + feet.right.ankle.x) / 2,
-          y: 0,
-          z: (feet.left.ankle.z + feet.right.ankle.z) / 2,
-        };
+        const from: IAutoMovieVector3 = middle(context);
         const to: IAutoMovieVector3 = context.params.to;
         const way: number = Math.hypot(to.x - from.x, to.z - from.z);
 
@@ -424,6 +386,63 @@ export namespace HumanGait {
     };
 }
 
+/**
+ * The longest step that has the stepping plan cover a way in a given count
+ * of steps, metres. The plan takes the fewest steps whose cruising step,
+ * the way over the count less the steps its ramps cost, is no longer than
+ * the longest (`WalkPace.fit`), and times each at the longest step over the
+ * speed; the way over the count less half a step lies in the middle of the
+ * longest steps that give the count, so the count holds while the ramps
+ * cost less than half a step.
+ */
+function counted(way: number, count: number): number {
+  return way / (count - 0.5);
+}
+
+/** Where the feet stand at the entry: their ankles' midpoint on the floor, world metres. */
+function middle(
+  context: IAutoMovieMotionHumanActionContext<object>,
+): IAutoMovieVector3 {
+  const feet: IAutoMovieMotionHumanActionContext["entry"]["feet"] =
+    context.entry.feet;
+  return {
+    x: (feet.left.ankle.x + feet.right.ankle.x) / 2,
+    y: 0,
+    z: (feet.left.ankle.z + feet.right.ankle.z) / 2,
+  };
+}
+
+/** The sneak's slow short steps with the arms held close (`HumanGait.SNEAK`), with what the variant adds: its pelvis drop or its raised heels. */
+function sneaking(
+  variant: Partial<IAutoMovieMotionHumanWalkGait>,
+): IAutoMovieMotionHumanWalkGait {
+  const walking: IAutoMovieMotionHumanWalkGait = walk.walking(
+    HumanGait.SNEAK.froude,
+  );
+  return {
+    ...walking,
+    step: (froude: number): number =>
+      HumanGait.SNEAK.step * walking.step(froude),
+    arms: HumanGait.SNEAK.arms,
+    ...variant,
+  };
+}
+
+/** The limp's slow walk on shortened steps, the spared leg stood on briefly (`HumanGait.LIMP`); the right leg spared when the parameters name none. */
+function limping(
+  params: IAutoMovieMotionHumanGait.ILimp,
+): IAutoMovieMotionHumanWalkGait {
+  const walking: IAutoMovieMotionHumanWalkGait = walk.walking(
+    HumanGait.LIMP.froude,
+  );
+  return {
+    ...walking,
+    step: (froude: number): number =>
+      HumanGait.LIMP.step * walking.step(froude),
+    limp: { side: params.side ?? "right", share: HumanGait.LIMP.share },
+  };
+}
+
 /** A mood's gait: the normal walk in the manner preset of the mood's name, a tempo factor slowing the speed by itself (the Froude number by its square), with the mood's lean. */
 function mood(
   name: "sad" | "proud",
@@ -448,7 +467,7 @@ function mood(
   };
 }
 
-/** A march's cadence and step in hip heights: its regulation's time and pace, or TC 3-21.5's quick time. */
+/** A march's cadence and step in metres: its regulation's time and pace, or TC 3-21.5's quick time. */
 function regulated(params: IAutoMovieMotionHumanGait.IMarch): {
   cadence: number;
   step: number;
@@ -469,7 +488,7 @@ function regulated(params: IAutoMovieMotionHumanGait.IMarch): {
       reason: `the ${params.regulation} regulation has no ${time} time`,
       fix: "march at one of the regulation's times",
     });
-  return { cadence, step: row.pace / 0.93 };
+  return { cadence, step: row.pace };
 }
 
 /** A walk in a gait of its own, under a name: the walk's cuts and yields, planned by its stepping plan. */
@@ -494,13 +513,7 @@ function styled<P extends IAutoMovieMotionHumanGait.IParams>(
 function distance(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IParams>,
 ): number {
-  const feet: IAutoMovieMotionHumanActionContext["entry"]["feet"] =
-    context.entry.feet;
-  let from: IAutoMovieVector3 = {
-    x: (feet.left.ankle.x + feet.right.ankle.x) / 2,
-    y: 0,
-    z: (feet.left.ankle.z + feet.right.ankle.z) / 2,
-  };
+  let from: IAutoMovieVector3 = middle(context);
   let length: number = 0;
   for (const to of [...(context.params.via ?? []), context.params.to]) {
     length += Math.hypot(to.x - from.x, to.z - from.z);

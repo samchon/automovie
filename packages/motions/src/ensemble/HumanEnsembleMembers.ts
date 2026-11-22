@@ -185,14 +185,20 @@ export namespace HumanEnsembleMembers {
       const candidates: IAutoMovieMotionHumanEnsemble.IMember[] =
         spec.pick !== undefined && typeof spec.pick !== "string"
           ? spec.pick.map(
-              (i: number): IAutoMovieMotionHumanEnsemble.IMember =>
-                members[i] !== undefined && members[i]!.role === null
+              (
+                i: number,
+                k: number,
+                all: readonly number[],
+              ): IAutoMovieMotionHumanEnsemble.IMember =>
+                members[i] !== undefined &&
+                members[i]!.role === null &&
+                all.indexOf(i) === k
                   ? members[i]!
                   : refuse(
                       `roles.${role}.pick`,
                       i,
-                      `member ${i} does not exist or already has a role`,
-                      "pick free members by index",
+                      `member ${i} does not exist, already has a role or is picked twice`,
+                      "pick distinct free members by index",
                     ),
             )
           : spec.pick === "front"
@@ -205,7 +211,10 @@ export namespace HumanEnsembleMembers {
                   .filter(
                     (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
                       m.slot === null ||
-                      m.slot.rank === rearRank(formation, m.slot.block),
+                      m.slot.rank ===
+                        (formation === undefined
+                          ? 0
+                          : HumanFormation.rear(formation, m.slot.block)),
                   )
                   .reverse()
               : spec.pick === "flank"
@@ -245,20 +254,6 @@ function placeOf(
   return { at: slot.at, yaw: slot.heading };
 }
 
-/** The last rank of a block, or 0 without a formation. */
-function rearRank(
-  formation: IAutoMovieMotionHumanFormation | undefined,
-  block: number,
-): number {
-  if (formation === undefined) return 0;
-  let last: number = 0;
-  let index: number = 0;
-  for (let b: number = 0; b < block; ++b) index += formation.blocks[b]!.count;
-  for (let k: number = 0; k < formation.blocks[block]!.count; ++k)
-    last = Math.max(last, HumanFormation.local(formation, index + k).rank);
-  return last;
-}
-
 /** The free members on a flank: file 0 first, then the last file of each block; without a formation, the first and the last. */
 function flank(
   free: readonly IAutoMovieMotionHumanEnsemble.IMember[],
@@ -266,19 +261,23 @@ function flank(
 ): IAutoMovieMotionHumanEnsemble.IMember[] {
   if (formation === undefined)
     return free.length < 2 ? [...free] : [free[0]!, free[free.length - 1]!];
-  const last: number = Math.max(
-    0,
-    ...free.map(
-      (m: IAutoMovieMotionHumanEnsemble.IMember): number => m.slot?.file ?? 0,
-    ),
-  );
+  // Each block's last file among its free members.
+  const last: Map<number, number> = new Map();
+  for (const m of free)
+    if (m.slot !== null)
+      last.set(
+        m.slot.block,
+        Math.max(last.get(m.slot.block) ?? 0, m.slot.file),
+      );
   return [
     ...free.filter(
       (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.slot?.file === 0,
     ),
     ...free.filter(
       (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
-        m.slot?.file === last && last !== 0,
+        m.slot !== null &&
+        m.slot.file !== 0 &&
+        m.slot.file === last.get(m.slot.block),
     ),
   ];
 }

@@ -9,7 +9,7 @@ Every respondent here is an exported declaration that answers in its own doc com
 
 | Contract | Respondent |
 | --- | --- |
-| [Common](common.md) | Every declaration, tests included |
+| [Common](common.md) | Every declaration outside `src/composition/`, tests included |
 | [Design](design.md) | Each type, interface, type alias and class |
 | [Implementation](implementation.md) | Each function and class method |
 | [Testing](testing.md) | Each test function |
@@ -17,6 +17,4 @@ Every respondent here is an exported declaration that answers in its own doc com
 | [Behaviors](behaviors.md) | Each function and method under `src/laws/`, `src/interactions/` and `src/consequences/` |
 | [Composition](composition.md) | Each function and method under `src/composition/` |
 
-Common, design, implementation and testing are shared engineering checklists, and each item ends by saying what its answer states. Entities, behaviors and composition are the production's own: they follow the chain from settings or brief through the screenplay to code, keep their detail in the statements file each links, and say what their respondents cite.
-
-An `@evidence` tag resolves only to a contract item or to the screenplay or instruction section its contract cites, because Evidence rejects a tag whose target its claim does not select. Name any other document a declaration follows by its path and anchor in the answer's prose.
+Use `@evidence` for selected contract items, subject records, screenplay sections or instructions. Cite other documents by path and anchor in the answer text.

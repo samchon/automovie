@@ -21,7 +21,7 @@ export namespace IAutoMovieMotionHumanDrinkingArm {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
    * @evidence contracts/development/design.md#principled-representation The readings the admission and the facing's choice compare.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members: the admission reads three, the choice the tilt.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members: the admission reads three, the choice the tilt, the refusal the twist it states with the room.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Each is read off the fitted pose, never off the goal.
    */
   export interface IArm {
@@ -36,6 +36,9 @@ export namespace IAutoMovieMotionHumanDrinkingArm {
 
     /** How far the forearm's twist lies inside its range, degrees; negative outside. */
     room: number;
+
+    /** The forearm's clinical twist, degrees, pronation positive (`HUMANOID_REST_FRAME`); what `room` is measured from, read by the refusal. */
+    twist: number;
   }
 
   /**

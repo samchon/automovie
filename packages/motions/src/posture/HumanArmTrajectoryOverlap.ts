@@ -278,6 +278,8 @@ export namespace HumanArmTrajectoryOverlap {
               shape.radius;
             if (apart >= T.REACH) return;
             if (frame.related[corner.part]?.[shape.part] === true) return;
+            // What the hand rests on lies on the hand: the goal's contact.
+            if (owners[j] === "hand" && frame.resting.has(corner.part)) return;
             const key: number = corner.part * mine.length + j;
             const known: IEmbedded | undefined = out.get(key);
             const allowance: number = c.inside(a, k, i, j);

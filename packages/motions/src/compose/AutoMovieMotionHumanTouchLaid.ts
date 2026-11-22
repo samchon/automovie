@@ -1,10 +1,8 @@
-import { Quaternion, Vector3, getConstraint } from "@automovie/engine";
+import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieAngleRange,
-  IAutoMovieBone,
+  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
@@ -15,12 +13,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchPath } from "./AutoMovieMotionHumanTouchPath";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
+import { HumanTouchArmReference } from "./HumanTouchArmReference";
 
 /**
  * An effector laid on a region at rest, before any stroke moves it: the arm
@@ -98,6 +99,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
         lean,
       ),
       AutoMovieMotionHumanBend.hang(body, posture, side),
+      along === "reach",
     );
     return (
       elbow === "level"
@@ -176,67 +178,12 @@ export namespace AutoMovieMotionHumanTouchLaid {
     );
   }
 
-  /**
-   * The reference of an arm goal: the arm the posture resolver solves for
-   * it on a posture, its forearm twist kept `MARGIN` degrees inside the
-   * forearm's range. `laid` reads it for the arm laid on a region, and a
-   * touch that keeps a held tool's rotation reads it for that arm.
-   *
-   * @param body The body.
-   * @param posture The posture the goal is solved on.
-   * @param side The arm.
-   * @param goal The arm's goal.
-   * @returns The reference.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is solved, the margin and who reads it.
-   * @evidence contracts/development/implementation.md#principled-implementation Solved by the posture resolver itself, so the reference is an arm the fit can return; its forearm twist is then kept `MARGIN` inside the forearm's range, since a reference at a range's end asks the fit to hold the joint at its limit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve, one read and one clamp.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A forearm whose range is narrower than twice the margin keeps the solved twist.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the posture resolver and its reference reading.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per call.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function reference(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    side: AutoMovieHumanSide,
-    goal: IAutoMovieHumanLimbGoal,
-  ): NonNullable<IAutoMovieHumanLimbGoal["reference"]> {
-    const limb: "leftArm" | "rightArm" = `${side}Arm`;
-    const solved: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
-      resolveHumanPosture(body, {
-        ...posture,
-        limbs: { ...posture.limbs, [limb]: goal },
-      }),
-      limb,
-    );
+  /** The laid arm's reference, from its actual fit and forearm range. */
+  export const reference: typeof HumanTouchArmReference.reference =
+    HumanTouchArmReference.reference;
 
-    // A law does not ask a joint at the end of its range: the forearm's
-    // twist is kept `MARGIN` degrees inside the forearm's own range.
-    const range: IAutoMovieAngleRange | null =
-      getConstraint(
-        `${side}LowerArm`,
-        body.skeleton.bones.find(
-          (b: IAutoMovieBone): boolean => b.bone === `${side}LowerArm`,
-        )?.constraint ?? null,
-      )?.twist ?? null;
-    if (range === null || range.max - range.min <= 2 * MARGIN) return solved;
-    return {
-      ...solved,
-      lower: [
-        solved.lower[0],
-        solved.lower[1],
-        Math.min(
-          range.max - MARGIN,
-          Math.max(range.min + MARGIN, solved.lower[2]),
-        ),
-      ],
-    };
-  }
-
-  /** How far inside the forearm's twist range a laid arm's reference keeps it, degrees (provisional). */
-  export const MARGIN: number = 5;
-
+  /** Forearm twist room required by the laid reference, degrees. */
+  export const MARGIN: number = HumanTouchArmReference.MARGIN;
   /**
    * The arm goal that lays an effector on a region at rest, before any lift
    * or travel: the goal `laid` solves and the wrist a lean is measured to.
@@ -265,7 +212,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
    */
   export function rest(
     body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
@@ -284,31 +231,35 @@ export namespace AutoMovieMotionHumanTouchLaid {
       tangent,
       side,
     );
+    const at: IAutoMovieVector3 = Vector3.add(
+      place.point,
+      Vector3.scale(
+        normal,
+        AutoMovieMotionHumanTouchEffector.pad(body, side, effector),
+      ),
+    );
+    const [faced, lying]: [IAutoMovieVector3, IAutoMovieVector3] = lie(
+      body,
+      posture,
+      side,
+      along,
+      place.point,
+      normal,
+      travel,
+      facing,
+      elbow,
+      from,
+      lean,
+    );
     return AutoMovieMotionHumanTouchEffector.goal(
       body,
       side,
       effector,
-      Vector3.add(
-        place.point,
-        Vector3.scale(
-          normal,
-          AutoMovieMotionHumanTouchEffector.pad(body, side, effector),
-        ),
-      ),
-      ...lie(
-        body,
-        posture,
-        side,
-        along,
-        place.point,
-        normal,
-        travel,
-        facing,
-        elbow,
-        from,
-        lean,
-      ),
+      at,
+      faced,
+      lying,
       hint,
+      along === "reach",
     );
   }
 
@@ -326,12 +277,13 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @param tangent Which tangent.
    * @param elbow Where the elbow lies: the place of least strain, or `level` with the shoulder; least strain when absent.
    * @returns The elbow's place, world: the lay's origin and the bend hint.
+   * @throws {HumanRefusal} A `reach` refusal on `elbow` when the elbow still moves by more than the solver resolves after the rounds a halving would need.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two unknowns, why they depend on each other and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation A fixed-point iteration from the elbow the body's measures give: three rounds of the goal a hand from that elbow asks and the elbow that goal's wrist bends at.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of `rest` and one elbow solve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The round count is fixed, so the result is a function of its inputs alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three bounded swivel sweeps per touch.
+   * @evidence contracts/development/common.md#meaningful-documentation States the two unknowns, why they depend on each other, what is returned and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A fixed-point iteration from the elbow the body's measures give: rounds of the goal a hand from that elbow asks and the elbow that goal's wrist bends at, until the elbow moves less than the swivel resolution swept on the upper arm; the round bound is the halvings of two upper arms down to that tolerance.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of `rest` and one elbow solve, stopped by the tolerance.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tolerance and the bound are derived from the solver's resolution and the arm, so the result is a function of its inputs alone; an elbow that does not settle is refused, never returned unsettled.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One bounded swivel sweep a round, as many rounds as the elbow takes to settle and at most the derived bound.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `rest` and the bend solver.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -350,7 +302,22 @@ export namespace AutoMovieMotionHumanTouchLaid {
       posture,
       side,
     );
-    for (let round: number = 0; round < 3; ++round) {
+
+    // Settled when the elbow moves less than the solver resolves it: its
+    // swivel resolution (`hingedArmSwivel.RESOLUTION`) swept on the upper
+    // arm. Two elbows of one shoulder lie within two upper arms, so a
+    // settling at least as fast as halving meets that within as many rounds
+    // as halvings of two upper arms down to it; one still moving refuses.
+    const tolerance: number =
+      (body.measure.upperArm * hingedArmSwivel.RESOLUTION * Math.PI) / 180;
+    const rounds: number =
+      Math.ceil(Math.log2((2 * body.measure.upperArm) / tolerance)) + 1;
+    let moved: number = Infinity;
+    for (
+      let round: number = 0;
+      round < rounds && !(moved <= tolerance);
+      ++round
+    ) {
       const goal: IAutoMovieHumanLimbGoal = rest(
         body,
         posture,
@@ -364,7 +331,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
         elbow,
         from,
       );
-      hint = (
+      const next: IAutoMovieVector3 = (
         elbow === "level"
           ? AutoMovieMotionHumanBend.level
           : AutoMovieMotionHumanBend.solve
@@ -376,8 +343,33 @@ export namespace AutoMovieMotionHumanTouchLaid {
         rotation: goal.rotation!,
         fallback: "hang",
       });
-      from = hint;
+      // The line into the place runs from the elbow the arm takes for that
+      // hand on this bend, so the hand laid on it continues the forearm.
+      const taken: IAutoMovieVector3 = poseBones(
+        body,
+        resolveHumanPosture(body, {
+          ...posture,
+          limbs: { ...posture.limbs, [`${side}Arm`]: { ...goal, bend: next } },
+        }),
+        undefined,
+        new Set<AutoMovieHumanoidBone>([`${side}LowerArm`]),
+      ).get(`${side}LowerArm`)!.worldPosition;
+      moved = Math.max(
+        Vector3.distance(next, hint),
+        Vector3.distance(taken, from ?? hint),
+      );
+      hint = next;
+      from = taken;
     }
+    if (!(moved <= tolerance))
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "elbow",
+        value: elbow,
+        feasible: null,
+        reason: `the ${side} elbow and the hand it carries end on did not settle: after ${rounds} rounds the elbow still moved ${(moved * 1000).toFixed(1)} mm`,
+        fix: "lay the effector across the region instead of end on, or move the region nearer the shoulder",
+      });
     return hint;
   }
 
@@ -388,7 +380,8 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * into the place, with the along axis on the world's up as nearly as that
    * line allows (`reach`); or the world's up with the effector facing
    * against a level direction, the region's level normal unless one is
-   * given (`upright`). An `upright` region facing straight up or down with
+   * given (`upright`); or the touched limb's long axis (`facing`) square to
+   * the normal (`limb`). An `upright` region facing straight up or down with
    * no direction given, and a `reach` line that runs straight up or down,
    * fall back to the travel's tangent for the along axis.
    *
@@ -399,7 +392,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @param point The region's point, world.
    * @param normal The region's outward unit normal, world.
    * @param travel The travel's unit tangent on the region, world.
-   * @param facing With `upright`, the level direction the effector faces against; the region's level normal when absent.
+   * @param facing With `upright`, the level direction the effector faces against; the region's level normal when absent. With `limb`, the touched limb's long axis; the travel when absent.
    * @param elbow Where the elbow lies, which `arm` and `reach` lay the effector from; the place of least strain when absent.
    * @param from With `reach`, the elbow's place, world; read from the body's measures when absent.
    * @param lean With `upright`, how far the vessel's axis leans from the world's up toward the region, degrees, the facing turned with it; upright when absent.
@@ -457,6 +450,19 @@ export namespace AutoMovieMotionHumanTouchLaid {
       );
       return [
         Vector3.scale(way, -1),
+        Vector3.length(across) > 1e-6 ? Vector3.normalize(across) : travel,
+      ];
+    }
+    if (lay === "limb") {
+      // A flat effector lies along the touched limb, square to the normal,
+      // where the segment does not curve away under it.
+      const axis: IAutoMovieVector3 = facing ?? travel;
+      const across: IAutoMovieVector3 = Vector3.subtract(
+        axis,
+        Vector3.scale(normal, Vector3.dot(axis, normal)),
+      );
+      return [
+        normal,
         Vector3.length(across) > 1e-6 ? Vector3.normalize(across) : travel,
       ];
     }

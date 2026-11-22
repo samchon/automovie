@@ -4,6 +4,8 @@ import {
   type IAutoMovieRestFrame,
 } from "@automovie/interface";
 
+import { BendClinicalNodes } from "../../kinematics/BendClinicalNodes";
+
 /** Bones of each arm from the clavicle to the fingertips, without the side prefix. */
 const ARM: readonly string[] = [
   "Shoulder",
@@ -87,3 +89,5 @@ export const HUMANOID_REST_FRAME: Partial<
   set("rightUpperArm", "abduction", { sign: -1, neutral: 90 });
   return table;
 })();
+
+BendClinicalNodes.record(HUMANOID_REST_FRAME);

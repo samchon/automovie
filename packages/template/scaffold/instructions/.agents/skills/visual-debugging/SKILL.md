@@ -5,9 +5,9 @@ description: Captures, compares and corrects a production's pictures.
 
 # Visual debugging
 
-Readiness or numerical success proves no appearance; only an observed picture does. You read every picture as stills, so each judgment starts from a planned capture. The skill of each subject owns what to look for in its picture.
+Use planned stills to inspect form, placement and contact. Judge pace from [continuous playback](../review/delivery-review.md#video). Each subject's skill sets what to look for.
 
-The instrument is the installed render package's inspection and capture core, which the inspector page and the capture command drive with one request, so a picture worked out on the page repeats as a capture. The project README says how to run both, and the render package's README lists every request key with the requirement it serves. When the instrument lacks a view, pass or selection the judgment needs, tell the user rather than judging without it.
+The installed renderer drives both the inspector and capture from one request. Read the production README for commands and the renderer README for request keys. Report missing views, passes or selections before judging.
 
 | Read | To |
 | --- | --- |

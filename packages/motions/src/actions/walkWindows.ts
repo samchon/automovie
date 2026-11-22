@@ -1,6 +1,5 @@
 import type {
   IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanWalkSteps,
 } from "@automovie/interface";
@@ -31,44 +30,29 @@ export namespace walkWindows {
   /**
    * The events and contact windows of a gait's footstep plan.
    *
-   * @param body The body.
    * @param steps The gait's footstep plan.
-   * @param pelvis The pelvis joint's clinical angles at a second, degrees.
    * @returns The plan's named instants and its stances' windows, in the stances' order, as shares of the plan's duration.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the results.
-   * @evidence contracts/development/implementation.md#principled-implementation Each instant is its second over the duration; a stance is read at `STEP` for the spin `walkReach.pelvis` gives its foot, and split into runs where the foot spins and where it stands.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One map for the instants, one pass per stance.
+   * @evidence contracts/development/implementation.md#principled-implementation Each instant is its second over the duration. At each original STEP, walkReach.footPivot reads the same stance foot's spin as the full pelvis would and splits the window on changes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass for the instants and one pass per stance.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A stance in which the foot never spins stays one plant, as before.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One read per `STEP` of stance.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One yaw and one foot query per original STEP of stance, with no opposite-foot, root, pelvic-angle or FK demand.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The pivot formula is shared with full pelvis placement. No sampled result is kept.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns new arrays and retains nothing.
    */
   export function of(
-    body: IAutoMovieMotionHumanBody,
     steps: IAutoMovieMotionHumanWalkSteps.IPlan,
-    pelvis: (seconds: number) => readonly [number, number, number],
-  ): {
-    events: IAutoMovieMotionEvent[];
-    contacts: IAutoMovieMotionHumanContactWindow[];
-  } {
+  ): IWindows {
     const duration: number = steps.duration;
-    const events: IAutoMovieMotionEvent[] = steps.events.map(
-      (e: { name: string; seconds: number }): IAutoMovieMotionEvent => ({
-        name: e.name,
-        share: e.seconds / duration,
-      }),
-    );
-    const spins = (side: "left" | "right", t: number): boolean =>
-      walkReach.pelvis(body, steps.root(t), steps.yaw(t), pelvis(t), {
-        left: steps.foot("left", t),
-        right: steps.foot("right", t),
-      }).pivots[side] !== 0;
+    const events: IAutoMovieMotionEvent[] = [];
+    for (const event of steps.events)
+      events.push({ name: event.name, share: event.seconds / duration });
     const contacts: IAutoMovieMotionHumanContactWindow[] = [];
     for (const stance of steps.stances) {
       const part: "leftFoot" | "rightFoot" =
         stance.side === "left" ? "leftFoot" : "rightFoot";
-      const push = (
+      const push: (kind: "plant" | "pivot", from: number, to: number) => void = (
         kind: "plant" | "pivot",
         from: number,
         to: number,
@@ -82,13 +66,15 @@ export namespace walkWindows {
         });
       };
       let start: number = stance.from;
-      let spinning: boolean = spins(stance.side, stance.from);
+      const spins: (t: number) => boolean = (t: number): boolean =>
+        walkReach.footPivot(steps.yaw(t), steps.foot(stance.side, t)) !== 0;
+      let spinning: boolean = spins(stance.from);
       for (
         let t: number = stance.from + STEP;
         t < stance.to - 1e-9;
         t += STEP
       ) {
-        const now: boolean = spins(stance.side, t);
+        const now: boolean = spins(t);
         if (now === spinning) continue;
         push(spinning ? "pivot" : "plant", start, t);
         start = t;
@@ -98,4 +84,10 @@ export namespace walkWindows {
     }
     return { events, contacts };
   }
+}
+
+/** The distinct events and contact windows on a gait's clock. */
+interface IWindows {
+  events: IAutoMovieMotionEvent[];
+  contacts: IAutoMovieMotionHumanContactWindow[];
 }

@@ -462,25 +462,8 @@ export function assertContourLoftBoundaryCore(): {
           orientation: number;
         } => ({ edge, ...record }),
       );
-    console.log(
-      JSON.stringify({
-        schema: "generic-contour-composition-observation-v1",
-        winding,
-        finiteTriangles: composition.mesh.indices!.length / 3,
-        rawBankEdges: bankEdges,
-        badRawBankEdges: badBankEdges,
-        overfull,
-        stripsQualified: composition.stripObservations?.map(
-          (
-            record: NonNullable<
-              IAutoMovieContourLoft64.IResult["stripObservations"]
-            >[number],
-          ): boolean => record.qualified,
-        ),
-      }),
-    );
     TestValidator.predicate(
-      "split/merge composition retains finite geometry and both shared contour banks",
+      `split/merge composition retains finite geometry and both shared contour banks (bank edges ${bankEdges}, bad ${badBankEdges}, overfull ${JSON.stringify(overfull)})`,
       composition.mesh.indices!.length > 0 &&
         bankEdges > 0 &&
         badBankEdges === 0,

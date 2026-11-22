@@ -1,0 +1,179 @@
+import { Vector3 } from "@automovie/engine";
+
+import {
+  Archetype,
+  ArchetypeBand,
+  ArchetypeBuilder,
+  ArchetypeDraw,
+  ArchetypeDrawSession,
+  ArchetypeFrame,
+  type IArchetypeBand,
+} from "../core";
+
+/** The rules the figures come from. */
+const RULES: string =
+  "World Athletics Technical Rules (2020 edition), TR32.6: a throwing circle's inside diameter 2.135 m for the shot and the hammer and 2.50 m for the discus, each within 5 mm; TR32.9 and TR33: the javelin runway 4 m wide ending in an arc of 8 m radius (https://athletics.lv/file/download/61151)";
+
+/**
+ * A field event's throwing place: a throwing circle for the shot, the
+ * discus or the hammer, or the end of the javelin's runway with its arc.
+ *
+ * The throw goes along `+Z`. A circle stands on the floor centred on the origin; `circle` is its top, `+Y` up, its width and depth the inside diameter. A javelin runway ends at the origin, where the middle of its arc crosses the runway's axis; `arc` is that point on the floor, `+Y` up, its width the runway's and its depth the arc's radius, whose centre lies that far back along `-Z`.
+ *
+ * @param params The event and any figure the author fixes.
+ * @param seed The seed that draws each figure left free inside its band; absent, the middle of each band.
+ * @returns The throwing place.
+ * @throws {ArchetypeRefusal} For an unknown event or a fixed figure outside its band.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the layout, the frame and the contact of each event.
+ * @evidence contracts/development/implementation.md#principled-implementation A thin ring of the rule's inside diameter, or a runway strip ending at the arc's middle, with one surface contact at the floor.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the figures, then the circle or the runway end.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No stop board, sector lines or cage; the ring's band width and the mass are named estimates; the runway's arc is drawn as its chord.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One part.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ */
+export function createThrowingCircle(
+  params: createThrowingCircle.IParams,
+  seed?: number | string,
+): Archetype<createThrowingCircle.Affordance, createThrowingCircle.Dimension> {
+  const draw: ArchetypeDrawSession<createThrowingCircle.Dimension> =
+    new ArchetypeDrawSession<createThrowingCircle.Dimension>(
+      "throwingCircle",
+      createThrowingCircle.UNITS,
+      seed,
+      params,
+    );
+  const event: createThrowingCircle.Event = ArchetypeDraw.choice(
+    "throwingCircle",
+    "event",
+    params.event,
+    createThrowingCircle.EVENTS,
+  );
+  const d: Partial<Record<createThrowingCircle.Dimension, number>> =
+    draw.dimensions(
+      createThrowingCircle.BANDS[event],
+      createThrowingCircle.BANDS,
+    );
+  const builder: ArchetypeBuilder<
+    createThrowingCircle.Affordance,
+    createThrowingCircle.Dimension
+  > = new ArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: `${event} throwing ${event === "javelin" ? "runway" : "circle"}`,
+    draw,
+  });
+  if (event === "javelin") {
+    const width: number = d.width!;
+    const radius: number = d.radius!;
+    builder.box(
+      "runway",
+      Vector3.create(width, createThrowingCircle.LINE, 4 * width),
+      Vector3.create(0, createThrowingCircle.LINE / 2, -2 * width),
+      { color: "#b5553a" },
+    );
+    builder.affordance({
+      id: "arc",
+      kind: "surface",
+      frame: ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+      extent: null,
+      width,
+      depth: radius,
+    });
+    return builder.build(d.mass!);
+  }
+  const diameter: number = d.diameter!;
+  builder.box(
+    "circle",
+    Vector3.create(diameter, createThrowingCircle.LINE, diameter),
+    Vector3.create(0, createThrowingCircle.LINE / 2, 0),
+    { color: "#9a9ea3" },
+  );
+  builder.affordance({
+    id: "circle",
+    kind: "surface",
+    frame: ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    extent: null,
+    width: diameter,
+    depth: diameter,
+  });
+  return builder.build(d.mass!);
+}
+
+/**
+ * Companion types, constants and bands of {@link createThrowingCircle}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Each event, affordance, dimension and constant states what it is and where it comes from.
+ * @evidence contracts/development/design.md#principled-representation A closed union of events, each with the bands its rule gives.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The circle or the arc, the one contact a throw reads.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The diameters, width and radius are the rules'; only the marking's height and the mass are estimates.
+ */
+export namespace createThrowingCircle {
+  /** The marking's height above the floor, metres: an estimate drawn so the place shows. */
+  export const LINE: number = 0.005;
+
+  /** The events. */
+  export type Event = "shot" | "discus" | "hammer" | "javelin";
+
+  /** Every event, for a caller that reads one at run time. */
+  export const EVENTS: readonly Event[] = [
+    "shot",
+    "discus",
+    "hammer",
+    "javelin",
+  ];
+
+  /** The affordance ids: `circle`, a circle's top; `arc`, the javelin arc's middle. */
+  export type Affordance = "circle" | "arc";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `diameter`: a circle's inside diameter.
+   * - `width`: the javelin runway's width.
+   * - `radius`: the javelin arc's radius.
+   * - `mass`: kilograms, of the marking (an estimate).
+   */
+  export type Dimension = "diameter" | "width" | "radius" | "mass";
+
+  /** Each dimension's unit. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    width: "m",
+    radius: "m",
+    mass: "kg",
+  };
+
+  /** The parameters: the event and any figure fixed inside its band. */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** The event the place serves. */
+    event: Event;
+
+    /** The model's id, unique in a scene; `throwingCircle` when absent. */
+    id?: string;
+  }
+
+  /** The mass band shared by every event: an estimate of a painted or metal marking. */
+  const MASS: IArchetypeBand = ArchetypeBand.of(
+    "kg",
+    5,
+    20,
+    "an estimate of the marking alone",
+    true,
+  );
+
+  /** The bands of each event. */
+  export const BANDS: Readonly<
+    Record<Event, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+  > = {
+    shot: { diameter: ArchetypeBand.metres(2.13, 2.14, RULES), mass: MASS },
+    hammer: { diameter: ArchetypeBand.metres(2.13, 2.14, RULES), mass: MASS },
+    discus: { diameter: ArchetypeBand.metres(2.495, 2.505, RULES), mass: MASS },
+    javelin: {
+      width: ArchetypeBand.metres(4, 4, RULES),
+      radius: ArchetypeBand.metres(8, 8, RULES),
+      mass: MASS,
+    },
+  };
+}

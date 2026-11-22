@@ -8,7 +8,7 @@ Tracing turns a performer in footage, such as a dancer, into the polygon man's m
 | Keys for the composed performance | Poses at chosen instants |
 | A performance study | Timing, ranges and paths |
 
-A clip to trace comes from footage or a generated video, and its motion is cleaned, then [retargeted](../retargeting.md) onto the cast member. Between traced keys the vocabulary [composes](../compose/composition.md), or a model in-betweens under [hints](hints.md). A study is traced from real footage only, and its values are recorded as estimates with their method.
+Clean traced footage or generated motion, then [retarget](../retargeting.md) to the cast member. Fill gaps with [composition](../compose/composition.md) or [model in-betweening](hints.md). For studies, use real footage and record estimates and method.
 
 ## Source footage
 
@@ -33,13 +33,13 @@ Estimators and capture services agree on the footage they need:
 - at least 1080p at the camera's highest frame rate, since fast motion blurs and skips poses between frames;
 - floor work shot from a three-quarter angle, and hands large in frame where fingers matter.
 
-Several cameras around the performer, calibrated together, recover what one camera hides, such as spins and floor work.
+Use jointly calibrated cameras when one view hides required motion.
 
 ## Motion recovery
 
 ### Estimation
 
-Estimate the body and its world path with a model that grounds the motion, stating whether the camera was static or moving and its focal length where known, because a wrong assumption bends the root path. Resample the footage to the frame rate the estimator expects, because some time their output by a fixed rate. Estimate fingers separately where the shot shows them. [Motion models](models.md#pose-estimators) shows current estimators.
+Use a [grounded estimator](models.md#pose-estimators). Record camera motion and known focal length. Resample to its expected rate. Estimate fingers separately where visible.
 
 ### Cleanup
 
@@ -54,6 +54,6 @@ The [One Euro filter](https://gery.casiez.net/1euro/) is one speed-adaptive filt
 
 ### Verification
 
-Overlay the reprojected skeleton on the source footage and compare them on consecutive frames under [comparison](../../visual-debugging/comparison.md), first at fast moves, spins and contacts. Measure foot sliding on frames where a foot is planted, and for dance the offset of each accented move from the music's beat. A trace that the footage contradicts is cleaned again or re-shot, never accepted for its look.
+Compare consecutive reprojected frames with the source under [comparison](../../visual-debugging/comparison.md). Start with fast moves, spins and contacts. Measure planted-foot slide and accented dance timing against the beat. Clean or reshoot a contradicted trace.
 
 Sources: [Rokoko capture](https://support.rokoko.com/hc/en-us/articles/48823622640785-Best-Practices-for-Video-Capture-Rokoko-Vision-3-0), [DeepMotion capture](https://deepmotion.com/article/single-person-capture-guidelines-for-animate-3d), [Plask](https://plask.ai/docs/44), [Pose2Sim](https://github.com/perfanalytics/pose2sim), Hanagami v. Epic Games, 85 F.4th 931 (9th Cir. 2023), [GVHMR paper](https://arxiv.org/html/2409.06662), [Cascadeur dance cleanup](https://cascadeur.com/tutor/kpopdancemocapcleanup), [Copyright Office Circular 52](https://www.copyright.gov/circs/circ52.pdf), [YouTube terms](https://www.youtube.com/t/terms), [TikTok terms](https://www.tiktok.com/legal/page/us/terms-of-service/en), [SMPL license](https://smpl.is.tue.mpg.de/modellicense.html), [EDGE](https://github.com/Stanford-TML/EDGE).

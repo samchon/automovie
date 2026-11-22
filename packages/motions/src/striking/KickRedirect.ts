@@ -9,6 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { KickGeometry } from "./KickGeometry";
+import { KickLaunch } from "./KickLaunch";
 
 /**
  * A round kick redirected before its chamber key into another round kick (a
@@ -28,83 +29,129 @@ import { KickGeometry } from "./KickGeometry";
  * whole carriage, which no single displacement of the ankle expresses.
  */
 export namespace KickRedirect {
+  /** The redirecting kick's parameters and draws on its source's context and clock. */
+  function redirected(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
+    source: IAutoMovieMotionHumanKickGeometry.ISource,
+  ): IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams> {
+    return {
+      ...source.context,
+      params: context.params,
+      random: context.random,
+      start: source.start,
+    };
+  }
+
+  /**
+   * A redirecting kick's launch: the new target read on the source's clock,
+   * keeping the source's line and step (`KickLaunch`).
+   *
+   * @param context The redirecting kick's context, starting at the cut.
+   * @param source The kick it continues.
+   * @param before The launch this redirect made before, when it has one.
+   * @returns The launch; the one before when it reads the same and the source still keeps the same line and step.
+   */
+  export function launch(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
+    source: IAutoMovieMotionHumanKickGeometry.ISource,
+    before: KickLaunch.ILaunch | undefined,
+  ): KickLaunch.ILaunch {
+    const old: IAutoMovieMotionHumanKickGeometry = source.geometry();
+    return KickLaunch.of(
+      redirected(context, source),
+      source.timing,
+      source.start,
+      { line: old.line, step: old.carriage.step, drive: old.carriage.drive },
+      before,
+    );
+  }
+
   /**
    * Build a redirect's geometry.
    *
    * @param context The redirecting kick's context, starting at the cut.
    * @param source The kick it continues.
    * @param fixed The contact second the performance committed: null when the leg met nothing, undefined when the kick offers no weapon.
+   * @param launch The redirecting kick's launch (`launch`).
    * @returns The geometry, on the source's clock.
    */
   export function build(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
     source: IAutoMovieMotionHumanKickGeometry.ISource,
     fixed: number | null | undefined,
+    launch: KickLaunch.ILaunch,
   ): IAutoMovieMotionHumanKickGeometry {
     const body: IAutoMovieMotionHumanBody = context.body;
     const timing: IAutoMovieMotionHumanKickGeometry.ITiming = source.timing;
     const t0: number = source.start;
     const old: IAutoMovieMotionHumanKickGeometry = source.geometry();
     const fresh: IAutoMovieMotionHumanKickGeometry = KickGeometry.build(
-      {
-        ...source.context,
-        params: context.params,
-        random: context.random,
-        start: t0,
-      },
+      redirected(context, source),
       timing,
       t0,
       fixed,
-      { line: old.line, step: old.carriage.step },
+      launch,
     );
     const cut: number = context.start - t0;
     const span: number = Math.max(1e-3, timing.impact - cut);
-    const blend = (t: number): number => minimumJerk((t - cut) / span).s;
+    const blend = (t: number): number => minimumJerk.share((t - cut) / span);
     const mix = (from: number, to: number, w: number): number =>
       from + (to - from) * w;
-    return KickGeometry.compose(body, timing, t0, {
-      line: fresh.line,
-      carriage: fresh.carriage,
-      base: fresh.base,
-      shown: (turning: number): IAutoMovieMotionHumanKickGeometry.ICarriage => {
-        const w: number = blend(turning);
-        const from: IAutoMovieMotionHumanKickGeometry.ICarriage =
-          old.shown(turning);
-        const to: IAutoMovieMotionHumanKickGeometry.ICarriage =
-          fresh.shown(turning);
-        return {
-          turn: mix(from.turn, to.turn, w),
-          lean: mix(from.lean, to.lean, w),
-          pitch: mix(from.pitch, to.pitch, w),
-          step: to.step,
-        };
+    return KickGeometry.compose(
+      body,
+      timing,
+      t0,
+      {
+        line: fresh.line,
+        carriage: fresh.carriage,
+        base: fresh.base,
+        shown: (
+          turning: number,
+        ): IAutoMovieMotionHumanKickGeometry.ICarriage => {
+          const w: number = blend(turning);
+          const from: IAutoMovieMotionHumanKickGeometry.ICarriage =
+            old.shown(turning);
+          const to: IAutoMovieMotionHumanKickGeometry.ICarriage =
+            fresh.shown(turning);
+          return {
+            turn: mix(from.turn, to.turn, w),
+            lean: mix(from.lean, to.lean, w),
+            pitch: mix(from.pitch, to.pitch, w),
+            step: to.step,
+            drive: to.drive,
+          };
+        },
+        leg: (
+          clock: number,
+          base: IAutoMovieMotionHumanPosture,
+          shift: IAutoMovieVector3,
+          hip?: IAutoMovieVector3,
+        ): IAutoMovieMotionHumanKickGeometry.ILeg => {
+          const from: IAutoMovieMotionHumanKickGeometry.ILeg = old.leg(
+            clock,
+            base,
+            shift,
+            hip,
+          );
+          const to: IAutoMovieMotionHumanKickGeometry.ILeg = fresh.leg(
+            clock,
+            base,
+            shift,
+            hip,
+          );
+          const w: number = blend(clock);
+          return {
+            ankle: Vector3.lerp(from.ankle, to.ankle, w),
+            hint: Vector3.lerp(from.hint, to.hint, w),
+            rotation: Quaternion.slerp(from.rotation, to.rotation, w),
+          };
+        },
+        origin: fresh.origin,
+        back: fresh.back,
+        contacts: fresh.contacts,
+        record: fresh.record,
       },
-      leg: (
-        clock: number,
-        base: IAutoMovieMotionHumanPosture,
-        shift: IAutoMovieVector3,
-      ): IAutoMovieMotionHumanKickGeometry.ILeg => {
-        const from: IAutoMovieMotionHumanKickGeometry.ILeg = old.leg(
-          clock,
-          base,
-          shift,
-        );
-        const to: IAutoMovieMotionHumanKickGeometry.ILeg = fresh.leg(
-          clock,
-          base,
-          shift,
-        );
-        const w: number = blend(clock);
-        return {
-          ankle: Vector3.lerp(from.ankle, to.ankle, w),
-          hint: Vector3.lerp(from.hint, to.hint, w),
-          rotation: Quaternion.slerp(from.rotation, to.rotation, w),
-        };
-      },
-      origin: fresh.origin,
-      back: fresh.back,
-      contacts: fresh.contacts,
-      record: fresh.record,
-    });
+      launch.props.recovery,
+    );
   }
 }

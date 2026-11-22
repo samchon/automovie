@@ -13,7 +13,7 @@ const APPLICATION: {
 } = {
   copyPage: false,
   layout: "full",
-  footer: false,
+  footer: true,
   sidebar: false,
   toc: false,
   breadcrumb: false,
@@ -23,43 +23,15 @@ const APPLICATION: {
 
 /**
  * The site's top-level pages, in the order the navigation bar lists them.
- * The index is the landing page, which the logo links to, so it is hidden
- * from the list.
+ * The index is the landing page, which the logo links to. The guide, the
+ * reference and the playground are in the bar; the catalogues a film is
+ * composed with (motions, archetypes, scene studies) and the TypeDoc API are
+ * listed in the reference's sidebar. Former addresses stay as hidden pages
+ * that forward.
  */
 const meta: MetaRecord = {
   index: {
     title: "AutoMovie",
-    type: "page",
-    display: "hidden",
-    theme: { ...APPLICATION, footer: true },
-  },
-  scenes: {
-    title: "Scenes",
-    type: "page",
-    theme: APPLICATION,
-  },
-  motions: {
-    title: "Motions",
-    type: "page",
-    theme: APPLICATION,
-  },
-  objects: {
-    title: "Objects",
-    type: "page",
-    theme: APPLICATION,
-  },
-  human: {
-    title: "Human",
-    type: "page",
-    theme: APPLICATION,
-  },
-  playground: {
-    title: "Playground",
-    type: "page",
-    theme: APPLICATION,
-  },
-  gallery: {
-    title: "Gallery",
     type: "page",
     display: "hidden",
     theme: APPLICATION,
@@ -67,6 +39,54 @@ const meta: MetaRecord = {
   docs: {
     title: "Docs",
     type: "page",
+  },
+  reference: {
+    title: "Reference",
+    type: "page",
+  },
+  playground: {
+    title: "Playground",
+    type: "page",
+    theme: APPLICATION,
+  },
+  // The catalogues are pages of their own, hidden from the bar because the
+  // reference's sidebar lists them; objects, gallery and human are former
+  // addresses that forward.
+  scenes: {
+    title: "Scene studies",
+    type: "page",
+    display: "hidden",
+    theme: APPLICATION,
+  },
+  motions: {
+    title: "Motions",
+    type: "page",
+    display: "hidden",
+    theme: APPLICATION,
+  },
+  archetypes: {
+    title: "Archetypes",
+    type: "page",
+    display: "hidden",
+    theme: APPLICATION,
+  },
+  objects: {
+    title: "Archetypes",
+    type: "page",
+    display: "hidden",
+    theme: APPLICATION,
+  },
+  gallery: {
+    title: "Archetypes",
+    type: "page",
+    display: "hidden",
+    theme: APPLICATION,
+  },
+  human: {
+    title: "AutoMovie",
+    type: "page",
+    display: "hidden",
+    theme: APPLICATION,
   },
 };
 export default meta;

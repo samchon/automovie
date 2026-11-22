@@ -177,6 +177,9 @@ export function compileDefinedShot<Context>(
       formations: props.runtime.formations,
       formationMotions: props.runtime.formationMotions,
       lightMotions: props.runtime.lightMotions,
+      practicalLights: props.runtime.practicalLights,
+      practicalSurfaces: program.practicalSurfaces,
+      polygonBodyCues: program.polygonBodyCues,
       objectMotions: props.runtime.objectMotions,
       props: props.runtime.props,
       frameFormat: props.runtime.frameFormat,
@@ -282,6 +285,7 @@ export function compileDefinedShot<Context>(
         opening: resumeOpeningSnapshot(
           resolveBeatOpening(continuityProps),
           prior,
+          staged.supports,
         ),
         closing: resolveBeatEnd(continuityProps),
       },
@@ -307,12 +311,19 @@ export function compileDefinedShot<Context>(
   }
 }
 
-/** Keep resumable simulation facts authoritative at the new opening instant. */
+/** Carry the prior facts at the opening, except static pins released by an explicitly suspended support. */
 function resumeOpeningSnapshot(
   opening: IAutoMovieBeatEndState,
   prior: IPriorActors | null,
+  supports: IAutoMovieStagedSet.ISuccess["supports"],
 ): IAutoMovieBeatEndState {
   if (prior === null) return opening;
+  const suspended: Set<string> = new Set(
+    (supports ?? []).flatMap(
+      (support: NonNullable<typeof supports>[number]): string[] =>
+        support.windows[0]!.surfaces.length === 0 ? [support.node] : [],
+    ),
+  );
   return {
     ...opening,
     actors: opening.actors.map(
@@ -326,7 +337,9 @@ function resumeOpeningSnapshot(
               ...actor,
               gaitPhase: state.gaitPhase,
               rootVelocity: structuredClone(state.rootVelocity),
-              footPlants: structuredClone(state.footPlants),
+              footPlants: suspended.has(actor.node)
+                ? actor.footPlants
+                : structuredClone(state.footPlants),
               mount: structuredClone(state.mount),
             };
       },

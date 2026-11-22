@@ -107,7 +107,7 @@ export const validateGroundContact: (
       const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         new Map(
           resolvePose(
-            sampleMotion(props.motion, time).pose,
+            sampleMotion.pose(props.motion, time),
             props.skeleton,
             props.jointAxes,
             props.restFrames,

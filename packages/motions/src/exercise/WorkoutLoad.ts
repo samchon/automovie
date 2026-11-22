@@ -14,14 +14,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import { StrikingHeld } from "../striking/StrikingHeld";
+import { StrikingRoll } from "../striking/StrikingRoll";
 
 /**
  * The load a workout is done with: a prop the performer already holds (a
@@ -31,7 +37,7 @@ import { StrikingHeld } from "../striking/StrikingHeld";
  * The hand that holds keeps its grip: the plan declares the grip and
  * leaves the hold as it found it, so the prop rides that hand. A prop held
  * in one hand asks no more. A prop with a second handle (a bar) is laid
- * level: the holding hand stays where the key's arm puts it and is turned
+ * level: the holding hand swings about its shoulder to centre the bar and turns
  * so the line to the other handle runs to the performer's other side with
  * the knuckles continuing the forearm, and
  * the other hand is laid on that handle by the arm's solve, as a long gun's
@@ -75,15 +81,17 @@ export namespace WorkoutLoad {
    * @param context The action's context.
    * @param load The load's parameters.
    * @param midfoot Whether a bar in both hands travels over the middle of the feet.
+   * @param turnover Whether to preserve the keyed shoulder-to-bar direction through turnover and the overhead receive.
+   * @param ready The share where the second hand first reaches the load in the exercise.
    * @returns What the plan needs of it.
-   * @throws {HumanRefusal} When the hand does not hold the prop, or the prop lacks the other handle.
+   * @throws {HumanRefusal} When the hand does not hold the prop, either handle is unavailable, or the two handles coincide.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation One hand: the held owner's grip and hold. Two hands: the stroke planner's tool whose working point is the other handle; the holding hand's grip socket is kept where the key's joints put it and the tool's line is turned level toward the other side, then the other hand is placed on the working point with its knuckles the way the holding hand's face.
+   * @evidence contracts/development/implementation.md#principled-implementation One hand: the held owner's grip and hold. Two hands: the stroke planner's tool whose working point is the other handle; the bar is centred across the body at the keyed shoulder-to-grip distance and its line is turned level toward the other side, then the other hand is placed on the working point with its knuckles the way the holding hand's face.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the hold once, then one frame and two arm goals per posture.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The refusals are the held owner's and the tool's own; nothing is grasped here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics and two elbow solves per posture with a second hand.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the held owner, the held tool's frame and goal, the hand's placement and the elbow solve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Held-prop admission belongs to the held and tool owners. Two-hand admission rejects coincident sockets and reads the achieved second grip at the authored load phases.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two-handed placement requests only the holding shoulder/elbow/wrist from FK; mid-foot geometry exists only for midfoot rows. The other hand's one actual wrist placement serves both its original elbow solve and final goal, while both original elbow searches remain.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The other hand's fist shape and holding-chain demand prepare once for unchanged body/side. Apply borrows one synchronous parent FK/ROM source, and prepareBoth shares only actual unchanged body-frame/TRUNK geometry between the original holding-side then other-side elbow searches. Every current target still solves normally.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The record closes over the tool read at plan time.
    */
   export function of(
@@ -93,6 +101,8 @@ export namespace WorkoutLoad {
     >,
     load: IAutoMovieMotionHumanWorkoutLoad.IParams,
     midfoot: boolean = false,
+    turnover: boolean = false,
+    ready: number = 0,
   ): IAutoMovieMotionHumanWorkoutLoad.ILoad {
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const side: AutoMovieHumanSide = load.hand ?? "right";
@@ -137,63 +147,125 @@ export namespace WorkoutLoad {
 
     // The bar's line in the hand: from the handle the hand took to the
     // other one, both read in the hand's frame.
-    const line: IAutoMovieVector3 = Vector3.normalize(
+    const axis: IAutoMovieVector3 =
       load.handle === undefined
         ? tool.tip
         : Vector3.subtract(
             tool.tip,
             StrikingHeld.of(context, side, load.prop, { tip: load.handle }).tip,
-          ),
-    );
+          );
+    const width: number = Vector3.length(axis);
+    if (width <= 1e-9)
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "load",
+        value: load.other,
+        reason: "the two load grips coincide",
+        fix: "name distinct handles on the held prop",
+      });
+    const line: IAutoMovieVector3 = Vector3.scale(axis, 1 / width);
     const bare: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
       context,
       other,
     );
+    const fist: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      other,
+      "fist",
+    );
+    const requested: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([
+        `${side}UpperArm`,
+        `${side}LowerArm`,
+        `${side}Hand`,
+      ]);
+    const trunk: ReturnType<typeof StrikingBody.prepareTrunk> =
+      StrikingBody.prepareTrunk(body, requested);
 
     // The middle of the feet the entry stands on, over which a lift's bar
     // travels.
-    const balance: IAutoMovieVector3 = Vector3.scale(
-      (["left", "right"] as const).reduce(
-        (sum: IAutoMovieVector3, foot: "left" | "right"): IAutoMovieVector3 =>
-          Vector3.add(
-            sum,
-            Vector3.add(
-              HumanFoot.point(body, foot, "heel", {
-                ankle: context.entry.feet[foot].ankle,
-                rotation: context.entry.feet[foot].rotation,
-              }),
-              HumanFoot.point(body, foot, "toe", {
-                ankle: context.entry.feet[foot].ankle,
-                rotation: context.entry.feet[foot].rotation,
-              }),
-            ),
+    const balance: IAutoMovieVector3 | undefined = !midfoot
+      ? undefined
+      : Vector3.scale(
+          (["left", "right"] as const).reduce(
+            (
+              sum: IAutoMovieVector3,
+              foot: "left" | "right",
+            ): IAutoMovieVector3 =>
+              Vector3.add(
+                sum,
+                Vector3.add(
+                  HumanFoot.point(body, foot, "heel", {
+                    ankle: context.entry.feet[foot].ankle,
+                    rotation: context.entry.feet[foot].rotation,
+                  }),
+                  HumanFoot.point(body, foot, "toe", {
+                    ankle: context.entry.feet[foot].ankle,
+                    rotation: context.entry.feet[foot].rotation,
+                  }),
+                ),
+              ),
+            { x: 0, y: 0, z: 0 },
           ),
-        { x: 0, y: 0, z: 0 },
-      ),
-      0.25,
-    );
-    const bend = (
-      posture: IAutoMovieMotionHumanPosture,
-      arm: AutoMovieHumanSide,
-      goal: Pick<IAutoMovieHumanLimbGoal, "point" | "rotation">,
-    ): IAutoMovieVector3 =>
-      AutoMovieMotionHumanBend.solve({
-        body,
-        posture,
-        side: arm,
-        point: goal.point,
-        ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
-        fallback: "hang",
-      });
+          0.25,
+        );
     return {
-      contacts: StrikingHeld.grips(tool),
+      contacts: [
+        ...StrikingHeld.grips(tool),
+        {
+          part: `${other}Hand`,
+          kind: "grip",
+          from: ready,
+          to: 1,
+          support: { kind: "prop", subject: load.prop, carries: false },
+        },
+      ],
       holds: StrikingHeld.holds(context, tool),
+      admit: (posture: IAutoMovieMotionHumanPosture): void => {
+        const fitted: ReturnType<typeof poseBones> = poseBones(
+          body,
+          resolveHumanPosture(body, posture),
+        );
+        const actual = fitted.get(`${side}Hand`)!;
+        const support: IAutoMovieVector3 = HumanHand.frame(
+          body,
+          fitted,
+          other,
+          "grip",
+          "fist",
+        ).point;
+        const goal: IAutoMovieVector3 = StrikingHeld.point(tool, {
+          point: HumanHand.frame(body, fitted, side, "grip").point,
+          rotation: actual.worldRotation,
+        });
+        const miss: number = Vector3.distance(support, goal);
+        if (miss > StrikingRoll.MISS)
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: "load",
+            value: miss,
+            feasible: {
+              kind: "range",
+              minimum: 0,
+              maximum: StrikingRoll.MISS,
+              unit: "m",
+            },
+            reason: `the ${other} grip misses the ${load.other} handle by ${(miss * 1000).toFixed(1)} mm at an authored lift phase`,
+            fix: "use a reachable grip spacing and support posture",
+          });
+      },
       hands: [side, other],
       apply: (
         posture: IAutoMovieMotionHumanPosture,
+        resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+        projection?: ReturnType<typeof prepareHumanPostureProjection>,
       ): IAutoMovieMotionHumanPosture => {
-        const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-          StrikingBody.trunk(body, posture);
+        const read: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(resolution);
+        const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = trunk(
+          posture,
+          read,
+          projection,
+        );
         // The bar runs level to the performer's other side from the hand,
         // and the hand is turned about it so the knuckles continue the
         // forearm: a straight wrist, the turn an arm holds. A turn taken
@@ -227,8 +299,8 @@ export namespace WorkoutLoad {
           point: HumanHand.frame(body, bones, side, "grip").point,
           rotation: turn,
         };
-        // The bar's middle is carried over the mid-foot, along the heading
-        // and across it: the hand swings about its shoulder by what the key
+        // Centre the bar across the body. A mid-foot lift also centres it
+        // along the heading. The hand swings about its shoulder by what the key
         // leaves the bar's middle off the mid-foot, so a bar in both hands
         // hangs centred between them, each handle as far out of its own
         // shoulder. Held where the key put the holding hand across, the other
@@ -250,33 +322,81 @@ export namespace WorkoutLoad {
           shoulder,
         );
         const off: IAutoMovieVector3 = Vector3.subtract(
-          balance,
+          balance ?? posture.root,
           Vector3.lerp(keyed.point, StrikingHeld.point(tool, keyed, 0), 0.5),
         );
         const aside: number =
           Vector3.dot(reach, across) + Vector3.dot(off, across);
-        const radius: number = Math.sqrt(
-          Math.max(0, Vector3.dot(reach, reach) - aside * aside),
-        );
-        const forth: number = Math.max(
-          -radius,
-          Math.min(radius, Vector3.dot(reach, ahead) + Vector3.dot(off, ahead)),
-        );
-        const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = !midfoot
-          ? keyed
-          : {
-              ...keyed,
-              point: Vector3.add(
-                Vector3.add(shoulder, Vector3.scale(across, aside)),
-                Vector3.add(Vector3.scale(ahead, forth), {
-                  x: 0,
-                  y:
-                    (reach.y > 0 ? 1 : -1) *
-                    Math.sqrt(radius * radius - forth * forth),
-                  z: 0,
-                }),
+        const squaredReach: number = Vector3.dot(reach, reach);
+        const remaining: number = squaredReach - aside * aside;
+        if (remaining < 0) {
+          // A flexed key does not measure the performer's full reach. The
+          // triangle inequality does bound the distance between two grips.
+          const partner: IAutoMovieVector3 = StrikingBody.trunk(
+            body,
+            posture,
+            read,
+            new Set<AutoMovieHumanoidBone>([`${other}UpperArm`]),
+            projection,
+          ).get(`${other}UpperArm`)!.worldPosition;
+          let maximum: number = Vector3.distance(shoulder, partner);
+          for (const arm of [side, other]) {
+            const elbow: IAutoMovieVector3 = body.rest.get(`${arm}LowerArm`)!;
+            maximum +=
+              Vector3.distance(body.rest.get(`${arm}UpperArm`)!, elbow) +
+              Vector3.distance(elbow, body.rest.get(`${arm}Hand`)!) +
+              Vector3.length(
+                HumanHand.offset(
+                  body,
+                  arm,
+                  "grip",
+                  arm === side ? "relaxed" : "fist",
+                ).point,
+              );
+          }
+          const span: number = Vector3.length(tool.tip);
+          if (span > maximum)
+            throw new HumanRefusal({
+              kind: "reach",
+              axis: "load",
+              value: span,
+              feasible: { kind: "range", minimum: 0, maximum, unit: "m" },
+              reason: `the support handle is ${span.toFixed(3)} m from the holding grip, beyond the two arms' full span of ${maximum.toFixed(3)} m`,
+              fix: "use handles closer to shoulder width",
+            });
+        }
+        // Beyond the keyed circle the shortest extension to the centred
+        // handle is purely lateral. The native arm fit owns its articulation.
+        const radius: number = remaining > 0 ? Math.sqrt(remaining) : 0;
+        const keyedForth: number = Vector3.dot(reach, ahead);
+        // Keep turnover on its continuous vertical/forward route when the
+        // bar moves from below the shoulders into the rack and overhead.
+        const radial: number = Math.hypot(keyedForth, reach.y);
+        const fit: number = radial === 0 ? 0 : Math.min(1, radius / radial);
+        const forth: number = turnover
+          ? keyedForth * fit
+          : Math.max(
+              -radius,
+              Math.min(
+                radius,
+                keyedForth +
+                  (balance === undefined ? 0 : Vector3.dot(off, ahead)),
               ),
-            };
+            );
+        const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
+          ...keyed,
+          point: Vector3.add(
+            Vector3.add(shoulder, Vector3.scale(across, aside)),
+            Vector3.add(Vector3.scale(ahead, forth), {
+              x: 0,
+              y: turnover
+                ? reach.y * fit
+                : (reach.y > 0 ? 1 : -1) *
+                  Math.sqrt(radius * radius - forth * forth),
+              z: 0,
+            }),
+          ),
+        };
         const first: IAutoMovieHumanLimbGoal = StrikingHeld.goal(
           context,
           tool,
@@ -298,25 +418,40 @@ export namespace WorkoutLoad {
         const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
           body,
           other,
-          "grip",
+          second.surface,
           second.point,
           second.rotation,
-          "fist",
+          second.shape,
         );
+        const both: ReturnType<typeof AutoMovieMotionHumanBend.prepareBoth> =
+          AutoMovieMotionHumanBend.prepareBoth({ body, posture }, read);
+        const bend: (
+          arm: AutoMovieHumanSide,
+          goal: Pick<IAutoMovieHumanLimbGoal, "point" | "rotation">,
+        ) => IAutoMovieVector3 = (
+          arm: AutoMovieHumanSide,
+          goal: Pick<IAutoMovieHumanLimbGoal, "point" | "rotation">,
+        ): IAutoMovieVector3 =>
+          both(arm).solve({
+            point: goal.point,
+            ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
+            fallback: "hang",
+          });
         return {
           ...posture,
           joints: {
             ...posture.joints,
             ...closed,
-            ...HumanHand.shape(other, "fist"),
+            ...fist,
           },
           limbs: {
             ...posture.limbs,
-            [`${side}Arm`]: { ...first, bend: bend(posture, side, first) },
-            [`${other}Arm`]: AutoMovieMotionHumanArm.goal(body, other, {
-              ...second,
-              bend: bend(posture, other, wrist),
-            }),
+            [`${side}Arm`]: { ...first, bend: bend(side, first) },
+            [`${other}Arm`]: AutoMovieMotionHumanArmTarget.fromWrist(
+              wrist,
+              bend(other, wrist),
+              HumanHand.offset(body, other, second.surface, second.shape).point,
+            ),
           },
         };
       },

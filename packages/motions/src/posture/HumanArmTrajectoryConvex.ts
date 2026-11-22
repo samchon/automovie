@@ -1,18 +1,21 @@
-import { Quaternion, Vector3, physicalShapeNormal } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeNearest, physicalShapeNormal } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMoviePhysicalShapeNearest,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians";
 import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
+import { HumanArmSweepGradient } from "./HumanArmSweepGradient";
 import { HumanArmTrajectoryRanges } from "./HumanArmTrajectoryRanges";
+import { HumanArmTrajectorySmooth } from "./HumanArmTrajectorySmooth";
+import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
@@ -30,7 +33,7 @@ export namespace HumanArmTrajectoryConvex {
    * The convex subproblem about an iterate: the objective's quadratic model
    * (exact in the accelerations, Gauss-Newton in the steps and the
    * rotation) and each constraint linearised, as soft l1 rows of weight
-   * `mu`; the ranges hard. A pair that cannot come within its bound by what
+   * `mu`, the domain ranges too (only the trust region is hard). A pair that cannot come within its bound by what
    * the trust region lets its probe move is left out.
    *
    * @param c The context.
@@ -38,6 +41,7 @@ export namespace HumanArmTrajectoryConvex {
    * @param at0 The iterate's evaluation.
    * @param mu The penalty's weight.
    * @param radius How far a coordinate may move, coordinate units: the trust region, which bounds the active set.
+   * @param smooth The context's exact quadratic terms (`HumanArmTrajectorySmooth.of` of this context), built once by the caller.
    * @returns The subproblem in the inner waypoints' free coordinates, waypoint by waypoint.
    */
   export function convexify(
@@ -46,17 +50,20 @@ export namespace HumanArmTrajectoryConvex {
     at0: M.IEvaluation,
     mu: number,
     radius: number,
+    smooth: HumanArmTrajectorySmooth.ISmooth,
   ): IAutoMovieMotionHumanQuadraticProgram.IProblem {
     const at: M.IEvaluation = at0;
     const n: number = c.n;
     const width: number = c.width;
-    const vars: number = (c.open ? n - 1 : n - 2) * width;
-    const band: number = 3 * width - 1;
-    const p: Float64Array[] = Array.from(
-      { length: vars },
-      () => new Float64Array(band + 1),
+    const { vars, band }: HumanArmTrajectorySmooth.ISmooth = smooth;
+
+    // The accelerations' and the anchor's terms are exact: their curvature
+    // is the context's own, copied, and their gradient the iterate's.
+    const p: Float64Array[] = smooth.p.map(
+      (row: Float64Array): Float64Array => Float64Array.from(row),
     );
     const q: Float64Array = new Float64Array(vars);
+    HumanArmTrajectorySmooth.gradient(smooth, x, q);
     const rows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = [];
     const index = (a: number, k: number, f: number): number =>
       (k - 1) * width + c.offset[a]! + f;
@@ -102,45 +109,13 @@ export namespace HumanArmTrajectoryConvex {
     const reach = (a: number, k: number): number =>
       inner(k) ? jac[a]![k]!.move * radius : 0;
     x.forEach((arm, a: number): void => {
-      // Accelerations, exact; a still configuration's among its own waypoints.
-      for (let k: number = c.still ? 2 : 0; k < (c.still ? n - 2 : n); ++k)
-        c.free[a]!.forEach((d: number, f: number): void => {
-          let r0: number = 0;
-          const idx: number[] = [];
-          const coef: number[] = [];
-          for (const [j, w] of [
-            [Math.min(n - 1, k + 1), 1],
-            [k, -2],
-            [Math.max(0, k - 1), 1],
-          ] as const) {
-            r0 += w * arm[j]![d]!;
-            if (!inner(j)) continue;
-            const at2: number = idx.indexOf(index(a, j, f));
-            if (at2 >= 0) coef[at2]! += w;
-            else {
-              idx.push(index(a, j, f));
-              coef.push(w);
-            }
-          }
-          if (idx.length > 0) square(T.ACCELERATION, r0, idx, coef);
-        });
-      // A still configuration drawn to its anchor, exact.
-      const anchor: readonly number[] | undefined = c.anchor?.[a];
-      if (anchor !== undefined)
-        for (let k: number = 1; k + 1 < n; ++k)
-          c.free[a]!.forEach((d: number, f: number): void =>
-            square(T.ANCHOR, arm[k]![d]! - anchor[d]!, [index(a, k, f)], [1]),
-          );
       for (let k: number = 0; k + 1 < n; ++k) {
-        const dt: number = c.times[k + 1]! - c.times[k]!;
         // Cartesian steps and speed, read against the arm's own base
         // (`HumanArmTrajectoryTravel`): the later point's share of a step's
         // gradient is its world Jacobian, the earlier point's that Jacobian
         // turned by the bases' relative turn.
-        const before: IAutoMovieMotionHumanArmGeometry.IFrame =
-          c.frames[a]![k]!;
-        const after: IAutoMovieMotionHumanArmGeometry.IFrame =
-          c.frames[a]![k + 1]!;
+        const before: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
+        const after: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k + 1]!;
         const turn: IAutoMovieQuaternion = V.back(before, after);
         for (const probe of c.still ? [] : new Set([...T.PATH, ...T.SPEED])) {
           const d: IAutoMovieVector3 = Vector3.scale(
@@ -155,14 +130,14 @@ export namespace HumanArmTrajectoryConvex {
           const step = (dir: IAutoMovieVector3): ILinear =>
             join(
               ...(inner(k + 1)
-                ? [along(a, k + 1, jac[a]![k + 1]!.probes[probe]!, dir)]
+                ? [along(a, k + 1, jac[a]![k + 1]!.probe(probe), dir)]
                 : []),
               ...(inner(k)
                 ? [
                     along(
                       a,
                       k,
-                      jac[a]![k]!.probes[probe]!,
+                      jac[a]![k]!.probe(probe),
                       Quaternion.rotateVector(turn, dir),
                       -1,
                     ),
@@ -179,7 +154,7 @@ export namespace HumanArmTrajectoryConvex {
           if (
             T.SPEED.includes(probe) &&
             length > 1e-6 &&
-            length + reach(a, k) + reach(a, k + 1) > 1000 * M.SPEED_LIMIT * dt
+            length + reach(a, k) + reach(a, k + 1) > M.stepLimit(c, k)
           ) {
             const s: ILinear = step(Vector3.scale(d, 1 / length));
             if (s.idx.length > 0)
@@ -188,103 +163,74 @@ export namespace HumanArmTrajectoryConvex {
                 index: s.idx,
                 coef: s.coef,
                 l: -Infinity,
-                u: 1000 * M.SPEED_LIMIT * dt - length,
+                u: M.stepLimit(c, k) - length,
                 weight: mu,
               });
           }
         }
-        // Swept spheres.
-        for (
-          let probe: number = 0;
-          probe < (c.still ? 0 : G.SURFACE);
-          ++probe
-        ) {
+        // Swept spheres, as the iterate's reading found them
+        // (`HumanArmTrajectorySweep`): the far end is already in the shape's
+        // frame at this waypoint, and its gradient is carried back by the
+        // same turn.
+        for (const sweep of at.swept[a]![k] ?? []) {
+          const { probe, shape, to: pb }: HumanArmTrajectorySweep.ISwept = sweep;
           const [pa, r] = at.placed[a]![k]!.probes[probe]!;
-          for (const shape of S.near(c.frames[a]![k]!, pa, r + T.REACH)) {
-            // The probe's motion relative to the shape, which may move too;
-            // the far end's gradient is carried back by the same turn.
-            const moved: {
-              point: IAutoMovieVector3;
-              turn: IAutoMovieQuaternion;
-            } = P.relative(
-              c,
-              a,
-              k,
-              shape,
-              at.placed[a]![k + 1]!.probes[probe]![0],
-            );
-            const pb: IAutoMovieVector3 = moved.point;
-            if (Vector3.length(Vector3.subtract(pa, pb)) < r) continue;
-            const frame: IAutoMovieMotionHumanArmGeometry.IFrame =
-              c.frames[a]![k]!;
-            const d0: number = 1000 * (S.gap(frame, shape, pa, pb) - r);
-            const lower: number =
-              1000 *
-              Math.min(
-                c.allowed(a, k, probe, shape),
-                c.allowed(a, k + 1, probe, shape),
-              );
-            const pointsClear: boolean =
-              S.gap(frame, shape, pa, pa) - r > lower / 1000 &&
-              S.gap(frame, shape, pb, pb) - r > lower / 1000;
-            if (
-              d0 - lower >
-                Math.min(T.CHECK, reach(a, k) + reach(a, k + 1) + 2) ||
-              (pointsClear && d0 > lower)
-            )
-              continue;
-            // The swept distance's gradient in each end: the shape's normal at
-            // the nearer end, shared by where along the capsule it is nearest.
-            const span: IAutoMovieVector3 = Vector3.subtract(pb, pa);
-            const u: number = Math.min(
-              1,
-              Math.max(
-                0,
-                Vector3.dot(
-                  Vector3.subtract(frame.shapes[shape]!.centre, pa),
-                  span,
-                ) / Math.max(1e-12, Vector3.dot(span, span)),
-              ),
-            );
-            const nearer: number =
-              S.gap(frame, shape, pa, pa) <= S.gap(frame, shape, pb, pb)
-                ? 0
-                : 1;
-            const g: IAutoMovieVector3 = S.normal(
-              frame,
-              shape,
-              nearer === 0 ? pa : pb,
-            );
-            const ga: IAutoMovieVector3 = Vector3.scale(g, 1 - u);
-            const gb: IAutoMovieVector3 = Quaternion.rotateVector(
-              Quaternion.inverse(moved.turn),
-              Vector3.scale(g, u),
-            );
-            const s: ILinear = join(
-              ...(inner(k)
-                ? [along(a, k, jac[a]![k]!.probes[probe]!, ga)]
-                : []),
-              ...(inner(k + 1)
-                ? [along(a, k + 1, jac[a]![k + 1]!.probes[probe]!, gb)]
-                : []),
-            );
-            if (s.idx.length > 0)
-              rows.push({
-                key: `w|${a}|${k}|${probe}|${shape}`,
-                index: s.idx,
-                coef: s.coef,
-                l: lower - d0,
-                u: Infinity,
-                weight: mu,
-              });
-          }
+          const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
+          const d0: number = 1000 * sweep.clear;
+          const lower: number = 1000 * sweep.lower;
+          if (d0 - lower > Math.min(T.CHECK, reach(a, k) + reach(a, k + 1) + 2))
+            continue;
+
+          // Each end's own distance, read once for the pair that stays.
+          const first: number = S.gap(frame, shape, pa, pa);
+          const second: number = S.gap(frame, shape, pb, pb);
+          if (first - r > lower / 1000 && second - r > lower / 1000 && d0 > lower)
+            continue;
+
+          // The swept distance's gradient in each end, exact: the distance
+          // is the least over the segment of a point's distance, so by the
+          // envelope theorem it moves with the segment's own nearest point,
+          // along the shape's outward normal there, which the two ends carry
+          // in the shares of that point's place between them (TrajOpt's
+          // continuous-time gradient, Schulman et al. 2014, section IV-C).
+          const s0: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
+          const near: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(s0.pose, s0.shape, pa, pb);
+          const span: IAutoMovieVector3 = Vector3.subtract(pb, pa);
+          const u: number = Math.min(
+            1,
+            Math.max(
+              0,
+              Vector3.dot(Vector3.subtract(near.at, pa), span) /
+                Math.max(1e-12, Vector3.dot(span, span)),
+            ),
+          );
+          const g: IAutoMovieVector3 = HumanArmSweepGradient(s0, near, span, u);
+          const ga: IAutoMovieVector3 = Vector3.scale(g, 1 - u);
+          const gb: IAutoMovieVector3 = Quaternion.rotateVector(
+            Quaternion.inverse(sweep.turn),
+            Vector3.scale(g, u),
+          );
+          const s: ILinear = join(
+            ...(inner(k) ? [along(a, k, jac[a]![k]!.probe(probe), ga)] : []),
+            ...(inner(k + 1)
+              ? [along(a, k + 1, jac[a]![k + 1]!.probe(probe), gb)]
+              : []),
+          );
+          if (s.idx.length > 0)
+            rows.push({
+              key: `w|${a}|${k}|${probe}|${shape}`,
+              index: s.idx,
+              coef: s.coef,
+              l: lower - d0,
+              u: Infinity,
+              weight: mu,
+            });
         }
       }
       for (let k: number = 1; k < n; ++k) {
         if (!inner(k)) continue;
         const site: M.ISite | undefined = c.sites[a]![k];
-        const placedK: IAutoMovieMotionHumanArmGeometry.IPlaced =
-          at.placed[a]![k]!;
+        const placedK: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[a]![k]!;
         if (site !== undefined) {
           const at: P.ILocated = P.located(c, at0.placed, a, k, site);
           const contact0: IAutoMovieVector3 = P.pad(placedK, site.contact);
@@ -395,7 +341,7 @@ export namespace HumanArmTrajectoryConvex {
             pair.shape,
             placedK.probes[pair.probe]![0],
           );
-          const v: ILinear = along(a, k, jac[a]![k]!.probes[pair.probe]!, g);
+          const v: ILinear = along(a, k, jac[a]![k]!.probe(pair.probe), g);
           rows.push({
             key: `c|${a}|${k}|${pair.probe}|${pair.shape}`,
             index: v.idx,
@@ -432,8 +378,8 @@ export namespace HumanArmTrajectoryConvex {
           });
           if (pair.rested) square(T.LIFT, -pair.short, v.idx, v.coef);
         }
-        // Hard chart and coordinate domains have one row owner.
-        rows.push(...HumanArmTrajectoryRanges.of(c, a, k, arm[k]!, index));
+        // The chart and coordinate domains, elastic, have one row owner.
+        rows.push(...HumanArmTrajectoryRanges.of(c, a, k, arm[k]!, index, mu));
       }
     });
     // Each arm's probes clear of the other arm's own colliders as both
@@ -441,7 +387,10 @@ export namespace HumanArmTrajectoryConvex {
     if (x.length === 2)
       for (let k: number = 1; k < n; ++k)
         for (const pair of inner(k)
-          ? P.crossing(c, k, at.placed[0]![k]!, at.placed[1]![k]!).values()
+          ? (
+              at.crossing[k] ??
+              P.crossing(c, k, at.placed[0]![k]!, at.placed[1]![k]!, P.CUT)
+            ).values()
           : []) {
           if (-pair.short > Math.min(T.CHECK, reach(0, k) + reach(1, k) + 2))
             continue;
@@ -455,7 +404,7 @@ export namespace HumanArmTrajectoryConvex {
             Vector3.normalize(Vector3.subtract(p, pair.shape.centre)),
           );
           const s: ILinear = join(
-            along(a, k, jac[a]![k]!.probes[pair.probe]!, g),
+            along(a, k, jac[a]![k]!.probe(pair.probe), g),
             along(b, k, carried(b, k, pair.owner, p), g, -1),
           );
           rows.push({

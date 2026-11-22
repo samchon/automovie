@@ -1,10 +1,10 @@
 # Media records
 
-Every generated or acquired file, every pipeline output and every generation request has a place and a record.
+Record the origin, rights and identity of each request and media file.
 
 ## Files
 
-Commit images and generation requests, and never audio or video, which gather in the ignored `media/` folders below. Never commit a file whose license forbids redistribution: add a `private/` folder beside its kind to `.gitignore` before saving it there, and let its record restore it.
+Commit images and generation requests where redistribution is allowed. Keep audio and video ignored. Before saving restricted assets, ignore a `private/` folder beside the asset kind and record how to restore the file.
 
 | Location, when used | Holds |
 | --- | --- |
@@ -20,13 +20,13 @@ Commit images and generation requests, and never audio or video, which gather in
 
 ### Generated media
 
-The request files hold the generation requests, the shared descriptions they cite, and the receipts that identify their results, the output of speech and music models included.
+Keep requests, their shared descriptions and generation receipts together.
 
-A generated image sits at the domain path of its settings or brief record, with the canon references those records embed.
+Save generated references in `media/diffusion/images/<domain>/`. Take the domain from the settings or brief record. When [instructions own the appearance](../story/document-layout.md#canon-records), name the domain there before generation. Use `cast` for portraits.
 
 ### Acquired media
 
-Acquired media is third-party production material, such as a sound library, and the footage a study retains. A study's other originals stay where [research](../story/planning/research.md) saves them.
+Keep third-party production assets and study footage here. Other study originals follow [research](../story/planning/research.md).
 
 ### Pipeline files
 
@@ -39,14 +39,16 @@ The pipeline keeps one film's files in these folders of `media/automovie/<film>/
 | `videos/` | Renders and their reports |
 | `audios/` | Audio made for the user to hear |
 
+Use the film's [acceptance record](../review/delivery-review.md#acceptance-record) to establish the current verdict on a revision.
+
 ## Records
 
-A record lets the next person identify a file and restore it. Every record, in `media/manifest.json` or in the request that made the file, holds:
+Record the following in `media/manifest.json` or the generation request:
 
 - where the file came from: the source URL and creator, or the generation request;
 - its license, attribution and usage terms;
 - its content digest.
 
-A generated file's terms cover each layer: the code, the weights, any body model or training data, the territory and the plan it ran under. Its record also holds the provider, model and version, settings, prompt, input files by digest, job identifier, and a seed where the model exposes one.
+Record the license terms for code, weights, body models, data, territory and service plan. Record provider, model, version, settings, prompt, input digests, job ID and seed if exposed.
 
-The kept bytes are the source and the record only identifies them, because a seed, a URL or a finished job does not reproduce a file. The skill that makes a file adds the fields only it knows, and never a secret.
+Preserve the original bytes. Use their record to identify them. Add fields the generating skill requires and keep secrets out.

@@ -47,10 +47,30 @@ export interface IAutoMovieProductionSoundPlan {
    */
   acousticProfile?: IAutoMovieAcousticResponseProfile;
 
+  /**
+   * Optional attenuation of music cues around dialogue placements with adopted
+   * PCM. Attack precedes each line and release follows it. Their absolute
+   * frame anchors are rounded to sample ticks before interpolation. Overlaps
+   * use the lowest gain. Only the part inside
+   * the film is applied. Omission preserves the existing mix.
+   */
+  scoreDucking?:
+    | {
+        /** Finite linear music gain during dialogue, in [0, 1]. */
+        gain: number;
+
+        /** Nonnegative safe-integer film frames for the pre-dialogue ramp. */
+        attackFrames: number;
+
+        /** Nonnegative safe-integer film frames for the post-dialogue ramp. */
+        releaseFrames: number;
+      }
+    | undefined;
+
   /** Ordered semantic sound occurrences. */
   events: IAutoMovieProductionSoundEvent[];
 
-  /** Ordered authored procedural score cues. */
+  /** Ordered authored audio cue placements across the destination buses. */
   cues: IAutoMovieProductionSoundCue[];
 
   /** Ordered dialogue/caption placements. */

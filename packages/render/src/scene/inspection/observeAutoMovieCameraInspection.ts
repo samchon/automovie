@@ -1,0 +1,187 @@
+import { classifyAutoMovieCameraInspection } from "@automovie/engine";
+import type {
+  IAutoMovieCameraInspection,
+  IAutoMovieSubjectBox,
+} from "@automovie/interface";
+import {
+  Box3,
+  Camera,
+  Frustum,
+  Matrix4,
+  Mesh,
+  Object3D,
+  Plane,
+  Scene,
+  Vector3,
+} from "three";
+
+import { boundAutoMovieCameraSubject } from "./boundAutoMovieCameraSubject.js";
+import { listAutoMovieCameraSubjectMeshes } from "./listAutoMovieCameraSubjectMeshes.js";
+import { sampleAutoMovieCameraOcclusion } from "./sampleAutoMovieCameraOcclusion.js";
+
+/** The delivered camera and one source-resolved requirement, after placement. */
+interface IProps {
+  /** Original displayed scene, before inspection overlays are installed. */
+  scene: Scene;
+
+  /** Output camera with delivery aspect and crop already applied. */
+  camera: Camera;
+
+  /** Resolved displayed root of the required subject, when available. */
+  target: Object3D | undefined;
+
+  /** Optional independently certified full world envelope of the placed subject. */
+  targetBounds?: IAutoMovieSubjectBox;
+
+  /** Source-authored maximum pixel-occlusion ratio. */
+  maxOcclusionRatio?: number;
+
+  /** Maximum total triangles admitted to the optional, nine-ray witness pass. */
+  triangleBudget?: number;
+
+  /** Matching exact pixel observations, when a capture or delivery audit obtained them. */
+  pixels?: IAutoMovieCameraInspection.IPixels;
+}
+
+/**
+ * Observes required-subject framing from the original delivered projection.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation
+ * World bounds classify complete exclusion by a delivery clip plane. Box
+ * overlap and unsupported or unavailable bounds leave the subject ungraded for
+ * exact visibility. Actual projection includes the caller's delivery crop.
+ * Rigid meshes and owned skins with a stock shader bound the subject through
+ * listAutoMovieCameraSubjectMeshes and boundAutoMovieCameraSubject, so an
+ * animated actor is graded by its current pose.
+ * @evidence contracts/development/implementation.md#efficient-algorithms
+ * The framing path visits only target descendants, uses cached rigid geometry
+ * bounds and the skin's pose cache, and checks six support points. The optional witness pass is skipped
+ * for excluded subjects, unmeasured bounds, and exact pixel observations.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents
+ * original-frame ownership, projected bounds, and the optional triangle cap.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the target, bound it, classify the six clip planes, optionally sample witnesses, then delegate grading to classifyAutoMovieCameraInspection.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A hidden target, missing bounds or a nonfinite projection or plane is reported unavailable rather than graded, and box overlap never counts as visible.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses cached rigid geometry bounds and the skin's pose cache through the subject bound owner, and takes exact pixel observations instead of rays when a capture supplies them.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates only per-call matrices, bounds and a frustum, borrows the scene and keeps nothing.
+ */
+export function observeAutoMovieCameraInspection(
+  props: IProps,
+): IAutoMovieCameraInspection.IResult {
+  const { camera, scene, target, maxOcclusionRatio, pixels } = props;
+  if (target === undefined || !isDisplayed(scene, target))
+    return classifyAutoMovieCameraInspection({
+      framing: "unavailable",
+      maxOcclusionRatio,
+      pixels,
+    });
+
+  camera.updateWorldMatrix(true, false);
+  target.updateWorldMatrix(true, true);
+  const meshes: Mesh[] | undefined =
+    props.targetBounds === undefined && scene.overrideMaterial === null
+      ? listAutoMovieCameraSubjectMeshes(target, camera)
+      : undefined;
+  const bounds: Box3 | undefined =
+    props.targetBounds === undefined
+      ? meshes === undefined
+        ? undefined
+        : boundAutoMovieCameraSubject(meshes)
+      : toBounds(props.targetBounds);
+  const projection: Matrix4 = new Matrix4().multiplyMatrices(
+    camera.projectionMatrix,
+    camera.matrixWorldInverse,
+  );
+  if (bounds === undefined || !projection.elements.every(Number.isFinite))
+    return classifyAutoMovieCameraInspection({
+      framing: "unavailable",
+      maxOcclusionRatio,
+      pixels,
+    });
+
+  const frustum: Frustum = new Frustum().setFromProjectionMatrix(
+    projection,
+    camera.coordinateSystem,
+    camera.reversedDepth,
+  );
+  const framing: IAutoMovieCameraInspection.Framing =
+    // Three orders the normalized inward planes right, left, bottom, top, far, near.
+    frustum.planes.some(
+      (plane: Plane): boolean =>
+        ![...plane.normal.toArray(), plane.constant].every(Number.isFinite),
+    )
+      ? "unavailable"
+      : outsidePlane(bounds, frustum.planes[5])
+        ? "before-near"
+        : outsidePlane(bounds, frustum.planes[4])
+          ? "past-far"
+          : frustum.planes
+                .slice(0, 4)
+                .some((plane: Plane): boolean => outsidePlane(bounds, plane))
+            ? "outside"
+            : "possible";
+  const triangleBudget: number = props.triangleBudget ?? 0;
+  const witnesses: IAutoMovieCameraInspection.IWitnesses | undefined =
+    framing === "possible" &&
+    pixels === undefined &&
+    Number.isSafeInteger(triangleBudget) &&
+    triangleBudget > 0
+      ? sampleAutoMovieCameraOcclusion({
+          scene,
+          camera,
+          target,
+          bounds,
+          projection,
+          frustum,
+          triangleBudget,
+        })
+      : undefined;
+  return classifyAutoMovieCameraInspection({
+    framing,
+    maxOcclusionRatio,
+    pixels,
+    witnesses,
+  });
+}
+
+/** Requires an unsuppressed chain all the way to the supplied beauty scene. */
+function isDisplayed(scene: Scene, target: Object3D): boolean {
+  for (
+    let object: Object3D | null = target;
+    object !== null;
+    object = object.parent
+  ) {
+    if (!object.visible) return false;
+    if (object === scene) return true;
+  }
+  return false;
+}
+
+/** Copies and admits an externally certified enclosing world box. */
+function toBounds(input: IAutoMovieSubjectBox): Box3 | undefined {
+  const result: Box3 = new Box3(
+    new Vector3(input.min.x, input.min.y, input.min.z),
+    new Vector3(input.max.x, input.max.y, input.max.z),
+  );
+  return isFiniteBox(result) ? result : undefined;
+}
+
+/** Rejects empty, inverted and non-finite bounds, while allowing flat bounds. */
+function isFiniteBox(box: Box3): boolean {
+  return (
+    !box.isEmpty() &&
+    [...box.min.toArray(), ...box.max.toArray()].every(Number.isFinite)
+  );
+}
+
+/** Tests the most inward corner with slack scaled to distance arithmetic. */
+function outsidePlane(box: Box3, plane: Plane): boolean {
+  const { x, y, z } = plane.normal;
+  const xx: number = x * (x >= 0 ? box.max.x : box.min.x);
+  const yy: number = y * (y >= 0 ? box.max.y : box.min.y);
+  const zz: number = z * (z >= 0 ? box.max.z : box.min.z);
+  const tolerance: number =
+    32 *
+    Number.EPSILON *
+    (1 + Math.abs(xx) + Math.abs(yy) + Math.abs(zz) + Math.abs(plane.constant));
+  return xx + yy + zz + plane.constant < -tolerance;
+}

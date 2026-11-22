@@ -1,4 +1,5 @@
 export * from "./AutoMovieHumanBindingInputs";
+export * from "./AutoMovieHumanCanonicalBind";
 export * from "./AutoMovieHumanCanonicalBody";
 export * from "./AutoMovieHumanCanonicalProfile";
 export * from "./AutoMovieHumanCanonicalSolids";
@@ -22,6 +23,7 @@ export * from "./AutoMovieHumanRigControls";
 export * from "./AutoMovieHumanSkeleton";
 export * from "./AutoMovieHumanSkeletonMath";
 export * from "./AutoMovieHumanSkinStep";
+export * from "./fitHumanPhysicalStandingPose";
 export * from "./IAutoMovieHumanBindingLimb";
 export * from "./IAutoMovieHumanBindingLips";
 export * from "./IAutoMovieHumanBindingPlane";

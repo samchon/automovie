@@ -11,7 +11,5 @@ export type { IAutoMovieMotionHumanWalkGait } from "./IAutoMovieMotionHumanWalkG
 export type { IAutoMovieMotionHumanWalkLegClearance } from "./IAutoMovieMotionHumanWalkLegClearance";
 export type { IAutoMovieMotionHumanWalkPace } from "./IAutoMovieMotionHumanWalkPace";
 export type { IAutoMovieMotionHumanWalkParams } from "./IAutoMovieMotionHumanWalkParams";
-export type { IAutoMovieMotionHumanWalkStanceCourse } from "./IAutoMovieMotionHumanWalkStanceCourse";
-export type { IAutoMovieMotionHumanWalkStanceSolve } from "./IAutoMovieMotionHumanWalkStanceSolve";
 export type { IAutoMovieMotionHumanWalkStation } from "./IAutoMovieMotionHumanWalkStation";
 export type { IAutoMovieMotionHumanWalkSteps } from "./IAutoMovieMotionHumanWalkSteps";

@@ -40,11 +40,14 @@ import { TestValidator } from "@nestia/e2e";
  *    the fit seeded from the first read stays on the first basin and its
  *    difference is the basin's own 100 degrees per second, within 1e-3.
  * 4. A seed of the second branch, on a target with only one, continues on
- *    the one; a tolerance of 0 or one not finite throws.
+ *    the one; a tolerance of 0 or one not finite throws. The smallest
+ *    positive binary64 tolerance still returns a finite fit satisfying the
+ *    original 1e-9-degree observation bound, rather than requesting an
+ *    infinite refinement count after its tolerance ratio underflows.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public articulation with and without a seed and reads the swivel and branch it names and the difference of three reads; a seed ignored, a refinement short of its tolerance, an edge crossed or a basin left fails.
  * @evidence contracts/development/testing.md#independent-expectations Every expected swivel is a well's bottom or a range's edge this test writes, and the basin's rate is its written slope; none is read from a solver.
- * @evidence contracts/development/testing.md#distinguishing-cases An interior optimum, an optimum on a range's edge, a change of basin between reads, a branch the target lacks and two refused tolerances.
+ * @evidence contracts/development/testing.md#distinguishing-cases An interior optimum, an optimum on a range's edge, a change of basin between reads, a branch the target lacks, two refused tolerances and the valid positive subnormal boundary with the unchanged 1e-9-degree observation bound.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory engine unit; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation States the chain, how a score is written in the swivel and the 4 scenarios with their bounds.
  */
@@ -165,5 +168,12 @@ export function test_kinematics_hinged_arm_near(): void {
   );
   TestValidator.error("a tolerance not finite", (): unknown =>
     fit(interior, { swivel: 63, branch: 0, tolerance: Infinity }),
+  );
+  const subnormal: IAutoMovieHingedArticulation = fit(interior, {
+    swivel: 63.9, branch: 0, tolerance: Number.MIN_VALUE,
+  });
+  TestValidator.predicate("a positive subnormal tolerance terminates with the actual well's finite fit",
+    Number.isFinite(subnormal.swivel) && subnormal.branch === 0 &&
+    Math.abs(subnormal.swivel - 63.37) <= 1e-9 && degrees(subnormal.upper, at(63.37)) <= 1e-9,
   );
 }

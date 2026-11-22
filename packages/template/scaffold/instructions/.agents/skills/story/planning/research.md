@@ -1,35 +1,27 @@
 # Research
 
-Study what the film must show truthfully: each depicted practice, the conduct of officials and crowds, and how the genre is shot and heard. The settings or brief, screenplay beats, entity measurements and each law a production adds name the study they rely on.
+Study the facts and practices a production decision depends on. Cite the study where the writer or maker uses it.
 
 ## Study scope
 
 ### When to study
 
-Study a fact when a decision needs it, as deep as the depicted level requires, and gather no value that nothing written yet uses, because its consumer often needs a different value once it is written. Before choosing the direction, study only what could change it. After that, the route assigns each study.
+Before choosing a direction, study facts that could change it. On a short, the brief or screenplay author owns the study their layer needs. On the long route, settings establish world facts and the first treatment or script to use a practice studies its limits.
 
-On the short route, the brief, the screenplay or the code studies a fact at the moment one of its decisions needs it. On the long route, settings study each fact as they fix it, and the treatment or script that first names an action studies its law and limits. When [no narrative pass](../workflow/routes.md#who-writes-the-screenplay) runs, the code studies the facts, laws and limits the narrative layers would have studied. On every route, code and delivery review study the measurements they program or measure.
+A [direct writer](../workflow/routes.md#direct-writing) studies the screenplay's open decisions. With fixed text or a standalone asset, the maker studies the production choices left open.
 
 ### What needs a study
 
-Read the installed packages' READMEs first, because what they carry needs no production study: a movement the motion vocabulary performs, everyday movement included, which the screenplay names and the scenes compose; a rule or table a package exports; and the conventional film grammar [shots and cuts](../layers/shots.md) follows. A study records only where the production departs from them, such as how a dance or a sport is filmed where that departs from the grammar.
-
-Study what a decision needs and the packages do not carry: how a practice chains and paces its movements at the depicted level, a specialist action the vocabulary lacks, the size of a force a decided outcome turns on, such as a shove, the rate behind a group's counted outcome, such as misfires in a volley, and a body no package moves. Remove a study that no settings or brief record, screenplay beat, entity or law uses.
+A skilled performance needs a basis for the actions chosen, including when `@automovie/motions` supplies them all. Reuse a study that covers the depicted conditions. The package README explains its mechanics.
 
 ### Performance study
 
-Study real practice at the depicted level, such as a sport or a craft, and the broadcast or film practice of shooting it; an invented action studies its closest real analogue.
-
-Start with the practice's density and distribution targets at the depicted level, because a screenplay without them writes the practice as turns of single actions, far sparser than the real thing. Rules, procedures and conventions follow as far as the writing needs them. The [depicted-practice question](../../contracts/story/shared/principles/research.md#depicted-practice) and its statements list what each consumer needs recorded, so none invents the practice.
+Study a complete passage of the practice at the depicted level. Follow the [research criteria](../../contracts/story/principles/research.md#depicted-practice) for timing, action density and variation, and study how the passage is filmed when the camera matters.
 
 ## Sources
 
-Use originals: rulebooks, coaching and training texts, measured studies, analyses of real top-level performances and productions, official documentation and footage of qualified practitioners. Search results only locate them.
-
-Read each passage in context, and study footage as consecutive frames through its connected phases, measuring it where needed by [tracing](../../motion/diffusion/tracing.md), whose values are estimates. Record each value with its unit and conditions, in the form the depicted-practice statements set. Check each value against its source once, when it is written, cross-check disputed claims and record what stays unavailable.
-
-Save the originals, the source index and each study where the [document layout](../document-layout.md#documents) puts them, and footage in ignored `media/acquired/videos/`, then open the saved files, because a URL or an empty index is not a retained source. The one index names each original's creator, URL, retrieval date, locator, rights and use.
+Read original rulebooks, teaching texts, measurements, practitioner footage or production accounts. Verify consequential claims in context and cross-check disputes. Index creator, URL, date, locator, rights and use under [document layout](../document-layout.md#documents). Retain permitted originals under the indexed paths. Keep footage in ignored `media/acquired/videos/`.
 
 ## Use
 
-Test the adopted values in the real entity, behavior or sound, and compare the result with the footage frame by frame. The study informs the work; delivery review measures its targets on the picture and judges what it produced.
+Compare the staged action, entity or sound with the corresponding phases in the study. Use matched frames when [tracing](../../motion/diffusion/tracing.md) the same action. Delivery review measures the result in the film.

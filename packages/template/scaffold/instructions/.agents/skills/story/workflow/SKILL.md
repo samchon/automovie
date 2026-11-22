@@ -1,14 +1,15 @@
 ---
 name: story-workflow
-description: Chooses the story route and runs it to completion.
+description: Routes a screenplay by authorship and the adopted narrative passes.
 ---
 
-# Workflow
+# Story workflow
 
-Choose the route and who writes the screenplay, then run that route to completion.
+Use the recorded screenplay choice. See [who writes the screenplay](routes.md#who-writes-the-screenplay) if it is undecided.
 
-| Read | For |
+| Choice | Follow |
 | --- | --- |
-| [Routes and completion](routes.md) | Choosing route and writer, one chain, separate contexts, completion |
-| [Short route](short.md) | Running a short: brief, screenplay, programmed film draft, narrative evidence, one review |
-| [Long route](long.md) | Running long work: settings, treatments, scripts and screenplay, each a closed pass |
+| Agent-written with passes | [Short](short.md) or [long](long.md), as [the adopted route](routes.md#choosing-the-route) requires |
+| Supplied for refinement | [Intake](../document-layout.md#intake-of-existing-work), then the adopted [short](short.md) or [long](long.md) route |
+| Agent-written without passes | [Direct writing](routes.md#direct-writing) and [screenplay realization](../layers/screenplay.md#realization) |
+| Fixed screenplay supplied by the user | [Fixed screenplay](routes.md#fixed-screenplay) |

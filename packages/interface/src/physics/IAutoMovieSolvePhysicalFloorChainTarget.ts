@@ -5,23 +5,20 @@ import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 /**
  * Bounded chain fitting of horizontal endpoint intent and real patch-plane constraints.
  *
- * @evidence contracts/development/design.md#principled-representation Optional endpoint height or surface witnesses add explicit height equalities while global patch clearance becomes a nonpenetration inequality; without either the patch minimum targets the plane.
+ * @evidence contracts/development/design.md#principled-representation Explicit surface witnesses target the floor and use the patch minimum for nonpenetration. A patch without witnesses can fit its minimum to the floor alongside an endpoint height.
  * @evidence contracts/development/design.md#minimal-and-owned-surface solvePhysicalFloorChainTarget consumes canonical profile transforms and provider contact carriers through the existing articulation solver.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing patch geometry, invalid carrier witnesses and invalid finite iteration/tolerance inputs refuse; solver exhaustion returns its actual residual rather than claiming contact.
  * @evidence contracts/development/common.md#meaningful-documentation Keeps horizontal endpoint intent and real floor witnesses in one bounded chain task.
  */
 export namespace IAutoMovieSolvePhysicalFloorChainTarget {
   /**
-   * Fit endpoint X/Z and the actual patch's lowest Y simultaneously. Independent
-   * bounded native twist coordinates preserve all locked axes and rigid anchors.
-   * Finite-difference Jacobians use the existing original-design SVD; damped
-   * steps and backtracking accept only a measured residual decrease. Work is
-   * bounded, unreachable intent remains a residual, and no body is teleported.
+   * Fit world endpoint coordinates and floor constraints with bounded joint
+   * coordinates. The residual retains the remaining error at the returned pose.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Keeps horizontal endpoint intent and real floor witnesses in one bounded chain task.
    * @evidence contracts/development/design.md#principled-representation World goals/floor and carrier-local witnesses are metres; endpointBone can select an interior chain endpoint and budgets limit iterations.
    * @evidence contracts/development/design.md#minimal-and-owned-surface solvePhysicalFloorChainTarget consumes canonical profile transforms and provider contact carriers through the existing articulation solver.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A supplied endpointHeight adds a Y target while floor remains a lower bound; unreachable requests remain residuals without moving the original goal.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A prescribed endpoint height keeps its own equality, and the requested surface constraint contributes its error to the same residual.
    */
   export type IInput = {
     /** Actual fixed-pivot tree. */ profile: IAutoMoviePhysicalProfile;
@@ -39,8 +36,14 @@ export namespace IAutoMovieSolvePhysicalFloorChainTarget {
       /** Finite carrier-local point in metres; the transformed world Y should equal floor. */
       localPoint: IAutoMovieVector3;
     }[];
-    /** Fit endpoint Y and treat the floor as a lower bound when supplied. */ endpointHeight?: number;
-    /** Requested minimum patch height, metres. */ floor: number;
+    /** Optional world endpoint Y goal in metres. */ endpointHeight?: number;
+    /**
+     * Fit the patch minimum to the floor even with an endpoint height if no
+     * surface witnesses are supplied. When omitted, an endpoint height or
+     * explicit surface witnesses make the floor a lower bound.
+     */
+    fitPatchMinimum?: boolean;
+    /** Requested patch plane height, metres. */ floor: number;
     /** Positive update budget, at most 64. */ iterations: number;
     /** Positive metre residual early-out. */ tolerance: number;
   };

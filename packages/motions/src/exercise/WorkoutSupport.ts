@@ -24,7 +24,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a support is, why it is read from the prop and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation A prop and an affordance id, the grammar's own way to name a place on an object, resolved to one world point.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one function the workout law calls.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Workout reads the support point through at; vault planners read placed's same entry observation together with its actual frame and primary affordance, without repeating those lookups.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts An affordance the prop lacks is refused with the ones it has; nothing is guessed.
  */
 export namespace WorkoutSupport {
@@ -38,22 +38,54 @@ export namespace WorkoutSupport {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The affordance's translation in the prop's frame, carried into the world by the prop's frame at the action's start.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one transform.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the single placed owner and selects its point.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The refusal lists the affordances the prop does have.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The placed owner performs one frame read and at most two ordered O(A) searches for A affordances, with constant transforms.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the original frame/lookup/transform algorithm with placed; each call still observes its actual entry-time prop.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the point returns; the local frame and affordance references are released with the delegated observation.
    */
   export function at(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     on: IAutoMovieMotionHumanWorkoutSupport.IAtOn,
   ): IAutoMovieVector3 {
+    return placed(context, on).point;
+  }
+
+  /**
+   * Read one entry-time support observation with the prop frame and primary
+   * affordance that define it. A two-affordance support still uses the same
+   * ordered pair of world points and their original midpoint.
+   *
+   * @param context The prop reader and action start time, in seconds.
+   * @param on The primary prop/affordance and optional second affordance.
+   * @returns The fresh world-metre point and borrowed actual entry frame/primary affordance; no observation is retained by this owner.
+   * @throws {HumanRefusal} At the first missing named affordance, primary before optional other.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States entry time, world point, borrowed frame/primary affordance, ordered two-point midpoint and refusal order.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the actual prop frame once at context.start, transforms each first-matching named affordance translation by that frame and preserves the original ordered midpoint when other is present.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure After the original frame preparation, the other-property branch is read before primary lookup/point. One lookup and rigid-transform owner then exposes the already observed primary/frame to real vault consumers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the original other-property observation before the primary lookup, then its second read only in the two-point branch after the first point. Missing names keep original refusal/alternatives, duplicate ids keep the first match, and no target, extent or frame is guessed or cached across times.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One frame read and one or two ordered O(A) searches for A affordances produce the point and metadata together; callers need no repeated prop/frame read or primary search.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Point, frame and primary affordance belong to this exact synchronous entry observation. At delegates here, and consumers borrow those actual values rather than starting a second observation of the same prop/time.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned point/frame/affordance record survives under the caller's ownership; this owner stores no plan, prop reader, observation, current pose or time history.
+   */
+  export function placed(
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    on: IAutoMovieMotionHumanWorkoutSupport.IAtOn,
+  ): {
+    point: IAutoMovieVector3;
+    frame: ReturnType<IAutoMovieMotionHumanPropReader["frame"]>;
+    affordance: IAutoMovieAffordance;
+  } {
     const read: IAutoMovieMotionHumanPropReader = context.prop(on.prop);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
-    const frame: ReturnType<IAutoMovieMotionHumanPropReader["frame"]> =
-      read.frame(context.start);
-    const place = (id: string): IAutoMovieVector3 => {
+    const frame: ReturnType<IAutoMovieMotionHumanPropReader["frame"]> = read.frame(
+      context.start,
+    );
+    const find: (id: string) => IAutoMovieAffordance = (
+      id: string,
+    ): IAutoMovieAffordance => {
       const found: IAutoMovieAffordance | undefined = affordances.find(
         (a: IAutoMovieAffordance): boolean => a.id === id,
       );
@@ -65,15 +97,24 @@ export namespace WorkoutSupport {
           reason: `the prop ${on.prop} has no affordance ${id}; it has ${affordances.map((a: IAutoMovieAffordance): string => a.id).join(", ")}`,
           fix: "name one of the prop's own affordances",
         });
-      return Vector3.add(
-        frame.position,
-        Quaternion.rotateVector(frame.rotation, found.frame.translation),
-      );
+      return found;
     };
+    const point: (affordance: IAutoMovieAffordance) => IAutoMovieVector3 = (
+      affordance: IAutoMovieAffordance,
+    ): IAutoMovieVector3 =>
+      Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(frame.rotation, affordance.frame.translation),
+      );
+    const single: boolean = on.other === undefined;
+    const affordance: IAutoMovieAffordance = find(on.affordance);
+    const first: IAutoMovieVector3 = point(affordance);
 
     // Two affordances, as a dip station's two bars, bear at their middle.
-    return on.other === undefined
-      ? place(on.affordance)
-      : Vector3.lerp(place(on.affordance), place(on.other), 0.5);
+    return {
+      point: single ? first : Vector3.lerp(first, point(find(on.other!)), 0.5),
+      frame,
+      affordance,
+    };
   }
 }

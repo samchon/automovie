@@ -1,39 +1,38 @@
-import { Vector3, minimumJerk, wrapDegrees } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanKick,
   IAutoMovieMotionHumanKickGeometry,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingAim,
-  IAutoMovieMotionHumanStrikingTarget,
-  IAutoMovieSuperposeMinimumJerk,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
-import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { KickCarriage } from "./KickCarriage";
 import type { KickChain } from "./KickChain";
 import { KickChamber } from "./KickChamber";
 import { KickContact } from "./KickContact";
-import { KickForm } from "./KickForm";
+import { KickLaunch } from "./KickLaunch";
 import { KickPlans } from "./KickPlans";
 import { KickSwing } from "./KickSwing";
 import { StrikingAim } from "./StrikingAim";
-import { StrikingQuality } from "./StrikingQuality";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
 import { StrikingTarget } from "./StrikingTarget";
+import type { strikingStepSupport } from "./strikingStepSupport";
 
 /**
  * Builds a kick's geometry.
  *
- * The contact is decided first, on the figure itself ({@link KickContact}):
+ * The contact is decided first, at the launch ({@link KickLaunch}), on the
+ * figure itself ({@link KickContact}):
  * the carriage under which the fitted leg lands its weapon on the planned
  * point with the support foot on its plant. The displayed contact goal is
  * then that fitted leg (its ankle, its knee and its foot rotation), so the
@@ -44,6 +43,11 @@ import { StrikingTarget } from "./StrikingTarget";
  * {@link KickSwing} carries with the pelvis. Each online correction of the
  * target's point ({@link StrikingAim}) is a whole plan of its own, and the
  * figure moves from plan to plan ({@link KickPlans}).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines actual fitted kick contact, folded chamber, causal corrections, complete-versus-observed posture and local/film clock meanings.
+ * @evidence contracts/development/design.md#principled-representation Existing body/posture/reach/contact/record types expose physical geometry and authored goals; metadata loans carry no pose or success answer.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface build supplies the actual kick/redirect planner and compose joins its existing parts under the original clocks.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No clip, target proxy, alternate skeleton, unproved resolved flag or cached pose observation replaces the original physical plan.
  */
 export namespace KickGeometry {
   /**
@@ -53,235 +57,123 @@ export namespace KickGeometry {
    * @param timing The kick's timing.
    * @param t0 Film second of the kick's time zero.
    * @param fixed The contact second the performance committed: null when the leg met nothing, undefined when the kick offers no weapon.
-   * @param kept What a redirect keeps of its source; a fresh kick reads its own line and steps up when short.
+   * @param launch What the kick fixed at its launch (`KickLaunch`): its line, its seeded miss, its carriage inputs and its contact.
    * @returns The geometry.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States current actor entry, local/film timing, committed stop and the launch the geometry is built on.
+   * @evidence contracts/development/implementation.md#principled-implementation On the launch's contact (`KickLaunch`, made once for the plan) it builds what follows the partner as shown and the committed stop: the aim's tracker, the causal correction plans and the composed posture.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Target/entry geometry, actual contact plan and correction owner feed one composed posture/record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All original contact trials, technique bands, support contacts, correction units, feint rules and stop semantics remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Original physical trials remain payable; fixed guard demand and search-level exact FK/ROM preparation remove repeated metadata setup, with speedup unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit same-body unchanged-table operations share only canonical metadata; every changed target/candidate and final physical measurement is actually evaluated.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Geometry retains original plans/record and fixed scalar/bone-name metadata until settle/release; each current FK/projector query ends synchronously without pose/time history.
    */
   export function build(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
     timing: IAutoMovieMotionHumanKickGeometry.ITiming,
     t0: number,
     fixed: number | null | undefined,
-    kept?: IAutoMovieMotionHumanKickGeometry.IKept,
+    launch: KickLaunch.ILaunch,
   ): IAutoMovieMotionHumanKickGeometry {
-    const p: IAutoMovieMotionHumanKick.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const { side, prep, impact } = timing;
+    const { side }: IAutoMovieMotionHumanKickGeometry.ITiming = timing;
     const support: "left" | "right" = side === "left" ? "right" : "left";
-    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const round: boolean = p.technique === "round";
-    const feint: boolean = p.feint === true;
+    const { line, offset, props, origin, feint }: KickLaunch.ILaunch = launch;
 
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
-
-    // Where the target is, and the range a standing target is read at, from
-    // the stance centre: how far ahead of it the root stands over the support
-    // foot at contact, plus the leg's comfortable length for the push kick,
-    // or for the round kick the comfortable share of the lower shin's
-    // horizontal reach at the target's height from the hip's standing height.
-    const stance: IAutoMovieMotionHumanStrikingTarget.IStance =
-      StrikingTarget.stance(context.entry);
-    const ahead: number = Vector3.dot(
-      Vector3.subtract(
-        Vector3.lerp(
-          { ...entry.root, y: 0 },
-          { ...feet[support].ankle, y: 0 },
-          KickForm.CENTRE_SHARE,
-        ),
-        stance.centre,
-      ),
-      stance.forward,
-    );
-    const aim = (seconds: number): IAutoMovieVector3 =>
-      StrikingTarget.aim(context, p.at, seconds, (height: number): number =>
-        round
-          ? ahead +
-            0.5 * m.hipHalfWidth +
-            KickForm.RANGE_SHARE *
-              Math.sqrt(
-                Math.max(
-                  0,
-                  (m.thigh + KickForm.SHIN_SHARE * m.shank) ** 2 -
-                    (height - m.hipHeight) ** 2,
-                ),
-              )
-          : ahead + KickForm.RANGE_SHARE * (m.thigh + m.shank),
-      );
-    const first: IAutoMovieVector3 = aim(t0 - StrikingTarget.LOOK);
-    const line: IAutoMovieVector3 =
-      kept?.line ?? StrikingTarget.line(entry.root, first, entry.yaw);
-    const outward: IAutoMovieVector3 = Vector3.scale(
-      Vector3.cross(up, line),
-      side === "left" ? 1 : -1,
-    );
-    const level: "low" | "middle" | "high" = band(body, first);
-    const amplitude: number = StrikingSkill.amplitude(context.skill);
-
-    // The round kick's pelvis turns until the target lies the band's azimuth
-    // to the kicking side of its forward; the push kick tips back instead.
-    const turn: number = round
-      ? wrapDegrees(
-          StrikingTarget.heading(line) +
-            (side === "right" ? 1 : -1) * KickForm.AZIMUTH[level] -
-            entry.yaw,
-        ) * amplitude
-      : 0;
-    const pitch: number = round ? 0 : -KickForm.PUSH_PITCH * amplitude;
-    const direction: IAutoMovieVector3 = round
-      ? Vector3.normalize(
-          Vector3.add(
-            Vector3.add(
-              Vector3.scale(outward, -KickForm.TRAVEL.across),
-              Vector3.scale(line, KickForm.TRAVEL.along),
-            ),
-            Vector3.scale(up, KickForm.TRAVEL.vertical[level]),
-          ),
-        )
-      : line;
-    const offset: IAutoMovieVector3 = StrikingQuality.offset({
-      skill: context.skill,
-      random: context.random("scatter"),
-      ...(p.accuracy === undefined ? {} : { accuracy: p.accuracy }),
-      direction,
-      radius: m.shankRadius,
-      distance: Vector3.length(Vector3.subtract(first, feet[side].ankle)),
-      seconds: impact - prep,
-    });
-    const tracker: IAutoMovieMotionHumanStrikingAim.ITracker =
-      StrikingAim.track(
-        aim,
-        {
-          launch: t0 - StrikingTarget.LOOK,
-          impact: t0 + impact,
-          latency: StrikingSkill.CORRECTION_LATENCY,
-          step: KickForm.TRACK_STEP,
-          shortest: KickForm.TRACK_SHORTEST,
-        },
-        offset,
-      );
-
-    // The contact, decided on the fitted figure, and the chamber folded from
-    // it by the skill's range share.
-    const props: KickCarriage.IProps = {
-      body,
-      entry,
-      feet,
-      side,
-      line,
-      timing,
-      amplitude,
-      rise: Math.max(0, m.hipHeight - KickCarriage.hip(body, entry, support).y),
-    };
-    const origin: IAutoMovieVector3 = feet[side].ankle;
-    const knee: IAutoMovieVector3 = poseBones(body, context.entry.pose).get(
-      `${side}LowerLeg` as AutoMovieHumanoidBone,
-    )!.worldPosition;
-
-    // One goal's plan: its contact, the chamber folded from it, and the leg's
-    // path. A feint ends on the chamber, and a kick that lands opens the knee
-    // from it onto the fitted contact leg, arriving with its share of the
-    // opening's peak speed.
-    const plan = (
-      goal: IAutoMovieVector3,
-      decided: number | undefined,
-      prefer?: number,
-    ): IPlanned => {
-      const found: KickContact.IContact = KickContact.choose(
-        props,
-        { body, side, technique: p.technique, line, direction, planned: goal },
-        { turn, pitch },
-        decided,
-        prefer,
-      );
-      const fit: KickChain.IFit = found.fit;
-      const folded: number =
-        fit.flexion + (KickForm.CHAMBER_FLEXION - fit.flexion) * amplitude;
-      const key: KickChamber.IKey = KickChamber.fold(
-        body,
-        side,
-        fit.pose,
-        folded,
-      );
-      return {
-        goal,
-        carriage: found.carriage,
-        fit,
-        leg: KickSwing.create({
-          body,
-          side,
-          timing,
-          base: found.base,
-          key,
-          contact: feint
-            ? key
-            : { knee: fit.knee, ankle: fit.ankle, rotation: fit.rotation },
-          flexion: {
-            chamber: folded,
-            contact: feint ? folded : fit.flexion,
-            least: KickForm.FLEXION[p.technique][0],
-          },
-          speed: feint
-            ? 1
-            : round
-              ? StrikingSkill.IMPACT_SPEED_SHARE.kick
-              : KickForm.PUSH_SPEED_SHARE,
-          plant: { knee, ankle: origin, rotation: feet[side].rotation },
-          step: Vector3.scale(line, found.carriage.step),
-        }),
-      };
-    };
-
-    // The launch's plan decides the step; every correction of the aim is a
-    // plan of its own on that step, trying the lean it corrects first. A
-    // feint throws at nothing, so it follows nothing.
-    const launched: IPlanned = plan(
-      tracker.planned,
-      kept?.step ?? (feint ? 0 : undefined),
-    );
+    // What follows the partner as shown: the aim's tracker, and a contact
+    // for each correction of the aim on the launch's step, trying the lean
+    // it corrects first. A feint follows nothing. The shadow opponent is
+    // fixed in the entry's frame, so every prediction would equal launch.
+    const tracker: IAutoMovieMotionHumanStrikingAim.ITracker | undefined =
+      context.params.at.kind === "none"
+        ? undefined
+        : StrikingAim.track(
+            launch.aim,
+            {
+              launch: t0 - StrikingTarget.LOOK,
+              impact: t0 + timing.impact,
+              latency: StrikingSkill.CORRECTION_LATENCY,
+              step: StrikingAim.STEP,
+              shortest: StrikingAim.SHORTEST,
+            },
+            offset,
+          );
+    const launched: KickLaunch.IPlanned = launch.launched;
     const carriage: IAutoMovieMotionHumanKickGeometry.ICarriage =
       launched.carriage;
     const fit: KickChain.IFit = launched.fit;
-    const plans: KickPlans.IPlans = KickPlans.create({
-      first: launched,
-      next: (previous: KickPlans.IPlan, goal: IAutoMovieVector3): IPlanned =>
-        plan(goal, carriage.step, previous.carriage.lean),
-      units: (
-        seconds: number,
-      ): readonly IAutoMovieSuperposeMinimumJerk.IUnit[] =>
-        feint ? [] : tracker.units(seconds),
+    const plans: KickPlans.IPlans =
+      feint || tracker === undefined
+        ? {
+            shown: (): IAutoMovieMotionHumanKickGeometry.ICarriage => carriage,
+            leg: launched.leg,
+          }
+        : KickPlans.create({
+            first: launched,
+            next: (
+              previous: KickPlans.IPlan,
+              goal: IAutoMovieVector3,
+            ): KickLaunch.IPlanned =>
+              launch.contact(
+                goal,
+                carriage.step,
+                previous.carriage.lean,
+                carriage.drive,
+                launch.chamber,
+              ),
+            units: tracker.units,
+            t0,
+          });
+    return compose(
+      body,
+      timing,
       t0,
-    });
-    return compose(body, timing, t0, {
-      line,
-      carriage,
-      base: (
-        seconds: number,
-        shown: IAutoMovieMotionHumanKickGeometry.ICarriage,
-        turning?: number,
-      ): IAutoMovieMotionHumanPosture =>
-        KickCarriage.posture(props, shown, seconds, turning),
-      shown: plans.shown,
-      leg: plans.leg,
-      origin,
-      back: Vector3.add(origin, Vector3.scale(line, carriage.step)),
-      contacts: windows(timing, side, support, carriage.step !== 0),
-      record: {
-        limb: side === "left" ? "leftFoot" : "rightFoot",
-        offset,
-        planned: tracker.planned,
-        reached: fit.reached,
-        status: fit.status,
+      {
+        line,
+        carriage,
+        base: (
+          seconds: number,
+          shown: IAutoMovieMotionHumanKickGeometry.ICarriage,
+          turning?: number,
+          resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+          projection?: ReturnType<typeof prepareHumanPostureProjection>,
+        ): IAutoMovieMotionHumanPosture =>
+          KickCarriage.posture(
+            props,
+            shown,
+            seconds,
+            turning,
+            resolution,
+            projection,
+          ),
+        shown: plans.shown,
+        leg: plans.leg,
+        origin,
+        back: Vector3.add(origin, Vector3.scale(line, carriage.step)),
+        contacts: windows(
+          timing,
+          side,
+          support,
+          carriage.step !== 0,
+          props.recovery,
+        ),
+        record: {
+          limb: side === "left" ? "leftFoot" : "rightFoot",
+          offset,
+          planned: tracker?.planned ?? { ...launch.planned },
+          reached: fit.reached,
+          status: fit.status,
 
-        // The stop is the performance's joint resolution of the leg's
-        // capsules; the kick scans nothing itself.
-        stop: (seconds: number): number | undefined =>
-          fixed !== undefined && fixed !== null && fixed <= seconds
-            ? fixed
-            : undefined,
+          // The stop is the performance's joint resolution of the leg's
+          // capsules; the kick scans nothing itself.
+          stop: (seconds: number): number | undefined =>
+            fixed !== undefined && fixed !== null && fixed <= seconds
+              ? fixed
+              : undefined,
+        },
       },
-    });
+      props.recovery,
+    );
   }
 
   /**
@@ -303,24 +195,53 @@ export namespace KickGeometry {
    * @param timing The kick's timing.
    * @param t0 Film second of the kick's time zero.
    * @param parts The geometry's parts.
+   * @param recovery Any open touchdown inherited from the cut into this kick.
    * @returns The geometry with its posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States canonical body, original local/film clocks and the actual geometry parts combined.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves the original approach, stop dwell and retraced withdrawal clocks, actual carriage hip, kicking-leg goal and coached guard.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One chain evaluation yields current body/leg; the returned posture adds only the observed original guard and exact planted-foot fields.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original clock, step, support plant, MTP/ball contact, goal and conservative unsupported-coupling fallback.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each actual pose retains its existing kinematics, native clamps and needed FK; genuine current ROM metadata may serve tilt/hip/guard/final reads once, with no measured speedup.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit current observation fixes body/table; only metadata is borrowed while every changing pose/target/hip/goal executes normally.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains original parts and fixed goal metadata; current FK/projector suppliers and maps end on return or throw and never enter returned authored postures.
    */
   export function compose(
     body: IAutoMovieMotionHumanBody,
     timing: IAutoMovieMotionHumanKickGeometry.ITiming,
     t0: number,
     parts: Omit<IAutoMovieMotionHumanKickGeometry, "posture">,
+    recovery?: strikingStepSupport.ISupport,
   ): IAutoMovieMotionHumanKickGeometry {
     const ball: IAutoMovieVector3 = HumanFoot.offset(body, timing.side, "ball");
-    const chain = (t: number): IHeld => {
+    const guardAt: ReturnType<typeof StrikingStance.prepareGuard> =
+      StrikingStance.prepareGuard(body, { lead: timing.lead });
+    const chain = (
+      t: number,
+      resolution: ReturnType<typeof prepareHumanPoseResolution>,
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IHeld => {
       const at: number | undefined = parts.record.stop(t0 + t);
       const s: number | undefined = at === undefined ? undefined : at - t0;
       if (s === undefined || t <= s) {
         const base: IAutoMovieMotionHumanPosture = parts.base(
           t,
           parts.shown(t),
+          undefined,
+          resolution,
+          projection,
         );
-        return { body: base, leg: parts.leg(t, base, { x: 0, y: 0, z: 0 }) };
+        const hip: IAutoMovieVector3 = KickCarriage.hip(
+          body,
+          base,
+          timing.side,
+          resolution,
+          projection,
+        );
+        return {
+          body: base,
+          leg: parts.leg(t, base, { x: 0, y: 0, z: 0 }, hip),
+        };
       }
 
       // The approach clock runs back from the stop to the start over the
@@ -330,15 +251,26 @@ export namespace KickGeometry {
         1e-3,
         timing.duration - s - StrikingStroke.DWELL,
       );
-      const w: number = minimumJerk((t - s - StrikingStroke.DWELL) / rest).s;
+      const w: number = minimumJerk.share(
+        (t - s - StrikingStroke.DWELL) / rest,
+      );
       const back: number = s * (1 - w);
-      const stepped: number = minimumJerk(
+      const stepped: number = minimumJerk.share(
         (s - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
-      ).s;
+      );
       const base: IAutoMovieMotionHumanPosture = parts.base(
         s,
         parts.shown(back),
         back,
+        resolution,
+        projection,
+      );
+      const hip: IAutoMovieVector3 = KickCarriage.hip(
+        body,
+        base,
+        timing.side,
+        resolution,
+        projection,
       );
       return {
         body: base,
@@ -349,21 +281,57 @@ export namespace KickGeometry {
             Vector3.subtract(parts.back, parts.origin),
             stepped * w,
           ),
+          hip,
         ),
       };
     };
     return {
       ...parts,
-      posture: (t: number): IAutoMovieMotionHumanPosture => {
-        const held: IHeld = chain(t);
-        const down: boolean = t <= timing.prep || t >= timing.duration - 1e-9;
+      posture: (
+        t: number,
+        channels?: readonly AutoMovieMotionHumanChannel[],
+        source?: Parameters<typeof prepareHumanPoseResolution>[0],
+        projection?: ReturnType<typeof prepareHumanPostureProjection>,
+      ): IAutoMovieMotionHumanPosture => {
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(source);
+        const held: IHeld = chain(t, resolution, projection);
+        const arms: boolean =
+          channels === undefined ||
+          channels.some(
+            (channel: AutoMovieMotionHumanChannel): boolean =>
+              channel.endsWith("Arm") || channel.endsWith("Hand"),
+          );
+        const down: boolean =
+          (recovery?.landings[timing.side] === undefined && t <= timing.prep) ||
+          t >= timing.duration - 1e-9;
+        const rise: number = recovery?.rise(timing.side, t, timing.prep) ?? 0;
+        const toes: readonly [number, number, number] | undefined =
+          held.leg.toes === undefined
+            ? undefined
+            : (held.body.joints[`${timing.side}Toes`] ?? [0, 0, 0]);
         return {
           ...held.body,
+          ...(toes === undefined
+            ? {}
+            : {
+                joints: {
+                  ...held.body.joints,
+                  [`${timing.side}Toes`]: [
+                    toes[0] + held.leg.toes!,
+                    toes[1],
+                    toes[2],
+                  ],
+                },
+              }),
           limbs: {
             ...held.body.limbs,
-            ...StrikingStance.guard(body, held.body, { lead: timing.lead }),
+            ...(arms ? guardAt(held.body, resolution, projection) : {}),
             [timing.side === "left" ? "leftLeg" : "rightLeg"]: {
-              point: held.leg.ankle,
+              point:
+                rise === 0
+                  ? held.leg.ankle
+                  : { ...held.leg.ankle, y: held.leg.ankle.y + rise },
               bend: held.leg.hint,
               rotation: held.leg.rotation,
               ...(down ? { planted: true, contact: ball } : {}),
@@ -383,23 +351,6 @@ export namespace KickGeometry {
     leg: IAutoMovieMotionHumanKickGeometry.ILeg;
   }
 
-  /** One goal's plan with the leg its contact fitted. */
-  interface IPlanned extends KickPlans.IPlan {
-    /** The fitted contact leg. */
-    fit: KickChain.IFit;
-  }
-
-  /** The height band of a target point against a body's own heights, the floor at zero. */
-  function band(
-    body: IAutoMovieMotionHumanBody,
-    point: IAutoMovieVector3,
-  ): "low" | "middle" | "high" {
-    if (point.y < body.measure.waistHeight * KickForm.BAND.low) return "low";
-    if (point.y < body.measure.shoulderHeight * KickForm.BAND.middle)
-      return "middle";
-    return "high";
-  }
-
   /**
    * The feet's contact windows, as shares of the kick's duration: the
    * kicking foot is planted until the launch and at the replant, and the
@@ -411,8 +362,11 @@ export namespace KickGeometry {
     side: "left" | "right",
     support: "left" | "right",
     stepped: boolean,
+    recovery?: strikingStepSupport.ISupport,
   ): IAutoMovieMotionHumanContactWindow[] {
     const d: number = timing.duration;
+    const launch: number = timing.prep / d;
+    const initiallyBearing: boolean = recovery?.landings[support] === undefined;
     const pivot = (
       from: number,
       to: number,
@@ -424,13 +378,17 @@ export namespace KickGeometry {
       support: { kind: "ground" },
     });
     return [
-      {
-        part: `${side}Foot`,
-        kind: "plant",
-        from: 0,
-        to: timing.prep / d,
-        support: { kind: "ground" },
-      },
+      ...(recovery?.landings[side] !== undefined
+        ? []
+        : [
+            {
+              part: `${side}Foot`,
+              kind: "plant",
+              from: 0,
+              to: launch,
+              support: { kind: "ground" },
+            } satisfies IAutoMovieMotionHumanContactWindow,
+          ]),
       {
         part: `${side}Foot`,
         kind: "plant",
@@ -439,8 +397,11 @@ export namespace KickGeometry {
         support: { kind: "ground" },
       },
       ...(stepped
-        ? [pivot(0, timing.prep / d), pivot(timing.chamber / d, 1)]
-        : [pivot(0, 1)]),
+        ? [
+            ...(initiallyBearing ? [pivot(0, launch)] : []),
+            pivot(timing.chamber / d, 1),
+          ]
+        : [pivot(initiallyBearing ? 0 : launch, 1)]),
     ];
   }
 }

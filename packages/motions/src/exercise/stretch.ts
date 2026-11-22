@@ -34,6 +34,8 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { stretchCrossBody } from "./stretchCrossBody";
+import { stretchHoldClock } from "./stretchHoldClock";
+import { stretchOverheadPlace } from "./stretchOverheadPlace";
 import { stretchQuadriceps } from "./stretchQuadriceps";
 
 /**
@@ -110,16 +112,14 @@ export namespace stretch {
    * @evidence contracts/development/implementation.md#principled-implementation One phrase; each pose's parts rise to their places on its envelope.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per pose.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Range levels, named places and body measures only; provisional values are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per arm per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the placed arm, the head share, the joint pulse, the leg placement and the foot rocker.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each arm retains its placement/solve. Foot pairs prepare fixed vector/slerp prerequisites and the admitted overhead course computes its fixed source chest and grid points once. One-leg balance rows request only preceding root, since offsets/envelope depend on fixed entry geometry/time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed foot endpoints preserve the original unclipped ankle/clipped rotation policy. The admitted overhead reader shares a fixed source frame across both arms and all phases. An ordinary overhead callback observes the live borrowed entry and chest transforms in order.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanStretch.IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
     const hold: number = p.seconds ?? HOLD;
     HumanBound.least("seconds", hold, 0, "s");
     const level: IAutoMovieMotionHumanRange.Level =
@@ -142,10 +142,44 @@ export namespace stretch {
         { name: "enter", seconds: 0 },
         { name: "reachEnd", seconds: timed.at("ready") },
         { name: "release", seconds: timed.at("relax") },
+
+        // A one-leg pose takes its weight onto the standing foot before the
+        // other foot leaves the floor, and sets that foot down before it
+        // takes the weight back (a support is released only after the next
+        // one bears): the hips shift over the first half of the entry and
+        // the foot lifts over the second, and the release runs the other way.
+        { name: "shifted", seconds: timed.at("ready") / 2 },
+        {
+          name: "lowered",
+          seconds: (timed.at("relax") + timed.duration) / 2,
+        },
       ],
     );
-    const weight = (seconds: number): number =>
-      clock.envelope(["start", "ready"], ["relax", "end"], seconds);
+    const build = (
+      local: IAutoMovieMotionClock,
+      prepared: boolean = false,
+    ): IAutoMovieMotionHumanActionPlan =>
+      compose(context, p, modifiers, level, local, prepared);
+    return stretchHoldClock.plan(context, clock, build);
+  }
+
+  /** Build the native stretch's own writers over the given phase clock. */
+  function compose(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>,
+    p: IAutoMovieMotionHumanStretch.IParams,
+    modifiers: IAutoMovieMotionManner.IModifiers,
+    level: IAutoMovieMotionHumanRange.Level,
+    clock: IAutoMovieMotionClock,
+    prepared: boolean,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body = context.body;
+    const m = body.measure;
+    const weight: (seconds: number) => number =
+      AutoMovieMotionClock.prepareEnvelope(
+        clock,
+        ["start", "ready"],
+        ["relax", "end"],
+      );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const side: "left" | "right" = p.side ?? "right";
     const other: "left" | "right" = side === "right" ? "left" : "right";
@@ -204,28 +238,46 @@ export namespace stretch {
       );
     const balance = (
       standing: "left" | "right",
-    ): IAutoMovieMotionHumanPrimitive => ({
-      channels: ["root"],
-      from: 0,
-      to: clock.duration,
-      write: (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-      ): IAutoMovieMotionHumanPosture => ({
-        ...posture,
-        root: Vector3.add(
-          posture.root,
-          Vector3.scale(
-            over(standing),
-            clock.envelope(["start", "reachEnd"], ["release", "end"], seconds),
+    ): IAutoMovieMotionHumanPrimitive => {
+      const offset: IAutoMovieVector3 = over(standing);
+      const envelope: (seconds: number) => number =
+        AutoMovieMotionClock.prepareEnvelope(
+          clock,
+          ["start", "shifted"],
+          ["lowered", "end"],
+        );
+      return {
+        channels: ["root"],
+        reads: ["root"],
+        from: 0,
+        to: clock.duration,
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanPosture => ({
+          ...posture,
+          root: Vector3.add(
+            posture.root,
+            Vector3.scale(offset, envelope(seconds)),
           ),
-        ),
-      }),
-    });
-    const lifted = (
+        }),
+      };
+    };
+    const raising: (seconds: number) => number =
+      AutoMovieMotionClock.prepareEnvelope(
+        clock,
+        ["shifted", "reachEnd"],
+        ["release", "lowered"],
+      );
+    const lifted: (
       placement: IAutoMovieMotionHumanFoot.IPlacement,
-    ): IAutoMovieMotionHumanPrimitive =>
-      AutoMovieMotionHumanLeg.place({
+    ) => IAutoMovieMotionHumanPrimitive = (
+      placement: IAutoMovieMotionHumanFoot.IPlacement,
+    ): IAutoMovieMotionHumanPrimitive => {
+      const lift: ReturnType<
+        typeof AutoMovieMotionHumanLegPhrase.prepareBetween
+      > = AutoMovieMotionHumanLegPhrase.prepareBetween(stance[side], placement);
+      return AutoMovieMotionHumanLeg.place({
         body,
         side,
         from: 0,
@@ -233,21 +285,36 @@ export namespace stretch {
         placement: (
           _: IAutoMovieMotionHumanPosture,
           seconds: number,
-        ): IAutoMovieMotionHumanFoot.IPlacement =>
-          AutoMovieMotionHumanLegPhrase.between(
-            stance[side],
-            placement,
-            weight(seconds),
-          ),
-        planted: (seconds: number): boolean => weight(seconds) <= 0,
+        ): IAutoMovieMotionHumanFoot.IPlacement => lift(raising(seconds)),
+        planted: (seconds: number): boolean => raising(seconds) <= 0,
       });
-    const standingOn = (
+    };
+
+    // The standing foot bears throughout; the lifted one until it leaves the
+    // floor and again once it is set down.
+    const standingOn: (
+      standing: "left" | "right",
+    ) => IAutoMovieMotionHumanContactWindow[] = (
       standing: "left" | "right",
     ): IAutoMovieMotionHumanContactWindow[] => [
       {
         part: `${standing}Foot`,
         kind: "plant",
         from: 0,
+        to: 1,
+        support: { kind: "ground" },
+      },
+      {
+        part: `${side}Foot`,
+        kind: "plant",
+        from: 0,
+        to: clock.at("shifted") / clock.duration,
+        support: { kind: "ground" },
+      },
+      {
+        part: `${side}Foot`,
+        kind: "plant",
+        from: clock.at("lowered") / clock.duration,
         to: 1,
         support: { kind: "ground" },
       },
@@ -300,6 +367,8 @@ export namespace stretch {
             { spine: bend("spine"), chest: bend("chest") },
           ),
         );
+        const place: ReturnType<typeof stretchOverheadPlace> =
+          stretchOverheadPlace(body, entry, prepared);
         for (const s of ["left", "right"] as const)
           primitives.push(
             ...AutoMovieMotionHumanPlaced.arm({
@@ -309,33 +378,7 @@ export namespace stretch {
               to: clock.duration,
               rest: rest(s),
               weight,
-              place: (posture: IAutoMovieMotionHumanPosture) => {
-                const ride = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-                  AutoMovieMotionHumanPlaced.carried(
-                    body,
-                    entry,
-                    posture,
-                    point,
-                  );
-                const point: IAutoMovieVector3 =
-                  AutoMovieMotionHumanPlaced.grid(body, entry, s, {
-                    height: "overhead",
-                    lateral: "inside",
-                    distance: "close",
-                  });
-                return {
-                  point: ride(point),
-                  facing: Vector3.subtract(
-                    ride(
-                      Vector3.add(
-                        point,
-                        facing(entry, { x: s === "left" ? -1 : 1, y: 0, z: 0 }),
-                      ),
-                    ),
-                    ride(point),
-                  ),
-                };
-              },
+              place: place(s),
               bend: "raised",
             }),
           );

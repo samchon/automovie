@@ -1,6 +1,7 @@
 import type { IAutoMovieMotionHumanJump } from "../actions/IAutoMovieMotionHumanJump";
 import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanRun";
 import type { IAutoMovieMotionHumanKickBall } from "../ballStrike/IAutoMovieMotionHumanKickBall";
+import type { IAutoMovieMotionHumanBowlingSlide } from "../sport/IAutoMovieMotionHumanBowlingSlide";
 import type { IAutoMovieMotionHumanCartwheel } from "../sport/IAutoMovieMotionHumanCartwheel";
 import type { IAutoMovieMotionHumanSalto } from "../sport/IAutoMovieMotionHumanSalto";
 import type { IAutoMovieMotionHumanCatchObject } from "../throwing/IAutoMovieMotionHumanCatchObject";
@@ -9,10 +10,10 @@ import type { IAutoMovieMotionHumanThrowObjectParams } from "../throwing/IAutoMo
 /**
  * Open parameters of the sportThrow lexicon family, keyed by each runtime export name.
  * Omitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.
- * HumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values.
+ * HumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
- * @evidence contracts/development/design.md#principled-representation The sportThrow family is a closed export-name map with the exact Omit projection of each source law.
+ * @evidence contracts/development/design.md#principled-representation The sportThrow family is a closed export-name map. Each key uses the law contract directly or projects its open parameters.
  * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the sportThrow row parameter map used by the family registry and schema generator.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
@@ -23,8 +24,29 @@ export interface IAutoMovieMotionHumanLexiconSportThrowParams {
   /** A softball pitch or a bowling delivery: underarm. The windmill is not planned. */
   underarmPitch: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
 
+  /** A continuous fastpitch softball arm circle and below-hip delivery. */
+  softballWindmill: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
+
+  /** A high-arm cricket delivery toward the bounce point after the composed run-up. */
+  cricketBowl: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
+
+  /** The supported final glide and recovery of a one-handed bowling approach. */
+  bowlingSlide: IAutoMovieMotionHumanBowlingSlide.IParams;
+
+  /** A low underhand bowling delivery toward the lane after the composed approach. */
+  bowlingDelivery: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
+
   /** A chest or bounce pass, a free throw or a shot put: a push from before the chest. The leap of a jump shot and the glide of a shot put are not planned. */
   pushPass: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
+
+  /** Release a staged rugby pass to the side or rear. */
+  rugbyPass: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
+
+  /** Release a staged overarm gridiron pass. */
+  gridironPass: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
+
+  /** Send a staged gridiron snap to the receiver. */
+  gridironSnap: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
 
   /** A catch of a fly ball or a thrown ball in one hand. */
   gloveCatch: Omit<IAutoMovieMotionHumanCatchObject.IParams, "hands">;
@@ -53,9 +75,18 @@ export interface IAutoMovieMotionHumanLexiconSportThrowParams {
   /** A cartwheel to the performer's left: one sideways turn over a foot, the two hands and the other foot. */
   cartwheelLeft: Omit<IAutoMovieMotionHumanCartwheel.IParams, "to">;
 
+  /** Capoeira's aú: a cartwheel to the left through both hands, low and kept facing the partner. */
+  au: Omit<IAutoMovieMotionHumanCartwheel.IParams, "to">;
+
   /** A cartwheel to the performer's right. */
   cartwheelRight: Omit<IAutoMovieMotionHumanCartwheel.IParams, "to">;
 
   /** A sprint: the acceleration out of the start, a base run or a run-up, at sprint pace. */
   dash: Omit<IAutoMovieMotionHumanRun.IParams, "pace">;
+
+  /** Catch a staged prop under the specified trajectory. */
+  stageCatch: IAutoMovieMotionHumanCatchObject.IStageParams;
+
+  /** Deflect a staged prop at the specified interception, sending it back by its restitution. */
+  stageDeflect: IAutoMovieMotionHumanCatchObject.IStageParams;
 }

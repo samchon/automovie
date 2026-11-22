@@ -8,7 +8,7 @@ import { createSettingReferences } from "../references/createSettingReferences";
 import { BODY_ROOT } from "../utilities/BODY_ROOT";
 
 /**
- * Creates canon dependencies on treatments or short screenplay H2s: settings for treatments and compact shorts, the brief for shorts.
+ * Connects treatment H2s to settings, or short screenplay H2s to the brief.
  *
  * Edges stay on the concrete consumers: a narrative H2 cites the canon H2 it
  * depends on, and a canon H2 no selected narrative H2 uses is answered by an

@@ -1,0 +1,62 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+/**
+ * How far a shank leans forward from vertical, degrees, for an ankle at a
+ * point below a hip, with the knee bent forward in the plane of the facing:
+ * the two-link leg's closed form. A law that moves an ankle turns the foot
+ * by the change of this lean, so the ankle keeps its angle and a foot that
+ * bears nothing never dorsiflexes past what it held.
+ *
+ * @param body The body, whose thigh and shank lengths are read.
+ * @param hip The hip joint, world metres.
+ * @param ankle The ankle, world metres.
+ * @param facing The unit horizontal facing.
+ * @returns The shank's forward lean from the vertical, degrees, within a right angle either way, positive with the knee ahead of the ankle.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the plane, the knee's side, the sign and why a law reads it.
+ * @evidence contracts/development/implementation.md#principled-implementation The law of cosines places the knee of a two-link leg in its sagittal plane.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Project, solve the hip angle, place the knee, read the shank.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An ankle beyond the leg's reach is read with the leg straight.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call is independent arithmetic.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ */
+export function shankTilt(
+  body: IAutoMovieMotionHumanBody,
+  hip: IAutoMovieVector3,
+  ankle: IAutoMovieVector3,
+  facing: IAutoMovieVector3,
+): number {
+  const thigh: number = body.measure.thigh;
+  const shank: number = body.measure.shank;
+  const reach: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
+  const forward: number = Vector3.dot(reach, facing);
+  const down: number = reach.y;
+  const span: number = Math.min(
+    thigh + shank,
+    Math.max(Math.abs(thigh - shank), Math.hypot(forward, down)),
+  );
+  const toward: number = Math.atan2(forward, -down);
+  const opening: number = Math.acos(
+    Math.min(
+      1,
+      Math.max(
+        -1,
+        (thigh * thigh + span * span - shank * shank) / (2 * thigh * span),
+      ),
+    ),
+  );
+  const kneeForward: number = thigh * Math.sin(toward + opening);
+  const kneeDown: number = -thigh * Math.cos(toward + opening);
+  // Read against the vertical either way, so a shank folded above its
+  // ankle, as a leg swung over a saddle folds, leans at most a right angle
+  // and turns through it without a jump.
+  return (
+    Math.atan2(kneeForward - forward, Math.abs(kneeDown - down)) /
+    Quaternion.DEG2RAD
+  );
+}

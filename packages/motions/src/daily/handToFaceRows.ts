@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanHandToFaceRows } from "@automovie/interface";
 
+import { handToFaceSheet } from "./handToFaceSheet";
+
 /**
  * The hand-to-face tasks as rows of the touch generator: each task's region
  * on the performer's own head, the implied tool's tip as the effector, the
@@ -12,7 +14,14 @@ import type { IAutoMovieMotionHumanHandToFaceRows } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Regions are the interface's; tool tips are shares of the hand's length.
  */
 export namespace handToFaceRows {
-  /** The tasks' rows (tool lengths and head angles provisional, except the reading head flexion). */
+  /**
+   * The tasks' rows. The drink's time at the mouth is the 1.71 s drinking
+   * phase of Alt Murphy et al. 2006 (J NeuroEng Rehabil 3:18, Table 2,
+   * healthy controls) and the reading head flexion is Lee et al. 2015's
+   * (`handToFaceSheet.HEAD`);
+   * the tool lengths, the other head angles, times at the face and stroke
+   * counts have no located measurement.
+   */
   export const ROWS: Readonly<
     Record<
       IAutoMovieMotionHumanHandToFaceRows.Task,
@@ -30,7 +39,7 @@ export namespace handToFaceRows {
       },
       kind: "hold",
       count: 1,
-      hold: 1.2,
+      hold: 1.71,
       tangent: "up",
       upright: true,
       point: "lip",
@@ -117,7 +126,7 @@ export namespace handToFaceRows {
       count: 1,
       hold: 3,
       tangent: "up",
-      head: 35,
+      head: handToFaceSheet.HEAD,
       at: "atSheet",
     },
     brushTeeth: {
@@ -177,6 +186,23 @@ export namespace handToFaceRows {
       tangent: "across",
       head: 0,
       at: "atMouth",
+    },
+    // Equalizing a diver's ears: thumb and forefinger pinch the nose
+    // through the mask's nose pocket and hold while the diver blows
+    // gently (PADI Open Water Diver Manual).
+    pinchNose: {
+      region: "nose",
+      // The forefinger's tip closes on the nose pocket, the thumb opposite.
+      effector: { surface: "indexTip", shape: "point" },
+      kind: "hold",
+      count: 1,
+      hold: 1,
+      tangent: "up",
+      // The nose's surface faces down as well as forward: read it level, so
+      // the finger stands on the world's up beside it.
+      level: true,
+      head: 0,
+      at: "atNose",
     },
   };
 }

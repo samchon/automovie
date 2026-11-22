@@ -72,11 +72,8 @@ export namespace SceneStatus {
    * @returns One line per missing piece; empty when it can be built.
    */
   export function lacks(composition: IPlaygroundComposition): string[] {
-    const rows: Set<string> = new Set(
-      Object.values(PlaygroundChain.lexicon())
-        .flat()
-        .map((law: { name: string }): string => law.name),
-    );
+    const rows: ReturnType<typeof PlaygroundChain.registeredLaws> =
+      PlaygroundChain.registeredLaws();
     const mutuals: Set<string> = new Set(
       Object.keys(PlaygroundChain.mutuals()),
     );
@@ -88,8 +85,11 @@ export namespace SceneStatus {
     const visit: (action: IPlaygroundComposition.IAction) => void = (
       action: IPlaygroundComposition.IAction,
     ): void => {
-      if (!(action.name in HUMAN_ACTIONS) && !rows.has(action.name))
-        missing.add(`the action ${action.name}`);
+      if (!(action.name in HUMAN_ACTIONS)) {
+        if (!rows.has(action.name)) missing.add(`the action ${action.name}`);
+        else if (!PlaygroundChain.has("registered"))
+          missing.add("HumanChain.registered");
+      }
       if (action.over !== undefined && action.over.length !== 0) {
         if (!PlaygroundChain.has("over")) missing.add("HumanChain.over");
         action.over.forEach(visit);

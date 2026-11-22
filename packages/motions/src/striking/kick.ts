@@ -15,8 +15,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanSkill } from "../skill/HumanSkill";
-import { KickForm } from "./KickForm";
+import { KickClear } from "./KickClear";
 import { KickGeometry } from "./KickGeometry";
+import { KickLaunch } from "./KickLaunch";
 import { KickRedirect } from "./KickRedirect";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingRecord } from "./StrikingRecord";
@@ -25,6 +26,7 @@ import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
+import { StrikingWeaponTable } from "./StrikingWeaponTable";
 
 /**
  * A kick: the round kick's lower shin or the push kick's ball of the foot
@@ -59,7 +61,7 @@ import { StrikingWeapon } from "./StrikingWeapon";
  * A round kick may be redirected before its chamber key into another round
  * kick ({@link KickRedirect}).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the effector-goal method, where the contact is decided, the body's carriage, the timing with sources and the redirect; {@link KickForm} states which values are provisional.
+ * @evidence contracts/development/common.md#meaningful-documentation States the effector-goal method, where the contact is decided, the body's carriage, the timing with sources and the redirect; `KickForm` states which values are provisional.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table admitting only the redirect, parameters with closed technique and leg unions, and a pure plan of postures in world metres and seconds with capsule weapons.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the plan type, the leg resolution and the plan the law table, the knee and the defence read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target, accuracy, posture, plan and weapon types; every length comes from the kicking body's measure.
@@ -87,9 +89,7 @@ export namespace kick {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function leg(
-    params: IAutoMovieMotionHumanKick.IParams,
-  ): "lead" | "rear" {
+  export function leg(params: IAutoMovieMotionHumanKick.IParams): "lead" | "rear" {
     return params.leg ?? (params.technique === "round" ? "rear" : "lead");
   }
 
@@ -106,19 +106,15 @@ export namespace kick {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target beyond the leg's reach is the declared miss at the fitted leg's own reach, not a stretched leg; provisional constants are named.
    * @evidence contracts/development/implementation.md#efficient-algorithms One limb fit per lean tried for the contact; per posture, closed-form units plus the display's own fit.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per committed stop and dropped on settle, when the stop or the target may have changed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry and its source's, released with the plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds original geometry and its source until plan release. Each current full posture/weapon observation may borrow exact FK and genuine unchanged-table ROM metadata; no query workspace or projector is retained by the plan.
    */
-  export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
-  ): IAutoMovieMotionHumanKick.IPlan {
+  export function plan(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>): IAutoMovieMotionHumanKick.IPlan {
     const p: IAutoMovieMotionHumanKick.IParams = context.params;
 
     // A redirect continues its source's clock: the kick's own time zero is
     // the source's, and this instance shows it from the cut on.
-    const source: IAutoMovieMotionHumanKickGeometry.ISource | undefined =
-      redirected(context);
-    const timing: IAutoMovieMotionHumanKickGeometry.ITiming =
-      source?.timing ?? measure(context);
+    const source: IAutoMovieMotionHumanKickGeometry.ISource | undefined = redirected(context);
+    const timing: IAutoMovieMotionHumanKickGeometry.ITiming = source?.timing ?? measure(context);
     const t0: number = source?.start ?? context.start;
     const offset: number = context.start - t0;
     const duration: number = timing.duration - offset;
@@ -156,20 +152,30 @@ export namespace kick {
     // figure shows.
     const limb: "leftLeg" | "rightLeg" =
       timing.side === "left" ? "leftLeg" : "rightLeg";
+    const course: StrikingWeapon.Course = (at: number, channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2], projection?: Parameters<StrikingWeapon.Course>[3]): IAutoMovieMotionHumanPosture =>
+      geometry().posture(Math.min(timing.duration, Math.max(0, at - t0)), channels, resolution, projection?.());
+    const frames: ReturnType<typeof StrikingWeapon.frames> = StrikingWeapon.frames(context.body, limb);
     const chain: StrikingWeapon.IChain = {
       ids: ["thigh", "shin", "foot"],
       limb,
       radii: StrikingWeapon.legRadii(context.body),
       from: Math.max(context.start, t0 + timing.prep),
-      to: t0 + timing.impact + KickForm.WEAPON_TAIL,
+      to: t0 + timing.impact + StrikingWeapon.TAIL,
       ends: (seconds: number): IAutoMovieVector3[] =>
         StrikingWeapon.leg(
           context.body,
-          (at: number): IAutoMovieMotionHumanPosture =>
-            geometry().posture(Math.min(timing.duration, Math.max(0, at - t0))),
+          course,
           timing.side,
           seconds,
+          undefined,
+          undefined,
+          frames,
         ),
+      read: StrikingWeaponTable.reader(
+        (seconds: number, near: Parameters<typeof StrikingWeapon.leg>[4], kept: NonNullable<Parameters<typeof StrikingWeapon.leg>[5]>): IAutoMovieVector3[] =>
+          StrikingWeapon.leg(context.body, course, timing.side, seconds, near, kept, frames),
+      ),
+      on: (): object => geometry(),
     };
 
     // The contact the performance committed, and the stopped leg's ride on
@@ -195,6 +201,12 @@ export namespace kick {
     };
     let built: IAutoMovieMotionHumanKickGeometry | undefined;
     let building: boolean = false;
+
+    // What the kick fixed at its launch (`KickLaunch`): made once for the
+    // plan, and again only when a settle shows the launch's own reading of
+    // the target changed. The geometry, which follows the partner as shown
+    // and the committed stop, is built on it at every settle.
+    let launched: KickLaunch.ILaunch | undefined;
     const geometry = (): IAutoMovieMotionHumanKickGeometry => {
       if (built !== undefined) return built;
       if (building)
@@ -203,10 +215,19 @@ export namespace kick {
         );
       building = true;
       try {
+        const made: KickLaunch.ILaunch =
+          source === undefined
+            ? KickLaunch.of(context, timing, t0, undefined, launched)
+            : KickRedirect.launch(context, source, launched);
+
+        // A new launch's way to its contact is cleared of the person
+        // kicked at once (`KickClear`); the launch kept is the cleared one.
+        launched =
+          made === launched ? made : KickClear.of(context, timing, t0, made);
         built =
           source === undefined
-            ? KickGeometry.build(context, timing, t0, fixed)
-            : KickRedirect.build(context, source, fixed);
+            ? KickGeometry.build(context, timing, t0, fixed, launched)
+            : KickRedirect.build(context, source, fixed, launched);
       } finally {
         building = false;
       }
@@ -218,17 +239,14 @@ export namespace kick {
       get contacts(): IAutoMovieMotionHumanContactWindow[] {
         return geometry()
           .contacts.map(
-            (
-              c: IAutoMovieMotionHumanContactWindow,
-            ): IAutoMovieMotionHumanContactWindow => ({
+            (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
               ...c,
               from: share(c.from * timing.duration),
               to: share(c.to * timing.duration),
             }),
           )
           .filter(
-            (c: IAutoMovieMotionHumanContactWindow): boolean =>
-              c.to > c.from || c.to === 1,
+            (c: IAutoMovieMotionHumanContactWindow): boolean => c.to > c.from || c.to === 1,
           );
       },
       // A feint's chamber is the committed kick's, so the contact it
@@ -242,12 +260,12 @@ export namespace kick {
               offset,
           }
         : { contact: timing.impact - offset }),
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(
           timing.duration,
           Math.max(0, seconds + offset),
         );
-        return carried(geometry().posture(t), t);
+        return carried(geometry().posture(t, undefined, source, projection), t);
       },
       settle: (): void => {
         built = undefined;
@@ -260,11 +278,14 @@ export namespace kick {
               met = StrikingWeapon.first(found);
               fixed = met === null ? null : met.seconds;
               ride = undefined;
+
+              // The geometry is built on the stop it was given: a stop
+              // committed now makes it another, whoever settles after.
+              built = undefined;
             },
           }
         : {}),
-      record: (): IAutoMovieMotionHumanStrikingRecord.IRecord =>
-        geometry().record,
+      record: (): IAutoMovieMotionHumanStrikingRecord.IRecord => geometry().record,
       source: {
         timing,
         geometry,
@@ -276,9 +297,7 @@ export namespace kick {
   }
 
   /** Whether a plan is a kick's, carrying what a redirect continues. */
-  function continues(
-    plan: IAutoMovieMotionHumanActionPlan,
-  ): plan is IAutoMovieMotionHumanKick.IPlan {
+  function continues(plan: IAutoMovieMotionHumanActionPlan): plan is IAutoMovieMotionHumanKick.IPlan {
     return StrikingRecord.carries(plan) && "source" in plan;
   }
 

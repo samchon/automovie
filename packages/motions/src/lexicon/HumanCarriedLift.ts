@@ -13,6 +13,7 @@ import type {
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
@@ -58,9 +59,9 @@ export namespace HumanCarriedLift {
    * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the carry's own, blended from the entry posture while the lift lasts and toward a stand under the carried root while the set-down lasts; phases longer than the carry are scaled to fill it. Both ends' displayed roots include their whole-body rotations (`turnHumanPosture`); their positions are blended linearly and their rotations by quaternion slerp, represented as a correction after the blended Euler heading, so a rotation carried outside those angles cannot disappear when a phase starts.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two weights, one blend, the contact windows cut to the hold and the feet's floor windows around it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heading is blended the short way round; a limb goal is blended as the joint angles its solve gives, so no limb jumps when the blend starts or ends.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolution of the carry and one blend over the joints per evaluated second of a phase; the entry is resolved once.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the carry's plan and the entry posture.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The entry is frozen once per plan; a posture inside a phase freezes the carry's posture once (one whole-posture fit) and blends the joints, and one outside the phases costs the carry's own posture alone.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one posture call the carry's plan and the freeze share one forward-kinematics reader and the caller's range-of-motion projector; the bearer's bones the carry reads are its own. Nothing is kept between seconds.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the carry's plan, the two phase lengths and the entry and frozen entry postures; each posture call's reader ends with it.
    */
   export function over(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarriedLift.IParams>,
@@ -81,11 +82,8 @@ export namespace HumanCarriedLift {
     // (`GymnasticsFlight.frozen`), so a limb a goal places at one end is
     // blended from where that goal put it, never dropped at the start or
     // taken whole half way, and the blend meets each end's displayed pose.
-    const stood: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(
-      body,
-      entry,
-    );
-    const ease = (x: number): number => minimumJerk(x).s;
+    const stood: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(body, entry);
+    const ease: (x: number) => number = (x: number): number => minimumJerk.share(x);
     const mix = (
       from: IAutoMovieMotionHumanPosture,
       to: IAutoMovieMotionHumanPosture,
@@ -109,10 +107,8 @@ export namespace HumanCarriedLift {
         ];
       }
       const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
-      const a: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
-        turnHumanPosture(from);
-      const b: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
-        turnHumanPosture(to);
+      const a: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(from);
+      const b: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(to);
       const rotation: IAutoMovieQuaternion = Quaternion.slerp(
         a.rotation,
         b.rotation,
@@ -150,9 +146,7 @@ export namespace HumanCarriedLift {
       ],
       contacts: [
         ...plan.contacts.map(
-          (
-            window: IAutoMovieMotionHumanContactWindow,
-          ): IAutoMovieMotionHumanContactWindow => ({
+          (window: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
             ...window,
             from: Math.max(window.from, lift / plan.duration),
             to: Math.min(window.to, 1 - setDown / plan.duration),
@@ -163,9 +157,7 @@ export namespace HumanCarriedLift {
         // again from the set-down's start: each support is released only as
         // the next one takes the weight (#3437, a support sequence of #3435).
         ...(["leftFoot", "rightFoot"] as const).flatMap(
-          (
-            part: "leftFoot" | "rightFoot",
-          ): IAutoMovieMotionHumanContactWindow[] => [
+          (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow[] => [
             ...(lift > 0
               ? [
                   {
@@ -191,20 +183,26 @@ export namespace HumanCarriedLift {
           ],
         ),
       ],
-      posture: (at: number): IAutoMovieMotionHumanPosture => {
-        const held: IAutoMovieMotionHumanPosture = plan.posture(at);
+      posture: (
+        at: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+        const held: IAutoMovieMotionHumanPosture = plan.posture(at, undefined, resolution, projection);
         if (lift > 0 && at < lift) {
           const w: number = ease(at / lift);
           return w <= 0
             ? entry
-            : mix(stood, GymnasticsFlight.frozen(body, held), w);
+            : mix(stood, GymnasticsFlight.frozen(body, held, resolution, projection), w);
         }
         if (setDown > 0 && at > plan.duration - setDown) {
           const w: number = ease((at - (plan.duration - setDown)) / setDown);
           return w <= 0
             ? held
             : mix(
-                GymnasticsFlight.frozen(body, held),
+                GymnasticsFlight.frozen(body, held, resolution, projection),
                 {
                   ...stood,
                   root: { x: held.root.x, y: stood.root.y, z: held.root.z },

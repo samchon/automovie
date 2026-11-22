@@ -1,23 +1,19 @@
 import {
   convexHull2D,
   resolveAutoMovieCenterOfMass,
-  resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanContactWindow } from "../law/HumanContactWindow";
-import { HumanFoot } from "../posture/HumanFoot";
+import { HumanSupportPatch } from "../posture/HumanSupportPatch";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
@@ -171,18 +167,7 @@ export namespace AutoMovieMotionHumanAuditStatics {
    * @param contact The window.
    * @returns World metres.
    */
-  export function point(
-    body: IAutoMovieMotionHumanBody,
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    contact: IAutoMovieMotionHumanContactWindow,
-  ): IAutoMovieVector3 {
-    const named: AutoMovieHumanoidRegion =
-      contact.region ?? HumanContactWindow.REGIONS[contact.part];
-    const frame: IAutoMovieHumanoidSurfaces.IFrame =
-      body.surfaces.regions[named];
-    return resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
-      .point;
-  }
+  export const point: typeof HumanSupportPatch.point = HumanSupportPatch.point;
 
   /**
    * The corners of a window's contact patch: a foot's bearing sole outline
@@ -193,20 +178,7 @@ export namespace AutoMovieMotionHumanAuditStatics {
    * @param contact The window.
    * @returns World metres.
    */
-  export function patch(
-    body: IAutoMovieMotionHumanBody,
-    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    contact: IAutoMovieMotionHumanContactWindow,
-  ): IAutoMovieVector3[] {
-    if (
-      contact.region === undefined &&
-      (contact.part === "leftFoot" || contact.part === "rightFoot")
-    )
-      return HumanFoot.base(body, bones, [
-        contact.part === "leftFoot" ? "left" : "right",
-      ]);
-    return [point(body, bones, contact)];
-  }
+  export const patch: typeof HumanSupportPatch.of = HumanSupportPatch.of;
 
   /**
    * The load-weighted Minkowski sum of the open windows' patches, the

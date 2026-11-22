@@ -1,0 +1,225 @@
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { ArchetypeFrame } from "../core";
+import { EquineBodyPose } from "./EquineBodyPose";
+import type { EquineComfortCue } from "./EquineComfortCue";
+import type { EquineStanceRows } from "./EquineStanceRows";
+import { EquineStanceSupport } from "./EquineStanceSupport";
+import type { QuadrupedBody } from "./QuadrupedBody";
+
+/** The share of a lifting step spent moving the weight off the hoof before it leaves the floor: authored, as the stance rows' own. */
+const LOAD: number = 0.35;
+
+/** The share of the entry spent lowering the hindquarters before the first hind steps: authored. */
+const LOWER: number = 0.2;
+
+/** How far each hind hoof steps back, metres: authored. */
+const BACK: number = 0.2;
+
+/** Its swing's height, metres: authored. */
+const LIFT: number = 0.06;
+
+/** How much nearer than at the halt each stepped hind's hip is kept to its ankle, metres: authored room for the weight transfer. */
+const ROOM: number = 0.03;
+
+/** The zero vector. */
+const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+
+/** The two hinds, in stepping order. */
+const HINDS: readonly QuadrupedBody.Limb[] = ["leftHind", "rightHind"];
+
+/**
+ * The camped-out stance of urination: the hindquarters lowered, then each hind hoof stepped back in turn.
+ *
+ * A hind limb standing square is nearly straight, so stepping its hoof back with the hips where they were would take it out of its reach. The hindquarters are first lowered by pitching the trunk up about the shoulders, through the least angle that brings each hind's hip to within its halt distance of its stepped-back ankle, less `ROOM`: a circle-to-point distance on the sagittal plane, solved in closed form by the law of cosines. Each hind then steps back like any lifted hoof, the weight first moved inside the other three (`EquineStanceSupport.transfer`). The exit plays the entry back. The step length, swing height and room are authored.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States why the hindquarters lower, the closed-form angle, the stepping and what is authored.
+ * @evidence contracts/development/design.md#principled-representation A stance plan.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `EquineComfortRows.plan` for the camp row.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No search: the pitch is closed form; reach is still admitted by the stance.
+ */
+export namespace EquineCampOut {
+  /**
+   * Plan the camped-out stance from a state.
+   *
+   * @param body The prepared solver.
+   * @param start The state it starts from.
+   * @param cue The camp row.
+   * @returns Its plan, returning to the start.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the output.
+   * @evidence contracts/development/implementation.md#principled-implementation Lower the hindquarters by the closed-form pitch, then step each hind back after its weight transfer.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Pitch, two steps, one pose function.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reach and floor are left to the stance's admission, never clamped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plan and pose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stance's support rules.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its states.
+   */
+  export function plan<Id extends string, D extends string>(
+    body: EquineBodyPose.IPrepared<Id, D>,
+    start: EquineStanceRows.IState,
+    cue: EquineComfortCue.ICamp,
+  ): EquineStanceRows.IPlan {
+    const heading: IAutoMovieQuaternion = EquineStanceSupport.heading(
+      start.trunk,
+    );
+    const offset: IAutoMovieVector3 = EquineStanceSupport.along(start.trunk, {
+      x: 0,
+      y: 0,
+      z: -BACK,
+    });
+    const shoulders: IAutoMovieVector3 = EquineBodyPose.point(
+      start.trunk,
+      Vector3.scale(
+        Vector3.add(body.chains.leftFore[0]!, body.chains.rightFore[0]!),
+        0.5,
+      ),
+    );
+    const pitch: number = Math.max(
+      ...HINDS.map((limb: QuadrupedBody.Limb): number =>
+        lowering(body, start, limb, offset, shoulders, heading),
+      ),
+    );
+    const lowered: ArchetypeFrame.IMotion = ArchetypeFrame.chain(
+      EquineBodyPose.turn(pitch, 0, shoulders, ZERO, heading),
+      start.trunk,
+    );
+    const states: EquineStanceRows.IState[] = [
+      { trunk: lowered, anchors: start.anchors },
+    ];
+    const loads: ArchetypeFrame.IMotion[] = [];
+    for (const limb of HINDS) {
+      const before: EquineStanceRows.IState = states.at(-1)!;
+      const loaded: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
+        before.trunk,
+        EquineStanceSupport.transfer(body, before, limb),
+      );
+      loads.push(loaded);
+      states.push({
+        trunk: loaded,
+        anchors: {
+          ...before.anchors,
+          [limb]: Vector3.add(before.anchors[limb], offset),
+        },
+      });
+    }
+    const half: number = (1 - LOWER) / HINDS.length;
+    return {
+      cue,
+      start,
+      end: start,
+      keys: [
+        LOWER,
+        ...HINDS.flatMap((_: QuadrupedBody.Limb, k: number): number[] => [
+          LOWER + (k + LOAD) * half,
+          LOWER + (k + (1 + LOAD) / 2) * half,
+          LOWER + (k + 1) * half,
+        ]),
+      ],
+      events: HINDS.flatMap(
+        (limb: QuadrupedBody.Limb, k: number): EquineStanceRows.IEvent[] => [
+          {
+            label: `${limb}Off`,
+            entry: true,
+            time: minimumJerk.time(LOWER + (k + LOAD) * half),
+          },
+          {
+            label: `${limb}On`,
+            entry: true,
+            time: minimumJerk.time(LOWER + (k + 1) * half),
+          },
+        ],
+      ),
+      goal: (share: number): EquineBodyPose.IGoal => {
+        if (share <= LOWER)
+          return {
+            trunk: ArchetypeFrame.chain(
+              EquineBodyPose.turn(
+                (pitch * share) / LOWER,
+                0,
+                shoulders,
+                ZERO,
+                heading,
+              ),
+              start.trunk,
+            ),
+            limbs: EquineStanceSupport.placed(start.anchors),
+          };
+        const step: number = (share - LOWER) / half;
+        const k: number = Math.min(HINDS.length - 1, Math.floor(step));
+        const local: number = step - k;
+        const before: EquineStanceRows.IState = states[k]!;
+        const limb: QuadrupedBody.Limb = HINDS[k]!;
+        if (local <= LOAD)
+          return {
+            trunk: EquineStanceSupport.blend(
+              before.trunk,
+              loads[k]!,
+              local / LOAD,
+            ),
+            limbs: EquineStanceSupport.placed(before.anchors),
+          };
+        return {
+          trunk: loads[k]!,
+          limbs: {
+            ...EquineStanceSupport.placed(before.anchors),
+            [limb]: {
+              kind: "placed",
+              anchor: EquineStanceSupport.arc(
+                before.anchors[limb],
+                states[k + 1]!.anchors[limb],
+                minimumJerk.share((local - LOAD) / (1 - LOAD)),
+                LIFT,
+              ),
+              fold: 0,
+            },
+          },
+        };
+      },
+    };
+  }
+
+  /**
+   * The least pitch about the shoulders, degrees, that keeps one hind's hip within its halt distance of its stepped-back ankle, less `ROOM`; zero when it already is.
+   *
+   * In the heading's sagittal plane the hip turns on a circle of radius ρ about the shoulders, and the ankle lies at distance q from them; the in-plane hip-to-ankle distance r follows the law of cosines, r² = ρ² + q² − 2ρq cos φ, so the wanted r gives the wanted angle φ between them in closed form.
+   */
+  function lowering<Id extends string, D extends string>(
+    body: EquineBodyPose.IPrepared<Id, D>,
+    start: EquineStanceRows.IState,
+    limb: QuadrupedBody.Limb,
+    offset: IAutoMovieVector3,
+    shoulders: IAutoMovieVector3,
+    heading: IAutoMovieQuaternion,
+  ): number {
+    const chain: readonly IAutoMovieVector3[] = body.chains[limb];
+    const terminal: IAutoMovieVector3 = Vector3.subtract(chain[4]!, chain[3]!);
+    const hip: IAutoMovieVector3 = EquineBodyPose.point(start.trunk, chain[0]!);
+    const ankle: IAutoMovieVector3 = Vector3.subtract(
+      start.anchors[limb],
+      terminal,
+    );
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(heading);
+    const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+      Quaternion.rotateVector(inverse, Vector3.subtract(point, shoulders));
+    const h: IAutoMovieVector3 = local(hip);
+    const a: IAutoMovieVector3 = local(Vector3.add(ankle, offset));
+    const wanted: number = Vector3.distance(hip, ankle) - ROOM;
+    const across: number = h.x - a.x;
+    const r: number = Math.sqrt(Math.max(0, wanted * wanted - across * across));
+    const rho: number = Math.hypot(h.y, h.z);
+    const q: number = Math.hypot(a.y, a.z);
+    const angle = (y: number, z: number): number => {
+      const raw: number = Math.atan2(y, z);
+      return raw < 0 ? raw + 2 * Math.PI : raw;
+    };
+    const cosine: number = (rho * rho + q * q - r * r) / (2 * rho * q);
+    const phi: number = Math.acos(Math.max(-1, Math.min(1, cosine)));
+    const needed: number = angle(a.y, a.z) - angle(h.y, h.z) - phi;
+    return Math.max(0, (needed * 180) / Math.PI);
+  }
+}

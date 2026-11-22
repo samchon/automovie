@@ -39,6 +39,7 @@ import { describeFormationTextureSources } from "./describeFormationTextureSourc
 import { disposeFormationRepresentations } from "./disposeFormationRepresentations.js";
 import { applyFormationCycleCadence } from "./formationCycle/index.js";
 import { formationSpacingOffset } from "./formationSpacingOffset.js";
+import { AutoMovieCollisionSource } from "./inspection/AutoMovieCollisionSource.js";
 import { objectTransform } from "./objectTransform.js";
 import { regenerateFormationSlot } from "./regenerateFormationSlot.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
@@ -59,7 +60,7 @@ import { vector } from "./vector.js";
  *
  * @evidence contracts/development/implementation.md#principled-implementation Uses engine compact slot regeneration, cue sampling, cadence integration and hysteretic LOD, projecting metre placements into chunk InstancedMeshes and baked Float32 part tables; admitted models/anchors/tiers are premises, stride is heuristic and cadence matrix interpolation is approximate, while anonymous and caller-supplied hero ownership stay distinct.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds shared tier resources once and per-chunk matrix/phase buffers separately, with sparse slot exception lookup and hero rest snapshots for updates; no in-tree production shot host consumes this producer, and that unresolved wiring is not repaired by another runtime layer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Regenerates authored seeded slots and actual cues without fixture frames or per-member surrogate nodes. The 0.01 chunk-radius and 0.001 distance/depth floors are numerical conventions; culling uses original chunk bounds and supplied projection radius, without recomputing bounds for reform or sparse offsets. Containment of the current deformed arrangement is therefore a remaining premise, not an independently established visibility guarantee.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Regenerates authored seeded slots and actual cues without fixture frames or per-member surrogate nodes. Culling encloses current placements through base arrangement bounds and sparse member distances. Enclosure of displayed geometry depends on the supplied model projection radius.
  * @evidence contracts/development/common.md#meaningful-documentation States anonymous versus promoted members, metre/phase buffer roles, shared gait repertoire and cadence approximation, update work beyond uniform writes and the currently absent production consumer.
  * @evidence contracts/development/implementation.md#efficient-algorithms Construction regenerates N anonymous slots and fills each resident tier, bakes each tier once and locates E exceptions by scanning C chunks then the matching chunk's slots. Updates visit chunks/tiers and heroes, sample cue lists for each exception, and rewrite N matrices when spacing/reform changes. Cue sampling and native graph updates add their actual costs; retained buffers scale with N times resident tiers rather than one Object3D per member.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares tier geometry/material/cycle textures across chunk meshes, retains tier hysteresis and only rewrites arrangement when spacing/reform inputs change; absolute cue/cadence inputs drive updates, and failed/successful disposal completion is reused without physical retries.
@@ -161,6 +162,16 @@ export const buildInstancedFormation: (
               ),
             );
             mesh.name = `${input.formation.id}:${chunk.index}:${lod.tier}`;
+            // Placed collision checks read each drawn instance by its slot, and
+            // leave member spacing inside the formation to its own owner.
+            AutoMovieCollisionSource.bindInstances(mesh, {
+              id: root.name,
+              group: { id: input.formation.id, kind: "managed-formation" },
+              region: String(chunk.index),
+              slots: slots.map(
+                (slot: IAutoMovieFormationSlot): number => slot.slot,
+              ),
+            });
             bindFormationTierCycle(mesh, representation);
             slots.forEach(
               (slot: IAutoMovieFormationSlot, index: number): void => {
@@ -178,25 +189,29 @@ export const buildInstancedFormation: (
             root.add(mesh);
             tiers.set(lod.tier, mesh);
           }
+          const restRadius: number = Math.max(
+            0.01,
+            ...[chunk.bounds.min.x, chunk.bounds.max.x].flatMap(
+              (x: number): number[] =>
+                [chunk.bounds.min.y, chunk.bounds.max.y].flatMap(
+                  (y: number): number[] =>
+                    [chunk.bounds.min.z, chunk.bounds.max.z].map(
+                      (z: number): number =>
+                        Math.hypot(
+                          x - chunk.centroid.x,
+                          y - chunk.centroid.y,
+                          z - chunk.centroid.z,
+                        ),
+                    ),
+                ),
+            ),
+          );
           return {
             runtime: chunk,
-            radius: Math.max(
-              0.01,
-              ...[chunk.bounds.min.x, chunk.bounds.max.x].flatMap(
-                (x: number): number[] =>
-                  [chunk.bounds.min.y, chunk.bounds.max.y].flatMap(
-                    (y: number): number[] =>
-                      [chunk.bounds.min.z, chunk.bounds.max.z].map(
-                        (z: number): number =>
-                          Math.hypot(
-                            x - chunk.centroid.x,
-                            y - chunk.centroid.y,
-                            z - chunk.centroid.z,
-                          ),
-                      ),
-                  ),
-              ),
-            ),
+            center: vector(chunk.centroid).sub(root.position),
+            restRadius,
+            radius: restRadius,
+            exceptionRadius: 0,
             slots,
             tiers,
             selected: null,
@@ -368,36 +383,59 @@ export const buildInstancedFormation: (
             sampled.spacingScale.lateral !== spacing.lateral ||
             sampled.spacingScale.depth !== spacing.depth ||
             sampled.reform?.layout !== reform?.layout ||
+            sampled.reform?.fromLayout !== reform?.fromLayout ||
             sampled.reform?.progress !== reform?.progress
           ) {
             spacing = { ...sampled.spacingScale };
             reform = sampled.reform;
-            for (const chunk of chunks)
-              for (const mesh of chunk.tiers.values()) {
-                chunk.slots.forEach(
-                  (slot: IAutoMovieFormationSlot, index: number): void => {
-                    mesh.setMatrixAt(
-                      index,
-                      slotMatrix(
-                        reform === null
-                          ? slot
-                          : {
-                              ...slot,
-                              position: formationSlotPosition(
-                                input.formation,
-                                slot.slot,
-                                reform,
-                              ),
-                            },
-                        input.formation.anchor,
-                        spacing,
-                        input.formation.facingDeg,
-                      ),
+            for (const chunk of chunks) {
+              const bounds: THREE.Box3 = new THREE.Box3();
+              const position: THREE.Vector3 = new THREE.Vector3();
+              chunk.slots.forEach(
+                (slot: IAutoMovieFormationSlot, index: number): void => {
+                  const matrix: THREE.Matrix4 = slotMatrix(
+                    reform === null
+                      ? slot
+                      : {
+                          ...slot,
+                          position: formationSlotPosition(
+                            input.formation,
+                            slot.slot,
+                            reform,
+                          ),
+                        },
+                    input.formation.anchor,
+                    spacing,
+                    input.formation.facingDeg,
+                  );
+                  if (reform !== null)
+                    bounds.expandByPoint(
+                      position.setFromMatrixPosition(matrix),
                     );
-                  },
+                  for (const mesh of chunk.tiers.values())
+                    mesh.setMatrixAt(index, matrix);
+                },
+              );
+              if (reform === null) {
+                chunk.center.copy(
+                  formationSpacingOffset(
+                    chunk.runtime.centroid,
+                    input.formation.anchor,
+                    spacing,
+                    input.formation.facingDeg,
+                  ),
                 );
+                chunk.radius =
+                  chunk.restRadius *
+                  Math.max(1, spacing.lateral, spacing.depth);
+              } else if (bounds.isEmpty() === false) {
+                bounds.getCenter(chunk.center);
+                chunk.radius = bounds.max.distanceTo(chunk.center);
+              }
+              for (const mesh of chunk.tiers.values()) {
                 mesh.instanceMatrix.needsUpdate = true;
               }
+            }
           }
           // The members singled out, written after the unit-wide pass so a spacing
           // rewrite cannot undo them. Only the exceptions are touched, so this costs
@@ -408,7 +446,10 @@ export const buildInstancedFormation: (
           // carries the cue's own turn and its travel. That is the same composition
           // the engine's placement performs in one step for a gate that has no
           // scene graph to carry half of it.
-          for (const exception of exceptions) exception.chunk.removed = 0;
+          for (const { chunk } of exceptions) {
+            chunk.removed = 0;
+            chunk.exceptionRadius = 0;
+          }
           for (const exception of exceptions) {
             const state: IAutoMovieFormationSlotState =
               sampleFormationSlotMotion(
@@ -422,7 +463,13 @@ export const buildInstancedFormation: (
               input.formation.facingDeg,
             );
             const position: THREE.Vector3 = formationSpacingOffset(
-              exception.designed.position,
+              reform === null
+                ? exception.designed.position
+                : formationSlotPosition(
+                    input.formation,
+                    exception.slot,
+                    reform,
+                  ),
               input.formation.anchor,
               spacing,
               input.formation.facingDeg,
@@ -453,7 +500,11 @@ export const buildInstancedFormation: (
             if (state.present === false) {
               ++exception.chunk.removed;
               ++stats.removed;
-            }
+            } else
+              exception.chunk.exceptionRadius = Math.max(
+                exception.chunk.exceptionRadius,
+                position.distanceTo(exception.chunk.center),
+              );
           }
           root.updateMatrixWorld(true);
           camera.updateMatrixWorld(true);
@@ -546,21 +597,12 @@ export const buildInstancedFormation: (
             if (object.visible) ++stats.visible.hero;
           }
           for (const chunk of chunks) {
-            const localCenter: THREE.Vector3 = formationSpacingOffset(
-              chunk.runtime.centroid,
-              input.formation.anchor,
-              spacing,
-              input.formation.facingDeg,
+            const center: THREE.Vector3 = root.localToWorld(
+              chunk.center.clone(),
             );
-            const center: THREE.Vector3 = root.localToWorld(localCenter);
             const sphere: THREE.Sphere = new THREE.Sphere(
               center,
-              chunk.radius *
-                Math.max(
-                  sampled.spacingScale.lateral,
-                  sampled.spacingScale.depth,
-                ) +
-                selectionRadius,
+              Math.max(chunk.radius, chunk.exceptionRadius) + selectionRadius,
             );
             if (frustum.intersectsSphere(sphere) === false) {
               for (const mesh of chunk.tiers.values()) mesh.visible = false;

@@ -1,0 +1,334 @@
+import {
+  Quaternion,
+  Transform,
+  mergeAutoMovieSpaces,
+  mergeAutoMovieSubjectContributions,
+  validatePropPlacements,
+  validateSpace,
+} from "@automovie/engine";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieClip,
+  IAutoMovieConstraintViolation,
+  IAutoMovieEnvironment,
+  IAutoMovieEnvironmentContribution,
+  IAutoMovieEnvironmentItem,
+  IAutoMovieEnvironmentRecipe,
+  IAutoMovieModel,
+  IAutoMoviePropSpec,
+  IAutoMovieSpace,
+  IAutoMovieStageSetPiece,
+  IAutoMovieSubjectContribution,
+  IAutoMovieTransform,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { ArchetypeFrame } from "../core/ArchetypeFrame";
+import { requireEnvironmentFrame } from "./requireEnvironmentFrame";
+
+/**
+ * Place typed modules and prepare the stage and runtime pieces a shot uses.
+ *
+ * Item keys are stable within the recipe. References address an item's origin
+ * or its named anchors. Each module is evaluated once after its inputs resolve.
+ * Emitted arrays keep source item order even when a reference is forward.
+ *
+ * @param recipe Named items, optional seed and optional rigid world frame.
+ * @returns The stage set and space, compile runtime records, architectural records and named world frames.
+ * @throws For malformed identity or placement, missing or cyclic references, conflicting emitted identities or invalid support or prop declarations.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation Depth-first reference resolution computes each rigid metre frame from its parent before invoking its definition. Origins involve only placement dependencies. Named anchors first require the producing definition. A path stack names back edges. The stable occurrence path and optional seed are encoded as a pair. Stage data and prop claims run the existing support and prop gates.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolution owns pose and dependencies. Existing subject-field merge and space merge own ordered concatenation. The result separates existing stage inputs from runtime inputs at their consumer boundary.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Modules author their own scoped ids and world geometry. The composer keeps references intact, rejects conflicting identities and shares model records only when the caller supplied the same prototype.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Item and anchor lookup use maps. Resolution visits each module once plus its reference calls, excluding producer work. Concatenation, identity and join indexes scan the emitted arrays once. Space polygon validation and prop geometry validation have their own shape and placement-dependent costs.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Within a recipe every resolved instance is used for all its references, and lookup and emitted frames are keyed by placement identity. Separate calls share no result because recipes and their producer dependencies can change.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Once the synchronous call ends, resolution state is discarded. The returned arrays retain their emitted records. The composer acquires no external handles and its construction callbacks are scoped to their invocation.
+ * @evidence contracts/development/common.md#meaningful-documentation States the root and instance frame, seed, order, reference spelling, existing consumer split and rejection paths.
+ */
+export function createEnvironment(
+  recipe: IAutoMovieEnvironmentRecipe,
+): IAutoMovieEnvironment {
+  requirePath(recipe.id, "$input.id");
+  if (typeof recipe.seed === "number" && !Number.isFinite(recipe.seed))
+    throw new Error("$input.seed: numeric environment seed must be finite");
+  const root: IAutoMovieTransform = recipe.frame ?? Transform.identity();
+  requireEnvironmentFrame(root, "$input.frame");
+
+  const items: Map<string, IAutoMovieEnvironmentItem> = new Map(
+    Object.entries(recipe.items),
+  );
+  for (const key of items.keys()) {
+    if (key.includes("/"))
+      throw new Error(
+        `${itemPath(key)}: item keys must be single path segments`,
+      );
+    requirePath(key, itemPath(key));
+  }
+
+  const frames: Map<string, IAutoMovieTransform> = new Map();
+  const resolved: Map<string, IAutoMovieEnvironmentContribution> = new Map();
+  const stack: Set<string> = new Set();
+
+  /** Read a referenced item's origin or named anchor with the caller's diagnostic path. */
+  function anchor(reference: string, caller: string): IAutoMovieTransform {
+    requirePath(reference, caller);
+    const separator: number = reference.indexOf("/");
+    const key: string =
+      separator === -1 ? reference : reference.slice(0, separator);
+    if (separator === -1) return place(key, caller);
+    const name: string = reference.slice(separator + 1);
+    const entries: IAutoMovieEnvironmentContribution["anchors"] = resolve(
+      key,
+      caller,
+    ).anchors;
+    if (entries === undefined || !Object.hasOwn(entries, name))
+      throw new Error(`${caller}: unknown environment anchor "${reference}"`);
+    return entries[name]!;
+  }
+
+  /** Require a declared item, keeping the referring source path in a refusal. */
+  function requireItem(key: string, caller: string): IAutoMovieEnvironmentItem {
+    const item: IAutoMovieEnvironmentItem | undefined = items.get(key);
+    if (item === undefined)
+      throw new Error(`${caller}: unknown environment item "${key}"`);
+    return item;
+  }
+
+  /** Track one active dependency and release it even when a producer refuses. */
+  function withTask<Value>(
+    task: string,
+    caller: string,
+    run: () => Value,
+  ): Value {
+    if (stack.has(task))
+      throw new Error(
+        `${caller}: environment reference cycle ${[...stack, task].join(" -> ")}`,
+      );
+    stack.add(task);
+    try {
+      return run();
+    } finally {
+      stack.delete(task);
+    }
+  }
+
+  /** Resolve an item's world pose independently of geometry built at that pose. */
+  function place(key: string, caller: string): IAutoMovieTransform {
+    const existing: IAutoMovieTransform | undefined = frames.get(key);
+    if (existing !== undefined) return existing;
+    const task: string = `${key}/placement`;
+    const item: IAutoMovieEnvironmentItem = requireItem(key, caller);
+    return withTask(task, caller, (): IAutoMovieTransform => {
+      const path: string = itemPath(key);
+      const at: IAutoMovieEnvironmentItem["at"] = item.at;
+      const localOrigin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+      let offset: IAutoMovieVector3 = localOrigin;
+      let parent: IAutoMovieTransform = root;
+      if (at !== undefined) {
+        if ("anchor" in at) {
+          offset = at.offset ?? localOrigin;
+          parent = anchor(at.anchor, `${path}.at`);
+        } else offset = at;
+      }
+      const local: IAutoMovieTransform = Transform.of(
+        offset,
+        item.rotation ?? Quaternion.identity(),
+      );
+      requireEnvironmentFrame(local, `${path}.placement`);
+      const frame: IAutoMovieTransform = ArchetypeFrame.compose(parent, local);
+      requireEnvironmentFrame(frame, `${path}.frame`);
+      frames.set(key, frame);
+      return frame;
+    });
+  }
+
+  /** Resolve one contribution, evaluating its definition at most once. */
+  function resolve(
+    key: string,
+    caller: string,
+  ): IAutoMovieEnvironmentContribution {
+    const existing: IAutoMovieEnvironmentContribution | undefined =
+      resolved.get(key);
+    if (existing !== undefined) return existing;
+    const item: IAutoMovieEnvironmentItem = requireItem(key, caller);
+    const frame: IAutoMovieTransform = place(key, caller);
+    const task: string = `${key}/use`;
+    const path: string = itemPath(key);
+    return withTask(task, caller, (): IAutoMovieEnvironmentContribution => {
+      const id: string = `${recipe.id}/${key}`;
+      const contribution: IAutoMovieEnvironmentContribution = item.use({
+        id,
+        frame,
+        seed:
+          recipe.seed === undefined
+            ? undefined
+            : JSON.stringify([String(recipe.seed), id]),
+        anchor: (reference: string): IAutoMovieTransform =>
+          anchor(reference, `${path}.use`),
+      });
+      for (const [name, value] of Object.entries(contribution.anchors ?? {})) {
+        const anchorPath: string = `${path}.anchors[${JSON.stringify(name)}]`;
+        requirePath(name, anchorPath);
+        requireEnvironmentFrame(value, anchorPath);
+      }
+      resolved.set(key, contribution);
+      return contribution;
+    });
+  }
+
+  const anchors: Array<readonly [string, IAutoMovieTransform]> = [];
+  const contributions: IAutoMovieEnvironmentContribution[] = [];
+  const objectMotions: IAutoMovieClip[] = [];
+  for (const key of items.keys()) {
+    const item: IAutoMovieEnvironmentContribution = resolve(key, itemPath(key));
+    anchors.push([key, place(key, itemPath(key))]);
+    for (const [name, value] of Object.entries(item.anchors ?? {}))
+      anchors.push([`${key}/${name}`, value]);
+    contributions.push(item);
+    for (const clip of item.objectMotions ?? []) objectMotions.push(clip);
+  }
+
+  const merged: IAutoMovieSubjectContribution =
+    mergeAutoMovieSubjectContributions(contributions);
+  const set: readonly IAutoMovieStageSetPiece[] = merged.set ?? [];
+  const props: readonly IAutoMoviePropSpec[] = merged.props ?? [];
+  const builtEnvironments: readonly IAutoMovieBuiltEnvironment[] =
+    merged.builtEnvironments ?? [];
+  const models: Map<string, IAutoMovieModel> = new Map();
+  for (const model of merged.models ?? []) {
+    const prior: IAutoMovieModel | undefined = models.get(model.id);
+    if (prior !== undefined && prior !== model)
+      throw new Error(`$input.models: conflicting model "${model.id}"`);
+    if (model.id.trim().length === 0)
+      throw new Error("$input.models: model id must be nonblank");
+    models.set(model.id, model);
+  }
+  requireUnique(
+    set,
+    (piece: IAutoMovieStageSetPiece): string => piece.node,
+    "set",
+  );
+  requireUnique(
+    builtEnvironments,
+    (environment: IAutoMovieBuiltEnvironment): string => environment.id,
+    "builtEnvironments",
+  );
+  requireUnique(
+    objectMotions,
+    (clip: IAutoMovieClip): string => clip.id,
+    "objectMotions",
+  );
+  const piecesByModel: Map<string, number> = new Map();
+  for (const piece of set)
+    piecesByModel.set(piece.model, (piecesByModel.get(piece.model) ?? 0) + 1);
+  for (const prop of props) {
+    if (models.get(prop.node) !== prop.model)
+      throw new Error(
+        `$input.props: prop "${prop.node}" must publish its own model in the runtime`,
+      );
+    if (piecesByModel.get(prop.node) !== 1)
+      throw new Error(
+        `$input.props: prop "${prop.node}" must have exactly one staged model occurrence`,
+      );
+  }
+  if (props.length !== 0)
+    requireValid(validatePropPlacements({ set, props, builtEnvironments }));
+
+  const spaces: readonly IAutoMovieSpace[] = merged.spaces ?? [];
+  requireUnique(spaces, (space: IAutoMovieSpace): string => space.id, "spaces");
+  const space: IAutoMovieSpace | undefined =
+    spaces.length !== 0 ? mergeAutoMovieSpaces(recipe.id, spaces) : undefined;
+  if (space !== undefined) requireValid(validateSpace({ space }));
+
+  const worldIds: ReadonlyArray<
+    readonly [string, readonly { readonly id: string }[] | undefined]
+  > = [
+    ["surfaces", merged.surfaces],
+    ["landmarks", merged.landmarks],
+    ["routes", merged.routes],
+    ["effectRecipes", merged.effectRecipes],
+    ["effectZones", merged.effectZones],
+    ["instanceSets", merged.instanceSets],
+  ];
+  for (const [label, values] of worldIds)
+    requireUnique(
+      values ?? [],
+      (value: { readonly id: string }): string => value.id,
+      `world.${label}`,
+    );
+
+  return {
+    stage: {
+      set: [...set],
+      ...(space !== undefined ? { space } : {}),
+    },
+    runtime: {
+      models: [...models.values()],
+      props,
+      objectMotions,
+      world: {
+        id: recipe.id,
+        units: "meter",
+        surfaces: [...(merged.surfaces ?? [])],
+        landmarks: [...(merged.landmarks ?? [])],
+        routes: [...(merged.routes ?? [])],
+        effectRecipes: [...(merged.effectRecipes ?? [])],
+        effectZones: [...(merged.effectZones ?? [])],
+        ...(merged.instanceSets !== undefined
+          ? { instanceSets: [...merged.instanceSets] }
+          : {}),
+      },
+    },
+    anchors: Object.fromEntries(anchors),
+    builtEnvironments,
+  };
+}
+
+/** Report a JSON-style item path even for source keys containing spaces or quotes. */
+function itemPath(key: string): string {
+  return `$input.items[${JSON.stringify(key)}]`;
+}
+
+/** Every authored path has at least one nonblank segment and no implicit trimming. */
+function requirePath(value: string, path: string): void {
+  if (
+    value
+      .split("/")
+      .some(
+        (segment: string): boolean =>
+          !segment.length || segment.trim() !== segment,
+      )
+  )
+    throw new Error(`${path}: invalid environment path "${value}"`);
+}
+
+/** Admit stable nonblank identities within a population of owned records. */
+function requireUnique<Value>(
+  values: readonly Value[],
+  key: (value: Value) => string,
+  label: string,
+): void {
+  const ids: Set<string> = new Set();
+  for (const value of values) {
+    const id: string = key(value);
+    if (id.trim().length === 0 || ids.has(id))
+      throw new Error(`$input.${label}: invalid or duplicate id "${id}"`);
+    ids.add(id);
+  }
+}
+
+/** Keep the first error at the canonical support or prop gate's diagnostic path. */
+function requireValid(validation: IAutoMovieValidation): void {
+  if (validation.success) return;
+  const error: IAutoMovieConstraintViolation | undefined =
+    validation.violations.find(
+      (violation: IAutoMovieConstraintViolation): boolean =>
+        violation.severity !== "warning",
+    );
+  throw new Error(
+    error === undefined
+      ? "invalid environment"
+      : `${error.path}: ${error.expected}`,
+  );
+}

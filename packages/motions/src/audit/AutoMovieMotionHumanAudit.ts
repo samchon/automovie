@@ -12,6 +12,7 @@ import type {
 import { AutoMovieMotionHumanAuditBalance } from "./AutoMovieMotionHumanAuditBalance";
 import { AutoMovieMotionHumanAuditContinuity } from "./AutoMovieMotionHumanAuditContinuity";
 import { AutoMovieMotionHumanAuditGround } from "./AutoMovieMotionHumanAuditGround";
+import { AutoMovieMotionHumanAuditLimits } from "./AutoMovieMotionHumanAuditLimits";
 import { AutoMovieMotionHumanAuditTangle } from "./AutoMovieMotionHumanAuditTangle";
 
 /**
@@ -41,26 +42,10 @@ import { AutoMovieMotionHumanAuditTangle } from "./AutoMovieMotionHumanAuditTang
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The resolved bones are held by one run's own closure and released when it returns.
  */
 export namespace AutoMovieMotionHumanAudit {
-  /**
-   * The default limits, metres unless stated: 10 mm of self-penetration (the
-   * skin's give where a hand rests on the body), 5 mm below the floor, 5 mm
-   * of slip and of lift (the project's foot verdict bound), a 5 mm jump, a
-   * 50 mm out-and-back, 30 m/s (above any human joint speed: a pitcher's
-   * hand peaks near 40 m/s only at ball release, a punch's fist near 10 m/s)
-   * and no departure of the extrapolated centre of mass from the feet.
-   */
+  /** The default limits (`AutoMovieMotionHumanAuditLimits`). */
   export const LIMITS: Readonly<
     Record<IAutoMovieMotionHumanAudit.Check, number>
-  > = {
-    tangle: 0.01,
-    floor: 0.005,
-    slip: 0.005,
-    lift: 0.005,
-    jump: 0.005,
-    reversal: 0.05,
-    speed: 30,
-    balance: 0,
-  };
+  > = AutoMovieMotionHumanAuditLimits;
 
   /** The checks in report order. */
   export const CHECKS: readonly IAutoMovieMotionHumanAudit.Check[] = [
@@ -195,6 +180,10 @@ const remember = (
   return {
     duration: source.duration,
     segments: (subject: string) => source.segments(subject),
+    ...(source.support === undefined
+      ? {}
+      : { support: source.support.bind(source) }),
+    ...(source.water === undefined ? {} : { water: source.water.bind(source) }),
     bones: (
       subject: string,
       seconds: number,

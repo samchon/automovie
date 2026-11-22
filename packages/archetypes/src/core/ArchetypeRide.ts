@@ -11,9 +11,10 @@ import type { Archetype } from "./Archetype";
 import { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import { ArchetypeRideWitness } from "./ArchetypeRideWitness";
 import { ArchetypeSpan } from "./ArchetypeSpan";
+import type { ArchetypeTowedGeometry } from "./ArchetypeTowedGeometry";
 import { ArchetypeTowing } from "./ArchetypeTowing";
-import { ArchetypeUnits } from "./ArchetypeUnits";
 
 /**
  * A moving support in time: an archetype following a course, with whatever of it moves as it goes.
@@ -65,16 +66,34 @@ export namespace ArchetypeRide {
   }
 
   /**
-   * One point of a line: an end on the leader's posed model, or one on the towed support's.
+   * One point of a line: an end on the leader's posed model, one on the towed support's, or a point a performer holds it at.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what a point names.
-   * @evidence contracts/development/design.md#principled-representation A union of an end on either model, the other side absent.
+   * @evidence contracts/development/design.md#principled-representation A union of an end on either model or a held point, the others absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the points of `ILine`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type ILinePoint =
-    | { leader: ArchetypeSpan.End; trailer?: never }
-    | { trailer: ArchetypeSpan.End; leader?: never };
+    | { leader: ArchetypeSpan.End; trailer?: never; held?: never }
+    | { trailer: ArchetypeSpan.End; leader?: never; held?: never }
+    | ILineHeld;
+
+  /**
+   * A line point held by a performer: its world position at each film second, such as a driver's displayed palm, so a held line follows the hand that shakes, takes up or gives it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the reader's unit and space.
+   * @evidence contracts/development/design.md#principled-representation A pure reader of film seconds returning world metres, the other ends absent.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplied by a performance's hand reader and read by `towed`'s line laying.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reader is the performer's; the line owner invents no hand position.
+   */
+  export interface ILineHeld {
+    /** The held point in the world, metres, at a film second. */
+    held: (seconds: number) => IAutoMovieVector3;
+    /** Absent: a held point is on neither model. */
+    leader?: never;
+    /** Absent: a held point is on neither model. */
+    trailer?: never;
+  }
 
   /**
    * A line at one second.
@@ -157,11 +176,35 @@ export namespace ArchetypeRide {
   }
 
   /**
+   * The world placement and selected contact frames at one tow instant.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Refers to the selected tow observation at one film second.
+   * @evidence contracts/development/design.md#principled-representation Shares the contact query and its current posed geometry contract.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the canonical snapshot through the existing ride namespace.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Alias leaves all field types and query behavior to the tow geometry owner.
+   */
+  export type ITowedSample<Id extends string> =
+    ArchetypeTowedGeometry.ITowedSample<Id>;
+
+  /**
+   * A ride with an exact arbitrary-time contact query for the towed support.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the extended ride and the use of its query.
+   * @evidence contracts/development/design.md#principled-representation The canonical tow-specific extension of a general ride.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the tow return type accessible from the ride namespace.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Alias adds no alternative query representation.
+   */
+  export type ITowedRide<
+    Id extends string,
+    Dimension extends string,
+  > = ArchetypeTowedGeometry.ITowedRide<Id, Dimension>;
+
+  /**
    * A ride of an archetype along a course.
    *
    * @param archetype The support at rest.
    * @param course The course its root follows, or its plan when the caller has already planned it.
-   * @param pose What moves with the course: given the course's state, the archetype in its state there and the root's placement. Absent, the archetype goes along unchanged.
+   * @param pose The support's model and root placement at the current course state and film second. Without a poser the source model follows the course unchanged.
    * @param instants Instants the support adds to the course's.
    * @returns The ride.
    * @throws {ArchetypeRefusal} As {@link ArchetypeCourse.plan} does for a malformed course.
@@ -174,26 +217,25 @@ export namespace ArchetypeRide {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is shared by every sample, and a ride that planned the course for its own instants hands that plan in; samples are not cached, since a consumer asks each second once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride holds the rest archetype and the plan for as long as its caller keeps it.
    */
-  export function along<Id extends string, Dimension extends string>(
-    archetype: Archetype<Id, Dimension>,
+  export function along<Id extends string, D extends string>(
+    archetype: Archetype<Id, D>,
     course: ArchetypeCourse.ICourse | ArchetypeCourse.IPlan,
-    pose?: (state: ArchetypeCourse.IState) => IPose<Id, Dimension>,
+    pose?: (state: ArchetypeCourse.IState, seconds: number) => IPose<Id, D>,
     instants: readonly { seconds: number; label: string }[] = [],
-  ): IRide<Id, Dimension> {
+  ): IRide<Id, D> {
     const plan: ArchetypeCourse.IPlan =
       course.kind === "plan"
         ? course
         : ArchetypeCourse.plan(archetype.archetype, course);
-    const at: (seconds: number) => ISample<Id, Dimension> = (
-      seconds: number,
-    ): ISample<Id, Dimension> => {
+    function at(seconds: number): ISample<Id, D> {
       const state: ArchetypeCourse.IState = plan.at(seconds);
-      return {
-        ...(pose?.(state) ?? { archetype, placement: state.placement }),
-        course: state,
+      const sample: IPose<Id, D> = pose?.(state, seconds) ?? {
+        archetype,
+        placement: state.placement,
       };
-    };
-    return {
+      return { ...sample, course: state };
+    }
+    const ride: IRide<Id, D> = {
       plan,
       duration: plan.duration,
       instants: [...plan.instants, ...instants].sort(
@@ -202,13 +244,15 @@ export namespace ArchetypeRide {
       ),
       at,
       frame: (id: Id, seconds: number): IAutoMovieTransform => {
-        const sample: ISample<Id, Dimension> = at(seconds);
+        const sample: ISample<Id, D> = at(seconds);
         return ArchetypeFrame.compose(
           sample.placement,
           sample.archetype.affordance(id).frame,
         );
       },
     };
+    if (pose !== undefined) ArchetypeRideWitness.constructed(ride, pose);
+    return ride;
   }
 
   /**
@@ -220,7 +264,7 @@ export namespace ArchetypeRide {
    * @param hitch The leader's contact the trailer is hitched to.
    * @param trailer The trailer at rest.
    * @param coupling The actual source contact held on the hitch; legacy inputs require it ahead along +Z, while declared single-axle support can tow a rear contact in reverse.
-   * @param options support is producer-read actual axle geometry: a single axle permits body pitch, and fixedGround keeps two axles grounded with an optional actual drawbar hinge. Without it only an unchanged level coupling height is supported. Existing axle/front declarations must agree with supplied support; pose supplies current articulations and lines supplies actual inter-model spans.
+   * @param options support is producer-read actual axle geometry: a single axle permits body pitch, and fixedGround keeps two axles grounded with an optional actual drawbar hinge. Without it only an unchanged level coupling height is supported. Existing axle/front declarations must agree with supplied support; pose supplies current articulations and lines supplies actual inter-model spans. ground, with single-axle support, seats the wheels on the authored plane under the axle instead of the leader's course datum.
    * @returns The trailer's ride.
    * @throws {ArchetypeRefusal} For inconsistent support/options, an unreachable or unsupported hitch height, an invalid support/articulation, a coupling that does not close, a nonpositive projected reach, missing contacts/line ends or front steering beyond its declared lock.
    *
@@ -248,17 +292,31 @@ export namespace ArchetypeRide {
       front?: ArchetypeTowing.IFront<Id>;
       support?: ArchetypeTowing.Support<Id>;
       lines?: readonly ILine[];
+      ground?: ArchetypeTowing.Ground;
     } = {},
-  ): IRide<Id, Dimension> {
+  ): ITowedRide<Id, Dimension> {
     const geometry: ArchetypeTowing.IPrepared<Id> = ArchetypeTowing.prepare(
       trailer,
       coupling,
       options,
     );
     const front: ArchetypeTowing.IFront<Id> | null = geometry.front;
-    const hitchAt: (seconds: number) => IAutoMovieVector3 = (
+    const hitchAt = (
       seconds: number,
-    ): IAutoMovieVector3 => leader.frame(hitch, seconds).translation;
+      witness?: ArchetypeRideWitness.Witness,
+    ): IAutoMovieVector3 => {
+      const read:
+        | ArchetypeRideWitness.Reader<LeaderId, LeaderDimension>
+        | undefined =
+        witness === undefined ? undefined : ArchetypeRideWitness.of(leader);
+      if (read === undefined || witness === undefined)
+        return leader.frame(hitch, seconds).translation;
+      const sample: ISample<LeaderId, LeaderDimension> = read(seconds, witness);
+      return ArchetypeFrame.compose(
+        sample.placement,
+        sample.archetype.affordance(hitch).frame,
+      ).translation;
+    };
     const groundAt: (seconds: number) => number = (seconds: number): number =>
       leader.plan.at(seconds).placement.translation.y;
     const end: number = Math.max(leader.duration, 1e-3);
@@ -269,20 +327,23 @@ export namespace ArchetypeRide {
     const yaw: number = Math.atan2(start.x, start.z);
 
     // The headings, radians about +Y: the first link's turning toward the hitch at its sideways speed over its reach; a second link's toward the pivot at the pivot's sideways speed over the body's length.
-    const heading: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-      integrateMotionTrajectory({
+    const heading: IAutoMovieIntegrateMotionTrajectory.ITrajectory = (() => {
+      const stage = ArchetypeRideWitness.stages(leader);
+      return integrateMotionTrajectory({
         f: (
           t: number,
           x: readonly number[],
         ): IAutoMovieIntegrateMotionTrajectory.IRate => {
-          const ahead: IAutoMovieVector3 = hitchAt(t + 5e-4);
-          const behind: IAutoMovieVector3 = hitchAt(t - 5e-4);
+          const probes = stage(t);
+          const ahead: IAutoMovieVector3 = hitchAt(t + 5e-4, probes?.ahead);
+          const behind: IAutoMovieVector3 = hitchAt(t - 5e-4, probes?.behind);
           const vx: number = (ahead.x - behind.x) / 1e-3;
           const vz: number = (ahead.z - behind.z) / 1e-3;
           const theta: number = x[0]!;
+          const centre: IAutoMovieVector3 = hitchAt(t, probes?.centre);
           const reach: number = geometry.height(
-            hitchAt(t).y,
-            groundAt(t),
+            centre.y,
+            geometry.ground(centre, theta, groundAt(t)),
           ).reach;
           const rate: number =
             (vx * Math.cos(theta) - vz * Math.sin(theta)) / reach;
@@ -307,36 +368,9 @@ export namespace ArchetypeRide {
         t0: 0,
         t1: end,
       });
+    })();
 
-    // A front axle turned past its lock at any knot refuses the course, naming the most it needed.
-    if (front !== null) {
-      const lock: number = trailer.affordance(front.turn).travel ?? 0;
-      let most: number = 0;
-      for (let k: number = 0; k < heading.knots; k++) {
-        const x: readonly number[] = heading.at(
-          Math.min(heading.t0 + k * heading.h, heading.t1),
-        ).x;
-        most = Math.max(
-          most,
-          Math.abs((x[0]! - x[1]!) / ArchetypeUnits.DEGREE),
-        );
-      }
-      if (most > lock)
-        throw new ArchetypeRefusal({
-          kind: "parameter",
-          archetype: trailer.archetype,
-          axis: "front",
-          value: most,
-          feasible: {
-            kind: "range",
-            minimum: 0,
-            maximum: lock,
-            unit: "degrees",
-          },
-          reason: `the leader's path turns the front axle ${most} degrees, past its ${lock} degree lock`,
-          fix: "lead the trailer on wider turns",
-        });
-    }
+    ArchetypeTowing.checkSteering(trailer, front, heading);
     for (const line of options.lines ?? [])
       if (line.points.length < 2)
         throw new ArchetypeRefusal({
@@ -349,62 +383,47 @@ export namespace ArchetypeRide {
           fix: "give the line its two ends at least",
         });
 
-    /** Every line reads actual endpoints after both independent source poses. */
-    function lay(
-      lead: ISample<LeaderId, LeaderDimension>,
-      posed: Archetype<Id, Dimension>,
-      placement: IAutoMovieTransform,
-    ): { lines?: readonly ILineState[] } {
-      if (options.lines === undefined) return {};
-
-      /** The shared span owner resolves an actual endpoint before placement. */
-      function world(
-        model: Readonly<{
-          archetype: string;
-          parts: readonly IAutoMovieModelPart[];
-          affordances: readonly IAutoMovieAffordance[];
-        }>,
-        where: IAutoMovieTransform,
-        end: ArchetypeSpan.End,
-      ): IAutoMovieVector3 {
-        return ArchetypeFrame.point(
-          where,
-          ArchetypeSpan.locate(
-            model.archetype,
-            end,
-            model.parts,
-            model.affordances,
-          ),
-        );
-      }
-      return {
-        lines: options.lines.map(
-          (line: ILine): ILineState => ({
-            id: line.id,
-            radius: line.radius,
-            points: line.points.map(
-              (point: ILinePoint): IAutoMovieVector3 =>
-                point.leader !== undefined
-                  ? world(lead.archetype, lead.placement, point.leader)
-                  : world(posed, placement, point.trailer),
-            ),
-          }),
+    /** The span owner resolves the actual posed endpoint before world placement. */
+    const world = (
+      model: Readonly<{
+        archetype: string;
+        parts: readonly IAutoMovieModelPart[];
+        affordances: readonly IAutoMovieAffordance[];
+      }>,
+      where: IAutoMovieTransform,
+      end: ArchetypeSpan.End,
+    ): IAutoMovieVector3 =>
+      ArchetypeFrame.point(
+        where,
+        ArchetypeSpan.locate(
+          model.archetype,
+          end,
+          model.parts,
+          model.affordances,
         ),
-      };
-    }
-    const at: (seconds: number) => ISample<Id, Dimension> = (
+      );
+    /** Solve the current support once. Only a demanded frame or line lays its geometry. */
+    const read = (
       seconds: number,
-    ): ISample<Id, Dimension> => {
-      const sample: ISample<LeaderId, LeaderDimension> = leader.at(seconds);
+    ): ITowedSample<Id> & { full(): ISample<Id, Dimension> } => {
+      const native:
+        | ArchetypeRideWitness.Reader<LeaderId, LeaderDimension>
+        | undefined = ArchetypeRideWitness.of(leader);
+      const witness: ArchetypeRideWitness.Witness | undefined =
+        native === undefined ? undefined : new ArchetypeRideWitness.Witness();
+      const sample: ISample<LeaderId, LeaderDimension> =
+        native === undefined || witness === undefined
+          ? leader.at(seconds)
+          : native(seconds, witness);
       const state: readonly number[] = heading.at(seconds).x;
       const theta: number = state[0]!;
       const phi: number = front === null ? theta : state[1]!;
-      const point: IAutoMovieVector3 = hitchAt(seconds);
+      const point: IAutoMovieVector3 = hitchAt(seconds, witness);
       const posed: Archetype<Id, Dimension> =
         options.pose?.(sample.course) ?? trailer;
       const solved: ReturnType<typeof geometry.pose> = geometry.pose(
         point,
-        groundAt(seconds),
+        geometry.ground(point, theta, groundAt(seconds)),
         theta,
         phi,
       );
@@ -444,25 +463,53 @@ export namespace ArchetypeRide {
             "The posed source coupling does not close on its declared supported geometry",
           fix: "Keep the source coupling on its declared axle/drawbar and preserve those frames in pose.",
         });
+      const pointAt = (part: ILinePoint): IAutoMovieVector3 =>
+        part.leader !== undefined
+          ? world(sample.archetype, sample.placement, part.leader)
+          : part.trailer !== undefined
+            ? world(steered, placement, part.trailer)
+            : { ...part.held(seconds) };
       return {
-        archetype: steered,
         placement,
-        course: { ...sample.course, placement },
-        ...lay(sample, steered, placement),
+        frame: (id: Id): IAutoMovieTransform =>
+          ArchetypeFrame.compose(placement, steered.affordance(id).frame),
+        tail: (id: string): ReturnType<ITowedSample<Id>["tail"]> => {
+          const line: ILine | undefined = options.lines?.find(
+            (candidate: ILine): boolean => candidate.id === id,
+          );
+          return line === undefined
+            ? undefined
+            : [pointAt(line.points.at(-2)!), pointAt(line.points.at(-1)!)];
+        },
+        full: (): ISample<Id, Dimension> => ({
+          archetype: steered,
+          placement,
+          course: { ...sample.course, placement },
+          ...(options.lines === undefined
+            ? {}
+            : {
+                lines: options.lines.map(
+                  (line: ILine): ILineState => ({
+                    id: line.id,
+                    radius: line.radius,
+                    points: line.points.map(pointAt),
+                  }),
+                ),
+              }),
+        }),
       };
     };
+    const at = (seconds: number): ISample<Id, Dimension> =>
+      read(seconds).full();
     return {
       plan: leader.plan,
       duration: leader.duration,
       instants: leader.instants,
       at,
-      frame: (id: Id, seconds: number): IAutoMovieTransform => {
-        const sample: ISample<Id, Dimension> = at(seconds);
-        return ArchetypeFrame.compose(
-          sample.placement,
-          sample.archetype.affordance(id).frame,
-        );
-      },
+      geometry: read,
+      // A contact's frame reads the solved support only; the lines are laid by `at` alone.
+      frame: (id: Id, seconds: number): IAutoMovieTransform =>
+        read(seconds).frame(id),
     };
   }
 }

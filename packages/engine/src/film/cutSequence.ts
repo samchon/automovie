@@ -1,12 +1,19 @@
 import type {
   IAutoMovieCut,
   IAutoMovieEditPlan,
+  IAutoMovieSequence,
   IAutoMovieSequenceEntry,
   IAutoMovieShot,
+  IAutoMovieTrim,
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { validateArrayArtifact } from "../validation/validateArrayArtifact";
+import { validateNonEmptyId as validateIdArtifact } from "../validation/validateNonEmptyId";
+import { validateObjectArtifact } from "../validation/validateObjectArtifact";
+import { checkCutPropContinuity } from "./checkCutPropContinuity";
+import { sequenceEventTimeline } from "./sequenceEventTimeline";
 
 /**
  * A built shot with the index it was first supplied at.
@@ -19,20 +26,23 @@ interface IBuiltShot {
   index: number;
 }
 
+/** A requirement for one exact event on one play of a shot in the cut. */
+type RequiredEvent = NonNullable<IAutoMovieEditPlan["requiredEvents"]>[number];
+
 /**
  * The ASSEMBLE consumer: fold the editor's cut-list into an {@link IAutoMovieSequence} over the shots the pipeline actually built, or return every violation at once.
  *
- * The gates are editorial arithmetic. Built shot ids are unique; the sequence id and each entry's shot id are non-blank; the frame rate is finite and positive; there is at least one entry; every entry names a built shot whose duration is finite and positive; a trim has a finite positive duration and a finite start, and lies inside `[0, shot.duration]`; the first entry has no transition; and a transition is finite and positive, no longer than either neighbour's played span, and does not overlap the previous entry's own incoming transition inside that entry. Pacing and continuity stay prose, because they have no deterministic verifier.
+ * The layout gates are editorial arithmetic. Built shot ids are unique; the sequence id and each entry's shot id are non-blank; the frame rate is finite and positive; there is at least one entry; every entry names a built shot whose duration is finite and positive; a trim has a finite positive duration and a finite start, and lies inside `[0, shot.duration]`; the entry rate is finite and positive with a representable positive output span; the first entry has no transition; and a transition is finite and positive, no longer than either neighbour's played span, and does not overlap the previous entry's own incoming transition inside that entry. An event trim resolves two exact, uniquely occurring built shot events to the same numeric source span before these checks. Pacing and continuity rationale stay prose.
  *
- * `runtime` is in seconds: the sum of each entry's played span (its trim's duration, else the whole shot) minus each transition's duration, since a transition overlaps the previous entry's tail. A clean plan whose accumulated clock is non-finite is refused at entries instead of publishing an unusable runtime. Outer records and populated entry objects are typed premises; an absent array slot is reported explicitly. The sequence copies the plan's id, name, frame rate and entries in order, sharing each trim and transition object by reference.
+ * `runtime` is in seconds: the sum of each entry's played output span (retained source duration divided by the entry rate) minus each transition's duration, since a transition overlaps the previous entry's tail. An unrepresentable runtime is refused at entries. Each event requirement addresses one playback entry and must match one built shot interaction event after trim and seam ownership. Prop requirements compare sampled object-motion channels on the two retained sides of hard cuts. Requirement lists and records are checked before their fields are read. The sequence copies the plan's id, name, frame rate and entries in order, borrowing numeric trim and transition objects, lowering event trims with exact source ends, and recording only nondefault playback rates.
  *
- * @evidence contracts/development/implementation.md#principled-implementation One ordered pass that carries the previous entry's played span and incoming transition, which is all an OpenTimelineIO-style end-to-end track needs to check overlaps and accumulate runtime; a later check is skipped when an earlier fault leaves its operand undefined, such as an unknown shot or an invalid trim, so one cause is not reported twice.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates and assembles in one function because every check reads the same running timeline state; per-instant timing is left to `sequenceTimeline`, which derives it from the sequence this returns.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Names no shot or fixture, and refuses an out-of-range trim or transition with its overshoot rather than clamping it into range.
+ * @evidence contracts/development/implementation.md#principled-implementation The edit clock follows [OpenTimelineIO time ranges](https://github.com/AcademySoftwareFoundation/OpenTimelineIO/blob/main/docs/tutorials/time-ranges.md#markers), with source instants placed in a parent timeline. The [OpenTimelineIO linear time warp](https://opentimelineio.readthedocs.io/en/latest/tutorials/otio-serialized-schema.html#LinearTimeWarp-1) uses the same constant source-time scale per output second. One ordered pass carries the previous entry's played span and incoming transition, which is all an OpenTimelineIO-style end-to-end track needs to check overlaps and accumulate runtime; a later check is skipped when an earlier fault leaves its operand undefined, such as an unknown shot or an invalid trim, so one cause is not reported twice. After layout admission, the number of projected matches for each entry and event address must be one and each declared prop channel must agree within its tolerance at its hard cut.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates and assembles in one function because every check reads the same running timeline state. Shared artifact gates check requirement shapes and event ids. Event requirements reuse `sequenceEventTimeline` and prop comparisons delegate to checkCutPropContinuity.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Names no shot or fixture, and refuses out-of-range source events, numeric trims and transitions. A symbolic span whose reconstruction would overshoot its admitted end uses the immediately preceding positive binary64 duration.
  * @evidence contracts/development/common.md#meaningful-documentation States every gate with its bound, which transitions are compared with which played spans, the runtime formula and unit, and what the sequence copies or shares.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in shots plus entries: shots are indexed by id once and each entry is a map lookup with constant bookkeeping.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure gate over one edit plan and shot list that coordinates no work across calls or consumers.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after return; the result owns a new sequence and entry list, or a violation list bounded by a few violations per shot and entry.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Layout takes linear time in shots plus entries and the events of symbolically trimmed shots, indexed once per shot. When event requirements exist, one event projection and sort are followed by one pass to index placed events and one constant-time lookup per event requirement. Prop requirements use one clip sample per addressed entry side plus per-channel comparisons.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All required events share one playback projection and one per-entry count index. Prop checks share the samples at each addressed entry side within the cut.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The source event indexes, projected events, count index and prop samples are local to assembly. The result owns a new sequence and entry list or a violation list bounded by the input shots, entries and requirements.
  */
 export function cutSequence(
   assemble: IAutoMovieEditPlan,
@@ -84,11 +94,64 @@ export function cutSequence(
         undefined,
       );
 
+  /** Index each symbolically trimmed shot only on its first use. */
+  const eventTimesByShot: Map<string, Map<string, number | null>> = new Map();
+
+  /** Resolve one exact id, reporting absent, repeated and invalid bounds individually. */
+  function resolveEventBound(
+    times: Map<string, number | null>,
+    shot: IAutoMovieShot,
+    id: unknown,
+    path: string,
+  ): number | undefined {
+    if (typeof id !== "string" || id.trim().length === 0) {
+      out.push("type", path, "trim event id must be a non-empty string", id);
+      return undefined;
+    }
+    const time: number | null | undefined = times.get(id);
+    if (time === undefined || time === null) {
+      out.push(
+        "type",
+        path,
+        `trim event "${id}" must match exactly once in shot "${shot.id}"`,
+        id,
+      );
+      return undefined;
+    }
+    if (!Number.isFinite(time) || time < 0 || time > shot.duration) {
+      out.push(
+        "range",
+        path,
+        `trim event "${id}" must have a finite time inside shot "${shot.id}" [0, ${shot.duration}]`,
+        time,
+      );
+      return undefined;
+    }
+    return time;
+  }
+
+  /** Lower ordered, admitted event times without reconstructing an end beyond the source event. */
+  function trimBetweenEvents(start: number, end: number): IAutoMovieTrim {
+    let duration: number = end - start;
+    if (start + duration > end) {
+      // The rounded difference overshoots. Its binary64 predecessor is the
+      // largest smaller duration and brings the reconstructed end in bounds.
+      const bits: DataView = new DataView(new ArrayBuffer(8));
+      bits.setFloat64(0, duration);
+      bits.setBigUint64(0, bits.getBigUint64(0) - 1n);
+      duration = bits.getFloat64(0);
+    }
+    return { start, duration };
+  }
+
+  /** Store lowered source spans for the ordinary playback entries. */
+  const trims: (IAutoMovieTrim | null)[] = [];
+  const exactSourceEnds: Map<number, number> = new Map();
   let runtime: number = 0;
   let previousPlayed: number | null = null;
   let previousIncomingTransition: number = 0;
   assemble.entries.forEach(
-    (entry: IAutoMovieSequenceEntry, i: number): void => {
+    (entry: IAutoMovieEditPlan["entries"][number], i: number): void => {
       validateNonEmptyId(entry.shot, `$input.entries[${i}].shot`, "shot id");
       const found: IBuiltShot | undefined = byId.get(entry.shot);
       if (found === undefined) {
@@ -116,9 +179,65 @@ export function cutSequence(
       let played: number = shot.duration;
       let validPlayedSpan: boolean = validShotDuration;
       let incomingTransition: number = 0;
-      if (entry.trim !== null) {
-        const start: number = entry.trim.start;
-        const duration: number = entry.trim.duration;
+      let trim: IAutoMovieTrim | null = entry.trim;
+      const bounds: unknown = entry.trimByEvents;
+      if (bounds !== undefined) {
+        const path: string = `$input.entries[${i}].trimByEvents`;
+        if (
+          bounds === null ||
+          typeof bounds !== "object" ||
+          Array.isArray(bounds)
+        ) {
+          validPlayedSpan = false;
+          out.push("type", path, "event trim must be an object", bounds);
+        } else if (trim !== null) {
+          validPlayedSpan = false;
+          out.push(
+            "type",
+            path,
+            "event trim requires numeric trim to be null",
+            bounds,
+          );
+        } else if (validShotDuration) {
+          let times: Map<string, number | null> | undefined =
+            eventTimesByShot.get(shot.id);
+          if (times === undefined) {
+            times = new Map();
+            for (const event of shot.events ?? [])
+              times.set(event.id, times.has(event.id) ? null : event.time);
+            eventTimesByShot.set(shot.id, times);
+          }
+          const start: number | undefined = resolveEventBound(
+            times,
+            shot,
+            "startEvent" in bounds ? bounds.startEvent : undefined,
+            `${path}.startEvent`,
+          );
+          const end: number | undefined = resolveEventBound(
+            times,
+            shot,
+            "endEvent" in bounds ? bounds.endEvent : undefined,
+            `${path}.endEvent`,
+          );
+          if (start === undefined || end === undefined) validPlayedSpan = false;
+          else if (end <= start) {
+            validPlayedSpan = false;
+            out.push(
+              "range",
+              path,
+              "the trim end event must follow the start event",
+              bounds,
+            );
+          } else {
+            trim = trimBetweenEvents(start, end);
+            exactSourceEnds.set(i, end);
+          }
+        }
+      }
+      trims[i] = trim;
+      if (trim !== null && (bounds === undefined || validPlayedSpan)) {
+        const start: number = trim.start;
+        const duration: number = trim.duration;
         if (!Number.isFinite(duration) || !(duration > 0)) {
           validPlayedSpan = false;
           out.push(
@@ -144,10 +263,42 @@ export function cutSequence(
             "range",
             `$input.entries[${i}].trim`,
             `trim [${start}, ${start + duration}] must lie inside shot "${shot.id}" [0, ${shot.duration}]`,
-            entry.trim,
+            trim,
             Math.max(-start, start + duration - shot.duration),
           );
         } else played = duration;
+      }
+      const playbackRate: number =
+        entry.playbackRate === undefined ? 1 : entry.playbackRate;
+      if (!Number.isFinite(playbackRate) || !(playbackRate > 0)) {
+        validPlayedSpan = false;
+        out.push(
+          "range",
+          `$input.entries[${i}].playbackRate`,
+          `playback rate must be finite and positive, but was ${playbackRate}`,
+          playbackRate,
+        );
+      } else if (validPlayedSpan && playbackRate !== 1) {
+        const start: number = runtime - (entry.transition?.duration ?? 0);
+        played /= playbackRate;
+        const end: number = start + played;
+        if (!Number.isFinite(played) || !(played > 0)) {
+          validPlayedSpan = false;
+          out.push(
+            "range",
+            `$input.entries[${i}].playbackRate`,
+            "the playback rate must produce a finite positive output duration",
+            playbackRate,
+          );
+        } else if (Number.isFinite(start) && !(end > start)) {
+          validPlayedSpan = false;
+          out.push(
+            "range",
+            `$input.entries[${i}].playbackRate`,
+            "the output span is too short to advance the output clock",
+            playbackRate,
+          );
+        }
       }
       if (entry.transition !== null) {
         if (i === 0)
@@ -220,20 +371,108 @@ export function cutSequence(
     );
   if (out.items.length > 0) return { success: false, violations: out.items };
 
-  return {
-    success: true,
-    sequence: {
-      id: assemble.sequence.id,
-      name: assemble.sequence.name,
-      shots: assemble.entries.map(
-        (entry: IAutoMovieSequenceEntry): IAutoMovieSequenceEntry => ({
-          shot: entry.shot,
-          trim: entry.trim,
-          transition: entry.transition,
-        }),
-      ),
-      fps: assemble.fps,
-    },
-    runtime,
+  const sequence: IAutoMovieSequence = {
+    id: assemble.sequence.id,
+    name: assemble.sequence.name,
+    shots: assemble.entries.map(
+      (
+        entry: IAutoMovieEditPlan["entries"][number],
+        index: number,
+      ): IAutoMovieSequenceEntry => ({
+        shot: entry.shot,
+        trim: trims[index]!,
+        ...(exactSourceEnds.has(index)
+          ? { exactSourceEnd: exactSourceEnds.get(index)! }
+          : {}),
+        transition: entry.transition,
+        ...(entry.playbackRate === undefined || entry.playbackRate === 1
+          ? {}
+          : { playbackRate: entry.playbackRate }),
+      }),
+    ),
+    fps: assemble.fps,
   };
+
+  const requiredEvents: readonly RequiredEvent[] | undefined =
+    assemble.requiredEvents;
+  if (
+    requiredEvents !== undefined &&
+    validateArrayArtifact(
+      requiredEvents,
+      "$input.requiredEvents",
+      "event requirements",
+      out.items,
+    ) &&
+    requiredEvents.length > 0
+  ) {
+    const counts: Map<number, Map<string, number>> = new Map();
+    for (const event of sequenceEventTimeline(sequence, shots)) {
+      const entryCounts: Map<string, number> =
+        counts.get(event.entry) ?? new Map();
+      entryCounts.set(event.id, (entryCounts.get(event.id) ?? 0) + 1);
+      counts.set(event.entry, entryCounts);
+    }
+    for (let index: number = 0; index < requiredEvents.length; index++) {
+      const requirement: RequiredEvent | undefined = requiredEvents[index];
+      const path: string = `$input.requiredEvents[${index}]`;
+      if (
+        !validateObjectArtifact(
+          requirement,
+          path,
+          "event requirement",
+          out.items,
+        )
+      )
+        continue;
+      const validEntry: boolean =
+        Number.isInteger(requirement.entry) &&
+        requirement.entry >= 0 &&
+        requirement.entry < sequence.shots.length;
+      if (!validEntry)
+        out.push(
+          "range",
+          `${path}.entry`,
+          "required event must address a playback entry by zero-based index",
+          requirement.entry,
+        );
+      const beforeIdCheck: number = out.items.length;
+      validateIdArtifact(
+        requirement.event,
+        `${path}.event`,
+        "event id",
+        out.items,
+      );
+      if (!validEntry || out.items.length !== beforeIdCheck) continue;
+
+      const count: number =
+        counts.get(requirement.entry)?.get(requirement.event) ?? 0;
+      if (count !== 1)
+        out.push(
+          "type",
+          `${path}.event`,
+          `entry ${requirement.entry} must retain exactly one event "${requirement.event}", but retains ${count}`,
+          count,
+        );
+    }
+  }
+  const requiredProps: IAutoMovieEditPlan["requiredPropContinuity"] =
+    assemble.requiredPropContinuity;
+  if (
+    requiredProps !== undefined &&
+    validateArrayArtifact(
+      requiredProps,
+      "$input.requiredPropContinuity",
+      "prop continuity requirements",
+      out.items,
+    ) &&
+    requiredProps.length > 0
+  )
+    checkCutPropContinuity(
+      sequence,
+      requiredProps,
+      (id: string): IAutoMovieShot => byId.get(id)!.shot,
+      out,
+    );
+  if (out.items.length > 0) return { success: false, violations: out.items };
+  return { success: true, sequence, runtime };
 }

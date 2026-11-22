@@ -17,10 +17,16 @@ const WPA: string =
 /** The ball's diameter, metres: WPA 16, 2 1/4 in. */
 const BALL: number = 2.25 * ArchetypeUnits.INCH;
 
+/** Mouth widths at the lower end of WPA §9, metres. */
+const MOUTH = {
+  corner: 4.5 * ArchetypeUnits.INCH,
+  side: 5 * ArchetypeUnits.INCH,
+} as const;
+
 /**
  * A 9 ft pool table: its bed, the cushions' nose line round it and the rails outside.
  *
- * The table stands on the floor at the origin, its length along `Z` and its width along `X`. Its cabinet fills the space under the bed; the rails stand round the bed as wide as the drawn rail width, their caps drawn level with the cushions' nose. `bed` is the playing surface, where the balls lie and the bridge hand rests; `headRail`, `footRail`, `leftRail` and `rightRail` are the cushions' nose lines at the `-Z`, `+Z`, `+X` and `-X` ends, ledges a hand or a cue rests on. The pockets are not cut, and the cue is not modelled, since no source read gives its length beyond the 40 in least.
+ * The table stands on the floor at the origin, its length along `Z` and its width along `X`. `bed` is the playing surface and the four named rail sites lie on the cushion noses. The left and right sites mark their head-side sections. The four corner and two side pockets have open mouths in the rail and bed and a named target at each mouth. Pocket shelves, liners and returns use a coarse open recess.
  *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -29,9 +35,9 @@ const BALL: number = 2.25 * ArchetypeUnits.INCH;
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the table stands, its contacts, and what is left out with why.
  * @evidence contracts/development/implementation.md#principled-implementation The WPA's playing surface, bed height, nose height as its share of the ball's diameter and rail width.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the cabinet, the four rails, then the five contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pockets, legs or cloth; a rail's cap is level with the nose.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, split the bounded bed and rails around each pocket, then record their aiming and support affordances.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rail caps are level with their cushion noses. Box cuts approximate pocket jaws and preserve open physical mouths at the WPA widths.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed number of regions per table.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -64,21 +70,62 @@ export function createCueTable(
   const bed: number = d.height;
   const nose: number = bed + d.nose * BALL;
   const rail: number = d.rail;
-  builder.box("cabinet", v(width, bed, length), v(0, bed / 2, 0), {
-    color: "#3b6e3b",
-  });
-  for (const [id, sx, sz, sizeX, sizeZ] of [
-    ["rail-left", 1, 0, rail, length + 2 * rail],
-    ["rail-right", -1, 0, rail, length + 2 * rail],
-    ["rail-head", 0, -1, width, rail],
-    ["rail-foot", 0, 1, width, rail],
-  ] as const)
+  const corner: number = MOUTH.corner / Math.SQRT2;
+  const drop: number = 0.09;
+  const tray: number = bed - drop;
+  const edge: number = length / 2 - corner;
+  const sideSpan: number = edge - MOUTH.side / 2;
+  const sideCenter: number = (edge + MOUTH.side / 2) / 2;
+  builder.box(
+    "cabinet",
+    v(width + 2 * rail, tray, length + 2 * rail),
+    v(0, tray / 2, 0),
+    { color: "#28352b" },
+  );
+  builder.box(
+    "bed-center",
+    v(width - 2 * corner, drop, length),
+    v(0, bed - drop / 2, 0),
+    { color: "#3b6e3b" },
+  );
+  for (const sx of [-1, 1])
+    for (const sz of [-1, 1]) {
+      builder.box(
+        `bed-side-${sx}-${sz}`,
+        v(corner, drop, sideSpan),
+        v((sx * (width - corner)) / 2, bed - drop / 2, sz * sideCenter),
+        { color: "#3b6e3b" },
+      );
+      const railId: string = sx === 1 ? "rail-left" : "rail-right";
+      builder.box(
+        sz === -1 ? railId : `${railId}-foot`,
+        v(rail, nose - tray, sideSpan),
+        v((sx * (width + rail)) / 2, (nose + tray) / 2, sz * sideCenter),
+        { color: "#5a3a22" },
+      );
+    }
+  for (const sz of [-1, 1])
     builder.box(
-      id,
-      v(sizeX, nose, sizeZ),
-      v(sx * (width / 2 + rail / 2), nose / 2, sz * (length / 2 + rail / 2)),
+      sz === -1 ? "rail-head" : "rail-foot",
+      v(width - 2 * corner, nose - tray, rail),
+      v(0, (nose + tray) / 2, (sz * (length + rail)) / 2),
       { color: "#5a3a22" },
     );
+
+  for (const [id, x, z] of [
+    ["headLeftPocket", (width - corner) / 2, -(length - corner) / 2],
+    ["headRightPocket", -(width - corner) / 2, -(length - corner) / 2],
+    ["leftPocket", width / 2, 0],
+    ["rightPocket", -width / 2, 0],
+    ["footLeftPocket", (width - corner) / 2, (length - corner) / 2],
+    ["footRightPocket", -(width - corner) / 2, (length - corner) / 2],
+  ] as const)
+    builder.affordance({
+      id,
+      kind: "socket",
+      frame: ArchetypeFrame.upright(v(x, bed, z)),
+      extent: null,
+    });
   builder.affordance({
     id: "bed",
     kind: "surface",
@@ -87,17 +134,17 @@ export function createCueTable(
     width,
     depth: length,
   });
-  for (const [id, x, z, span] of [
-    ["leftRail", 1, 0, length],
-    ["rightRail", -1, 0, length],
-    ["headRail", 0, -1, width],
-    ["footRail", 0, 1, width],
+  for (const [id, x, z, center, span] of [
+    ["leftRail", 1, 0, -sideCenter, sideSpan],
+    ["rightRail", -1, 0, -sideCenter, sideSpan],
+    ["headRail", 0, -1, -length / 2, width - 2 * corner],
+    ["footRail", 0, 1, length / 2, width - 2 * corner],
   ] as const)
     builder.affordance({
       id,
       kind: "ledge",
       frame: ArchetypeFrame.facing(
-        v((x * width) / 2, nose, (z * length) / 2),
+        v((x * width) / 2, nose, center),
         v(0, 1, 0),
         v(z, 0, -x),
       ),
@@ -113,21 +160,28 @@ export function createCueTable(
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
  * @evidence contracts/development/design.md#principled-representation One cited band per dimension; the nose height as the rule's share of the ball's diameter.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The bed a shot is played on and the rails a bridge rests on (#3468 N11).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts What no source places, the pockets' cut and the cue's length, is left out.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Pocket mouths use WPA diameters and remain distinct from the bed and rail hand targets.
  */
 export namespace createCueTable {
   /**
    * The affordance ids:
    *
    * - `bed`: the playing surface.
-   * - `headRail`, `footRail`, `leftRail`, `rightRail`: the cushions' nose lines on `-Z`, `+Z`, `+X` and `-X`, ledges, each `+Z` out from the bed.
+   * - `headRail`, `footRail`, `leftRail`, `rightRail`: the cushions' nose lines on `-Z`, `+Z`, `+X` and `-X`, ledges, each `+Z` out from the bed. The side sites cover the sections nearest the head rail.
+   * - The six `Pocket` points are the open mouth centres at the bed's height.
    */
   export type Affordance =
     | "bed"
     | "headRail"
     | "footRail"
     | "leftRail"
-    | "rightRail";
+    | "rightRail"
+    | "headLeftPocket"
+    | "headRightPocket"
+    | "leftPocket"
+    | "rightPocket"
+    | "footLeftPocket"
+    | "footRightPocket";
 
   /**
    * The free dimensions, metres unless stated:

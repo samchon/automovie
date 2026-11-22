@@ -1,9 +1,11 @@
 import {
   IAutoMovieCamera,
   IAutoMovieConstraintViolation,
+  type IAutoMovieFog,
   IAutoMovieLight,
   IAutoMovieSceneNode,
   IAutoMovieScript,
+  IAutoMovieSpace,
   IAutoMovieStage,
   IAutoMovieStageActor,
   IAutoMovieStageCamera,
@@ -24,15 +26,16 @@ import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { validateSceneEnvironment } from "../validation/validateSceneEnvironment";
 import { validateSpace } from "../validation/validateSpace";
 import { lookRotation } from "./lookRotation";
+import { admitStageSupport } from "./staging/admitStageSupport";
 import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
 import { lightTypeOf } from "./staging/lightTypeOf";
 import { lowerCameraClearanceEnvelope } from "./staging/lowerCameraClearanceEnvelope";
 import { lowerLightPlacement } from "./staging/lowerLightPlacement";
+import { resolveStagedFog } from "./staging/resolveStagedFog";
 import { setPieceScale } from "./staging/setPieceScale";
 import { setPieceTransform } from "./staging/setPieceTransform";
 import { validateCameraClearanceEnvelope } from "./staging/validateCameraClearanceEnvelope";
 import { validateCameraDepthPrecision } from "./staging/validateCameraDepthPrecision";
-import { validateFogPlacement } from "./staging/validateFogPlacement";
 import { validateLightPlacementShape } from "./staging/validateLightPlacementShape";
 
 /** World up, the axis an actor's `facingDeg` turns about. */
@@ -51,19 +54,19 @@ const LOOK_DISTANCE_EPSILON: number = 1e-9;
  *
  * Conversions: an actor's `facingDeg`, about `+Y` with 0 facing `+Z`, becomes its rotation; a set piece becomes a static node through {@link setPieceTransform}; a camera's `lookAt` resolves to a point and the level-horizon look basis aims its `-Z` there; a light lowers through {@link lowerLightPlacement} to the scene light its `type` names.
  *
- * The optional `space`, the ground's walkable meaning, is accepted by {@link validateSpace} with its paths re-rooted under `$input.space`, and is composed as `space: null` when omitted, the scalar ground plane. The optional `fog` is range-checked by {@link validateFogPlacement} and lowered verbatim, and is omitted from the scene when unstaged so scenes that never mention fog keep their bytes. The optional `environment` is checked by {@link validateSceneEnvironment} against the staged lights and lowered verbatim.
+ * The optional `space`, the ground's walkable meaning, is accepted by {@link validateSpace} with its paths re-rooted under `$input.space`, and is composed as `space: null` when omitted, the scalar ground plane. An authored `fog` lowers verbatim, while `fogVisibility` solves the density from camera-axis depth and transmittance. {@link resolveStagedFog} admits one form and leaves fog absent when neither is authored. The optional `environment` is checked by {@link validateSceneEnvironment} against the staged lights and lowered verbatim.
  *
  * @param script The screenplay whose cast staging must place.
  * @param staging The staging write.
- * @returns The composed scene with its persistent mounts, or every violation.
+ * @returns The composed scene with its persistent mounts and authored actor support scopes, or every violation.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Validates the whole write before composing; conversions use quaternion axis-angle, the level-horizon lookRotation basis and light lowering. The camera target table lays cameras down first so a repeated id resolves to the actor, matching scenePlacements.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The rung that owns scene composition delegates each field family to its staging validator and lowering helper, the space, fog and environment gates to their shared validators, and set-piece placement to `setPieceTransform`, so the same rule is never stated twice and the function reads as the list of checks and conversions.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No cast member, model or camera is special-cased; geometry is not judged beyond what a later stage cannot use, and the fog omission is a stated byte-stability rule for every scene rather than a fixture exception.
  * @evidence contracts/development/common.md#meaningful-documentation States every reference and range check, every conversion with its axis and unit, how space, fog and environment are validated and composed, and what the success and failure branches carry.
- * @evidence contracts/development/implementation.md#efficient-algorithms Local joins visit cast, actor, set-piece, camera and light lists with maps/sets, plus inspected identity/diagnostic text and delegated space, environment, fog, clearance and light-shape validation. Ordinary populated typed records are premises; throwing accessors and nonterminating conversion hooks are outside the located-finding guarantee.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Local joins visit cast, actor, set-piece, camera and light lists with maps/sets, plus delegated space, support, environment, fog, clearance and light-shape validation. Ordinary populated typed records are premises; throwing accessors and nonterminating conversion hooks are outside the located-finding guarantee.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares placement indexes and admitted camera directions between validation and composition during one unchanged staging write. The script and write may change between correction rounds, so nothing is kept across calls.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The indexes, id set and collector are released on return; a success holds one node per actor and set piece, one camera and one light per placement, and the authored space, fog and environment objects by reference, and a failure holds the violation list.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The indexes, id set and collector are released on return; a success holds one node per actor and set piece, one camera and one light per placement, and the authored space, direct fog and environment objects by reference or a calibrated fog with its authored color, and a failure holds the violation list.
  */
 export function stageScene(
   script: IAutoMovieScript,
@@ -254,6 +257,7 @@ export function stageScene(
     }
   });
 
+  let supportSpace: IAutoMovieSpace | undefined;
   if (staging.space !== undefined) {
     const validated: IAutoMovieValidation = validateSpace({
       space: staging.space,
@@ -261,9 +265,15 @@ export function stageScene(
     if (validated.success === false)
       for (const item of validated.violations)
         out.items.push(reRooted(item, "$input.space"));
+    else supportSpace = staging.space;
   }
-  if (staging.fog !== undefined)
-    validateFogPlacement(staging.fog, "$input.fog", out);
+  const supports: NonNullable<IAutoMovieStagedSet.ISuccess["supports"]> =
+    admitStageSupport(staging.actors, supportSpace, out);
+  const fog: IAutoMovieFog | undefined = resolveStagedFog(
+    staging.fog,
+    staging.fogVisibility,
+    out,
+  );
   if (staging.environment !== undefined) {
     const validated: IAutoMovieValidation = validateSceneEnvironment({
       environment: staging.environment,
@@ -469,12 +479,13 @@ export function stageScene(
       // Omitted when unstaged: most sets have no atmosphere, and writing
       // `fog: null` would change the bytes, and so the content digest, of
       // every production that never mentioned fog.
-      ...(staging.fog === undefined ? {} : { fog: staging.fog }),
+      ...(fog === undefined ? {} : { fog }),
       ...(staging.environment === undefined
         ? {}
         : { environment: staging.environment }),
     },
     mounts,
+    ...(supports.length === 0 ? {} : { supports }),
   };
 }
 

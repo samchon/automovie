@@ -1,6 +1,7 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -12,16 +13,22 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanTypeText,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
+import { AutoMovieMotionHumanArmChain } from "../compose/AutoMovieMotionHumanArmChain";
+import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
-import { handGoals } from "./handGoals";
+import { typeTextPresses } from "./typeTextPresses";
 
 /**
  * Typing a text on a keyboard from the posture the performer is in (seated
@@ -43,16 +50,24 @@ import { handGoals } from "./handGoals";
  *
  * Time between presses comes from typing skill: skilled typists strike
  * about every 0.15 to 0.2 s and novices far slower (Salthouse 1986, Psychol
- * Bull 99:303), so the interval runs from 0.5 s for a novice to 0.15 s for
- * an elite on the `speed` axis, with the cross-task timing variability of
- * `HumanSkill.jitter` (interval values provisional inside Salthouse's
- * range). Each press takes the first 40 % of its interval to reach the key,
+ * Bull 99:303). Everyday typists, two-finger and touch alike, type 34 to
+ * 79 words a minute (Feit, Weir and Oulasvirta 2016, CHI '16, How We Type),
+ * five characters a word, so the interval runs from 60 / (34 x 5) s, about
+ * 0.35 s, for a novice to 60 / (79 x 5) s, about 0.15 s, for an elite on the
+ * `speed` axis, with the cross-task timing variability of
+ * `HumanSkill.jitter`. Each press takes the first 40 % of its interval to reach the key,
  * moving from 15 mm above it, and the rest to lift; the key travels 4 mm
  * (inside the 1.5 to 6 mm of ergonomic keyboard standards). The keyboard
  * should sit near elbow height with the elbows near 90 degrees (ANSI/HFES
- * 100-2007): one whose home row lies more than 0.15 m from the elbows' height
- * or beyond the forearms' reach is refused. The body holds the posture it is
- * entered in. Events `press1` to `pressN`, one per key.
+ * 100-2007): one whose home row lies more than 0.15 m from the elbows' height,
+ * the shoulder joints' mean height less the upper arm, or whose home keys lie
+ * beyond 0.95 of each arm's reach from its shoulder is refused (both
+ * provisional). When the press after a key on the same hand comes sooner
+ * than a whole interval, the reach and the lift share that gap instead, so
+ * the fingertip moves on from the key it lifts off. The body holds the
+ * posture it is entered in: each planted foot stays on its floor and a
+ * seated body on its seat. No action cuts a typing. Events `press1` to
+ * `pressN`, one per key.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the goal, the layout, the timing, the refusals and the provisional values.
  * @evidence contracts/development/design.md#principled-representation A law record: a keyboard frame, a text and a pure plan of fingertip goals over seconds.
@@ -61,15 +76,15 @@ import { handGoals } from "./handGoals";
  * @evidence contracts/development/implementation.md#principled-implementation Fingertip goals on key centres solved by the arm's inverse kinematics; timing from typing studies.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Lays out the keys, times the presses, then evaluates each posture.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown keys and unfit desks are refused; provisional values are named.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the text's length to plan, one hand solve per posture.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold the instance's inputs only.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Preparing N keys and their per-hand chronology costs O(N); each posture locates the active key in O(log N) per hand, constructs its two fingertip goals and fits them continued from the course's frame instant before it (`AutoMovieMotionHumanArmChain`), whose instants are fitted once.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed key ordering, timing, keyboard frame, hand shapes, palm rotations and genuine local fingertip-surface geometry are prepared once per plan. Each posture evaluates actual transport/press/lift and the original Bend.hang on its borrowed current entry posture at each target's bend field; rotations, contacts, hints and written joint triples remain fresh.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its borrowed instance/entry inputs, O(N) key/press records, fixed shape/rotation data and two bounded genuine local-surface readers until release. Every actual output is fresh, and no current posture, elbow answer, target or sampled-time history is retained.
  */
 export namespace typeText {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "typeText";
 
-  /** Cancel table: typing may stop between presses. */
+  /** Cancel table: none; a typing runs through its last press. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
   /**
@@ -97,7 +112,7 @@ export namespace typeText {
     const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
-    const declared = (id: string): IAutoMovieAffordance => {
+    const declared: (id: string) => IAutoMovieAffordance = (id: string): IAutoMovieAffordance => {
       const found: IAutoMovieAffordance | undefined = affordances.find(
         (a: IAutoMovieAffordance): boolean => a.id === id,
       );
@@ -153,6 +168,33 @@ export namespace typeText {
   /** Hover height above a key between presses, metres (provisional). */
   export const HOVER: number = 0.015;
 
+  /** The farthest a home key may lie from its shoulder, as a share of the arm and hand's length (provisional: short of a fully straight arm). */
+  const REACH: number = 0.95;
+
+  /** How far the home row may lie above or below the elbows' height, metres (provisional). */
+  const HEIGHT: number = 0.15;
+
+  /** Seconds before the first press, the time to reach the first key from where the hands are (provisional). */
+  const LEAD: number = 0.3;
+
+  /** Vertical drop per horizontal metre along the typing fingers (provisional). */
+  const FINGER_SLOPE: number = -0.5;
+
+  /** How far out a typing elbow hangs, as `AutoMovieMotionHumanBend.hang`'s share (provisional). */
+  const OUT: number = 0.1;
+
+  /** The slowest and fastest everyday typists' words a minute (Feit, Weir and Oulasvirta 2016, CHI '16, How We Type, figure 3). */
+  const WPM: Readonly<Record<"slowest" | "fastest", number>> = { slowest: 34, fastest: 79 };
+
+  /** Characters a word in a words-a-minute rate, the typing-test convention Feit et al. 2016 count by. */
+  const CHARACTERS: number = 5;
+
+  /** The shoulder joints the fit checks read. */
+  const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+    "leftUpperArm",
+    "rightUpperArm",
+  ]);
+
   /** The QWERTY letter rows from the top, each with its stagger in keys. */
   export const ROWS: readonly { keys: string; stagger: number }[] = [
     { keys: "qwertyuiop", stagger: -0.25 },
@@ -167,6 +209,14 @@ export namespace typeText {
    * @param key A letter or a space.
    * @returns The centre and the hand that presses it.
    * @throws {HumanRefusal} When the layout has no such key.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, its axes and origin, the result and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The ISO/IEC 9995 pitch and row stagger, columns counted from the home row's middle; the space bar two rows below, under the right hand's home key.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One row lookup and one position.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A key the layout lacks is refused, never mapped to a near one.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over three short rows.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function key(key: string): IAutoMovieMotionHumanTypeText.IKeyResult {
     const k: string = key.toLowerCase();
@@ -175,6 +225,8 @@ export namespace typeText {
     for (let row: number = 0; row < ROWS.length; row++) {
       const col: number = ROWS[row]!.keys.indexOf(k);
       if (col < 0) continue;
+
+      // The home row's ten keys, `a` to `;`, centre between columns 4 and 5.
       const x: number = -((col + ROWS[row]!.stagger - 4.5) * PITCH);
       return {
         at: { x, y: 0, z: (1 - row) * PITCH },
@@ -196,13 +248,21 @@ export namespace typeText {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} On an unknown key, an empty text, or a keyboard too high, low or far for the body.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the plan and its refusals; the namespace gives the goals, timing and contacts.
+   * @evidence contracts/development/implementation.md#principled-implementation Fingertip goals on key centres fitted along the course by `AutoMovieMotionHumanArmChain`; the fit checks read the entry pose's shoulder joints by FK; the contacts are the entry's own supports.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Board, keys and fit checks, then press times, then the fingertip reader and one posture writer.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unfit desks and unknown keys are refused; every threshold is a named provisional constant.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(N) planning for N keys and one shoulder FK; each posture costs two O(log N) key lookups and the arm chain's fit.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Key layout, timing, hand rotations and the two fingertip-surface goal builders are prepared once per plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its key and press records and the prepared goal builders until released; no sampled posture is retained.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTypeText.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const m = body.measure;
-    const { text } = context.params;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const text: string = context.params.text;
     const keyboard: IAutoMovieMotionHumanTypeText.IBoard = board(
       context,
       context.params.keyboard,
@@ -215,42 +275,51 @@ export namespace typeText {
         reason: "Typing needs a text",
         fix: "give a text of at least one letter",
       });
-    const keys = [...text].map(typeText.key);
+    const keys: IAutoMovieMotionHumanTypeText.IKeyResult[] = [...text].map(
+      (letter: string): IAutoMovieMotionHumanTypeText.IKeyResult => typeText.key(letter),
+    );
     const hold: IAutoMovieMotionHumanPosture = context.entry.posture;
     const frame: IAutoMovieMotionHumanFrame = {
       origin: keyboard.at,
       yaw: keyboard.yaw,
     };
-    const world = (local: IAutoMovieVector3, lift: number): IAutoMovieVector3 =>
-      HumanFrame.point(frame, { ...local, y: lift });
 
-    // Fit: the home row near elbow height and within the forearm's reach of the shoulders.
-    const elbow: number = hold.root.y + m.shoulderHeight - m.upperArm;
-    if (Math.abs(keyboard.at.y - elbow) > 0.15)
+    // Fit: the home row near elbow height and within the arms' reach of the
+    // shoulders, both read on the entry pose's own shoulder joints.
+    const joints: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      context.entry.pose,
+      undefined,
+      SHOULDERS,
+    );
+    const shoulders: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
+      left: joints.get("leftUpperArm")!.worldPosition,
+      right: joints.get("rightUpperArm")!.worldPosition,
+    };
+    const elbow: number = (shoulders.left.y + shoulders.right.y) / 2 - m.upperArm;
+    if (Math.abs(keyboard.at.y - elbow) > HEIGHT)
       throw new HumanRefusal({
         kind: "reach",
         axis: "keyboard",
         value: keyboard.at.y,
         feasible: {
           kind: "range",
-          minimum: elbow - 0.15,
-          maximum: elbow + 0.15,
+          minimum: elbow - HEIGHT,
+          maximum: elbow + HEIGHT,
           unit: "m",
         },
-        reason: `the keyboard stands ${(keyboard.at.y - elbow).toFixed(3)} m from the elbows' height; place it within 0.15 m of ${elbow.toFixed(3)} m`,
-        fix: "place the keyboard within 0.15 m of the elbows' height",
+        reason: `the keyboard stands ${(keyboard.at.y - elbow).toFixed(3)} m from the elbows' height; place it within ${HEIGHT} m of ${elbow.toFixed(3)} m`,
+        fix: `place the keyboard within ${HEIGHT} m of the elbows' height`,
       });
-    const shoulder: IAutoMovieVector3 = HumanFrame.point(
-      { origin: hold.root, yaw: hold.yaw },
-      { x: 0, y: m.shoulderHeight, z: 0 },
-    );
     if (
-      Math.hypot(
-        keyboard.at.x - shoulder.x,
-        keyboard.at.y - shoulder.y,
-        keyboard.at.z - shoulder.z,
-      ) >
-      0.95 * (m.upperArm + m.forearm + m.hand)
+      (["left", "right"] as const).some(
+        (side: AutoMovieHumanSide): boolean =>
+          Vector3.distance(
+            HumanFrame.point(frame, typeText.key(side === "left" ? "f" : "j").at),
+            shoulders[side],
+          ) >
+          REACH * (m.upperArm + m.forearm + m.hand),
+      )
     )
       throw new HumanRefusal({
         kind: "reach",
@@ -264,11 +333,11 @@ export namespace typeText {
     const interval: number = HumanSkill.quantity(
       context.skill,
       "speed",
-      0.5,
-      0.15,
+      60 / (WPM.slowest * CHARACTERS),
+      60 / (WPM.fastest * CHARACTERS),
     );
     const times: number[] = [];
-    let clock: number = 0.3;
+    let clock: number = LEAD;
     for (let i: number = 0; i < keys.length; i++) {
       times.push(clock);
       clock += HumanSkill.jitter(
@@ -285,84 +354,111 @@ export namespace typeText {
 
     // Where each fingertip is at a second: on its current key, travelling
     // between keys in the hover plane, or pressing.
-    const tipAt = (side: AutoMovieHumanSide, t: number): IAutoMovieVector3 => {
-      let from: IAutoMovieVector3 = home[side];
-      let fromTime: number = 0;
-      for (let i: number = 0; i < keys.length; i++) {
-        if (keys[i]!.side !== side) continue;
-        const press: number = times[i]!;
-        const reach: number = 0.4 * interval;
-        if (t < press - reach) break;
-        if (t < press) {
-          const u: number = minimumJerk(
-            (t - Math.max(fromTime, press - reach)) /
-              Math.max(1e-3, press - Math.max(fromTime, press - reach)),
-          ).s;
-          const at: IAutoMovieVector3 = {
-            x: from.x + (keys[i]!.at.x - from.x) * u,
-            y: 0,
-            z: from.z + (keys[i]!.at.z - from.z) * u,
-          };
-          return world(at, HOVER - (HOVER + TRAVEL) * u * u);
-        }
-        const lift: number = minimumJerk((t - press) / (0.6 * interval)).s;
-        from = keys[i]!.at;
-        fromTime = press + 0.6 * interval;
-        if (t < fromTime) return world(from, -TRAVEL + (HOVER + TRAVEL) * lift);
-      }
-      return world(from, HOVER);
+    const tipAt: (side: AutoMovieHumanSide, t: number) => IAutoMovieVector3 =
+      typeTextPresses(keys, times, interval, home, frame, HOVER, TRAVEL);
+
+    // Each forearm approaches its home key from its shoulder. Align the
+    // fingers with that approach so the wrist stays behind the index tip.
+    function handRotation(side: AutoMovieHumanSide): IAutoMovieQuaternion {
+      const homePoint: IAutoMovieVector3 = HumanFrame.point(frame, home[side]);
+      const approach: IAutoMovieVector3 = Vector3.subtract(homePoint, shoulders[side]);
+      const planar: IAutoMovieVector3 = approach.x === 0 && approach.z === 0
+        ? HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: keyboard.yaw }, { x: 0, y: 0, z: 1 })
+        : Vector3.normalize({ ...approach, y: 0 });
+      const fingers: IAutoMovieVector3 = { ...planar, y: FINGER_SLOPE };
+      return HumanHand.rotation(side, { fingers, palm: { x: 0, y: -1, z: 0 } });
+    }
+    const hands: Record<AutoMovieHumanSide, IAutoMovieQuaternion> = {
+      left: handRotation("left"),
+      right: handRotation("right"),
+    };
+    const shaped: readonly [
+      AutoMovieHumanoidBone,
+      readonly [number, number, number],
+    ][] = Object.entries({
+      ...HumanHand.shape("left", "point"),
+      ...HumanHand.shape("right", "point"),
+    }) as [AutoMovieHumanoidBone, readonly [number, number, number]][];
+    const goalAt: Record<
+      AutoMovieHumanSide,
+      ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSurfaceGoal>
+    > = {
+      left: AutoMovieMotionHumanArmTarget.prepareSurfaceGoal(
+        body,
+        "left",
+        "indexTip",
+        "point",
+      ),
+      right: AutoMovieMotionHumanArmTarget.prepareSurfaceGoal(
+        body,
+        "right",
+        "indexTip",
+        "point",
+      ),
     };
 
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [
-      {
-        part: "leftFoot",
-        kind: "plant",
+    // The body holds the posture it is entered in: a planted foot stays on
+    // the floor it stands on, and a seated body stays on its seat.
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
+    for (const side of ["left", "right"] as const)
+      if (context.entry.feet[side].planted)
+        contacts.push({
+          part: `${side}Foot`,
+          kind: "plant",
+          from: 0,
+          to: 1,
+          support: HumanSupportFrame.contact(context, `${side}Foot`),
+        });
+    if (context.entry.base.kind === "seated")
+      contacts.push({
+        part: "seat",
+        kind: "seat",
         from: 0,
         to: 1,
-        support: { kind: "ground" },
-      },
-      {
-        part: "rightFoot",
-        kind: "plant",
-        from: 0,
-        to: 1,
-        support: { kind: "ground" },
-      },
-    ];
+        support: HumanSupportFrame.contact(context, "seat"),
+      });
+    // Each fingertip's goal at a second is fitted along the typing's course,
+    // each second continuing the swivel the course chose before it, so an
+    // elbow does not change its side between two key presses.
+    const typing: (seconds: number) => IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanArmChain.continued(
+        body,
+        duration,
+        (seconds: number): IAutoMovieMotionHumanPosture => {
+          const t: number = Math.min(duration, Math.max(0, seconds));
+          const joints: IAutoMovieMotionHumanPosture["joints"] = {
+            ...hold.joints,
+          };
+          for (const [bone, angles] of shaped)
+            joints[bone] = [angles[0], angles[1], angles[2]];
+          return {
+            ...hold,
+            joints,
+            limbs: {
+              ...hold.limbs,
+              leftArm: goalAt.left({
+                point: tipAt("left", t),
+                rotation: { ...hands.left },
+                bend: AutoMovieMotionHumanBend.hang(body, hold, "left", OUT),
+              }),
+              rightArm: goalAt.right({
+                point: tipAt("right", t),
+                rotation: { ...hands.right },
+                bend: AutoMovieMotionHumanBend.hang(body, hold, "right", OUT),
+              }),
+            },
+          };
+        },
+      );
     return {
       duration,
-      events: times.map((t: number, i: number) => ({
+      events: times.map((t: number, i: number): { name: string; share: number } => ({
         name: `press${i + 1}`,
         share: t / duration,
       })),
       contacts,
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const fingers: IAutoMovieVector3 = HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw: keyboard.yaw },
-          { x: 0, y: -0.5, z: 1 },
-        );
-        const joints: IAutoMovieMotionHumanPosture["joints"] = {
-          ...hold.joints,
-          ...HumanHand.shape("left", "point"),
-          ...HumanHand.shape("right", "point"),
-        };
-        return handGoals(
-          body,
-          { ...hold, joints },
-          (["left", "right"] as const).map((side) => ({
-            side,
-            surface: "indexTip" as const,
-            shape: "point" as const,
-            point: tipAt(side, t),
-            rotation: HumanHand.rotation(side, {
-              fingers,
-              palm: { x: 0, y: -1, z: 0 },
-            }),
-            bend: AutoMovieMotionHumanBend.hang(body, hold, side, 0.1),
-          })),
-        );
-      },
+      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
+        typing(seconds),
     };
   }
 }

@@ -1,5 +1,7 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieHumanoidRegion } from "../../../skeleton/AutoMovieHumanoidRegion";
+import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanCarriedDrag } from "./IAutoMovieMotionHumanCarriedDrag";
 import type { IAutoMovieMotionHumanCarriedLift } from "./IAutoMovieMotionHumanCarriedLift";
 
@@ -52,7 +54,7 @@ export namespace IAutoMovieMotionHumanCarried {
    * A named way one person carries another.
    *
    * @evidence contracts/development/common.md#meaningful-documentation A named way one person carries another.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "piggyback", "cradle", "overShoulder", "supported", "supportedLeft", "waistLift", "overheadLift" distinguish the admitted cases.
+   * @evidence contracts/development/design.md#principled-representation Closed choices "piggyback", "cradle", "overShoulder", "supported", "supportedLeft", "waistLift", "overheadLift", "shoulders" distinguish the admitted cases.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarriedBearing.ts (HumanCarriedBearing.plan.first, c); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.kind, carry); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.kind, rows); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.couple, carry); lexicon/HumanCarriedLean.ts (HumanCarriedLean.layer, carry); lexicon/HumanCarried.ts (HumanCarried.CARRIES).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanCarriedDrag.Name identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
@@ -64,6 +66,7 @@ export namespace IAutoMovieMotionHumanCarried {
     | "supportedLeft"
     | "waistLift"
     | "overheadLift"
+    | "shoulders"
     | IAutoMovieMotionHumanCarriedDrag.Name;
 
   /**
@@ -109,6 +112,9 @@ export namespace IAutoMovieMotionHumanCarried {
     /** The carried body's hip and knee flexion and hip abduction, degrees. */
     legs: readonly [number, number, number];
 
+    /** The borne knees wrap outside the bearer's two sides. */
+    straddles?: boolean;
+
     /** The carrier's regions the carried person's left and right wrists go to; null for an arm that hangs. */
     clings: readonly [
       AutoMovieHumanoidRegion | null,
@@ -130,7 +136,7 @@ export namespace IAutoMovieMotionHumanCarried {
    *
    * @evidence contracts/development/common.md#meaningful-documentation region: The carrier's own region the place is measured from. offset: The wrist's offset from it, arm lengths.
    * @evidence contracts/development/design.md#principled-representation region: The carrier's own region the place is measured from. offset: The wrist's offset from it, arm lengths.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarriedBearing.ts (HumanCarriedBearing.plan); lexicon/HumanCarriedCouplingRigid.ts (HumanCarriedCouplingRigid.fit).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarriedBearing.ts (HumanCarriedBearing.plan); lexicon/HumanCarriedCouplingRigid.ts (HumanCarriedCouplingRigid.read).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidRegion, IAutoMovieMotionHumanCarried.IOffset identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IHold {
@@ -139,6 +145,12 @@ export namespace IAutoMovieMotionHumanCarried {
 
     /** The wrist's offset from it, arm lengths. */
     offset: IAutoMovieMotionHumanCarried.IOffset;
+
+    /** The fingers' preferred tangent in the held region bone's local frame. */
+    fingers?: IAutoMovieVector3;
+
+    /** A hand shape the hold needs, such as a flat supporting palm. */
+    shape?: IAutoMovieMotionHumanHand.Shape;
   }
 
   /**

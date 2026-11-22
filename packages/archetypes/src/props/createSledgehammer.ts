@@ -1,0 +1,137 @@
+import { Vector3 } from "@automovie/engine";
+
+import {
+  type Archetype,
+  ArchetypeBand,
+  ArchetypeBuilder,
+  ArchetypeDrawSession,
+  ArchetypeFrame,
+  type IArchetypeBand,
+} from "../core";
+
+/** No maker's page was read. */
+const STAGED: string =
+  "a long-handled striking tool: its dimensions and mass are provisional estimates, no maker's page was read";
+
+/**
+ * A sledgehammer or a pickaxe: a heavy head on a long handle, swung in two
+ * hands. As the forest axe's, its head lies at the origin with the handle
+ * up `+Y`; `face` is the striking face toward `+Z` (a pick's point), and
+ * `shaft` the handle the two hands hold, the lead hand sliding along it.
+ *
+ * @param params Scene identity, the kind and dimensions within their bands.
+ * @param seed Draws free dimensions within their bands.
+ * @returns The tool with its contacts.
+ * @evidence contracts/development/common.md#meaningful-documentation States the frame, the two kinds and the contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation Coarse boxes and a rod sized by the drawn dimensions.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, then build the head, the handle and the contacts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rigid coarse parts; the head's mass share follows the drawn head mass.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two parts and two contacts.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ */
+export function createSledgehammer(
+  params: createSledgehammer.IParams = {},
+  seed?: number | string,
+): Archetype<createSledgehammer.Affordance, createSledgehammer.Dimension> {
+  const draw: ArchetypeDrawSession<createSledgehammer.Dimension> =
+    new ArchetypeDrawSession(
+      "sledgehammer",
+      createSledgehammer.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createSledgehammer.Dimension, number> = draw.dimensions(
+    createSledgehammer.BANDS,
+  );
+  const pick: boolean = params.kind === "pickaxe";
+  const builder: ArchetypeBuilder<
+    createSledgehammer.Affordance,
+    createSledgehammer.Dimension
+  > = new ArchetypeBuilder({
+    id: params.id,
+    name: pick ? "a pickaxe" : "a sledgehammer",
+    material: "steel",
+    draw,
+  });
+  const v: typeof Vector3.create = Vector3.create;
+  const head: number = d.head;
+  const reach: number = pick ? 0.28 : head / 2;
+  builder.box(
+    "head",
+    pick ? v(0.04, 0.05, 2 * reach) : v(0.08, 0.08, head),
+    v(0, 0.04, 0),
+    { color: "#5c6066", share: d.headMass / d.mass },
+  );
+  builder.affordance({
+    id: "face",
+    kind: "surface",
+    direction: "normal",
+    frame: ArchetypeFrame.facing(v(0, 0.04, reach), v(0, 0, 1), v(0, 1, 0)),
+    extent: null,
+    width: pick ? 0.02 : 0.08,
+  });
+  builder.rod("handle", 0.018, v(0, 0.08, 0), v(0, d.length, 0), {
+    color: "#b98d5b",
+    share: 1 - d.headMass / d.mass,
+  });
+  builder.affordance({
+    id: "shaft",
+    kind: "bar",
+    symmetry: "round",
+    frame: ArchetypeFrame.facing(
+      v(0, (0.08 + d.length) / 2, 0),
+      v(0, 0, -1),
+      v(0, 1, 0),
+    ),
+    extent: null,
+    grip: "two-hand",
+    aperture: 0.036,
+    length: d.length - 0.08,
+  });
+  return builder.build(d.mass);
+}
+
+/**
+ * Kinds, dimensions and contacts of {@link createSledgehammer}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the kinds, the contacts, the dimensions and their staged provenance.
+ * @evidence contracts/development/design.md#principled-representation Metres and kilograms in provisional bands.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The face and the shaft a law reads.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is marked provisional.
+ */
+export namespace createSledgehammer {
+  /** A blunt sledgehammer, or a pickaxe whose point strikes. */
+  export type Kind = "sledgehammer" | "pickaxe";
+
+  /** The striking face, and the handle held in two hands. */
+  export type Affordance = "face" | "shaft";
+
+  /** The overall length, the head's length, the head's mass and the whole mass. */
+  export type Dimension = "length" | "head" | "headMass" | "mass";
+
+  /** Scene identity, the kind and fixed dimensions. */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Scene subject id. */
+    id?: string;
+
+    /** The kind; a sledgehammer when absent. */
+    kind?: Kind;
+  }
+
+  /** Units of each dimension. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    head: "m",
+    headMass: "kg",
+    mass: "kg",
+  };
+
+  /** Staged bands. */
+  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+    length: ArchetypeBand.metres(0.8, 0.95, STAGED, true),
+    head: ArchetypeBand.metres(0.16, 0.22, STAGED, true),
+    headMass: ArchetypeBand.of("kg", 2.5, 4.5, STAGED, true),
+    mass: ArchetypeBand.of("kg", 3.5, 5.5, STAGED, true),
+  };
+}

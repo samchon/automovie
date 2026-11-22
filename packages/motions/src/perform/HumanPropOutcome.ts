@@ -41,10 +41,12 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * - otherwise it stays where it struck, riding it: an outcome the body's data
  *   do not give is never invented.
  *
- * A body's radius is its least round shape's, or half the least extent of
- * its boxes; a body with no such shape has no rebound to measure, so it does
- * not bounce. A roll is on the ground and meets nothing on its way; a body
- * that rebounds and flies is swept again by the flight's one sweep.
+ * An explicit launch sphere supplies its radius. Otherwise it is the body's
+ * least round shape's radius, or half the least extent of its boxes. A body
+ * with no measurable shape does not bounce. A roll is swept, while it lasts,
+ * as the projectile it is (its rolling deceleration its only acceleration),
+ * so it meets what stands on the ground in its way; a body that rebounds and
+ * flies is swept again by the flight's one sweep.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each outcome, the datum that grants it, the bounce's settling rule and what a roll does not meet.
  * @evidence contracts/development/design.md#principled-representation A leg is an engine continuation segment timed from the launch with the contact that ends it.
@@ -99,6 +101,7 @@ export namespace HumanPropOutcome {
   export function decide(
     prop: IAutoMovieMotionHumanProp,
     struck: IAutoMovieMotionHumanPropFlight.Struck,
+    size: number | undefined = radius(prop),
   ): IAutoMovieProjectileContinue.Outcome | undefined {
     const body: IAutoMovieBody | undefined = prop.body;
     if (body === undefined) return undefined;
@@ -110,7 +113,6 @@ export namespace HumanPropOutcome {
       return { kind: "pass", loss: contact.passLoss };
     const friction: number | null | undefined =
       body.kineticFriction ?? body.friction;
-    const size: number | undefined = radius(prop);
     const restitution: number | undefined = body.restitution;
     if (friction !== null && friction !== undefined && size !== undefined) {
       if (restitution === undefined) {
@@ -158,10 +160,10 @@ export namespace HumanPropOutcome {
    * @throws {HumanRefusal} For a nonfinite or negative horizon/first contact, or a later contact whose finite absolute second does not advance.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines the finite nonnegative launch-relative horizon/first contact, strictly advancing later contacts, empty continuation at the horizon, callbacks, settlement and structured time/coefficient refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Admits the initial clock and each later finite absolute contact time before settlement, without changing time by an epsilon. Each engine continuation reads the declared outcome, shifts its clock once and sweeps again. Under the existing fixed-surface response approximation, only inward gravity supports a returning normal arc; v_n squared over twice that acceleration is its drag-free height and a conservative upper bound with dissipative drag. Outward or tangent gravity cannot trigger radius-based settlement.
+   * @evidence contracts/development/implementation.md#principled-implementation Admits the initial clock and each later finite absolute contact time before settlement, without changing time. A later contact must fall beyond CONTACT_SECOND, the microsecond a hit's second resolves to, so a converging exchange of contacts refuses instead of looping. Each engine continuation reads the declared outcome, shifts its clock once and sweeps again. Under the existing fixed-surface response approximation, only inward gravity supports a returning normal arc; v_n squared over twice that acceleration is its drag-free height and a conservative upper bound with dissipative drag. Outward or tangent gravity cannot trigger radius-based settlement.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop owns contact continuation while engine integration, sweeping and settlement remain separate owners supplied through typed inputs.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not duplicate projectile equations, clamp callback times, advance by a guessed epsilon or impose an arbitrary bounce count. Nonprogressing, negative, overflowing and nonfinite contact clocks refuse explicitly instead of looping or fabricating a continuation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For K admitted contacts, S colliders, engine continuation costs P_i and sweep costs C_i, work is O(K*S + sum(P_i + C_i)) and returned storage O(K), plus engine-owned drag-flight storage. Strictly increasing representable finite contact times prevent a repeated-clock loop; there is no small uniform contact-count bound or callback execution-time guarantee.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For K admitted contacts, S colliders, engine continuation costs P_i and sweep costs C_i, work is O(K*S + sum(P_i + C_i)) and returned storage O(K), plus engine-owned drag-flight storage. Contacts at least CONTACT_SECOND apart bound K by the horizon over a microsecond; there is no smaller uniform contact-count bound or callback execution-time guarantee.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each continuation segment is constructed once and retained for later sampling; the engine owns optional drag-flight integration reuse, and this loop installs no callback or cross-flight cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned legs retain only their segments and contacts; local projectile and meeting references are released on return or refusal, and no host task is started.
    */
@@ -191,10 +193,12 @@ export namespace HumanPropOutcome {
     let projectile: IAutoMovieProjectile = props.projectile;
     let meeting: IAutoMovieMotionHumanPropOutcome.IMeeting = props.meeting;
     let base: number = 0;
+    const size: number | undefined = props.sphereRadius ?? radius(props.prop);
     for (;;) {
       const outcome: IAutoMovieProjectileContinue.Outcome | undefined = decide(
         props.prop,
         meeting.struck,
+        size,
       );
       if (outcome === undefined || outcome.kind === "stick") return out;
       const next: IAutoMovieProjectileContinue.Segment = shift(
@@ -203,8 +207,56 @@ export namespace HumanPropOutcome {
       );
       if (next.kind === "rest") return out;
       if (next.kind === "roll") {
-        out.push({ from: next.from, segment: next, end: Infinity });
-        return out;
+        // While it lasts a roll is a projectile whose only acceleration is
+        // its rolling deceleration against its velocity, exact up to `until`,
+        // so the flight's one sweep meets what stands in its way (a keeper's
+        // pad, a stick, a person) as it would a flight. The ground it rolls on
+        // is left behind; a meeting at or after `until` is not on the roll.
+        const speed: number = Vector3.length(next.velocity);
+        const rolling: IAutoMovieProjectile | undefined =
+          speed > 0 && next.from < props.horizon
+            ? {
+                origin: next.origin,
+                velocity: next.velocity,
+                gravity: Vector3.scale(
+                  next.velocity,
+                  -next.deceleration / speed,
+                ),
+              }
+            : undefined;
+        const met: IAutoMovieMotionHumanPropOutcome.IMeeting | null =
+          rolling === undefined
+            ? null
+            : props.meet(rolling, next.from, undefined, meeting.collider);
+        const end: number = met === null ? Infinity : next.from + met.hit.time;
+        if (
+          met === null ||
+          !(end < next.until) ||
+          !(end > next.from + CONTACT_SECOND)
+        ) {
+          out.push({ from: next.from, segment: next, end: Infinity });
+          return out;
+        }
+        out.push({
+          from: next.from,
+          segment: next,
+          end,
+          contact: props.settle(met, rolling!, next.from),
+        });
+        // The contact goes on as a flight under the prop's own gravity from
+        // the roll's state there.
+        const state: IAutoMovieProjectileState = projectileContinue.at(
+          next,
+          end,
+        );
+        projectile = {
+          ...props.projectile,
+          origin: state.position,
+          velocity: state.velocity,
+        };
+        meeting = { ...met, hit: { ...met.hit, time: 0 } };
+        base = end;
+        continue;
       }
 
       // A gravity-return height applies only when acceleration presses inward.
@@ -215,7 +267,7 @@ export namespace HumanPropOutcome {
         pull > 0
           ? Vector3.dot(next.projectile.velocity, n) ** 2 / (2 * pull)
           : Infinity;
-      if (outcome.kind === "bounce" && rise < radius(props.prop)!) return out;
+      if (outcome.kind === "bounce" && rise < size!) return out;
       if (!(next.from < props.horizon)) return out;
       const met: IAutoMovieMotionHumanPropOutcome.IMeeting | null = props.meet(
         next.projectile,
@@ -224,12 +276,17 @@ export namespace HumanPropOutcome {
         outcome.kind === "bounce" ? meeting.collider : undefined,
       );
       const end: number = met === null ? Infinity : next.from + met.hit.time;
+
+      // A contact within the microsecond a hit's second resolves to is the
+      // same event, not a later one. Admitting it lets a prop and a surface
+      // moving into it trade contacts at ever-shorter intervals that never
+      // reach the horizon, each a full sweep.
       if (
         met !== null &&
         (!Number.isFinite(met.hit.time) ||
           met.hit.time < 0 ||
           !Number.isFinite(end) ||
-          !(end > next.from))
+          !(end > next.from + CONTACT_SECOND))
       )
         throw new HumanRefusal({
           kind: "parameter",
@@ -237,12 +294,12 @@ export namespace HumanPropOutcome {
           value: end,
           feasible: {
             kind: "range",
-            minimum: next.from,
+            minimum: next.from + CONTACT_SECOND,
             maximum: null,
             unit: "s",
             open: "minimum",
           },
-          reason: `prop ${props.prop.subject} contact with ${met.collider} after relative ${met.hit.time} s reaches absolute ${end} s, which does not advance finitely beyond ${next.from} s`,
+          reason: `prop ${props.prop.subject} contact with ${met.collider} after relative ${met.hit.time} s reaches absolute ${end} s, which does not advance finitely beyond ${next.from} s by more than the ${CONTACT_SECOND} s contact resolution`,
           fix: "supply the next strictly later contact; resolve departing or simultaneous contacts before continuing the flight",
         });
       out.push({
@@ -303,10 +360,12 @@ export namespace HumanPropOutcome {
     prop: IAutoMovieMotionHumanProp,
     struck: IAutoMovieMotionHumanPropFlight.Struck,
     state: IAutoMovieProjectileState,
+    sphereRadius?: number,
   ): IAutoMovieVector3 {
     const outcome: IAutoMovieProjectileContinue.Outcome | undefined = decide(
       prop,
       struck,
+      sphereRadius,
     );
     const speed: number = Vector3.length(state.velocity);
     return outcome?.kind === "stick" && speed > 0
@@ -356,3 +415,12 @@ export namespace HumanPropOutcome {
     }
   }
 }
+
+/**
+ * The second a contact's time resolves to, seconds: the microsecond at
+ * which the engine's contact specifications and a hit's id read it
+ * (`firstAutoMovieContactImpact` brackets a contact a thousandth of this
+ * wide so the reading does not depend on where its search stopped). Two
+ * contacts nearer than this are one event at that resolution.
+ */
+const CONTACT_SECOND: number = 1e-6;

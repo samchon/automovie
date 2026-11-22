@@ -28,6 +28,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
 
@@ -73,7 +74,6 @@ export namespace give {
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
-
   /** The head's turn at full intensity, degrees (provisional), inside the neck's rotation of about 80 degrees each way. */
   export const TURN: number = 45;
 
@@ -100,13 +100,11 @@ export namespace give {
    * @evidence contracts/development/implementation.md#principled-implementation The part rises to its peak and falls back on the clock's minimum-jerk envelope (Flash and Hogan 1985). The side is the contact's side in the performer's floor frame. The sign of the neck's twist that turns the head to that side is found by forward kinematics of the entry posture, so it does not rest on a rig convention.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, the inherited base and one primitive chosen by the part.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact dead ahead or behind turns the head to the left, a stated tie rule; sizes are named provisional constants.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three trunk resolutions per plan, the entry's once and one per neck axis tried, and constant work per posture.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The direction is read once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reads only head ancestry after full authored-joint admission: one original entry read and the two original neck-axis trials for a head reaction. Fixed head demand prepares once rather than indexing names at each read; written postures retain constant work and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous observation lends its exact FK workspace and body-bound head-demand producer to the entry and both actual joint-override trials; every authored joint is still admitted and each changed neck pose is read afresh, while direction is still read once.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The observation IIFE releases its lazy FK workspace, fixed head-demand reader and fresh bone maps before constructing the returned primitive; only its direction and computed head angles escape, never an FK reader, callback or posed-result cache.
    */
-  export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGive.IParams>,
-  ): IAutoMovieMotionHumanActionPlan {
+  export function plan(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGive.IParams>): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanGive.IParams = context.params;
     const intensity: number = p.intensity ?? 1;
     HumanBound.within("intensity", intensity, 0, 1, "", "minimum");
@@ -126,36 +124,51 @@ export namespace give {
 
     // Away from the contact in the performer's floor frame: `x` left, `z`
     // forward; reversed for a pull.
-    // The entry's trunk, resolved once: the head's place here, its rest
-    // rotation for the sign of the neck's turn.
-    const trunk: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      HumanTrunk.resolve(body, entry);
-    const head: IAutoMovieVector3 = trunk.get("head")!.worldPosition;
-    const away: IAutoMovieVector3 = Vector3.scale(
-      HumanFrame.local(
-        { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
-        AutoMovieMotionHumanTarget.away(
-          ReactionSource.at(
-            context,
-            p.from,
-            context.start - StrikingTarget.LOOK,
-            entry,
-            AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+    // The head's actual place and, for a head reaction, the neck's sign.
+    /** The observation transfers only the actual direction and chosen angles. */
+    type IReaction =
+      | {
+          part: "head";
+          away: IAutoMovieVector3;
+          angles: IAutoMovieMotionHumanJoints.Angles;
+        }
+      | { part: "trunk"; away: IAutoMovieVector3 };
+    const reaction: IReaction = ((): IReaction => {
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
+      const headAt: ReturnType<typeof HumanTrunk.prepareResolve> =
+        HumanTrunk.prepareResolve(body, HEAD);
+      const trunk: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        headAt(entry, resolution);
+      const head: IAutoMovieVector3 = trunk.get("head")!.worldPosition;
+      const away: IAutoMovieVector3 = Vector3.scale(
+        HumanFrame.local(
+          { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
+          AutoMovieMotionHumanTarget.away(
+            ReactionSource.at(
+              context,
+              p.from,
+              context.start - StrikingTarget.LOOK,
+              entry,
+              AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+            ),
+            head,
+            entry.yaw,
           ),
-          head,
-          entry.yaw,
         ),
-      ),
-      p.way === "toward" ? -1 : 1,
-    );
+        p.way === "toward" ? -1 : 1,
+      );
+      return (p.part ?? "head") === "head"
+        ? {
+            part: "head",
+            away,
+            angles: turned(context, trunk, away.x >= 0 ? 1 : -1, intensity, resolution, headAt),
+          }
+        : { part: "trunk", away };
+    })();
     const primitive: IAutoMovieMotionHumanPrimitive =
-      (p.part ?? "head") === "head"
-        ? AutoMovieMotionHumanJoints.pulse(
-            clock,
-            rise,
-            fall,
-            turned(context, trunk, away.x >= 0 ? 1 : -1, intensity),
-          )
+      reaction.part === "head"
+        ? AutoMovieMotionHumanJoints.pulse(clock, rise, fall, reaction.angles)
         : AutoMovieMotionHumanLean.sway({
             body,
             from: 0,
@@ -165,11 +178,14 @@ export namespace give {
                 intensity *
                 AutoMovieMotionHumanRange.lean("light") *
                 clock.envelope(rise, fall, seconds);
-              return { pitch: share * away.z, roll: -share * away.x };
+              return {
+                pitch: share * reaction.away.z,
+                roll: -share * reaction.away.x,
+              };
             },
             shift: (seconds: number): IAutoMovieVector3 =>
               Vector3.scale(
-                away,
+                reaction.away,
                 intensity *
                   AutoMovieMotionHumanRange.shift(body, SHIFT) *
                   clock.envelope(rise, fall, seconds),
@@ -186,12 +202,14 @@ export namespace give {
   }
 
   /** The neck and head angles that turn and tilt the head to a side: 1 for the performer's left, -1 for the right. */
-  const turned = (
+  function turned(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGive.IParams>,
     trunk: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: 1 | -1,
     intensity: number,
-  ): IAutoMovieMotionHumanJoints.Angles => {
+    resolution: ReturnType<typeof prepareHumanPoseResolution>,
+    headAt: ReturnType<typeof HumanTrunk.prepareResolve>,
+  ): IAutoMovieMotionHumanJoints.Angles {
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const left: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
@@ -199,17 +217,21 @@ export namespace give {
     );
 
     // Which sign of a neck angle moves the head's forward, or its up, to the left.
-    const sign = (axis: 1 | 2, probe: IAutoMovieVector3): number => {
+    const sign: (axis: 1 | 2, probe: IAutoMovieVector3) => number = (
+      axis: 1 | 2,
+      probe: IAutoMovieVector3,
+    ): number => {
       const held: readonly [number, number, number] = entry.joints.neck ?? [
         0, 0, 0,
       ];
       const tried: [number, number, number] = [held[0], held[1], held[2]];
       tried[axis] += 10;
       const moved: IAutoMovieVector3 = Quaternion.rotateVector(
-        HumanTrunk.resolve(context.body, entry, {
-          ...entry.joints,
-          neck: tried,
-        }).get("head")!.worldRotation,
+        headAt(
+          entry,
+          resolution,
+          { ...entry.joints, neck: tried },
+        ).get("head")!.worldRotation,
         probe,
       );
       const rest: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -232,5 +254,10 @@ export namespace give {
       neck: [0, tilt.neck?.[1] ?? 0, twist.neck?.[2] ?? 0],
       head: [0, tilt.head?.[1] ?? 0, twist.head?.[2] ?? 0],
     };
-  };
+  }
+
+  /** All reaction observations read only this head and its actual ancestry. */
+  const HEAD: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+    "head",
+  ]);
 }

@@ -1,0 +1,337 @@
+/* The catalogue pages: their heading and bar of filters, the scene cards,
+   what is in the works, and the archetype cards and heading. DESIGN.md
+   states each page's layout; the tokens are in tokens.css. */
+
+/* An archetype's view */
+.am-object-view {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--am-radius);
+  background: var(--am-viewport);
+}
+
+.am-object-view canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.am-app .am-gallery.am-gallery-detail {
+  grid-template-columns: minmax(0, 1fr) var(--am-side);
+  grid-template-areas: "view facts";
+}
+
+@media (max-width: 1023px) {
+  .am-app .am-gallery.am-gallery-detail {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "view"
+      "facts";
+  }
+}
+
+.am-app summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding-block: var(--am-space-2);
+}
+/* A catalogue page: its heading, its sticky bar of filters, and its groups */
+.am-catalogue {
+  max-width: 88rem;
+  margin-inline: auto;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem) 5rem;
+  font-family: var(--am-font-sans);
+}
+
+.am-catalogue-head {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 36rem);
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.75rem 3rem;
+  margin-bottom: 1.5rem;
+}
+
+.am-app .am-catalogue-head h1 {
+  margin: 0;
+  font-family: var(--am-font-display);
+  font-size: var(--am-text-title);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.am-catalogue-head p {
+  margin: 0;
+  color: var(--am-fg-muted);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.am-catalogue-bar {
+  position: sticky;
+  top: var(--am-navbar);
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--am-border);
+  background: var(--am-bg);
+}
+
+.am-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.am-app button.am-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.25rem;
+  height: auto;
+  padding: 0 0.85rem;
+  border: 1px solid var(--am-border);
+  border-radius: 999px;
+  background: var(--am-bg-inset);
+  color: var(--am-fg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.am-app button.am-chip:hover {
+  border-color: var(--am-border-control);
+}
+
+.am-app button.am-chip[aria-pressed="true"] {
+  border-color: var(--am-fg);
+  background: var(--am-fg);
+  color: var(--am-bg);
+}
+
+.am-chip-count,
+.am-catalogue-count {
+  color: inherit;
+  font: 0.75rem var(--am-font-mono);
+  opacity: 0.65;
+}
+
+.am-catalogue-count {
+  margin-left: 0.6rem;
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+.am-search {
+  flex: 1 1 14rem;
+  max-width: 22rem;
+  margin-left: auto;
+}
+
+.am-app .am-search input {
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--am-border-control);
+  border-radius: 999px;
+  background: var(--am-bg-inset);
+}
+
+.am-catalogue-group + .am-catalogue-group {
+  margin-top: 3rem;
+}
+
+.am-app .am-catalogue-group h2 {
+  margin: 0 0 1rem;
+  font-family: var(--am-font-display);
+  font-size: 1.875rem;
+  font-weight: 400;
+}
+
+/* A scene's card: its still, and its take playing while pointed at */
+.am-scene-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16.5rem, 1fr));
+  gap: 1.75rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-scene-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.am-scene-card-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.am-scene-card-view {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--am-radius-lg);
+  background: var(--am-viewport);
+  transition: box-shadow var(--am-fast) var(--am-ease);
+}
+
+.am-scene-card-view > img,
+.am-scene-card-blank {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.am-scene-card-live {
+  position: absolute;
+  inset: 0;
+}
+
+.am-scene-card-live .am-scene-view {
+  height: 100%;
+  aspect-ratio: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.am-scene-card-link:hover .am-scene-card-view,
+.am-scene-card-link:focus-visible .am-scene-card-view {
+  box-shadow: 0 0 0 2px var(--am-fg);
+}
+
+.am-scene-card-link:focus-visible {
+  outline: none;
+}
+
+.am-scene-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.am-scene-card-summary {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--am-fg-muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.am-scene-card-facts {
+  color: var(--am-fg-muted);
+  font: 0.75rem var(--am-font-mono);
+}
+
+/* What is still in the works, folded */
+.am-roadmap {
+  margin-top: 4rem;
+  border-top: 1px solid var(--am-border);
+  padding-top: 1rem;
+}
+
+.am-app .am-roadmap summary {
+  font-family: var(--am-font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.am-roadmap-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+  gap: 0.75rem 2rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-roadmap-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.875rem;
+}
+
+.am-roadmap-list li span {
+  color: var(--am-fg-muted);
+}
+
+@media (max-width: 760px) {
+  .am-catalogue-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .am-catalogue-bar {
+    position: static;
+  }
+
+  .am-search {
+    max-width: none;
+    margin-left: 0;
+  }
+}
+
+/* The archetype cards */
+.am-object-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 1rem 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-object-card .am-scene-card-link {
+  gap: 0.4rem;
+}
+
+.am-object-card .am-object-view {
+  transition: box-shadow var(--am-fast) var(--am-ease);
+}
+
+.am-object-card .am-scene-card-link:hover .am-object-view,
+.am-object-card .am-scene-card-link:focus-visible .am-object-view {
+  box-shadow: 0 0 0 2px var(--am-fg);
+}
+
+.am-object-card .am-scene-card-title {
+  font-size: 0.9375rem;
+}
+
+.am-object-card > .am-muted,
+.am-object-card > span:not(.am-scene-card-title) {
+  color: var(--am-fg-muted);
+  font-size: 0.75rem;
+}
+/* An archetype's heading: the breadcrumb over the title */
+.am-archetype-head {
+  margin-bottom: 1rem;
+}
+
+.am-app .am-archetype-head h1 {
+  margin: 0;
+  font-family: var(--am-font-display);
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+  font-weight: 400;
+}
+
+.am-archetype-head .am-crumbs {
+  margin-bottom: 0.25rem;
+}

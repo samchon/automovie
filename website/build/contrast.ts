@@ -30,7 +30,22 @@ const PAIRS: readonly (readonly [string, string, number])[] = [
   ["fg-muted", "danger-soft", 4.5],
   ["success", "success-soft", 4.5],
   ["viewport-tag-fg", "viewport-tag-bg", 4.5],
-  ["fg", "viewport", 4.5],
+  ["viewport-fg", "viewport", 4.5],
+  ["room-fg", "room", 4.5],
+  ["room-muted", "room", 4.5],
+  ["room-fg", "room-panel", 4.5],
+  ["room-muted", "room-panel", 4.5],
+  ["room-code", "room-deep", 4.5],
+  ["room-danger-fg", "room-panel", 4.5],
+  ["room-switch-fg", "room-switch-bg", 4.5],
+  ["room-alarm-fg", "room-alarm-bg", 4.5],
+  ["viewport-fg", "viewport-grid", 4.5],
+  ["viewport-muted", "viewport", 4.5],
+  ["viewport-ink", "viewport-button", 4.5],
+  ["instrument-fg", "instrument-bg", 4.5],
+  ["viewport-fg", "viewport-lit", 4.5],
+  ["room-code", "room", 4.5],
+  ["room-muted", "room-deep", 4.5],
 
   // What is not text but must be seen: control borders and the focus ring.
   ["border-control", "bg", 3],
@@ -39,11 +54,13 @@ const PAIRS: readonly (readonly [string, string, number])[] = [
   ["focus", "bg", 3],
   ["focus", "bg-panel", 3],
   ["focus", "viewport", 3],
+  ["viewport-control", "viewport", 3],
+  ["accent-line", "bg", 3],
 ];
 
 /** The relative luminance of an sRGB colour written `#rrggbb`. */
-const luminance = (hex: string): number => {
-  const channel = (at: number): number => {
+const luminance: (hex: string) => number = (hex: string): number => {
+  const channel: (at: number) => number = (at: number): number => {
     const value: number = parseInt(hex.slice(at, at + 2), 16) / 255;
     return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
   };
@@ -51,7 +68,9 @@ const luminance = (hex: string): number => {
 };
 
 /** The colour tokens of one rule block: every `--am-<name>: #rrggbb;`. */
-const tokens = (block: string): Map<string, string> =>
+const tokens: (block: string) => Map<string, string> = (
+  block: string,
+): Map<string, string> =>
   new Map(
     [...block.matchAll(/--am-([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})\s*;/g)].map(
       (match: RegExpMatchArray): [string, string] => [match[1]!, match[2]!],

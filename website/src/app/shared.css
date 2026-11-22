@@ -1,0 +1,168 @@
+/* The interface pieces every page shares: buttons, text links, section
+   titles, the copyable command, the rise of revealed blocks and the page for
+   a missing address. DESIGN.md states the visual system. */
+
+/* Shared pieces */
+.am-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 1.15rem;
+  border: 1px solid var(--am-border-control);
+  border-radius: 999px;
+  background: var(--am-bg-inset);
+  color: var(--am-fg);
+  font-family: var(--am-font-sans);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color var(--am-fast) var(--am-ease),
+    border-color var(--am-fast) var(--am-ease),
+    transform var(--am-fast) var(--am-ease);
+}
+
+.am-button:hover {
+  border-color: var(--am-fg);
+}
+
+.am-button:active {
+  transform: translateY(1px);
+}
+
+.am-button-primary {
+  border-color: var(--am-fg);
+  background: var(--am-fg);
+  color: var(--am-bg);
+}
+
+.am-button-primary:hover {
+  background: var(--am-accent-bg);
+  border-color: var(--am-accent-bg);
+  color: var(--am-accent-fg);
+}
+
+.am-button-light {
+  border-color: var(--am-room-muted);
+  background: transparent;
+  color: var(--am-room-fg);
+}
+
+.am-button-light:hover {
+  border-color: var(--am-room-fg);
+}
+
+.am-button:focus-visible,
+.am-text-link:focus-visible,
+.am-command button:focus-visible,
+.am-rail a:focus-visible,
+.am-library-links a:focus-visible,
+.am-graph-switch:focus-visible,
+.am-figure-canvas-toggle:focus-visible {
+  outline: 2px solid var(--am-focus);
+  outline-offset: 2px;
+}
+
+.am-text-link {
+  color: var(--am-fg);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--am-accent-line);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+}
+
+.am-text-link:hover {
+  color: var(--am-accent);
+}
+
+.am-section-title {
+  margin: 0 0 1.25rem;
+  font-family: var(--am-font-display);
+  font-size: var(--am-text-title);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.am-command {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 26rem;
+  border: 1px solid var(--am-border);
+  border-radius: var(--am-radius);
+  background: var(--am-bg-panel);
+  padding: 0.3rem 0.3rem 0.3rem 0.85rem;
+}
+
+.am-command code {
+  flex: 1 1 auto;
+  overflow-x: auto;
+  font-family: var(--am-font-mono);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.am-command code span {
+  color: var(--am-fg-muted);
+}
+
+.am-command button {
+  flex: none;
+  min-height: 2rem;
+  padding: 0 0.7rem;
+  border: 1px solid var(--am-border);
+  border-radius: calc(var(--am-radius) - 2px);
+  background: var(--am-bg-inset);
+  color: var(--am-fg);
+  font: 600 0.8125rem var(--am-font-sans);
+  cursor: pointer;
+}
+
+/* Revealed blocks rise into place once */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    transition:
+      opacity 620ms var(--am-ease),
+      transform 620ms var(--am-ease);
+  }
+
+  [data-reveal="hidden"] {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/* The page for an address the site does not have */
+.am-missing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 18vh 1.5rem 6rem;
+  font-family: var(--am-font-sans);
+}
+
+.am-missing h1 {
+  margin: 0;
+  font-family: var(--am-font-display);
+  font-size: var(--am-text-title);
+  font-weight: 400;
+}
+
+.am-missing p {
+  margin: 0;
+  color: var(--am-fg-muted);
+}
+
+.am-missing nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}

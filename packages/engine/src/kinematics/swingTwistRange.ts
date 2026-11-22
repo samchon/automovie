@@ -22,50 +22,36 @@ import { wrapDegrees } from "../math/wrapDegrees";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
+import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
+import { placeSwingTwistChart } from "./placeSwingTwistChart";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 import { swingTwistBasis } from "./swingTwistBasis";
 import { swingTwistRegion } from "./swingTwistRegion";
 
 const DEG: number = swingTwistBasis.DEG;
 
+/** The twist `swingTwist` gives where the projection vanishes: the identity. */
+const IDENTITY_TWIST: IAutoMovieQuaternion = Object.freeze(Quaternion.identity());
+
+/** Original dimensionless disc coordinates and clinical-degree twist. */
+type IChart = ReturnType<typeof swingTwistRange.chart>;
+
 /**
  * The range of a ball joint read by swing and twist: where the limb's long
  * axis may point, and how far the limb may turn about it.
  *
- * A joint rotation `q`, rest-relative in the bone's own frame, splits into a
- * twist about the limb's rest axis `u` (the joint's twist axis) taken first
- * and a swing, the shortest turn that carries `u` to the limb's direction
- * `q u`. The twist is that turn's angle about `u`, lifted to clinical degrees
- * by the rest frame's twist mapping. The decomposition is singular only where
- * the limb points at `-u`, the rest direction's antipode.
+ * A joint rotation q, rest-relative in the bone's own frame, splits into a twist about its rest axis u (the joint's twist axis) taken first and a swing, the shortest turn carrying u to the limb's direction q u. The twist is that turn's angle about u, lifted to clinical degrees by the rest frame's twist map. Decomposition is singular only where the limb points at -u, the rest direction's antipode.
  *
- * The swing is limited by the directions the constraint's `flexion` and
- * `abduction` intervals reach with no twist (and its `swingDeg`, when it has
- * one), taken as a star about the rest direction: every direction between
- * the rest direction and a reached one, along the great circle through both.
- * Through a three-angle chart the reached directions pinch where two of the
- * angles turn about one axis (a hip flexed to 90 degrees, where abduction
- * turns the thigh about itself), and the star fills the pinch, so a flexed
- * hip may still swing aside. The star is stored as its radius along each
- * great circle leaving the rest direction, `swingTwistBasis.RAYS` of them, the farthest swing
- * along it that the ranges reach, raised where it would turn faster than
- * `SLOPE` with the azimuth (beside an edge of the region that runs along a
- * ray, where the farthest reach jumps), and interpolated linearly between
- * rays. A direction outside is brought back along its own great circle to
- * the radius there, which moves continuously with the direction because the
- * radius does.
+ * Swing is limited by directions the constraint's flexion/abduction intervals reach with no twist (and swingDeg, when present), taken as a star about rest: every direction between rest and a reached direction along their great circle. A three-angle chart pinches where two angles turn about one axis (a hip flexed 90 degrees, where abduction turns the thigh about itself); the star fills that pinch so the flexed hip may swing aside. Its radius is stored on swingTwistBasis.RAYS great circles leaving rest: the farthest reached swing, raised where its azimuth slope exceeds SLOPE (beside a ray-aligned edge with a jumping farthest reach), then linearly interpolated between rays. Outside directions return along their own great circle to that radius, continuously because the radius is continuous.
  *
- * The twist is limited by the constraint's `swingTwist.twist` interval, and
- * clamped to it. A clamp of a turn onto an arc must break somewhere on the
- * circle: here at the turn farthest from the interval on either side, which
- * no limb reaches.
+ * Twist is clamped to the constraint's swingTwist.twist interval. A circle-to-arc clamp must break somewhere: here at the turn farthest from the interval on either side, which no limb reaches.
  *
  * The construction is this module's; no published method is claimed for it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the decomposition, its singular direction, how the swing region is read from the constraint, how a direction outside it is brought back and the premise that keeps that continuous.
  * @evidence contracts/development/design.md#principled-representation A rotation is split into the two quantities a ball joint's range limits independently, where the limb points and how it is turned about itself, neither read through a three-angle chart.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The joint frame of a rig's bone, the reading, the measure outside the range, the projection into it and the radius on a circle; the radius table is cached per constraint and basis.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Rig/frame preparation, reading, range measure, projection, chart blending and radius serve actual clamp/chart consumers. prepareBlend additionally serves unchanged endpoint pairs without exposing chart metadata or adding a result cache; radius tables retain their existing owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint is named: the axes, the rest frame and the intervals are the caller's.
  */
 export namespace swingTwistRange {
@@ -81,57 +67,66 @@ export namespace swingTwistRange {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the precedence, the fallback and the empty case.
    * @evidence contracts/development/implementation.md#principled-implementation The skeleton's own axes win over the family table, the precedence every engine entry with a skeleton reads.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One table read and one record.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolves skeleton axis precedence through skeletonJointAxes, then delegates frame assembly to fromAxes, which also serves operation-scoped rig preparation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone is special-cased.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The frames of a skeleton are resolved once, by one scan of its bones, and read by every later call: a limb fit clamps its candidates through here twice per swivel candidate, where a scan per call cost about 8 percent of a sweep cell.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `skeletonJointAxes`, once per skeleton and bones list.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The frames are kept in a weak map keyed by the skeleton, released with it, and resolved again when its bones list is replaced; a bone's axes changed in place on a list already read are not seen.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A supplied skeleton requires one O(B) axis merge and a constant-time frame assembly; no-skeleton lookup is constant work. Multi-joint operations can resolve the table once and call fromAxes without repeating the scan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares axis precedence with skeletonJointAxes and frame assembly with fromAxes; fresh calls observe replaced axes on the same bones list instead of trusting a skeleton-identity cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no skeleton or table; the caller owns a fresh frame record borrowing the resolved axes and canonical rest frame.
    */
   export function of(
     bone: AutoMovieHumanoidBone,
     skeleton?: IAutoMovieSkeleton,
   ): IAutoMovieJointRotationFrame | undefined {
-    const key: object = skeleton ?? NO_SKELETON;
-    let kept: IKept | undefined = FRAMES.get(key);
-    if (
-      kept === undefined ||
-      (skeleton !== undefined && kept.bones !== skeleton.bones)
-    ) {
-      kept = {
-        bones: skeleton?.bones,
-        table:
-          skeleton === undefined
-            ? HUMANOID_JOINT_AXES
-            : skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES),
-        frames: new Map(),
-      };
-      FRAMES.set(key, kept);
-    }
-    if (kept.frames.has(bone)) return kept.frames.get(bone);
-    const axes: IAutoMovieJointAxes | undefined = kept.table[bone];
-    const frame: IAutoMovieJointRotationFrame | undefined =
-      axes === undefined
-        ? undefined
-        : { axes, frame: HUMANOID_REST_FRAME[bone] };
-    kept.frames.set(bone, frame);
-    return frame;
+    const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
+      skeleton === undefined
+        ? HUMANOID_JOINT_AXES
+        : skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES);
+    return fromAxes(bone, axes[bone]);
   }
 
-  /** A skeleton's axes table and the bone frames already read from it, with the bones list the table was resolved from. */
-  interface IKept {
-    bones: unknown;
-    table: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-    frames: Map<
-      AutoMovieHumanoidBone,
-      IAutoMovieJointRotationFrame | undefined
-    >;
+  /**
+   * Assemble a bone's swing-twist frame from axes already resolved by
+   * skeletonJointAxes, retaining its canonical clinical rest frame.
+   *
+   * @param bone The bone whose clinical rest frame applies.
+   * @param axes Its resolved axes; undefined means there is no frame.
+   * @returns A fresh frame borrowing the axes and canonical rest frame, or undefined.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the already-resolved-axis premise, canonical rest frame, undefined result and borrowed members.
+   * @evidence contracts/development/implementation.md#principled-implementation Pairs the supplied clinical axes with the same bone's HUMANOID_REST_FRAME entry, exactly the frame assembly used by of after skeleton precedence is resolved.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame constructor lets standalone lookup and operation-scoped multi-joint preparation share the clinical mapping without a synthetic skeleton.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Performs no alternate precedence, axis repair or normalization; numerical admission remains with the existing consumers of the frame.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and at most one fixed-size record, with no skeleton scan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the caller's already-resolved axes and canonical rest-frame table; changed rotations still go through the actual swing-twist computation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state; the caller owns the optional returned frame and its borrowed members' lifetime.
+   */
+  export function fromAxes(
+    bone: AutoMovieHumanoidBone,
+    axes: IAutoMovieJointAxes | undefined,
+  ): IAutoMovieJointRotationFrame | undefined {
+    return axes === undefined
+      ? undefined
+      : { axes, frame: HUMANOID_REST_FRAME[bone] };
   }
 
-  /** The kept tables, per skeleton (or the humanoid tables, keyed by `NO_SKELETON`). */
-  const FRAMES: WeakMap<object, IKept> = new WeakMap();
-
-  /** The key of the humanoid tables read with no skeleton. */
-  const NO_SKELETON: object = Object.freeze({});
+  /**
+   * Prepare one frame for repeated numerical readings while its axes and
+   * rest-frame records stay unchanged. Admission remains lazy at first use.
+   *
+   * @param joint The unchanged frame borrowed by this operation.
+   * @returns A fresh frozen frame wrapper, released with the operation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States explicit preparation, borrowed unchanged axes/frame, lazy first admission and wrapper ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Only the operation-invariant swing-twist basis is shared; the existing basis admission and cross product still execute at the first actual numerical reading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates private prepared-record ownership to SwingTwistFramePreparation, which the existing numerical readers also consult without copying any rotation algorithm.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Ordinary IJoint records retain live admission; no rotation, chart result, constraint or failed admission is remembered, and no tolerance changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant wrapper creation and one lazy axis admission plus swing-basis assembly per explicit operation avoid repeated normalization comparisons and basis/cross-vector allocation on read/project/placed calls; prepared clamps also borrow the admitted axes for their actual composition and inverse. The wrapper owns three small closures, and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller's unchanged axes/frame scope proves basis equivalence; every incoming quaternion or chart coordinate still receives the original numerical computation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One wrapper owns three lazy reader closures, at most one admitted-axis reference and one swing basis plus borrowed frame records, released with the operation; no global registry, skeleton identity cache, resource handle or task is introduced.
+   */
+  export function prepare(joint: IAutoMovieJointRotationFrame): IAutoMovieJointRotationFrame {
+    return SwingTwistFramePreparation.of(joint);
+  }
 
   /**
    * A rotation read by swing and twist.
@@ -145,21 +140,18 @@ export namespace swingTwistRange {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation of the axis, one projection and two angles.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The twist is lifted by the joint's own rest frame, so its sign is the clinical one.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `swingTwist` and `wrapDegrees`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses swingTwist and wrapDegrees, plus only an explicit prepared wrapper's unchanged basis; ordinary joint frames retain live admission.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function read(
-    q: IAutoMovieQuaternion,
-    joint: IAutoMovieJointRotationFrame,
-  ): IAutoMovieSwingTwistRange.IReading {
-    const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
-      joint.axes,
-    );
+  export function read(q: IAutoMovieQuaternion, joint: IAutoMovieJointRotationFrame): IAutoMovieSwingTwistRange.IReading {
+    const basis: IAutoMovieSwingTwistBasis.IBasis = SwingTwistFramePreparation.basis(joint);
     const unit: IAutoMovieQuaternion = Quaternion.normalize(q);
     const direction: IAutoMovieVector3 = Vector3.normalize(
       Quaternion.rotateVector(unit, basis.u),
     );
-    const twisted: IAutoMovieQuaternion = swingTwist(unit, basis.u).twist;
+    // The twist alone (`swingTwist.twist`): the swing is read from the
+    // direction, so its product is not formed.
+    const twisted: IAutoMovieQuaternion = swingTwist.twist(unit, basis.u) ?? IDENTITY_TWIST;
     const rig: number =
       2 *
       Math.atan2(
@@ -228,7 +220,7 @@ export namespace swingTwistRange {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one radius, one shortest turn (`rotationBetween`) and one twist.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No nearest point is sought, since a nearest point jumps where two tie.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work once the radius table is built.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads `read` and `radius`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads read and radius and shares only an explicit prepared wrapper's unchanged basis; each requested rotation still receives the actual projection.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function project(
@@ -236,9 +228,7 @@ export namespace swingTwistRange {
     constraint: IAutoMovieJointConstraint,
     joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieQuaternion {
-    const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
-      joint.axes,
-    );
+    const basis: IAutoMovieSwingTwistBasis.IBasis = SwingTwistFramePreparation.basis(joint);
     const reading: IAutoMovieSwingTwistRange.IReading = read(q, joint);
     const interval: IAutoMovieAngleRange = constraint.swingTwist!.twist;
     const turned: number = nearestAngleAlias(reading.twist, interval);
@@ -317,7 +307,7 @@ export namespace swingTwistRange {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One azimuth, one radius, one direction and one composition.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A place off the disc gives a rotation outside the region, never a clamped one.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work once the radius table is built.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `radius`, `swingTwistBasis.direction`, `rotationBetween` and `toRigAngle`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses radius, direction, rotationBetween and toRigAngle with only an explicit prepared wrapper's unchanged basis; each coordinate still receives actual chart inversion.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function placed(
@@ -325,27 +315,7 @@ export namespace swingTwistRange {
     constraint: IAutoMovieJointConstraint,
     joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieQuaternion {
-    const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
-      joint.axes,
-    );
-    const k: number = Math.hypot(place.x, place.y);
-    const azimuth: number = k > 1e-12 ? Math.atan2(place.y, place.x) * DEG : 0;
-    return Quaternion.normalize(
-      Quaternion.multiply(
-        rotationBetween(
-          basis.u,
-          swingTwistBasis.direction(
-            basis,
-            k * radius(constraint, joint, azimuth),
-            azimuth,
-          ),
-        ),
-        Quaternion.fromAxisAngle(
-          basis.u,
-          toRigAngle(place.twist, joint.frame?.twist)!,
-        ),
-      ),
-    );
+    return placeSwingTwistChart(place, constraint, joint, radius);
   }
 
   /**
@@ -394,15 +364,46 @@ export namespace swingTwistRange {
       constraint,
       joint,
     );
-    return placed(
-      {
-        x: from.x + (to.x - from.x) * share,
-        y: from.y + (to.y - from.y) * share,
-        twist: from.twist + (to.twist - from.twist) * share,
-      },
-      constraint,
-      joint,
-    );
+    return blendCharts(from, to, share, constraint, joint);
+  }
+
+  /**
+   * Prepare the same chart blend for unchanged endpoints, constraint and joint.
+   * Construction reads chart(a) then chart(b), at the caller's actual first
+   * blend site; every share still runs the original coordinate blend/placed.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed rest-relative endpoints/rig lifetime, ordered eager chart admission, actual per-share inversion, fresh rotation and caller-owned release.
+   * @evidence contracts/development/implementation.md#principled-implementation Endpoint chart coordinates depend only on those unchanged rotations and the same region/frame. Sharing their exact completed values leaves from+(to-from)*share and the existing placed inversion unchanged, including extrapolation/nonfinite share arithmetic.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct blend and this fixed-pair reader share one private three-coordinate interpolation owner and the same chart/inversion owner; no chart algorithm is copied into a Human consumer.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No share clamp, new endpoint shortcut, projection, tolerance or normalization skip is added. First construction preserves chart(a) before chart(b); later reads assume the declared immutable endpoints/constraint/frame and evaluate every current share normally.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation performs the original two constant-size chart computations once; each share retains three coordinate expressions and actual placed/radius/rotation work, omitting repeated endpoint readings and their records. The inversion reader additionally shares successful fixed basis/source/axis/affine work, first reached at its original numerical sites. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual fixed-endpoint Human joint blender borrows this reader only under one unchanged pair/rig. Endpoint coordinates and successful rig-only inversion preparation cross reads; share-dependent coordinates/quaternions and outputs remain fresh, with no result history or global key.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller-owned reader holds two three-scalar chart records, borrowed constraint/joint and one lazy inversion reader with at most one basis, normalized source, axis preparation and affine reader until pair release. Endpoint quaternions need not remain retained after construction. Every share returns its actual placed quaternion and retains no input share/output, handle or task.
+   */
+  export function prepareBlend(
+    a: IAutoMovieQuaternion, b: IAutoMovieQuaternion,
+    constraint: IAutoMovieJointConstraint, joint: IAutoMovieJointRotationFrame,
+  ): (share: number) => IAutoMovieQuaternion {
+    const from: IChart = chart(a, constraint, joint);
+    const to: IChart = chart(b, constraint, joint);
+    const place: (coordinate: IChart) => IAutoMovieQuaternion =
+      placeSwingTwistChart.prepare(constraint, joint, radius);
+    return (share: number): IAutoMovieQuaternion =>
+      blendCharts(from, to, share, constraint, joint, place);
+  }
+
+  /** Original chart expressions, shared without a second interpolation algorithm. */
+  function blendCharts(
+    from: IChart, to: IChart, share: number,
+    constraint: IAutoMovieJointConstraint, joint: IAutoMovieJointRotationFrame,
+    read?: (coordinate: IChart) => IAutoMovieQuaternion,
+  ): IAutoMovieQuaternion {
+    const coordinate: IChart = {
+      x: from.x + (to.x - from.x) * share,
+      y: from.y + (to.y - from.y) * share,
+      twist: from.twist + (to.twist - from.twist) * share,
+    };
+    return read === undefined ? placed(coordinate, constraint, joint) : read(coordinate);
   }
   /**
    * The swing region's radius on one great circle, degrees, read off the
@@ -435,3 +436,4 @@ export namespace swingTwistRange {
     return table[before]! + (table[after]! - table[before]!) * share;
   }
 }
+

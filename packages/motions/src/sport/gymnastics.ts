@@ -5,12 +5,15 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanGymnastics,
+  IAutoMovieMotionHumanPlaced,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionManner,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -92,16 +95,16 @@ export namespace gymnastics {
    * @evidence contracts/development/implementation.md#principled-implementation The hips carry the root while the feet stand and the shoulders pivot it while the hands bear, so neither support slides; the shoulders' height is the arms' reach above the laid hands' wrists; the feet stay planted for the first half and then ride the straight legs of the pitched body.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, root row, arm rows, leg rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lengths are the body's; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per arm per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the placed arm, the leg placement and the posture heading.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per arm per second remains. Each root primitive reads its fold/swing once and computes only its active hip or shoulder support placement, avoiding an unused heading rotation; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the placed arm, leg placement and posture heading; the root writer shares its same-query clock weights between pitch and the selected support without retaining a temporal result cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and a few points.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGymnastics.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanGymnastics.IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const hold: number = p.seconds ?? 2;
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -190,40 +193,35 @@ export namespace gymnastics {
     // first half and the swing over its second, then the swing undone over
     // the exit's first half and the fold over its second, so at every
     // instant the hands or the feet bear.
-    const fold = (s: number): number =>
+    const fold: (s: number) => number = (s: number): number =>
       clock.envelope(["start", "handsDown"], ["release", "end"], s);
-    const swing = (s: number): number =>
+    const swing: (s: number) => number = (s: number): number =>
       clock.envelope(["handsDown", "inverted"], ["relax", "release"], s);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [
       {
         channels: ["root", "trunk"],
         from: 0,
         to: clock.duration,
-        write: (
-          posture: IAutoMovieMotionHumanPosture,
-          s: number,
-        ): IAutoMovieMotionHumanPosture => {
+        write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => {
+          const folded: number = fold(s);
+          const swung: number = swing(s);
           const pitched: IAutoMovieMotionHumanPosture = {
             ...posture,
             pitch:
-              posture.pitch + DOWN * fold(s) + (inverted - DOWN) * swing(s),
+              posture.pitch + DOWN * folded + (inverted - DOWN) * swung,
           };
-          // Carried by the hips while the feet stand, pivoted on the shoulders while the hands bear.
-          const byHips: IAutoMovieVector3 = Vector3.subtract(
-            Vector3.lerp(standing, down, fold(s)),
-            Quaternion.rotateVector(
-              resolveHumanPosture.heading(pitched),
-              hipsRest,
-            ),
-          );
-          const byShoulders: IAutoMovieVector3 =
-            AutoMovieMotionHumanPlaced.root(pitched, girdle, shoulders);
+
           // The two places agree wherever the swing is nil and the fold full,
           // at `handsDown` and at `release`, so the change of support is
           // continuous.
           return {
             ...pitched,
-            root: swing(s) > 0 ? byShoulders : byHips,
+            root: swung > 0
+              ? AutoMovieMotionHumanPlaced.root(pitched, girdle, shoulders)
+              : Vector3.subtract(
+                  Vector3.lerp(standing, down, folded),
+                  Quaternion.rotateVector(resolveHumanPosture.heading(pitched), hipsRest),
+                ),
           };
         },
       },
@@ -237,7 +235,7 @@ export namespace gymnastics {
           to: clock.duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
           weight: fold,
-          place: (posture: IAutoMovieMotionHumanPosture) => ({
+          place: (posture: IAutoMovieMotionHumanPosture): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => ({
             point: HumanFrame.point(
               { origin: hands, yaw: posture.yaw },
               {
@@ -268,7 +266,7 @@ export namespace gymnastics {
             s: number,
           ): IAutoMovieMotionHumanFoot.IPlacement => {
             // The straight leg's ankle and foot as the pitched body carries them.
-            const turn = resolveHumanPosture.heading(posture);
+            const turn: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
             const carried: IAutoMovieMotionHumanFoot.IPlacement = {
               ankle: Vector3.add(
                 posture.root,

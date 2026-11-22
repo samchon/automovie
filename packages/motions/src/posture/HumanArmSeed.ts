@@ -32,8 +32,9 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * share of the reach, from the rest arms to the hold's first configuration
  * (`HumanArmConnect`), the return its path from the exit arms to the hold's
  * last, each state valid by the one reading the trajectory refuses by
- * (`HumanArmTrajectoryModel.invalid`) at the waypoint its share reaches, so
- * every state is read where it happens (time-indexed RRT-Connect, EXOTica). A
+ * (`HumanArmTrajectoryModel.invalid`) at the waypoint its share reaches, the
+ * hold's task points only for the hold itself, so every state is read where
+ * it happens (time-indexed RRT-Connect, EXOTica). A
  * reach waypoint is the path's state at the share the carry has made at its
  * second.
  */
@@ -54,26 +55,37 @@ export namespace HumanArmSeed {
    *
    * @param problem The problem.
    * @param context Its context.
+   * @param hold The arms' configuration at the hold's first waypoint of this context, already solved for this problem (`held`); solved here when absent.
    * @returns The seed.
    * @throws {HumanRefusal} When no start gives a feasible hold, or no path joins the rest arms to it.
    */
-  export function seed(problem: IProblem, context: M.IContext): number[][][] {
+  export function seed(
+    problem: IProblem,
+    context: M.IContext,
+    hold?: readonly (readonly number[])[],
+  ): number[][][] {
     const n: number = context.n;
     const times: readonly number[] = context.times;
-    const holds: number[] = [];
-    for (let k: number = 1; k < n; ++k)
-      if (M.inner(context, k) && problem.arms[0]!.sites[k] !== undefined)
-        holds.push(k);
+    const holds: number[] = holdWindow(problem, context);
+    if (holds.length === 0)
+      throw new Error(
+        "An arm seed needs a hold: no waypoint inside the action has a site for every arm",
+      );
     const first: number = holds[0]!;
     const last: number = holds[holds.length - 1]!;
-    const hold: number[][][] = goal(problem, context, first, last);
+    const held: number[][][] = goal(problem, context, first, last, hold);
     const space: ISpace = sampler(context);
     // A path from an end of the action to the hold, through the waypoints
     // `passes` from that end's to the hold's: each configuration carries its
     // share of the reach (0 at rest, 1 on the hold) as its last coordinate,
     // and is valid where that share puts it, at the waypoint whose share is
     // nearest, so the rest arm is read where it rests and the hold where it
-    // holds (time-indexed RRT-Connect, `HumanArmConnect`).
+    // holds (time-indexed RRT-Connect, `HumanArmConnect`). The hold's task
+    // points bind the hold itself alone, at share 1: an approach read at the
+    // hold's waypoint keeps its contact allowances, as a pick's approach is
+    // allowed its grasp's contact (MoveIt's pick approach), but not the hold's
+    // task points, which would wall the hold off from every edge that leaves
+    // it; read before the hold's waypoint instead, the contact itself would.
     const path = (
       from: number[][],
       to: number[][],
@@ -103,20 +115,38 @@ export namespace HumanArmSeed {
           random(),
         ],
         valid: (q: readonly number[]): boolean =>
-          M.invalid(context, where(q[dims]!), split(q.slice(0, dims))).value <=
-          M.TOLERANCE,
+          M.invalid(
+            context,
+            where(q[dims]!),
+            split(q.slice(0, dims)),
+            false,
+            q[dims]! >= 1,
+          ).value <= M.TOLERANCE,
         extent: space.extent,
         rising: dims,
       });
-      if (found === null)
+      if (found === null) {
+        // Name the end that cannot be joined: an end that is itself invalid
+        // is the cause, not the path between them.
+        const start: { value: number; what: string } = M.invalid(
+          context,
+          passes[0]!,
+          from,
+        );
+        const end: { value: number; what: string } = M.invalid(context, k, to);
+        const worst: { value: number; what: string; at: number } =
+          end.value > start.value
+            ? { ...end, at: times[k]! }
+            : { ...start, at: times[passes[0]!]! };
         throw new HumanRefusal({
           kind: "reach",
           axis: "region",
-          value: M.invalid(context, passes[0]!, from).value,
+          value: worst.value,
           feasible: null,
-          reason: `no clear path of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm joins its rest to its hold at ${times[k]!.toFixed(3)} s`,
+          reason: `no clear path of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm joins its rest to its hold at ${times[k]!.toFixed(3)} s: ${worst.value > M.TOLERANCE ? `at ${worst.at.toFixed(3)} s ${worst.what}` : "both ends are valid"}`,
           fix: "put the hand on a site its arm reaches with the body clear",
         });
+      }
       return found;
     };
     const span: (a: number, b: number) => number[] = (
@@ -127,17 +157,28 @@ export namespace HumanArmSeed {
         { length: b - a + 1 },
         (_: unknown, i: number): number => a + i,
       );
-    const reach: number[][] = path(context.rest, hold[0]!, span(0, first));
+    // A hold from the first instant has no reach: the arm already holds its
+    // site as it enters (its hold was started from that rest), so the rest
+    // and the hold's first configuration are joined directly, never searched
+    // for as a reach that has no time.
+    const reach: number[][] =
+      first === 1 && problem.share(times[1]!) >= 1
+        ? [
+            [...context.rest.flat(), 0],
+            [...held[0]!.flat(), 1],
+          ]
+        : path(context.rest, held[0]!, span(0, first));
+
     // A hold that lasts to the end has no return to join.
     const back: number[][] = context.open
       ? []
-      : path(context.back, hold[hold.length - 1]!, span(last, n - 1).reverse());
+      : path(context.back, held[held.length - 1]!, span(last, n - 1).reverse());
     return problem.arms.map(
       (_: IProblem["arms"][number], a: number): number[][] =>
         times.map((t: number, k: number): number[] => {
           if (k === 0) return [...context.rest[a]!];
           if (!M.inner(context, k)) return [...context.back[a]!];
-          if (k >= first && k <= last) return [...hold[k - first]![a]!];
+          if (k >= first && k <= last) return [...held[k - first]![a]!];
           const along: number[] = at(
             k < first ? reach : back,
             Math.min(1, Math.max(0, problem.share(t))),
@@ -161,10 +202,13 @@ export namespace HumanArmSeed {
     context: M.IContext,
     first: number,
     last: number,
+    known?: readonly (readonly number[])[],
   ): number[][][] {
     const hold: number[][][] = carried(
       context,
-      instant(problem, context, first),
+      known === undefined
+        ? instant(problem, context, first)
+        : known.map((v: readonly number[]): number[] => [...v]),
       first,
       last,
     );
@@ -178,6 +222,45 @@ export namespace HumanArmSeed {
     return hold;
   }
 
+  /**
+   * Refuse a problem whose hold no configuration meets, before any
+   * trajectory is optimised: the arms at the hold's first waypoint are
+   * solved as the still problem of that waypoint (`instant`), started from a
+   * given configuration first. A trajectory's hold waypoint is itself such a
+   * configuration, so a hold with none has no trajectory, and the still
+   * problem of three waypoints says so at a small fraction of what the
+   * whole trajectory's penalty ladder costs to fail.
+   *
+   * @param problem The problem.
+   * @param context Its context.
+   * @param from Each arm's coordinates at each waypoint of a course, whose hold arm is the first start.
+   * @returns The configuration found, each arm's coordinates at the hold's first waypoint, which `seed` of the same problem and context takes as its hold; none for a problem without a hold.
+   * @throws {HumanRefusal} When no start gives the hold a feasible configuration, as `seed` refuses it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is solved, why its failure refuses the whole problem and what it starts from.
+   * @evidence contracts/development/implementation.md#principled-implementation Feasibility of the trajectory implies feasibility of its hold waypoint alone, so the necessary condition is tested first, by the same still problem, starts and refusal the sampling seed uses.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The hold's first waypoint, then the seed's own instant solve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bound is relaxed and no start is dropped: the given configuration is tried before the seed's own starts, and the refusal is the seed's.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One still problem of three waypoints, feasible from its first start for a course whose hold is fitted on its sites.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `instant` with `seed`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function held(
+    problem: IProblem,
+    context: M.IContext,
+    from: readonly (readonly (readonly number[])[])[],
+  ): number[][] | undefined {
+    for (const k of holdWindow(problem, context))
+      return instant(
+        problem,
+        context,
+        k,
+        from.map((arm: readonly (readonly number[])[]): number[] => [
+          ...arm[k]!,
+        ]),
+      );
+    return undefined;
+  }
   /**
    * The arms' configuration at one waypoint of the hold with every hand on
    * its site and every arm clear: the first feasible from the starts in
@@ -252,8 +335,11 @@ export namespace HumanArmSeed {
     let tried: number = 0;
     for (const q of starts()) {
       ++tried;
+      const candidate: number[][][] = frame(point, q);
+      if (M.evaluate(point, candidate).worst.value <= M.TOLERANCE)
+        return candidate.map((arm: number[][]): number[] => arm[1]!);
       const at: { x: number[][][]; evaluation: M.IEvaluation } =
-        HumanArmOptimiser.optimise(point, frame(point, q));
+        HumanArmOptimiser.optimise(point, candidate);
       if (at.evaluation.worst.value <= M.TOLERANCE)
         return at.x.map((arm: number[][]): number[] => arm[1]!);
       if (
@@ -424,3 +510,21 @@ const RESTARTS: number = 8;
 
 /** The restarts' generator's seed. */
 const SEED: number = 2;
+
+/** The waypoints inside the action at which every arm has a site, in order: the hold the seed reaches, read for all arms together as the laid course reads it. */
+function holdWindow(
+  problem: HumanArmSeed.IProblem,
+  context: M.IContext,
+): number[] {
+  const out: number[] = [];
+  for (let k: number = 1; k < context.n; ++k)
+    if (
+      M.inner(context, k) &&
+      problem.arms.every(
+        (arm: HumanArmSeed.IProblem["arms"][number]): boolean =>
+          arm.sites[k] !== undefined,
+      )
+    )
+      out.push(k);
+  return out;
+}

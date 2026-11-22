@@ -1,21 +1,21 @@
 # Sustained runs
 
-Sustained writing, review or media work, and a requested observation of one production, run under one run record. The record tracks execution; it grants no approval and adds no stage.
+Keep one run record for sustained work or requested observation. Use it to track execution.
 
 ## Actual state
 
-Before assigning work, read the current instructions, bodies, source, outputs and run record, and the Git history, findings and failed logs that explain a repeated failure. Keep one concise run record in ignored `.cache/` with the scope, exact inputs, roles, process identities, observations, open causes and next action, linking existing evidence rather than copying it, and never a secret.
+Before dispatch, read current instructions, bodies, source, outputs and run record. Use history and logs for recurring failures. Record scope, inputs, roles, process IDs, findings and next action in ignored `.cache/`. Link evidence and omit secrets.
 
 ## Execution
 
-Dispatch each task through the skill that owns it. One writer owns a changing body. One owner holds a film's screenplay, scene and film composition and camera together, because the camera realizes the screenplay's camera decisions through that composition; entity, motion and sound modules can have their own owners, who repair the module defects the film owner reports.
+Follow the director's [assignments](director.md#assignments). Assign one writer per changing body and one owner for a film's screenplay, composition and camera. Send entity, motion and sound defects to their module owners.
 
-Use additional agents only when authorized, with disjoint write scopes, and reviewers only as [review](../review/SKILL.md) counts them independent.
+Give additional authorized workers disjoint write scopes. Use reviewers who meet the production's [independence criteria](../review/independent-reading.md).
 
-Inspect the process, artifacts and errors before calling a quiet run stalled. Resume a stopped run from its last valid output and [stage caches](stage-caches.md), keeping its failure on record. A changed input starts a new result, and a restart inherits no verdict.
+Check processes, artifacts and errors before declaring a stall. Resume from the last valid output and [caches](stage-caches.md). Keep the failure on record. Start a new result when inputs change. Verify restarted work afresh.
 
 When an installed package lacks a capability, tell the user and continue the independent work.
 
 ## Observation
 
-For requested periodic observation, use an available scheduler at the requested interval and record the checks made, because a configured timer is not an executed loop. Check existing workers before starting replacements, report only meaningful progress, completion, failure or a blocking decision, and take no publication or merge authority from the loop.
+For periodic observation, run and record checks at the requested interval. Check existing processes before replacing them. Report meaningful progress, completion, failure or a blocking decision.

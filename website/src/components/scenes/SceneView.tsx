@@ -11,6 +11,7 @@ import {
 } from "react";
 import * as THREE from "three";
 
+import type { BakedClient } from "../../baked/BakedClient";
 import { SCENE_REFUSAL } from "../../scenes/SCENE_REFUSAL";
 import type { SceneClock } from "../../scenes/SceneClock";
 import { loadScenePlayer } from "../../scenes/loadScenePlayer";
@@ -45,7 +46,7 @@ export function SceneView(props: SceneView.IProps): ReactElement {
   ] = useState<SceneView.Phase>("waiting");
   const [message, setMessage]: [string, Dispatch<SetStateAction<string>>] =
     useState<string>("");
-  const { scene, take, clock, orbit }: SceneView.IProps = props;
+  const { scene, take, clock, orbit, baked }: SceneView.IProps = props;
   const name: string =
     props.label === undefined ? scene.title : `${scene.title}, ${props.label}`;
 
@@ -72,15 +73,33 @@ export function SceneView(props: SceneView.IProps): ReactElement {
       const controller: AbortController = new AbortController();
       request = controller;
       setPhase("computing");
-      loadScenePlayer(scene, take, controller.signal)
+      loadScenePlayer(scene, take, controller.signal, baked)
         .then((loaded: IScenePlayer): void => {
-          request = null;
-          if (!alive || canvas.current === null) {
+          // A request the view abandoned, by scrolling past or leaving,
+          // releases what it built rather than replacing a later one.
+          const current: boolean = request === controller;
+          if (current) request = null;
+          if (
+            !alive ||
+            !current ||
+            controller.signal.aborted ||
+            canvas.current === null
+          ) {
             loaded.dispose();
             return;
           }
           unwatch();
           player = loaded;
+
+          // Frame the action for the canvas's own shape, which the shared
+          // stage gives the camera when it draws.
+          const width: number = canvas.current.clientWidth;
+          const height: number = canvas.current.clientHeight;
+          if (width > 0 && height > 0) {
+            loaded.camera.aspect = width / height;
+            loaded.camera.updateProjectionMatrix();
+            loaded.frame(scene.camera.view);
+          }
           let shown: number = -1;
           const registered: SharedStage.IRegistration = SharedStage.register({
             canvas: canvas.current,
@@ -142,7 +161,7 @@ export function SceneView(props: SceneView.IProps): ReactElement {
       registration?.release();
       player?.dispose();
     };
-  }, [scene, take, clock, orbit]);
+  }, [scene, take, clock, orbit, baked]);
 
   // A decorative view's notes are shown but not announced.
   const quiet: boolean = props.decorative === true;
@@ -152,6 +171,15 @@ export function SceneView(props: SceneView.IProps): ReactElement {
       aria-busy={phase === "waiting" || phase === "computing"}
       data-take={phase}
     >
+      {props.poster !== undefined && phase !== "ready" ? (
+        <img
+          className="am-scene-view-poster"
+          src={props.poster}
+          alt=""
+          aria-hidden="true"
+          decoding="async"
+        />
+      ) : null}
       <canvas
         ref={canvas}
         tabIndex={orbit === true ? 0 : -1}
@@ -171,7 +199,9 @@ export function SceneView(props: SceneView.IProps): ReactElement {
           role={quiet ? undefined : "status"}
           aria-hidden={quiet ? true : undefined}
         >
-          Computing the take.
+          {baked !== undefined && take === 0
+            ? "Loading the take."
+            : "Computing the take."}
         </p>
       ) : phase === "ready" ? null : phase === "refused" ? (
         <p
@@ -221,6 +251,12 @@ export namespace SceneView {
 
     /** The take's label, named with the scene's title; the title alone when absent. */
     label?: string;
+
+    /** Where the first take was baked, which plays at once; computed in the worker when absent. */
+    baked?: BakedClient.Kind;
+
+    /** The address of the take's still, shown until the take is drawn. */
+    poster?: string;
 
     /** Whether the picture is decoration beside its own visible name, as in a card's link, and so hidden from assistive technology with its notes. */
     decorative?: boolean;

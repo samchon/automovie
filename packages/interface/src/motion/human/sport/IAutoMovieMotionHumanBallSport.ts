@@ -2,15 +2,13 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 
 /**
- * Team ball skills performed with an implied ball (#3247): the stationary
- * basketball dribble, the volleyball forearm pass (dig) and overhead pass
- * (set), and the football throw-in. The ball is implied, the hands moving
- * where it would make them, except a throw-in given a held ball (`prop`):
- * both hands grip it to the release, where it is launched on the path that
- * rises at the release angle through `at` (`throwObjectLaunch.aimed`, the
- * throw's own range equation), and flies from there (#3377). The launch
- * point is the ball's centre between the hands, as the throw's is its grip
- * point, not the prop's own origin.
+ * Team ball skills. The original dribble, dig, set and throw-in describe
+ * implied-ball motion (#3247), and the throw-in can release a held ball
+ * (#3377). The court releases publish the real spherical ball through the
+ * common prop flight owner (#3698). An independently placed `stageCatch`
+ * can take custody at a realized interception, including after a bounce.
+ * The high-hand contest and the volleyball stroke variants have their own
+ * support and hand timing.
  *
  * - Dribble: the knees give a twentieth of the stature (provisional), the
  *   palm faces down at the hand's side ahead of the hip, pushes down a
@@ -28,15 +26,12 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  *   and Everett 2006), to where it meets the arms' reach about the flexed
  *   shoulders.
  *
- * Every skill is a phrase: `ready` in the skill's set position after 0.5 s
- * (provisional), the stroke, and back to standing in 0.5 s.
+ * The existing implied phrases use a ready position, stroke and return.
+ * The court and volleyball variants define support and arm timings for
+ * their respective skills.
  *
- * Not drafted: shots, passes, layups, rebounds, the spike, the block, the
- * serve, ball kicks, headers and the goalkeeper (they need the throw and the
- * ball-strike owners, #3232 and #3244, and the jump law).
- *
- * @evidence contracts/development/common.md#meaningful-documentation side: The dribbling hand; `right` when absent. count: Dribble bounces; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. prop: The ball a throw-in throws, a prop the hands hold from before it (a `pickUp`); absent, the ball is implied and nothing flies. Read by the throw-in only.
- * @evidence contracts/development/design.md#principled-representation side: The dribbling hand; `right` when absent. count: Dribble bounces; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. prop: The ball a throw-in throws, a prop the hands hold from before it (a `pickUp`); absent, the ball is implied and nothing flies. Read by the throw-in only.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the legacy skills, their compatibility with implied motion, and the shared flight and custody of the modeled court releases.
+ * @evidence contracts/development/design.md#principled-representation The selected skill controls whether a named prop flies or the action only plans the posture. Targets and times are world metres and action or flight seconds respectively.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.ballSport, params); sport/ballSport.ts (ballSport.plan, context); sport/ballSport.ts (ballSport.plan); executable/cases/ballSportCases.ts (ballSportCases).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -45,7 +40,7 @@ export namespace IAutoMovieMotionHumanBallSport {
    * Parameters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The skill, the hand, the bounce count, and a throw-in's ball and target.
+   * @evidence contracts/development/design.md#principled-representation The skill, hand, implied bounce count, release prop and aim, and optional volleyball contact.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    *
@@ -55,7 +50,7 @@ export namespace IAutoMovieMotionHumanBallSport {
     /** The skill. */
     kind: IAutoMovieMotionHumanBallSport.Kind;
 
-    /** The dribbling hand; `right` when absent. */
+    /** Dribbling or throwing hand; `right` when absent. */
     side?: "left" | "right";
 
     /** Dribble bounces; 4 when absent.
@@ -66,20 +61,44 @@ export namespace IAutoMovieMotionHumanBallSport {
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;
 
-    /** The ball a throw-in throws, a prop the hands hold from before it (a `pickUp`); absent, the ball is implied and nothing flies. Read by the throw-in only. */
+    /** The previously held ball. Optional for throw-in, required for court releases, and unused for an implied skill or a contest. */
     prop?: string;
 
-    /** The point a thrown ball's path passes through, world metres; required with `prop`. Read by the throw-in only. */
+    /** World metres. The throw-in, chest pass, set shot and handball throw aim through this centre. A bounce pass aims at this floor position. A contest uses it as a gaze target. */
     at?: IAutoMovieVector3;
+
+    /**
+     * Positive seconds from release through `at` for a chest pass, set shot, handball throw, or the first impact of a bounce pass.
+     * Exclusive minimum: 0. Unit: s. Each court skill has a provisional default.
+     */
+    flightSeconds?: number;
+
+    /** The volleyball stroke's authored palm or forearm surface position, world metres. Omitted to use the stroke's fitted default. */
+    contactAt?: IAutoMovieVector3;
   }
 
   /**
-   * Capture cases of the team ball skills (#3247) from quiet standing, with an implied ball. The skills.
+   * The supported legacy, court and volleyball phrases.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Capture cases of the team ball skills (#3247) from quiet standing, with an implied ball. The skills.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "dribble", "dig", "set", "throwIn" distinguish the admitted cases.
+   * @evidence contracts/development/common.md#meaningful-documentation Enumerates the legacy, planted court and volleyball actions.
+   * @evidence contracts/development/design.md#principled-representation Each literal dispatches to a fixed support and interaction profile.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: executable/cases/ballSportCases.ts (ballSportCases).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in ballSportCases.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literals leave support, pose and prop handling with the motion dispatch and its planners.
    */
-  export type Kind = "dribble" | "dig" | "set" | "throwIn";
+  export type Kind =
+    | "dribble"
+    | "dig"
+    | "set"
+    | "throwIn"
+    | "dribbleRelease"
+    | "chestPass"
+    | "bouncePass"
+    | "setShot"
+    | "handballThrow"
+    | "highHandContest"
+    | "volleyballServe"
+    | "volleyballSpike"
+    | "volleyballBlock"
+    | "volleyballReceive"
+    | "volleyballSet";
 }

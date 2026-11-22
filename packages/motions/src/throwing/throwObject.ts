@@ -1,26 +1,22 @@
-import {
-  AutoMovieStationHermite,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanInterruptRow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanThrowObject,
   IAutoMovieMotionHumanThrowObjectForm,
   IAutoMovieMotionHumanThrowObjectLaunch,
-  IAutoMovieMotionHumanThrowObjectLever,
   IAutoMovieMotionHumanThrowObjectParams,
   IAutoMovieMotionManner,
   IAutoMovieProjectile,
@@ -28,30 +24,36 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanBendTrack } from "../compose/AutoMovieMotionHumanBendTrack";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { precisionThrow } from "./precisionThrow";
+import { throwObjectAim } from "./throwObjectAim";
+import { throwObjectBalance } from "./throwObjectBalance";
+import { throwObjectCurve } from "./throwObjectCurve";
 import { throwObjectForm } from "./throwObjectForm";
 import { throwObjectLaunch } from "./throwObjectLaunch";
 import { throwObjectLever } from "./throwObjectLever";
 import { throwObjectRelease } from "./throwObjectRelease";
+import { throwObjectSwing } from "./throwObjectSwing";
 
 /**
  * Throwing a held object to a target: overarm, underarm, or a gentle toss.
  *
  * The goal is a launch: the object, held at the hand's grip, leaves the
- * hand at the release point with the velocity whose drag-free ballistic path
- * passes through the target. The release angle is the style's
+ * hand at the release with the velocity whose drag-free ballistic path takes
+ * the point that flies, the held prop's own origin (or the grip of an empty
+ * hand, `throwObjectLever`), through the target. The release angle is the style's
  * (`throwObjectForm.ANGLE`, provisional; underarm precision throws regulate
  * speed and angle by distance, Dupuy, Mottet and Ripoll 2000, J Sports Sci
  * 18:375), and the speed follows from the range equation `v^2 = g d^2 / (2
@@ -81,8 +83,8 @@ import { throwObjectRelease } from "./throwObjectRelease";
  * A thrown `prop` rides the hand by a grip window to the release and is
  * launched there (`IHumanActionPlan.launches`), so it flies the same path;
  * `angle` replaces the style's release angle for a row with its own. An
- * `implement` held in the hand lengthens the lever the launch leaves from,
- * and a `turns` attitude spins the prop at the lever's rate rounded to whole
+ * `implement` held in the hand lengthens the lever the launch leaves from
+ * and stays held after it (`holds`), only the prop flying; a `turns` attitude spins the prop at the lever's rate rounded to whole
  * half turns to the target (`throwObjectLever`). Not yet: the stride, the
  * two-hand chest pass and overhead throws, the thrown prop riding the
  * implement before the release (it leaves from the implement's point, set on
@@ -98,25 +100,27 @@ export namespace throwObject {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "throwObject";
 
-  /** Cancel table: the thrower stands or walks once the follow-through ends. */
+  /** The launch is the throw's physical outcome. Prop flight starts at its own release. */
+  export const physical: boolean = true;
+
+  /** Cancel table: the thrower stands or walks once the follow-through ends, and may catch what it threw from the release on. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    stand: [
-      {
-        window: ["followThrough", 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: 0.3,
-      },
+    catchObject: [
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.1 },
     ],
-    walk: [
-      {
-        window: ["followThrough", 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: 0.3,
-      },
-    ],
+    stand: [after()],
+    walk: [after()],
   };
+
+  /** The cut once the follow-through ends. */
+  function after(): IAutoMovieMotionHumanInterruptRow {
+    return {
+      window: ["followThrough", 1],
+      kind: "inertialize",
+      entry: 0,
+      blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+    };
+  }
 
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
   export const overlay: boolean = true;
@@ -132,6 +136,14 @@ export namespace throwObject {
    *
    * @param plan A plan.
    * @returns Its launch, or undefined when it is not a throw's.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read and the absent case.
+   * @evidence contracts/development/implementation.md#principled-implementation A throw's plan carries its launch as a member, so a catcher reads the path the throw solved.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A plan without the member answers undefined, never a guessed path.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
     plan: IAutoMovieMotionHumanActionPlan,
@@ -145,12 +157,20 @@ export namespace throwObject {
    * @param context The action's context.
    * @returns The plan with its launch.
    * @throws {HumanRefusal} When the release angle cannot reach the target.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The law states launch/release, carry/follow/recovery, style and support behavior; this planner retains original events and actual wrist/contact goals while preparing fixed hand/path geometry.
+   * @evidence contracts/development/implementation.md#principled-implementation Keeps original launch, Hermite acceleration/follow curves, rigid carry interval, trunk envelope and complete default-bend/contact arm goal under the existing composed clock/base.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Existing launch/lever/path owners produce the course; one actual grip-to-wrist placement feeds both Bend.solve and ArmTarget.fromWrist goal assembly.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No release time/velocity, curve sample, actual Bend solve, contact pivot, physics bound or ROM policy changes; rest geometry is omitted only in phases that do not consume it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed curves/boundaries prepare once; windup/recovery alone evaluate their actual rest frame. One lazy grip offset and one actual wrist replace three offset readings and duplicate placement per arm frame. The arm's elbow is solved once over the span when the action is planned and continued through it (`AutoMovieMotionHumanBendTrack`), one refinement a frame in place of one cold search; every fit remains. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body/side/grip/relaxed geometry stays unchanged for this plan; shared rigid placement/goal owners retain original arithmetic/contact admission. Every current posture, curve parameter, wrist and bend remains actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns original launch/path/clock/lever/base data and one lazy fixed grip offset until release. Wrist/contact outputs are fresh; no fitted answer, FK reader, query/time history or handle is retained.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrowObjectParams>,
   ): IAutoMovieMotionHumanThrowObject.IPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const m = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const style: IAutoMovieMotionHumanThrowObjectForm.Style =
       context.params.style ?? "overarm";
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
@@ -158,102 +178,31 @@ export namespace throwObject {
     const arm: number = m.upperArm + m.forearm;
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
-    const probe: IAutoMovieMotionHumanPosture = stand
-      .plan({ ...context, params: { seconds: 1 } })
-      .posture(0);
-    const yaw: number = probe.yaw;
-    const frame: IAutoMovieMotionHumanFrame = {
-      origin: probe.root,
-      yaw,
-    };
-    const shoulder: IAutoMovieVector3 = HumanFrame.local(
+    const {
       frame,
-      poseBones(body, resolveHumanPosture(body, probe)).get(`${side}UpperArm`)!
-        .worldPosition,
-    );
-    const place = (share: IAutoMovieVector3): IAutoMovieVector3 =>
-      HumanFrame.point(frame, {
-        x: shoulder.x + outward * share.x * arm,
-        y: shoulder.y + share.y * arm,
-        z: shoulder.z + share.z * arm,
-      });
-    const chamber: IAutoMovieVector3 = place(
-      throwObjectForm.PLACES[style].chamber,
-    );
-    const finish: IAutoMovieVector3 = place(
-      throwObjectForm.PLACES[style].finish,
-    );
-    const target: IAutoMovieVector3 = context.aim(
-      context.params.at,
-      context.start,
-    ).point;
-
-    // The palm faces the target across the floor; the release is read from
-    // the trunk's release pose ({@link throwObjectRelease}).
-    const from: IAutoMovieVector3 = HumanFrame.point(frame, shoulder);
-    const toward: IAutoMovieVector3 = Vector3.normalize({
-      x: target.x - from.x,
-      y: 0,
-      z: target.z - from.z,
-    });
-    const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const held: IAutoMovieQuaternion = HumanHand.rotation(
-      side,
-      style === "overarm"
-        ? { fingers: up, palm: toward }
-        : { fingers: Vector3.scale(up, -1), palm: toward },
-    );
-    const release: IAutoMovieVector3 = throwObjectRelease.point({
-      body,
-      side,
-      style,
-      standing: probe,
-      held,
-    });
-
-    // The launch velocity by the range equation at the style's angle, from
-    // the lever's end; the hand carries its share (`throwObjectLever`).
-    const delta: IAutoMovieVector3 = Vector3.subtract(target, release);
-    const d: number = Math.hypot(delta.x, delta.z);
-    const degrees: number =
-      context.params.angle ?? throwObjectForm.ANGLE[style];
-    const implement:
-      | IAutoMovieMotionHumanThrowObjectLever.IImplement
-      | undefined = context.params.implement;
-    const lever: throwObjectLever.ILever | undefined = throwObjectLever.of({
-      context,
-      side,
-      shoulder: from,
-      release,
-      held,
+      chamber,
+      finish,
       target,
-      degrees,
+      toward,
+      up,
+      stance,
+      release,
       implement,
-    });
-    if (lever === undefined)
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "at",
-        value: d,
-        reason: `a ${style} throw at ${degrees} degrees cannot reach a target ${delta.y.toFixed(2)} m above and ${d.toFixed(2)} m from its release`,
-        fix: "aim at a nearer or lower target, or choose a style with a steeper release",
-      });
-    const velocity: IAutoMovieVector3 = lever.hand;
-    const speed: number = Vector3.length(velocity);
+      lever,
+      velocity,
+      accelerate,
+      before,
+      after,
+    }: ReturnType<typeof throwObjectAim> = throwObjectAim(
+      context,
+      body,
+      style,
+      side,
+      outward,
+      arm,
+    );
 
-    // The clock: windup, acceleration from rest to the launch, follow-through
-    // to rest, a short hold and the return.
-    const before: IAutoMovieVector3 = Vector3.subtract(
-      release,
-      Vector3.scale(velocity, throwObjectForm.CARRY),
-    );
-    const after: IAutoMovieVector3 = Vector3.add(
-      release,
-      Vector3.scale(velocity, throwObjectForm.CARRY),
-    );
-    const accelerate: number =
-      throwObjectForm.CARRY +
-      (2 * Vector3.length(Vector3.subtract(before, chamber))) / speed;
+    // The styled windup leads into the fixed acceleration and release phases.
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence([
         { name: "windup", seconds: throwObjectForm.WINDUP[style] },
@@ -266,27 +215,30 @@ export namespace throwObject {
       { holds: ["followThrough"], fixed: ["cocked", "release"] },
     );
     const duration: number = clock.duration;
+    const cockedAt: number = clock.at("cocked");
+    const releasedAt: number = clock.at("release");
+    const followedAt: number = clock.at("followThrough");
     const base: IAutoMovieMotionHumanActionPlan =
       AutoMovieMotionHumanBase.under(context, duration);
 
-    // The hand's grip point at a second.
-    const hermite = (
-      a: IAutoMovieVector3,
-      va: IAutoMovieVector3,
-      b: IAutoMovieVector3,
-      vb: IAutoMovieVector3,
-      span: number,
-      u: number,
-    ): IAutoMovieVector3 => {
-      const [x, y, z] = AutoMovieStationHermite.combine(
-        { value: [a.x, a.y, a.z], slope: [va.x, va.y, va.z] },
-        { value: [b.x, b.y, b.z], slope: [vb.x, vb.y, vb.z] },
-        AutoMovieStationHermite.weights(u, span, 0, false),
-      );
-      return { x: x!, y: y!, z: z! };
-    };
     const still: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const restBones = poseBones(body, context.entry.pose);
+    const accelerating: number = releasedAt - throwObjectForm.CARRY - cockedAt;
+    const following: number = followedAt - releasedAt - throwObjectForm.CARRY;
+    const accelerateCurve: ReturnType<typeof throwObjectCurve> =
+      throwObjectCurve(chamber, still, before, velocity, accelerating);
+    const followCurve: ReturnType<typeof throwObjectCurve> = throwObjectCurve(
+      after,
+      velocity,
+      finish,
+      still,
+      following,
+    );
+    const restBones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      context.entry.pose,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
+    );
     const origin: IAutoMovieMotionHumanArmTarget.IOrigin =
       AutoMovieMotionHumanArm.origin(
         body,
@@ -295,8 +247,7 @@ export namespace throwObject {
         side,
         "grip",
       );
-    // The hand's turn before and after the carry: the lever's, `held`
-    // without an implement.
+    // Carry uses the lever's rotation, or the held orientation without an implement.
     const cocking: IAutoMovieQuaternion = lever.rotation(
       -throwObjectForm.CARRY,
     );
@@ -307,29 +258,46 @@ export namespace throwObject {
       fingers: toward,
       palm: Vector3.scale(up, -1),
     });
-    const grip = (
+    /** Actual world grip-surface point and hand attitude, before inverse wrist placement. */
+    type GripFrame = Pick<
+      IAutoMovieMotionHumanArmTarget.ITarget,
+      "point" | "rotation"
+    >;
+    const restAt: (posture: IAutoMovieMotionHumanPosture) => GripFrame = (
       posture: IAutoMovieMotionHumanPosture,
-      seconds: number,
-    ): { point: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
-      const rest: IAutoMovieVector3 = AutoMovieMotionHumanArm.point(
-        posture,
-        origin,
-      );
-      const restTurn: IAutoMovieQuaternion = Quaternion.multiply(
+    ): GripFrame => ({
+      point: AutoMovieMotionHumanArm.point(posture, origin),
+      rotation: Quaternion.multiply(
         HumanFrame.turn(posture.yaw),
         origin.rotation,
-      );
-      const at = (name: string): number => clock.at(name);
-      if (seconds <= at("cocked")) {
+      ),
+    });
+    const swing: throwObjectSwing.ISwing = throwObjectSwing.of(
+      body,
+      side,
+      style,
+    );
+    const grip: (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ) => GripFrame = (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): GripFrame => {
+      if (seconds <= cockedAt) {
+        const rest: GripFrame = restAt(posture);
         const u: number = clock.progress("windup", "cocked", seconds);
         return {
-          point: Vector3.lerp(rest, chamber, u),
-          rotation: Quaternion.slerp(restTurn, cocking, u),
+          point:
+            style === "windmill"
+              ? precisionThrow.windmill(frame, arm, chamber, rest.point, u)
+              : swing.windup(posture, rest.point, chamber, u),
+          rotation: Quaternion.slerp(rest.rotation, cocking, u),
         };
       }
       // The carry: the hand's share of the launch held through the release,
       // turning with the lever.
-      const carried: number = seconds - at("release");
+      const carried: number = seconds - releasedAt;
       if (Math.abs(carried) <= throwObjectForm.CARRY)
         return {
           point: Vector3.add(release, Vector3.scale(velocity, carried)),
@@ -339,51 +307,57 @@ export namespace throwObject {
               : Quaternion.slerp(
                   lever.rotation(carried),
                   finished,
-                  minimumJerk(clock.linear("release", "followThrough", seconds))
-                    .s,
+                  minimumJerk.share(
+                    clock.linear("release", "followThrough", seconds),
+                  ),
                 ),
         };
-      if (seconds <= at("release")) {
-        const span: number =
-          at("release") - throwObjectForm.CARRY - at("cocked");
+      if (seconds <= releasedAt) {
         return {
-          point: hermite(
-            chamber,
-            still,
-            before,
-            velocity,
-            span,
-            (seconds - at("cocked")) / span,
-          ),
+          point: accelerateCurve((seconds - cockedAt) / accelerating),
           rotation: cocking,
         };
       }
-      if (seconds <= at("followThrough")) {
-        const span: number =
-          at("followThrough") - at("release") - throwObjectForm.CARRY;
+      if (seconds <= followedAt) {
         return {
-          point: hermite(
-            after,
-            velocity,
-            finish,
-            still,
-            span,
-            (carried - throwObjectForm.CARRY) / span,
-          ),
+          point: followCurve((carried - throwObjectForm.CARRY) / following),
           rotation: Quaternion.slerp(
             carriedOut,
             finished,
-            minimumJerk(clock.linear("release", "followThrough", seconds)).s,
+            minimumJerk.share(
+              clock.linear("release", "followThrough", seconds),
+            ),
           ),
         };
       }
+      const rest: GripFrame = restAt(posture);
       const u: number = clock.progress("recover", "end", seconds);
       return {
-        point: Vector3.lerp(finish, rest, u),
-        rotation: Quaternion.slerp(finished, restTurn, u),
+        point: Vector3.lerp(finish, rest.point, u),
+        rotation: Quaternion.slerp(finished, rest.rotation, u),
       };
     };
     const prop: string | undefined = context.params.prop;
+    let gripOffset: IAutoMovieVector3 | undefined;
+    function wristAt(
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanHand.IWrist {
+      const g: GripFrame = grip(posture, seconds);
+      gripOffset ??= {
+        ...HumanHand.offset(body, side, "grip", "relaxed").point,
+      };
+      return placeHumanHandSurface(gripOffset, g.point, g.rotation);
+    }
+    const elbow: AutoMovieMotionHumanBendTrack.ITrack =
+      AutoMovieMotionHumanBendTrack.of({
+        body,
+        side,
+        from: 0,
+        to: duration,
+        goal: wristAt,
+        fallback: "hang",
+      });
     const throwing: IAutoMovieMotionHumanPrimitive = {
       channels: [`${side}Arm`, `${side}Hand`],
       from: 0,
@@ -393,41 +367,29 @@ export namespace throwObject {
       // in it throughout.
       contacts:
         implement === undefined
-          ? throwObjectLaunch.held(prop, side, clock.at("release") / duration)
+          ? throwObjectLaunch.held(prop, side, releasedAt / duration)
           : throwObjectLaunch.held(implement.prop, side, 1),
+
+      // The elbow is solved once over the span, when the action is planned,
+      // and continued through it (`AutoMovieMotionHumanBendTrack`).
+      prepare: (before: IAutoMovieMotionHumanPrimitive.Reader): void =>
+        elbow.prepare(before),
       write: (
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,
       ): IAutoMovieMotionHumanPosture => {
-        const g = grip(posture, seconds);
-        const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
-          body,
-          side,
-          "grip",
-          g.point,
-          g.rotation,
-          "relaxed",
+        const wrist: IAutoMovieMotionHumanHand.IWrist = wristAt(
+          posture,
+          seconds,
         );
-        return {
-          ...posture,
-          limbs: {
-            ...posture.limbs,
-            [`${side}Arm`]: AutoMovieMotionHumanArm.goal(body, side, {
-              surface: "grip",
-              shape: "relaxed",
-              point: g.point,
-              rotation: g.rotation,
-              bend: AutoMovieMotionHumanBend.solve({
-                body,
-                posture,
-                side,
-                point: wrist.point,
-                rotation: g.rotation,
-                fallback: "hang",
-              }),
-            }),
-          },
-        };
+        const goal: IAutoMovieHumanLimbGoal =
+          AutoMovieMotionHumanArmTarget.fromWrist(
+            wrist,
+            elbow.elbow(posture, seconds, wrist),
+            { ...gripOffset! },
+          );
+        const arm: IAutoMovieHumanLimbGoal = swing.elbow(posture, goal);
+        return { ...posture, limbs: { ...posture.limbs, [`${side}Arm`]: arm } };
       },
     };
 
@@ -437,7 +399,10 @@ export namespace throwObject {
     // and rises again in the recovery.
     const turn: number = outward * throwObjectForm.TURN[style];
     const trunk: IAutoMovieMotionHumanPrimitive = {
-      channels: ["trunk"],
+      channels:
+        stance === undefined
+          ? ["trunk"]
+          : ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
       write: (
@@ -458,12 +423,20 @@ export namespace throwObject {
               ["recover", "end"],
               seconds,
             );
-        const tilt: number =
-          throwObjectForm.TILT[style] *
-          clock.envelope(["cocked", "release"], ["recover", "end"], seconds);
+        const inclined: number = clock.envelope(
+          ["cocked", "release"],
+          ["recover", "end"],
+          seconds,
+        );
+        const sunk: IAutoMovieMotionHumanPosture =
+          stance?.(posture, inclined) ?? posture;
         return {
-          ...posture,
-          joints: throwObjectRelease.trunk(posture.joints, degrees, tilt),
+          ...sunk,
+          joints: throwObjectRelease.trunk(
+            sunk.joints,
+            degrees,
+            throwObjectForm.TILT[style] * inclined,
+          ),
         };
       },
     };
@@ -481,28 +454,46 @@ export namespace throwObject {
         base,
         clock,
         contact: "release",
-        primitives: [trunk, throwing],
+        primitives: [trunk, throwing, ...throwObjectBalance.of(context, clock)],
       });
     return {
       ...composed,
+      ...(style === "windmill"
+        ? {
+            events: [
+              ...composed.events,
+              { name: "windmillApex", share: cockedAt / (2 * duration) },
+            ].sort((a, b): number => a.share - b.share),
+          }
+        : {}),
+      ...(implement === undefined
+        ? {}
+        : { holds: [{ side, prop: implement.prop, from: 1 }] }),
+      physicalWindow: {
+        from: cockedAt,
+        to: releasedAt + throwObjectForm.CARRY,
+      },
       launch: {
         point: lever.point,
         velocity: lever.velocity,
-        seconds: clock.at("release"),
+        seconds: releasedAt,
         target,
       },
       // The prop leaves the lever's end with the support's velocity added
       // (#3491), turning as asked or at the act's chosen spin.
-      launches: throwObjectLaunch.launches(prop, attitude, {
-        point: lever.point,
-        velocity: Vector3.add(
-          lever.velocity,
-          HumanSupportFrame.at(context, context.start + clock.at("release"))
-            .velocity,
-        ),
-        seconds: clock.at("release"),
-        target,
-      }),
+      launches: precisionThrow.launches(
+        context,
+        style,
+        throwObjectLaunch.launches(prop, attitude, {
+          point: lever.point,
+          velocity: Vector3.add(
+            lever.velocity,
+            HumanSupportFrame.at(context, context.start + releasedAt).velocity,
+          ),
+          seconds: releasedAt,
+          target,
+        }),
+      ),
     };
   }
 }

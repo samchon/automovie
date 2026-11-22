@@ -10,6 +10,8 @@ Read each model's terms and usage policy before adopting it: territory limits, r
 
 ### Video editing and reference generation
 
+<!-- @source [Ray 3.2 video-to-video guide](https://lumalabs.ai/learning-center/articles/ray-3-2-video-to-video) documents its motion and structure controls. -->
+
 [Runway Aleph 2.0](https://docs.dev.runwayml.com/guides/models.md) edits or restyles one video with timed keyframe images. It has no adherence setting; its [prompt](https://help.runwayml.com/hc/en-us/articles/52150503729171-Aleph-2-0-Prompting-Guide) names what changes. Continue from a chain frame used as the first keyframe.
 
 [Seedance](https://docs.byteplus.com/docs/en/modelark/seedance-2-5.md) takes a video to edit or extend, or several reference videos. Its task type and [prompt](https://docs.byteplus.com/docs/en/modelark/seedance-2-5-prompt-guide.md) distinguish those roles and say what each reference supplies. It can extend one video while another remains a reference.
@@ -22,15 +24,15 @@ Read each model's terms and usage policy before adopting it: territory limits, r
 
 ### Layout and structural control
 
-[LTX (open weights)](https://docs.ltx.io/open-source-model/vfx-post-production/layout-to-render.md) takes the RGB hint through a gray-layout adapter with an art-directed first frame. Its [IC-LoRA adapters](https://docs.ltx.io/open-source-model/usage-guides/ic-lo-ra.md) also take depth, edge, pose or drawn tracks, with strength masked over frames and regions; a [character LoRA](https://ltx.io/blog/how-to-train-a-character-lora) can steer appearance. Extension beside a control channel is not documented.
+[LTX](https://docs.ltx.io/open-source-model/vfx-post-production/layout-to-render.md) uses a gray RGB layout and an art-directed first frame. [IC-LoRA](https://docs.ltx.io/open-source-model/usage-guides/ic-lo-ra.md) accepts depth, edges, pose or tracks with masked strength. [Character LoRA](https://ltx.io/blog/how-to-train-a-character-lora) guides appearance. Guided extension is undocumented.
 
-[fal H3 Max 3D to video](https://fal.ai/models/minimax/h3-max/3d-to-video/llms.txt) takes a render of up to 15 seconds and 32 shots, with no first frame and up to eight reference images, where the canon references give appearance. It keeps camera, paths, timing and cuts closely but not exactly, with no adherence setting or documented continuation; end at a cut.
+[fal H3 Max](https://fal.ai/models/minimax/h3-max/3d-to-video/llms.txt) takes up to 15 seconds, 32 shots and eight appearance references, with no first frame. It follows camera, paths, timing and cuts approximately. No adherence setting or documented continuation. End at a cut.
 
 [Wan VACE (open weights)](https://github.com/ali-vilab/VACE) takes depth, pose, scribble, flow, layout or mask channels, with channel strengths and masks. The [Wan2.1 implementation](https://github.com/Wan-Video/Wan2.1) extends from a previous clip's first or last frames.
 
-[Cosmos Transfer 2.5 (open weights)](https://github.com/nvidia-cosmos/cosmos-transfer2.5), superseded by [Cosmos 3](https://github.com/NVIDIA/Cosmos), takes segmentation, depth, edge and blur videos alone or together. Its framework weights channels over frames and regions, though some serving backends take them unweighted. Use the previous output's frame as an input for continuation.
+[Cosmos Transfer 2.5](https://github.com/nvidia-cosmos/cosmos-transfer2.5), superseded by [Cosmos 3](https://github.com/NVIDIA/Cosmos), combines segmentation, depth, edge and blur. Weighting by frame and region depends on backend. Continue from the previous output's frame.
 
-An image checkpoint with a compatible video module, such as Pony V6 XL with [AnimateDiff SDXL](https://github.com/guoyww/AnimateDiff/blob/sdxl/README.md), offers another route for appearance control, with an optional character LoRA matched to that checkpoint. Run it locally or through a [hosted ComfyUI API](https://docs.comfydeploy.com/docs/api/inputs), checking its inputs as any chosen model's and its results under [first path](../generation.md#first-path).
+A compatible image checkpoint and [AnimateDiff SDXL](https://github.com/guoyww/AnimateDiff/blob/sdxl/README.md) can use a matching character LoRA. Run locally or through [ComfyUI](https://docs.comfydeploy.com/docs/api/inputs). Verify under [first path](../generation.md#first-path).
 
 ### Geometry and material channels
 
@@ -42,6 +44,6 @@ An image checkpoint with a compatible video module, such as Pony V6 XL with [Ani
 
 ## Other roles
 
-[Kling Motion Control](https://kling.ai/quickstart/motion-control-user-guide) transfers the largest person's body motion; it transfers none when several people are alike in size. Matching orientation to the video keeps its camera and facing and is required to bind an element; matching the image takes the camera from the prompt. Continue from a chain frame used as the character image.
+[Kling Motion Control](https://kling.ai/quickstart/motion-control-user-guide) transfers the largest person, or none for similarly sized people. Match video orientation to preserve camera and facing and bind an element. Image orientation takes camera from the prompt. Continue with a chain frame as character image.
 
-[Wan2.2-S2V](https://github.com/Wan-Video/Wan2.2) generates from dialogue audio with a pose video, and Wan2.2-Animate, in the same repository, moves one character by a performer's video. Dubbing models such as [InfiniteTalk](https://github.com/MeiGen-AI/InfiniteTalk) re-sync a face to accepted speech, and [MultiTalk](https://github.com/MeiGen-AI/MultiTalk) does so for several speakers, each bound to its own audio track.
+[Wan2.2](https://github.com/Wan-Video/Wan2.2) provides S2V from audio and pose video and Animate from a performer video. [InfiniteTalk](https://github.com/MeiGen-AI/InfiniteTalk) resyncs one face. [MultiTalk](https://github.com/MeiGen-AI/MultiTalk) binds several speakers to separate audio tracks.

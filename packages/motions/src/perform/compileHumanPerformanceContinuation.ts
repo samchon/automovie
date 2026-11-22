@@ -1,0 +1,356 @@
+import type {
+  IAutoMovieComposition,
+  IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformer,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropFlight,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieScheduleEntry,
+} from "@automovie/interface";
+
+import { HumanPerformance } from "./HumanPerformance";
+
+/**
+ * Rebuild an authored take with a replacement after complete action groups.
+ * The provider supplies the same immutable input and deterministic registered
+ * bindings as the saved take. The source reader owns seconds before the join.
+ * The branch reader owns the join and later seconds on the same clock.
+ * Soft props and physical airborne rotation require another route. Take-wide
+ * and retained-action events keep their exact join time in the branch reader.
+ *
+ * @param input Admitted source take, with an outer sequence of action groups.
+ * @param sourceSeconds Saved source second, strictly before the join.
+ * @param retainedParts Number of complete outer sequence groups to preserve.
+ * @param suffix Replacement composition made of untimed groups and intents.
+ * @returns The original reader, branch reader and exact source second of the join.
+ * @throws {Error} When the join, preserved motion or replacement is unsupported.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the source clock, retained groups, unchanged binding premise and ownership of the exact join.
+ * @evidence contracts/development/implementation.md#principled-implementation Locates the join on the original resolved schedule and replaces whole future groups. Validates retained entries, clock order and displayed state before exposing the existing motion readers.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Walks the authored tree for group boundaries, then delegates placement, motion and interaction evaluation to HumanPerformance.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No action phase rebasing, blind state copying or sampled-pose continuation. Source owns prefix output even when a provider has schedule lookahead between the checked observations.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Traverses authored entries and placed actions linearly. Reads two poses and three prop frames and travels per subject, plus existing flight and hit records.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One source and one replacement preparation serve admission and later playback. Join kinematics and interaction records come from the prepared readers.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the two original motion readers. It holds no additional cache, handles or sampled histories.
+ */
+export function compileHumanPerformanceContinuation(
+  input: IAutoMovieMotionHumanPerformance.IInput,
+  sourceSeconds: number,
+  retainedParts: number,
+  suffix: IAutoMovieComposition,
+): { source: HumanPerformance; branch: HumanPerformance; branchStart: number } {
+  if (
+    input.composition.kind !== "sequence" ||
+    !Number.isInteger(retainedParts) ||
+    retainedParts < 1 ||
+    retainedParts >= input.composition.parts.length
+  )
+    refuse(
+      "choose complete leading groups of a source sequence with an existing tail",
+    );
+  if (!Number.isFinite(sourceSeconds) || sourceSeconds < 0)
+    refuse("the source second must be finite and nonnegative");
+  if (
+    input.flight === "physical" ||
+    input.props?.some((prop) => prop.soft !== undefined)
+  )
+    refuse(
+      "physical rotation and soft props require a different continuation route",
+    );
+
+  const parts: readonly IAutoMovieComposition[] = input.composition.parts.slice(
+    0,
+    retainedParts,
+  );
+  const retained: number = parts.reduce(
+    (sum: number, part: IAutoMovieComposition): number =>
+      sum + count(part, false),
+    0,
+  );
+  if (!portable(suffix))
+    refuse("the replacement requires portable action data");
+  if (retained === 0 || count(suffix, true) === 0)
+    refuse("the retained groups and replacement must both place actions");
+
+  const source: HumanPerformance = new HumanPerformance(input);
+  checkPhysicalFlights(source);
+  const prefix: readonly IAutoMovieScheduleEntry[] =
+    source.schedule.entries.filter(
+      (entry: IAutoMovieScheduleEntry): boolean => entry.index < retained,
+    );
+  const branchStart: number = prefix.reduce(
+    (end: number, entry: IAutoMovieScheduleEntry): number =>
+      Math.max(end, entry.end),
+    0,
+  );
+  if (sourceSeconds >= branchStart || branchStart >= source.duration)
+    refuse(
+      "the replacement must start after the saved second and before the original take ends",
+    );
+  checkTail(source, retained, branchStart);
+
+  const branch: HumanPerformance = new HumanPerformance({
+    ...input,
+    composition: { kind: "sequence", parts: [...parts, suffix] },
+  });
+  checkPhysicalFlights(branch);
+  checkTail(branch, retained, branchStart);
+  const kept: readonly IAutoMovieScheduleEntry[] =
+    branch.schedule.entries.filter(
+      (entry: IAutoMovieScheduleEntry): boolean => entry.index < retained,
+    );
+  if (!same(prefix.map(timing), kept.map(timing)))
+    refuse(
+      "the replacement changed a retained action's placement, cut or cues",
+    );
+
+  // Read the outgoing law outside the existing action entry allowance.
+  const closing: number =
+    branchStart - Math.max(2e-12, 2 * Number.EPSILON * branchStart);
+  if (closing <= sourceSeconds)
+    refuse("the saved second is inside the motion solver's join allowance");
+  const seconds: readonly number[] = [sourceSeconds, closing];
+  for (const person of input.performers) {
+    const id: IAutoMovieMotionHumanPerformer["subject"] = person.subject;
+    const originalEntry: IAutoMovieMotionHumanEntryState | undefined =
+      joinEntry(source, id, retained, branchStart);
+    const branchEntry: IAutoMovieMotionHumanEntryState | undefined = joinEntry(
+      branch,
+      id,
+      retained,
+      branchStart,
+    );
+    if (!same(entryState(originalEntry), entryState(branchEntry)))
+      refuse(
+        `the replacement changed the join entry, supports or held state of ${id}`,
+      );
+    if (branch.overlays(id).some((overlay) => overlay.entry >= retained))
+      refuse("the replacement cannot add an overlay");
+    for (const at of seconds)
+      if (!same(source.pose(id, at), branch.pose(id, at)))
+        refuse(
+          `the replacement changed the preserved pose of ${id} at ${at} s`,
+        );
+  }
+  for (const prop of input.props ?? []) {
+    checkFlights(source, branch, prop, branchStart);
+    for (const at of [...seconds, branchStart])
+      if (
+        !same(source.prop(prop.subject, at), branch.prop(prop.subject, at)) ||
+        !same(source.state(prop.subject, at), branch.state(prop.subject, at))
+      )
+        refuse(
+          `the replacement changed the preserved frame or articulation of ${prop.subject} at ${at} s`,
+        );
+  }
+  const retainedEvent = (event: IAutoMovieInteractionEvent): boolean =>
+    event.time < branchStart ||
+    (event.time === branchStart &&
+      (event.actionIndex === null || event.actionIndex < retained));
+  if (
+    !same(
+      source.hits().filter(retainedEvent),
+      branch.hits().filter(retainedEvent),
+    )
+  )
+    refuse("the replacement changed the retained interaction record");
+  return { source, branch, branchStart };
+}
+
+/** Read the already prepared owner entry for a performer starting a replacement action at the join. */
+function joinEntry(
+  performance: HumanPerformance,
+  subject: string,
+  retained: number,
+  join: number,
+): IAutoMovieMotionHumanEntryState | undefined {
+  return performance
+    .segments(subject)
+    .find(
+      (segment: IAutoMovieMotionHumanSegment): boolean =>
+        segment.entry >= retained && segment.entryTime === join,
+    )?.context.entry;
+}
+
+/** Compare entry kinematics, contact supports and custody without comparing plan closures. */
+function entryState(
+  entry: IAutoMovieMotionHumanEntryState | undefined,
+): unknown {
+  if (entry === undefined) return undefined;
+  return [
+    entry.seconds,
+    entry.pose,
+    entry.posture,
+    entry.velocity,
+    entry.acceleration,
+    entry.feet,
+    entry.supports,
+    entry.base,
+    entry.holds,
+    entry.uses,
+    entry.from?.name,
+    entry.from?.family,
+    entry.from?.params,
+    entry.from?.start,
+    entry.from?.share,
+  ];
+}
+
+/** Supplied momentum selects physical airborne rotation even in staged mode. */
+function checkPhysicalFlights(performance: HumanPerformance): void {
+  for (const person of performance.performers)
+    for (const segment of performance.segments(person.subject))
+      if (
+        segment.plan.airborne !== undefined &&
+        segment.plan.flight?.momentum.kind === "momentum"
+      )
+        refuse(
+          `supplied angular momentum for ${person.subject}/${segment.id} requires a different continuation route`,
+        );
+}
+
+/** Count walk-order leaves and admit ordinary sequence and parallel groups in the replacement. */
+function count(node: IAutoMovieComposition, replacement: boolean): number {
+  switch (node.kind) {
+    case "intent":
+      if (replacement && node.intent.until !== undefined)
+        refuse("the replacement cannot cut an action");
+      return 1;
+    case "sequence":
+    case "parallel":
+      return node.parts.reduce(
+        (sum: number, part: IAutoMovieComposition): number =>
+          sum + count(part, replacement),
+        0,
+      );
+    case "at":
+      if (replacement)
+        refuse("the replacement cannot use anchor-relative placement");
+      return count(node.part, replacement);
+  }
+  return refuse("the composition contains an unknown node kind");
+}
+
+/** Plain acyclic JSON-like data with no executable values or getters. Optional fields may be undefined. */
+function portable(value: unknown, ancestry: Set<object> = new Set()): boolean {
+  if (
+    value === null ||
+    value === undefined ||
+    typeof value === "string" ||
+    typeof value === "boolean"
+  )
+    return true;
+  if (typeof value === "number") return Number.isFinite(value);
+  if (typeof value !== "object" || ancestry.has(value)) return false;
+  const prototype: unknown = Object.getPrototypeOf(value);
+  if (
+    prototype !== Object.prototype &&
+    prototype !== null &&
+    prototype !== Array.prototype
+  )
+    return false;
+  if (Object.getOwnPropertySymbols(value).length !== 0) return false;
+
+  ancestry.add(value);
+  const valid: boolean = Object.values(
+    Object.getOwnPropertyDescriptors(value),
+  ).every(
+    (descriptor: PropertyDescriptor): boolean =>
+      "value" in descriptor && portable(descriptor.value, ancestry),
+  );
+  ancestry.delete(value);
+  return valid;
+}
+
+/** The timing and event ledger, excluding opaque schedule state. */
+function timing(entry: IAutoMovieScheduleEntry): unknown {
+  return [
+    entry.index,
+    entry.start,
+    entry.end,
+    entry.contact,
+    entry.events,
+    entry.cut,
+    entry.interruptedBy,
+  ];
+}
+
+/** Require both takes' tails to start at the actual group boundary. */
+function checkTail(
+  performance: HumanPerformance,
+  retained: number,
+  join: number,
+): void {
+  const first: IAutoMovieScheduleEntry | undefined =
+    performance.schedule.entries.find(
+      (entry: IAutoMovieScheduleEntry): boolean => entry.index >= retained,
+    );
+  if (first?.start !== join)
+    refuse(
+      "the tail must start at the join, with no offset back into the retained groups",
+    );
+}
+
+/** Require each prefix flight to have transferred custody before this branch route. */
+function checkFlights(
+  source: HumanPerformance,
+  branch: HumanPerformance,
+  prop: IAutoMovieMotionHumanProp,
+  join: number,
+): void {
+  const prefix = (performance: HumanPerformance): unknown[] =>
+    performance
+      .flights(prop.subject)
+      .filter(
+        (flight: IAutoMovieMotionHumanPropFlight.IFlight): boolean =>
+          flight.launch < join,
+      )
+      .map((flight: IAutoMovieMotionHumanPropFlight.IFlight): unknown => {
+        if (
+          !(
+            (flight.capturedAt ?? Infinity) < join ||
+            (flight.end < join && !flight.legs?.length)
+          )
+        )
+          refuse(
+            `flight of ${prop.subject} must settle or be captured before the join`,
+          );
+        return [
+          flight.source.entry,
+          flight.launch,
+          flight.published,
+          flight.capturedAt,
+          flight.contact,
+        ];
+      });
+  if (!same(prefix(source), prefix(branch)))
+    refuse(`the replacement changed a retained flight of ${prop.subject}`);
+}
+
+/** Compare deterministic plain observations without persisting them. */
+function same(left: unknown, right: unknown): boolean {
+  if (Object.is(left, right)) return true;
+  if (
+    typeof left !== "object" ||
+    left === null ||
+    typeof right !== "object" ||
+    right === null
+  )
+    return false;
+  const entries: [string, unknown][] = Object.entries(left);
+  return (
+    entries.length === Object.keys(right).length &&
+    entries.every(
+      ([key, value]: [string, unknown]): boolean =>
+        Object.prototype.hasOwnProperty.call(right, key) &&
+        same(value, (right as Record<string, unknown>)[key]),
+    )
+  );
+}
+
+/** Report the exact unsupported branch premise to the host. */
+function refuse(reason: string): never {
+  throw new Error(`Human performance continuation: ${reason}.`);
+}

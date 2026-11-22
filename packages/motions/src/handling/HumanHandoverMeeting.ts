@@ -92,7 +92,7 @@ export namespace HumanHandoverMeeting {
       input.handle,
       input.frame,
     );
-    const sternum = (person: IAutoMovieMotionHumanHandover.IPerson): number =>
+    const sternum: (person: IAutoMovieMotionHumanHandover.IPerson) => number = (person: IAutoMovieMotionHumanHandover.IPerson): number =>
       resolveAutoMovieHumanoidSurfaces.place(
         person.body.surfaces.regions.sternum,
         person.bones.get(person.body.surfaces.regions.sternum.bone)!,
@@ -141,7 +141,7 @@ export namespace HumanHandoverMeeting {
     handle: string;
     exchange: number;
   }): IAutoMovieMotionMeetingKind {
-    const person = (
+    const person: (role: IAutoMovieMotionMeetingRole) => IAutoMovieMotionHumanHandover.IPerson = (
       role: IAutoMovieMotionMeetingRole,
     ): IAutoMovieMotionHumanHandover.IPerson => ({
       body: role.body,

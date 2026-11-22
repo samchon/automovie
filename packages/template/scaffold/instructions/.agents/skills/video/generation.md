@@ -6,21 +6,23 @@ Submit each planned [request](requests.md) once the generated film's prerequisit
 
 ### First path
 
-Before a batch, prove one representative request end to end: the input, the generation, the download and stills extracted from the downloaded file. Choose a case with the intended performance, contacts and identity continuity, and fix its input and integration failures before the batch repeats them.
+Before batching, prove one representative contact, performance and identity case through inputs, generation, download and extracted stills. Fix input and integration failures.
 
 ### Submission
 
-Bind each request to its exact input bytes and source revision, and record it under [media records](../production/media-records.md#records). Check the existing job's state before retrying, because a retry can bill another job, and keep to the adopted cost and quality limits. Keep each finished job's downloaded original apart from its derivatives.
+Record each request with the exact input bytes and source revision under [media records](../production/media-records.md). Check the existing job before retrying. Respect cost and quality limits and retain downloaded originals separately.
 
-Hosted models screen prompts and inputs for violence, weapons, blood, real people and minors, and under the chosen model's usage policy a refusal can cost a billed job or the account. Write a fight or a stunt as movement and impact, as the screenplay does, and report a beat that is still refused to the user, who may choose another provider or an open model.
+Check the provider's content policy, including refusal billing and account limits. Describe the scripted movement and impact. Report a refused beat for the user's decision on allowed alternatives.
 
 ## Takes
 
 ### Inspection and choice
 
-Generate the number of takes per request that project context records, and choose among them before rewriting a prompt, because takes of one request differ. Where the model offers a draft tier or several outputs per job, choose among cheap drafts, then make the final from the chosen draft by the model's documented path.
+<!-- @source [fal’s clay-render case study](https://blog.fal.ai/from-clay-3d-render-to-a-real-action-short-a-3d-to-ai-pipeline-with-total-control/) describes correcting the framing in the source camera. -->
 
-Extract stills from the take's file at the spacing [capture](../visual-debugging/capture.md#times) sets, and compare them with the hint's stills at matched times under [comparison](../visual-debugging/comparison.md): first the contacts and outcomes its beats decide, then identity, positions, camera and motion. Choose for fidelity to the screenplay beat and the hint, never for an effect the screenplay did not decide. Leave the take's sound and continuous motion to the user.
+Generate the recorded number of takes and choose among them before changing the prompt. Where supported, choose among drafts and follow the model's documented path to a final take.
+
+Compare [extracted stills](../visual-debugging/capture.md#times) with matched hint frames under [comparison](../visual-debugging/comparison.md). Check contacts and outcomes first, then identity, placement, camera and motion. Choose for fidelity to the beat. Have the user judge playback and any commissioned sound.
 
 Repair a take by its cause:
 
@@ -31,11 +33,13 @@ Repair a take by its cause:
 | A framing the takes keep losing | Change the hint's camera under [staging](../motion/staging.md) |
 | Drifting motion or camera | Set a stricter adherence or shorten the request |
 
-Never hide lost action, identity or causality with a cut. Change the hint's camera within the screenplay's camera entry, because a take follows the hint's framing more closely than the prompt. A longer prompt does not repair drift.
+Preserve action, identity and causality through cuts. Repair framing in the hint's camera within the screenplay entry.
 
 ### Placement in time
 
-Place a take in the film by its decoded timestamps and time base, because a nominal frame rate cannot place an action, least of all at a variable rate. Trimming, retiming and rebasing are different operations, and neither a shortest-stream option nor silent padding may hide lost material.
+<!-- @source The [FFmpeg filter guide](https://ffmpeg.org/ffmpeg-filters.html) covers trim, setpts and fps. -->
+
+Place takes by decoded timestamps and time base. Keep trims, retimes and rebases distinct. Preserve required material when aligning streams. Avoid truncation or silent padding that hides loss.
 
 Where an extension returns its input joined to the new part, place only the new part. An edit can return slightly shorter than its input, so measure it, and recheck a new take, trim or speed change against its neighbors.
 

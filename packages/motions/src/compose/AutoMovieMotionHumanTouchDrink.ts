@@ -1,7 +1,8 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanDrinkingArm,
   IAutoMovieMotionHumanPosture,
@@ -13,6 +14,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
+import { AutoMovieMotionHumanDrinkingLean } from "./AutoMovieMotionHumanDrinkingLean";
+import { AutoMovieMotionHumanDrinkingPool } from "./AutoMovieMotionHumanDrinkingPool";
 import { AutoMovieMotionHumanDrinkingSwivel } from "./AutoMovieMotionHumanDrinkingSwivel";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
@@ -37,13 +40,10 @@ import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpr
  */
 export namespace AutoMovieMotionHumanTouchDrink {
   /** The step between the leans toward the face a held vessel is tried at, degrees (provisional). */
-  export const LEAN_STEP: number = 5;
+  export const LEAN_STEP: number = AutoMovieMotionHumanDrinkingLean.STEP;
 
-  /** The most a held vessel is leaned toward the face to let the arm hold it as a drinker does, degrees (provisional: past it the vessel pours). */
-  const LEAN: number = 60;
-
-  /** The step between the leans the search tries first, degrees, inside whose first admitting bracket it tries every `LEAN_STEP` (provisional). */
-  const COARSE: number = 15;
+  /** The most a held vessel is leaned toward the face, degrees: the lean that lays its wall level (`AutoMovieMotionHumanDrinkingLean.MOST` states the basis). */
+  const LEAN: number = AutoMovieMotionHumanDrinkingLean.MOST;
 
   /**
    * The facing and the lean the arm brings the vessel at: the least lean
@@ -66,16 +66,17 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @param place The region.
    * @param hint The elbow's hint each candidate starts from, world; moved into the drinking range where it lies outside (`AutoMovieMotionHumanDrinkingSwivel`).
    * @param after Where the vessel is held while the drinker drinks; the arrival alone when absent.
+   * @param pool The preparation a search over several sides of a vessel's rim shares (`handToFaceVessel`), whose nearest arm then spans every side tried; this search's own when absent.
    * @returns The facing, the lean, the tilt and the elbow's hint the arm was admitted with.
    * @throws {HumanRefusal} When no lean up to `LEAN` and no facing holds a drinking arm.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order of the search, its assumption, the admission, the choice, the measured defect and the refusal; the namespace states the candidates.
+   * @evidence contracts/development/common.md#meaningful-documentation States the order of the search, its assumption, the admission, the choice, the measured defect, the shared pool and the refusal; the namespace states the candidates.
    * @evidence contracts/development/implementation.md#principled-implementation Every candidate is solved by the resolver and read on its displayed bones; the arm is admitted by the shoulder range healthy drinkers use (Alt Murphy et al. 2006), the least lean that admits one is taken so the vessel tips no more than the arm needs, and of the admitted facings the hand's tilt decides.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk of the leans (`least`), each lean one `trial`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk of the leans (`AutoMovieMotionHumanDrinkingLean.least`), each lean one `trial`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The monotone admission the refinement relies on is stated here and read by the drinking signature spec, which checks that the lean a step below the returned one does not admit; with none admitted the law is refused, never given a raised arm.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most five coarse leans and two fine ones; each lean thirteen entry fits, then for its best one referred fit (its reference's entry fit is in the resolver's memory) and, with `after`, a referred fit in the drinking phase (two solves: its reference and the fit). Every 5-degree lean from 0 took up to thirteen leans. Each facing's hint is bounded once per lean (one trunk solve, then constant work).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `trial`, `least` and `AutoMovieMotionHumanDrinkingArm`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most seven coarse leans, three about a miss's zero and two fine ones (`AutoMovieMotionHumanDrinkingLean.least`); each lean at most thirteen entry fits, a facing whose wrist leaves no reaching elbow in the drinking range dropped before its fit (`AutoMovieMotionHumanSwivelBound.admits`, exact), ending at the first admitted facing that holds the vessel exactly on its asked axis (no later facing can beat a tilt of 0), then for its best one referred fit and, with `after`, a referred fit in the drinking phase (two solves: its reference and the fit). Each facing's hint is bounded in constant work after one trunk solve per pool.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One pool (fixed body/side reader and the fixed posture's lazy swivel bound) serves every candidate/reference/after fit, and every side of a rim search; each varying hint still runs the original closed-form bound, and every candidate fit remains actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns or borrows one pool until return or throw; the numeric answer/refusal captures no reader, candidate pose or new query history.
    */
   export function drinking(
     body: IAutoMovieMotionHumanBody,
@@ -85,32 +86,29 @@ export namespace AutoMovieMotionHumanTouchDrink {
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
     after?: IAutoMovieMotionHumanTouchDrink.IAfter,
+    pool: AutoMovieMotionHumanDrinkingPool.IPool = AutoMovieMotionHumanDrinkingPool.of(body, posture, side),
   ): IAutoMovieMotionHumanTouchDrink.IDrink {
     const level: number = Math.hypot(place.normal.x, place.normal.z);
     if (!(level > 1e-6))
       return { facing: place.normal, lean: 0, tilt: 0, bend: hint };
-    let nearest: IAutoMovieMotionHumanDrinkingArm.INearest | undefined;
-    const found: IAutoMovieMotionHumanTouchDrink.IDrink | undefined = least(
-      (lean: number): IAutoMovieMotionHumanTouchDrink.IDrink | undefined =>
-        trial(
-          body,
-          posture,
-          side,
-          effector,
-          place,
-          hint,
-          lean,
+    const missed: AutoMovieMotionHumanDrinkingLean.IMisses = AutoMovieMotionHumanDrinkingLean.misses();
+    const found: IAutoMovieMotionHumanTouchDrink.IDrink | undefined = AutoMovieMotionHumanDrinkingLean.least(
+      (lean: number): IAutoMovieMotionHumanTouchDrink.IDrink | undefined => {
+        missed.begin();
+        return trial(body, posture, side, effector, place, hint, lean,
           (arm: IAutoMovieMotionHumanDrinkingArm.IArm, at: string): void => {
-            nearest = AutoMovieMotionHumanDrinkingArm.nearer(nearest, arm, at);
+            pool.nearest = AutoMovieMotionHumanDrinkingArm.nearer(pool.nearest, arm, at, LEAN_STEP);
+            missed.see(arm);
           },
-          after,
-        ),
+          after, pool.read, pool.bounds, pool.span, pool.admits());
+      },
+      missed.least,
     );
     if (found !== undefined) return found;
     throw AutoMovieMotionHumanDrinkingArm.refused(
       side,
-      `up to ${LEAN} degrees and no turn of it within ${AutoMovieMotionHumanTouchUpright.SPAN} degrees either way of head on`,
-      nearest!,
+      `up to ${LEAN} degrees and no turn of it within ${pool.span} degrees either way of head on${pool.sides > 1 ? ` on any of the ${pool.sides} sides of its rim` : ""}`,
+      pool.nearest,
     );
   }
 
@@ -139,8 +137,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation to `trial`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every facing is solved; a tie keeps the one nearest head on.
    * @evidence contracts/development/implementation.md#efficient-algorithms Thirteen entry fits and one referred fit, whose reference's entry fit the resolver's memory already holds; with `after`, two more solves for the drinking phase's reference and referred fit. Each facing's hint is bounded in constant work after one trunk solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `drinking` and by the spec that checks its least lean.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The single-lean trial uses the same native fixed-body observation producer as drinking, preserving all current facing and reference fits without re-preparing rig metadata for each candidate.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Its invocation owns one reader until return or throw and returns only original numeric drink data, with no pose/result history or metadata loan retained.
    */
   export function admitted(
     body: IAutoMovieMotionHumanBody,
@@ -188,11 +186,11 @@ export namespace AutoMovieMotionHumanTouchDrink {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is fixed, what is sought, the order, the admission and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation A kept grasp fixes the hand-to-vessel rotation, not the hand, so the same drink is admitted by the same shoulder range (Alt Murphy et al. 2006) however the vessel came to the hand; the vessel's point stays on the region as the stroke keeps it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk (`least`) of a goal, a screen and an admission per lean.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk (`AutoMovieMotionHumanDrinkingLean.least`) of a goal, a screen and an admission per lean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The admitted arm is the referred one the stroke shows; with none admitted the law is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Per lean tried (at most five coarse and two fine): one entry fit, and for a lean that passes it one referred fit (its reference's entry fit in the resolver's memory) and, with `after`, the drinking phase's reference and referred fit, two solves.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanTouchLaid.rest` for the vessel's point and contact, `tip` and `AutoMovieMotionHumanDrinkingArm`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Per lean tried (at most seven coarse, three about a miss's zero and two fine, `AutoMovieMotionHumanDrinkingLean.least`): one entry fit, and for a lean that passes it one referred fit (its reference's entry fit in the resolver's memory) and, with `after`, the drinking phase's reference and referred fit, two solves.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Rest/tip retain vessel geometry and one genuine fixed-body observation reader serves every current lean, reference and later-phase native fit; only rig/FK metadata is shared, never a candidate answer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous held search owns one reader until return or throw; returned lean/goal payloads remain numeric and retain no reader or new candidate history.
    */
   export function held(
     body: IAutoMovieMotionHumanBody,
@@ -204,6 +202,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     rotation: IAutoMovieQuaternion,
     after?: IAutoMovieMotionHumanTouchDrink.IAfter,
   ): IAutoMovieMotionHumanTouchDrink.IHeld {
+    const read: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.prepareRead> = AutoMovieMotionHumanDrinkingArm.prepareRead(body, side);
     const laid: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
       body,
       posture,
@@ -225,8 +224,10 @@ export namespace AutoMovieMotionHumanTouchDrink {
       { x: 0, y: 1, z: 0 },
     );
     let nearest: IAutoMovieMotionHumanDrinkingArm.INearest | undefined;
-    const found: IAutoMovieMotionHumanTouchDrink.IHeld | undefined = least(
+    const missed: AutoMovieMotionHumanDrinkingLean.IMisses = AutoMovieMotionHumanDrinkingLean.misses();
+    const found: IAutoMovieMotionHumanTouchDrink.IHeld | undefined = AutoMovieMotionHumanDrinkingLean.least(
       (lean: number): IAutoMovieMotionHumanTouchDrink.IHeld | undefined => {
+        missed.begin();
         const turned: IAutoMovieQuaternion = Quaternion.normalize(
           Quaternion.multiply(
             AutoMovieMotionHumanTouchUpright.tip(place.normal, lean),
@@ -240,24 +241,19 @@ export namespace AutoMovieMotionHumanTouchDrink {
         };
         // The same vessel in the drinking phase: the hand keeps the turn
         // and the vessel's point follows the region.
-        const later = (
-          phase: IAutoMovieMotionHumanTouchDrink.IAfter,
-        ): IAutoMovieMotionHumanDrinkingArm.IArm => {
-          const there: IAutoMovieHumanLimbGoal =
-            AutoMovieMotionHumanTouchLaid.rest(
-              body,
-              phase.posture,
-              side,
-              effector,
-              phase.place,
-              "up",
-              hint,
-              "upright",
-            );
-          return AutoMovieMotionHumanDrinkingArm.read(
+        const later = (phase: IAutoMovieMotionHumanTouchDrink.IAfter): IAutoMovieMotionHumanDrinkingArm.IArm => {
+          const there: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
             body,
             phase.posture,
             side,
+            effector,
+            phase.place,
+            "up",
+            hint,
+            "upright",
+          );
+          return read(
+            phase.posture,
             {
               ...there,
               rotation: turned,
@@ -274,10 +270,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
           );
         };
         const arm: IAutoMovieMotionHumanDrinkingArm.IArm =
-          AutoMovieMotionHumanDrinkingArm.read(
-            body,
+          read(
             posture,
-            side,
             goal,
             false,
             axis,
@@ -286,13 +280,13 @@ export namespace AutoMovieMotionHumanTouchDrink {
           nearest,
           arm,
           `at a lean of ${lean} degrees`,
+          LEAN_STEP,
         );
+        missed.see(arm);
         return holds(arm) &&
           holds(
-            AutoMovieMotionHumanDrinkingArm.read(
-              body,
+            read(
               posture,
-              side,
               goal,
               true,
               axis,
@@ -302,6 +296,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
           ? { lean, goal }
           : undefined;
       },
+      missed.least,
     );
     if (found !== undefined) return found;
     throw AutoMovieMotionHumanDrinkingArm.refused(
@@ -309,29 +304,6 @@ export namespace AutoMovieMotionHumanTouchDrink {
       `up to ${LEAN} degrees in the grasp it was taken up by`,
       nearest!,
     );
-  }
-
-  /**
-   * The least lean an attempt admits, in `LEAN_STEP` degrees up to `LEAN`:
-   * every `COARSE` degrees first, then every `LEAN_STEP` from the bracket's
-   * low end up to the coarse lean that admitted (`drinking` states the
-   * assumption).
-   */
-  function least<T>(attempt: (lean: number) => T | undefined): T | undefined {
-    for (let coarse: number = 0; coarse <= LEAN + 1e-9; coarse += COARSE) {
-      const found: T | undefined = attempt(coarse);
-      if (found === undefined) continue;
-      for (
-        let fine: number = Math.max(0, coarse - COARSE + LEAN_STEP);
-        fine < coarse - 1e-9;
-        fine += LEAN_STEP
-      ) {
-        const finer: T | undefined = attempt(fine);
-        if (finer !== undefined) return finer;
-      }
-      return found;
-    }
-    return undefined;
   }
 
   /** One lean of `drinking`'s search (`admitted`), each screened arm shown to `seen` with where it was tried. */
@@ -345,6 +317,10 @@ export namespace AutoMovieMotionHumanTouchDrink {
     lean: number,
     seen: (arm: IAutoMovieMotionHumanDrinkingArm.IArm, at: string) => void,
     after?: IAutoMovieMotionHumanTouchDrink.IAfter,
+    read: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.prepareRead> = AutoMovieMotionHumanDrinkingArm.prepareRead(body, side),
+    bounds?: () => ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded>,
+    span: number = AutoMovieMotionHumanTouchUpright.SPAN,
+    admits?: (point: IAutoMovieVector3) => boolean,
   ): IAutoMovieMotionHumanTouchDrink.IDrink | undefined {
     const level: number = Math.hypot(place.normal.x, place.normal.z);
     // The vessel's axis in the hand: the effector's along axis, which an
@@ -354,17 +330,18 @@ export namespace AutoMovieMotionHumanTouchDrink {
       side,
       effector,
     ).forward;
+
+    // The vessel's axis read on the hand's anatomical axes, for the refusal.
+    const anatomy: (name: "fingers" | "palm" | "thumb") => string = (
+      name: "fingers" | "palm" | "thumb",
+    ): string =>
+      Vector3.dot(axis, AutoMovieMotionHumanTouchEffector.axis(side, name)).toFixed(2);
+
     // Each facing's arm is hinted inside the drinking range: the hint moved
     // to the nearest swivel whose shoulder lies in it, kept where it does
     // (`AutoMovieMotionHumanDrinkingSwivel`); the drinking phase keeps it.
-    const bound: (
-      point: IAutoMovieVector3,
-      hint: IAutoMovieVector3,
-    ) => IAutoMovieVector3 = AutoMovieMotionHumanDrinkingSwivel.bounded(
-      body,
-      posture,
-      side,
-    );
+    const bound: ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded> =
+      (bounds ?? AutoMovieMotionHumanDrinkingPool.of(body, posture, side).bounds)();
     const laid = (
       facing: IAutoMovieVector3,
       on: IAutoMovieMotionHumanPosture,
@@ -385,67 +362,62 @@ export namespace AutoMovieMotionHumanTouchDrink {
         undefined,
         lean,
       );
-    const bends: Map<IAutoMovieVector3, IAutoMovieVector3> = new Map();
-    const bend = (facing: IAutoMovieVector3): IAutoMovieVector3 => {
-      let found: IAutoMovieVector3 | undefined = bends.get(facing);
-      if (found === undefined) {
-        found = bound(laid(facing, posture, place, hint).point, hint);
-        bends.set(facing, found);
-      }
-      return found;
-    };
-    const goal = (
-      facing: IAutoMovieVector3,
-      on: IAutoMovieMotionHumanPosture = posture,
-      at: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> = place,
-    ): IAutoMovieHumanLimbGoal => laid(facing, on, at, bend(facing));
     let best: IAutoMovieVector3 | undefined;
+    let selected: IAutoMovieHumanLimbGoal | undefined;
+    let reference: IAutoMovieHumanLimbReference | undefined;
     let tilt: number = Infinity;
     for (const facing of AutoMovieMotionHumanTouchUpright.facings(
       place.normal,
       level,
+      span,
+      side,
     )) {
-      const arm: IAutoMovieMotionHumanDrinkingArm.IArm =
-        AutoMovieMotionHumanDrinkingArm.read(
-          body,
-          posture,
-          side,
-          goal(facing),
-          false,
-          axis,
-        );
+      // A wrist no reaching elbow in the drinking range can place is
+      // refused before any fit (`AutoMovieMotionHumanSwivelBound.admits`).
+      const wrist: IAutoMovieHumanLimbGoal = laid(facing, posture, place, hint);
+      if (admits !== undefined && !admits(wrist.point)) continue;
+      const candidate: IAutoMovieHumanLimbGoal = { ...wrist, bend: bound(wrist.point, hint) };
+      const improves = (arm: IAutoMovieMotionHumanDrinkingArm.IArm): boolean =>
+        holds(arm) && arm.tilt < tilt - ROM_TOLERANCE;
+      const arm: ReturnType<typeof read> = read(posture, candidate, false, axis, improves);
       seen(
         arm,
-        `at a lean of ${lean} degrees facing (${facing.x.toFixed(2)}, ${facing.z.toFixed(2)})`,
+        `at a lean of ${lean} degrees facing (${facing.x.toFixed(2)}, ${facing.z.toFixed(2)}) with the vessel's axis (fingers ${anatomy("fingers")}, palm ${anatomy("palm")}, thumb ${anatomy("thumb")}) in the hand`,
       );
-      if (holds(arm) && arm.tilt < tilt - 1e-9) {
+      // Two tilts within the joints' tolerance (the resolution a fit meets
+      // a rotation to) are one, so a rounding-sized difference between a
+      // hand's fit and its mirror's never chooses another facing.
+      if (improves(arm)) {
         tilt = arm.tilt;
         best = facing;
+        selected = candidate;
+        reference = arm.reference;
       }
+
+      // A tilt is an angle, never below 0, and a later facing replaces the
+      // best only below it by the tolerance, so none can replace a tilt
+      // within it of 0.
+      if (tilt <= ROM_TOLERANCE) break;
     }
-    if (best === undefined) return undefined;
+    if (best === undefined || selected === undefined) return undefined;
     const shown: IAutoMovieMotionHumanDrinkingArm.IArm =
-      AutoMovieMotionHumanDrinkingArm.read(
-        body,
+      read(
         posture,
-        side,
-        goal(best),
-        true,
+        reference === undefined ? selected : { ...selected, reference },
+        reference === undefined,
         axis,
       );
     // In the drinking phase the hand keeps the facing and the lean while
     // the region moves with the head.
     return holds(shown) &&
       (after === undefined ||
-        AutoMovieMotionHumanDrinkingArm.read(
-          body,
+        read(
           after.posture,
-          side,
-          goal(best, after.posture, after.place),
+          laid(best, after.posture, after.place, selected.bend),
           true,
           axis,
         ).tilt <= LEAN_STEP)
-      ? { facing: best, lean, tilt: shown.tilt, bend: bend(best) }
+      ? { facing: best, lean, tilt: shown.tilt, bend: selected.bend }
       : undefined;
   }
 

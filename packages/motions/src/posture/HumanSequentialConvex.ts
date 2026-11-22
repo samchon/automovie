@@ -9,11 +9,14 @@ import type { IAutoMovieMotionHumanSequentialConvex } from "@automovie/interface
  * rejects the step by the ratio of the merit's actual to its predicted
  * decrease, moves the region by the caller's schedule (`ISchedule`), and
  * raises the penalty along the caller's ladder while the constraints are not
- * met, or steers it at every iterate (`IOptions.steer`). The merit is the objective plus the penalty times the constraints'
- * summed violation, the l1 exact penalty (Nocedal and Wright 2006,
- * "Numerical Optimization", 2nd ed., section 17.2). A problem still
- * infeasible at the last penalty is left to the caller to refuse by its own
- * reading.
+ * met, or steers it at every iterate (`IOptions.steer`); a steered solve
+ * with a ceiling that settles, or whose region collapses, with its
+ * constraints unmet goes on at a tenfold penalty, up to the ceiling,
+ * TrajOpt's outer loop. The merit is the
+ * objective plus the penalty times the constraints' summed violation, the l1
+ * exact penalty (Nocedal and Wright 2006, "Numerical Optimization", 2nd ed.,
+ * section 17.2). A problem still infeasible at the last penalty is left to
+ * the caller to refuse by its own reading.
  */
 export namespace HumanSequentialConvex {
   /**
@@ -44,7 +47,7 @@ export namespace HumanSequentialConvex {
    *
    * @param problem The problem.
    * @param start The first iterate.
-   * @param options The schedule, the penalties, the rounds, a continued solve's penalty and region, and whether the penalty is steered.
+   * @param options The schedule, the penalties, the rounds, a continued solve's penalty and region, whether the penalty is steered, and the violation's least tellable reduction, under which a steered solve stops at a stationary point of the violation.
    * @returns The last iterate taken, its reading, its penalty and region, whether the last convexification collapsed, why the solve stopped and whether it converged; the caller refuses an infeasible one by its own reading.
    */
   export function minimise<
@@ -62,32 +65,83 @@ export namespace HumanSequentialConvex {
     let radius: number = options.radius ?? s.trust;
     let penalty: number = options.penalties[0]!;
     let collapsed: boolean = false;
+    let failed: boolean = false;
     let reason: IAutoMovieMotionHumanSequentialConvex.Reason = "rounds";
+    // A steered solve's rounds are one budget across its raised penalties,
+    // so the outer loop below re-prices the rounds left and never restarts
+    // them; a ladder's penalties each take their own.
+    let spent: number = 0;
+
     // A steered solve starts at the continued penalty when there is one, the first otherwise.
     const first: number =
       options.from !== undefined ? options.from : options.penalties[0]!;
-    for (const ladder of steer ? [first] : options.penalties) {
+    // A steered solve's ladder starts at its one penalty and grows where it
+    // settles infeasible (below); the unsteered ladder is the caller's.
+    const ladders: number[] = steer ? [first] : [...options.penalties];
+    for (const ladder of ladders) {
       // A continued solve keeps the penalty its iterate was reached at.
       if (!steer && options.from !== undefined && ladder < options.from)
         continue;
       let mu: number = ladder;
       penalty = mu;
-      for (let round: number = 0; round < options.rounds; ++round) {
+      for (
+        let round: number = 0;
+        round < options.rounds && !(steer && spent >= options.rounds);
+        ++round
+      ) {
+        ++spent;
         let model: IAutoMovieMotionHumanSequentialConvex.IModel<X> =
           problem.convexify(x, current, mu, radius, true);
         let pending: IAutoMovieMotionHumanSequentialConvex.IStep<X> | undefined;
         if (steer) {
-          const steered: {
-            mu: number;
-            model: IAutoMovieMotionHumanSequentialConvex.IModel<X>;
-            step: IAutoMovieMotionHumanSequentialConvex.IStep<X>;
-          } = steering(problem, x, current, mu, radius, model);
+          const steered: ISteered<X> = steering(
+            problem,
+            x,
+            current,
+            mu,
+            radius,
+            model,
+            options.ceiling ?? Infinity,
+          );
           mu = steered.mu;
           model = steered.model;
           pending = steered.step;
+
+          // The step of the violation alone, inside the region and so the
+          // linearised violation's own least, reduces it by no more than the
+          // caller can tell while the iterate still violates by more: the
+          // iterate is a stationary point of the violation, an infeasible one
+          // no later round leaves (`IOptions.stationary`). A step of the
+          // violation alone that meets the linearised constraints shows the
+          // opposite, a feasible point within the region, however little it
+          // reduces a violation just past the tolerance.
+          const best:
+            | IAutoMovieMotionHumanSequentialConvex.IStep<X>
+            | undefined = steered.best;
+          if (
+            options.stationary !== undefined &&
+            best !== undefined &&
+            best.violation !== undefined &&
+            best.met !== true &&
+            !best.full &&
+            current.violation > options.stationary &&
+            current.violation - best.violation <= options.stationary
+          ) {
+            penalty = mu;
+            collapsed = false;
+            reason = "infeasible";
+            break;
+          }
         }
         penalty = mu;
         const merit: number = current.objective + mu * current.violation;
+        const gain: (reading: E, predicted: number) => number = (
+          reading: E,
+          predicted: number,
+        ): number =>
+          predicted > 0
+            ? (merit - (reading.objective + mu * reading.violation)) / predicted
+            : -Infinity;
         let taken: boolean = false;
         let settled: boolean = false;
         let told: boolean = false;
@@ -100,6 +154,13 @@ export namespace HumanSequentialConvex {
             pending ?? model.solve(radius);
           pending = undefined;
 
+          // A subproblem its solver could not solve ends the solve failed,
+          // as TrajOpt's ends where its convex solver fails (OPT_FAILED).
+          if (step.failed === true) {
+            failed = true;
+            break;
+          }
+
           // A predicted decrease within the model's own accuracy is no
           // decrease the model can tell.
           if (step.accuracy !== undefined && step.predicted <= step.accuracy) {
@@ -108,14 +169,24 @@ export namespace HumanSequentialConvex {
             ended = "model";
             break;
           }
-          const gain: (reading: E) => number = (reading: E): number =>
-            step.predicted > 0
-              ? (merit - (reading.objective + mu * reading.violation)) /
-                step.predicted
-              : -Infinity;
+
+          // A predicted improvement under the schedule's least has
+          // converged, read before the step is tried, as TrajOpt's sco reads
+          // its min_approx_improve and min_approx_improve_frac (the
+          // convergence on the model's improvement of Schulman et al. 2014,
+          // Algorithm 1).
+          if (step.predicted < s.improved(merit)) {
+            told = true;
+            settled = true;
+            ended = "model";
+            break;
+          }
+
+          // The chosen trial also selects its producer's correction data;
+          // steering may have solved another violation-only model last.
           let trial: X = step.trial;
           let next: E = problem.evaluate(trial);
-          let ratio: number = gain(next);
+          let ratio: number = gain(next, step.predicted);
 
           // A rejected step is corrected once, judged on its own predicted
           // decrease, before the region shrinks (`IProblem.correct`).
@@ -127,7 +198,7 @@ export namespace HumanSequentialConvex {
             const corrected: X | null = problem.correct(x, step, next);
             if (corrected !== null) {
               const fixed: E = problem.evaluate(corrected);
-              const again: number = gain(fixed);
+              const again: number = gain(fixed, step.predicted);
               if (again > s.eta) {
                 trial = corrected;
                 next = fixed;
@@ -151,6 +222,7 @@ export namespace HumanSequentialConvex {
             if (settled) ended = flat ? "model" : "step";
             break;
           }
+
           // A rejected proposal that cannot move the current feasible
           // iterate by the caller's resolution is numerical no progress.
           // It is not an objective-error or stationarity certificate; an
@@ -167,11 +239,36 @@ export namespace HumanSequentialConvex {
             break;
           }
         }
+        if (failed) break;
         collapsed = !taken && !told;
         reason = collapsed ? "collapsed" : ended;
         if (!taken || settled) break;
       }
+      if (failed) {
+        collapsed = false;
+        reason = "failed";
+        break;
+      }
       if (problem.feasible(current)) break;
+      // TrajOpt's outer loop (Schulman et al. 2014, Algorithm 1): a steered
+      // solve that settled with its constraints still unmet, or whose region
+      // collapsed, which TrajOpt's sco reads as converged too (its
+      // min_trust_box_size), goes on at the penalty raised once more, up to
+      // the caller's ceiling, so an iterate a hair outside the tolerance is
+      // not left there by a model too flat to tell the hair at the lower
+      // penalty. A solve without a ceiling has no bound on this growth and
+      // ends as before, as does a stationary point of the violation
+      // (`infeasible`) or spent rounds (sco's iteration limit). The rounds
+      // are counted across the raised penalties (`spent`), so the outer loop
+      // adds none to `IOptions.rounds`.
+      if (
+        steer &&
+        options.ceiling !== undefined &&
+        spent < options.rounds &&
+        (reason === "model" || reason === "step" || reason === "collapsed") &&
+        mu * STEERING.increase <= options.ceiling
+      )
+        ladders.push(mu * STEERING.increase);
       radius = s.trust;
     }
     return {
@@ -185,7 +282,7 @@ export namespace HumanSequentialConvex {
     };
   }
 
-  /** Algorithm 5.1 of Byrd, Nocedal and Waltz at one region (`IOptions.steer`): the penalty, its model and the model's step. */
+  /** Algorithm 5.1 of Byrd, Nocedal and Waltz at one region (`IOptions.steer`): the penalty, its model, the model's step and, where it was solved, the step of the violation alone. */
   function steering<
     X,
     E extends IAutoMovieMotionHumanSequentialConvex.IEvaluation,
@@ -196,15 +293,23 @@ export namespace HumanSequentialConvex {
     penalty: number,
     radius: number,
     first: IAutoMovieMotionHumanSequentialConvex.IModel<X>,
-  ): {
-    mu: number;
-    model: IAutoMovieMotionHumanSequentialConvex.IModel<X>;
-    step: IAutoMovieMotionHumanSequentialConvex.IStep<X>;
-  } {
+    ceiling: number,
+  ): ISteered<X> {
     let mu: number = penalty;
+
+    // Whether the penalty may still grow under the caller's ceiling.
+    const room: () => boolean = (): boolean =>
+      mu * STEERING.increase <= ceiling;
     let model: IAutoMovieMotionHumanSequentialConvex.IModel<X> = first;
     let step: IAutoMovieMotionHumanSequentialConvex.IStep<X> =
       model.solve(radius);
+    let alone: IAutoMovieMotionHumanSequentialConvex.IStep<X> | undefined;
+    // A subproblem its solver could not solve is handed back as it is: the
+    // loop ends the solve failed (`IStep.failed`).
+    const failing = (
+      d: IAutoMovieMotionHumanSequentialConvex.IStep<X>,
+    ): boolean => d.failed === true;
+    if (failing(step)) return { mu, model, step };
     const reduced: (
       d: IAutoMovieMotionHumanSequentialConvex.IStep<X>,
     ) => number = (
@@ -218,7 +323,10 @@ export namespace HumanSequentialConvex {
     };
     const grow: () => void = (): void => {
       mu *= STEERING.increase;
-      model = problem.convexify(x, current, mu, radius, true);
+      model =
+        model.reprice === undefined
+          ? problem.convexify(x, current, mu, radius, true)
+          : model.reprice(mu);
       step = model.solve(radius);
     };
     if (step.met !== true) {
@@ -228,9 +336,12 @@ export namespace HumanSequentialConvex {
       // its reduction (step 3, (5.13), p. 10). Linear feasibility is the caller's, to its
       // tolerance, since a subproblem solved to a relative accuracy meets its
       // rows only to that accuracy.
-      const best: IAutoMovieMotionHumanSequentialConvex.IStep<X> = problem
-        .convexify(x, current, mu, radius, false)
-        .solve(radius);
+      const best: IAutoMovieMotionHumanSequentialConvex.IStep<X> = (
+        model.feasibility?.() ??
+        problem.convexify(x, current, mu, radius, false)
+      ).solve(radius);
+      if (failing(best)) return { mu, model, step: best };
+      alone = best;
       const enough: (
         d: IAutoMovieMotionHumanSequentialConvex.IStep<X>,
       ) => boolean = (
@@ -239,20 +350,45 @@ export namespace HumanSequentialConvex {
         best.met === true
           ? d.met === true
           : reduced(d) >= STEERING.feasibility * reduced(best);
-      for (let k: number = 0; k < STEERING.increases && !enough(step); ++k)
+      for (
+        let k: number = 0;
+        k < STEERING.increases && room() && !enough(step);
+        ++k
+      ) {
         grow();
+        if (failing(step)) return { mu, model, step };
+      }
     }
+
     // Their (5.14) (p. 10) asks the model's decrease to be a share of the
     // penalty times the step's reduction of the violation; a step that
     // reduces none asks nothing of the penalty.
     for (
       let k: number = 0;
       k < STEERING.increases &&
+      room() &&
       reduced(step) > 0 &&
       step.predicted < STEERING.merit * mu * reduced(step);
       ++k
-    )
+    ) {
       grow();
-    return { mu, model, step };
+      if (failing(step)) return { mu, model, step };
+    }
+    return { mu, model, step, ...(alone === undefined ? {} : { best: alone }) };
   }
+}
+
+/** What one steering gives: the penalty reached, its model, the model's step and, where it was solved, the step of the violation alone. */
+interface ISteered<X> {
+  /** The penalty reached. */
+  mu: number;
+
+  /** The model at that penalty. */
+  model: IAutoMovieMotionHumanSequentialConvex.IModel<X>;
+
+  /** The model's step. */
+  step: IAutoMovieMotionHumanSequentialConvex.IStep<X>;
+
+  /** The step of the violation alone, where the steering solved it. */
+  best?: IAutoMovieMotionHumanSequentialConvex.IStep<X>;
 }

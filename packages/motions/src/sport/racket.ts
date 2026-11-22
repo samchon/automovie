@@ -5,8 +5,9 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanRacket,
@@ -17,23 +18,23 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
-import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
+import { courtStroke } from "./courtStroke";
+import { racketStance } from "./racketStance";
 
 /**
- * Racket and golf positions without the stroke itself (#3249): the tennis
- * ready position, the split step, and the golf address with its waggle. No
- * racket or club is held; the hands stand on the implied handle.
+ * Racket stroke dispatch (#3725, #3726) and the original solo racket or
+ * golf positions (#3249). The following positions use an implied handle.
  *
- * - Ready position: the feet step apart to two shoulder widths, the knees
- *   give 4 % of the stature and the trunk leans 15 degrees, the racket hand
+ * - Ready position: the feet step in sequence to two shoulder widths, the pelvis
+ *   lowers by 4 % of stature and the trunk leans 15 degrees, the racket hand
  *   on the handle at waist height before the body and the other hand a hand
  *   ahead on the throat (provisional places).
  * - Split step: from the ready position's width, a small hop of 3 % of the
@@ -48,10 +49,8 @@ import { HumanFrame } from "../posture/HumanFrame";
  * Each is a phrase: into the position in 0.6 s, the stroke (the hop or the
  * waggle), held, and back in 0.6 s.
  *
- * Not drafted: groundstrokes, volleys, serves, smashes, badminton and table
- * tennis strokes, the golf swing, chip and putt. They are implement strikes
- * of the ball-strike owner (#3244), whose implement file does not exist
- * yet; the lunge to the net is the exercise lunge's row.
+ * Court strokes delegate to `courtStroke`, which can read a previously
+ * held racket's frame and targets a timed contact.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each position's geometry, timing, sources and provisional values, and the gaps with their owner.
  * @evidence contracts/development/design.md#principled-representation A law record of crouch, leg, root and placed-arm rows over one phrase.
@@ -67,6 +66,8 @@ export namespace racket {
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       racket: ["fromStrokeEnd", "quick"],
+      walk: ["fromRelax", "smooth"],
+      run: ["fromRelax", "smooth"],
     });
 
   /** How far below the shoulders the golfer's upper hand grips, arm lengths (provisional): the elbows a little soft. */
@@ -83,16 +84,26 @@ export namespace racket {
    * @evidence contracts/development/implementation.md#principled-implementation One phrase; each position's crouch, feet and hands on its envelope, the hop or the waggle on the stroke.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, shared rows, then one branch per position.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body measures and named places; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One balance solve per crouch and one posture solve per arm per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the crouch, the leg arc and the placed arm.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each hand supplies the actual phrase span to the existing arm trajectory planner, preparing reach/hold/return work once; the original crouch, footwork and active-time goals remain with their shared primitives.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the crouch, leg arc and placed arm's existing span-driven planner rather than re-entering deprecated share-only arm clearance on every displayed second.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRacket.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanRacket.IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
+    if (
+      p.kind !== "readyPosition" &&
+      p.kind !== "splitStep" &&
+      p.kind !== "golfAddress"
+    )
+      return courtStroke(context, p.kind, {
+        ...(p.contactAt === undefined ? {} : { contact: p.contactAt }),
+        ...(p.implement === undefined ? {} : { implement: p.implement }),
+      });
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
+      body.measure;
     const hold: number = p.seconds ?? 0.6;
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -113,9 +124,18 @@ export namespace racket {
       },
     );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const into = (s: number): number =>
+    const into: (s: number) => number = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);
-    const local = (
+    const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
+      start: clock.at("start"),
+      ready: clock.at("ready"),
+      relax: clock.at("relax"),
+      end: clock.at("end"),
+    };
+    const local: (
+      posture: IAutoMovieMotionHumanPosture,
+      v: IAutoMovieVector3,
+    ) => IAutoMovieVector3 = (
       posture: IAutoMovieMotionHumanPosture,
       v: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
@@ -123,9 +143,17 @@ export namespace racket {
     const leftward: IAutoMovieVector3 = local(entry, { x: 1, y: 0, z: 0 });
     const arm: number = m.upperArm + m.forearm;
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
+    let held: IAutoMovieMotionHumanHeld.IHeld | undefined;
     let contacts: IAutoMovieMotionHumanContactWindow[] =
       AutoMovieMotionHumanBase.plants();
-    const grip = (
+    const grip: (
+      hand: "left" | "right",
+      place: (
+        posture: IAutoMovieMotionHumanPosture,
+        s: number,
+      ) => IAutoMovieVector3,
+      bend: "front" | "forward",
+    ) => IAutoMovieMotionHumanPrimitive[] = (
       hand: "left" | "right",
       place: (
         posture: IAutoMovieMotionHumanPosture,
@@ -140,6 +168,14 @@ export namespace racket {
         to: clock.duration,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand),
         weight: into,
+        span,
+        // The clock is the law's own and a slower tempo lengthens it, except
+        // a split step's, whose stroke start is fixed.
+        together: AutoMovieMotionHumanArm.together(
+          context.handover,
+          p.kind !== "splitStep",
+          context.tempo,
+        ),
         surface: "grip",
         shape: "fist",
         place: (posture: IAutoMovieMotionHumanPosture, s: number) => ({
@@ -151,92 +187,19 @@ export namespace racket {
       });
 
     if (p.kind === "readyPosition" || p.kind === "splitStep") {
-      const apart: number = Vector3.dot(
-        Vector3.subtract(
-          context.entry.feet.left.ankle,
-          context.entry.feet.right.ankle,
-        ),
+      const stance: ReturnType<typeof racketStance> = racketStance(
+        context,
+        clock,
+        side,
         leftward,
+        p.kind === "splitStep",
+        modifiers.extent,
       );
-      const half: number = Math.max(0, (4 * m.shoulderHalfWidth - apart) / 2);
-      const wider: number =
-        p.kind === "splitStep" ? 0.5 * m.shoulderHalfWidth : 0;
-      const hop = (s: number): number => {
-        if (p.kind !== "splitStep") return 0;
-        const u: number = clock.linear("strokeStart", "stroke", s);
-        return u > 0 && u < 1 ? 4 * u * (1 - u) : 0;
-      };
-      const landed = (s: number): number =>
-        clock.linear("strokeStart", "stroke", s);
-      for (const foot of ["left", "right"] as const) {
-        const from: IAutoMovieMotionHumanFoot.IPlacement = {
-          ankle: context.entry.feet[foot].ankle,
-          rotation: context.entry.feet[foot].rotation,
-        };
-        const out = (by: number): IAutoMovieMotionHumanFoot.IPlacement => ({
-          ankle: Vector3.add(
-            from.ankle,
-            Vector3.scale(leftward, (foot === "left" ? 1 : -1) * by),
-          ),
-          rotation: from.rotation,
-        });
-        primitives.push(
-          AutoMovieMotionHumanLeg.place({
-            body,
-            side: foot,
-            from: 0,
-            to: clock.duration,
-            placement: (
-              _: IAutoMovieMotionHumanPosture,
-              s: number,
-            ): IAutoMovieMotionHumanFoot.IPlacement => {
-              const placed: IAutoMovieMotionHumanFoot.IPlacement =
-                AutoMovieMotionHumanLegPhrase.between(
-                  from,
-                  out(half + wider * landed(s)),
-                  into(s),
-                );
-              return {
-                ...placed,
-                ankle: {
-                  ...placed.ankle,
-                  y: placed.ankle.y + 0.03 * m.stature * hop(s),
-                },
-              };
-            },
-            planted: (s: number): boolean =>
-              (into(s) <= 0 || into(s) >= 1) && hop(s) === 0,
-          }),
-        );
-      }
+      contacts = stance.contacts;
+      if (p.implement !== undefined)
+        held = AutoMovieMotionHumanHeld.of(context, side, p.implement);
       primitives.push(
-        {
-          channels: ["root"],
-          from: 0,
-          to: clock.duration,
-          write: (
-            posture: IAutoMovieMotionHumanPosture,
-            s: number,
-          ): IAutoMovieMotionHumanPosture => ({
-            ...posture,
-            root: {
-              ...posture.root,
-              y: posture.root.y + 0.03 * m.stature * hop(s) * modifiers.extent,
-            },
-          }),
-        },
-        {
-          channels: ["trunk"],
-          from: 0,
-          to: clock.duration,
-          write: (
-            posture: IAutoMovieMotionHumanPosture,
-            s: number,
-          ): IAutoMovieMotionHumanPosture => ({
-            ...posture,
-            pitch: posture.pitch + 15 * into(s),
-          }),
-        },
+        ...stance.primitives,
         ...grip(
           side,
           (posture: IAutoMovieMotionHumanPosture) =>
@@ -262,7 +225,6 @@ export namespace racket {
           "front",
         ),
       );
-      contacts = [];
     } else {
       primitives.push(
         AutoMovieMotionHumanTrunk.crouch({
@@ -275,7 +237,7 @@ export namespace racket {
           pitch: 35 * modifiers.extent,
         }),
       );
-      const waggle = (s: number): number =>
+      const waggle: (s: number) => number = (s: number): number =>
         0.05 *
         arm *
         AutoMovieMotionClock.wave(clock, ["strokeStart", "strokeEnd"], 2, s);
@@ -303,11 +265,19 @@ export namespace racket {
           ),
         );
     }
-    return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(clock.duration, entry, contacts),
-      clock,
-      primitives,
-      contact: "stroke",
-    });
+    const plan: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.still(clock.duration, entry, contacts),
+        clock,
+        primitives,
+        contact: "stroke",
+      });
+    return held === undefined
+      ? plan
+      : {
+          ...plan,
+          contacts: [...plan.contacts, AutoMovieMotionHumanHeld.grip(held)],
+          holds: [AutoMovieMotionHumanHeld.hold(context, held)],
+        };
   }
 }

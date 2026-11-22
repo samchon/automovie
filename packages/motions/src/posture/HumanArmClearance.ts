@@ -1,7 +1,6 @@
-import { getConstraint, jointRomOvershoot } from "@automovie/engine";
+import { preparePoseResolution } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanBody,
@@ -14,10 +13,14 @@ import type {
 
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import { HumanArmClearing } from "./HumanArmClearing";
+import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import { HumanArmOvershoot } from "./HumanArmOvershoot";
 import { HumanArmSwing } from "./HumanArmSwing";
 import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
+import { prepareHumanJointRom } from "./prepareHumanJointRom";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 
 /**
  * The room a forearm needs beside its own trunk and beside the other arm.
@@ -43,7 +46,7 @@ import { poseBones } from "./poseBones";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is judged, against which colliders, the taper and which caller judges the thighs.
  * @evidence contracts/development/design.md#principled-representation A capsule of linearly tapering radius against the body's own profile colliders, the shapes every contact verdict measures.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The trunk's placed colliders, those with the thighs, a forearm's overshoot, an arm written into a pose, the same read off an arm's joints, and the turn of the shoulder and the elbow that relieves it; the single owner of forearm clearance, read by the bend solver, by every arm fit and by the arm's joint-space carry.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The trunk/thigh colliders, forearm overshoot, posed arm, scalar room, paired endpoint baselines and shoulder/elbow correction serve bend solving, native arm fitting and joint-space carry through one clearance owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The radius is the body's measured forearm radius and the colliders are the profile's; no margin is added and no law is named.
  */
 export namespace HumanArmClearance {
@@ -57,7 +60,7 @@ export namespace HumanArmClearance {
    * @evidence contracts/development/common.md#meaningful-documentation States which segments are returned and what is read.
    * @evidence contracts/development/implementation.md#principled-implementation Placement is `HumanColliders.placed`, the single owner; this function only keeps the trunk's segments.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Filters actual placed profile segments by the existing trunk set without altering their geometry, clearance or source order.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the profile's segments.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanColliders.placed`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -67,8 +70,7 @@ export namespace HumanArmClearance {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieMotionHumanColliders.IPlaced[] {
     return HumanColliders.placed(body, bones).filter(
-      (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
-        TRUNK.has(segment.bone),
+      (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean => HumanArmObstacleBones.TRUNK.has(segment.bone),
     );
   }
 
@@ -79,34 +81,26 @@ export namespace HumanArmClearance {
    * @param body The body.
    * @param bones Its posed bones, world frame, the legs where the pose puts them.
    * @param arms The arms already placed whose upper arm, forearm and hand count; none when absent.
+   * @param placed An existing placement of this exact body and bone reading in the same unchanged synchronous evaluation; computed here when absent.
    * @returns The placed segments of `trunk`, of the two upper legs and of the named arms.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which segments are returned and what the pose must already hold.
    * @evidence contracts/development/implementation.md#principled-implementation A hand sent to a thigh, or past one, bends its elbow away from the thigh as it does from the ribs; the limb fit places the legs before the arms, so the thighs stand where the posture puts them. Two forearms sent across each other (a self-hug, a hand on the other forearm) lie one over the other, so the arm placed second keeps clear of the first.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One placement when needed, followed by the same selection filter.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shanks and feet are left out: a forearm reaches them only with the hand, which the taper leaves to its goal; an arm not yet placed is left out, since where it will be is not known.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the profile's segments.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanColliders.placed`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The frame builder can supply its exact same-evaluation placement, while four fixed HumanArmObstacleBones subsets share canonical membership with scoped source FK; actual profile geometry and original placement order remain current.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh filtered array borrowing its actual placed segments; stores no placement, pose or body beyond the call.
    */
   export function obstacles(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     arms: readonly ("left" | "right")[] = [],
+    placed?: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   ): IAutoMovieMotionHumanColliders.IPlaced[] {
-    const limbs: ReadonlySet<AutoMovieHumanoidBone> =
-      new Set<AutoMovieHumanoidBone>(
-        arms.flatMap((arm: "left" | "right"): AutoMovieHumanoidBone[] => [
-          `${arm}UpperArm`,
-          `${arm}LowerArm`,
-          `${arm}Hand`,
-        ]),
-      );
-    return HumanColliders.placed(body, bones).filter(
+    const limbs: ReadonlySet<AutoMovieHumanoidBone> = HumanArmObstacleBones(arms);
+    return (placed ?? HumanColliders.placed(body, bones)).filter(
       (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
-        TRUNK.has(segment.bone) ||
-        segment.bone === "leftUpperLeg" ||
-        segment.bone === "rightUpperLeg" ||
         limbs.has(segment.bone),
     );
   }
@@ -130,7 +124,7 @@ export namespace HumanArmClearance {
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, each input and the meaning of 0; the rule is the reading's own.
    * @evidence contracts/development/implementation.md#principled-implementation The reading is `HumanArmOvershoot.of`, kept as this owner's entry so every caller of the clearance reads one name.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Passes every geometry, goal and resting allowance unchanged to the existing overshoot owner, so delegation adds no clearance policy or tolerance.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The reading's own.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanArmOvershoot.of`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -159,16 +153,6 @@ export namespace HumanArmClearance {
       hint,
       rests,
     );
-  }
-
-  /**
-   * Turn the bounding-sphere screen of `overshoot` off or on again
-   * (`HumanArmOvershoot.broad`).
-   *
-   * @param on Whether queries are screened.
-   */
-  export function broad(on: boolean): void {
-    HumanArmOvershoot.broad(on);
   }
 
   /**
@@ -201,17 +185,20 @@ export namespace HumanArmClearance {
     };
     return {
       ...pose,
-      joints: pose.joints.map((joint: IAutoMovieJointPose) => {
-        const angles = written[joint.bone];
-        return angles === undefined
-          ? joint
-          : {
-              ...joint,
-              flexion: angles[0],
-              abduction: angles[1],
-              twist: angles[2],
-            };
-      }),
+      joints: pose.joints.map(
+        (joint: IAutoMovieJointPose): IAutoMovieJointPose => {
+          const angles: readonly [number, number, number] | undefined =
+            written[joint.bone];
+          return angles === undefined
+            ? joint
+            : {
+                ...joint,
+                flexion: angles[0],
+                abduction: angles[1],
+                twist: angles[2],
+              };
+        },
+      ),
     };
   }
 
@@ -274,15 +261,16 @@ export namespace HumanArmClearance {
    * @param arm The arm's joint angles, which replace the pose's.
    * @param others Another body's placed colliders in the arm's way; none when absent.
    * @param baseline What each of the two readings may keep, degrees (`IBaseline`); none when absent.
+   * @param prepared An actual FK reader borrowed only through this synchronous unchanged-rig search; every pose still receives full admission and fresh resolved bones.
    * @returns Degrees; 0 when the forearm clears the trunk, the thighs, the other arm and the others, and no segment of the arm lies deeper in the body than at rest or in the quiet stance, each beyond its baseline.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is replaced, what is read and the unit.
    * @evidence contracts/development/implementation.md#principled-implementation The arm's three joints are written into the pose (`posed`) and the bones resolved by the engine's forward kinematics, so the forearm judged is the one the pose displays; the other arm is where the pose shows it, so a carry clears it as it stands.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose with three joints replaced, one resolve, one overshoot.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure roomTerms owns one posed-arm FK/placement and original ordered overshoot/allowance/audit/allowance reads; room applies the unchanged final Math.max while baseline shares those actual inputs across its two projections.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The obstacles are the limb fit's (`obstacles`), so a carried arm and a fitted one are judged against the same shapes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `posed`, `poseBones`, `obstacles`, `overshoot` and the tangle audit's arm reading, so the clearing and the audit share one measure.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One full FK traversal and collider construction precede every original overshoot/audit query. A search-owned reader shares only completed same-scalar joint/bone math; fresh outputs, changed ancestor propagation and all scans remain.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses posed, poseBones, obstacles, overshoot and the tangle arm reading. A borrowed actual engine reader belongs to this unchanged-rig search; each full posed input still runs. The two clearance readers share one exact collider placement, without pose writes or a pose-identity query cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows but never retains the optional FK reader; the caller releases it when its synchronous search ends. Local fresh bones/placements and every query temporary end with this call.
    */
   export function room(
     body: IAutoMovieMotionHumanBody,
@@ -291,27 +279,29 @@ export namespace HumanArmClearance {
     arm: IAutoMovieMotionHumanArmClearance.IArm,
     others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
     baseline: IAutoMovieMotionHumanArmClearance.IBaseline = NONE,
+    prepared?: ReturnType<typeof preparePoseResolution>,
   ): number {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      posed(pose, side, arm),
-    );
-    // The forearm's needed room by its radius, and every segment of the arm,
-    // the upper arm and the fingers too, as the tangle audit reads it.
-    return Math.max(
-      0,
-      overshoot(
-        body,
-        obstacles(body, bones, [side === "left" ? "right" : "left"]),
-        bones.get(`${side}LowerArm`)!.worldPosition,
-        bones.get(`${side}Hand`)!.worldPosition,
-        side,
-        others,
-        false,
-      ) - baseline.forearm,
-      AutoMovieMotionHumanAuditTangle.arm(body, bones, side) -
-        baseline.segments,
-    );
+    const terms: IAutoMovieMotionHumanArmClearance.IBaseline = roomTerms(body, pose, side, arm, others, baseline, prepared);
+    return Math.max(0, terms.forearm, terms.segments);
+  }
+
+  /**
+   * Read both independent zero-allowance baselines on the same actual arm.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Returns the same forearm-only and segment-only degree readings as two room calls with the other allowance Infinity, using one current pose/profile placement.
+   * @evidence contracts/development/implementation.md#principled-implementation Both readings consume the same FK, overshoot and tangle values; applying the original zero/Infinity allowances afterward preserves each independent metric, including nonfinite propagation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure roomTerms owns the original ordered numerical queries; room and this paired reader apply their existing Math.max expressions to those terms.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both physical queries still run in their original order; no finite-only gate, altered clearance, profile order, threshold or candidate omission is introduced.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One admitted full FK/profile placement and both actual queries replace two identical pairs for each carry endpoint; constant scalar projections produce both results, with no measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit caller fixes body, pose, arm, external colliders and reader for this synchronous paired observation; only that one unchanged observation is shared, without pose or metric caching.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh two-number record and retains no pose, placement, input, reader or query history.
+   */
+  export function baseline(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, side: "left" | "right",
+    arm: IAutoMovieMotionHumanArmClearance.IArm, others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
+    prepared?: ReturnType<typeof preparePoseResolution>): IAutoMovieMotionHumanArmClearance.IBaseline {
+    const terms: IAutoMovieMotionHumanArmClearance.IBaseline = roomTerms(body, pose, side, arm, others, NONE, prepared);
+    return { forearm: Math.max(0, terms.forearm, terms.segments - Infinity),
+      segments: Math.max(0, terms.forearm - Infinity, terms.segments) };
   }
 
   /**
@@ -339,15 +329,16 @@ export namespace HumanArmClearance {
    * @param allowed The room the arm may lack, degrees.
    * @param others Another body's placed colliders in the arm's way; none when absent.
    * @param baseline What each of `room`'s readings may keep; none when absent.
+   * @param source Optional exact FK reader or lazy supplier borrowed only by actual room observations in this synchronous search.
    * @returns The arm's joint angles, the hand's unchanged.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two movements, the one rule behind them, the order of the search, the bisection, the fallback and each argument's unit.
    * @evidence contracts/development/implementation.md#principled-implementation The least correction that clears the arm, over the two freedoms that carry a forearm off what it passes; the direction comes from the shapes in the way, so no obstacle is named.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of HumanArmClearing.of over the room and range readings built here.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No margin is added and no joint leaves its range; a turn that leaves a range is skipped, not clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One room reading when the arm is clear; otherwise what HumanArmClearing.of reads.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `room`, the engine's range reading and `HumanArmClearing`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing per call.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Without a loan, the original single clear-arm reading allocates no FK workspace or ROM map; only a second room read creates the search reader. A supplied reader is demanded at the first actual observation. All scans, candidates and ROM scores remain; fixed same-scalar FK and each of two first-bone scans can be shared without a measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses room, actual FK/range owners and HumanArmClearing. A parent may explicitly lend its current synchronous reader; otherwise the local reader remains lazy. posed changes only three arm records, so exact unchanged dependencies can share math while current constraints, every candidate and scores remain actual reads.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This synchronous search releases its FK snapshots, local ROM reader and at most two bone records on return or throw. Only the chosen clinical arm escapes; no pose, callback, target, candidate or reader history is retained.
    */
   export function cleared(
     body: IAutoMovieMotionHumanBody,
@@ -357,15 +348,25 @@ export namespace HumanArmClearance {
     allowed: number,
     others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
     baseline: IAutoMovieMotionHumanArmClearance.IBaseline = NONE,
+    source?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanArmClearance.IArm {
-    const over = (of: IAutoMovieMotionHumanArmClearance.IArm): number =>
-      room(body, pose, side, of, others, baseline) - allowed;
+    let prepared: ReturnType<typeof preparePoseResolution> | undefined;
+    let borrowed: ReturnType<typeof prepareHumanPoseResolution> | undefined;
+    let first: boolean = true;
+    const over: (of: IAutoMovieMotionHumanArmClearance.IArm) => number = (of: IAutoMovieMotionHumanArmClearance.IArm): number => {
+      const value: number = room(body, pose, side, of, others, baseline,
+        source === undefined ? first ? undefined : (prepared ??= preparePoseResolution()) :
+          (borrowed ??= prepareHumanPoseResolution(source))());
+      first = false;
+      return value - allowed;
+    };
+    const outside: ReturnType<typeof prepareHumanJointRom> = prepareHumanJointRom(body);
     return HumanArmClearing.of({
       arm,
       over,
       range: (of: IAutoMovieMotionHumanArmClearance.IArm): number =>
-        outside(body, `${side}UpperArm`, of.upper) +
-        outside(body, `${side}LowerArm`, of.lower),
+        outside(`${side}UpperArm`, of.upper) +
+        outside(`${side}LowerArm`, of.lower),
     });
   }
 
@@ -380,6 +381,8 @@ export namespace HumanArmClearance {
    * @param body The body.
    * @param posture The posture, the arms' joints set and their goals absent.
    * @param sides The arms to keep clear.
+   * @param source Optional exact FK source borrowed only for this synchronous same-body operation.
+   * @param projection Optional genuine same-body ROM projector; every actual joint still projects normally.
    * @returns The posture with the arms' upper arm joints let out.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which arms, against what allowance and what is written back.
@@ -387,47 +390,36 @@ export namespace HumanArmClearance {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolve, then one bisection per arm in the pose the arms before it were written into; the least abduction is continuous in time where the room is, so the swing has no jump a local search between frames would leave.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm with a hand goal is the fit's to clear and is left alone.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolve per call, one room reading for an arm already clear and about twelve for one that is not; the stance's room is solved once per body and arm.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `room` and `posed`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The stance rooms are kept per live body in a `WeakMap`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to HumanArmSwing.of, forwarding only explicit same-operation FK/ROM loans through native full fitting and actual room observations without candidate-result reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the existing numeric stance rooms persist weakly per body; current FK/ROM loans end with the synchronous owner and enter no returned posture or cache.
    */
   export function swung(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     sides: readonly ("left" | "right")[],
+    source?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanPosture {
-    return HumanArmSwing.of(body, posture, sides);
+    return HumanArmSwing.of(body, posture, sides, source, projection);
   }
 }
 
-/** A joint's range of motion overshoot at a triple, degrees. */
-function outside(
-  body: IAutoMovieMotionHumanBody,
-  bone: AutoMovieHumanoidBone,
-  of: readonly [number, number, number],
-): number {
-  return jointRomOvershoot(
-    { bone, flexion: of[0], abduction: of[1], twist: of[2] },
-    getConstraint(
-      bone,
-      body.skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === bone)
-        ?.constraint ?? null,
-    ),
-  );
+/** Keep overshoot, its allowance read, tangle and its allowance read in original order. */
+function roomTerms(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, side: "left" | "right",
+  arm: IAutoMovieMotionHumanArmClearance.IArm, others: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  baseline: IAutoMovieMotionHumanArmClearance.IBaseline, prepared?: ReturnType<typeof preparePoseResolution>): IAutoMovieMotionHumanArmClearance.IBaseline {
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    poseBones(body, HumanArmClearance.posed(pose, side, arm), prepared);
+  const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+  return {
+    forearm: HumanArmClearance.overshoot(body,
+      HumanArmClearance.obstacles(body, bones, [side === "left" ? "right" : "left"], placed),
+      bones.get(`${side}LowerArm`)!.worldPosition, bones.get(`${side}Hand`)!.worldPosition,
+      side, others, false) - baseline.forearm,
+    segments: AutoMovieMotionHumanAuditTangle.arm(body, bones, side, placed) - baseline.segments,
+  };
 }
 
-/** The bones whose colliders a forearm may not enter. */
-const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>([
-    "hips",
-    "spine",
-    "chest",
-    "upperChest",
-    "neck",
-    "head",
-  ]);
-
 /** No baseline: every reading of an arm's room counts from zero. */
-const NONE: IAutoMovieMotionHumanArmClearance.IBaseline = {
-  forearm: 0,
-  segments: 0,
-};
+const NONE: IAutoMovieMotionHumanArmClearance.IBaseline = { forearm: 0, segments: 0 };
+

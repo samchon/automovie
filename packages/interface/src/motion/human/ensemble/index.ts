@@ -8,3 +8,4 @@ export type { IAutoMovieMotionHumanInstance } from "./IAutoMovieMotionHumanInsta
 export type { IAutoMovieMotionHumanManoeuvre } from "./IAutoMovieMotionHumanManoeuvre";
 export type { IAutoMovieMotionHumanManoeuvreWheel } from "./IAutoMovieMotionHumanManoeuvreWheel";
 export type { IAutoMovieMotionHumanPopulation } from "./IAutoMovieMotionHumanPopulation";
+export type { IAutoMovieMotionHumanQueueAdvance } from "./IAutoMovieMotionHumanQueueAdvance";

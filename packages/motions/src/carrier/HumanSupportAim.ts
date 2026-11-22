@@ -20,19 +20,21 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * line aimed at the start turns and moves with the support while the target
  * stays in the world. The aim re-takes that line at each second: the line
  * from the carried pivot (the eye, the cheek) to the target against the
- * carried line, its turn about the vertical and its rise. The turn goes to
- * the trunk, which twists on the pelvis, the chest and the lumbar spine
- * sharing it (`AutoMovieMotionHumanTrunk.CHEST`), and the arms' goals turn
- * with it about the vertical through the root; the rise goes to the arms'
+ * carried line, its turn about the vertical and its rise. The arms' goals
+ * turn by the whole turn about the vertical through the root, and the
+ * trunk follows them as far as the chest's and the lumbar spine's axial
+ * ranges (`DEFAULT_HUMANOID_ROM`) hold, the two sharing it
+ * (`AutoMovieMotionHumanTrunk.CHEST`); the rest is the arms', on top of
+ * what the presentation already gave them. The rise goes to the arms'
  * goals alone, turned about the horizontal axis through the pivot square to
- * the line. A twist the chest's or the spine's axial range
- * (`DEFAULT_HUMANOID_ROM`) cannot hold at some frame of the act is refused
+ * the line. An aim whose arms would present the line further off the
+ * trunk's facing than the aim's `arms` at some frame of the act is refused
  * when the act is planned: the performer, or the support, turns first.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is re-taken, which parts take the turn and the rise, and when it is refused.
- * @evidence contracts/development/design.md#principled-representation The aim is a world target and the pivot the line was planned from; the correction is the yaw and the rise between the carried and the wanted lines.
+ * @evidence contracts/development/design.md#principled-representation The aim is a world target, the pivot the line was planned from and the arms' bound; the correction is the yaw and the rise between the carried and the wanted lines.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The aim record, the correction, the corrected posture and the planning check; read by `HumanSupportCarry.plan`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The trunk's bound is the range-of-motion table's, never a typed angle; the frames checked are the film's (`instance.RATE`).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The trunk's bound is the range-of-motion table's and the arms' the aim's, never a typed angle; the frames checked are the film's (`instance.RATE`).
  */
 export namespace HumanSupportAim {
   /**
@@ -82,10 +84,11 @@ export namespace HumanSupportAim {
   }
 
   /**
-   * A carried posture re-aimed: the trunk twisted by the correction's yaw,
-   * the arms' goals turned with it about the vertical through the root and
-   * raised by its rise about the pivot. Contact and task-limit offsets stay
-   * in the end joint's frame while only the asked world frame turns.
+   * A carried posture re-aimed: the arms' goals turned by the correction's
+   * yaw about the vertical through the root and raised by its rise about
+   * the pivot, the trunk twisted by as much of the yaw as its axial range
+   * holds (`taken`). Contact and task-limit offsets stay in the end joint's
+   * frame while only the asked world frame turns.
    *
    * @param carry The support's carry since the act's start.
    * @param posture The posture already carried (`HumanSupportCarry.posture`).
@@ -140,48 +143,106 @@ export namespace HumanSupportAim {
             }),
       };
     }
-    return { ...posture, joints: twisted(posture.joints, c.yaw), limbs };
+    return {
+      ...posture,
+      joints: twisted(posture.joints, taken(posture.joints, c.yaw)),
+      limbs,
+    };
   }
 
   /**
-   * Refuse an aim whose trunk twist leaves the chest's or the spine's axial
-   * range at some frame of the act.
+   * Refuse an aim whose arms would present the line further off the
+   * trunk's facing than `aim.arms` at some frame of the act. The
+   * presentation gave the arms the line's bearing at the start less the
+   * trunk's turn it planned; each frame adds what the trunk cannot take of
+   * that frame's correction.
    *
-   * @param posture The re-aimed posture at a second of the act.
+   * @param made The carried posture at a second of the act, before the aim re-takes it.
+   * @param carry The support's carry since the act's start, at a second of it.
+   * @param aim The aim.
    * @param duration The act's seconds.
-   * @throws {HumanRefusal} On `target`, with the frame's twist and the range, when a frame's twist leaves its range.
+   * @throws {HumanRefusal} On `target`, with the arms' angle and their bound, when a frame's arms present past it.
    * @throws {Error} When the range-of-motion table gives the chest or the spine no twist.
    */
   export function check(
-    posture: (seconds: number) => IAutoMovieMotionHumanPosture,
+    made: (seconds: number) => IAutoMovieMotionHumanPosture,
+    carry: (seconds: number) => IAutoMovieMotionHumanSupportCarry.ICarry,
+    aim: IAutoMovieMotionHumanSupportAim.IAim,
     duration: number,
   ): void {
+    const start: IAutoMovieMotionHumanPosture = made(0);
+    const planned: number =
+      bearing(start.yaw, aim.pivot, aim.target) - turned(made(duration).joints);
     const frames: number = Math.ceil(duration * instance.RATE);
     for (let k: number = 0; k <= frames; k++) {
       const seconds: number = Math.min(duration, k / instance.RATE);
-      const joints: IAutoMovieMotionHumanPosture["joints"] =
-        posture(seconds).joints;
-      for (const bone of ["chest", "spine"] as const) {
-        const range: IAutoMovieAngleRange = twist(bone);
-        const value: number = joints[bone]?.[2] ?? 0;
-        if (value < range.min || value > range.max)
-          throw new HumanRefusal({
-            kind: "reach",
-            axis: "target",
-            value,
-            feasible: {
-              kind: "range",
-              minimum: range.min,
-              maximum: range.max,
-              unit: "deg",
-            },
-            reason: `keeping the aim from the moving support twists the ${bone} ${value.toFixed(0)} degrees at ${seconds.toFixed(2)} s, outside its ${range.min} to ${range.max} degrees`,
-            fix: "turn the performer or the support toward the target first, or aim for a shorter time",
-          });
-      }
+      const yaw: number = correction(carry(seconds), aim).yaw;
+      const arms: number = planned + yaw - taken(made(seconds).joints, yaw);
+      if (Math.abs(arms) > aim.arms)
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "target",
+          value: arms,
+          feasible: {
+            kind: "range",
+            minimum: -aim.arms,
+            maximum: aim.arms,
+            unit: "deg",
+          },
+          reason: `keeping the aim from the moving support asks the arms to present the line ${arms.toFixed(0)} degrees off the trunk's facing at ${seconds.toFixed(2)} s, past the trunk's twist and the arms' ${aim.arms} degrees`,
+          fix: "turn the performer or the support toward the target first, or aim for a shorter time",
+        });
     }
   }
 
+  /** How much of a yaw the trunk takes on top of its twist: as far as the chest's and the spine's axial ranges hold, each taking its share. */
+  function taken(
+    joints: IAutoMovieMotionHumanPosture["joints"],
+    yaw: number,
+  ): number {
+    const share: number = AutoMovieMotionHumanTrunk.CHEST;
+    const chest: IAutoMovieAngleRange = twist("chest");
+    const spine: IAutoMovieAngleRange = twist("spine");
+    const c: number = joints.chest?.[2] ?? 0;
+    const s: number = joints.spine?.[2] ?? 0;
+    const most: number = Math.max(
+      0,
+      Math.min((chest.max - c) / share, (spine.max - s) / (1 - share)),
+    );
+    const least: number = Math.min(
+      0,
+      Math.max((chest.min - c) / share, (spine.min - s) / (1 - share)),
+    );
+    return Math.min(most, Math.max(least, yaw));
+  }
+
+  /** The trunk's turn on the pelvis a posture holds, degrees, positive toward the performer's left: the pelvis's, the spine's and the chest's twists. */
+  function turned(joints: IAutoMovieMotionHumanPosture["joints"]): number {
+    return (
+      (joints.hips?.[2] ?? 0) +
+      (joints.spine?.[2] ?? 0) +
+      (joints.chest?.[2] ?? 0)
+    );
+  }
+
+  /** A target's bearing off a heading on the floor, from a point, degrees, positive toward the performer's left. */
+  function bearing(
+    heading: number,
+    from: IAutoMovieVector3,
+    target: IAutoMovieVector3,
+  ): number {
+    const h: number = (heading * Math.PI) / 180;
+    const dx: number = target.x - from.x;
+    const dz: number = target.z - from.z;
+    return (
+      (Math.atan2(
+        dx * Math.cos(h) - dz * Math.sin(h),
+        dx * Math.sin(h) + dz * Math.cos(h),
+      ) *
+        180) /
+      Math.PI
+    );
+  }
   /** The trunk's joints twisted by a yaw, shared as the trunk's turn shares it. */
   function twisted(
     joints: IAutoMovieMotionHumanPosture["joints"],

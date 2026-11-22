@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -7,32 +7,46 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPhrase,
   IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanLeanInto,
   IAutoMovieMotionHumanOperate,
   IAutoMovieMotionHumanOperateDrive,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieMotionManner,
   IAutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { createHumanBody } from "../body/createHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmPhrase } from "../compose/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeanInto } from "../compose/AutoMovieMotionHumanLeanInto";
-import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanReach } from "../compose/AutoMovieMotionHumanReach";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { HumanBendRead } from "../compose/HumanBendRead";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBalance } from "../everyday/HumanBalance";
+import { prepareHumanTrunkBalance } from "../everyday/prepareHumanTrunkBalance";
+import { HumanPhysics } from "../law/HumanPhysics";
+import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { operateDrive } from "./operateDrive";
+import { operateHand } from "./operateHand";
 import { operateInsert } from "./operateInsert";
+import { operateInsertRoute } from "./operateInsertRoute";
 import { operateState } from "./operateState";
 
 /**
@@ -53,10 +67,11 @@ import { operateState } from "./operateState";
  * the axis, and the hand rolls with the knob as it turns, the forearm's
  * pronation and supination (Magermans et al. 2005, Clin Biomech 20:591, give
  * the ranges daily tasks use), the grip starting half the turn before the
- * forearm's neutral so the turn is centred in that range. A lid's knob, its
- * axis nearer the vertical than `UPRIGHT`, takes the palm from above. Each
- * part's place is a target, so it can be a
- * prop's point; the part's outward normal is its axis. A part beyond the
+ * forearm's neutral so the turn is centred in that range; a crank's knob
+ * spins free on its pin, so the hand keeps its attitude and only orbits. A
+ * lid's knob, its axis nearer the vertical than `UPRIGHT`, takes the palm
+ * from above. Each part's place is a target, so it can be a prop's point;
+ * the part's outward normal is its axis. A part beyond the
  * standing arm is leaned into (`AutoMovieMotionHumanLeanInto`): the trunk
  * tips about the hips by the least pitch that keeps the wrist within `REACH`
  * of the arm's length and straightens as the part comes nearer (a drawer
@@ -79,13 +94,12 @@ import { operateState } from "./operateState";
  * plan drives the articulation by the same function (`operateDrive`,
  * `IHumanActionPlan.drives`), so the door stays open after the hand lets go
  * and the hand cannot drift off the handle. The `insert` mechanism moves a
- * held prop's working point along a socket's axis instead
- * (`operateInsert`).
+ * held prop's working point along a socket's axis instead (`operateInsert`),
+ * hand over hand when deeper than its grip reaches (`operateLongInsert`).
  *
  * Not yet: the A8 affordance kinds (`hinge`, `slider`, `knob`, `button`) in
  * the interface, which the core owns, so the mechanism is stated here; the
- * body stepping round a door and walking through it; two-handed or power
- * grips; pouring from a held container about its lip.
+ * body stepping round a door and through it; power grips; pouring about a lip.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the four mechanisms, the hand on each, the phrase and its timing, the events and what is missing, with sources and provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record of one arm phrase over a standing base; the mechanism is a closed union.
@@ -96,12 +110,30 @@ export namespace operate {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "operate";
 
+  /** The hand drives the part from strokeStart to strokeEnd. The caller selects the body part that supplies the balancing motion. */
+  export const balance: IAutoMovieMotionHumanBalance = {
+    from: { event: "strokeStart" },
+    to: { event: "strokeEnd" },
+  };
+
   /** Cancel table: the hand lets go of the part and the body stands or walks. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["relax", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      {
+        window: ["relax", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
-    walk: [{ window: ["relax", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    walk: [
+      {
+        window: ["relax", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
+    ],
   };
 
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
@@ -125,6 +157,9 @@ export namespace operate {
   /** The vertical share of a knob's axis from which it counts as a lid's, turned with the fingers ahead instead of up. */
   export const UPRIGHT: number = Math.SQRT1_2;
 
+  /** The most a stoop to a part below the hips adds to the trunk's pitch, degrees: about the straight-legged hip flexion the hamstrings allow, as a normal straight-leg raise reaches roughly 80 degrees (provisional). */
+  export const STOOP: number = 80;
+
   /** The width of each part a hand aims at, metres (provisional). */
   export const WIDTH: Readonly<
     Record<IAutoMovieMotionHumanOperate.Mechanism["kind"], number>
@@ -141,12 +176,27 @@ export namespace operate {
   /**
    * Plan an operation.
    *
-   * @param context The action's context.
+   * @param entered The action's context.
    * @returns The plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the operation's world effector goal, original reach/stroke clock, articulation drive and standing/carrier overlay; operateHand documents the full-target versus wrist-only consumers.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand follows the mechanism's original geometry or actual posed articulation; the original least-reaching lean is found by the same balanced pitch scan/bisection. Full arm targets retain actual default elbow selection and contact-aware arm placement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed mechanism/timing preparation delegates one hand-frame owner to the lean's wrist observation and the arm phrase's full target, then composes the unchanged base, lean and stroke.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every nine planning reach probes, balance solve, pitch scan/bisection, insertion roll fit, full target Bend, contact window, drive, refusal and phase time; only wrist-only probes omit the elbow result they never consume.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Entry FK requests only the actual origin surface. Fixed hand geometry or insertion axis/grid prepares once; reach observations avoid an unconsumed bounded Bend sweep and repeated hand geometry. Native grounded hinge strokes evaluate the current elbow once and use only wrist placement for the discarded onset. The downstream display fit and the original lean remain.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged body/side/mechanism/initial place and clock fix only shared hand geometry. Hinge onset validation retains the original second, progress and part observation after the current target. Opaque bodies and changed posture readers use the ordinary stroke.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed mechanism/clock/hand metadata and the original bounded lean-shift table until release. Current frames, targets and wrist observations remain query-local with no new time/pose/fit history or borrowed solver reader retained.
    */
   export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
+    entered: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
+    const routed: operateInsertRoute.IRouted = operateInsertRoute(entered, {
+      reach: REACH,
+      pace: PACE.slide,
+      width: WIDTH.insert,
+    });
+    if (routed.plan !== undefined) return routed.plan;
+    const context: typeof entered = routed.context;
     const body: IAutoMovieMotionHumanBody = context.body;
     const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
       context.params.mechanism;
@@ -155,7 +205,10 @@ export namespace operate {
       AutoMovieMotionManner.of(context, context.params.manner);
     const at: IAutoMovieMotionTarget =
       mechanism.kind === "insert" ? mechanism.into : mechanism.at;
-    const place = context.aim(at, context.start);
+    const place: ReturnType<typeof context.aim> = context.aim(
+      at,
+      context.start,
+    );
 
     // On a prop that articulates, the hand follows the part the prop poses
     // and the operation drives that articulation; a held prop inserted into
@@ -202,7 +255,16 @@ export namespace operate {
     const origin: IAutoMovieMotionHumanArmTarget.IOrigin =
       AutoMovieMotionHumanArm.origin(
         body,
-        poseBones(body, context.entry.pose),
+        poseBones(
+          body,
+          context.entry.pose,
+          undefined,
+          HumanHand.frameBones(
+            body,
+            side,
+            mechanism.kind === "button" ? "indexTip" : "grip",
+          ),
+        ),
         { origin: context.entry.posture.root, yaw: context.entry.posture.yaw },
         side,
         mechanism.kind === "button" ? "indexTip" : "grip",
@@ -230,105 +292,15 @@ export namespace operate {
     const duration: number = clock.duration;
     const base: IAutoMovieMotionHumanActionPlan =
       AutoMovieMotionHumanBase.under(context, duration);
-    const surface: IAutoMovieMotionHumanHand.Surface =
-      mechanism.kind === "button" ? "indexTip" : "grip";
-    const shape: IAutoMovieMotionHumanHand.Shape =
-      mechanism.kind === "button" ? "point" : "relaxed";
-    // The second the stroke reaches a progress, read off the clock's own
-    // progress by bisection until the interval is a float apart, so the part
-    // is taken on its prop where the prop is then (a bow raised while it is
-    // drawn); the stroke's start for the reach before it.
-    const reached = (progress: number): number => {
-      let lo: number = clock.at("strokeStart");
-      let hi: number = clock.at("strokeEnd");
-      if (!(progress > 0)) return lo;
-      if (!(progress < 1)) return hi;
-      for (;;) {
-        const mid: number = (lo + hi) / 2;
-        if (mid === lo || mid === hi) return mid;
-        if (clock.progress("strokeStart", "strokeEnd", mid) < progress)
-          lo = mid;
-        else hi = mid;
-      }
-    };
-    const target = (
-      posture: IAutoMovieMotionHumanPosture,
-      progress: number,
-    ): IAutoMovieMotionHumanArmTarget.ITarget => {
-      if (mechanism.kind === "insert")
-        return operateInsert.target(
-          context,
-          mechanism,
-          inserted!,
-          place,
-          posture,
-          progress,
-        );
-      const now: {
-        point: IAutoMovieVector3;
-        normal: IAutoMovieVector3;
-        roll: number;
-      } =
-        part === undefined
-          ? state(mechanism, place, hinge, progress)
-          : {
-              ...part.place(progress, context.start + reached(progress)),
-              roll: mechanism.kind === "knob" ? mechanism.turn * progress : 0,
-            };
-      const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-      const ahead: IAutoMovieVector3 = HumanFrame.point(
-        { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-        { x: 0, y: 0, z: 1 },
-      );
-      // A grasped part on an upright face is taken with the forearm along
-      // the face's normal: overhand on a handle, the palm on its top and the
-      // fingers hooked over it; on a knob that grasp rolled about the axis
-      // to the forearm's neutral, the palm facing inward, and from there
-      // half the turn back, so the turn is centred in the forearm's
-      // pronation and supination. A lid's knob takes the palm from above.
-      // The knob's roll turns the grasp itself, so the elbow's place is
-      // solved for the hand as it is turned.
-      const upright: boolean =
-        mechanism.kind !== "button" && Math.abs(now.normal.y) < UPRIGHT;
-      const spin = Quaternion.fromAxisAngle(
-        now.normal,
-        mechanism.kind !== "knob"
-          ? 0
-          : (upright ? (side === "left" ? 90 : -90) : 0) +
-              mechanism.turn / 2 -
-              now.roll,
-      );
-      return AutoMovieMotionHumanTarget.hand(
-        body,
-        posture,
-        side,
-        upright
-          ? { point: now.point, normal: Quaternion.rotateVector(spin, up) }
-          : now,
-        {
-          surface,
-          shape,
-          forward:
-            mechanism.kind === "button"
-              ? up
-              : upright
-                ? Quaternion.rotateVector(
-                    spin,
-                    Vector3.scale(
-                      Vector3.normalize(Vector3.cross(up, now.normal)),
-                      side === "left" ? 1 : -1,
-                    ),
-                  )
-                : mechanism.kind === "knob"
-                  ? Quaternion.rotateVector(spin, ahead)
-                  : Quaternion.rotateVector(
-                      Quaternion.fromAxisAngle(up, side === "left" ? -90 : 90),
-                      ahead,
-                    ),
-          curl: mechanism.kind === "button" ? 0 : 40,
-        },
-      );
-    };
+    const hand: ReturnType<typeof operateHand> = operateHand(context, {
+      clock,
+      place,
+      part,
+      hinge,
+      inserted,
+      upright: UPRIGHT,
+    });
+    const target: ReturnType<typeof operateHand>["target"] = hand.target;
 
     // The lean into a part beyond the standing arm.
     const standing: IAutoMovieMotionHumanPosture = base.posture(0);
@@ -338,59 +310,190 @@ export namespace operate {
         standing,
         side,
         share: REACH,
-        wrist: (posture: IAutoMovieMotionHumanPosture, progress: number) => {
-          const goal: IAutoMovieMotionHumanArmTarget.ITarget = target(
-            posture,
-            progress,
-          );
-          return HumanHand.place(
-            body,
-            side,
-            goal.surface,
-            goal.point,
-            goal.rotation,
-            goal.shape,
-          ).point;
-        },
+        // A part below the hips is stooped to, further than a standing reach.
+        limit:
+          place.point.y < body.measure.hipHeight
+            ? operate.STOOP
+            : AutoMovieMotionHumanReach.LEAN_LIMIT,
+        wrist: hand.wrist,
         // The arm on the part at the stroke's start, as the stroke grips it.
         arm: (posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal =>
           AutoMovieMotionHumanArm.goal(body, side, target(posture, 0)),
         refuse: (beyond: number, limit: number): string =>
           `${context.subject}: the ${mechanism.kind} stays ${(1000 * beyond).toFixed(0)} mm beyond the ${side} arm at a lean of ${limit} degrees; a part this far is walked up to first`,
       });
-    // Refuse at plan time a part whose movement leaves the reach.
-    for (let k: number = 0; k <= 8; k++) lean.pitch(standing, k / 8);
-    const composed: IAutoMovieMotionHumanActionPlan =
+    // Refuse at plan time a part whose movement leaves the reach. Over a
+    // carrier the trunk is the carrier's (`overlay`: it claims only the
+    // parts it moves), so the part is worked by the arm alone, and one that
+    // would need a lean is refused there instead of leaned to.
+    const grounded: boolean = context.carrier === undefined;
+    for (let k: number = 0; !grounded && k <= 8; k++) {
+      const needed: number = lean.pitch(standing, k / 8);
+      if (needed > 1e-6)
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "at",
+          value: needed,
+          feasible: { kind: "range", minimum: 0, maximum: 0, unit: "deg" },
+          reason: `${context.subject}: the ${mechanism.kind} needs a lean of ${needed.toFixed(1)} degrees to reach, and the action it is performed over keeps the trunk for itself`,
+          fix: "operate it as an action of its own, or bring the body nearer first",
+        });
+    }
+    const window: HumanPhysics.Window = HumanPhysics.prepare(
+      context.params,
+      operate,
+      context.start,
+      { duration, events: clock.events() },
+      context.instant,
+    );
+    const reachLean: IAutoMovieMotionHumanPrimitive | undefined = grounded
+      ? lean.primitive(clock)
+      : undefined;
+    const corrections: IAutoMovieMotionHumanPrimitive[] = [];
+    if (window !== null) {
+      let trunk: ReturnType<typeof prepareHumanTrunkBalance> | undefined;
+      corrections.push({
+        ...reachLean,
+        channels: reachLean?.channels ?? [
+          window.by === "trunk" ? "trunk" : "root",
+        ],
+        from: reachLean?.from ?? Math.max(0, window.from),
+        to: reachLean?.to ?? Math.min(duration, window.to),
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+          _before?: IAutoMovieMotionHumanPrimitive.Reader,
+          resolution?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[3],
+          projection?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[4],
+        ): IAutoMovieMotionHumanPosture => {
+          posture =
+            reachLean?.write(
+              posture,
+              seconds,
+              _before,
+              resolution,
+              projection,
+            ) ?? posture;
+          const weight: number = HumanPhysics.weightAt(window, seconds);
+          if (weight === 0) return posture;
+          if (window.by === "trunk") {
+            trunk ??= prepareHumanTrunkBalance(body);
+            return trunk(posture, weight, resolution, projection);
+          }
+          const direction: IAutoMovieVector3 = HumanFrame.forward(posture.yaw);
+          const shift: HumanPhysics.SupportOffset = HumanPhysics.supportOffset(
+            HumanBalance.support(body, posture, resolution, projection),
+            direction,
+          );
+          return shift === null || shift === 0
+            ? posture
+            : {
+                ...posture,
+                root: Vector3.addScaled(
+                  posture.root,
+                  direction,
+                  shift * weight,
+                ),
+              };
+        },
+      });
+    }
+    const stroke: IAutoMovieMotionHumanArmPhrase.IStrokeProps & {
+      contact: NonNullable<
+        IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]
+      >;
+    } = {
+      body,
+      clock,
+      side,
+      origin,
+      contact: {
+        kind: "grip",
+        support:
+          mechanism.kind === "insert"
+            ? { kind: "prop", subject: mechanism.prop }
+            : at.kind === "prop"
+              ? { kind: "prop", subject: at.subject, carries: false }
+              : { kind: "ground" },
+      },
+      // The part read at the write's own second: a moving part is
+      // intercepted where it is, from the ready pose on.
+      path: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+        progress: number,
+      ): IAutoMovieMotionHumanArmTarget.ITarget =>
+        target(posture, progress, seconds),
+    };
+    const compose = (
+      arm: IAutoMovieMotionHumanPrimitive,
+    ): IAutoMovieMotionHumanActionPlan =>
       composeAutoMovieMotionHumanAction({
         base,
         clock,
         contact: "strokeEnd",
         primitives: [
-          lean.primitive(clock),
-          AutoMovieMotionHumanArm.stroke({
-            body,
-            clock,
-            side,
-            origin,
-            contact: {
-              kind: "grip",
-              support:
-                mechanism.kind === "insert"
-                  ? { kind: "prop", subject: mechanism.prop }
-                  : at.kind === "prop"
-                    ? { kind: "prop", subject: at.subject }
-                    : { kind: "ground" },
-            },
-            path: (
-              posture: IAutoMovieMotionHumanPosture,
-              _: number,
-              progress: number,
-            ) => target(posture, progress),
-          }),
+          ...(window === null && reachLean !== undefined
+            ? [reachLean]
+            : corrections),
+          arm,
         ],
       });
-    return part === undefined
-      ? composed
-      : { ...composed, drives: [operateDrive.drive(part, clock)] };
+    const contextual: boolean =
+      grounded &&
+      window === null &&
+      mechanism.kind === "button" &&
+      part !== undefined &&
+      createHumanBody.owns(body);
+    const plan: IAutoMovieMotionHumanActionPlan = {
+      ...compose(
+        contextual
+          ? AutoMovieMotionHumanArmPhrase.stroke(
+              stroke,
+              (posture, seconds, progress, trial) =>
+                target(posture, progress, seconds, trial),
+            )
+          : AutoMovieMotionHumanArm.stroke(stroke),
+      ),
+      ...HumanPhysics.declared(context.params, window),
+      ...(part === undefined
+        ? {}
+        : { drives: [operateDrive.drive(part, clock)] }),
+    };
+    if (
+      grounded &&
+      (part === undefined || mechanism.kind === "hinge") &&
+      createHumanBody.owns(body)
+    ) {
+      // A bearing stroke discards its onset elbow. A hinged part still
+      // observes zero progress at the current film second, and an insertion
+      // still validates its starting roll against the current trunk.
+      const prepared: IAutoMovieMotionHumanActionPlan = compose(
+        AutoMovieMotionHumanArmPhrase.preparedStroke(
+          stroke,
+          part !== undefined || mechanism.kind === "insert"
+            ? (posture, seconds): void => {
+                hand.wrist(posture, 0, seconds);
+              }
+            : undefined,
+        ),
+      );
+      const sample: IAutoMovieMotionHumanPlayback.IPhase["sample"] = (
+        ...args
+      ) =>
+        createHumanBody.owns(body)
+          ? { posture: prepared.posture(...args) }
+          : undefined;
+      HumanPreparedPlayback.attach(plan, body, {
+        mode: "posture",
+        phases: [
+          { from: clock.at("strokeStart"), to: clock.at("strokeEnd"), sample },
+          { from: clock.at("strokeEnd"), to: clock.at("relax"), sample },
+          { from: clock.at("relax"), to: duration, sample },
+        ],
+      });
+    }
+    if (contextual) HumanBendRead.starts.set(plan, clock.at("relax"));
+    return plan;
   }
 }

@@ -125,12 +125,12 @@ export function createShotContractSubjectReader(
       return node.pose ?? { skeleton: rig.id, root: null, joints: [] };
     const motion: IAutoMovieMotion | undefined = motions.get(motionId);
     if (motion === undefined) throw new Error(`motion "${motionId}" is absent`);
-    return sampleMotion(
+    return sampleMotion.pose(
       motion,
       performance === undefined
         ? time
         : Math.max(0, time - performance.startOffset),
-    ).pose;
+    );
   }
 
   function transformAt(actor: string, time: number): IAutoMovieTransform {

@@ -7,10 +7,10 @@ import type * as THREE from "three";
 import type { IAutoMovieSectionRenderer } from "../IAutoMovieSectionRenderer.js";
 
 /**
- * What `applyAutoMovieInspection` works on: a built scene, the request, and the two things only the caller holds.
+ * The built scene, request, and inputs supplied by the subject and renderer for `applyAutoMovieInspection`.
  *
- * @evidence contracts/development/design.md#principled-representation The scene and the request are the whole input of a picture; marks exist only where an owner supplies findings or construction, and a renderer only where WebGL draws, so both are optional.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, each owned elsewhere: the scene by its builder, the request by its parser, the marks by their producers and the clipping switch by the renderer.
+ * @evidence contracts/development/design.md#principled-representation A built scene and request define a picture. Supplied marks contain the current frame's geometry, lifetime kind declarations admit selection independent of that geometry, and the renderer supplies the optional clipping switch.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The subject supplies mark geometry and its declaration, the builder owns the scene, the parser owns the request and the renderer owns its clipping switch.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A handle may serve multiple views/frames only while its concrete inspected objects remain. Marks on those objects update through the handle; replacing the object graph requires restoring it and applying a new inspection.
  * @evidence contracts/development/common.md#meaningful-documentation Each member states who supplies it and what its absence means.
  */
@@ -26,9 +26,12 @@ export interface IApplyAutoMovieInspectionProps {
   request: IAutoMovieInspectionRequest;
 
   /**
-   * Marks the scene's owners supply for its current state, such as construction curves, joints or contacts. Their kinds, with the kinds the inspection measures itself, are what the request's `marks` patterns may name. Absent, only measured kinds exist.
+   * Mark geometry and styles supplied by the scene's owners for its current state. Absent when the frame supplies none.
    */
   marks?: readonly IAutoMovieMark[];
+
+  /** Kind names the subject declares for its lifetime. Admission also includes supplied and measured kinds. Current marks provide geometry and styles. */
+  markKinds?: readonly string[];
 
   /**
    * The WebGL renderer drawing the scene, whose local clipping a section needs switched on. Absent, a section sets the planes on the materials and a renderer must have local clipping on to honour them.

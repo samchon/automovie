@@ -21,8 +21,11 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * - `jump`: the displacement that is still there when the interval around it
  *   is `1 / (rate * 4^LEVELS)` long ({@link resolve}). At 24 Hz that is 41
  *   microseconds, in which a joint at 100 m/s covers 4 mm. A frame interval is
- *   resolved when some joint's displacement over it departs from the mean of
- *   its two neighbours' by more than the limit.
+ *   resolved when some joint's displacement over it departs by more than the
+ *   limit from the one the quadratic through the two displacements on each
+ *   side predicts (from the mean of its two neighbours' within two intervals
+ *   of an end): a smooth path departs from it by its fourth derivative, a
+ *   step by the step.
  * - `reversal`: a joint that goes out and straight back within two
  *   intervals of `1 / REVERSAL` seconds, read as the shorter of the two
  *   displacements times the cosine of their opposition. A fit that flips for
@@ -31,14 +34,17 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  *   coarser grid a stroke that oscillates by design (a rub, a wave) would go
  *   out and back within two intervals, so a turn found on the coarse grid is
  *   read again on intervals of that length across its two.
- * - `speed`: the fastest any joint centre travels over a grid interval,
- *   metres per second, the bound a caller sets from the action (a hand
- *   raised to the face does not reach a punch's speed).
+ * - `speed`: the fastest any joint centre travels relative to the hips over
+ *   a grid interval, metres per second, the bound a caller sets from the
+ *   action (a hand raised to the face does not reach a punch's speed). The
+ *   hips carry the body's bulk motion, so a body carried, falling or riding
+ *   as a whole reads only its own limbs' speed; a pop of the whole body is
+ *   the `jump`'s to read.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the premise, each reading, its unit and what the resolution reaches.
  * @evidence contracts/development/implementation.md#principled-implementation The definition of continuity applied directly: over equal sub-intervals a smooth path's displacements differ by acceleration times the interval squared, which vanishes sixteenfold per quartering, while a step keeps its size.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the grid for the three readings, one recursive quartering per departing interval.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones only; no bone, action or instant is exempt, and every bone is followed, so a small flip is not hidden by a faster limb.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones only; no bone, action or instant is exempt, and every bone is followed, so a small flip is not hidden by a faster limb; the speed subtracts only the hips' own displacement, which the jump still reads.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in grid frames and bones; a quartering costs three poses a level and is entered only where a displacement departs from its neighbours, and a turn on a grid coarser than `REVERSAL` costs the poses of its two intervals at that rate, read once per grid instant and only where the grid's own reading exceeds the worst found.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the motion handed in.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -100,21 +106,60 @@ export namespace AutoMovieMotionHumanAuditContinuity {
       }
       return found;
     };
-    const step = (i: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
-      subtract(frames[i + 1]!.get(bone)!, frames[i]!.get(bone)!);
     for (let i: number = 0; i + 1 < times.length; i++) {
       let departs: boolean = false;
+      // The body's bulk motion over the interval, read at the hips.
+      const hipsHere: IAutoMovieVector3 | undefined = frames[i]!.get("hips");
+      const hipsNext: IAutoMovieVector3 | undefined =
+        frames[i + 1]!.get("hips");
+      const hx: number =
+        hipsHere === undefined || hipsNext === undefined
+          ? 0
+          : hipsNext.x - hipsHere.x;
+      const hy: number =
+        hipsHere === undefined || hipsNext === undefined
+          ? 0
+          : hipsNext.y - hipsHere.y;
+      const hz: number =
+        hipsHere === undefined || hipsNext === undefined
+          ? 0
+          : hipsNext.z - hipsHere.z;
       for (const bone of frames[i]!.keys()) {
-        const now: IAutoMovieVector3 = step(i, bone);
-        const before: IAutoMovieVector3 = i > 0 ? step(i - 1, bone) : now;
-        const after: IAutoMovieVector3 =
-          i + 2 < times.length ? step(i + 1, bone) : now;
-        const speed: number = length(now) / (times[i + 1]! - times[i]!);
+        // This interval's displacement, the one before and the one after (this
+        // one's at either end of the motion), a component each: the numbers
+        // the vector forms gave, without a record per displacement.
+        const here: IAutoMovieVector3 = frames[i]!.get(bone)!;
+        const next: IAutoMovieVector3 = frames[i + 1]!.get(bone)!;
+        const nx: number = next.x - here.x;
+        const ny: number = next.y - here.y;
+        const nz: number = next.z - here.z;
+        let bx: number = nx;
+        let by: number = ny;
+        let bz: number = nz;
+        if (i > 0) {
+          const last: IAutoMovieVector3 = frames[i - 1]!.get(bone)!;
+          bx = here.x - last.x;
+          by = here.y - last.y;
+          bz = here.z - last.z;
+        }
+        let ax: number = nx;
+        let ay: number = ny;
+        let az: number = nz;
+        if (i + 2 < times.length) {
+          const far: IAutoMovieVector3 = frames[i + 2]!.get(bone)!;
+          ax = far.x - next.x;
+          ay = far.y - next.y;
+          az = far.z - next.z;
+        }
+        const travelled: number = Math.hypot(nx, ny, nz);
+        const speed: number =
+          Math.hypot(nx - hx, ny - hy, nz - hz) / (times[i + 1]! - times[i]!);
         if (speed > result.speed.value)
           result.speed = { value: speed, seconds: times[i]!, where: bone };
         const coarse: number =
           i + 2 < times.length
-            ? -dot(now, after) / Math.max(length(now), length(after))
+            ? -(nx * ax + ny * ay + nz * az) /
+              Math.max(travelled, Math.hypot(ax, ay, az))
             : 0;
         if (coarse > result.reversal.value && coarse <= floor)
           result.reversal = {
@@ -152,12 +197,30 @@ export namespace AutoMovieMotionHumanAuditContinuity {
               };
           }
         }
-        if (
-          length({
-            x: now.x - (before.x + after.x) / 2,
-            y: now.y - (before.y + after.y) / 2,
-            z: now.z - (before.z + after.z) / 2,
-          }) > limit
+        if (i >= 2 && i + 3 < times.length) {
+          // Away from the ends, the displacement is predicted from the two
+          // on each side by the quadratic through them, exact for any path
+          // whose third derivative is constant: a smooth joint departs from
+          // it by its fourth derivative times the interval to the fourth,
+          // while a step departs by the step, so smooth fast motion (a
+          // rider on a trot) is not quartered for nothing.
+          const before: IAutoMovieVector3 = frames[i - 2]!.get(bone)!;
+          const after: IAutoMovieVector3 = frames[i + 3]!.get(bone)!;
+          const last: IAutoMovieVector3 = frames[i - 1]!.get(bone)!;
+          const far: IAutoMovieVector3 = frames[i + 2]!.get(bone)!;
+          const px: number =
+            (-(last.x - before.x) + 4 * bx + 4 * ax - (after.x - far.x)) / 6;
+          const py: number =
+            (-(last.y - before.y) + 4 * by + 4 * ay - (after.y - far.y)) / 6;
+          const pz: number =
+            (-(last.z - before.z) + 4 * bz + 4 * az - (after.z - far.z)) / 6;
+          if (Math.hypot(nx - px, ny - py, nz - pz) > limit) departs = true;
+        } else if (
+          Math.hypot(
+            nx - (bx + ax) / 2,
+            ny - (by + ay) / 2,
+            nz - (bz + az) / 2,
+          ) > limit
         )
           departs = true;
       }
@@ -253,27 +316,34 @@ const quarter = (
     last,
   ];
   const departures: number[] = [0, 0, 0, 0];
+
+  // One joint's four displacements, a component each, written anew for every
+  // joint: the differences, their sums and each departure are the numbers the
+  // vector forms gave, without a record per displacement.
+  const dx: number[] = [0, 0, 0, 0];
+  const dy: number[] = [0, 0, 0, 0];
+  const dz: number[] = [0, 0, 0, 0];
   for (const bone of first.keys()) {
-    const steps: IAutoMovieVector3[] = [0, 1, 2, 3].map(
-      (k: number): IAutoMovieVector3 =>
-        subtract(frames[k + 1]!.get(bone)!, frames[k]!.get(bone)!),
-    );
-    const sum: IAutoMovieVector3 = {
-      x: steps[0]!.x + steps[1]!.x + steps[2]!.x + steps[3]!.x,
-      y: steps[0]!.y + steps[1]!.y + steps[2]!.y + steps[3]!.y,
-      z: steps[0]!.z + steps[1]!.z + steps[2]!.z + steps[3]!.z,
-    };
+    let earlier: IAutoMovieVector3 = frames[0]!.get(bone)!;
     for (let k: number = 0; k < 4; k++) {
-      const s: IAutoMovieVector3 = steps[k]!;
+      const later: IAutoMovieVector3 = frames[k + 1]!.get(bone)!;
+      dx[k] = later.x - earlier.x;
+      dy[k] = later.y - earlier.y;
+      dz[k] = later.z - earlier.z;
+      earlier = later;
+    }
+    const sumX: number = dx[0]! + dx[1]! + dx[2]! + dx[3]!;
+    const sumY: number = dy[0]! + dy[1]! + dy[2]! + dy[3]!;
+    const sumZ: number = dz[0]! + dz[1]! + dz[2]! + dz[3]!;
+    for (let k: number = 0; k < 4; k++)
       departures[k] = Math.max(
         departures[k]!,
-        length({
-          x: s.x - (sum.x - s.x) / 3,
-          y: s.y - (sum.y - s.y) / 3,
-          z: s.z - (sum.z - s.z) / 3,
-        }),
+        Math.hypot(
+          dx[k]! - (sumX - dx[k]!) / 3,
+          dy[k]! - (sumY - dy[k]!) / 3,
+          dz[k]! - (sumZ - dz[k]!) / 3,
+        ),
       );
-    }
   }
   const largest: number = Math.max(...departures);
   for (let k: number = 0; k < 4; k++) {

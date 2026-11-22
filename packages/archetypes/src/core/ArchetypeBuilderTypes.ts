@@ -39,13 +39,16 @@ export namespace ArchetypeBuilderTypes {
    * How one part differs from a grey solid of unit density at its unrotated place.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation How one part departs from a grey solid of unit density: an sRGB swatch, a positive relative density or an absolute mass share, and a unit quaternion.
+   * @evidence contracts/development/design.md#principled-representation Optical swatch and proxy opacity, followed by positive relative density or absolute mass share, rigid rotation and physical surface.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the builder; each member is read when a part is recorded and set by at least one producer.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Density and share are two optional members, not a union: a looseness that remains, bounded by the rule on `share` that a producer stating one states it for every part.
    */
   export interface IOptions {
     /** The part's flat colour as an sRGB swatch `#rrggbb`; a mid grey when absent. */
     color?: string;
+
+    /** Zero for an explicitly transparent collision and mass proxy. The default surface is opaque. */
+    opacity?: 0;
 
     /** The part's density relative to the other parts, positive; 1 when absent. It only shifts the centre of mass and inertia, since the total mass is stated. */
     density?: number;

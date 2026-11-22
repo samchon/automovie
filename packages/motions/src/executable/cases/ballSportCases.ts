@@ -13,6 +13,7 @@ import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
+import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
@@ -60,7 +61,7 @@ export function ballSportCases(
       "dig",
       "set",
       "throwIn",
-    ] as IAutoMovieMotionHumanBallSport.Kind[]) {
+    ] as const satisfies readonly IAutoMovieMotionHumanBallSport.Kind[]) {
       const name: string = `team-ball-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
       try {
@@ -78,18 +79,7 @@ export function ballSportCases(
           composition: HumanChain.subject("a").act("ballSport", { kind }).node,
         });
       } catch (error) {
-        out.push({
-          name,
-          times: [{ seconds: 0, label: "refused" }],
-          performers: [],
-          verdicts: [
-            {
-              name: "planned",
-              passed: false,
-              detail: (error as Error).message,
-            },
-          ],
-        });
+        out.push(FamilyCaseKit.refused(name, error));
         continue;
       }
       const ready: number = TouchVerdicts.event(performance, "a", "ready");

@@ -17,14 +17,14 @@ import type {
  * behind the neck; ankle drag, on the back, pulled feet first by both
  * ankles.
  *
- * First pass: the dragger does not stoop or lean against the load
- * (`bearing` claims the arms only), so the collar and the ankles are held
- * at the height straight arms reach standing, higher than a stooped
- * rescuer holds them; a carry rests one region on one region, so the collar
- * drag's neck lies before the dragger's left thigh and the ankle drag's
- * left calf before the right one, off the midline by half the hips; the
- * dragged body is rigid and its trailing part is not laid on the floor by a
- * contact solve.
+ * First pass: the dragger stoops and lowers only as far as its arms need to
+ * reach the holds (`HumanCarriedCouplingFit`), so the collar and the ankles
+ * are held higher than a rescuer dragging on bent knees holds them; a carry
+ * rests one region on one region, so the collar drag's neck lies before the
+ * dragger's left thigh and the ankle drag's left calf before the right one,
+ * off the midline by half the hips; the dragged body is rigid, and its
+ * lowest region bears on the floor as a contact (`HumanCarriedCoupling`)
+ * without being laid on it by a contact solve.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three drags, the source of their descriptions and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation Rows of the carry table, so a drag is data over the two carry laws.

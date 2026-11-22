@@ -138,7 +138,6 @@ export function test_construction_conic_field(): void {
     ConstructionConicFieldBoundary.moving(boundary),
   );
   ask("explicit copy and failure", (): void => copies(failures));
-  ask("component costs", (): void => costs());
   if (failures.length !== 0)
     throw new Error(
       `${failures.length} native field findings:\n${failures.join("\n")}`,
@@ -460,35 +459,4 @@ function copies(failures: string[]): void {
     if (result.kind !== "failure")
       failures.push("Malformed or unavailable source 2-jets did not fail");
   }
-}
-
-/** Component-only preparation and phase timings have no f1/world/whole-surface speed claim. */
-function costs(): void {
-  const start: number = performance.now();
-  const r: Scalar = [Math.SQRT2 - 1, 0, 0];
-  const at: Prepared = prepared(
-    [
-      [3, 1, 2],
-      [2, 0.5, 0],
-      [3, 1, 2],
-      [2, 0.5, 0],
-    ],
-    [r, r, r, r],
-  );
-  const preparedAt: number = performance.now();
-  const first: IAutoMovieViewSectionField.IRadialJet = radial(at, 0.37);
-  const firstAt: number = performance.now();
-  let checksum: number = first[0];
-  for (let i: number = 0; i < 1024; i++)
-    checksum += radial(at, (i * 2 * Math.PI) / 1024)[0];
-  console.log({
-    nativeFieldComponentCosts: {
-      prepareMs: preparedAt - start,
-      firstPhaseMs: firstAt - preparedAt,
-      phases1024Ms: performance.now() - firstAt,
-      checksum,
-    },
-    scope:
-      "one synthetic component observation; no frame/lift/relief or f1 budget",
-  });
 }

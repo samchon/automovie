@@ -1,3 +1,4 @@
+import type { IAutoMovieColor } from "../color/IAutoMovieColor";
 import type { IAutoMovieHeightRule } from "../geometry/IAutoMovieHeightRule";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMovieSurfaceKind } from "./AutoMovieSurfaceKind";
@@ -5,16 +6,16 @@ import type { AutoMovieSurfaceKind } from "./AutoMovieSurfaceKind";
 /**
  * One standable surface patch of a space: the semantic ground the engine queries where it previously assumed a single scalar plane.
  *
- * One outer XZ ring with optional holes defines the footprint, and one height representation defines support over it. Visible set geometry remains a separately authored model; this surface states where feet and props can rest rather than prescribing that model's shape.
+ * One outer XZ ring with optional holes defines the footprint, and one height representation defines support over it. A patch may supply its own opaque surface color when it defines the visible ground. A patch without color supplies semantic support and structural guides, so a separately authored model can own the visible floor.
  *
  * **A surface states its ground exactly one way.** Either the general {@link height} rule, which is the same rule a production world's terrain carries, or the two-anchor spelling below, which says the same thing for the flat and single-plane cases and is what every space authored before relief existed says. Stating both, or neither, is refused by `validateSpace`: a patch with two heights is a patch whose feet and whose renderer can disagree, which is the whole failure this record exists to prevent.
  *
  * **The ground over a footprint is single-valued, and that is a stated limit rather than an omission.** An overhanging balcony soffit, a vertical face, and a ramp that spirals over its own lower flight all have two heights at one plan position, and no {@link height} rule can say two. They are not approximated into one patch here: the ground query answers the topmost patch over a plan point, so a lower patch directly beneath another is ground nothing can be placed on. Author the flights as separate spaces, and read multi-valued ground as unsupported rather than as relief that came out flat.
  *
  * @evidence contracts/development/design.md#principled-representation A closed simple outer XZ ring with optional interior holes and exactly one height representation defines support; shared constant/plane/bilinear height laws and legacy anchors produce the same single-valued ground query.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Semantic label remains independent from footprint and height, while explicit void rings express one slab without splitting its support ownership into neighbouring patches.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Semantic label remains independent from footprint and height, while explicit void rings express one slab without splitting its support ownership into neighbouring patches. Color opts the same mesh into beauty rendering. An optional shot-local opening time affects scoped support eligibility alone.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Conflicting or missing height statements refuse; hole rims belong to the closed slab and invalid rings refuse. The gate requires absolute double plan area above 1e-9 square metres and legacy squared ramp span at least 1e-9 square metres. Finite fields do not guarantee finite derived heights, and multi-valued ground and true curved footprints remain unsupported.
- * @evidence contracts/development/common.md#meaningful-documentation Defines XZ and ignored-y ownership, concavity and hole rules, mutually exclusive height/anchor spelling and single-valued-ground limitations.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines XZ and ignored-y ownership, concavity and hole rules, mutually exclusive height/anchor spelling, opaque color, scoped availability time and single-valued-ground limitations.
  */
 export interface IAutoMovieSurface {
   /** Stable id; `IAutoMovieSpace.walkable` cites surfaces by this. */
@@ -51,6 +52,21 @@ export interface IAutoMovieSurface {
    * Present requires anchor to be absent and rampTo to be absent or null. Without this rule, an anchor is required and an optional nonnull rampTo defines its slope.
    */
   height?: IAutoMovieHeightRule;
+
+  /**
+   * Optional opaque linear RGB for the tessellated patch in beauty frames.
+   *
+   * Alpha is null or one. Omission preserves the guide-only support mesh.
+   */
+  color?: IAutoMovieColor;
+
+  /**
+   * Inclusive shot-local second at which this patch becomes eligible for a
+   * scoped performer crossing. A generated doorway sets this from its open
+   * leaf clearance. Omission leaves a scoped patch eligible throughout.
+   * Timeless height and rendering queries continue to read the geometry.
+   */
+  availableFrom?: number;
 
   /**
    * Height anchor: standing at this point's `(x, z)`, the surface height is its `y`. For a flat patch this is the height everywhere on the polygon.

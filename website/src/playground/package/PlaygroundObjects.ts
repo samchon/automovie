@@ -1,8 +1,15 @@
-import type { IAutoMovieMotionHumanProp } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanAidWalk,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+import { HumanAidWalk, HumanObject } from "@automovie/motions";
 import * as motions from "@automovie/motions";
 
 import { SceneArchetype } from "../../scenes/package/SceneArchetype";
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
+import { playgroundAidWalkAction } from "./playgroundAidWalkAction";
+import { playgroundVehicleCourse } from "./playgroundVehicleCourse";
 
 /**
  * The archetypes a composition places, as the props and seats its actions
@@ -23,10 +30,32 @@ export namespace PlaygroundObjects {
       subject: string,
       model: object,
       placement: IPlacement,
+      motion?: (seconds: number) => IPlacement,
+      contact?: (id: string, seconds: number) => IAutoMovieTransform,
+      tracks?: readonly IAutoMovieMotionHumanProp.ITrack[],
     ): IAutoMovieMotionHumanProp;
 
     /** The seat of a model placed in the world. */
     seat(model: object, placement: IPlacement, id?: string): unknown;
+  }
+
+  /** The staged pair `HumanSheath.of` returns, as this module reads it. */
+  interface IStaging {
+    /** The carrier with its seat and entry. */
+    carrier: IAutoMovieMotionHumanProp;
+
+    /** The blade mounted on the seat. */
+    blade: IAutoMovieMotionHumanProp;
+  }
+
+  /** `HumanSheath` as this module calls it, present only where the installed package has it. */
+  interface IHumanSheath {
+    /** Seat a blade in its carrier. */
+    of(
+      carrier: IAutoMovieMotionHumanProp,
+      blade: IAutoMovieMotionHumanProp,
+      params: Omit<IPlaygroundComposition.ISheath, "carrier">,
+    ): IStaging;
   }
 
   /** A placement as `HumanObject.Placement` takes it: a heading on a floor point, or a world frame, either as a fixture or not. */
@@ -56,28 +85,87 @@ export namespace PlaygroundObjects {
    * The props of a composition's objects.
    *
    * @param objects The placed objects.
+   * @param performers The performers who author floor-aid routes.
+   * @param gaits Receives each ridden animal's own gait changes as the cue track `<subject>:gaits`.
    * @returns One prop per object; undefined when there are none.
    * @throws {Error} When objects are placed but the installed package cannot place them, or a producer is not exported.
    */
   export function props(
     objects: readonly IPlaygroundComposition.IObject[],
+    performers: readonly IPlaygroundComposition.IPerformer[],
+    gaits: Record<string, IPlaygroundComposition.ICue[]> = {},
   ): IAutoMovieMotionHumanProp[] | undefined {
     if (objects.length === 0) return undefined;
     const human: IHumanObject = attach();
     // An object worn at the start rides the wearer's bone until a hand
     // draws it, as `IAutoMovieMotionHumanProp.worn` says.
-    return objects.map(
+    const made: IAutoMovieMotionHumanProp[] = objects.map(
       (object: IPlaygroundComposition.IObject): IAutoMovieMotionHumanProp => {
-        const made: IAutoMovieMotionHumanProp = human.prop(
+        const rest: SceneArchetype.Model = SceneArchetype.model(object);
+        const travel: playgroundVehicleCourse.ICourse | undefined =
+          playgroundVehicleCourse(object, rest);
+        if (travel !== undefined && travel.gaits.length > 0)
+          gaits[`${object.subject}:gaits`] = travel.gaits;
+        const placed: IPlacement = placement(object);
+        const aid: IAutoMovieMotionHumanAidWalk | undefined =
+          playgroundAidWalkAction(object, performers);
+        if (
+          aid !== undefined &&
+          (travel !== undefined || object.fixed || object.worn)
+        )
+          throw new Error(
+            "A floor aid must be a movable placed prop with one route.",
+          );
+        const prop: IAutoMovieMotionHumanProp = human.prop(
           object.subject,
-          model(object),
-          placement(object),
+          rest,
+          placed,
+          aid === undefined
+            ? travel?.placement
+            : HumanAidWalk.track(HumanObject.frame(placed), aid),
+          travel?.contact,
+          travel?.tracks,
         );
         return object.worn === undefined
-          ? made
-          : ({ ...made, worn: object.worn } as IAutoMovieMotionHumanProp);
+          ? prop
+          : ({ ...prop, worn: object.worn } as IAutoMovieMotionHumanProp);
       },
     );
+
+    // A blade seated in a carrier object is staged with it by `HumanSheath`,
+    // which adds the carrier's seat and entry and mounts the blade.
+    objects.forEach(
+      (object: IPlaygroundComposition.IObject, index: number): void => {
+        if (object.sheath === undefined) return;
+        const carrier: number = objects.findIndex(
+          (o: IPlaygroundComposition.IObject): boolean =>
+            o.subject === object.sheath!.carrier,
+        );
+        if (carrier < 0)
+          throw new Error(
+            `The blade ${object.subject} is sheathed in ${object.sheath.carrier}, which the composition does not place`,
+          );
+        const staged: IStaging = sheath().of(made[carrier]!, made[index]!, {
+          mouth: object.sheath.mouth,
+          tip: object.sheath.tip,
+          handle: object.sheath.handle,
+          clearance: object.sheath.clearance,
+        });
+        made[carrier] = staged.carrier;
+        made[index] = staged.blade;
+      },
+    );
+    return made;
+  }
+
+  /** `HumanSheath`, or the reason it cannot be used. */
+  function sheath(): IHumanSheath {
+    const found: unknown = MOTIONS["HumanSheath"];
+    if (typeof found !== "object" || found === null)
+      throw new Error(
+        "The installed @automovie/motions has no HumanSheath, so a blade cannot start in its carrier yet",
+      );
+    return found as IHumanSheath;
   }
 
   /**

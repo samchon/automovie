@@ -1,64 +1,102 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactElement } from "react";
+import {
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+  useState,
+} from "react";
 
+import { BakedClient } from "../../baked/BakedClient";
 import type { SceneClock } from "../../scenes/SceneClock";
 import { SceneFacts } from "../../scenes/SceneFacts";
 import type { IScene } from "../../scenes/structures/IScene";
 import type { IScenePlayer } from "../../scenes/structures/IScenePlayer";
 import { SceneView } from "./SceneView";
-import { prefersReducedMotion } from "./prefersReducedMotion";
 import { useSceneClock } from "./useSceneClock";
 
 /**
- * One scene in the gallery: its first take playing, its title, who and what
- * is in it, and a link to its page. A visitor who asked for reduced motion
- * sees a held frame that plays only while the card is hovered or focused.
+ * One scene in the gallery: its still, its title, what happens and who is in
+ * it, linking to its page. Pointing at the card or focusing it plays the
+ * scene's baked take in 3D in place of the still, and leaving it lets the
+ * view go, so a page of cards draws only the one the visitor looks at.
  *
- * The link is named by the title alone: the view and its notes are
- * decoration inside it. A scene its record marks refused says so under the
- * link, from the record, so the card tells it without the view.
+ * The link is named by the title alone; the still and the view are
+ * decoration inside it.
  *
- * @param props The scene.
+ * @param props The scene and whether its first take was baked.
  * @returns The card.
  */
-export function SceneCard(props: { scene: IScene }): ReactElement {
+export function SceneCard(props: {
+  scene: IScene;
+  baked: boolean;
+  /** The baked take's length, seconds; absent when it was not baked. */
+  seconds?: number;
+}): ReactElement {
   const { scene }: typeof props = props;
-  const clock: SceneClock = useSceneClock();
-  const hold: (playing: boolean) => void = (playing: boolean): void => {
-    if (!prefersReducedMotion() || clock.playing === playing) return;
-    clock.toggle();
-  };
+  const [live, setLive]: [boolean, Dispatch<SetStateAction<boolean>>] =
+    useState<boolean>(false);
+  const poster: string = BakedClient.address("scene", scene.id, "svg");
   return (
     <li
       className="am-scene-card"
-      onPointerEnter={(): void => hold(true)}
-      onPointerLeave={(): void => hold(false)}
-      onFocus={(): void => hold(true)}
-      onBlur={(): void => hold(false)}
+      onPointerEnter={(): void => setLive(true)}
+      onPointerLeave={(): void => setLive(false)}
+      onFocus={(): void => setLive(true)}
+      onBlur={(): void => setLive(false)}
     >
       <Link href={`/scenes/${scene.id}/`} className="am-scene-card-link">
-        <SceneView
-          scene={scene}
-          take={0}
-          clock={clock}
-          decorative
-          onLoad={(player: IScenePlayer): void => {
-            clock.duration = player.duration;
-            clock.fps = player.fps;
-          }}
-        />
+        <span className="am-scene-card-view">
+          {props.baked ? (
+            <img
+              src={poster}
+              alt=""
+              width={480}
+              height={360}
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <span className="am-scene-card-blank" aria-hidden="true" />
+          )}
+          {live ? (
+            <LiveTake scene={scene} baked={props.baked} poster={poster} />
+          ) : null}
+        </span>
         <span className="am-scene-card-title">{scene.title}</span>
       </Link>
-      <span className="am-scene-card-facts am-muted">
-        {SceneFacts.counts(scene)}
+      <span className="am-scene-card-summary">{scene.summary}</span>
+      <span className="am-scene-card-facts">
+        {SceneFacts.counts(scene, props.seconds)}
       </span>
-      {scene.refusedUntil === undefined ? null : (
-        <span className="am-scene-card-facts am-muted">
-          The packages refuse it until #{scene.refusedUntil} lands.
-        </span>
-      )}
     </li>
+  );
+}
+
+/** The scene's first take, playing over the still while the card is pointed at. */
+function LiveTake(props: {
+  scene: IScene;
+  baked: boolean;
+  /** The baked take's length, seconds; absent when it was not baked. */
+  seconds?: number;
+  poster: string;
+}): ReactElement {
+  const clock: SceneClock = useSceneClock();
+  return (
+    <span className="am-scene-card-live">
+      <SceneView
+        scene={props.scene}
+        take={0}
+        clock={clock}
+        decorative
+        baked={props.baked ? "scene" : undefined}
+        poster={props.baked ? props.poster : undefined}
+        onLoad={(player: IScenePlayer): void => {
+          clock.duration = player.duration;
+          clock.fps = player.fps;
+        }}
+      />
+    </span>
   );
 }

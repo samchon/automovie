@@ -1,167 +1,37 @@
-import { Vector3 } from "@automovie/engine";
-
-import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
-} from "../core";
-
-/** The ice hockey stick read. */
-const IIHF: string =
-  "IIHF Official Rule Book 2026/27, Rule 10.1: no stick longer than 1.63 m from the heel to the end of the shaft, the blade at most 32.0 cm from the heel and 5.0 to 7.6 cm wide (https://test.rulebook.iihf.com/documents/rule-book-2026-27/10); the shaft at most 3 cm wide and 2.5 cm thick in the older Rule 222 (https://stats.iihf.com/hockey/rules/img/sec2.pdf)";
-
-/** The field hockey stick read. */
-const FIH: string =
-  "FIH Rules of Hockey 2026, stick specifications 2.17 and 2.18: at most 105 cm from the top of the handle to the bottom of the head, at most 737 g, passing through a ring of 51 mm inside diameter; the head's open end limited by line C, 100 mm above line X (2.2, 2.8) (https://www.fih.hockey/static-assets/pdf/fih-Rules-of-hockey-2026-final.pdf)";
-
-/** The cricket bat read. */
-const MCC: string =
-  "MCC Laws of Cricket, 2017 Code 3rd Edition 2022, Law 5, bat size limits: overall length at most 38 in (96.52 cm), width 4.25 in (10.8 cm), depth 2.64 in (6.7 cm), edges 1.56 in (4.0 cm), the handle at most 52% of the overall length (https://www.lords.org/getmedia/81bd1d01-c7e7-42f6-ac70-80473a050c32/Laws-of-Cricket-2017-Code-3rd-Edition-2022_1.docx)";
-
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `blade`, an ice hockey blade's thickness; `toe`, a field hockey head's length along `X`; `handle`, a cricket bat handle's diameter. */
-const ESTIMATES: Readonly<{ blade: number; toe: number; handle: number }> = {
-  blade: 0.015,
-  toe: 0.1,
-  handle: 0.035,
-};
-
-/** The readable name of each kind. */
-const NAMES: Readonly<Record<createStick.Kind, string>> = {
-  iceHockey: "ice hockey stick",
-  fieldHockey: "field hockey stick",
-  cricketBat: "cricket bat",
-};
+import { type Archetype, ArchetypeDraw } from "../core";
+import { StickBuild } from "./StickBuild";
+import { createCricketBat } from "./createCricketBat";
+import { createFieldHockeyStick } from "./createFieldHockeyStick";
+import { createIceHockeyStick } from "./createIceHockeyStick";
+import { createLacrosseCrosse } from "./createLacrosseCrosse";
 
 /**
- * A stick or a bat of a game: an ice hockey stick, a field hockey stick or a cricket bat.
+ * Reads a saved stick recipe using its canonical producer.
  *
- * It stands upright on its striking end at the origin, its shaft straight up along `+Y` and its striking face toward `+Z`: an ice hockey blade runs from the heel at the origin along `+X` on the floor, a field hockey head sits under the shaft, a cricket bat's blade stands on its toe. `grip` is where both hands hold it: an ice hockey or field hockey stick's whole shaft above its blade or head, a cricket bat's handle. `blade` is the striking face, its `+Y` out of it.
+ * @param params The saved kind, optional identifier and any dimensions or choices the author supplied.
+ * @param seed The seed used by the selected producer.
+ * @returns The original model and its contacts.
+ * @throws {ArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
- * @returns The stick.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the stick stands, its two contacts and where each kind strikes.
- * @evidence contracts/development/implementation.md#principled-implementation Each kind at its rule's limits: the IIHF stick's length, blade and shaft section, the FIH stick's length, head height and ring diameter, the MCC bat's length, blade section and handle share.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the kind's striking end and shaft, then the two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shaft stands square on the blade or head, with no lie angle or curve; the field hockey head is a block, not a J; the blade's thickness, the head's toe and the bat handle's diameter are construction estimates.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the saved input and selected model.
+ * @evidence contracts/development/implementation.md#principled-implementation Admit the saved kind and use its producer's bands and original seed domain.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the kind and call the corresponding public producer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The selected producer still validates the original dimensions and choices.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed kind table selects the producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls use the same construction.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
  */
 export function createStick(
   params: createStick.IParams,
   seed?: number | string,
 ): Archetype<createStick.Affordance, createStick.Dimension> {
-  const draw: ArchetypeDrawSession<createStick.Dimension> =
-    new ArchetypeDrawSession<createStick.Dimension>(
-      "stick",
-      createStick.UNITS,
-      seed,
-      params,
-    );
   const kind: createStick.Kind = ArchetypeDraw.choice(
     "stick",
     "kind",
     params.kind,
     createStick.KINDS,
   );
-  const d: Partial<Record<createStick.Dimension, number>> = draw.dimensions(
-    createStick.BANDS[kind],
-    createStick.BANDS,
-  );
-  const builder: ArchetypeBuilder<
-    createStick.Affordance,
-    createStick.Dimension
-  > = new ArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name: NAMES[kind],
-    draw,
-  });
-  const v: typeof Vector3.create = Vector3.create;
-  const E: typeof ESTIMATES = ESTIMATES;
-  const length: number = d.length!;
-  const head: number = d.head!;
-  const width: number = d.width!;
-  const depth: number = d.depth!;
-  let face: ReturnType<typeof Vector3.create>;
-  let faceWidth: number;
-  let gripLength: number;
-  let aperture: number | undefined;
-  if (kind === "iceHockey") {
-    builder.box(
-      "blade",
-      v(d.reach!, head, E.blade),
-      v(d.reach! / 2, head / 2, 0),
-      {
-        color: "#1d1d1d",
-      },
-    );
-    builder.box(
-      "shaft",
-      v(width, length - head, depth),
-      v(0, (length + head) / 2, 0),
-      {
-        color: "#d8d8d8",
-      },
-    );
-    face = v(d.reach! / 2, head / 2, E.blade / 2);
-    faceWidth = d.reach!;
-    gripLength = length - head;
-    aperture = depth;
-  } else if (kind === "fieldHockey") {
-    builder.box("head", v(E.toe, head, width), v(0, head / 2, 0), {
-      color: "#2b5797",
-    });
-    builder.rod("shaft", width / 2, v(0, head, 0), v(0, length, 0), {
-      color: "#2b5797",
-    });
-    face = v(0, head / 2, width / 2);
-    faceWidth = E.toe;
-    gripLength = length - head;
-    aperture = width;
-  } else {
-    builder.box("blade", v(width, head, depth), v(0, head / 2, 0), {
-      color: "#e8d3a1",
-    });
-    builder.rod("handle", E.handle / 2, v(0, head, 0), v(0, length, 0), {
-      color: "#1d1d1d",
-    });
-    face = v(0, head / 2, depth / 2);
-    faceWidth = width;
-    gripLength = length - head;
-    aperture = undefined;
-  }
-  builder.affordance({
-    id: "grip",
-    kind: "handle",
-    symmetry: kind === "iceHockey" ? "half" : "round",
-    frame: ArchetypeFrame.facing(
-      v(0, (length + head) / 2, 0),
-      v(0, 0, 1),
-      v(0, 1, 0),
-    ),
-    extent: null,
-    grip: "two-hand",
-    ...(aperture === undefined ? {} : { aperture }),
-    length: gripLength,
-  });
-  builder.affordance({
-    id: "blade",
-    kind: "surface",
-    direction: "normal",
-    frame: ArchetypeFrame.facing(face, v(0, 0, 1), v(1, 0, 0)),
-    extent: null,
-    width: faceWidth,
-    depth: head,
-  });
-  return builder.build(d.mass!);
+  return createStick.PRODUCERS[kind](params, seed);
 }
 
 /**
@@ -174,12 +44,13 @@ export function createStick(
  */
 export namespace createStick {
   /** The kinds of stick. */
-  export type Kind = "iceHockey" | "fieldHockey" | "cricketBat";
+  export type Kind = "iceHockey" | "fieldHockey" | "lacrosse" | "cricketBat";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
     "iceHockey",
     "fieldHockey",
+    "lacrosse",
     "cricketBat",
   ];
 
@@ -188,8 +59,9 @@ export namespace createStick {
    *
    * - `grip`: where both hands hold the stick.
    * - `blade`: the striking face, its `+Y` out of it.
+   * - `pocket`, `scoop`: the lacrosse ball's rest socket and the front edge of the head.
    */
-  export type Affordance = "grip" | "blade";
+  export type Affordance = "grip" | "blade" | "pocket" | "scoop";
 
   /**
    * The free dimensions, metres unless stated:
@@ -209,14 +81,7 @@ export namespace createStick {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
-    length: "m",
-    head: "m",
-    reach: "m",
-    width: "m",
-    depth: "m",
-    mass: "kg",
-  };
+  export const UNITS: typeof StickBuild.UNITS = StickBuild.UNITS;
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -228,75 +93,28 @@ export namespace createStick {
   }
 
   /** The band of each free dimension, by kind. */
-  export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = {
-    iceHockey: {
-      length: ArchetypeBand.metres(
-        1.63,
-        1.63,
-        `${IIHF}; the model takes the limit`,
-      ),
-      head: ArchetypeBand.metres(0.05, 0.076, IIHF),
-      reach: ArchetypeBand.metres(
-        0.32,
-        0.32,
-        `${IIHF}; the model takes the limit`,
-      ),
-      width: ArchetypeBand.metres(
-        0.03,
-        0.03,
-        `${IIHF}; the model takes the limit`,
-      ),
-      depth: ArchetypeBand.metres(
-        0.025,
-        0.025,
-        `${IIHF}; the model takes the limit`,
-      ),
-      mass: ArchetypeBand.of("kg", 0.4, 0.6, ArchetypeBand.TYPICAL_MASS, true),
-    },
-    fieldHockey: {
-      length: ArchetypeBand.metres(
-        1.05,
-        1.05,
-        `${FIH}; the model takes the limit`,
-      ),
-      head: ArchetypeBand.metres(0.1, 0.1, FIH),
-      width: ArchetypeBand.metres(
-        0.051,
-        0.051,
-        `${FIH}; the model takes the ring`,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.5,
-        0.737,
-        `${FIH}: at most 737 g; the lower end is ${ArchetypeBand.TYPICAL_MASS}`,
-        true,
-      ),
-    },
-    cricketBat: {
-      length: ArchetypeBand.metres(
-        0.9652,
-        0.9652,
-        `${MCC}; the model takes the limit`,
-      ),
-      head: ArchetypeBand.metres(
-        0.9652 * 0.48,
-        0.9652 * 0.48,
-        `${MCC}: the blade the length less the handle's greatest 52%`,
-      ),
-      width: ArchetypeBand.metres(
-        0.108,
-        0.108,
-        `${MCC}; the model takes the limit`,
-      ),
-      depth: ArchetypeBand.metres(
-        0.067,
-        0.067,
-        `${MCC}; the model takes the limit`,
-      ),
-      mass: ArchetypeBand.of("kg", 1.1, 1.4, ArchetypeBand.TYPICAL_MASS, true),
-    },
+  export const BANDS: typeof StickBuild.BANDS = StickBuild.BANDS;
+
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `iceHockey` selector. */
+    iceHockey: typeof createIceHockeyStick;
+
+    /** The named producer for the saved `fieldHockey` selector. */
+    fieldHockey: typeof createFieldHockeyStick;
+
+    /** The named producer for the saved `lacrosse` selector. */
+    lacrosse: typeof createLacrosseCrosse;
+
+    /** The named producer for the saved `cricketBat` selector. */
+    cricketBat: typeof createCricketBat;
+  }
+
+  /** The canonical producer for each saved kind. */
+  export const PRODUCERS: Readonly<IProducers> = {
+    iceHockey: createIceHockeyStick,
+    fieldHockey: createFieldHockeyStick,
+    lacrosse: createLacrosseCrosse,
+    cricketBat: createCricketBat,
   };
 }

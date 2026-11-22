@@ -1,5 +1,6 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieProjectile } from "../../../physics/IAutoMovieProjectile";
 
 /**
@@ -28,4 +29,20 @@ export interface IAutoMovieMotionPropLaunch {
 
   /** How it turns in flight (`IAutoMovieProjectile.attitude`); its launch rotation kept when absent. */
   attitude?: IAutoMovieProjectile.Attitude;
+
+  /** Use a sphere of this radius about its prop-local centre, in metres. Its rotation stays fixed in flight. */
+  sphere?: {
+    /** The finite positive collider radius, metres. */
+    readonly radius: number;
+    /** The centre relative to the displayed prop origin, local metres. */
+    readonly centre: IAutoMovieVector3;
+    /** Optional nonnegative Coulomb friction for this launch's contacts. Absent, use the body data. */
+    readonly tangentialFriction?: number;
+  };
+
+  /** Aim from the displayed release to this world point over positive flight seconds, before any impact. A sphere aims its centre. Requires drag-free flight. */
+  aim?: { readonly point: IAutoMovieVector3; readonly seconds: number };
+
+  /** The launcher's hands that meet an incoming prop at this launch (a deliberate deflection): the incoming flight's sweep leaves them to this launch through its action, as a staged catch's hands are left to it. None when absent. */
+  touching?: readonly AutoMovieHumanSide[];
 }

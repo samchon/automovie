@@ -1,4 +1,4 @@
-import { Vector3, physicalShapeBounds } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
@@ -9,9 +9,9 @@ import type {
   IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanKnockdown,
   IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanRoot,
-  IAutoMovieMotionHumanStrikingContact,
+  IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -20,13 +20,18 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
-import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
-import { StrikingBody } from "../striking/StrikingBody";
+import { createHumanPostureCurve } from "../posture/createHumanPostureCurve";
+import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingTarget } from "../striking/StrikingTarget";
+import { KnockdownFloor } from "./KnockdownFloor";
+import { ReactionFeet } from "./ReactionFeet";
 import { ReactionSource } from "./ReactionSource";
 
 /**
@@ -57,12 +62,15 @@ import { ReactionSource } from "./ReactionSource";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the buckle, its timing, the floor rule and which proportions are provisional.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, an empty cancel table, parameters and a pure plan of postures in world metres and seconds with seat and lie contacts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing constants, the plan and the floor rest the knockdown count's tests read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the law's name/cancel table, parameters, timing, plan and exact floor rest; support/floor intervals also bind that same native measurement through prepareRest for their unchanged body.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, contact-window, target and collider types; the floor height comes from each body's own shapes.
  */
 export namespace knockdown {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "knockdown";
+
+  /** A knockdown's content is a staged fall, so its balance is judged (`IAutoMovieMotionHumanActionLaw.physical`). */
+  export const physical: boolean = true;
 
   /** Cancel table: none; a knocked-down performer stays down for the count. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
@@ -84,6 +92,8 @@ export namespace knockdown {
    *
    * @param body The body.
    * @param posture The posture, its root height ignored.
+   * @param resolution Optional exact FK reader/supplier borrowed from the current synchronous body's planning operation.
+   * @param projection Optional genuine same-body ROM metadata preparation borrowed from that operation; every current joint remains projected.
    * @returns The root height, metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the rule, the ignored input and the unit.
@@ -91,21 +101,34 @@ export namespace knockdown {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolution and one pass over the shapes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; the height follows from the body's own shapes.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones and shapes.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the unchanged floor measurement and optional exact FK/projector loans to KnockdownFloor.rest; scalar FK checks and genuine projector provenance share only transform prerequisites/static ROM metadata while each actual posture and joint is still read normally.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains neither geometry nor optional FK/projector loans, which stay with their synchronous planning caller through return or throw.
    */
   export function rest(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): number {
-    const bones = StrikingBody.trunk(body, {
-      ...posture,
-      root: { ...posture.root, y: 0 },
-    });
-    let lowest: number = Infinity;
-    for (const c of StrikingBody.colliders(body, bones))
-      lowest = Math.min(lowest, bottom(c));
-    return -lowest;
+    return KnockdownFloor.rest(body, posture, resolution, projection);
+  }
+
+  /**
+   * Prepare this body's exact floor rest for a support or floor interval.
+   *
+   * @param body The canonical body with unchanged rig, rest geometry and profile throughout the owning plan.
+   * @returns The native floor reader accepting each current posture and optional synchronous FK/ROM loans; root Y is ignored and height is in metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed-body premise, changing posture/metadata inputs, root-Y-zero convention, metre output and plan-owned reader lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to KnockdownFloor.prepareRest, preserving complete current trunk admission and the exact lowest-collider floor law used by rest.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One direct function wrapper exposes the existing floor owner's prepared reader; collider selection, placement and numeric bounds keep one owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes no posture, collider, contact, bound or tolerance, and provides no caller-authored posed map, cached floor or success flag.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant facade work; the native owner binds fixed demand/profile entries once while every query retains full current admission/fits, required FK, placement and exact shape bounds. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged body/rig/profile establish only static selection equivalence. Each actual posture and current-call FK/ROM source reaches the native owner normally, with original dependency/provenance checks and no fitted result reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the native reader and its bounded body/profile metadata until its plan or interval releases it. Invocation FK/ROM loans, posed maps and scalar heights are never retained in that reader or returned data.
+   */
+  export function prepareRest(body: IAutoMovieMotionHumanBody): ReturnType<typeof KnockdownFloor.prepareRest> {
+    return KnockdownFloor.prepareRest(body);
   }
 
   /**
@@ -119,42 +142,64 @@ export namespace knockdown {
    * @evidence contracts/development/implementation.md#principled-implementation Overlapping minimum-jerk sit and roll-back profiles over one pose function, the root height solved each posture by the floor rest and the root's travel by the pose's own ankles and hips, so the feet and then the seat stay in place on any body.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fits the body and reads the blow's heading once, then evaluates each posture in closed form.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative lying time throws; the knee and the lying arm are solved on the body's shapes instead of stated, and the recline and the hip's fold are named provisional values.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution and one pass over the shapes per posture, and three bisections of 16 steps per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fit and the standing and seated measures are computed once per plan; the heading away from the blow once per run, dropped on settle.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the fit, two measures and one cached heading, the last cleared by settle and all released with the plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Changing articulation retains its original fold and floor measurements. The prepared default lying hold reads a constant posture under the rig check, without measuring the colliders again.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The floor reader retains its actual current FK/ROM input on changing shapes. With the default source and both folds complete, the native display reuses the unchanged down-event posture. Public authoring and directed reactions keep their original evaluation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed fit and measurement data, one heading cleared on settle, and one owned down-event source release with the plan. FK/ROM loans stay in their own calls.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnockdown.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const body = context.body;
+    const body: IAutoMovieMotionHumanBody = context.body;
     const lie: number = context.params.seconds ?? 1;
     if (!(lie >= 0)) throw new Error("A knockdown lies a non-negative time");
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(DOWN + lie, [
-      { name: "rolling", seconds: ROLLING * SEATED },
-      { name: "seated", seconds: SEATED },
-      { name: "stroke", seconds: SEATED },
-      { name: "down", seconds: DOWN },
-      { name: "relax", seconds: DOWN },
-    ]);
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+      DOWN + lie,
+      [
+        { name: "rolling", seconds: ROLLING * SEATED },
+        { name: "seated", seconds: SEATED },
+        { name: "stroke", seconds: SEATED },
+        { name: "down", seconds: DOWN },
+        { name: "relax", seconds: DOWN },
+      ],
+    );
     const duration: number = clock.duration;
-    const sit = (seconds: number): number =>
-      clock.progress(AutoMovieMotionClock.START, "seated", seconds);
-    const back = (seconds: number): number =>
-      clock.progress("rolling", "down", seconds);
+    const sit: (seconds: number) => number = AutoMovieMotionClock.prepare(
+      clock, AutoMovieMotionClock.START, "seated",
+    ).progress;
+    const back: (seconds: number) => number = AutoMovieMotionClock.prepare(
+      clock, "rolling", "down",
+    ).progress;
 
     // The angles this body needs to rest on the floor, and where its ankles
     // and hips are along its heading standing and seated: the feet stay where
     // they stood until the seat lands, and the seat stays where it landed.
-    const fitted: IFit = fit(body, back(SEATED));
-    const at = (seconds: number): IMeasure =>
-      measure(body, fold(fitted, sit(seconds), back(seconds)));
-    const standing: IMeasure = at(0);
-    const seated: IMeasure = at(SEATED);
+    const fitted: KnockdownFloor.IFit = KnockdownFloor.fit(body, back(SEATED));
+    const measure: ReturnType<typeof KnockdownFloor.prepareMeasure> =
+      KnockdownFloor.prepareMeasure(body);
+    const at: (
+      seconds: number,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ) => KnockdownFloor.IMeasure = (
+      seconds: number,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): KnockdownFloor.IMeasure => measure(
+      KnockdownFloor.fold(fitted, sit(seconds), back(seconds)),
+      resolution,
+      projection,
+    );
+    const [standing, seated]: readonly [KnockdownFloor.IMeasure, KnockdownFloor.IMeasure] =
+      ((): readonly [KnockdownFloor.IMeasure, KnockdownFloor.IMeasure] => {
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+        const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
+        return [at(0, resolution, projection), at(SEATED, resolution, projection)];
+      })();
 
     // The heading that faces the blow, so the back falls away from it.
     let cached: number | undefined;
-    const heading = (): number => {
+    const heading: () => number = (): number => {
       if (cached !== undefined) return cached;
       const away: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
         ReactionSource.at(
@@ -171,12 +216,12 @@ export namespace knockdown {
       return cached;
     };
 
-    const flat = (yaw: number, forward: number): IAutoMovieVector3 =>
+    const flat: (yaw: number, forward: number) => IAutoMovieVector3 = (yaw: number, forward: number): IAutoMovieVector3 =>
       HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw },
         { x: 0, y: 0, z: forward },
       );
-    return composeAutoMovieMotionHumanAction({
+    const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: {
         ...AutoMovieMotionHumanBase.still(
           duration,
@@ -189,6 +234,8 @@ export namespace knockdown {
             limbs: {},
           },
           [
+            // The feet stay planted where they stood until the seat lands.
+            ...ReactionFeet.plants(SEATED / duration),
             {
               part: "seat",
               kind: "seat",
@@ -215,12 +262,20 @@ export namespace knockdown {
         // lands, the body turning to face the blow; then the seat stays and
         // the heels slide out as the back rolls down. The height rests the
         // pose of each second on the floor.
-        AutoMovieMotionHumanRoot.travel({
+        {
+          channels: ["root"],
+          reads: ["root"],
           from: 0,
           to: duration,
-          offset: (seconds: number): IAutoMovieMotionHumanRoot.IOffset => {
+          write: (
+            posture: IAutoMovieMotionHumanPosture,
+            seconds: number,
+            _before?: IAutoMovieMotionHumanPrimitive.Reader,
+            resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+            projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+          ): IAutoMovieMotionHumanPosture => {
             const turn: number = angle(heading() - entry.yaw);
-            const now: IMeasure = at(seconds);
+            const now: KnockdownFloor.IMeasure = at(seconds, resolution, projection);
             const landed: boolean = seconds >= SEATED;
             const world: IAutoMovieVector3 = Vector3.add(
               Vector3.subtract(
@@ -232,7 +287,7 @@ export namespace knockdown {
               ),
               flat(entry.yaw + turn, landed ? seated.hips - now.hips : 0),
             );
-            return {
+            return AutoMovieMotionHumanRoot.place(posture, {
               point: {
                 ...HumanFrame.local(
                   { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
@@ -241,246 +296,78 @@ export namespace knockdown {
                 y: now.floor - entry.root.y,
               },
               yaw: turn * sit(seconds),
-            };
+            });
           },
-        }),
-        // The trunk reclines as the seat goes down and rolls back to the
-        // floor.
+        },
         AutoMovieMotionHumanLean.tilt({
           from: 0,
           to: duration,
           angles: (seconds: number): IAutoMovieMotionHumanLean.IAngles => ({
-            pitch: fold(fitted, sit(seconds), back(seconds)).pitch,
+            pitch: KnockdownFloor.fold(fitted, sit(seconds), back(seconds)).pitch,
             roll: 0,
           }),
         }),
-        // The knees and hips fold until the feet and the seat share the
-        // floor, then straighten to lie; the arms trail and come to rest on
-        // the floor beside the body.
         AutoMovieMotionHumanJoints.add({
           channels: ["head", "leftLeg", "rightLeg", "leftArm", "rightArm"],
           from: 0,
           to: duration,
           delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles =>
-            fold(fitted, sit(seconds), back(seconds)).joints,
+            KnockdownFloor.fold(fitted, sit(seconds), back(seconds)).joints,
         }),
       ],
     });
-  }
-
-  /** The trunk's pitch and the joints of the fall at one instant. */
-  interface IFold {
-    pitch: number;
-    joints: IAutoMovieMotionHumanJoints.Angles;
-  }
-
-  /**
-   * The angles one body needs to rest on the floor, degrees: the knee that
-   * puts the feet on the floor the seat sits on, and the upper arm and the
-   * elbow that lay the arm on the floor the back lies on.
-   */
-  interface IFit {
-    knee: number;
-    arm: number;
-    elbow: number;
-  }
-
-  /**
-   * A fold on the floor with the root at the origin: the root height that
-   * rests it, and how far ahead of the root its ankles and its hips are,
-   * metres.
-   */
-  interface IMeasure {
-    floor: number;
-    ankle: number;
-    hips: number;
-  }
-
-  /**
-   * The fall's pose at a share of the sit and a share of the roll back: the
-   * seat is the trunk reclined over folded hips and knees, and the lie is
-   * the trunk on its back with the legs nearly straight.
-   */
-  function fold(fitted: IFit, sit: number, back: number): IFold {
-    const seat: number = sit * (1 - back);
-    const hip: number = ANGLES.hip * seat + 0.9 * ANGLES.lying * back;
-    const knee: number = fitted.knee * seat + ANGLES.lying * back;
-    const arm: number = ANGLES.lift * (1 - back) + fitted.arm * back;
-    const elbow: number = ANGLES.elbow * (1 - back) + fitted.elbow * back;
-    return {
-      pitch: -(ANGLES.recline * seat + 88 * back),
-      joints: {
-        neck: [ANGLES.neck * back, 0, 0],
-        leftUpperLeg: [hip, 5, 0],
-        rightUpperLeg: [hip, 5, 0],
-        leftLowerLeg: [knee, 0, 0],
-        rightLowerLeg: [knee, 0, 0],
-        leftUpperArm: [arm, ANGLES.open, 0],
-        rightUpperArm: [arm, ANGLES.open, 0],
-        leftLowerArm: [elbow, 0, 0],
-        rightLowerArm: [elbow, 0, 0],
-      },
+    // The fold has reached its grounded endpoint at "down"; an authored
+    // lying hold extends only the film clock after that event.
+    const defaultSource: boolean = context.params.from === undefined;
+    // The fold turns and pitches the body about its root; the feet stay
+    // flat where they stood until the seat lands, so no heel skates.
+    const out: IAutoMovieMotionHumanActionPlan = {
+      ...ReactionFeet.hold(plan, context.entry, body, SEATED, 0.5 * body.measure.hipHeight),
+      ...(defaultSource && duration > DOWN
+        ? { still: [DOWN, duration] as const }
+        : {}),
+      physicalWindow: { from: 0, to: DOWN },
     };
+    // The default source is fixed by the entry, and both fold progress
+    // functions are identically one throughout the authored lying hold.
+    // A directed fall still observes its source at the normal query.
+    if (defaultSource && duration > DOWN) {
+      let hold: IAutoMovieMotionHumanActionPlan["posture"] | undefined;
+      let unchanged: (() => boolean) | undefined;
+      HumanPreparedPlayback.attach(out, body, {
+        mode: "posture",
+        prepare: (): void => {
+          unchanged = prepareHumanPostureRigCheck(body);
+          hold =
+            unchanged === undefined
+              ? undefined
+              : createHumanPostureCurve(plan.posture(DOWN));
+        },
+        phases: [
+          {
+            from: DOWN,
+            to: duration,
+            sample: (
+              seconds,
+              channels,
+            ): IAutoMovieMotionHumanPlayback.ISample | undefined =>
+              channels === undefined &&
+              unchanged?.() === true &&
+              hold !== undefined
+                ? { posture: hold(seconds) }
+                : undefined,
+          },
+        ],
+      });
+    }
+    return out;
   }
-
-  /** The body's shapes in a fold, the root at the origin and facing +Z. */
-  function shapes(
-    body: IAutoMovieMotionHumanBody,
-    folded: IFold,
-  ): {
-    bones: ReturnType<typeof StrikingBody.trunk>;
-    colliders: IAutoMovieMotionHumanStrikingContact.ICollider[];
-  } {
-    const bones = StrikingBody.trunk(body, {
-      root: { x: 0, y: 0, z: 0 },
-      yaw: 0,
-      pitch: folded.pitch,
-      roll: 0,
-      joints: folded.joints,
-      limbs: {},
-    });
-    return { bones, colliders: StrikingBody.colliders(body, bones) };
-  }
-
-  /** The lowest height of the shapes whose bone matches. */
-  function lowest(
-    colliders: readonly IAutoMovieMotionHumanStrikingContact.ICollider[],
-    of: (bone: string) => boolean,
-  ): number {
-    let low: number = Infinity;
-    for (const c of colliders) if (of(c.name)) low = Math.min(low, bottom(c));
-    return low;
-  }
-
-  /** Measures a fold. */
-  function measure(body: IAutoMovieMotionHumanBody, folded: IFold): IMeasure {
-    const { bones, colliders } = shapes(body, folded);
-    return {
-      floor: -lowest(colliders, () => true),
-      ankle:
-        (bones.get("leftFoot")!.worldPosition.z +
-          bones.get("rightFoot")!.worldPosition.z) /
-        2,
-      hips: bones.get("hips")!.worldPosition.z,
-    };
-  }
-
-  /**
-   * Fits the fall to a body by bisection on its own shapes. The knee is the
-   * one at which the lower legs and the feet reach down as far as the seat
-   * does, at the instant the seat lands; the upper arm's extension and then
-   * the elbow's flexion are the ones at which the arm reaches down as far as
-   * the rest of the lying body. A joint whose range ends first stays at its
-   * end.
-   */
-  function fit(body: IAutoMovieMotionHumanBody, landed: number): IFit {
-    const gap = (
-      fitted: IFit,
-      back: number,
-      part: (bone: string) => boolean,
-      support: (bone: string) => boolean,
-    ): number => {
-      const { colliders } = shapes(body, fold(fitted, 1, back));
-      return lowest(colliders, part) - lowest(colliders, support);
-    };
-    // The value in [above, below] at which the gap closes; the gap is
-    // positive at `above` and falls toward `below`.
-    const solve = (
-      above: number,
-      below: number,
-      of: (value: number) => number,
-    ): number => {
-      if (of(above) <= 0) return above;
-      if (of(below) >= 0) return below;
-      let high: number = above;
-      let low: number = below;
-      for (let i: number = 0; i < 16; ++i) {
-        const mid: number = (high + low) / 2;
-        if (of(mid) > 0) high = mid;
-        else low = mid;
-      }
-      return (high + low) / 2;
-    };
-    const fitted: IFit = { knee: 0, arm: ANGLES.lift, elbow: 0 };
-    fitted.knee = solve(
-      0,
-      AutoMovieMotionHumanRange.degrees("leftLowerLeg", "flexion", "full"),
-      (knee: number): number => gap({ ...fitted, knee }, landed, SHANK, SEAT),
-    );
-    fitted.arm = solve(
-      ANGLES.lift,
-      AutoMovieMotionHumanRange.limit("leftUpperArm", "extension") ?? 0,
-      (arm: number): number => gap({ ...fitted, arm }, 1, UPPER_ARM, BODY),
-    );
-    // A straight arm that slopes down to the elbow carries the forearm below
-    // the floor, and the elbow's flexion lifts it back: the gap grows with
-    // the flexion, so the ends swap.
-    fitted.elbow = solve(90, 0, (elbow: number): number =>
-      gap({ ...fitted, elbow }, 1, FOREARM, BODY),
-    );
-    return fitted;
-  }
-
-  /** The shapes of the seat: the pelvis and the thighs. */
-  const SEAT = (bone: string): boolean =>
-    bone === "hips" || bone.endsWith("UpperLeg");
-
-  /** The shapes below the knee. */
-  const SHANK = (bone: string): boolean => /(LowerLeg|Foot|Toes)$/.test(bone);
-
-  /** The shapes of the upper arm. */
-  const UPPER_ARM = (bone: string): boolean => bone.endsWith("UpperArm");
-
-  /** The shapes below the elbow. */
-  const FOREARM = (bone: string): boolean =>
-    /(LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/.test(bone);
-
-  /** Every shape that is not an arm's. */
-  const BODY = (bone: string): boolean => !UPPER_ARM(bone) && !FOREARM(bone);
 
   /** When the trunk starts rolling back, as a share of the time to the seat. */
   const ROLLING: number = 0.6;
 
-  /**
-   * The fall's angles, degrees, each a level of its range (provisional): the
-   * trunk's recline and the hip's fold as the seat lands, the knee as the
-   * body lies, the neck's tuck as the back rolls down, and the trailing arm's
-   * forward lift, opening and elbow.
-   */
-  const ANGLES = {
-    recline: AutoMovieMotionHumanRange.lean("half"),
-    hip: AutoMovieMotionHumanRange.degrees("leftUpperLeg", "flexion", {
-      level: "deep",
-      scale: 1.1,
-    }),
-    lying: AutoMovieMotionHumanRange.degrees(
-      "leftLowerLeg",
-      "flexion",
-      "slight",
-    ),
-    neck: AutoMovieMotionHumanRange.degrees("neck", "flexion", "half"),
-    lift: AutoMovieMotionHumanRange.degrees("leftUpperArm", "flexion", {
-      level: "slight",
-      scale: 0.5,
-    }),
-    open: AutoMovieMotionHumanRange.degrees(
-      "leftUpperArm",
-      "abduction",
-      "slight",
-    ),
-    elbow: AutoMovieMotionHumanRange.degrees("leftLowerArm", "flexion", {
-      level: "light",
-      scale: 0.8,
-    }),
-  };
-
   /** A heading difference wrapped into (-180, 180]. */
   function angle(degrees: number): number {
     return ((((degrees + 180) % 360) + 360) % 360) - 180;
-  }
-
-  /** The lowest world height of a collider. */
-  function bottom(c: IAutoMovieMotionHumanStrikingContact.ICollider): number {
-    return physicalShapeBounds(c.pose, c.shape).min.y;
   }
 }

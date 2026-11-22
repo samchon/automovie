@@ -3,9 +3,9 @@ import {
   DEFAULT_JOINT_AXES,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  Quaternion,
   Vector3,
   combinePhysicalMassProperties,
+  createPhysicalHullShape,
   rotationBetween,
   toRigAngle,
 } from "@automovie/engine";
@@ -57,6 +57,21 @@ import { AutoMovieHumanCanonicalSolids as Solids } from "./AutoMovieHumanCanonic
  * `HUMANOID_JOINT_AXES` direction with limits read through
  * `HUMANOID_REST_FRAME`, so the physical zero is the T-pose. Drive gains are
  * placeholders kinematic motion never reads: 50 N m per downstream kilogram.
+ * Self-contact is excluded between joint neighbours, among the palm and
+ * digits of one hand, between the abdomen and each upper arm and between the
+ * two thighs. The last two are body pairs that overlap in the reference pose:
+ * the shoulder lies inside the chest's girth, so a hanging arm's root runs
+ * about 47 mm into the ring the chest shares with the abdomen, and the hip
+ * joints sit closer together than a thigh's root is wide, so the two roots
+ * cross the midline by 12 to 17 mm. Neither overlap leaves within a natural
+ * arm or leg abduction, and left live, the solver ejects those limbs on the
+ * first substep and splays the planted feet. Disabling collision for pairs
+ * that overlap in the reference pose is the standard practice (Unreal
+ * Engine's Physics Asset collision-disable table; MuJoCo's `<contact>
+ * <exclude>` pairs). The known limitation: an upper arm passes through the
+ * abdomen and a thigh through the other thigh, as in crossed legs or a
+ * clinch, while every other pair, such as the shins with each other and the
+ * forearms with the abdomen, still collides.
  */
 export namespace AutoMovieHumanCanonicalProfile {
   /**
@@ -79,7 +94,9 @@ export namespace AutoMovieHumanCanonicalProfile {
         throw new Error(`The polygon profile needs the joint ${name}`);
       return found;
     };
-    const identity: IAutoMovieQuaternion = Quaternion.identity();
+    const hulls: ReturnType<typeof createPhysicalHullShape> =
+      createPhysicalHullShape();
+    const identity: IAutoMovieQuaternion = hulls.rotation;
     const at = (name: string): IAutoMovieVector3 => j(name).position;
     // A rig bone's origin is its joint; the toes bone sits at the hallux's root.
     const origin = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
@@ -90,16 +107,15 @@ export namespace AutoMovieHumanCanonicalProfile {
     };
     for (const solid of Solids.build(joints))
       put(solid.carrier, {
-        shape: {
-          id: solid.id,
-          material: "skin",
-          transform: {
-            position: Vector3.subtract(solid.centre, origin(solid.carrier)),
-            rotation: identity,
-          },
-          kind: "hull",
-          points: solid.points,
-        },
+        shape: hulls.shape(
+          solid.id,
+          "skin",
+          hulls.offset(
+            (): IAutoMovieVector3 => solid.centre,
+            (): IAutoMovieVector3 => origin(solid.carrier),
+          ),
+          solid.points,
+        ),
         volume: solid.volume,
         inertia: solid.inertia,
         inertiaRotation: solid.inertiaRotation,
@@ -308,6 +324,27 @@ export namespace AutoMovieHumanCanonicalProfile {
             reason: "adjacent polygon modules overlap at their shared joint",
           }),
         ),
+        // The shoulder lies inside the chest's girth, so a hanging upper
+        // arm's root crosses the ring the chest shares with the abdomen
+        // below it, whatever the abduction short of a raised arm.
+        ...(["left", "right"] as const).map(
+          (
+            side: "left" | "right",
+          ): { a: string; b: string; reason: string } => ({
+            a: "spine",
+            b: `${side}UpperArm`,
+            reason:
+              "the upper arm's root crosses the trunk ring the chest shares with the abdomen at the shoulder",
+          }),
+        ),
+        // The hips sit closer together than a thigh's root is wide, so the
+        // two roots cross the midline at any abduction; the shanks still
+        // meet each other and the other thigh.
+        {
+          a: "leftUpperLeg",
+          b: "rightUpperLeg",
+          reason: "both thigh roots cross the midline between the hip joints",
+        },
         ...hands.flatMap((hand: AutoMovieHumanoidBone[]) =>
           hand.flatMap((a: AutoMovieHumanoidBone, i: number) =>
             hand

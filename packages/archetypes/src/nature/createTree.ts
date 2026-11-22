@@ -1,4 +1,5 @@
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
   Archetype,
@@ -35,6 +36,10 @@ const LIVE_CROWN: string =
 const FIR_MOISTURE: string =
   "Wood Handbook, FPL-GTR-190 (2010), Table 4-1, average moisture content of green wood: Douglas-fir, coast type, heartwood 37 %, sapwood 115 % (https://research.fs.usda.gov/download/treesearch/37428.pdf, p. 4-2)";
 
+/** The lower branches' bands' source. */
+const BRANCHES: string =
+  "provisional: a staged climbable tree's lower limbs, the lowest from a short climber's overhead reach to beyond a jump's, set a hand-to-foot climbing step apart, and a forearm to a thigh thick";
+
 /**
  * A standing tree: a mature white oak or an old-growth Douglas-fir.
  *
@@ -42,15 +47,18 @@ const FIR_MOISTURE: string =
  *
  * Its mass is green aboveground biomass: Jenkins et al. 2003's dry biomass for the kind's species group (hard maple/oak/hickory/beech, Douglas-fir) from the drawn diameter at breast height, times one plus the drawn green moisture content; their hardwood or softwood component ratios give the trunk its stem wood and bark and the crown the rest, so the balance stands where the wood is. It stands rooted in soil, which no measured pair covers, so its body carries no friction.
  *
- * @param params The kind and any dimension the author fixes.
+ * Asked for `branches`, it also draws that many lower branches, horizontal rods from the trunk turned `DIVERGENCE` apart and `branchGap` apart in height from `branchHeight`, published as `branch<k>` bars and `seat<k>` astride seats with the load each bears before its root ruptures (`cantilever` on the wood's `RUPTURE`), and the trunk as the `bole` bar. Their mass share comes from the crown's by their wood volume against the trunk's. Without branches the tree is drawn exactly as before.
+ *
+ * @param params The kind, the branch count and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The tree.
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {RangeError} For a branch count that is not a whole number from 0 to `MAX_BRANCHES`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the tree stands, its parts, its contact, how its mass and balance follow and why it carries no friction.
  * @evidence contracts/development/implementation.md#principled-implementation A trunk rod of the drawn diameter to the crown base the drawn share of the height sets, a crown ball above it; the mass is the allometric equation's dry biomass from the diameter in centimetres times one plus the moisture, shared by the stem ratios.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the mass and its shares, the two parts, the contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The trunk's taper, its branches and roots are not drawn; the crown's ball is its depth across, a construction detail no act reads.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The trunk's taper, its roots and any branch the author does not ask for are not drawn, and drawn branches are level rods; the crown's ball is its depth across, a construction detail no act reads.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -72,7 +80,7 @@ export function createTree(
     params.kind,
     createTree.KINDS,
   );
-  const d: Record<createTree.Dimension, number> = draw.dimensions(
+  const d: Record<createTree.TreeDimension, number> = draw.dimensions(
     createTree.BANDS[kind],
   );
   const builder: ArchetypeBuilder<createTree.Affordance, createTree.Dimension> =
@@ -100,10 +108,81 @@ export function createTree(
     color: "#6b4a2b",
     share: trunk,
   });
-  builder.ball("crown", (d.height - base) / 2, v(0, (base + d.height) / 2, 0), {
-    color: "#4f6b3a",
-    share: 1 - trunk,
-  });
+  // Lower branches, when asked for: drawn after every other dimension on their own streams.
+  const count: number = createTree.branchCount(params.branches);
+  let crown: number = 1 - trunk;
+  if (count > 0) {
+    const b: Record<createTree.BranchDimension, number> = draw.dimensions(
+      createTree.BRANCH_BANDS,
+    );
+    const rb: number = b.branchDiameter / 2;
+    const strength: number = createTree.RUPTURE[kind];
+    for (let k: number = 0; k < count; k++) {
+      const turn: number = (k * createTree.DIVERGENCE * Math.PI) / 180;
+      const dir: IAutoMovieVector3 = v(Math.sin(turn), 0, Math.cos(turn));
+      const side: IAutoMovieVector3 = v(dir.z, 0, -dir.x);
+      const h: number = b.branchHeight + k * b.branchGap;
+      const share: number =
+        (trunk * (rb * rb * (r + b.branchLength))) / (r * r * base);
+      crown -= share;
+      builder.rod(
+        `branch${k}`,
+        rb,
+        v(0, h, 0),
+        Vector3.add(v(0, h, 0), Vector3.scale(dir, r + b.branchLength)),
+        { color: "#6b4a2b", share },
+      );
+      // The bar along the branch from the trunk face out, its load at the frame half its length out.
+      builder.affordance({
+        id: `branch${k}`,
+        kind: "bar",
+        frame: ArchetypeFrame.facing(
+          Vector3.add(v(0, h, 0), Vector3.scale(dir, r + b.branchLength / 2)),
+          v(0, 1, 0),
+          dir,
+        ),
+        extent: null,
+        length: b.branchLength,
+        radius: rb,
+        load: createTree.cantilever(
+          strength,
+          b.branchDiameter,
+          b.branchLength / 2,
+        ),
+      });
+      // The seat astride the branch, facing out along it.
+      builder.affordance({
+        id: `seat${k}`,
+        kind: "seat",
+        frame: ArchetypeFrame.facing(
+          Vector3.add(
+            v(0, h + rb, 0),
+            Vector3.scale(dir, r + createTree.SEAT_OUT),
+          ),
+          v(0, 1, 0),
+          side,
+        ),
+        extent: null,
+        astride: true,
+        width: b.branchDiameter,
+        depth: createTree.SEAT_OUT,
+        load: createTree.cantilever(
+          strength,
+          b.branchDiameter,
+          createTree.SEAT_OUT,
+        ),
+      });
+    }
+    // The bole, a vertical bar from the ground to the crown base, for hugging and the feet.
+    builder.affordance({
+      id: "bole",
+      kind: "bar",
+      frame: ArchetypeFrame.facing(v(0, base / 2, 0), v(0, 0, 1), v(0, 1, 0)),
+      extent: null,
+      length: base,
+      radius: r,
+    });
+  }
   builder.affordance({
     id: "trunk",
     kind: "surface",
@@ -114,6 +193,10 @@ export function createTree(
       v(1, 0, 0),
     ),
     extent: null,
+  });
+  builder.ball("crown", (d.height - base) / 2, v(0, (base + d.height) / 2, 0), {
+    color: "#4f6b3a",
+    share: crown,
   });
   return builder.build(dry * (1 + d.moisture));
 }
@@ -172,8 +255,15 @@ export namespace createTree {
    * The affordance ids:
    *
    * - `trunk`: the bole's `+Z` face at breast height, facing out.
+   * - `bole`, with branches only: the trunk as a vertical `bar` from the ground to the crown base, its `radius` the trunk's, for a hug and the feet.
+   * - `branch<k>`, with branches only: lower branch `k` as a horizontal `bar` from the trunk face out, its `radius` and its `load` at the frame, half its length out.
+   * - `seat<k>`, with branches only: an astride `seat` on branch `k`'s top `SEAT_OUT` from the trunk face, facing out along it, with its `load` there.
    */
-  export type Affordance = "trunk";
+  export type Affordance =
+    | "trunk"
+    | "bole"
+    | `branch${number}`
+    | `seat${number}`;
 
   /**
    * The free dimensions, metres unless stated:
@@ -183,7 +273,24 @@ export namespace createTree {
    * - `crownBase`: the crown base's height as a share of the tree's.
    * - `moisture`: the green wood's moisture content, a share of its dry mass.
    */
-  export type Dimension = "height" | "dbh" | "crownBase" | "moisture";
+  export type TreeDimension = "height" | "dbh" | "crownBase" | "moisture";
+
+  /**
+   * The lower branches' dimensions, drawn only when the tree has branches, metres:
+   *
+   * - `branchHeight`: the lowest branch's axis above the ground.
+   * - `branchGap`: the rise from each branch to the next.
+   * - `branchDiameter`: each branch's diameter.
+   * - `branchLength`: each branch's length from the trunk face.
+   */
+  export type BranchDimension =
+    | "branchHeight"
+    | "branchGap"
+    | "branchDiameter"
+    | "branchLength";
+
+  /** Every free dimension. */
+  export type Dimension = TreeDimension | BranchDimension;
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
@@ -191,6 +298,10 @@ export namespace createTree {
     dbh: "m",
     crownBase: "",
     moisture: "",
+    branchHeight: "m",
+    branchGap: "m",
+    branchDiameter: "m",
+    branchLength: "m",
   };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
@@ -200,11 +311,88 @@ export namespace createTree {
 
     /** The model's id, unique in a scene; `tree` when absent. */
     id?: string;
+
+    /** How many lower branches to draw below the crown, a whole number from 0 to `MAX_BRANCHES`; none when absent, and a branch dimension fixed then is not read. */
+    branches?: number;
   }
+
+  /** The most lower branches a tree draws. */
+  export const MAX_BRANCHES: number = 6;
+
+  /**
+   * The admitted branch count.
+   *
+   * @param value The count asked for.
+   * @returns It, or 0 when absent.
+   * @throws {RangeError} For a count that is not a whole number from 0 to `MAX_BRANCHES`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the default and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A whole number inside the admitted range.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One check.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses rather than clamps.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function branchCount(value: number | undefined): number {
+    const count: number = value ?? 0;
+    if (!(Number.isInteger(count) && count >= 0 && count <= MAX_BRANCHES))
+      throw new RangeError(
+        `tree branches must be a whole number from 0 to ${MAX_BRANCHES}, but was ${value}`,
+      );
+    return count;
+  }
+
+  /** The turn about the trunk from each branch to the next, degrees: the golden angle of spiral phyllotaxis, provisional for a tree's lower limbs. */
+  export const DIVERGENCE: number = 137.5;
+
+  /** How far out from the trunk face a branch's seat lies, metres (provisional: the sitter's hips clear of the bole). */
+  export const SEAT_OUT: number = 0.45;
+
+  /**
+   * Green wood's modulus of rupture in static bending, pascals: Wood Handbook, FPL-GTR-190 (2010), Table 5-3a, green: oak, white, 57 MPa; Douglas-fir, coast, 53 MPa (https://research.fs.usda.gov/download/treesearch/37428.pdf). Stem wood's, applied to branches, so provisional.
+   */
+  export const RUPTURE: Readonly<Record<Kind, number>> = {
+    whiteOak: 57e6,
+    douglasFir: 53e6,
+  };
+
+  /**
+   * The load a round cantilever bears at a distance from its root before its root ruptures: the bending stress `32 F x / (pi d^3)` at the root set to the modulus of rupture.
+   *
+   * @param rupture The modulus of rupture, pascals.
+   * @param diameter The branch's diameter, metres.
+   * @param distance The load's distance from the trunk face, metres.
+   * @returns The load, newtons.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the beam rule and the units.
+   * @evidence contracts/development/implementation.md#principled-implementation The elementary bending stress of a round section at the root of a cantilever.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed form.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No safety factor: the load is where the root fails.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function cantilever(
+    rupture: number,
+    diameter: number,
+    distance: number,
+  ): number {
+    return (rupture * Math.PI * diameter ** 3) / (32 * distance);
+  }
+
+  /** Each branch dimension's band, provisional: no forestry source states a climbable tree's lower limbs, so the bands stage one, the lowest branch from a standing reach to beyond a jump's. */
+  export const BRANCH_BANDS: Readonly<Record<BranchDimension, IArchetypeBand>> =
+    {
+      branchHeight: ArchetypeBand.of("m", 1.4, 3.2, BRANCHES, true),
+      branchGap: ArchetypeBand.of("m", 0.6, 0.9, BRANCHES, true),
+      branchDiameter: ArchetypeBand.of("m", 0.1, 0.18, BRANCHES, true),
+      branchLength: ArchetypeBand.of("m", 1.5, 2.5, BRANCHES, true),
+    };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<TreeDimension, IArchetypeBand>>>
   > = {
     whiteOak: {
       height: ArchetypeBand.metres(24, 30, SILVICS),

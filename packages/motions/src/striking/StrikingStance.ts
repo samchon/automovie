@@ -1,45 +1,49 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanGuard,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingStance,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingBody } from "./StrikingBody";
+import { StrikingGuard } from "./StrikingGuard";
+import { StrikingGuardBones } from "./StrikingGuardBones";
+import { StrikingLegGoals } from "./StrikingLegGoals";
 import { StrikingReach } from "./StrikingReach";
 
 /**
- * The fighting stance and its guard as goals measured on the body: a
- * staggered base on separate tracks, both knees soft, the body turned so the
- * lead shoulder faces the line, and each glove placed relative to the
- * performer's own head.
+ * The fighting stance uses separate tracks, soft knees, a leading shoulder and glove goals measured from the performer's own head.
  *
- * Coaching sources (IBA coaching manual pp. 34 to 39; kickboxing and Muay
- * Thai guides summarised in the kickboxing research of #3201) give the
- * relations, not the numbers; the numbers are stated readings, each named:
+ * IBA coaching manual pp. 34 to 39 and the kickboxing/Muay Thai guides in
+ * #3201 give these relations; the numbers are named readings:
  *
  * - stance length along the line 1.2 shoulder widths (guides: 1.0 to 1.3);
- * - the feet on their own hip tracks, so the lateral spacing is the hip
- *   joint spacing;
- * - the body turned 30 degrees from the line, lead shoulder forward (IBA p.34
- *   overhead feet), the lead foot pointing 15 degrees off the line toward the
- *   body's heading and the rear foot 45 degrees out (provisional readings of
- *   the same drawing);
- * - both knees flexed 32 degrees, inside the 25 to 45 degree translated range
- *   (soft knees, ready to lift either leg), by sinking the root;
- * - the rear glove's knuckles beside the rear jaw and the lead glove one
- *   forearm length ahead of the lead cheek at chin height, elbows down by the
- *   ribs (IBA guard; "gloves cover the jaw and temple, elbows near the ribs").
+ * - feet on their own hip tracks, spaced by the hip joints;
+ * - 30 degree body turn with lead shoulder forward, lead toe 15 degrees
+ *   toward that heading and rear toe 45 degrees out (IBA p.34 readings);
+ * - a sunk root flexes both knees 32 degrees, within the 25 to 45 degree band;
+ * - both gloves at ear height the same short distance ahead of their jaw, the
+ *   rear one outside its ear and the lead one before its own shoulder, chin
+ *   tucked and eyes on the opponent (IABA, A Beginner's Guide: "tuck your
+ *   chin down and look forward"; the boxing and MMA guard as coached: the
+ *   rear hand "as if holding a phone to your ear and then pushed forward just
+ *   in front of your face", the front hand "at the same height"; the Muay
+ *   Thai guard: "arms projected out further", "nearly vertical forearms").
+ *   The resting arms leave the ribs to be defended by an action: a body kick
+ *   is checked with the raised shin and the elbow brought down to the knee.
  *
- * Orthodox leads with the left side; southpaw with the right. Every distance
- * reads the body's measure, so the stance fits any stature and proportion.
+ * Orthodox leads left and southpaw right; distances read the body's measure.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each stance relation with its coaching source and which numbers are readings or provisional.
  * @evidence contracts/development/design.md#principled-representation The stance as a lead side and a line heading in degrees; feet, root sink and limb goals in world metres measured on the body.
@@ -222,28 +226,26 @@ export namespace StrikingStance {
   }
 
   /**
-   * The guard's glove goals for a posture: the rear fist beside the rear jaw,
-   * the lead fist one forearm length ahead of the lead cheek at chin height,
-   * both vertical fists (knuckles up and forward, palms in), elbows bending
-   * down toward the ribs. Placed on the posture's own head, so the guard
-   * follows every root, turn and lean. When the trunk turns under the head
-   * and draws the lead shoulder back (the rear hand's cross), the lead fist
-   * comes back to the face by as much as its shoulder went, no nearer than
-   * the rear fist stands: the coached "lead hand back to the chin" of a rear
-   * hand punch, which also keeps the fist in front of its own shoulder.
+   * The guard's glove goals for a posture: both fists at ear height the same
+   * short distance ahead of their jaw, the rear one outside its ear and the
+   * lead one before its own shoulder, both vertical fists (knuckles up and forward, palms in),
+   * elbows bending down under them. Placed on
+   * the posture's own head, so the guard follows every root, turn and lean.
    *
    * @param body The body.
    * @param posture The posture whose trunk carries the head.
    * @param stance The stance.
    * @param drop How far each glove sags below its guard, metres.
+   * @param posed The same body's trunk bones on this exact posture, borrowed within the current synchronous evaluation.
+   * @param resolution Optional exact FK reader borrowed from the same synchronous person evaluation.
    * @returns The two arm goals.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each glove's place, the fists' orientation, the elbows and that the guard follows the posture's head.
    * @evidence contracts/development/implementation.md#principled-implementation The gloves placed from the posture's own chin, jaw and face regions in forearm lengths and radii, the elbows bent toward a point below and ahead of each shoulder, each turned into a knuckle goal.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolution, then one goal per side.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offsets are measured on the body; the comment states why the gloves sit where the elbow stays in range.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution when not supplied by the caller, then constant rigid-frame work for two goals.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied trunk map is borrowed only for the exact same body/posture in one synchronous evaluation; no result or map is retained.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function guard(
@@ -251,89 +253,56 @@ export namespace StrikingStance {
     posture: IAutoMovieMotionHumanPosture,
     stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">,
     drop: Partial<Record<"left" | "right", number>> = {},
+    posed?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
-    const bones = StrikingBody.trunk(body, posture);
-    const m = body.measure;
-    const chin: IAutoMovieVector3 = StrikingBody.region(
-      body,
-      bones,
-      "chin",
-    ).point;
-    const forward: IAutoMovieVector3 = horizontal(
-      StrikingBody.region(body, bones, "face").normal,
-    );
-    const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const out: Pick<
-      IAutoMovieMotionHumanPosture["limbs"],
-      "leftArm" | "rightArm"
-    > = {};
-    for (const side of ["left", "right"] as const) {
-      const lead: boolean = side === stance.lead;
-      const jaw = StrikingBody.region(
-        body,
-        bones,
-        side === "left" ? "jawLeft" : "jawRight",
-      );
-      const outward: IAutoMovieVector3 = horizontal(jaw.normal);
-      const shoulder: IAutoMovieVector3 = bones.get(
-        `${side}UpperArm` as AutoMovieHumanoidBone,
-      )!.worldPosition;
-      // How far this shoulder is drawn back behind the middle of the two
-      // along the face's forward: the head stays on the opponent while the
-      // trunk turns into a strike, so the shoulder of the other arm goes
-      // back under a still head.
-      const withdrawn: number = Math.max(
-        0,
-        0.5 *
-          Vector3.dot(
-            Vector3.subtract(
-              bones.get(
-                `${side === "left" ? "right" : "left"}UpperArm` as AutoMovieHumanoidBone,
-              )!.worldPosition,
-              shoulder,
-            ),
-            forward,
-          ),
-      );
-      // The rear fist a quarter forearm in front of the jaw and the lead fist
-      // most of a forearm ahead of the cheek: closer, the elbow would have to
-      // fold past its range to keep down by the ribs. The lead fist comes
-      // back to the face with its shoulder, as far as the rear fist's
-      // distance: left where it was, it would lie across the chest from a
-      // shoulder drawn back, at the edge of that shoulder's range.
-      const near: number = 2 * m.forearmRadius + 0.25 * m.forearm;
-      const fistAt: IAutoMovieVector3 = lead
-        ? Vector3.add(
-            Vector3.add(
-              { ...jaw.point, y: chin.y },
-              Vector3.scale(forward, Math.max(near, m.forearm - withdrawn)),
-            ),
-            Vector3.scale(outward, -0.5 * m.forearmRadius),
-          )
-        : Vector3.add(
-            Vector3.add(jaw.point, Vector3.scale(outward, m.forearmRadius)),
-            Vector3.scale(forward, near),
-          );
-      const sag: IAutoMovieVector3 = {
-        ...fistAt,
-        y: fistAt.y - (drop[side] ?? 0),
-      };
-      const bend: IAutoMovieVector3 = Vector3.add(
-        shoulder,
-        Vector3.add(
-          Vector3.scale(up, -0.8 * m.upperArm),
-          Vector3.scale(forward, 0.5 * m.upperArm),
-        ),
-      );
+    return StrikingGuard(body, posture, stance, drop, posed, resolution);
+  }
 
-      out[side === "left" ? "leftArm" : "rightArm"] = glove(
+  /**
+   * Prepare the fixed guard's actual head/shoulder demand for an action.
+   * Each posture still computes both original glove goals from its own trunk.
+   *
+   * @param body The unchanged canonical body.
+   * @param stance The captured leading-side reader inputs.
+   * @param drop The captured per-side glove sag inputs, metres; empty by default.
+   * @param style The authored sporting carriage. Absent uses the original open guard.
+   * @returns The guard at an actual posture and optional operation-local FK source.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines body-owned fixed FK demand, captured guard inputs, actual changing posture and optional synchronous source.
+   * @evidence contracts/development/implementation.md#principled-implementation The canonical guard metadata supplies every actual chin/face/jaw/shoulder output to prepareTrunk once; each query retains the original seeded admission/digit path and StrikingGuard's coached geometry.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed-demand trunk producer feeds the same guard owner used by the one-shot guard entry; no second glove formula or physical fit exists.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both glove goals, shoulder withdrawal, canonical wrist offsets, authored joint admission and digit solves remain. Each query uses its actual posture; no pose, goal, time or contact outcome is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Head/shoulder name sorting and reachable-demand preparation run once per action. Each actual guard still pays original admission/digit work, required FK ancestry and two side computations; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the unchanged body's canonical guard-name metadata is prepared. Captured stance/drop feed each actual glove calculation, while optional same-body FK/ROM suppliers share only exact dependencies and current unchanged-table metadata inside that synchronous evaluation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns fixed body/demand and guard inputs until release. Each query owns fresh frames/goals and optional exact FK/genuine unchanged-table ROM loans only until return or throw; the fixed-demand producer retains no reader, projector, posture or time history.
+   */
+  export function prepareGuard(
+    body: IAutoMovieMotionHumanBody,
+    stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">,
+    drop: Partial<Record<"left" | "right", number>> = {},
+    style?: IAutoMovieMotionHumanGuard.Style,
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ) => Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
+    const trunk: ReturnType<typeof StrikingBody.prepareTrunk> =
+      StrikingBody.prepareTrunk(body, StrikingGuardBones(body));
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> =>
+      StrikingGuard(
         body,
-        side,
-        sag,
-        bend,
+        posture,
+        stance,
+        drop,
+        trunk(posture, resolution, projection),
+        undefined,
+        style,
       );
-    }
-    return out;
   }
 
   /**
@@ -403,61 +372,57 @@ export namespace StrikingStance {
     feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
     planted: Record<"left" | "right", boolean> = { left: true, right: true },
   ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
-    const out: Pick<
-      IAutoMovieMotionHumanPosture["limbs"],
-      "leftLeg" | "rightLeg"
-    > = {};
-    for (const side of ["left", "right"] as const) {
-      const foot: IAutoMovieMotionHumanFoot.IPlacement = feet[side];
-      const toes: IAutoMovieVector3 = Quaternion.rotateVector(foot.rotation, {
-        x: 0,
-        y: 0,
-        z: 1,
-      });
-      const bend: IAutoMovieVector3 = Vector3.add(
-        foot.ankle,
-        Vector3.add(Vector3.scale(toes, 0.5 * body.measure.shank), {
-          x: 0,
-          y: body.measure.shank,
-          z: 0,
-        }),
-      );
-      out[side === "left" ? "leftLeg" : "rightLeg"] = {
-        point: foot.ankle,
-        bend,
-        rotation: foot.rotation,
-        // A planted foot stands on its forefoot: when the ankle's range
-        // cannot give the asked rotation, the foot turns about the toes'
-        // joint and the toes stay flat on the floor (the forefoot rocker,
-        // Perry and Burnfield), instead of turning about the ankle.
-        ...(planted[side]
-          ? { planted: true, contact: HumanFoot.offset(body, side, "mtp") }
-          : {}),
-      };
-    }
-    return out;
+    return StrikingLegGoals.read(body, feet, planted);
+  }
+
+  /**
+   * Prepare authored leg goals for a plan's unchanged feet and planted selection.
+   *
+   * @param body The unchanged canonical body.
+   * @param feet The unchanged world ankle placements and rotations.
+   * @param planted The unchanged planted selection, both feet by default.
+   * @returns A lazy reader issuing fresh safe authored goal records and vectors.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed inputs, world placements and separate prepared-output ownership; legs preserves its original borrowed cold references.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the same original toe-axis/knee-hint and conditional MTP goal owner as legs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure StrikingLegGoals owns fixed-foot preparation and fresh field assembly once for both actual entry points.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every goal, field order, planted condition and MTP point remains; no pose, native fit, ROM projection or physical acceptance is skipped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed geometric hints and contacts prepare once instead of per repeated callback; every read still allocates fresh authored data and actual downstream fits remain unchanged.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual damped-balance and defence consumers keep body, entry feet and support selection unchanged throughout their plan/geometry; varying-foot callers retain the original legs entry point.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owner retains two private immutable geometric snapshots until plan release; each output is independent and captures no reader, pose, time or fit history.
+   */
+  export function prepareLegs(
+    body: IAutoMovieMotionHumanBody,
+    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    planted: Record<"left" | "right", boolean> = { left: true, right: true },
+  ): () => Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
+    return StrikingLegGoals.prepare(body, feet, planted);
   }
 
   /**
    * The stance's trunk and hand angles that no effector goal expresses: the
    * chin tucked 12 degrees (cervical flexion, the lower third of its range)
-   * and both fists closed.
+   * and both fists closed. The tuck is the neck's flexion alone: its turn
+   * toward the opponent (`facing`) and any side bend the entry holds are
+   * kept, so an action entered from a guard keeps the eyes where the guard
+   * had them.
    *
+   * @param entry The clinical angles the action is entered with; a neck with no turn when absent.
    * @returns Clinical angles by bone.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the chin tuck, its range basis and the closed fists.
-   * @evidence contracts/development/implementation.md#principled-implementation Fixed clinical angles inside their ranges, with the fist curl of both hands.
+   * @evidence contracts/development/common.md#meaningful-documentation States the chin tuck, its range basis, what of the entry's neck is kept and the closed fists.
+   * @evidence contracts/development/implementation.md#principled-implementation The neck's flexion set inside its range with the entry's own side bend and turn, and the fist curl of both hands.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One object.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A constant table built per call.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function joints(): Partial<
-    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-  > {
+  export function joints(
+    entry?: IAutoMovieMotionHumanPosture["joints"],
+  ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     return {
-      neck: [12, 0, 0],
+      neck: [12, entry?.neck?.[1] ?? 0, entry?.neck?.[2] ?? 0],
       ...StrikingBody.curl("left"),
       ...StrikingBody.curl("right"),
     };
@@ -498,10 +463,4 @@ export namespace StrikingStance {
       head: [head[0], head[1], head[2] - share],
     };
   }
-}
-
-/** A direction's horizontal part, normalised; forward (+Z) when vertical. */
-function horizontal(v: IAutoMovieVector3): IAutoMovieVector3 {
-  const h: IAutoMovieVector3 = { x: v.x, y: 0, z: v.z };
-  return Vector3.length(h) > 1e-9 ? Vector3.normalize(h) : { x: 0, y: 0, z: 1 };
 }

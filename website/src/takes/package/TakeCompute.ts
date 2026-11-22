@@ -1,29 +1,30 @@
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
+  IAutoMovieAffordance,
+  IAutoMovieModelPart,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanVerdicts,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import { HumanRefusal, HumanVerdicts } from "@automovie/motions";
+import { AutoMovieFrameGrid } from "@automovie/render";
 
-import type { IHumanEntry } from "../../human/structures/IHumanEntry";
-import { PLAYGROUND_BODIES } from "../../playground/data/PLAYGROUND_BODIES";
-import { PlaygroundBodies } from "../../playground/package/PlaygroundBodies";
 import { PlaygroundPerformance } from "../../playground/package/PlaygroundPerformance";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IPlaygroundRefusal } from "../../playground/structures/IPlaygroundRefusal";
 import type { IPlaygroundTimeline } from "../../playground/structures/IPlaygroundTimeline";
 import type { IPlaygroundVerdicts } from "../../playground/structures/IPlaygroundVerdicts";
 import { SceneTrack } from "../../scenes/SceneTrack";
+import { SceneArchetype } from "../../scenes/package/SceneArchetype";
 import type { ITake } from "../structures/ITake";
 import type { ITakeRequest } from "../structures/ITakeRequest";
 import type { ITakeResponse } from "../structures/ITakeResponse";
 
 /**
- * What the take worker computes with the packages: a composition's take, its
- * verdicts and a body's measures. The scene views and the playground both
- * reach the packages only through here, so a scene shows the performance the
+ * What the take worker computes with the packages: a composition's take and
+ * its verdicts. The scene views, the playground and the build's bake reach
+ * the packages only through here, so a scene shows the performance the
  * playground shows for the same composition.
  *
  * Nothing here touches the page or the worker's scope, so a Node test calls
@@ -54,11 +55,6 @@ export namespace TakeCompute {
     transfer: ArrayBuffer[];
   } {
     try {
-      if (request.kind === "body")
-        return {
-          response: { kind: "body", id: request.id, body: body(request.body) },
-          transfer: [],
-        };
       if (request.kind === "verdicts")
         return {
           response: {
@@ -95,7 +91,7 @@ export namespace TakeCompute {
 
   /**
    * Compute a composition's take: plan it, then pose every figure and place
-   * every prop at each frame of the rate.
+   * every prop at each frame of the rate and at the exact end.
    *
    * Planning costs seconds and each pose tens of milliseconds, which is why
    * this runs in a worker and the rate is a parameter.
@@ -110,7 +106,8 @@ export namespace TakeCompute {
   ): ITake | IPlaygroundRefusal {
     let built: PlaygroundPerformance.IBuilt;
     const frames: SceneTrack.IPlacement[][][] = [];
-    const props: string[] = (composition.objects ?? []).map(
+    const objects: IPlaygroundComposition.IObject[] = composition.objects ?? [];
+    const props: string[] = objects.map(
       (o: IPlaygroundComposition.IObject): string => o.subject,
     );
 
@@ -122,9 +119,12 @@ export namespace TakeCompute {
         key: JSON.stringify(composition),
         performance: built.performance,
       };
-      const count: number = Math.floor(built.performance.duration * fps) + 1;
-      for (let k: number = 0; k < count; k++) {
-        const seconds: number = k / fps;
+      const duration: number = built.performance.duration;
+      const readers: ((seconds: number) => SceneTrack.IPlacement[])[] =
+        objects.map(propReader(built.performance));
+      const lastFrame: number = AutoMovieFrameGrid.last(duration, fps);
+      for (let k: number = 0; k <= lastFrame; k++) {
+        const seconds: number = AutoMovieFrameGrid.time(k, duration, fps);
         frames.push([
           ...built.figures.map(
             (figure: PlaygroundPerformance.IFigure): SceneTrack.IPlacement[] =>
@@ -134,29 +134,11 @@ export namespace TakeCompute {
               ).posed,
           ),
 
-          // A prop is one entry: the frame it is carried, rests or moves in.
-          ...props.map((subject: string): SceneTrack.IPlacement[] => {
-            const frame: IAutoMovieRigidTransform = built.performance.prop(
-              subject,
-              seconds,
-            );
-            return [
-              {
-                bone: PROP,
-                position: [
-                  frame.position.x,
-                  frame.position.y,
-                  frame.position.z,
-                ],
-                rotation: [
-                  frame.rotation.x,
-                  frame.rotation.y,
-                  frame.rotation.z,
-                  frame.rotation.w,
-                ],
-              },
-            ];
-          }),
+          ...readers.map(
+            (
+              read: (seconds: number) => SceneTrack.IPlacement[],
+            ): SceneTrack.IPlacement[] => read(seconds),
+          ),
         ]);
       }
     } catch (error) {
@@ -174,13 +156,18 @@ export namespace TakeCompute {
       ...built.figures.map(
         (figure: PlaygroundPerformance.IFigure): string[] => rest(figure).order,
       ),
-      ...props.map((): string[] => [PROP]),
+      ...frames[0]!
+        .slice(figures.length)
+        .map((group: SceneTrack.IPlacement[]): string[] =>
+          group.map((entry: SceneTrack.IPlacement): string => entry.bone),
+        ),
     ];
     return {
       duration: built.performance.duration,
       track: {
         fps,
         frames: frames.length,
+        duration: built.performance.duration,
         orders,
         values: SceneTrack.encode(frames, orders),
       },
@@ -188,6 +175,94 @@ export namespace TakeCompute {
       figures,
       props,
       timeline: timeline(built.performance, composition),
+    };
+  }
+
+  /**
+   * Read a prop's world frame and the local frames of the parts its native
+   * articulation moves. The performance keeps each degree's last written
+   * value at the end, so props with no written state need no part tracks.
+   */
+  function propReader(
+    performance: IAutoMovieMotionHumanPerformance,
+  ): (
+    object: IPlaygroundComposition.IObject,
+  ) => (seconds: number) => SceneTrack.IPlacement[] {
+    return (object: IPlaygroundComposition.IObject) => {
+      const subject: string = object.subject;
+      const driven: boolean =
+        Object.keys(performance.state(subject, performance.duration)).length !==
+        0;
+      const model: SceneArchetype.Model | null = driven
+        ? SceneArchetype.model(object)
+        : null;
+      const moving: Set<string> = new Set(
+        model?.affordances.flatMap(
+          (affordance: IAutoMovieAffordance): readonly string[] =>
+            affordance.parts ?? [],
+        ) ?? [],
+      );
+      let previous: string | undefined;
+      let parts: SceneTrack.IPlacement[] = [];
+      return (seconds: number): SceneTrack.IPlacement[] => {
+        const frame: IAutoMovieRigidTransform = performance.prop(
+          subject,
+          seconds,
+        );
+        if (model !== null && moving.size !== 0) {
+          const state: Record<string, number> = performance.state(
+            subject,
+            seconds,
+          );
+          const key: string = JSON.stringify(state);
+          if (key !== previous) {
+            const posed: SceneArchetype.Model =
+              Object.keys(state).length === 0 ? model : model.articulate(state);
+            parts = posed.parts
+              .filter((part: IAutoMovieModelPart): boolean =>
+                moving.has(part.id),
+              )
+              .map((part: IAutoMovieModelPart): SceneTrack.IPlacement => {
+                const transform: IAutoMovieModelPart["transform"] =
+                  part.transform;
+                return {
+                  bone: SceneTrack.PROP_PART + part.id,
+                  position:
+                    transform === null
+                      ? [0, 0, 0]
+                      : [
+                          transform.translation.x,
+                          transform.translation.y,
+                          transform.translation.z,
+                        ],
+                  rotation:
+                    transform === null
+                      ? [0, 0, 0, 1]
+                      : [
+                          transform.rotation.x,
+                          transform.rotation.y,
+                          transform.rotation.z,
+                          transform.rotation.w,
+                        ],
+                };
+              });
+            previous = key;
+          }
+        }
+        return [
+          {
+            bone: PROP,
+            position: [frame.position.x, frame.position.y, frame.position.z],
+            rotation: [
+              frame.rotation.x,
+              frame.rotation.y,
+              frame.rotation.z,
+              frame.rotation.w,
+            ],
+          },
+          ...parts,
+        ];
+      };
     };
   }
 
@@ -219,28 +294,6 @@ export namespace TakeCompute {
         ): IPlaygroundVerdicts.IFinding => ({
           ...finding,
         }),
-      ),
-    };
-  }
-
-  /**
-   * One of the site's bodies with its measures. Preparing a body takes about
-   * two seconds the first time in a worker.
-   *
-   * @param id A key of `PLAYGROUND_BODIES`.
-   * @returns Its id, label and every numeric measure.
-   * @throws {Error} When no body has that id.
-   */
-  export function body(id: string): IHumanEntry {
-    const prepared: PlaygroundBodies.IPrepared = PlaygroundBodies.get(id);
-    return {
-      id,
-      label: PLAYGROUND_BODIES[id]!.label,
-      measures: Object.fromEntries(
-        Object.entries(prepared.body.measure).filter(
-          (entry: [string, unknown]): entry is [string, number] =>
-            typeof entry[1] === "number",
-        ),
       ),
     };
   }

@@ -5,7 +5,6 @@ import {
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanColliders,
   IAutoMovieQuaternion,
@@ -69,6 +68,7 @@ export namespace HumanArmShapes {
    * @param probe The probe.
    * @param reach The reach, metres.
    * @param screened The placement's screen (`screen`), when it is read for many probes; taken here when absent.
+   * @param gaps Optional caller-owned scratch indexed by shape, receiving the current sphere gap, metres, at every traversed index. Read only indices returned by this call; another probe overwrites its own traversed slots.
    * @returns The shapes' indices.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input, its unit and the result.
@@ -76,8 +76,8 @@ export namespace HumanArmShapes {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure An axis probe reads the frame's shapes directly; a collider probe filters its segment's screen.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only shapes that surely lie out of reach are left out; the exact distance stays the caller's.
    * @evidence contracts/development/implementation.md#efficient-algorithms One point-to-sphere distance per shape, over the segment's screen when one is given.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A screen taken once is read for every probe of the placement.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A screen taken once serves every probe, and the exact scalar Vector3.distance avoids a displacement object. Optional shape-indexed gaps let deepest use the same completed sphere distance while frame geometry and this candidate's probe remain unchanged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh index list and retains no scratch. The caller owns the optional gap buffer, reads only this call's returned indices, and releases it with its candidate evaluation; untouched slots are unspecified.
    */
   export function nearby(
     at: IAutoMovieMotionHumanArmGeometry.IFrame,
@@ -85,15 +85,18 @@ export namespace HumanArmShapes {
     probe: number,
     reach: number,
     screened?: IScreen,
+    gaps?: number[],
   ): number[] {
     const [p, r]: readonly [IAutoMovieVector3, number] = placed.probes[probe]!;
-    if (probe < G.SURFACE) return near(at, p, r + reach);
+    if (probe < G.SURFACE) return near(at, p, r + reach, gaps);
     const owner: "upper" | "lower" | "hand" = at.owners[probe - G.SURFACE]!;
     return (screened ?? screen(at, placed, reach))[owner].filter(
-      (i: number): boolean =>
-        Vector3.length(Vector3.subtract(p, at.shapes[i]!.centre)) -
-          at.shapes[i]!.radius <
-        r + reach,
+      (i: number): boolean => {
+        const shape: IAutoMovieMotionHumanArmGeometry.IShape = at.shapes[i]!;
+        const gap: number = Vector3.distance(p, shape.centre) - shape.radius;
+        if (gaps !== undefined) gaps[i] = gap;
+        return gap < r + reach;
+      },
     );
   }
 
@@ -116,6 +119,7 @@ export namespace HumanArmShapes {
    * @param at The frame.
    * @param placed The arm placed.
    * @param reach The reach, metres.
+   * @param among The frame's shapes any placement of the arm can come within the reach of (`reachable` at this reach), ascending; every shape when absent.
    * @returns The shapes' indices by segment.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input, its unit and the result.
@@ -130,8 +134,13 @@ export namespace HumanArmShapes {
     at: IAutoMovieMotionHumanArmGeometry.IFrame,
     placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     reach: number,
+    among?: readonly number[],
   ): IScreen {
-    const of = (
+    const of: (
+      owner: "upper" | "lower" | "hand",
+      o: IAutoMovieVector3,
+      w: IAutoMovieQuaternion,
+    ) => number[] = (
       owner: "upper" | "lower" | "hand",
       o: IAutoMovieVector3,
       w: IAutoMovieQuaternion,
@@ -140,6 +149,8 @@ export namespace HumanArmShapes {
         at,
         Vector3.add(o, Quaternion.rotateVector(w, at.bounds[owner].centre)),
         at.bounds[owner].radius + reach,
+        undefined,
+        among,
       );
     return {
       upper: of("upper", placed.shoulder, placed.upper),
@@ -170,12 +181,18 @@ export namespace HumanArmShapes {
   ): IAutoMovieMotionHumanArmGeometry.IShape[] {
     const out: IAutoMovieMotionHumanArmGeometry.IShape[] = [];
     for (const c of at.colliders) {
-      const [o, w]: [IAutoMovieVector3, IAutoMovieQuaternion] =
+      const o: IAutoMovieVector3 =
         c.owner === "upper"
-          ? [placed.shoulder, placed.upper]
+          ? placed.shoulder
           : c.owner === "lower"
-            ? [placed.elbow, placed.lower]
-            : [placed.wrist, placed.hand];
+            ? placed.elbow
+            : placed.wrist;
+      const w: IAutoMovieQuaternion =
+        c.owner === "upper"
+          ? placed.upper
+          : c.owner === "lower"
+            ? placed.lower
+            : placed.hand;
       const pose: IAutoMovieMotionHumanColliders.IPlaced["pose"] = {
         ...c.pose,
         position: Vector3.add(o, Quaternion.rotateVector(w, c.pose.position)),
@@ -205,7 +222,7 @@ export namespace HumanArmShapes {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bounded(
-    bone: AutoMovieHumanoidBone,
+    bone: IAutoMovieMotionHumanArmGeometry.Segment,
     part: number,
     pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
     shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
@@ -226,27 +243,116 @@ export namespace HumanArmShapes {
    * @param at The frame.
    * @param p The point.
    * @param reach The reach, metres.
-   * @returns The shapes' indices.
+   * @param gaps Optional caller-owned scratch receiving each traversed shape's sphere gap, metres, by index; no scratch is retained here.
+   * @param among The only shapes read, ascending indices (`reachable`, for a point of the arm it was taken for and a reach no greater than its own); every shape when absent.
+   * @returns The shapes' indices, ascending.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input, its unit and the result.
    * @evidence contracts/development/implementation.md#principled-implementation A shape whose bounding sphere lies beyond the reach cannot come within it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the frame's shapes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reach is the caller's; nothing is added to it.
    * @evidence contracts/development/implementation.md#efficient-algorithms One distance per shape.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure query with nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The exact scalar Vector3.distance preserves the robust norm and shape order without a displacement object. Optional gap output supplies actual completed sphere distances without another norm query.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list; an optional gap buffer remains caller-owned and is never retained, nor are source placements or computed point pairs.
    */
   export function near(
     at: IAutoMovieMotionHumanArmGeometry.IFrame,
     p: IAutoMovieVector3,
     reach: number,
+    gaps?: number[],
+    among?: readonly number[],
   ): number[] {
+    const out: number[] = [];
+    const read: (
+      shape: IAutoMovieMotionHumanArmGeometry.IShape,
+      i: number,
+    ) => void = (
+      shape: IAutoMovieMotionHumanArmGeometry.IShape,
+      i: number,
+    ): void => {
+      const gap: number = Vector3.distance(p, shape.centre) - shape.radius;
+      if (gaps !== undefined) gaps[i] = gap;
+      if (gap < reach) out.push(i);
+    };
+    if (among === undefined) at.shapes.forEach(read);
+    else for (const i of among) read(at.shapes[i]!, i);
+    return out;
+  }
+
+  /**
+   * The frame's shapes some placement of the arm can bring a probe or a
+   * segment's bounding sphere within a reach of, whatever its coordinates:
+   * the shapes the sphere screens (`near`, `screen`) can ever return, so a
+   * screen reads only these.
+   *
+   * The shoulder's point is the frame's own and every link is rigid, so a
+   * probe riding a segment lies no farther from the shoulder than the links
+   * before its segment's joint plus its own distance from that joint (the
+   * triangle inequality along the chain), and a segment's bounding sphere
+   * no farther than the links plus its centre's offset and its radius. With
+   * `far` the greatest of those, each plus its probe's radius, a shape whose
+   * sphere stands `far + reach` or more from the shoulder has a sphere gap
+   * of at least `radius + reach` to every probe, which `near` leaves out.
+   *
+   * @param at The frame.
+   * @param placed The arm placed at any coordinates in this frame, with its collider probes; only its rigid distances are read.
+   * @param reach The greatest reach the screens are asked, metres, beyond a probe's radius.
+   * @returns The shapes' indices, ascending.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the list is for, the bound's derivation, which placement is read and the ordering.
+   * @evidence contracts/development/implementation.md#principled-implementation A triangle-inequality bound on a serial chain of rigid links from a fixed shoulder; the premise holds because forward kinematics composes fixed rest offsets and rotations only (`resolveHumanArmChain`) and probes are fixed in their segments (`placeHumanArmGeometry`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The chain's two link lengths, one maximum over probes and segment spheres, one pass over the shapes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only shapes no placement can reach are left out, with `ROUNDING` kept on the keeping side for the distances' rounding; no reach, radius or allowance changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(P + S) once per frame for P probes and S shapes, so every later screen of that frame reads the kept shapes instead of S.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The list depends on the frame and the arm's rigid geometry alone, so one list serves every placement, probe and iterate at that frame.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list and retains nothing.
+   */
+  export function reachable(
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
+    reach: number,
+  ): number[] {
+    const upper: number = Vector3.distance(placed.elbow, placed.shoulder);
+    const before: Record<"upper" | "lower" | "hand", number> = {
+      upper: 0,
+      lower: upper,
+      hand: upper + Vector3.distance(placed.wrist, placed.elbow),
+    };
+    const origin: Record<"upper" | "lower" | "hand", IAutoMovieVector3> = {
+      upper: placed.shoulder,
+      lower: placed.elbow,
+      hand: placed.wrist,
+    };
+    let far: number = 0;
+    placed.probes.forEach(
+      ([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
+        const owner: "upper" | "lower" | "hand" =
+          probe >= G.SURFACE
+            ? at.owners[probe - G.SURFACE]!
+            : probe < 2
+              ? "upper"
+              : probe < 6
+                ? "lower"
+                : "hand";
+        far = Math.max(
+          far,
+          before[owner] + Vector3.distance(p, origin[owner]) + r,
+        );
+      },
+    );
+    for (const owner of ["upper", "lower", "hand"] as const)
+      far = Math.max(
+        far,
+        before[owner] +
+          Vector3.length(at.bounds[owner].centre) +
+          at.bounds[owner].radius,
+      );
     const out: number[] = [];
     at.shapes.forEach(
       (shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
         if (
-          Vector3.length(Vector3.subtract(p, shape.centre)) - shape.radius <
-          reach
+          Vector3.distance(shape.centre, placed.shoulder) - shape.radius <
+          far + reach + ROUNDING
         )
           out.push(i);
       },
@@ -313,6 +419,31 @@ export namespace HumanArmShapes {
   }
 
   /**
+   * Read changing segment gaps against one fixed frame shape during one
+   * synchronous candidate evaluation; the first actual query prepares its
+   * geometry, and all later queries still read their actual signed distance.
+   *
+   * @param at This candidate's unchanged frame.
+   * @param shape Its fixed shape index, with unchanged pose and shape geometry.
+   * @returns A world-metre distance reader, released with the candidate.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed frame/index provenance, lazy geometry preparation, actual varying world segments and candidate-local release.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's opaque prepared distance reader shares only exact fixed shape transforms and retains the same signed proximity mathematics as gap.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the original frame shape and delegate preparation to the existing scalar distance owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the actual shape, all segment queries, bounds, branch/error order and metre sign; it supplies no alternate frame numbers, clearance allowance or result callback.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed-geometry preparation per selected shape serves repeated probes while changed-point transforms and original closest/hull/search work remain; one-off gap callers create no reader.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual deepest-pair candidate owns this reader while its frame geometry stays unchanged; another candidate or frame owns a new reader.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller releases this opaque reader with the synchronous candidate. Only borrowed fixed pose/shape and private geometry are retained; no probe, distance result or global history is kept.
+   */
+  export function prepareGap(
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
+    shape: number,
+  ): ReturnType<typeof physicalShapeSegmentDistance.prepare> {
+    const s: IAutoMovieMotionHumanArmGeometry.IShape = at.shapes[shape]!;
+    return physicalShapeSegmentDistance.prepare(s.pose, s.shape);
+  }
+
+  /**
    * A point carried from one placement of a shape into another's world
    * frame, holding its coordinates relative to that shape. Both placements
    * must describe the same rigid collider.
@@ -321,6 +452,14 @@ export namespace HumanArmShapes {
    * @param next The placement the point is read against.
    * @param point The point at `next`, world metres.
    * @returns The point at `now`, world metres, and the rotation carrying a direction with it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies the same-rigid-collider premise, world frame and returned point/turn.
+   * @evidence contracts/development/implementation.md#principled-implementation The relative world rotation now*inverse(next) carries the offset from next's origin to now's origin.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One relative quaternion and one rotated offset.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Borrows the actual placements of the same shape without re-estimating a centre or padding a distance.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed-size quaternion and vector arithmetic.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads its actual placement pair without retaining computed target coordinates.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh point/turn records and retains no source placements.
    */
   export function relative(
     now: IAutoMovieMotionHumanArmGeometry.IShape,
@@ -343,3 +482,6 @@ export namespace HumanArmShapes {
     };
   }
 }
+
+/** What `reachable` keeps a shape by beyond its bound, metres: a nanometre, far above the rounding of distances of a metre in doubles (about 1e-16 m) and far below any reach asked, so rounding never drops a shape a screen would return. */
+const ROUNDING: number = 1e-9;

@@ -1,0 +1,61 @@
+---
+title: Independent review
+---
+
+import { Callout } from "nextra/components";
+
+# Independent review
+
+The evidence graph proves that every obligation was answered. It cannot prove that an answer is true or that the writing works. Independent review covers that: a reader in a separate context reads each layer as its recipient and records findings. Each review is tied to the text it read, and a changed passage must be read again.
+
+<Callout type="info">
+A passing check means every selected obligation was answered. Whether the writing and the delivered video are good is decided by this review and by delivery review.
+</Callout>
+
+## Separate contexts
+
+The production keeps three roles apart:
+
+| Role | Does |
+| --- | --- |
+| Author | A writer subagent drafts and revises the layer |
+| Evidence answerer | A separate subagent writes the answers and returns gaps to the author |
+| Independent reviewer | A fresh subagent reads the layer and owns the verdict |
+
+The main agent is the director. It assigns these roles, inspects each handoff against the commission and returns work that falls short, even after it passed validation or review. A fresh context starts with the job and the input paths, without inherited conversation or memory. If isolation is unavailable, the agent reports the review as unperformed.
+
+## Reading as the recipient
+
+The reviewer receives the task, the recipient and the annotation-free body before parents, contracts or earlier verdicts, and never the Evidence answers. It reads every unit and locks its first response and the concrete losses before reading other records.
+
+Each layer is read as the person who receives it:
+
+| Layer | Read as |
+| --- | --- |
+| Settings | Treatment writer and designer |
+| Brief | Screenplay writer and designer |
+| Treatments | Script writer |
+| Scripts | Screenplay writer and performer |
+| Screenplay | Audience, then filmmaker |
+
+Only then does the reviewer compare decisions, names, notation, quotations, action, picture and sound with the parents and contracts. A loss the recipient suffers stays a finding even when upstream knowledge explains it, and a defective parent is reported with its earliest owner.
+
+## Findings and decisions
+
+The author records acceptance or refusal of each finding, with reasons. The reviewer withdraws a finding or rebuts the refusal, and the author's decision after a rebuttal stands. A settled finding reopens only with new evidence from the body, a parent or a source.
+
+The author repairs the accepted findings by cause, at their owners, and the answerer brings the affected answers up to date. On the long route a pass runs at most two rounds. A short takes one review, after which its brief and screenplay stages return to disabled, so the repairs that follow owe no story answers.
+
+## Delivery review and the acceptance record
+
+A film or a whole motion hint has its own acceptance, judged on stills in two passes: stills drawn from the film's source, and stills extracted from the delivered file at matching times. Each film keeps one `docs/acceptance/<film>.md` across revisions. It records:
+
+- technical file completion;
+- a separate verdict on the depicted practice;
+- rejected requirements and any exclusion you adopted;
+- every scene and beat seen, with on-model entities, contacts, presences, camera and continuity;
+- the measures;
+- the views and passes reviewed;
+- what you watched or heard, and what nobody did.
+
+Playback and sound are yours to judge, because stills cannot show them. `pnpm run review` records the inspector's playback as a video for you, and [Capture, render and review](/docs/delivery/capture-render-review) describes it.

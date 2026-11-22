@@ -1,6 +1,7 @@
+import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { Archetype, ArchetypeBuilder } from "../core";
+import { type Archetype, type ArchetypeBuilder, ArchetypeFrame } from "../core";
 import { OxBody } from "./OxBody";
 import type { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedEquipment } from "./QuadrupedEquipment";
@@ -8,7 +9,7 @@ import { QuadrupedHeadAttachment } from "./QuadrupedHeadAttachment";
 import { createCohortQuadruped } from "./createCohortQuadruped";
 
 /**
- * A coarse Kathani working-ox reference with actual horns and authored equipment.
+ * A coarse Kathani working-ox reference with actual horns and authored equipment, declaring the roper's targets: `head` at the poll, `horns` between the horns' bases and `hind` between the hocks.
  *
  * @param params Authored whole-model kilograms, optional lead and yoke/pack dimensions.
  * @param seed Independent construction seed and declared timing-spread coordinate.
@@ -50,6 +51,7 @@ export function createOx(
           QuadrupedBody.Dimension
         >,
       ): void => {
+        const bases: IAutoMovieVector3[] = [];
         for (const [side, sign] of [
           ["left", 1],
           ["right", -1],
@@ -62,6 +64,7 @@ export function createOx(
             { x, y, z: rig.poll.z },
             hornRadius,
           );
+          bases.push(horn);
           builder.rod(
             `${side}Horn`,
             hornRadius,
@@ -91,6 +94,38 @@ export function createOx(
             { color: "#8a6a46" },
           );
         }
+        // The roper's targets: the poll on the head's top, the horns' bases on the skull and the middle between the hocks a heel loop closes on.
+        builder.affordance({
+          id: "head",
+          kind: "surface",
+          direction: "normal",
+          frame: ArchetypeFrame.upright(rig.poll),
+          extent: null,
+          width: 2 * rig.headRadius,
+        });
+        builder.affordance({
+          id: "horns",
+          kind: "surface",
+          direction: "normal",
+          frame: ArchetypeFrame.upright(
+            Vector3.lerp(bases[0]!, bases[1]!, 0.5),
+          ),
+          extent: null,
+          width: Vector3.distance(bases[0]!, bases[1]!),
+        });
+        builder.affordance({
+          id: "hind",
+          kind: "surface",
+          direction: "normal",
+          frame: ArchetypeFrame.upright(
+            Vector3.lerp(rig.limbs.leftHind[2]!, rig.limbs.rightHind[2]!, 0.5),
+          ),
+          extent: null,
+          width: Vector3.distance(
+            rig.limbs.leftHind[2]!,
+            rig.limbs.rightHind[2]!,
+          ),
+        });
         equipment?.emit(builder);
       };
     },

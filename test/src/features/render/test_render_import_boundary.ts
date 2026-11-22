@@ -4,14 +4,13 @@ import { builtinModules } from "node:module";
 import path from "node:path";
 import ts from "typescript-compiler";
 
+import { repositoryRoot } from "../internal/repositoryRoot";
+
 /** Root of the `render` package's source. */
-const SOURCE: string = path.resolve(
-  __dirname,
-  "../../../../packages/render/src",
-);
+const SOURCE: string = path.join(repositoryRoot(), "packages/render/src");
 
 /** Root of the `viewer` package, which `render` must never reach. */
-const VIEWER: string = path.resolve(__dirname, "../../../../packages/viewer");
+const VIEWER: string = path.join(repositoryRoot(), "packages/viewer");
 
 /** Node's built-in modules by bare name, such as `zlib`, which a file can import without the `node:` prefix. */
 const BUILTINS: ReadonlySet<string> = new Set(builtinModules);

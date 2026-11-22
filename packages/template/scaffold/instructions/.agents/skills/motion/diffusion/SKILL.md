@@ -7,7 +7,7 @@ description: Generates or traces body motion with a motion model.
 
 A motion model fills, varies or restyles motion; it does not decide it. [Compose](../compose/composition.md) each person's actions first, so the beat's key poses, root path, contacts and timing are authored and exact, and let the model work only between and around them.
 
-Use a model when the user chooses it for motion the vocabulary has no action for, such as a dance's flowing transitions, never for a stretch the vocabulary performs stiffly.
+Use a model the user chooses only for movement the installed vocabulary lacks.
 
 | Read | To |
 | --- | --- |

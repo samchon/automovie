@@ -1,11 +1,7 @@
 # Scripts
 
-Realize completed treatments as scenes performers and filmmakers can execute, under the [script principles](../../contracts/story/shared/principles/scripts.md) and [population duties](../../contracts/story/shared/obligations/scripts.md).
+Organize the treatments into a scene-by-scene first draft for the screenplay writer. After [discovery](../planning/discovery.md), group scenes into episodes and parts at the turns that serve the release. Use the [research](../planning/research.md#when-to-study) each scene's decisions depend on.
 
-After [discovery](../planning/discovery.md), map treatments to their scenes and settle the scene, sequence and release units by actual viewing material, keeping stable episode files and scene anchors, because the screenplay [realizes each script scene in its own file](screenplay.md#scenes).
+Establish where and when each scene happens, who is involved and what changes. Draft the exchange when the words carry a choice, reveal or reversal. A brief account can carry an incidental exchange. Mark wording the commission fixes. The screenplay writer uses the intent and outcome to write the final dialogue and staging afresh.
 
-Build each scene around what its participants do, encounter and change: actual dialogue, action, reaction and performance in playable order, with usable space, light, sound and a view chosen under [shots and cuts](shots.md), in readable [notation](notation.md). Content and expression are completed together in [construction](../workflow/long.md#each-layers-pass). Study what [when to study](../planning/research.md#when-to-study) assigns to a script.
-
-Keep the inherited event chronology while creating the scene's own execution under [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation), cite every realized treatment, and repair a defective parent under [upstream defects](../correction/repair.md#upstream-defects).
-
-Before evidence, read the whole script as reader, performer and filmmaker, then inspect and repair under [cause rounds](../correction/repair.md#cause-rounds), comparing neighboring units for the [distribution](../../contracts/story/shared/naturalness/obligations/scripts.md#execution-distribution) of execution.
+Cite the treatment events each scene carries and keep its [heading and anchor](notation.md#identities) stable for the corresponding [screenplay scene](screenplay.md#scenes). Check [each scene draft](../../contracts/story/principles/scripts.md) and read them in order for [partition and coverage](../../contracts/story/obligations/scripts.md). Trace a gap in the events to its [upstream owner](../../contracts/story/upstream/scripts.md).

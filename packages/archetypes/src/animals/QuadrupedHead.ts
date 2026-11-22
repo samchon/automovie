@@ -5,9 +5,14 @@ import { ArchetypeMassArithmetic } from "../core/ArchetypeMassArithmetic";
 import { ArchetypeMassPrimitive } from "../core/ArchetypeMassPrimitive";
 import type { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedEars } from "./QuadrupedEars";
+import { QuadrupedJaw } from "./QuadrupedJaw";
+import { QuadrupedLip } from "./QuadrupedLip";
+import { QuadrupedNostrils } from "./QuadrupedNostrils";
 
 /**
- * Lay the actual head capsule and optional pinnae under one source head budget.
+ * Lay the actual head capsule, optional pinnae, an optional jaw and an optional upper lip under one source head budget.
+ *
+ * An optional jaw (`QuadrupedJaw`) and upper lip (`QuadrupedLip`) lie inside the head capsule and carry an explicit zero weight, so the head's tissue is weighed once.
  *
  * The existing source study gives a complete head share, not a separate ear
  * density or mass. Its represented capsule and two pinnae divide that unchanged
@@ -72,4 +77,14 @@ export function QuadrupedHead<Id extends string, Dimension extends string>(
     share: capsuleShare,
   });
   ears?.emit(builder, color, earShare);
+
+  // The jaw lies inside the head capsule, so its tissue is weighed with the head's and it carries an explicit zero weight, under source shares and volume allocation alike.
+  if (profile.jaw !== undefined)
+    QuadrupedJaw.lay(builder, head, profile.jaw, color);
+
+  // The upper lip and the nostrils lie inside the head capsule too, under the same zero weight.
+  if (profile.lip !== undefined)
+    QuadrupedLip.lay(builder, head, profile.lip, color);
+  if (profile.nostrils !== undefined)
+    QuadrupedNostrils.lay(builder, head, profile.nostrils, color);
 }

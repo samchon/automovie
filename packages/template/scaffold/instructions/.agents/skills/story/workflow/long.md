@@ -2,7 +2,7 @@
 
 Long work runs settings, treatments, scripts and screenplay, one layer at a time, and each layer is a pass that closes before the next builds on it.
 
-Ask the user under [asking the user](../planning/requirements.md#asking-the-user) first, and run [discovery](../planning/discovery.md) before bulk settings and again at each of its three [checkpoints](../planning/discovery.md#checkpoints).
+Run [discovery](../planning/discovery.md) on the director's [recorded answers](../planning/requirements.md#asking-the-user) before bulk settings and [again after settings](../planning/discovery.md#checkpoints).
 
 ## Parents
 
@@ -16,8 +16,6 @@ Ask the user under [asking the user](../planning/requirements.md#asking-the-user
 Each layer inherits through its actual parents and repairs a missing handoff at its owner under [upstream defects](../correction/repair.md#upstream-defects), never bypassing it.
 
 ## Each layer's pass
-
-A pass runs four steps in order, then closes.
 
 ### 1. Construction
 
@@ -37,7 +35,7 @@ The author decides each finding and repairs the accepted ones at their owners, a
 
 ### Closing
 
-A pass has at most two review rounds, because reviewers keep finding matters of their own style and a review that waited for no findings would never close.
+Run at most two review rounds.
 
 A round in which the author accepts no finding closes the pass. Otherwise a fresh reviewer reads the repaired body in a second and last round, and the pass closes once that round's accepted findings are repaired.
 

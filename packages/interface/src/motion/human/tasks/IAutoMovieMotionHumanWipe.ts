@@ -1,6 +1,7 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanBalance";
 
 /**
  * Wiping a table, counter or other level surface with the flat palm in
@@ -42,6 +43,15 @@ export namespace IAutoMovieMotionHumanWipe {
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
+    /**
+     * A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift
+     * of its part, scaled by its weight between its two event-named instants,
+     * each field absent taking the law's recommendation. Absent, none: the
+     * posture is the law's own kinematic one with no balance shift or
+     * centre-of-mass reading.
+     */
+    balance?: IAutoMovieMotionHumanBalance;
+
     /** The middle of the patch wiped, on the surface's top. */
     on: IAutoMovieMotionTarget;
 

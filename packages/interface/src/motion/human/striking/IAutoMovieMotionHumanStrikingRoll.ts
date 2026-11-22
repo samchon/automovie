@@ -58,7 +58,7 @@ export namespace IAutoMovieMotionHumanStrikingRoll {
     /** The point of the tool the pose keeps, metres behind its working point. */
     back: number;
 
-    /** The body at the decisive instant, or its goals for each candidate frame when another hand supports that frame's tool. */
+    /** The current body posture, read after each actual frame callback, or a posture callback for each candidate frame when another hand supports that frame's tool. */
     posture:
       | IAutoMovieMotionHumanPosture
       | ((

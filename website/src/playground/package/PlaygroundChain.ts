@@ -1,7 +1,12 @@
-import type { IAutoMovieComposition } from "@automovie/interface";
+import type {
+  AutoMovieHumanSex,
+  IAutoMovieComposition,
+} from "@automovie/interface";
 import * as motions from "@automovie/motions";
 import { HUMAN_ACTIONS, HumanChain } from "@automovie/motions";
 
+import { PLAYGROUND_BODIES } from "../data/PLAYGROUND_BODIES";
+import { playgroundActionParams } from "../data/playgroundActionParams";
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
 import { PlaygroundObjects } from "./PlaygroundObjects";
 
@@ -106,7 +111,7 @@ export namespace PlaygroundChain {
 
   /**
    * The laws the package exports by name at its top level, beside the
-   * lexicon's rows: a law a mutual action names but no family lists.
+   * lexicon's rows: a registered law no family lists.
    *
    * @returns Each law by its name.
    */
@@ -124,29 +129,69 @@ export namespace PlaygroundChain {
   }
 
   /**
-   * The mutual actions: every record the package exports, in any namespace
-   * (`HumanMutual`, and the lexicon's social and partner families), that
-   * names itself and casts roles.
+   * The laws available by the name a composition supplies. A lexicon row
+   * takes precedence if the released package also exposes that name directly.
+   *
+   * @returns Laws that can be appended by HumanChain.registered.
+   */
+  export function registeredLaws(): ReadonlyMap<string, ILaw> {
+    const laws: Map<string, ILaw> = exported();
+    for (const family of Object.values(lexicon()))
+      for (const law of family) laws.set(law.name, law);
+    return laws;
+  }
+
+  /**
+   * The named mutual actions the installed chain can join.
    *
    * @returns Each record by its name; empty when the package has none or its chain cannot join them.
    */
   export function mutuals(): Record<string, IMutual> {
+    return Object.fromEntries(
+      Object.entries(mutualExports()).map(
+        ([name, { record }]): [string, IMutual] => [name, record],
+      ),
+    );
+  }
+
+  /** A mutual action and the expression that refers to it in authored code. */
+  interface IMutualExport {
+    /** The exported action record. */
+    record: IMutual;
+
+    /** Its named export or namespace member. */
+    expression: string;
+  }
+
+  /**
+   * Find named mutual actions exported directly or in a namespace. The
+   * playground and a scene's displayed program use the same export.
+   *
+   * @returns The action and its public expression for each name.
+   */
+  export function mutualExports(): Record<string, IMutualExport> {
     const join: unknown = (HumanChain as unknown as Record<string, unknown>)[
       "mutual"
     ];
     if (typeof join !== "function") return {};
-    const found: Record<string, IMutual> = {};
-    for (const space of Object.values(EXPORTS)) {
+    const found: Record<string, IMutualExport> = {};
+    const register = (value: unknown, expression: string): void => {
+      if (
+        typeof value === "object" &&
+        value !== null &&
+        typeof (value as IMutual).name === "string" &&
+        Array.isArray((value as IMutual).roles) &&
+        typeof (value as IMutual).act === "function"
+      ) {
+        const record: IMutual = value as IMutual;
+        found[record.name] = { record, expression };
+      }
+    };
+    for (const [key, space] of Object.entries(EXPORTS)) {
       if (typeof space !== "object" || space === null) continue;
-      for (const value of Object.values(space as Record<string, unknown>))
-        if (
-          typeof value === "object" &&
-          value !== null &&
-          typeof (value as IMutual).name === "string" &&
-          Array.isArray((value as IMutual).roles) &&
-          typeof (value as IMutual).act === "function"
-        )
-          found[(value as IMutual).name] = value as IMutual;
+      register(space, key);
+      for (const [member, value] of Object.entries(space))
+        register(value, `${key}.${member}`);
     }
     return found;
   }
@@ -159,37 +204,34 @@ export namespace PlaygroundChain {
    * @throws {Error} When the data asks for an operator the installed package lacks, names no action at all, or leaves a role of a mutual action without a performer.
    */
   export function build(data: IPlaygroundComposition): IBuilt {
-    const rows: Map<string, ILaw> = new Map(
-      Object.values(lexicon())
-        .flat()
-        .map((law: ILaw): [string, ILaw] => [law.name, law]),
-    );
+    const rows: ReadonlyMap<string, ILaw> = registeredLaws();
     const laws: Map<string, ILaw> = new Map();
     const objects: readonly IPlaygroundComposition.IObject[] =
       data.objects ?? [];
 
     const append = (
       chain: ILoose,
-      written: IPlaygroundComposition.IAction,
+      action: IPlaygroundComposition.IAction,
+      sex: AutoMovieHumanSex | undefined,
     ): ILoose => {
+      const bound: Record<string, unknown> = playgroundActionParams(
+        action,
+        sex,
+      );
       // A seat named by its object becomes that object's seat.
-      const action: IPlaygroundComposition.IAction =
+      const params: Record<string, unknown> =
         objects.length === 0
-          ? written
-          : {
-              ...written,
-              params: PlaygroundObjects.resolve(written.params, objects),
-            };
-      // A lexicon row is registered with the performance and appended by its
-      // name. Any other name goes to `act`, so a name the vocabulary lacks is
-      // refused by the package in its own words.
+          ? bound
+          : PlaygroundObjects.resolve(bound, objects);
+      // A released row or standalone law is registered with the performance
+      // and appended by name. Other names go to act for normal SDK admission.
       const row: ILaw | undefined =
         action.name in HUMAN_ACTIONS ? undefined : rows.get(action.name);
       let next: ILoose;
       if (row !== undefined && chain.registered !== undefined) {
         laws.set(row.name, row);
-        next = chain.registered(action.name, action.params, action.anchor);
-      } else next = chain.act(action.name, action.params, action.anchor);
+        next = chain.registered(action.name, params, action.anchor);
+      } else next = chain.act(action.name, params, action.anchor);
 
       if (action.until !== undefined) next = next.until(action.until);
 
@@ -200,7 +242,12 @@ export namespace PlaygroundChain {
           );
         const overlaid: IPlaygroundComposition.IAction[] = action.over;
         next = next.over(
-          (overlay: ILoose): ILoose => overlaid.reduce(append, overlay),
+          (overlay: ILoose): ILoose =>
+            overlaid.reduce(
+              (part: ILoose, action: IPlaygroundComposition.IAction): ILoose =>
+                append(part, action, sex),
+              overlay,
+            ),
         );
       }
 
@@ -221,10 +268,15 @@ export namespace PlaygroundChain {
         (performer: IPlaygroundComposition.IPerformer): boolean =>
           performer.actions.length !== 0,
       )
-      .map(
-        (performer: IPlaygroundComposition.IPerformer): ILoose =>
-          performer.actions.reduce(append, empty(performer.subject)),
-      );
+      .map((performer: IPlaygroundComposition.IPerformer): ILoose => {
+        const sex: AutoMovieHumanSex | undefined =
+          PLAYGROUND_BODIES[performer.body]?.parameters?.body.anatomy.sex;
+        return performer.actions.reduce(
+          (part: ILoose, action: IPlaygroundComposition.IAction): ILoose =>
+            append(part, action, sex),
+          empty(performer.subject),
+        );
+      });
     if (chains.length === 0 && data.mutuals.length === 0)
       throw new Error("The composition has no action; add one to a performer");
 
@@ -267,7 +319,7 @@ export namespace PlaygroundChain {
         for (const role of record.roles) {
           const name: string = record.act(role, params, mutual.cast).name;
           if (name in HUMAN_ACTIONS) continue;
-          const law: ILaw | undefined = rows.get(name) ?? exported().get(name);
+          const law: ILaw | undefined = rows.get(name);
           if (law !== undefined) laws.set(law.name, law);
         }
         return join(

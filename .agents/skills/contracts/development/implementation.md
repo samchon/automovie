@@ -1,16 +1,16 @@
 # Implementation
 
-Each exported function and class method answers every item, and the [common](common.md) item, in its doc comment, with grounds a reviewer can check against its body, callees and callers. The types it accepts and returns answer [design](design.md). Keep simple decisions brief, and invent no alternatives or history.
+Each exported function and class method answers this checklist and [common](common.md) in its doc comment. Use evidence from its body, callees and callers. Its input and result types answer [design](design.md).
 
 ## Principled implementation
 
-Use a method the problem's semantics justify: a language idiom, documented API behavior, a recognized algorithm, or a cited physical principle, measurement or study of the real practice being reproduced, not precedent, popularity or what made one case look right.
+Ground the method in the problem's semantics, documented behavior, a recognized algorithm or cited practice evidence.
 
-State the method, the premises it relies on, why they hold for the inputs it actually receives, and any unresolved limitation. Premises include units, coordinate frames and timebases, what a transformation must leave unchanged, and a numeric method's precision and degeneracies.
+State the method, why its premises hold for the actual inputs and any limits. Include relevant units, frames, timebases, invariants, precision and degeneracies.
 
 ## Clear and simple structure
 
-Use the simplest decomposition that serves current requirements, with no layer, option, or abstraction for presumed future needs. A behavior several consumers already use is a current need: it lives once with its owner, an installed package or one shared module, and is imported rather than copied. Keep each decision with the responsibility that owns it.
+Keep decisions with the responsibilities that own them. Add only layers and options current requirements use. Put behavior used by multiple consumers in one package or shared module.
 
 State how the decomposition exposes that responsibility and why any non-obvious layer or separation is needed.
 
@@ -21,7 +21,7 @@ Do not:
 - tune a constant until one case or check passes;
 - special-case a consumer, scene, fixture, expected answer, or measurement;
 - replay a baked or fitted result in place of the computation it stands for;
-- accept a tolerance that hides a missed requirement, such as a gap counted as contact;
+- use a tolerance that admits a result outside the requirement;
 - replace foreign methods, globals, or internals;
 - add production behavior only to pass a test;
 - keep a disproven assumption under wrappers, retries, or exceptions.
@@ -32,13 +32,13 @@ State any such special case or compensation present and its basis, or the violat
 
 ## Efficient algorithms
 
-Judge the owning operation together with its helpers; moving work to another layer does not remove its cost. For a function that chooses an algorithm, data structure, or processing strategy, use the most efficient correct one for the supported workload, without needless traversal or allocation.
+Include helper costs when choosing the most efficient correct algorithm for the supported workload. Avoid needless traversal and allocation.
 
 State the input dimensions that drive time and space, the dominant cost, and why any full scan or rebuild is needed. Do not claim unmeasured speedups.
 
 ## Reuse equivalent work
 
-For an operation that coordinates work across requests, phases, or consumers, reuse completed or in-flight results whenever the contract permits. A matching key or a quiet watcher alone does not prove equivalence, and effectful work is not shared just because its results match.
+Reuse completed or in-flight work only when the inputs and dependencies are equivalent and the contract permits sharing its effects.
 
 State what is shared, which inputs, dependencies, and effects decide equivalence, and how identity and invalidation keep it valid.
 

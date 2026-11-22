@@ -64,7 +64,7 @@ export namespace IAutoMovieFitDigitDescent {
      */
     project: (x: readonly number[]) => number[];
 
-    /** The variables' resolution: the finite-difference step and the stop. */
+    /** Positive finite variable resolution: the finite-difference step and the stop. */
     step: number;
 
     /**

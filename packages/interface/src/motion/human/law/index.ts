@@ -2,6 +2,7 @@ export type { AutoMovieMotionHumanScheduledInstant } from "./AutoMovieMotionHuma
 export type { IAutoMovieMotionHumanActionContext } from "./IAutoMovieMotionHumanActionContext";
 export type { IAutoMovieMotionHumanActionLaw } from "./IAutoMovieMotionHumanActionLaw";
 export type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanActionPlan";
+export type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
 export type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
 export type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
 export type { IAutoMovieMotionHumanEntryState } from "./IAutoMovieMotionHumanEntryState";
@@ -15,6 +16,7 @@ export type { IAutoMovieMotionHumanPerformerReader } from "./IAutoMovieMotionHum
 export type { IAutoMovieMotionHumanPlacedAction } from "./IAutoMovieMotionHumanPlacedAction";
 export type { IAutoMovieMotionHumanPropReader } from "./IAutoMovieMotionHumanPropReader";
 export type { IAutoMovieMotionHumanRefusal } from "./IAutoMovieMotionHumanRefusal";
+export type { IAutoMovieMotionHumanSpacecraftGlide } from "./IAutoMovieMotionHumanSpacecraftGlide";
 export type { IAutoMovieMotionPropDrive } from "./IAutoMovieMotionPropDrive";
 export type { IAutoMovieMotionPropHold } from "./IAutoMovieMotionPropHold";
 export type { IAutoMovieMotionPropLaunch } from "./IAutoMovieMotionPropLaunch";

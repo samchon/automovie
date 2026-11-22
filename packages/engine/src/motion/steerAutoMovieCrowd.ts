@@ -13,9 +13,9 @@ import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
 /**
  * A crowd's ways planned once: every agent heads for its goals at its own desired speed and avoids the others and the obstacles by anticipation, the whole crowd integrated together on a fixed step and each agent's course read back by time.
  *
- * Each agent's acceleration is the social force model's driving term toward its desired velocity, `(v0 e0 - v) / tau` with the relaxation time `tau` (Helbing and Molnar 1995, Phys Rev E 51:4282), plus the anticipatory interaction of the universal power law (Karamouzas, Skinner and Guy 2014, Phys Rev Lett 113:238701): with every other agent and obstacle it would meet within the time to collision `t` at the current velocities, the force is minus the spatial gradient of `E(t) = k t^-2 exp(-t / t0)`. That gradient is `k exp(-t / t0) t^-2 (2 / t + 1 / t0)` along the contact normal `n` at the predicted collision, divided by the closing speed along it, `-(n . u)`, so the push grows as a collision nears in time and is aimed away from where it would happen. The desired direction `e0` follows the goals as Reynolds's path following does (Reynolds 1999): toward the point `LOOKAHEAD` seconds of desired travel past the agent's nearest point on the polyline of its start and goals, slowed within `ARRIVAL` relaxation times of desired travel from its destination; with a herding share `p` it is `N[(1 - p) e0 + p <v_j> / v0]` (Helbing, Farkas and Vicsek 2000, Nature 407:487), `<v_j>` the mean velocity of the agents within `NEIGHBOURHOOD`, each weighted by Tukey's biweight kernel `(1 - (d / NEIGHBOURHOOD)^2)^2` (Beaton and Tukey 1974; the compactly supported smoothing kernels of SPH and Wendland's family are of the same kind): the paper's mean heading of the neighbours, read with a compact, continuously differentiable weight that falls to nothing at the neighbourhood's edge and a velocity that grows from rest, so the right-hand side is Lipschitz, which a well-posed integration needs (Picard and Lindelof), and no neighbour's entry or start jumps it. A position moves at most at the agent's `maximum` speed, as in that model, and at the velocity nearest the agent's own that optimal reciprocal collision avoidance admits against every other agent over the horizon `t0` (van den Berg, Guy, Lin and Manocha 2011, `solveAutoMovieHalfPlaneProgram`): the anticipatory force steers, and the half-plane program is the hard guarantee that two agents never step into each other, an overlap already there being undone within one step.
+ * Each agent's acceleration is the social force model's driving term toward its desired velocity, `(v0 e0 - v) / tau` with the relaxation time `tau` (Helbing and Molnar 1995, Phys Rev E 51:4282), plus the anticipatory interaction of the universal power law (Karamouzas, Skinner and Guy 2014, Phys Rev Lett 113:238701): with every other agent and obstacle it would meet within the time to collision `t` at the current velocities, the force is minus the spatial gradient of `E(t) = k t^-2 exp(-t / t0)`. That gradient is `k exp(-t / t0) t^-2 (2 / t + 1 / t0)` along the contact normal `n` at the predicted collision, divided by the closing speed along it, `-(n . u)`, so the push grows as a collision nears in time and is aimed away from where it would happen. The desired direction `e0` follows the goals as Reynolds's path following does (Reynolds 1999): toward the point `LOOKAHEAD` seconds of desired travel past the agent's nearest point on the polyline of its start and goals, slowed within `ARRIVAL` relaxation times of desired travel from its destination; with a herding share `p` it is `N[(1 - p) e0 + p <v_j> / v0]` (Helbing, Farkas and Vicsek 2000, Nature 407:487), `<v_j>` the mean velocity of the agents within `NEIGHBOURHOOD`, each weighted by Tukey's biweight kernel `(1 - (d / NEIGHBOURHOOD)^2)^2` (Beaton and Tukey 1974; the compactly supported smoothing kernels of SPH and Wendland's family are of the same kind): the paper's mean heading of the neighbours, read with a compact, continuously differentiable weight that falls to nothing at the neighbourhood's edge and a velocity that grows from rest, so the right-hand side is Lipschitz, which a well-posed integration needs (Picard and Lindelof), and no neighbour's entry or start jumps it. At each integration stage, the position rate comes from projecting the agent's own velocity into its `maximum` speed disc and the reciprocal avoidance half-planes over the horizon `t0` (van den Berg, Guy, Lin and Manocha 2011, `solveAutoMovieHalfPlaneProgram`): the anticipatory force steers, and the half-plane program supplies a projected position rate at each integration stage. The program can return a fallback when its constraints are infeasible. An obstacle takes part in the anticipatory push and also in the program. Its half-plane is the agent's own exit from the obstacle's velocity obstacle relative to its motion (Fiorini and Shiller 1998), so an obstacle that overtakes, meets or crosses the agent is anticipated by its velocity. The exit is the nearest the agent's speed can reach (`steerAutoMovieCrowdGeometry.obstacle`). The program keeps the obstacles' half-planes hard when it falls back, as van den Berg et al. keep theirs, so agents may crowd one another but do not give way into an obstacle. The sampled diagnostics cannot certify clearance between knots.
  *
- * The state of the whole crowd is one vector handed to the engine's one fixed-step integrator, `integrateMotionTrajectory` (#3424), so every agent sees every other at the same instant (a synchronous update) and the courses are read back by its Hermite interpolation. Agents are integrated in a canonical order of their own data, not in the order given, so listing them in another order gives bit-identical courses. Interaction couples agents: adding one changes the others' courses, as a real crowd does. The pass is kinematic; contact forces of a crush are out of scope, and every overlap that outlasts one step is reported in `contacts` for the caller to refuse.
+ * The state of the whole crowd is one vector handed to the engine's one fixed-step integrator, `integrateMotionTrajectory` (#3424), so every agent sees every other at the same instant (a synchronous update) and the courses are read back by its Hermite interpolation. Agents with distinct sort keys are integrated in a canonical order, so listing them in another order gives bit-identical courses. Interaction couples agents: adding one changes the others' courses. The pass is kinematic and reports a pair in `contacts` when the pair overlaps at two successive knots.
  *
  * The force scale `K` is the energy's normalisation, which the paper fixes only up to units (E(1) = 1 in its figure); the published simulation's own constants, its force cap and its sensing range were searched for (the paper's supplement and the authors' page could not be read) and are provisional here, as is every other named constant marked so.
  *
@@ -24,12 +24,12 @@ import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
  * @throws {Error} When an agent's radius, speed or start is not finite and positive where it must be, a goal list is empty, or the interval is not forward: a caller's defect.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the law with its sources, the gradient's closed form, the goal following, herding, the speed cap, the integration, the order independence, the coupling, the contacts and the provisional constants with the search recorded.
- * @evidence contracts/development/implementation.md#principled-implementation The social force driving term plus the power-law interaction's exact spatial gradient: the time to collision of two discs solves `|p - u t| = R`, and implicit differentiation gives `grad t = n / -(n . u)` at the contact normal `n`, the same expression for an offset edge or a corner of a convex obstacle. The position's rate is the ORCA velocity, the cited paper's reciprocal half-planes solved by its linear program. Classical RK4 on the stacked state through `integrateMotionTrajectory`.
+ * @evidence contracts/development/implementation.md#principled-implementation The social force driving term plus the power-law interaction's exact spatial gradient: the time to collision of two discs solves `|p - u t| = R`, and implicit differentiation gives `grad t = n / -(n . u)` at the contact normal `n`, the same expression for an offset edge or a corner of a convex obstacle. The position's rate is the ORCA velocity, the cited paper's reciprocal half-planes solved by its linear program. Each obstacle adds its velocity obstacle's half-plane at the agent's full share, kept hard in the program's fallback as the paper keeps its obstacles'. Classical RK4 on the stacked state through `integrateMotionTrajectory`.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the agents, fix the canonical order, define the right-hand side, integrate, then read the courses, the arrivals and the contacts at the knots.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No agent is moved apart after the fact: overlaps are reported, not repaired. The force cap is named and provisional, documented as the cure for the gradient's grazing singularity the implicit-crowds work describes, not a tuning of one scene.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each evaluation is O(N^2 + N M) for N agents and M obstacle edges, plus N half-plane programs of N - 1 half-planes each, expected linear, four per step over `(to - from) / step` steps; a read is one interpolation of the stacked state. A spatial grid would cut the pairs for crowds of thousands; the crowds planned here are hundreds.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One integration serves every agent's course and every read of it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the trajectory's knots, 4 N numbers per step, for as long as the caller keeps the courses.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each evaluation is O(N^2 + N M) for N agents and M obstacle edges, plus N half-plane programs of N - 1 + O half-planes each for O obstacles, expected linear, four per step over `(to - from) / step` steps; each pair's contact, avoidance change and capacities are computed once an evaluation, the second agent reading them negated, which is exactly its own reading wherever no component is zero (it computes them otherwise); a new film second reads the stacked state in O(N), after which each course at that same second projects its own state in O(1).
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One integration serves every agent's course and every read of it; successive course reads at the same second share one private state read, and within an evaluation one reading of a pair serves both its agents.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the trajectory's knots, 4 N numbers per step, for as long as the caller keeps the courses; the integration also holds 13 numbers a pair of agents, rewritten every evaluation and dropped with it. Course readers share one additional 4 N number snapshot.
  */
 export function steerAutoMovieCrowd(
   props: IAutoMovieSteerCrowd.IProps,
@@ -69,11 +69,54 @@ export function steerAutoMovieCrowd(
       steerAutoMovieCrowdGeometry.pathOf(agents[i]!),
   );
 
+  // Each pair's readings within one evaluation, its first agent's index the smaller: the evaluation's
+  // number, the contact (time, NaN for none, normal, relative velocity), the avoidance change (direction,
+  // change, whether the other side negates it) and the two agents' capacities (the second's NaN when unread).
+  const PAIR: number = 13;
+  const pairs: Float64Array = new Float64Array((PAIR * n * (n - 1)) / 2);
+  const pair = (a: number, b: number): number =>
+    a * n - (a * (a + 1)) / 2 + (b - a - 1);
+  const scratch: Float64Array = new Float64Array(4);
+  let epoch: number = 0;
+
   // The right-hand side over the stacked state [x, z, vx, vz] per agent in canonical order.
   const f = (
     t: number,
     x: readonly number[],
   ): IAutoMovieIntegrateMotionTrajectory.IRate => {
+    epoch += 1;
+    let ax: number = 0;
+    let az: number = 0;
+    // The anticipatory push of one predicted contact on the current agent.
+    const push = (
+      time: number,
+      nx: number,
+      nz: number,
+      ux: number,
+      uz: number,
+    ): void => {
+      // A present overlap is a time to collision of zero, the energy's singularity: the pair is pushed apart at the cap, as the power law's reference implementation treats a collision.
+      if (time === 0) {
+        ax += steerAutoMovieCrowd.CAP * nx;
+        az += steerAutoMovieCrowd.CAP * nz;
+        return;
+      }
+      const closing: number = -(nx * ux + nz * uz);
+      if (!(closing > 1e-9)) return;
+      const tt: number = Math.max(time, 1e-3);
+      const size: number = Math.min(
+        steerAutoMovieCrowd.CAP,
+        (steerAutoMovieCrowd.K * Math.exp(-tt / t0) * (2 / tt + 1 / t0)) /
+          (tt * tt * closing),
+      );
+      ax += size * nx;
+      az += size * nz;
+    };
+    // The energy falls off by its own exponential: no time to collision is cut off, so even a slow drift toward another is turned before it touches.
+    const hit = (found: steerAutoMovieCrowdGeometry.IHit | null): void => {
+      if (found !== null)
+        push(found.time, found.nx, found.nz, found.ux, found.uz);
+    };
     const dx: number[] = new Array<number>(4 * n).fill(0);
     const placed: IAutoMovieVector3[][] = obstacles.map(
       (o: IAutoMovieCrowdAgent.IObstacle): IAutoMovieVector3[] =>
@@ -131,33 +174,45 @@ export function steerAutoMovieCrowd(
           }
         }
       }
-      let ax: number = (want.speed * ex - vx) / tau;
-      let az: number = (want.speed * ez - vz) / tau;
+      ax = (want.speed * ex - vx) / tau;
+      az = (want.speed * ez - vz) / tau;
 
       // The anticipatory push from every agent and obstacle it would meet.
-      const push = (hit: steerAutoMovieCrowdGeometry.IHit | null): void => {
-        // The energy falls off by its own exponential: no time to collision is cut off, so even a slow drift toward another is turned before it touches.
-        if (hit === null) return;
-        // A present overlap is a time to collision of zero, the energy's singularity: the pair is pushed apart at the cap, as the power law's reference implementation treats a collision.
-        if (hit.time === 0) {
-          ax += steerAutoMovieCrowd.CAP * hit.nx;
-          az += steerAutoMovieCrowd.CAP * hit.nz;
-          return;
-        }
-        const closing: number = -(hit.nx * hit.ux + hit.nz * hit.uz);
-        if (!(closing > 1e-9)) return;
-        const tt: number = Math.max(hit.time, 1e-3);
-        const size: number = Math.min(
-          steerAutoMovieCrowd.CAP,
-          (steerAutoMovieCrowd.K * Math.exp(-tt / t0) * (2 / tt + 1 / t0)) /
-            (tt * tt * closing),
-        );
-        ax += size * hit.nx;
-        az += size * hit.nz;
-      };
+      // A pair's contact is read once, by its first agent to set off; the
+      // other reads it negated where every component is nonzero, which is
+      // exactly what it would compute, and computes it otherwise.
       for (let j: number = 0; j < n; ++j) {
         if (j === k) continue;
-        push(
+        if (j < k) {
+          const b: number = PAIR * pair(j, k);
+          if (pairs[b] === epoch) {
+            const time: number = pairs[b + 1]!;
+            if (Number.isNaN(time)) continue;
+            const nx: number = pairs[b + 2]!;
+            const nz: number = pairs[b + 3]!;
+            const ux: number = pairs[b + 4]!;
+            const uz: number = pairs[b + 5]!;
+            if (nx !== 0 && nz !== 0 && ux !== 0 && uz !== 0) {
+              push(time, -nx, -nz, -ux, -uz);
+              continue;
+            }
+          }
+          hit(
+            steerAutoMovieCrowdGeometry.discs(
+              px,
+              pz,
+              vx,
+              vz,
+              x[4 * j]!,
+              x[4 * j + 1]!,
+              x[4 * j + 2]!,
+              x[4 * j + 3]!,
+              agent.radius + agents[order[j]!]!.radius,
+            ),
+          );
+          continue;
+        }
+        const found: steerAutoMovieCrowdGeometry.IHit | null =
           steerAutoMovieCrowdGeometry.discs(
             px,
             pz,
@@ -168,11 +223,21 @@ export function steerAutoMovieCrowd(
             x[4 * j + 2]!,
             x[4 * j + 3]!,
             agent.radius + agents[order[j]!]!.radius,
-          ),
-        );
+          );
+        const b: number = PAIR * pair(k, j);
+        pairs[b] = epoch;
+        if (found === null) pairs[b + 1] = NaN;
+        else {
+          pairs[b + 1] = found.time;
+          pairs[b + 2] = found.nx;
+          pairs[b + 3] = found.nz;
+          pairs[b + 4] = found.ux;
+          pairs[b + 5] = found.uz;
+        }
+        hit(found);
       }
       placed.forEach((footprint: IAutoMovieVector3[], o: number): void =>
-        push(
+        hit(
           steerAutoMovieCrowdGeometry.polygon(
             px,
             pz,
@@ -184,35 +249,124 @@ export function steerAutoMovieCrowd(
         ),
       );
 
-      // A position moves at the velocity nearest the agent's own that keeps it clear of every other agent for the horizon, taking its share of each avoidance, and no faster than its maximum (ORCA's linear program, the hard guarantee under the anticipatory force).
+      // A position moves at the velocity nearest the agent's own that keeps it clear of every other agent for the horizon, taking its share of each avoidance, and no faster than its maximum (the ORCA velocity projection; an infeasible program may return a fallback).
+      // The share (the alpha-weighted reciprocity of van den Berg, Lin and Manocha 2008, with the uneven split of its generalisations): half while both can take their half within their speed caps (`capacity`); otherwise the capped one takes what its cap allows and the other the rest, and against an agent that does not avoid, all it can. A pair's change and both capacities are read once, as the contact is.
       const top: number =
         agent.maximum ?? steerAutoMovieCrowd.MAXIMUM * agent.speed;
       const lines: IAutoMovieSolveHalfPlaneProgram.ILine[] = [];
-      for (let j: number = 0; j < n; ++j)
-        if (j !== k)
-          lines.push(
-            steerAutoMovieCrowdGeometry.reciprocal(
-              px,
-              pz,
-              vx,
-              vz,
-              x[4 * j]!,
-              x[4 * j + 1]!,
-              x[4 * j + 2]!,
-              x[4 * j + 3]!,
-              agent.radius + agents[order[j]!]!.radius,
-              t0,
-              h,
-              top,
-              // An agent that has not set off stands and avoids nobody.
-              t < agents[order[j]!]!.start
-                ? 0
-                : (agents[order[j]!]!.maximum ??
-                    steerAutoMovieCrowd.MAXIMUM * agents[order[j]!]!.speed),
-            ),
+      // Each obstacle's velocity obstacle, left by the agent alone since an obstacle does not avoid; listed first, as the obstacles' lines are in van den Berg et al.'s program.
+      placed.forEach((footprint: IAutoMovieVector3[], o: number): void => {
+        const line: IAutoMovieSolveHalfPlaneProgram.ILine | null =
+          steerAutoMovieCrowdGeometry.obstacle(
+            px,
+            pz,
+            vx,
+            vz,
+            moving[o]!.x,
+            moving[o]!.z,
+            footprint,
+            agent.radius,
+            t0,
+            h,
+            top,
           );
+        if (line !== null) lines.push(line);
+      });
+      const hard: number = lines.length;
+      for (let j: number = 0; j < n; ++j) {
+        if (j === k) continue;
+        // An agent that has not set off stands and avoids nobody.
+        const other: number =
+          t < agents[order[j]!]!.start
+            ? 0
+            : (agents[order[j]!]!.maximum ??
+              steerAutoMovieCrowd.MAXIMUM * agents[order[j]!]!.speed);
+        let own: number;
+        let theirs: number;
+        let at: number;
+        let source: Float64Array;
+        let sign: number = 1;
+        const first: number = j < k ? PAIR * pair(j, k) : -1;
+        if (
+          first >= 0 &&
+          pairs[first] === epoch &&
+          pairs[first + 10] === 1 &&
+          pairs[first + 6] !== 0 &&
+          pairs[first + 7] !== 0 &&
+          pairs[first + 8] !== 0 &&
+          pairs[first + 9] !== 0
+        ) {
+          // The first agent's reading, negated; its capacities are this agent's own (the second) and the first's.
+          source = pairs;
+          at = first + 6;
+          sign = -1;
+          own = Number.isNaN(pairs[first + 12]!)
+            ? steerAutoMovieCrowdGeometry.capacity(
+                vx,
+                vz,
+                -pairs[first + 8]!,
+                -pairs[first + 9]!,
+                top,
+              )
+            : pairs[first + 12]!;
+          theirs = other > 0 ? pairs[first + 11]! : 0;
+        } else {
+          source = j > k ? pairs : scratch;
+          at = j > k ? PAIR * pair(k, j) + 6 : 0;
+          const turns: boolean = steerAutoMovieCrowdGeometry.change(
+            px,
+            pz,
+            vx,
+            vz,
+            x[4 * j]!,
+            x[4 * j + 1]!,
+            x[4 * j + 2]!,
+            x[4 * j + 3]!,
+            agent.radius + agents[order[j]!]!.radius,
+            t0,
+            h,
+            source,
+            at,
+          );
+          own = steerAutoMovieCrowdGeometry.capacity(
+            vx,
+            vz,
+            source[at + 2]!,
+            source[at + 3]!,
+            top,
+          );
+          theirs =
+            other > 0
+              ? steerAutoMovieCrowdGeometry.capacity(
+                  x[4 * j + 2]!,
+                  x[4 * j + 3]!,
+                  -source[at + 2]!,
+                  -source[at + 3]!,
+                  other,
+                )
+              : 0;
+          if (j > k) {
+            source[at + 4] = turns ? 1 : 0;
+            source[at + 5] = own;
+            source[at + 6] = other > 0 ? theirs : NaN;
+          }
+        }
+        const share: number = Math.min(own, Math.max(1 - theirs, 0.5));
+        const cx: number = sign * source[at + 2]!;
+        const cz: number = sign * source[at + 3]!;
+        lines.push({
+          point: { x: vx + share * cx, y: vz + share * cz },
+          direction: { x: sign * source[at]!, y: sign * source[at + 1]! },
+        });
+      }
+      // The obstacles' half-planes stay hard when the program is infeasible: walkers may crowd one another but not enter an obstacle.
       const moved: IAutoMovieSolveHalfPlaneProgram.IPoint =
-        solveAutoMovieHalfPlaneProgram(lines, top, { x: vx, y: vz }).point;
+        solveAutoMovieHalfPlaneProgram(
+          lines,
+          top,
+          { x: vx, y: vz },
+          hard,
+        ).point;
       dx[4 * k] = moved.x;
       dx[4 * k + 1] = moved.y;
       dx[4 * k + 2] = ax;
@@ -303,17 +457,32 @@ export function steerAutoMovieCrowd(
     }
     for (const key of [...open.keys()]) if (!seen.has(key)) open.delete(key);
   }
+  // The integrator returns an owned copy of the stacked state. Keep just
+  // the latest one private to every agent's course, which projects fresh records.
+  let sampledSeconds: number | undefined;
+  let sampledState: readonly number[] = [];
   return {
     courses: agents.map(
       (_: IAutoMovieCrowdAgent, i: number): IAutoMovieCrowdAgent.ICourse => ({
         at: (
           seconds: number,
         ): { position: IAutoMovieVector3; velocity: IAutoMovieVector3 } => {
-          const state: number[] = trajectory.at(seconds).x;
+          if (!Object.is(seconds, sampledSeconds)) {
+            sampledState = trajectory.at(seconds).x;
+            sampledSeconds = seconds;
+          }
           const k: number = slot[i]!;
           return {
-            position: { x: state[4 * k]!, y: 0, z: state[4 * k + 1]! },
-            velocity: { x: state[4 * k + 2]!, y: 0, z: state[4 * k + 3]! },
+            position: {
+              x: sampledState[4 * k]!,
+              y: 0,
+              z: sampledState[4 * k + 1]!,
+            },
+            velocity: {
+              x: sampledState[4 * k + 2]!,
+              y: 0,
+              z: sampledState[4 * k + 3]!,
+            },
           };
         },
         arrival: arrival[i]!,

@@ -7,6 +7,7 @@ import { jump } from "../actions/jump";
 import { run } from "../actions/run";
 import { kickBall } from "../ballStrike/kickBall";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { bowlingSlide as bowlingSlideLaw } from "../sport/bowlingSlide";
 import { cartwheel } from "../sport/cartwheel";
 import { salto } from "../sport/salto";
 import { catchObject } from "../throwing/catchObject";
@@ -46,12 +47,47 @@ export namespace HumanSportThrow {
     style: "underarm",
   });
 
+  /** A fastpitch softball delivery with an underhand windmill. */
+  export const softballWindmill: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportThrow"]["softballWindmill"]
+  > = HumanActionRow.of("softballWindmill", throwObject, { style: "windmill" });
+
+  /** A high cricket release directed toward the authored pitch bounce. */
+  export const cricketBowl: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportThrow"]["cricketBowl"]
+  > = HumanActionRow.of("cricketBowl", throwObject, { style: "cricket" });
+
+  /** Slide on the supporting foot before a delivery. */
+  export const bowlingSlide: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportThrow"]["bowlingSlide"]
+  > = bowlingSlideLaw;
+
+  /** The low delivery of a one-handed ten-pin bowling approach. */
+  export const bowlingDelivery: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportThrow"]["bowlingDelivery"]
+  > = HumanActionRow.of("bowlingDelivery", throwObject, { style: "bowling" });
+
   /** A chest or bounce pass, a free throw or a shot put: a push from before the chest. The leap of a jump shot and the glide of a shot put are not planned. */
   export const pushPass: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["pushPass"]
   > = HumanActionRow.of("pushPass", throwObject, {
     style: "toss",
   });
+
+  /** Rugby pass with a two-hand release to the receiver's mark. */
+  export const rugbyPass: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportThrow"]["rugbyPass"]
+  > = HumanActionRow.of("rugbyPass", throwObject, { style: "rugby" });
+
+  /** Overarm gridiron pass. */
+  export const gridironPass: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportThrow"]["gridironPass"]
+  > = HumanActionRow.of("gridironPass", throwObject, { style: "gridironPass" });
+
+  /** Gridiron snap from a folded stance. */
+  export const gridironSnap: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportThrow"]["gridironSnap"]
+  > = HumanActionRow.of("gridironSnap", throwObject, { style: "gridironSnap" });
 
   /** A catch of a fly ball or a thrown ball in one hand. */
   export const gloveCatch: IAutoMovieMotionHumanActionLaw<
@@ -109,6 +145,13 @@ export namespace HumanSportThrow {
   export const cartwheelLeft: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["cartwheelLeft"]
   > = HumanActionRow.of("cartwheelLeft", cartwheel, {
+    to: "left",
+  });
+
+  /** Capoeira's aú: a cartwheel to the left through both hands. */
+  export const au: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportThrow"]["au"]
+  > = HumanActionRow.of("au", cartwheel, {
     to: "left",
   });
 

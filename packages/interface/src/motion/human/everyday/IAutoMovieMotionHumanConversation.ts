@@ -17,7 +17,8 @@
  * partner, as speakers look up at the end of their turn (Kendon 1967).
  *
  * The result is a gaze layer's requests, so the conversation's gaze never
- * cuts the bodies' actions.
+ * cuts the bodies' actions. In a group, each span can name a different
+ * addressee so the gaze follows the authored exchange.
  *
  * @evidence contracts/development/common.md#meaningful-documentation speaker: The speaker's subject id. from: Film second the turn starts. to: Film second the turn ends.
  * @evidence contracts/development/design.md#principled-representation speaker: The speaker's subject id. from: Film second the turn starts. to: Film second the turn ends.
@@ -42,5 +43,19 @@ export namespace IAutoMovieMotionHumanConversation {
 
     /** Film second the turn ends. */
     to: number;
+  }
+
+  /**
+   * An authored speaking span with one addressed participant. An author
+   * can divide a continuous utterance into spans as its addressee changes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Speaker and addressee identify scene subjects. Inherited from and to give the film-second boundaries.
+   * @evidence contracts/development/design.md#principled-representation Each span requires an explicit addressee. HumanConversation.groupGaze validates the roster, distinct roles, finite boundaries and non-overlap.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Adds only the addressee to ITurn for the speaker target read by HumanConversation.groupGaze.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the existing turn and subject identifiers for any group of performers.
+   */
+  export interface IGroupTurn extends ITurn {
+    /** The addressed participant's subject ID. */
+    addressee: string;
   }
 }

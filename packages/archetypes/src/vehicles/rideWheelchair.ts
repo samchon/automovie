@@ -1,48 +1,242 @@
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieAffordance,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import {
   type Archetype,
-  type ArchetypeCourse,
+  ArchetypeCourse,
+  ArchetypeRefusal,
   ArchetypeRide,
 } from "../core";
 import type { createWheelchair } from "./createWheelchair";
+import { wheelchairHandrimFrame } from "./wheelchairHandrimFrame";
 
 /**
  * A wheelchair moved along a course: its root on the path and its rear wheels, with a self-propelled chair's handrims riding them, rolling with the distance.
  *
- * The chair is pushed by an attendant at its handles or wheeled by its sitter; either way the wheels roll without slipping, 360 degrees per wheel circumference of the signed distance, forward less reversed. A sitter's own stroke on the rims is no motion law yet, as `createWheelchair` states, so the rims turn and a hand held on one goes round with it.
+ * The chair is pushed by an attendant at its handles or wheeled by its sitter. On a course of legs, the two rear wheels roll their signed centre travel plus or minus the track's half-width times the heading change in radians. For a staged sitter's stroke, pass the ride through `wheelchairHandrimFrame` and register `HumanHandrimStroke`.
  *
  * @param chair The wheelchair.
  * @param course The course its root follows, or its plan.
  * @returns The ride, with the course's instants.
  * @throws {ArchetypeRefusal} As `ArchetypeRide.along` does for a malformed course.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what moves, the rolling relation and the missing stroke.
- * @evidence contracts/development/implementation.md#principled-implementation Rolling without slipping: the spin is the signed distance over the circumference, in degrees, taken modulo a turn so it stays in the knob's range.
+ * @evidence contracts/development/common.md#meaningful-documentation States what moves, the rolling relation and how a performer can follow the rim.
+ * @evidence contracts/development/implementation.md#principled-implementation A plan of legs gives the signed heading change, so the outer and inner axle ends travel different signed distances. Each spin is signed travel over circumference and wrapped to the knob range.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose function over `ArchetypeRide.along`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both wheels turn alike, so a turn's outer wheel does not run faster; the casters do not swivel. Both are stated, not hidden.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per sample.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The unwrapped heading accumulates exact authored arc fractions on courses of legs. Both wheels still turn alike on timed curves, which do not expose unwrapped heading. Casters do not swivel.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Prepares the turns once. Sampling sums each turn's clamped extent with no integration or previous sample.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The ride's plan is shared by every sample.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the chair and the plan for as long as the caller keeps the ride.
  */
 export function rideWheelchair(
   chair: Archetype<createWheelchair.Affordance, createWheelchair.Dimension>,
   course: ArchetypeCourse.ICourse | ArchetypeCourse.IPlan,
-): ArchetypeRide.IRide<createWheelchair.Affordance, createWheelchair.Dimension> {
+): ArchetypeRide.IRide<
+  createWheelchair.Affordance,
+  createWheelchair.Dimension
+> {
   const circumference: number = Math.PI * chair.dimensions.wheelDiameter!;
+  const halfTrack: number =
+    (chair.affordance("leftSpin").frame.translation.x -
+      chair.affordance("rightSpin").frame.translation.x) /
+    2;
+  const plan: ArchetypeCourse.IPlan =
+    course.kind === "plan"
+      ? course
+      : ArchetypeCourse.plan("wheelchair", course);
+  const turns: readonly { from: number; span: number; outer: number }[] =
+    plan.course.kind === "timed"
+      ? []
+      : plan.course.legs.flatMap(
+          (
+            leg: ArchetypeCourse.Leg,
+            index: number,
+          ): { from: number; span: number; outer: number }[] => {
+            if (leg.kind !== "turn") return [];
+            const { from, span }: ArchetypeCourse.ILegSpan =
+              plan.legSpans[index]!;
+            return [
+              { from, span, outer: (halfTrack * leg.angle * Math.PI) / 180 },
+            ];
+          },
+        );
+
+  /** Signed tyre travel into the wheel's nonnegative knob range. */
+  const spin = (travel: number): number =>
+    ((((travel / circumference) * 360) % 360) + 360) % 360;
   return ArchetypeRide.along(
     chair,
-    course,
+    plan,
     (
       state: ArchetypeCourse.IState,
     ): ArchetypeRide.IPose<
       createWheelchair.Affordance,
       createWheelchair.Dimension
     > => {
-      const spin: number =
-        ((((state.progress / circumference) * 360) % 360) + 360) % 360;
+      const outside: number = turns.reduce(
+        (distance: number, turn: (typeof turns)[number]): number =>
+          distance +
+          turn.outer *
+            Math.min(1, Math.max(0, (state.distance - turn.from) / turn.span)),
+        0,
+      );
       return {
-        archetype: chair.articulate({ leftSpin: spin, rightSpin: spin }),
+        archetype: chair.articulate({
+          leftSpin: spin(state.progress - outside),
+          rightSpin: spin(state.progress + outside),
+        }),
         placement: state.placement,
       };
     },
   );
+}
+
+/**
+ * Repeated chair-relative hand contacts on one authored ride. Build the
+ * prop's point reader once and register one HumanHandrimStroke for each
+ * engagement. Use a bilateral catch for a straight push and a selected
+ * inside rim for a turn braked around that wheel. See the observed inner
+ * and outer hand roles in https://pmc.ncbi.nlm.nih.gov/articles/PMC10293636/.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes how to place repeated catch and release windows on one prop clock.
+ * @evidence contracts/development/design.md#principled-representation Each window selects a material point by its angle at the catch and the hands that take it.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Author and prop reader use the same clock. The existing renderer and motion law continue to read the posed rim frame.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Distinct hands may act independently. Two selections on the same rim cannot compete at any sample.
+ */
+export namespace rideWheelchair {
+  /**
+   * One material point selected for a closed interval on the ride clock.
+   * Two intervals on the same rim cannot share an endpoint.
+   */
+  export interface IHandrimHold {
+    /** The second on the ride clock when the hand first meets the rim. */
+    catchAt: number;
+
+    /** The last contact second on the same clock. The hand may still hold after the chair stops. */
+    releaseAt: number;
+
+    /** The catch angle in degrees from chair up, positive toward its front. */
+    degrees: number;
+
+    /** The acting hand; omission selects both rims. */
+    side?: AutoMovieHumanSide;
+  }
+
+  /**
+   * Build the prop's contact callback for successive strokes on one ride.
+   *
+   * @param ride The chair ride. Contact times use the same clock as its placement.
+   * @param holds The authored contact intervals, including their catch angles. Input order is immaterial.
+   * @returns A point reader that follows one rim material point per active hand. Other contacts read the ride's usual frame.
+   * @throws {ArchetypeRefusal} If a window has invalid times, angle or side, if the chair lacks the selected rim, or if two windows select the same rim at a common second.
+   *
+   * Prepares chronologically ordered windows for each rim. The existing
+   * single-catch reader resolves each selected point into wheel coordinates
+   * once. Playback searches that rim's windows and samples only its active
+   * selection. The callback retains the ride and the prepared windows.
+   */
+  export function handrimContacts(
+    ride: ReturnType<typeof rideWheelchair>,
+    holds: readonly IHandrimHold[],
+  ): ReturnType<typeof wheelchairHandrimFrame> {
+    const wheels: readonly Rim[] = ["leftRim", "rightRim"];
+    const byWheel: Record<Rim, IPreparedHold[]> = {
+      leftRim: [],
+      rightRim: [],
+    };
+    const rims: ReadonlySet<string> = new Set(
+      ride
+        .at(0)
+        .archetype.affordances.filter(
+          ({ kind }: IAutoMovieAffordance): boolean => kind === "wheel",
+        )
+        .map(({ id }: IAutoMovieAffordance): string => id),
+    );
+    for (const hold of [...holds].sort(
+      (
+        a: rideWheelchair.IHandrimHold,
+        b: rideWheelchair.IHandrimHold,
+      ): number => a.catchAt - b.catchAt,
+    )) {
+      if (
+        !Number.isFinite(hold.catchAt) ||
+        hold.catchAt < 0 ||
+        hold.catchAt > ride.duration ||
+        !Number.isFinite(hold.releaseAt) ||
+        !(hold.catchAt < hold.releaseAt) ||
+        !Number.isFinite(hold.degrees) ||
+        Math.abs(hold.degrees) > 180 ||
+        (hold.side !== undefined &&
+          hold.side !== "left" &&
+          hold.side !== "right")
+      )
+        refuse(
+          hold,
+          "a hold needs an admitted catch, later finite release, angle and side",
+        );
+
+      const selected: readonly Rim[] =
+        hold.side === undefined
+          ? wheels
+          : [hold.side === "left" ? "leftRim" : "rightRim"];
+      const read: ReturnType<typeof wheelchairHandrimFrame> =
+        wheelchairHandrimFrame(ride, hold.catchAt, hold.degrees);
+      for (const rim of selected) {
+        if (!rims.has(rim)) refuse(hold, "the chair has no rim at " + rim);
+        const windows: IPreparedHold[] = byWheel[rim];
+        const prior: IPreparedHold | undefined = windows.at(-1);
+        if (prior !== undefined && hold.catchAt <= prior.to)
+          refuse(hold, "material selections on " + rim + " overlap");
+        windows.push({ from: hold.catchAt, to: hold.releaseAt, read });
+      }
+    }
+
+    return (
+      id: createWheelchair.Affordance,
+      seconds: number,
+    ): IAutoMovieTransform => {
+      if (id === "leftRim" || id === "rightRim") {
+        const windows: readonly IPreparedHold[] = byWheel[id];
+        let start: number = 0;
+        let stop: number = windows.length;
+        while (start < stop) {
+          const at: number = Math.floor((start + stop) / 2);
+          const window: IPreparedHold = windows[at]!;
+          if (seconds < window.from) stop = at;
+          else if (seconds > window.to) start = at + 1;
+          else return window.read(id, seconds);
+        }
+      }
+      return ride.frame(id, seconds);
+    };
+  }
+}
+
+/** Which of a wheelchair's rim frames a sitter engages. */
+type Rim = "leftRim" | "rightRim";
+
+/** A selected material point on a closed interval of the ride clock. */
+interface IPreparedHold {
+  /** The selected catch second, included. */
+  from: number;
+  /** The selected release second, included. */
+  to: number;
+  /** Read the selected wheel material point in the world frame. */
+  read: ReturnType<typeof wheelchairHandrimFrame>;
+}
+
+/** Explain which of the staged holds must change. */
+function refuse(hold: rideWheelchair.IHandrimHold, reason: string): never {
+  throw new ArchetypeRefusal({
+    kind: "parameter",
+    archetype: "wheelchair",
+    axis: "handrims",
+    value: hold,
+    feasible: null,
+    reason,
+    fix: "give separate catch and release intervals for the available rims",
+  });
 }

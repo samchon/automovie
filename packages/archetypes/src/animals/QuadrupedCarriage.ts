@@ -5,6 +5,7 @@ import type {
 
 import type { Archetype } from "../core";
 import { QuadrupedBody } from "./QuadrupedBody";
+import { QuadrupedScapula } from "./QuadrupedScapula";
 import type { createQuadruped } from "./createQuadruped";
 
 /**
@@ -60,6 +61,7 @@ export namespace QuadrupedCarriage {
       "neck",
       "head",
       "tail",
+      ...Object.values(QuadrupedScapula.BONES),
       ...QuadrupedBody.LIMBS.flatMap(
         (limb: QuadrupedBody.Limb): QuadrupedBody.Bone[] => [
           ...QuadrupedBody.BONES[limb],

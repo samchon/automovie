@@ -17,32 +17,27 @@ import { motionHumanBody } from "./motionHumanBody";
 
 /**
  * The verdict report of one lexicon row on one body, stood for 0.3 s and
- * then the row, read over one half of the film so each half's spec runs
- * within the time a test may take.
+ * then the row. Reads the complete film once at 24 Hz so the
+ * continuity checks see the real neighbours at every film frame.
  *
- * The halves meet at a frame of the 24 Hz grid and overlap by two frames,
- * so a step between two frames and an out-and-back across the meeting are
- * read whole in one of them (`HumanVerdicts.of`'s span). A finding is
- * returned beside the quiet stance's own tangle depths at 0.1 s, so a
- * tangle the resting body already holds is told from one the row adds.
+ * A finding includes the quiet stance's tangle depths at 0.1 s to identify
+ * which interpenetrations the row adds.
  *
  * @param row The lexicon row's name.
  * @param name The body.
- * @param half The first or the second half of the film.
  * @returns `clean`, or the report's findings and the stance's depths.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the stage, the halves, their overlap and what a finding is read beside.
- * @evidence contracts/development/implementation.md#principled-implementation Registers the lexicon, performs the row through the public chain and reads the shipped verdict report over a span of the displayed film.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance, one span, one report and one stance reading.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound of the report is read over the half; none is left out to save time.
- * @evidence contracts/development/implementation.md#efficient-algorithms The report resolves only the half's instants.
+ * @evidence contracts/development/common.md#meaningful-documentation States the stage, the frame grid and what a finding is read beside.
+ * @evidence contracts/development/implementation.md#principled-implementation Registers the lexicon, performs the row through the public chain and reads the shipped verdict report on the displayed film.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance, one report and a stance reading on failure.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound of the report applies to the actual frame range.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One plan and one audit grid per row.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanVerdicts` and the tangle audit's pose reading.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The performance lives as long as the call.
  */
 export function motionRowVerdicts(
   row: string,
   name: motionHumanBody.Name,
-  half: 1 | 2,
 ): string {
   const laws: IAutoMovieMotionHumanActionLaw<never>[] =
     Object.values(HUMAN_LEXICON).flat();
@@ -64,13 +59,9 @@ export function motionRowVerdicts(
       .registered(row, {}).node,
   });
   const rate: number = 24;
-  const middle: number = Math.round((performance.duration / 2) * rate) / rate;
   const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
     performance,
     rate,
-    half === 1
-      ? { from: 0, to: Math.min(performance.duration, middle + 2 / rate) }
-      : { from: Math.max(0, middle - 2 / rate), to: performance.duration },
   );
   if (report.clean) return "clean";
   const resting: string = AutoMovieMotionHumanAuditTangle.pose(

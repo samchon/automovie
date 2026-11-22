@@ -11,6 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
@@ -266,7 +267,7 @@ export namespace AutoMovieMotionHumanResolve {
     lines.push("");
     lines.push(["level (degrees)", ...levels].join("\t"));
     for (const bone of BONES)
-      for (const motion of MOTIONS) {
+      for (const motion of AutoMovieMotionHumanRange.MOTIONS) {
         if (AutoMovieMotionHumanRange.limit(bone, motion) === null) continue;
         lines.push(
           [
@@ -345,8 +346,11 @@ export namespace AutoMovieMotionHumanResolve {
       let solved: IAutoMovieVector3;
       try {
         solved = AutoMovieMotionHumanBend.solve(props);
-      } catch {
-        return "out of reach";
+      } catch (error) {
+        // The solver refuses a wrist it cannot reach; anything else is a
+        // defect and propagates.
+        if (error instanceof HumanRefusal) return "out of reach";
+        throw error;
       }
       const axis: IAutoMovieVector3 = Vector3.normalize(
         Vector3.subtract(props.point, shoulder),
@@ -410,12 +414,3 @@ const BONES: readonly AutoMovieHumanoidBone[] = [
   "leftFoot",
 ];
 
-/** The motions the table lists, in the order of the range owner's union. */
-const MOTIONS: readonly IAutoMovieMotionHumanRange.Motion[] = [
-  "flexion",
-  "extension",
-  "abduction",
-  "adduction",
-  "external",
-  "internal",
-];

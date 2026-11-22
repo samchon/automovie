@@ -1,36 +1,29 @@
-import {
-  type IAutoMovieHingedArmArticulation,
-  type IAutoMovieHingedArmSwivel,
-  type IAutoMovieHingedArticulation,
+import type {
+  IAutoMovieHingedArmArticulation,
+  IAutoMovieHingedArmSwivel,
+  IAutoMovieHingedArticulation,
   IAutoMovieQuaternion,
-  type IAutoMovieSwivelNear,
+  IAutoMovieSwivelNear,
+  IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
+import type { hingedArmCandidate } from "./hingedArmCandidate";
 import { hingedArmSwivel } from "./hingedArmSwivel";
+import { hingedSwivelAhead } from "./hingedSwivelAhead";
+import { hingedSwivelBounded } from "./hingedSwivelBounded";
+import { hingedSwivelNear } from "./hingedSwivelNear";
+import { hingedSwivelPole } from "./hingedSwivelPole";
+import { hingedSwivelSwept } from "./hingedSwivelSwept";
+import { refineHingedSwivel } from "./refineHingedSwivel";
 
 /** The sweep's swivel step, degrees (`hingedArmSwivel.STEP`). */
 const SWIVEL_STEP: number = hingedArmSwivel.STEP;
 
-/** The golden-section ratio (`hingedArmSwivel.GOLDEN`). */
-const GOLDEN: number = hingedArmSwivel.GOLDEN;
-
 /** Golden-section passes per refinement (`hingedArmSwivel.REFINEMENTS`). */
 const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
 
-/**
- * Two positive overshoots closer than this, in degrees, are one overshoot.
- *
- * An overshoot is read off a clinical decomposition whose rounding is near
- * 1e-13 degree, and a part of it may not depend on the swivel at all: a
- * straight arm's swivel only turns the upper arm about its own length, so
- * its flexion and abduction, and their excess past a limit, are the same for
- * every candidate except in their last digits. Compared exactly, those
- * digits ranked the swivels ahead of the deviation, and a request mirrored
- * left to right, whose rounding is not mirrored, chose a twist 14 degrees
- * away. Zero stays exact, so a candidate past a limit by any amount never
- * ties a legal one.
- */
-const OVERSHOOT_ROUNDING: number = 1e-9;
+/** Bisections of a legality edge on a placed pole's walk (`IProps.placed`): a 3 degree step halved twenty times, a swivel within three millionths of a degree of the edge. */
+const EDGE_BISECTIONS: number = 20;
 
 /**
  * Two-bone arm IK whose mid joint bends only about its own flexion hinge, with
@@ -58,7 +51,7 @@ const OVERSHOOT_ROUNDING: number = 1e-9;
  * about `m(θ)` leaves the effector where it is. The function sweeps that swivel
  * in `SWIVEL_STEP` increments on each branch, ordering candidates by the least
  * `overshoot` (legal, zero, ahead of any other exactly; two positive ones
- * tied within the decomposition's rounding, `OVERSHOOT_ROUNDING`), then the
+ * tied within the decomposition's rounding, 1e-9 degree), then the
  * least `deviation`, both from
  * `score`. Every local minimum of a sweep is then refined between its
  * neighbouring steps by golden-section search under the same ordering, and
@@ -88,30 +81,57 @@ const OVERSHOOT_ROUNDING: number = 1e-9;
  * finds none, the full sweep decides, so a chain that cannot reach legally
  * still returns its least overshoot.
  *
- * A caller continuing a fit of a nearby target (`near`) skips the sweep: the
+ * A cold fit with `closed` candidates and no `tie` or `minimum` scores them
+ * alone and returns the best when it is legal and `met` accepts it: where a
+ * requested term is met only at isolated swivels, those are the whole
+ * admissible set and no search can add to it.
+ *
+ * A cold fit with a `pole` and no `tie` or `minimum` searches locally from
+ * it (`hingedSwivelPole`) and returns a legal result without the sweep, so
+ * it follows the bend hint rather than jumping to a far, marginally better swivel.
+ *
+ * A cold fit whose caller certifies that no candidate can pass `met`
+ * (`unmet`) skips the pole start, whose result `met` would refuse.
+ *
+ * A caller continuing a fit of a nearby target (`near`) skips the sweep: a
+ * `closed` candidate less than a step from the seed answers when legal and
+ * met (`hingedSwivelNear`), and otherwise the
  * seed's branch, its swivel refined within one step either way by the same
  * golden-section search under the same ordering, to the seed's `tolerance`
  * (`IAutoMovieSwivelNear`). Every result names its branch and swivel, the
- * seed a nearby fit continues from.
+ * seed a nearby fit continues from. If dividing a positive subnormal tolerance
+ * by the initial bracket width underflows, the difference of logarithms keeps
+ * the mathematically finite refinement count finite; ordinary ratios retain
+ * their original expression.
+ * A placed pole (`IProps.placed`, a place the law's own elbow search chose)
+ * answers at the pole where it is legal. Otherwise a continued fit walks from
+ * its seed toward the pole and stops at the edge of the legal interval the
+ * seed lies in, and a cold fit takes the legal swivel nearest the pole on any
+ * branch, walking out from it both ways; each edge is found by swivel steps
+ * and bisection on the candidate's legality. Only where no swivel is legal
+ * does the sweep decide.
+ * With certified global score minima and no second key, the first scored
+ * coarse candidate ends a cold search only if its actual two keys equal both
+ * minima exactly. No later candidate can be strictly ahead, so the original
+ * candidate and complete-tie seed are preserved; later coarse candidates
+ * cannot use this shortcut because earlier refinements precede them.
  *
  * Returns `null` for a degenerate chain: a mid or end offset shorter than
  * `1e-6`, a target within `1e-6` of the chain root, a hinge shorter than
  * `1e-6`, or `R` below `1e-9`, a hinge parallel to the far segment that cannot
  * change the span ({@link armChainFault} reports that rig).
  *
- * @evidence contracts/development/implementation.md#principled-implementation The span is an exact sinusoid in the hinge angle because a rotation about `hinge` leaves the along-hinge part of the far segment fixed and turns the rest in a circle, so its two arccos roots are the only hinge angles reaching the target distance; the swivel about `m(θ)` is an exact null space of the effector position, which is why scoring candidates on ROM costs no accuracy; legality is compared exactly because a tolerance band once let a candidate 1e-12 degrees past a limit tie a legal one and win on deviation.
+ * @evidence contracts/development/implementation.md#principled-implementation The span is an exact sinusoid in the hinge angle because rotation about hinge leaves the along-hinge segment fixed and turns the rest in a circle. Its two arccos roots give the branches and swivel is a positional null space. Legality keeps exact zero. When the original first coarse candidate's actual legality and deviation equal certified global minima and no second key exists, every later candidate can only tie or lose, so returning it preserves the original winner and seed. A placed pole takes the feasible swivel nearest the desired one (Tolani, Goswami and Badler 2000, section 3.2.4; the swivel is the chain's one free parameter, section 3.2): the legal set's edge nearest the pole is found by stepping the swivel and bisecting the candidate's legality, each candidate scored as the sweep scores it.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pure chain geometry with the ROM policy injected through `score`, so `reachPose` owns the clinical decomposition and constraints while this function owns the branches and the sweep; the shared `aimRotation` aims the root.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rig, side or target is special-cased; the degeneracy thresholds are the engine's shared length scale, and a chain that cannot reach legally returns its least overshoot instead of being clamped into range.
  * @evidence contracts/development/common.md#meaningful-documentation States the hinge-only elbow, the span formula and its branches, the out-of-span behavior, the swivel sweep and its ordering, who owns scoring, every `null` case with its threshold, and each input's frame.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most two branches times 360 swivel steps plus 42 refinement probes per local minimum of a sweep (one more for each tied pass, at most 82), each one quaternion product plus one `score` call, so cost is bounded per solve and dominated by `score`; a level sweep refines nothing, and the step is a resolution choice among equally exact poses. A continued fit scores only its refinement, two probes and log(tolerance / 2 STEP) / log(GOLDEN) passes, 25 at the 3.8e-5 degrees a velocity read for a 0.4 s inertialization needs (`samplePoseVelocity.tolerance`). Steps a caller certifies refused are not scored, which leaves the answer the full sweep's and, when no legal candidate remains, costs one more full sweep.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each hinge branch computes its mid direction and aim once for the whole swivel sweep; scores cannot be shared because the caller evaluates distinct shoulder rotations under its own constraints.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps one branch's 360 scored candidates during its sweep and retains nothing after the solve; the caller owns the returned rotations.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A cold fit with `closed` candidates scores those alone, at most two a branch, and returns a legal, met best with no search. Eligible cold fits (a `pole`, no `tie`, no `minimum`) first score per branch the pole start, each downhill step and one golden refinement, returning when legal; otherwise, at most two branches times 360 swivel steps plus bounded per-minimum golden refinement remain; with a certified `bound`, branch and bound (`hingedSwivelBounded`) scores only the steps and refines only the minima the bound cannot place behind a legal candidate, with the full sweep's choice, also under a `tie` (by buckets) and beside a `minimum` certificate (tested first on the sweep's first candidate). The caller's refusal and bound are built once a branch for the solve. Near mode retains its original tolerance-derived count. An exact first-candidate global-minimum certificate ends cold search after that one actual score. Failed pruned passes reuse identical completed steps/refinements. The shared comparator may read a required exact(a) before b and prove it ahead of b's lower bound without exact(b). Runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each hinge branch computes its mid direction and aim once for the solve. Within that unchanged branch/target/score, a full fallback reuses each actual step and completed refinement of the same bracket; it still compares all original candidates in their original order. An optional matching prepared target also shares source span coefficients/inverse root and this point's lowered goal. No scored answer crosses targets or solves.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A solve retains at most two branches' 360 step candidates and one selected candidate per refined step, with their branch pose/probe closures. The bounded workspace releases at return or throw; only the selected rotations escape, with no history or external handle.
  */
-export const hingedArmArticulation: (
-  props: IAutoMovieHingedArmArticulation.IProps,
-) => IAutoMovieHingedArticulation | null = (
-  props: IAutoMovieHingedArmArticulation.IProps,
-): IAutoMovieHingedArticulation | null => {
+export function hingedArmArticulation(
+  props: hingedArmArticulation.IProps,
+): IAutoMovieHingedArticulation | null {
   // The bend branches toward the target, each stopped inside the mid joint's
   // own range (`hingedArmSwivel.branches`): a hinge angle outside the range
   // stops at the nearer limit, so the effector rests on the legal shell along
@@ -119,8 +139,16 @@ export const hingedArmArticulation: (
   // branches the one stopping nearer the target is kept; branches inside the
   // range stop nowhere and tie.
   const found: IAutoMovieHingedArmSwivel.IStop[] | null =
-    hingedArmSwivel.branches(props);
+    props.prepared === undefined
+      ? hingedArmSwivel.branches(props)
+      : props.prepared.branches();
   if (found === null) return null;
+  const pose: (theta: number) => ReturnType<typeof hingedArmSwivel.pose> =
+    props.prepared === undefined
+      ? (theta: number): ReturnType<typeof hingedArmSwivel.pose> =>
+          hingedArmSwivel.pose(props, theta)
+      : (theta: number): ReturnType<typeof hingedArmSwivel.pose> =>
+          props.prepared!.pose(theta);
   const stops: IBranch[] = found
     .map(
       (stop: IAutoMovieHingedArmSwivel.IStop, branch: number): IBranch => ({
@@ -147,141 +175,373 @@ export const hingedArmArticulation: (
     ): ((angle: number) => IScored) =>
     (angle: number): IScored => {
       const { upper, lower } = posed(angle);
+      const scored: ReturnType<typeof props.score> = props.score(
+        upper,
+        lower,
+        angle,
+        posed,
+      );
+
+      // Every candidate has the same members, its lazy readings absent until
+      // read (`hingedSwivelAhead` reads an absent one as undefined), rather
+      // than a copy of the score's own record.
       return {
         upper,
         lower,
         shortfall: stop.shortfall,
         swivel: angle,
         branch: stop.branch,
-        ...props.score(upper, lower),
+        overshoot: scored.overshoot,
+        deviation: scored.deviation,
+        exact: scored.exact,
+        known: undefined,
+        tiebreak: scored.tiebreak,
+        second: undefined,
       };
     };
-  // Legality is compared EXACTLY, with no tolerance band. A band let a
-  // candidate sitting one part in 1e12 outside a limit count as tied with a
-  // strictly legal one and then win on deviation, so the solve returned a
-  // pose the gate refuses by 1.5e-12 of a degree. The deviation prior pulls
-  // toward the ROM box's edges, which is precisely where that happens, so
-  // the ordering has to put "inside the box" ahead of "closer to neutral"
-  // without qualification.
-  //
-  // A tie on the overshoot is decided by the deviation; two positive
-  // overshoots within `OVERSHOOT_ROUNDING` tie, since what parts them is the
-  // decomposition's rounding. A candidate scored
-  // with a lower bound of it first tries the bound: a bound already no less
-  // than the other's exact deviation decides that it is not ahead, since the
-  // exact one is no smaller, and only otherwise is the exact one computed.
-  // The answer is the one the exact deviations give, every time.
-  const better = (a: IScored, b: IScored): boolean => {
-    const tied: boolean =
-      a.overshoot === b.overshoot ||
-      (a.overshoot > 0 &&
-        b.overshoot > 0 &&
-        Math.abs(a.overshoot - b.overshoot) <= OVERSHOOT_ROUNDING);
-    if (!tied) return a.overshoot < b.overshoot;
-    const theirs: number = exactOf(b);
-    // With a second key, deviations within `tie` of each other are one
-    // deviation, and the second key decides between them.
-    if (props.tie === undefined) {
-      if (a.exact !== undefined && a.deviation >= theirs) return false;
-      return exactOf(a) < theirs;
+  const better = (a: IScored, b: IScored): boolean =>
+    hingedSwivelAhead(a, b, props.tie);
+
+  // A failed refusal pass must still run the whole sweep. Its unchanged
+  // branch, step and refinement bracket have already produced the same pure
+  // candidates, so retain that completed work for this solve's fallback.
+  const completed: Map<IBranch, ISweep> = new Map<IBranch, ISweep>();
+  const record = (stop: IBranch): ISweep => {
+    let branch: ISweep | undefined = completed.get(stop);
+    if (branch === undefined) {
+      const posed: ReturnType<typeof hingedArmSwivel.pose> = pose(stop.theta);
+      branch = {
+        posed,
+        probe: prober(stop, posed),
+        steps: [],
+        refined: new Map<number, IScored>(),
+      };
+      completed.set(stop, branch);
     }
-    if (a.exact !== undefined && a.deviation > theirs + props.tie) return false;
-    const mine: number = exactOf(a);
-    if (Math.abs(mine - theirs) > props.tie) return mine < theirs;
-    return tiebreakOf(a) < tiebreakOf(b);
+    return branch;
   };
 
-  // The sweep, with or without the steps `excluded` refuses: a step is
-  // skipped when the swivels within two steps of it are refused, and a step
-  // whose bracket (a step either way) is refused is not refined.
+  // The caller's certified refusal on a branch, built once for the solve:
+  // the closed, pole and sweep stages all read the same unchanged arcs.
+  const refusal = (
+    branch: ISweep,
+  ): ((low: number, high: number) => boolean) | null =>
+    props.excluded === undefined
+      ? null
+      : (branch.refused ??= props.excluded(
+          (angle: number): IAutoMovieQuaternion => branch.posed(angle).upper,
+        ));
+
+  // The sweep, with or without the steps `excluded` refuses
+  // (`hingedSwivelSwept`). With a certified bound, branch and bound gives the
+  // same choice from fewer scored steps (`hingedSwivelBounded`); the
+  // first-candidate certificate is the full sweep's own, so it is tested on
+  // that same candidate first, and the bounded sweep decides every other
+  // case, where the full sweep makes no use of the certificate either.
+  const certified: ((candidate: IScored) => boolean) | undefined =
+    props.tie === undefined && props.minimum !== undefined
+      ? (candidate: IScored): boolean =>
+          candidate.overshoot === props.minimum!.overshoot &&
+          candidate.deviation === props.minimum!.deviation &&
+          hingedSwivelAhead.exact(candidate) === props.minimum!.deviation
+      : undefined;
+  const refine = (probe: (angle: number) => IScored, angle: number): IScored =>
+    refineHingedSwivel(probe, better, angle, REFINEMENTS);
   const sweep = (
     excluding: boolean,
   ): { chosen: IScored | null; skipped: boolean } => {
-    let chosen: IScored | null = null;
-    let skipped: boolean = false;
-    for (const stop of stops.filter(
-      (stop: IBranch): boolean => stop.shortfall === shortfall,
-    )) {
-      const posed = hingedArmSwivel.pose(props, stop.theta);
-      const probe: (angle: number) => IScored = prober(stop, posed);
-      const refused: ((low: number, high: number) => boolean) | null =
-        excluding && props.excluded !== undefined
-          ? props.excluded(
-              (angle: number): IAutoMovieQuaternion => posed(angle).upper,
-            )
-          : null;
-      const swept: (IScored | null)[] = [];
-      for (let step: number = 0; step * SWIVEL_STEP < 360; ++step) {
-        const angle: number = step * SWIVEL_STEP;
-        const out: boolean =
-          refused !== null &&
-          refused(angle - 2 * SWIVEL_STEP, angle + 2 * SWIVEL_STEP);
-        if (out) skipped = true;
-        swept.push(out ? null : probe(angle));
-      }
-      for (let step: number = 0; step < swept.length; ++step) {
-        const at: IScored | null = swept[step]!;
-        if (at === null) continue;
-        const before: IScored | null =
-          swept[(step + swept.length - 1) % swept.length]!;
-        const after: IScored | null = swept[(step + 1) % swept.length]!;
-        if (chosen === null || better(at, chosen)) chosen = at;
-
-        // Every local minimum of the sweep is refined, not only the sweep's
-        // best step: a legal sliver narrower than one step shows in the sweep
-        // only as a dip of the overshoot, and of two basins the one that is
-        // truly better must win, not the one whose sample fell nearer its
-        // bottom. A step level with both neighbours has nothing to refine.
-        if (before === null || after === null) continue;
-        if (
-          refused !== null &&
-          refused(
-            step * SWIVEL_STEP - SWIVEL_STEP,
-            step * SWIVEL_STEP + SWIVEL_STEP,
-          )
-        )
-          continue;
-        if (better(before, at) || better(after, at)) continue;
-        if (!better(at, before) && !better(at, after)) continue;
-        const refined: IScored = refine(
-          probe,
-          better,
-          step * SWIVEL_STEP,
-          REFINEMENTS,
-        );
-        if (better(refined, chosen)) chosen = refined;
+    const branches: IPass[] = stops
+      .filter((stop: IBranch): boolean => stop.shortfall === shortfall)
+      .map((stop: IBranch): IPass => {
+        const branch: ISweep = record(stop);
+        return {
+          probe: branch.probe,
+          steps: branch.steps,
+          refined: branch.refined,
+          refused: excluding ? refusal(branch) : null,
+          posed: branch.posed,
+          record: branch,
+        };
+      });
+    if (props.bound === undefined)
+      return hingedSwivelSwept.sweep<IScored>({
+        branches,
+        better,
+        refine,
+        ...(certified === undefined ? {} : { certified }),
+      });
+    if (certified !== undefined) {
+      const opening: { candidate: IScored | null; skipped: boolean } =
+        hingedSwivelSwept.first<IScored>(branches);
+      if (opening.candidate !== null && certified(opening.candidate))
+        return { chosen: opening.candidate, skipped: opening.skipped };
+    }
+    // A seed the caller holds (`incumbent`), scored on its own swept branch:
+    // where it is legal, its exact deviation starts the bounded visit's stop.
+    let incumbent: number | undefined;
+    const seed: IAutoMovieSwivelSeed | undefined = props.incumbent;
+    if (seed !== undefined) {
+      const stop: IBranch | undefined = stops.find(
+        (s: IBranch): boolean =>
+          s.branch === seed.branch && s.shortfall === shortfall,
+      );
+      const on: IPass | undefined =
+        stop === undefined
+          ? undefined
+          : branches.find(
+              (branch: IPass): boolean => branch.record === record(stop),
+            );
+      if (on !== undefined && Number.isFinite(seed.swivel)) {
+        const candidate: IScored = on.probe(seed.swivel);
+        if (candidate.overshoot === 0)
+          incumbent = hingedSwivelAhead.exact(candidate);
       }
     }
-    return { chosen, skipped };
+    return hingedSwivelBounded.sweep<IScored>({
+      ...(incumbent === undefined ? {} : { incumbent }),
+      branches: branches.map(
+        (branch: IPass): hingedSwivelBounded.IBranch<IScored> => ({
+          probe: branch.probe,
+          steps: branch.steps,
+          refined: branch.refined,
+          refused: branch.refused,
+          bound: (branch.record.bound ??= props.bound!(
+            (angle: number): IAutoMovieQuaternion => branch.posed(angle).upper,
+            branch.posed,
+          )),
+        }),
+      ),
+      better,
+      refine,
+      ...(props.tie === undefined ? {} : { tie: props.tie }),
+    });
   };
+  // A chosen candidate's result, with its own branch's shortfall when continued.
+  const answer = (
+    chosen: IScored,
+    at: number = shortfall,
+  ): IAutoMovieHingedArticulation => ({
+    upper: chosen.upper,
+    lower: chosen.lower,
+    overshoot: chosen.overshoot,
+    shortfall: at,
+    swivel: chosen.swivel,
+    branch: chosen.branch,
+    deviation: hingedSwivelAhead.exact(chosen),
+    ...(props.tie === undefined
+      ? {}
+      : { second: hingedSwivelAhead.second(chosen) }),
+  });
+
+  // A placed pole (`IProps.placed`) is the answer where it is legal, and
+  // otherwise the legal swivel nearest it: the mid joint keeps as close to
+  // the place the law's own search chose as the ranges and obstructions
+  // allow (Tolani, Goswami and Badler 2000, section 3.2.4), instead of the
+  // sweep's best swivel anywhere, which leaves the place for the far side
+  // and snaps back when the place turns legal again.
+  const legal = (candidate: IScored): boolean =>
+    candidate.overshoot === 0 &&
+    (props.met === undefined || props.met(candidate.upper, candidate.lower));
+  // The legal swivel nearest `to` walking from `from` along the shorter
+  // turn: `to` itself where every step is legal, the legality edge, found by
+  // bisection, where a step is not; null where `from` itself is not legal.
+  const walkToward = (
+    probe: (angle: number) => IScored,
+    from: number,
+    to: number,
+  ): IPlacedEdge | null => {
+    if (!legal(probe(from))) return null;
+    const turn: number = to - from - 360 * Math.round((to - from) / 360);
+    const sign: number = turn < 0 ? -1 : 1;
+    const length: number = Math.abs(turn);
+    let inside: number = 0;
+    for (let d: number = SWIVEL_STEP; inside < length; d += SWIVEL_STEP) {
+      const reach: number = Math.min(d, length);
+      if (legal(probe(from + sign * reach))) {
+        inside = reach;
+        continue;
+      }
+      let outside: number = reach;
+      for (let i: number = 0; i < EDGE_BISECTIONS; ++i) {
+        const mid: number = (inside + outside) / 2;
+        if (legal(probe(from + sign * mid))) inside = mid;
+        else outside = mid;
+      }
+      break;
+    }
+    return {
+      candidate: probe(from + sign * inside),
+      distance: length - inside,
+    };
+  };
+
   // A continued fit refines its seed on the seed's branch alone.
   if (props.near !== undefined) {
     const near: IAutoMovieSwivelNear = props.near;
-    if (!(near.tolerance > 0) || !Number.isFinite(near.tolerance))
-      throw new Error("A continued fit needs a positive finite tolerance");
     const branch: number = Math.min(near.branch, found.length - 1);
     const stop: IBranch = { ...found[branch]!, branch };
-    const seeded: IScored = refine(
-      prober(stop, hingedArmSwivel.pose(props, stop.theta)),
+    const posed: ReturnType<typeof hingedArmSwivel.pose> = pose(stop.theta);
+
+    // A continued placed fit answers at its pole where the pole is legal,
+    // and otherwise follows it from the seed within the legal interval the
+    // seed lies in, stopping at that interval's edge: the elbow holds the
+    // edge it reached while the pole crosses a refused arc, rather than
+    // leaving for the far side (Tolani, Goswami and Badler 2000, section
+    // 3.2.4, the feasible swivel nearest the desired one). A seed no longer
+    // legal is refined as any other.
+    if (props.placed === true && props.pole !== undefined) {
+      const target: number | null = props.pole(posed);
+      const probe: (angle: number) => IScored = prober(stop, posed);
+      if (target !== null) {
+        const at: IScored = probe(target);
+        if (legal(at)) return answer(at, at.shortfall);
+      }
+      const followed: IPlacedEdge | null =
+        target === null || !Number.isFinite(near.swivel)
+          ? null
+          : walkToward(probe, near.swivel, target);
+      if (followed !== null)
+        return answer(followed.candidate, followed.candidate.shortfall);
+    }
+
+    // The search is centred on the admissible swivel nearest the seed where
+    // the caller knows it (`nearest`), taken in the seed's own turn: the
+    // seed itself while it stays admissible. A closed-form candidate inside
+    // that bracket answers when legal and met (`hingedSwivelNear`); the
+    // start is refined otherwise.
+    const nearestSwivel: number | null =
+      props.nearest === undefined ? null : props.nearest(posed, near.swivel);
+    const turn: number =
+      nearestSwivel === null ? 0 : nearestSwivel - near.swivel;
+    const delta: number = Number.isFinite(turn)
+      ? turn - 360 * Math.round(turn / 360)
+      : 0;
+    const met: typeof props.met = props.met;
+    const seeded: IScored = hingedSwivelNear<IScored>({
+      probe: prober(stop, posed),
       better,
-      near.swivel,
-      Math.max(
-        0,
-        Math.ceil(
-          Math.log(near.tolerance / (2 * SWIVEL_STEP)) / Math.log(GOLDEN),
-        ),
-      ),
-    );
-    return {
-      upper: seeded.upper,
-      lower: seeded.lower,
-      overshoot: seeded.overshoot,
-      shortfall: seeded.shortfall,
-      swivel: seeded.swivel,
-      branch: seeded.branch,
-      deviation: exactOf(seeded),
-      ...(props.tie === undefined ? {} : { second: tiebreakOf(seeded) }),
-    };
+      near,
+      ...(delta === 0 ? {} : { start: near.swivel + delta }),
+      ...(props.closed !== undefined &&
+      props.tie === undefined &&
+      props.minimum === undefined
+        ? { closed: props.closed(posed) }
+        : {}),
+      ...(met === undefined
+        ? {}
+        : {
+            met: (candidate: IScored): boolean =>
+              met(candidate.upper, candidate.lower),
+          }),
+    });
+    return answer(seeded, seeded.shortfall);
+  }
+
+  // The closed-form candidates (`closed`): where a requested term is met only
+  // at isolated swivels, those swivels are the whole admissible set, so the
+  // best of them, legal and met, is the answer with no search (the analytic
+  // swivel of Tolani, Goswami and Badler 2000). A continued fit refines its
+  // seed first: where a term is met over an interval of swivels (an arm's
+  // rotation under its forearm's twist), the candidate nearest the hint is
+  // not the one nearest the fit being continued. Anything less falls through.
+  if (
+    props.closed !== undefined &&
+    props.tie === undefined &&
+    props.minimum === undefined
+  ) {
+    let best: IScored | null = null;
+    for (const stop of stops) {
+      if (stop.shortfall !== shortfall) continue;
+      const branch: ISweep = record(stop);
+      for (const angle of props.closed(branch.posed) ?? []) {
+        const candidate: IScored = branch.probe(angle);
+        if (best === null || better(candidate, best)) best = candidate;
+      }
+    }
+    if (
+      best !== null &&
+      best.overshoot === 0 &&
+      (props.met === undefined || props.met(best.upper, best.lower))
+    )
+      return answer(best);
+  }
+
+  // The pole start (`hingedSwivelPole`): a legal result is the answer; an
+  // overshoot left (range or obstruction) or no side falls to the sweep.
+  const unmet: typeof props.unmet = props.unmet;
+  if (
+    props.pole !== undefined &&
+    props.tie === undefined &&
+    props.minimum === undefined &&
+    !(
+      props.met !== undefined &&
+      unmet !== undefined &&
+      stops.every(
+        (s: IBranch): boolean =>
+          s.shortfall !== shortfall || unmet(record(s).posed),
+      )
+    )
+  ) {
+    const poled: IScored | null = hingedSwivelPole.search<IScored>({
+      branches: stops
+        .filter((s: IBranch): boolean => s.shortfall === shortfall)
+        .map((stop: IBranch): hingedSwivelPole.IBranch<IScored> => {
+          const branch: ISweep = record(stop);
+          return {
+            probe: branch.probe,
+            posed: branch.posed,
+            refused: refusal(branch),
+          };
+        }),
+      pole: props.pole,
+      better,
+      refine,
+      step: SWIVEL_STEP,
+      ...(props.direct === true ? { direct: true } : {}),
+    });
+    if (
+      poled !== null &&
+      poled.overshoot === 0 &&
+      (props.met === undefined || props.met(poled.upper, poled.lower))
+    )
+      return answer(poled);
+
+    // A placed pole not legal where it lies is answered at the legal swivel
+    // nearest it on any branch: each branch walked out from its pole both
+    // ways, the nearest edge kept, the better candidate on a tie.
+    if (props.placed === true) {
+      let nearest: IPlacedEdge | null = null;
+      for (const stop of stops) {
+        if (stop.shortfall !== shortfall) continue;
+        const branch: ISweep = record(stop);
+        const target: number | null = props.pole(branch.posed);
+        if (target === null) continue;
+        for (const sign of [1, -1]) {
+          // The walk starts at the far side of the pole and comes back to
+          // it: the first legal step from the far side is the start, and
+          // the edge toward the pole the candidate.
+          for (let d: number = SWIVEL_STEP; d <= 180; d += SWIVEL_STEP) {
+            if (nearest !== null && d - SWIVEL_STEP > nearest.distance) break;
+            const from: number = target + sign * d;
+            const edge: IPlacedEdge | null = walkToward(
+              branch.probe,
+              from,
+              target,
+            );
+            if (edge === null) continue;
+            if (
+              nearest === null ||
+              edge.distance < nearest.distance - 1e-9 ||
+              (Math.abs(edge.distance - nearest.distance) <= 1e-9 &&
+                better(edge.candidate, nearest.candidate))
+            )
+              nearest = edge;
+            break;
+          }
+        }
+      }
+      if (nearest !== null) return answer(nearest.candidate);
+    }
   }
 
   // Pruned, the sweep is the full one whenever it finds a legal candidate;
@@ -295,104 +555,173 @@ export const hingedArmArticulation: (
       : sweep(false).chosen;
   // `branches` is never empty and the full sweep scores 360 candidates, so
   // `chosen` is assigned by here.
-  return {
-    upper: chosen!.upper,
-    lower: chosen!.lower,
-    overshoot: chosen!.overshoot,
-    shortfall,
-    swivel: chosen!.swivel,
-    branch: chosen!.branch,
-    deviation: exactOf(chosen!),
-    ...(props.tie === undefined ? {} : { second: tiebreakOf(chosen!) }),
-  };
-};
-
-/** One bend branch with its index among `hingedArmSwivel.branches`. */
-interface IBranch extends IAutoMovieHingedArmSwivel.IStop {
-  /** Its index among the branches. */
-  branch: number;
+  return answer(chosen!);
 }
 
-/** One scored candidate: its rotations, its ROM overshoot and its effort tie-break. */
-interface IScored extends IAutoMovieHingedArticulation {
-  /** The effort tie-break, compared after the overshoot; a lower bound of it when `exact` is given. */
-  deviation: number;
+/** A legal candidate a placed pole's walk reached and its distance from the pole, degrees (`hingedArmArticulation.IProps.placed`). */
+interface IPlacedEdge {
+  /** The candidate at the pole or at the legality edge nearest it. */
+  candidate: IScored;
 
-  /** The exact tie-break, when `deviation` is only its lower bound; its value is kept in `known` once read. */
-  exact?: () => number;
-
-  /** The exact tie-break once read. */
-  known?: number;
-
-  /** The second key, compared between deviations within the sweep's `tie` of each other. */
-  tiebreak?: () => number;
-
-  /** The second key once read. */
-  second?: number;
+  /** Degrees from the pole's swivel, 0 at the pole. */
+  distance: number;
 }
 
-/** A candidate's exact tie-break, read once. */
-const exactOf = (scored: IScored): number => {
-  if (scored.exact === undefined) return scored.deviation;
-  if (scored.known === undefined) scored.known = scored.exact();
-  return scored.known;
-};
+/** One bend branch with its index (`hingedArmCandidate.IBranch`). */
+type IBranch = hingedArmCandidate.IBranch;
 
-/** A candidate's second key, read once; 0 without one. */
-const tiebreakOf = (scored: IScored): number => {
-  if (scored.tiebreak === undefined) return 0;
-  if (scored.second === undefined) scored.second = scored.tiebreak();
-  return scored.second;
+/** Completed work on one branch (`hingedArmCandidate.ISweep`). */
+type ISweep = hingedArmCandidate.ISweep;
+
+/** One scored candidate (`hingedArmCandidate.IScored`). */
+type IScored = hingedArmCandidate.IScored;
+
+/** One branch as a sweep pass reads it, with its poser and its completed-work record. */
+type IPass = hingedSwivelSwept.IBranch<IScored> & {
+  posed: ISweep["posed"];
+  record: ISweep;
 };
 
 /**
- * Refine the swivel between a sweep step's neighbours by golden-section
- * search (Kiefer 1953) under the sweep's own ordering, so the swivel varies
- * continuously with the target instead of in `SWIVEL_STEP` jumps.
+ * Companion types of {@link hingedArmArticulation}.
  *
- * @param probe Scores the candidate at a swivel angle, degrees.
- * @param better Whether the first candidate is strictly ahead of the second.
- * @param angle The swivel the bracket, one step either way, is centred on, degrees.
- * @param passes The passes, each shrinking the bracket by `GOLDEN`.
- * @returns The better of the search's last two probes.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents every engine-owned member: the scored candidate's swivel and poser, the lazy bound, pole, closed-form and unmet certificates, the bucketed tie, the global minimum and the prepared target, with units and absence rules.
+ * @evidence contracts/development/design.md#principled-representation The geometric chain, target, range, exclusion test and near seed stay in IAutoMovieHingedArmArticulation.IProps; the members that read a branch's poser or prepared target are typed by hingedArmSwivel, an engine implementation, so they extend that contract here instead of entering the dependency-free interface.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `reachPose`, `fitHingedChainCandidate` and the motions bend search pass these certificates and the prepared target to the one hinged solver; a caller that needs none supplies the interface members alone.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Omits and redeclares only score and 	ie, whose engine signatures and bucket meaning differ; every other member is the interface's own, not a copy.
  */
-const refine = (
-  probe: (angle: number) => IScored,
-  better: (a: IScored, b: IScored) => boolean,
-  angle: number,
-  passes: number,
-): IScored => {
-  let low: number = angle - SWIVEL_STEP;
-  let high: number = angle + SWIVEL_STEP;
-  let inner: number = high - GOLDEN * (high - low);
-  let outer: number = low + GOLDEN * (high - low);
-  let atInner: IScored = probe(inner);
-  let atOuter: IScored = probe(outer);
-  for (let pass: number = 0; pass < passes; ++pass) {
-    if (better(atInner, atOuter)) {
-      high = outer;
-      outer = inner;
-      atOuter = atInner;
-      inner = high - GOLDEN * (high - low);
-      atInner = probe(inner);
-    } else if (better(atOuter, atInner)) {
-      low = inner;
-      inner = outer;
-      atInner = atOuter;
-      outer = low + GOLDEN * (high - low);
-      atOuter = probe(outer);
-    } else {
-      // A tie: the minimum of a unimodal score lies between the two probes,
-      // so both ends close in. Keeping either side instead would send a
-      // mirrored request, whose probes are these two exchanged, to the
-      // opposite end of a level stretch.
-      low = inner;
-      high = outer;
-      inner = high - GOLDEN * (high - low);
-      outer = low + GOLDEN * (high - low);
-      atInner = probe(inner);
-      atOuter = probe(outer);
-    }
+export namespace hingedArmArticulation {
+  /** The solver's props: the interface chain and target with the engine's certificates and prepared geometry. */
+  export interface IProps extends Omit<
+    IAutoMovieHingedArmArticulation.IProps,
+    "score" | "tie"
+  > {
+    /**
+     * A seed the caller holds for a cold fit, a branch and swivel it chose
+     * for a nearby target: never the answer by itself, only a legal
+     * candidate whose exact deviation starts the bounded sweep's stop
+     * (`hingedSwivelBounded`), which keeps it only where the sweep's choice
+     * is legal and no worse than it; read only with `bound`, never with
+     * `near`.
+     */
+    incumbent?: IAutoMovieSwivelSeed;
+
+    /**
+     * Score one candidate's bone-local root and mid rotations: `overshoot` is
+     * the total ROM overshoot in degrees, compared first, and `deviation` the
+     * effort tie-break, compared second. The caller owns the decomposition
+     * convention and the rig's constraints. With `exact`, `deviation` is a
+     * lower bound of the tie-break and `exact` gives it exactly: a caller
+     * whose tie-break ends in a costly non-negative term passes the rest as
+     * the bound, and the term is computed only for a comparison the bound
+     * cannot decide. With `tie`, `tiebreak` is a second key: two deviations
+     * in one bucket of width `tie` are one, and the lesser `tiebreak` decides
+     * (task priority, Siciliano and Slotine 1991: the second objective only
+     * among the first's optima), so `exact` need then be right only to its
+     * bucket. The score and its lazy readers describe the same unchanged
+     * objective throughout this synchronous solve. The candidate's swivel,
+     * degrees, and its branch's poser are passed for a caller that reads them.
+     */
+    score: (
+      upper: IAutoMovieQuaternion,
+      lower: IAutoMovieQuaternion,
+      swivel: number,
+      posed: ReturnType<typeof hingedArmSwivel.pose>,
+    ) => {
+      overshoot: number;
+      deviation: number;
+      exact?: () => number;
+      tiebreak?: () => number;
+    };
+
+    /**
+     * Given the root's bone-local rotation at a swivel on one bend branch,
+     * degrees, and that branch's poser, a certified lower bound of the exact
+     * `deviation` of every candidate at a swivel from `low` to `high` degrees;
+     * omitted, every step is scored. The cold sweep then scores only the steps
+     * the bound cannot place behind a legal candidate (`hingedSwivelBounded`),
+     * with the full sweep's choice: under a `tie` by the deviation's bucket, and after the `minimum` certificate's test of the sweep's first candidate.
+     */
+    bound?: (
+      upper: (swivel: number) => IAutoMovieQuaternion,
+      posed: ReturnType<typeof hingedArmSwivel.pose>,
+    ) => (low: number, high: number) => number;
+
+    /**
+     * Given a branch's poser, the closed-form start swivel, degrees: the pole
+     * (mid joint toward the hint) or a term's own minimiser; null when none.
+     * A cold fit with no `tie` or `minimum` searches from it (`hingedSwivelPole`)
+     * and returns a legal result that `met` accepts; otherwise the sweep decides.
+     */
+    pole?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => number | null;
+
+    /**
+     * Given a branch's poser, every swivel on it, degrees, at which a requested
+     * term that only isolated swivels can meet is met (`immobileAxisSwivels`),
+     * in closed form; null or none when the analysis does not apply. A cold fit
+     * with no `tie` or `minimum` scores those candidates alone and returns the
+     * best when it is legal and `met` accepts it; otherwise the pole start and
+     * the sweep decide as without it.
+     */
+    closed?: (
+      posed: ReturnType<typeof hingedArmSwivel.pose>,
+    ) => readonly number[] | null;
+
+    /**
+     * Given a branch's poser and a swivel, degrees, the swivel nearest it at
+     * which a requested term met over intervals of swivels can be met, in
+     * closed form (`distalEndSwivelNearest`): the given swivel itself where it
+     * is admissible; null where the analysis does not apply or nothing is
+     * admissible. A continued fit centres its search there (`hingedSwivelNear`).
+     */
+    nearest?: (
+      posed: ReturnType<typeof hingedArmSwivel.pose>,
+      swivel: number,
+    ) => number | null;
+
+    /** Whether a pole-started result meets every requested term; absent, legality alone decides. */
+    met?: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => boolean;
+
+    /**
+     * Given a branch's poser, whether it is certain that no candidate on the
+     * branch passes `met` (a certified lower bound of the requested term's
+     * miss above its tolerance at every swivel). Where every branch is so
+     * certified, a cold fit skips the pole start, whose result `met` would
+     * refuse, and the sweep decides at once; omitted, nothing is certified.
+     */
+    unmet?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => boolean;
+
+    /**
+     * Whether `pole` is a place the law's own elbow search chose
+     * (`IAutoMovieFitChainToTargetProps.placed`), authoritative as a hint
+     * is not: a cold fit answers at the pole where it is legal and at the
+     * legal swivel nearest it otherwise, on any branch; a continued fit
+     * walks from its seed toward the pole and answers at the pole or at the
+     * edge of the legal interval the seed lies in. Only where no swivel is
+     * legal does the sweep decide. Read only with `pole`.
+     */
+    placed?: boolean;
+
+    /** Whether the score is the start's own term alone, so an unrefused start is the answer. */
+    direct?: boolean;
+
+    /**
+     * The positive width of the buckets two deviations are one in, the unit of
+     * `deviation`, for a score with a second key (`tiebreak`); omitted, deviations
+     * are compared exactly and `tiebreak` is not read.
+     */
+    tie?: number;
+
+    /**
+     * Certified global lower bounds of every actual score in this solve;
+     * omission keeps the complete search. With no second key, only the original
+     * first coarse candidate may stop early after both keys equal these bounds
+     * exactly. The score and all raw inputs must already be admitted; this is
+     * a mathematical certificate, not a reach or convergence tolerance.
+     */
+    minimum?: { overshoot: number; deviation: number };
+
+    /** Exact source/target geometry of this same unchanged chain, point and hinge range. */
+    prepared?: hingedArmSwivel.IPreparedTarget;
   }
-  return better(atOuter, atInner) ? atOuter : atInner;
-};
+}

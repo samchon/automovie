@@ -1,8 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanFitGoals,
   IAutoMovieMotionHumanJacobian,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSequentialConvex,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -13,6 +15,7 @@ import { HumanFitGoals } from "./HumanFitGoals";
 import { HumanFitPairs } from "./HumanFitPairs";
 import { HumanFitVariables } from "./HumanFitVariables";
 import { HumanFloorReading } from "./HumanFloorReading";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
  * The whole-body fit's merit (`HumanBodyFit`): an iterate read on the body,
@@ -24,7 +27,7 @@ import { HumanFloorReading } from "./HumanFloorReading";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the merit reads, prices and decides, with its sources.
  * @evidence contracts/development/design.md#principled-representation An iterate's reading and its misses row by row, the l1 merit's terms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The tolerance, the misses, the evaluation, the merit's inputs and its builder, read by the fit alone.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The fit and support seed selection consume the tolerance, actual misses, evaluation and merit builder; selected support indices also feed the fit's next model.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The floor, the balance and the pairs are read by their owners; the band and the unit are the rows'.
  */
 export namespace HumanBodyFitMerit {
@@ -64,8 +67,8 @@ export namespace HumanBodyFitMerit {
    * An iterate's reading for the loop.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds.
-   * @evidence contracts/development/design.md#principled-representation The loop's evaluation with the reading and misses the step's rows and its correction read.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members over the loop's.
+   * @evidence contracts/development/design.md#principled-representation The loop's evaluation carries actual reading-specific misses and selected support indices, preserving part order and overlapping-part multiplicity for the step and its correction.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Carries the reading, misses, ordered selected supports and their membership set, plus actual ordered pair gaps whose witnesses the next convexification consumes.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The loop's own evaluation extended, not restated.
    */
   export interface IEvaluation
@@ -75,6 +78,15 @@ export namespace HumanBodyFitMerit {
 
     /** Its misses. */
     misses: IMisses;
+
+    /** The selected lowest candidate for each bearing part with candidates, preserving part order and repeated indices for overlapping parts. */
+    touching: readonly number[];
+
+    /** Membership of those same selected indices, shared read-only by floor misses and convexification without changing the ordered touching rows. */
+    touchingSet: ReadonlySet<number>;
+
+    /** Actual gap and both current closest witnesses in the fit's unchanged pair order; shared read-only by active pair-row construction. */
+    gaps: readonly HumanFitPairs.IGap[];
   }
 
   /**
@@ -116,14 +128,35 @@ export namespace HumanBodyFitMerit {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states what it reads and returns.
    * @evidence contracts/development/design.md#principled-representation The reading, the merit and the feasibility of one fit.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by the fit's loop and its result.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Evaluation serves the fit and support seed selection; feasibility serves the fit's loop and final result.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts One reading serves the merit and the feasibility.
    */
   export interface IMerit {
-    /** The iterate's reading, misses and merit terms. */
+    /**
+     * The iterate's actual reading, misses, selected supports and merit terms.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines the current-coordinate input and actual-reading evaluation result.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the evaluator signature; of owns the physical reading and exact l1 merit body.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared here; of assembles the evaluator from the owning floor, goal and balance readers.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature executes no shortcuts; of preserves the actual row measurements and prices.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The declaration performs no work; of documents per-evaluation kinematics and row-reader costs.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration computes no shared result; of owns same-reading support and centre-displacement reuse.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration allocates nothing; of defines closure inputs and evaluation result ownership.
+     */
     evaluate(x: Float64Array): IEvaluation;
 
-    /** Whether every row holds to the tolerance. */
+    /**
+     * Whether every actual miss holds to its existing physical or numerical
+     * bound, with physical point radii receiving no extra distance allowance.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the actual-miss input, all-row verdict and physical-radius convention.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a feasibility signature; of owns the exact one-sided, two-sided and physical-radius predicates.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared here; of provides the ordered row-family checks.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The declaration changes no acceptance rule; of retains each existing tolerance and the zero excess required by a physical radius.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The declaration performs no scan; of owns the short-circuit traversal of current misses.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration retains no verdict; of evaluates the supplied misses anew without copied concatenations.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration allocates nothing; of supplies a boolean operation without retained misses.
+     */
     holds(misses: IMisses): boolean;
   }
 
@@ -137,9 +170,9 @@ export namespace HumanBodyFitMerit {
    * @evidence contracts/development/implementation.md#principled-implementation The l1 merit: the objective's pull plus each row's miss beyond the band at its share of the price; the named bearing parts' points within the bearing margin of their lowest form the balance's base.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one pass of misses, one sum.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every row is priced in the merit as the step's model prices it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per evaluation, linear in the rows.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the floor reading, the balance, the pairs' gap and the rows' misses.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The closures hold the fit's inputs only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per evaluation plus the floor, pair and selected-goal readers' costs; merit summation and feasibility scan the current misses without concatenated copies, and one centre displacement serves all selected axes.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares exact written clinical input, current support/membership and completed pair witnesses with convexification, and its actual mass centre with balance. One fit-owned lazy FK workspace shares only exactly equal current joint/ancestor dependencies through canonical/floor evaluations; each candidate and its full admission remain actual, and lazy centre displacement stays within that reading.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closures own fit inputs, bearing names and one lazy bounded FK workspace until return/throw, without candidate history. Each evaluation owns its written posture, reading/misses, T support/membership entries and P gaps with 2P witnesses; no FK supplier escapes through those outputs. The fit may transfer its final private written posture to its result.
    */
   export function of(props: IProps): IMerit {
     const {
@@ -165,48 +198,76 @@ export namespace HumanBodyFitMerit {
     const n: number = variables.length;
     const BAND: number = HumanBodyFitRows.BAND;
     const MM: number = HumanBodyFitRows.MM;
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
 
     // The points the named bearing parts bear on at a reading: each of their
-    // support candidates within the bearing margin of the part's lowest.
+    // support candidates within the bearing margin of the part's lowest,
+    // with the bone each rides, so the base moves with them in the rows.
     const named: Set<string> = new Set(
       typeof props.balance === "object"
         ? props.balance.parts.map((p: RegExp): string => p.source)
         : [],
     );
-    const supports: (r: HumanFloorReading.IReading) => IAutoMovieVector3[] = (
+    const supports: (r: HumanFloorReading.IReading) => { points: IAutoMovieVector3[]; owners: AutoMovieHumanoidBone[] } = (
       r: HumanFloorReading.IReading,
-    ): IAutoMovieVector3[] => {
+    ): { points: IAutoMovieVector3[]; owners: AutoMovieHumanoidBone[] } => {
       const out: IAutoMovieVector3[] = [];
+      const owners: AutoMovieHumanoidBone[] = [];
       bearing.forEach((part: RegExp, k: number): void => {
         if (!named.has(part.source)) return;
         const mine: Set<number> = new Set(r.members[k] ?? []);
         r.heights.forEach((h: number, c: number): void => {
-          if (mine.has(r.of[c]!) && h <= r.parts[k]! + HumanBodyFitRows.MARGIN)
+          if (mine.has(r.of[c]!) && h <= r.parts[k]! + HumanBodyFitRows.MARGIN) {
             out.push(r.spots[c]!);
+            owners.push(r.owners[r.of[c]!]!);
+          }
         });
       });
-      return out;
+      return { points: out, owners };
     };
     const read: (x: Float64Array) => HumanBodyFitRows.IReading = (
       x: Float64Array,
     ): HumanBodyFitRows.IReading => {
+      const written: IAutoMovieMotionHumanPosture = HumanFitVariables.written(
+        variables,
+        posture,
+        x,
+      );
       const r: HumanFloorReading.IReading = HumanFloorReading.of(
         body,
-        HumanFitVariables.written(variables, posture, x),
+        written,
         bearing,
         targets,
+        resolution,
       );
       const measured: HumanBodyFitRows.IReading = {
         ...r,
         ...HumanFitGoals.read(body, r.bones, props.angles, props.centre),
+        written,
       };
       if (props.balance === undefined || props.balance === false)
         return measured;
       if (props.balance === true)
-        return { ...measured, balance: HumanFitBalance.of(body, r.bones) };
+        return {
+          ...measured,
+          balance: HumanFitBalance.of(
+            body,
+            r.bones,
+            undefined,
+            measured.centre,
+          ),
+        };
+      const bearers: { points: IAutoMovieVector3[]; owners: AutoMovieHumanoidBone[] } = supports(r);
       return {
         ...measured,
-        balance: HumanFitBalance.of(body, r.bones, supports(r)),
+        balance: HumanFitBalance.of(
+          body,
+          r.bones,
+          bearers.points,
+          measured.centre,
+          bearers.owners,
+        ),
       };
     };
     const beyond: (miss: number) => number = (miss: number): number =>
@@ -214,12 +275,18 @@ export namespace HumanBodyFitMerit {
 
     // What a reading misses by, row by row: the merit's and the feasibility's
     // one reading of the rows the model linearises.
-    const misses: (r: HumanBodyFitRows.IReading) => IMisses = (
+    const misses: (
       r: HumanBodyFitRows.IReading,
+      lowest: ReadonlySet<number>,
+      gaps: HumanFitPairs.IGap[],
+    ) => IMisses = (
+      r: HumanBodyFitRows.IReading,
+      lowest: ReadonlySet<number>,
+      gaps: HumanFitPairs.IGap[],
     ): IMisses => {
-      const lowest: number[] = HumanBodyFitRows.lowest(r);
+      let centreDelta: IAutoMovieVector3 | undefined;
       const floor: number[] = r.heights.map((h: number, c: number): number =>
-        lowest.includes(c) ? Math.abs(h) : -h,
+        lowest.has(c) ? Math.abs(h) : -h,
       );
       const goals: number[][] = targets.map(
         (t: IAutoMovieMotionHumanBodyFitTypes.ITarget, k: number): number[] =>
@@ -242,20 +309,47 @@ export namespace HumanBodyFitMerit {
             : HumanFitGoals.directions(props.centre).map(
                 (axis: IAutoMovieVector3): number =>
                   Vector3.dot(
-                    Vector3.subtract(r.centre!, props.centre!.point),
+                    (centreDelta ??= Vector3.subtract(
+                      r.centre!,
+                      props.centre!.point,
+                    )),
                     axis,
                   ),
               ),
-        pairs: pairs.map(
-          (pair: HumanFitPairs.IPair): number =>
-            -HumanFitPairs.gap(r.bones, pair).distance,
-        ),
+        pairs: pairs.map((pair: HumanFitPairs.IPair, k: number): number => {
+          const gap: HumanFitPairs.IGap = HumanFitPairs.gap(r.bones, pair);
+          gaps[k] = gap;
+          return -gap.distance;
+        }),
       };
+    };
+
+    /** The original one-sided feasibility predicate, shared across its separate row families. */
+    const inside: (d: number) => boolean = (d: number): boolean =>
+      d <= TOLERANCE;
+
+    /** The original two-sided feasibility predicate, with the same absolute tolerance. */
+    const close: (d: number) => boolean = (d: number): boolean =>
+      Math.abs(d) <= TOLERANCE;
+
+    /** Visit array iterators in order, preserving the original spread's treatment of sparse holes. */
+    const all: (
+      values: readonly number[],
+      test: (d: number) => boolean,
+    ) => boolean = (
+      values: readonly number[],
+      test: (d: number) => boolean,
+    ): boolean => {
+      for (const value of values) if (!test(value)) return false;
+      return true;
     };
     return {
       evaluate: (x: Float64Array): IEvaluation => {
         const r: HumanBodyFitRows.IReading = read(x);
-        const m: IMisses = misses(r);
+        const touching: number[] = HumanBodyFitRows.lowest(r);
+        const touchingSet: ReadonlySet<number> = new Set(touching);
+        const gaps: HumanFitPairs.IGap[] = new Array(pairs.length);
+        const m: IMisses = misses(r, touchingSet, gaps);
         let pull: number = 0;
         for (let i: number = 0; i < n; i++)
           pull +=
@@ -263,8 +357,9 @@ export namespace HumanBodyFitMerit {
             HumanFitVariables.weight(variables[i]!) *
             (x[i]! - key[i]!) ** 2;
         let violation: number = 0;
-        for (const d of [...m.floor, ...m.balance, ...m.pairs])
-          violation += beyond(d);
+        for (const d of m.floor) violation += beyond(d);
+        for (const d of m.balance) violation += beyond(d);
+        for (const d of m.pairs) violation += beyond(d);
         m.goals.forEach((g: number[], k: number): void => {
           const share: number = (targets[k]!.price ?? price) / price;
           g.forEach((d: number, j: number): void => {
@@ -277,21 +372,32 @@ export namespace HumanBodyFitMerit {
           });
         });
         m.angles.forEach((d: number, k: number): void => {
+          // A measured interval is held to its own ends, with no numerical
+          // band beyond them (`HumanBodyFitRows.rows`); one value keeps it.
+          const [lo, hi]: readonly [number, number] = HumanFitGoals.bounds(props.angles[k]!);
           violation +=
-            ((props.angles[k]!.price ?? price) / price) * beyond(Math.abs(d));
+            ((props.angles[k]!.price ?? price) / price) *
+            (hi > lo ? Math.abs(d) : beyond(Math.abs(d)));
         });
         for (const d of m.centre)
           violation +=
             ((props.centre?.price ?? price) / price) * beyond(Math.abs(d));
-        return { objective: pull, violation: violation * MM, r, misses: m };
+        return {
+          objective: pull,
+          violation: violation * MM,
+          r,
+          misses: m,
+          touching,
+          touchingSet,
+          gaps,
+        };
       },
       holds: (m: IMisses): boolean =>
-        [...m.floor, ...m.balance, ...m.pairs].every(
-          (d: number): boolean => d <= TOLERANCE,
-        ) &&
-        [...m.angles, ...m.centre].every(
-          (d: number): boolean => Math.abs(d) <= TOLERANCE,
-        ) &&
+        all(m.floor, inside) &&
+        all(m.balance, inside) &&
+        all(m.pairs, inside) &&
+        all(m.angles, close) &&
+        all(m.centre, close) &&
         m.goals.every((g: number[], k: number): boolean =>
           g.every((d: number, j: number): boolean =>
             targets[k]!.bound !== undefined && j === 0

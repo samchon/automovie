@@ -1,3 +1,4 @@
+import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
 import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
@@ -32,4 +33,7 @@ export interface IAutoMovieMotionMeetingRole {
 
   /** Whether a seat bears the performer then, so a reach may lean the trunk over the seat; standing when absent. */
   seated?: boolean;
+
+    /** The performer's posture and pose there, which a role's timing reads its arm's own reach on (`touchReach.place`); a timing that needs no arm reads none. */
+    entry?: { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose };
 }

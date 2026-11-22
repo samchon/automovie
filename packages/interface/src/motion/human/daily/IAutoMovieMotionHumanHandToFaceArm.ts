@@ -2,9 +2,11 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanTarget } from "../compose/IAutoMovieMotionHumanTarget";
+import type { IAutoMovieMotionHumanTouchDrink } from "../compose/IAutoMovieMotionHumanTouchDrink";
 import type { IAutoMovieMotionHumanTouchEffector } from "../compose/IAutoMovieMotionHumanTouchEffector";
 import type { IAutoMovieMotionHumanTouchForm } from "../compose/IAutoMovieMotionHumanTouchForm";
 import type { IAutoMovieMotionHumanGrasp } from "../handling/IAutoMovieMotionHumanGrasp";
+import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
 
@@ -37,6 +39,9 @@ export namespace IAutoMovieMotionHumanHandToFaceArm {
 
     /** The arm laid at the face, which every second's fit is held to. */
     reference: NonNullable<IAutoMovieMotionHumanTouch.ITouch["reference"]>;
+
+    /** The goal that lays the hand at the face, the one the reference solves: the action's reach is timed to it. */
+    goal: IAutoMovieHumanLimbGoal;
 
     /** A vessel's lean toward the lips, degrees; absent for no vessel. */
     lean?: number;
@@ -93,5 +98,8 @@ export namespace IAutoMovieMotionHumanHandToFaceArm {
 
     /** The grasp a held tool was taken up by, which keeps its turn; null for none. */
     own: IAutoMovieMotionHumanGrasp.IKey | null;
+
+    /** The drink a held vessel's rim side was admitted with (`handToFaceVessel`), whose effector is `effector`; searched here for an upright effector without one. */
+    drink?: IAutoMovieMotionHumanTouchDrink.IDrink;
   }
 }

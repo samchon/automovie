@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+} from "@automovie/interface";
+
 import { walk } from "../actions/walk";
 import { operate } from "../affordance/operate";
 import { handOver } from "../handling/handOver";
@@ -41,38 +46,60 @@ import { touch } from "../touch/touch";
  */
 export namespace HumanGunDrill {
   /** Cover the vent with the fingertips. */
-  export const coverVent = HumanActionRow.of("coverVent", touch, {
+  export const coverVent: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gunDrill"]["coverVent"]
+  > = HumanActionRow.of("coverVent", touch, {
     with: "fingertips",
     kind: "hold",
   });
 
   /** Sponge the bore. */
-  export const spongeBore = HumanActionRow.of("spongeBore", operate, {});
+  export const spongeBore: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gunDrill"]["spongeBore"]
+  > = HumanActionRow.of("spongeBore", operate, {});
 
   /** Pass the charge to the loader. */
-  export const passCharge = HumanActionRow.of("passCharge", handOver, {});
+  export const passCharge: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gunDrill"]["passCharge"]
+  > = HumanActionRow.of("passCharge", handOver, {});
 
   /** Place the charge in the muzzle. */
-  export const loadCharge = HumanActionRow.of("loadCharge", putDown, {});
+  export const loadCharge: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gunDrill"]["loadCharge"]
+  > = HumanActionRow.of("loadCharge", putDown, {});
 
   /** Ram the charge home. */
-  export const ramCharge = HumanActionRow.of("ramCharge", operate, {});
+  export const ramCharge: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gunDrill"]["ramCharge"]
+  > = HumanActionRow.of("ramCharge", operate, {});
 
   /** Prick the cartridge through the vent. */
-  export const prickVent = HumanActionRow.of("prickVent", operate, {});
+  export const prickVent: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gunDrill"]["prickVent"]
+  > = HumanActionRow.of("prickVent", operate, {});
 
   /** Run the gun up into battery. */
-  export const runUp = HumanActionRow.of("runUp", operate, {});
+  export const runUp: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gunDrill"]["runUp"]
+  > = HumanActionRow.of("runUp", operate, {});
 
   /** Lay the gun by its elevating screw. */
-  export const layGun = HumanActionRow.of("layGun", operate, {});
+  export const layGun: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gunDrill"]["layGun"]
+  > = HumanActionRow.of("layGun", operate, {});
 
   /** Hook the primer into the vent. */
-  export const hookPrimer = HumanActionRow.of("hookPrimer", putDown, {});
+  export const hookPrimer: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gunDrill"]["hookPrimer"]
+  > = HumanActionRow.of("hookPrimer", putDown, {});
 
   /** Step clear of the wheels and the muzzle. */
-  export const standClear = HumanActionRow.of("standClear", walk, {});
+  export const standClear: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gunDrill"]["standClear"]
+  > = HumanActionRow.of("standClear", walk, {});
 
   /** Pull the lanyard. */
-  export const pullLanyard = HumanActionRow.of("pullLanyard", operate, {});
+  export const pullLanyard: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gunDrill"]["pullLanyard"]
+  > = HumanActionRow.of("pullLanyard", operate, {});
 }

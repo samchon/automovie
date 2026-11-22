@@ -1,19 +1,15 @@
-import {
+import type {
   IAutoMovieAngleRange,
-  type IAutoMovieAxisFrame,
-  type IAutoMovieBoxExcludedSwivels,
-  IAutoMovieJointAxes,
+  IAutoMovieBoxExcludedSwivels,
   IAutoMovieJointConstraint,
-  IAutoMovieQuaternion,
-  type IAutoMovieSwivelArcs,
-  IAutoMovieVector3,
+  IAutoMovieSwivelArcs,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { swingTwistExcludedSwivels } from "./swingTwistExcludedSwivels";
 import { swivelArcs } from "./swivelArcs";
+import { swivelJointReadings } from "./swivelJointReadings";
 
 /**
  * The swivels a joint's three-angle box provably refuses: for a joint whose
@@ -79,55 +75,10 @@ export function boxExcludedSwivels(
           joint: props.joint,
           rotation: props.rotation,
         });
-  const basis: IAutoMovieJointAxes = props.basis;
-  const handed: 1 | -1 =
-    Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0
-      ? 1
-      : -1;
-  const axes: IAutoMovieVector3[] = [
-    basis.flexion,
-    basis.abduction,
-    Vector3.scale(basis.twist, handed),
-  ];
-
-  // The entries R'[i][j] = axisᵢ · (R axisⱼ) at swivels 0, 90 and 180.
-  const sampled: number[][][] = [0, 90, 180].map(
-    (swivel: number): number[][] => {
-      const q: IAutoMovieQuaternion = props.rotation(swivel);
-      const turned: IAutoMovieVector3[] = axes.map(
-        (axis: IAutoMovieVector3): IAutoMovieVector3 =>
-          Quaternion.rotateVector(q, axis),
-      );
-      return axes.map((row: IAutoMovieVector3): number[] =>
-        turned.map((column: IAutoMovieVector3): number =>
-          Vector3.dot(row, column),
-        ),
-      );
-    },
+  const reading: Record<Axis, IRead> = swivelJointReadings.of(
+    props.basis,
+    props.rotation,
   );
-  const entry = (i: number, j: number): IAutoMovieSwivelArcs.ISinusoid => {
-    const [zero, quarter, half] = sampled.map(
-      (m: number[][]): number => m[i]![j]!,
-    ) as [number, number, number];
-    return swivelArcs.fitted(zero, quarter, half);
-  };
-
-  // How each clinical axis is read from the entries (as
-  // `decomposeJointRotationOnBasis` reads it): a distal twist composes
-  // Ry(a)·Rx(f)·Rz(t), with flexion in the middle; a proximal one
-  // Rz(t)·Ry(a)·Rx(f), with abduction in the middle.
-  const reading: Record<Axis, IRead> =
-    basis.twistPlacement === "distal"
-      ? {
-          flexion: { sine: swivelArcs.scaled(entry(1, 2), -1) },
-          abduction: { y: entry(0, 2), x: entry(2, 2), turn: 1 },
-          twist: { y: entry(1, 0), x: entry(1, 1), turn: handed },
-        }
-      : {
-          flexion: { y: entry(2, 1), x: entry(2, 2), turn: 1 },
-          abduction: { sine: swivelArcs.scaled(entry(2, 0), -1) },
-          twist: { y: entry(1, 0), x: entry(0, 0), turn: handed },
-        };
 
   // Each chart's refused swivels: the union of its axes' arcs.
   const charts: (IAutoMovieSwivelArcs.IArc[] | "all")[] = [false, true].map(
@@ -164,34 +115,17 @@ export function boxExcludedSwivels(
  */
 const MARGIN: number = (ROM_TOLERANCE * Math.PI) / 180;
 
-/** The three clinical axes. */
-const AXES: readonly Axis[] = ["flexion", "abduction", "twist"];
+/** The three clinical axes (`swivelJointReadings.AXES`). */
+const AXES: readonly Axis[] = swivelJointReadings.AXES;
 
 /** A clinical axis. */
-type Axis = "flexion" | "abduction" | "twist";
+type Axis = swivelJointReadings.Axis;
 
-/** How an axis is read: the middle angle's sine, or an outer angle's vector and the sign its rest-relative angle takes. */
-type IRead =
-  | { sine: IAutoMovieSwivelArcs.ISinusoid }
-  | {
-      y: IAutoMovieSwivelArcs.ISinusoid;
-      x: IAutoMovieSwivelArcs.ISinusoid;
-      turn: 1 | -1;
-    };
+/** How an axis is read (`swivelJointReadings.IRead`). */
+type IRead = swivelJointReadings.IRead;
 
-/** A clinical interval as rest-relative degrees, ordered (the inverse of `toClinicalAngle`). */
-function rig(
-  range: IAutoMovieAngleRange,
-  frame: IAutoMovieAxisFrame | undefined,
-): [number, number] {
-  const sign: number = frame?.sign ?? 1;
-  const neutral: number = frame?.neutral ?? 0;
-  const ends: number[] = [
-    (range.min - neutral) * sign,
-    (range.max - neutral) * sign,
-  ];
-  return [Math.min(...ends), Math.max(...ends)];
-}
+/** A clinical interval as rest-relative degrees (`swivelJointReadings.rig`). */
+const rig: typeof swivelJointReadings.rig = swivelJointReadings.rig;
 
 /**
  * The sinusoids positive where one chart's reading of an axis lies past its

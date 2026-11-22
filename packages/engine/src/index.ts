@@ -15,6 +15,7 @@ export * from "./autoMovieSubjectMaterials";
 export * from "./autoMovieSubjectMemberSummary";
 export * from "./autoMovieSubjectPlacedBounds";
 export * from "./cache";
+export * from "./compileFormationStageMarks";
 export * from "./composeFormationHeroTransform";
 export * from "./composition";
 export * from "./constants";

@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   IAutoMovieCrowdAgent,
   IAutoMovieSolveHalfPlaneProgram,
   IAutoMovieVector3,
@@ -8,8 +8,9 @@ import type {
  * The geometry the crowd steering pass reads (`steerAutoMovieCrowd`): an
  * agent's goal path and the point it heads for, the time to collision of two
  * discs and of a disc with a convex obstacle, the reciprocal half-plane of
- * velocities that keeps two discs apart, a point's distance from an
- * obstacle, and a moving obstacle's footprint and velocity.
+ * velocities that keeps two discs apart, the half-plane that keeps a disc
+ * clear of a moving obstacle, a point's distance from an obstacle, and a
+ * moving obstacle's footprint and velocity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds and who reads it.
  * @evidence contracts/development/design.md#principled-representation Pure functions of floor-plan geometry in world metres and seconds, and the two records they exchange.
@@ -210,27 +211,26 @@ export namespace steerAutoMovieCrowdGeometry {
     };
   }
 
-  /** The share of the product of two lengths under which their cross product counts as zero in `reciprocal`: several million times a double's rounding, far under any side a walker would choose. */
+  /** The share of the product of two lengths under which their cross product counts as zero in `change`: several million times a double's rounding, far under any side a walker would choose. */
   export const TIE: number = 1e-9;
 
   /**
-   * The half-plane of velocities that keeps an agent clear of another for a
-   * time horizon, taking its share of the avoidance: optimal reciprocal
-   * collision avoidance (van den Berg, Guy, Lin and Manocha 2011, section
-   * 5.1). The velocity obstacle of the other, truncated at the horizon, is
-   * left by the smallest change `u` of the relative velocity, and the agent
-   * takes its share `a` of it, the other `1 - a`: the half-plane passes
-   * through `v + a u` with its outward normal along `u`. The share is the
-   * α-weighted reciprocity of the reciprocal velocity obstacle (van den Berg,
-   * Lin and Manocha 2008, with the uneven split of its generalisations): one
-   * half while both can take their half within their speed caps
-   * (`capacity`), so the paper's even split stands wherever it is
-   * feasible; otherwise an agent at its cap takes what the cap allows and
-   * the other the rest, and against an agent that does not avoid, all it can. A relative velocity within `TIE` of the cone's
-   * axis, relative to the two lengths, takes the right leg, so the choice of
-   * side does not turn on the rounding of where the scene stands. Two discs that already overlap are separated
-   * within one step `step` instead of the horizon. Coordinates are the
-   * floor's `x` and `z` as the plane's two.
+   * The smallest change `u` of an agent's velocity relative to another's that
+   * leaves the other's velocity obstacle, truncated at a time horizon, and the
+   * direction of the half-plane boundary it defines, the admissible side on
+   * its left: the construction of optimal reciprocal collision avoidance (van
+   * den Berg, Guy, Lin and Manocha 2011, section 5.1), before either agent
+   * takes its share. A relative velocity within `TIE` of the cone's axis,
+   * relative to the two lengths, takes the right leg, so the choice of side
+   * does not turn on the rounding of where the scene stands. Two discs that
+   * already overlap are separated within one step `step` instead of the
+   * horizon. Coordinates are the floor's `x` and `z` as the plane's two.
+   *
+   * Read from the other agent's side, every input difference is negated and
+   * every operation is odd or even in them, so each nonzero component is
+   * exactly this one negated; the one exception is two overlapping discs with
+   * no separating velocity, whose fallback direction does not turn with the
+   * pair.
    *
    * @param px The agent's x, metres.
    * @param pz The agent's z, metres.
@@ -243,19 +243,19 @@ export namespace steerAutoMovieCrowdGeometry {
    * @param R The two radii summed, metres.
    * @param horizon The time horizon, seconds.
    * @param step The integration step, seconds, for an overlap.
-   * @param top The agent's speed cap, metres per second.
-   * @param other The other's speed cap, or 0 when it does not avoid (a standing agent that has not set off).
-   * @returns The half-plane, its direction a unit vector, the admissible side on its left.
+   * @param into Receives the boundary's unit direction x and z, then the change's x and z, metres per second.
+   * @param at Where in `into` the four values start.
+   * @returns Whether the pair read from the other's side negates this reading: false only for the overlap fallback.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the constraint, its source, the overlap case and the coordinates.
-   * @evidence contracts/development/implementation.md#principled-implementation The paper's construction: the truncated cone's cut-off disc or its nearer leg by the sign of the determinant, or the one-step disc for an overlap, with the alpha-weighted share of RVO, one half wherever both agents can take it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three cases, each one projection.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coincident centres, which name no direction, take the relative velocity's own direction, or +x when that is zero, so the half-plane is always defined.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States the constraint, its source, the overlap case, the coordinates, the written values and when the other side's reading is this one negated.
+   * @evidence contracts/development/implementation.md#principled-implementation The paper's construction: the truncated cone's cut-off disc or its nearer leg by the sign of the determinant, or the one-step disc for an overlap.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three cases, each one projection, written as four numbers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coincident centres, which name no direction, take the relative velocity's own direction, or +x when that is zero, so the half-plane is always defined; that fallback is reported as not negating.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and no record allocated.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; the caller shares a pair's reading between its two sides.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; writes the caller's four numbers.
    */
-  export function reciprocal(
+  export function change(
     px: number,
     pz: number,
     vx: number,
@@ -267,15 +267,14 @@ export namespace steerAutoMovieCrowdGeometry {
     R: number,
     horizon: number,
     step: number,
-    top: number,
-    other: number,
-  ): IAutoMovieSolveHalfPlaneProgram.ILine {
+    into: Float64Array,
+    at: number,
+  ): boolean {
     const rx: number = qx - px;
     const rz: number = qz - pz;
     const ux: number = vx - wx;
     const uz: number = vz - wz;
     const distance2: number = rx * rx + rz * rz;
-    let line: { dx: number; dz: number; cx: number; cz: number };
     if (distance2 > R * R) {
       // Not colliding: the cone truncated at the horizon.
       const inverse: number = 1 / horizon;
@@ -288,57 +287,49 @@ export namespace steerAutoMovieCrowdGeometry {
         const s: number = Math.sqrt(s2);
         const nx: number = sx / s;
         const nz: number = sz / s;
-        line = {
-          dx: nz,
-          dz: -nx,
-          cx: (R * inverse - s) * nx,
-          cz: (R * inverse - s) * nz,
-        };
-      } else {
-        // The nearer leg.
-        const leg: number = Math.sqrt(distance2 - R * R);
-        // A relative velocity on the cone's axis names no leg; within the rounding of the inputs the right leg is taken, so a pair met head-on or in file passes the same way however the scene is placed.
-        const cross: number = rx * sz - rz * sx;
-        const left: boolean =
-          Math.abs(cross) > TIE * Math.sqrt(distance2 * s2) && cross > 0;
-        const dx: number = left
-          ? (rx * leg - rz * R) / distance2
-          : -(rx * leg + rz * R) / distance2;
-        const dz: number = left
-          ? (rx * R + rz * leg) / distance2
-          : -(-rx * R + rz * leg) / distance2;
-        const along: number = ux * dx + uz * dz;
-        line = { dx, dz, cx: along * dx - ux, cz: along * dz - uz };
+        into[at] = nz;
+        into[at + 1] = -nx;
+        into[at + 2] = (R * inverse - s) * nx;
+        into[at + 3] = (R * inverse - s) * nz;
+        return true;
       }
-    } else {
-      // Colliding: separated within one step.
-      const inverse: number = 1 / step;
-      let sx: number = ux - inverse * rx;
-      let sz: number = uz - inverse * rz;
-      let s: number = Math.hypot(sx, sz);
-      if (s < 1e-12) {
-        sx = 1;
-        sz = 0;
-        s = 1;
-      }
-      const nx: number = sx / s;
-      const nz: number = sz / s;
-      line = {
-        dx: nz,
-        dz: -nx,
-        cx: (R * inverse - s) * nx,
-        cz: (R * inverse - s) * nz,
-      };
+      // The nearer leg.
+      const leg: number = Math.sqrt(distance2 - R * R);
+      // A relative velocity on the cone's axis names no leg; within the rounding of the inputs the right leg is taken, so a pair met head-on or in file passes the same way however the scene is placed.
+      const cross: number = rx * sz - rz * sx;
+      const left: boolean =
+        Math.abs(cross) > TIE * Math.sqrt(distance2 * s2) && cross > 0;
+      const dx: number = left
+        ? (rx * leg - rz * R) / distance2
+        : -(rx * leg + rz * R) / distance2;
+      const dz: number = left
+        ? (rx * R + rz * leg) / distance2
+        : -(-rx * R + rz * leg) / distance2;
+      const along: number = ux * dx + uz * dz;
+      into[at] = dx;
+      into[at + 1] = dz;
+      into[at + 2] = along * dx - ux;
+      into[at + 3] = along * dz - uz;
+      return true;
     }
-    // The share: half while both can take their half within their speed caps; otherwise the capped one takes what its cap allows and the other the rest.
-    const own: number = capacity(vx, vz, line.cx, line.cz, top);
-    const theirs: number =
-      other > 0 ? capacity(wx, wz, -line.cx, -line.cz, other) : 0;
-    const share: number = Math.min(own, Math.max(1 - theirs, 0.5));
-    return {
-      point: { x: vx + share * line.cx, y: vz + share * line.cz },
-      direction: { x: line.dx, y: line.dz },
-    };
+    // Colliding: separated within one step.
+    const inverse: number = 1 / step;
+    let sx: number = ux - inverse * rx;
+    let sz: number = uz - inverse * rz;
+    let s: number = Math.hypot(sx, sz);
+    const turns: boolean = !(s < 1e-12);
+    if (!turns) {
+      sx = 1;
+      sz = 0;
+      s = 1;
+    }
+    const nx: number = sx / s;
+    const nz: number = sz / s;
+    into[at] = nz;
+    into[at + 1] = -nx;
+    into[at + 2] = (R * inverse - s) * nx;
+    into[at + 3] = (R * inverse - s) * nz;
+    return turns;
   }
 
   /**
@@ -587,5 +578,275 @@ export namespace steerAutoMovieCrowdGeometry {
     const a: IAutoMovieVector3 = obstacle.motion(seconds - h).position;
     const b: IAutoMovieVector3 = obstacle.motion(seconds + h).position;
     return { x: (b.x - a.x) / (2 * h), y: 0, z: (b.z - a.z) / (2 * h) };
+  }
+
+  /**
+   * The half-plane of velocities that keeps an agent's disc clear of a
+   * moving convex obstacle for a time horizon, taken by the agent alone.
+   *
+   * The construction is the obstacle's velocity obstacle (Fiorini and Shiller
+   * 1998, Motion planning in dynamic environments using velocity obstacles,
+   * Int J Robot Res 17(7):760). It contains every velocity relative to the
+   * obstacle that brings the disc into it within the horizon, so it is the
+   * union over `s >= 1 / horizon` of `s Q`, where `Q` is the footprint grown
+   * by the radius and seen from the agent. That union is the convex set
+   * `Q / horizon + cone(Q)`: the near side of the scaled footprint between
+   * two legs through the origin.
+   *
+   * The half-plane is the obstacle's line of optimal reciprocal collision
+   * avoidance (van den Berg, Guy, Lin and Manocha 2011) with the agent's
+   * share whole, since an obstacle does not avoid. Outside the velocity
+   * obstacle, the line touches its nearest boundary point, so the current
+   * velocity stays admissible. Inside it, the nearest exit can lie beyond the
+   * agent's speed. A walker cannot outrun a carriage that overtakes it, nor
+   * back away from one met head-on. The line therefore touches the nearest
+   * boundary point whose absolute velocity is within `top`: Fiorini and
+   * Shiller's reachable avoidance velocities. Only when none is reachable
+   * does it touch the nearest point.
+   *
+   * The footprint grows by the radius with mitred corners, which covers the
+   * rounded sum and exceeds it at a corner by at most `r (sec(罐 / 2) - 1)`
+   * for a turn `罐`. An agent already inside the grown footprint is sent out
+   * through its nearest side within one step.
+   *
+   * Coordinates are the floor's `x` and `z` as the plane's two; a returned
+   * line's `y` is the floor's `z`.
+   *
+   * @param px The agent's x, metres.
+   * @param pz The agent's z.
+   * @param vx The agent's velocity x, metres per second.
+   * @param vz The agent's velocity z.
+   * @param wx The obstacle's velocity x.
+   * @param wz The obstacle's velocity z.
+   * @param corners The obstacle's convex footprint in the world, in either winding.
+   * @param r The agent's radius, metres.
+   * @param horizon The time horizon, seconds.
+   * @param step The integration step, seconds, for an agent already inside.
+   * @param top The agent's speed cap, metres per second.
+   * @returns The half-plane, its admissible side on its direction's left, or null for a footprint with no area.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the set constructed, its sources, which boundary point the line touches and why, the corner approximation and the overlap case.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds the velocity obstacle as the published union of scaled footprints, in its closed convex form. Takes the reachable exit Fiorini and Shiller define, so the line asks only what the agent's speed allows.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Winds and grows the footprint, handles an overlap, then lists the boundary's edges and legs, finds the point the line touches and returns the line.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An infeasible request keeps its nearest exit rather than dropping the obstacle, so the half-plane program still sees the violation. A degenerate footprint returns null, and the pass's anticipatory push still applies.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the footprint's corners, with a fixed amount of work per boundary piece.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads one agent against one obstacle at one stage. The pass shares the obstacle's placement and velocity across agents.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates arrays sized by the corners that die with the call and keeps nothing.
+   */
+  export function obstacle(
+    px: number,
+    pz: number,
+    vx: number,
+    vz: number,
+    wx: number,
+    wz: number,
+    corners: readonly IAutoMovieVector3[],
+    r: number,
+    horizon: number,
+    step: number,
+    top: number,
+  ): IAutoMovieSolveHalfPlaneProgram.ILine | null {
+    // The footprint counter-clockwise in (x, z), without repeated corners.
+    const ring: { x: number; z: number }[] = [];
+    for (const c of corners) {
+      const last: { x: number; z: number } | undefined = ring[ring.length - 1];
+      if (last === undefined || Math.hypot(c.x - last.x, c.z - last.z) > 1e-12)
+        ring.push({ x: c.x, z: c.z });
+    }
+    while (
+      ring.length > 1 &&
+      Math.hypot(
+        ring[0]!.x - ring[ring.length - 1]!.x,
+        ring[0]!.z - ring[ring.length - 1]!.z,
+      ) <= 1e-12
+    )
+      ring.pop();
+    const m: number = ring.length;
+    if (m < 3) return null;
+    let area: number = 0;
+    for (let i: number = 0; i < m; ++i) {
+      const a: { x: number; z: number } = ring[i]!;
+      const b: { x: number; z: number } = ring[(i + 1) % m]!;
+      area += a.x * b.z - b.x * a.z;
+    }
+    if (Math.abs(area) < 1e-12) return null;
+    if (area < 0) ring.reverse();
+
+    // Each edge's outward unit normal, then the footprint grown by the radius
+    // with mitred corners, seen from the agent.
+    const normals: { x: number; z: number }[] = ring.map(
+      (a: { x: number; z: number }, i: number): { x: number; z: number } => {
+        const b: { x: number; z: number } = ring[(i + 1) % m]!;
+        const length: number = Math.hypot(b.x - a.x, b.z - a.z);
+        return { x: (b.z - a.z) / length, z: -(b.x - a.x) / length };
+      },
+    );
+    const q: { x: number; z: number }[] = ring.map(
+      (c: { x: number; z: number }, i: number): { x: number; z: number } => {
+        const n1: { x: number; z: number } = normals[(i + m - 1) % m]!;
+        const n2: { x: number; z: number } = normals[i]!;
+        const scale: number = r / (1 + n1.x * n2.x + n1.z * n2.z);
+        return {
+          x: c.x + (n1.x + n2.x) * scale - px,
+          z: c.z + (n1.z + n2.z) * scale - pz,
+        };
+      },
+    );
+    const line = (
+      cx: number,
+      cz: number,
+      nx: number,
+      nz: number,
+    ): IAutoMovieSolveHalfPlaneProgram.ILine => ({
+      point: { x: cx + wx, y: cz + wz },
+      direction: { x: nz, y: -nx },
+    });
+
+    // Already inside: out through the nearest side within one step.
+    let outside: number = -Infinity;
+    let side: number = 0;
+    for (let e: number = 0; e < m; ++e) {
+      const distance: number = -(
+        normals[e]!.x * q[e]!.x +
+        normals[e]!.z * q[e]!.z
+      );
+      if (distance > outside) {
+        outside = distance;
+        side = e;
+      }
+    }
+    if (outside <= 0) {
+      const n: { x: number; z: number } = normals[side]!;
+      return line((n.x * -outside) / step, (n.z * -outside) / step, n.x, n.z);
+    }
+
+    // The velocity obstacle's boundary: the scaled footprint's edges that
+    // face the agent, and the two legs through its extreme corners.
+    const s0: number = 1 / horizon;
+    let left: number = 0;
+    let right: number = 0;
+    for (let i: number = 1; i < m; ++i) {
+      if (q[left]!.x * q[i]!.z - q[left]!.z * q[i]!.x > 0) left = i;
+      if (q[right]!.x * q[i]!.z - q[right]!.z * q[i]!.x < 0) right = i;
+    }
+    let mx: number = 0;
+    let mz: number = 0;
+    for (const c of q) {
+      mx += (2 * s0 * c.x) / m;
+      mz += (2 * s0 * c.z) / m;
+    }
+    const pieces: {
+      ax: number;
+      az: number;
+      dx: number;
+      dz: number;
+      length: number;
+      nx: number;
+      nz: number;
+    }[] = [];
+    for (let e: number = 0; e < m; ++e) {
+      const n: { x: number; z: number } = normals[e]!;
+      const ax: number = s0 * q[e]!.x;
+      const az: number = s0 * q[e]!.z;
+      if (n.x * ax + n.z * az >= 0) continue;
+      const bx: number = s0 * q[(e + 1) % m]!.x;
+      const bz: number = s0 * q[(e + 1) % m]!.z;
+      const length: number = Math.hypot(bx - ax, bz - az);
+      pieces.push({
+        ax,
+        az,
+        dx: (bx - ax) / length,
+        dz: (bz - az) / length,
+        length,
+        nx: n.x,
+        nz: n.z,
+      });
+    }
+    for (const corner of [right, left]) {
+      const c: { x: number; z: number } = q[corner]!;
+      const length: number = Math.hypot(c.x, c.z);
+      const dx: number = c.x / length;
+      const dz: number = c.z / length;
+      const ax: number = s0 * c.x;
+      const az: number = s0 * c.z;
+      // The leg's normal, turned away from a point inside the velocity obstacle.
+      const flip: boolean = dz * (mx - ax) - dx * (mz - az) > 0;
+      pieces.push({
+        ax,
+        az,
+        dx,
+        dz,
+        length: Infinity,
+        nx: flip ? -dz : dz,
+        nz: flip ? dx : -dx,
+      });
+    }
+
+    // The relative velocity, whether it lies inside, and the boundary point the line touches.
+    const ux: number = vx - wx;
+    const uz: number = vz - wz;
+    const inside: boolean = pieces.every(
+      (piece: (typeof pieces)[number]): boolean =>
+        piece.nx * (ux - piece.ax) + piece.nz * (uz - piece.az) <= 0,
+    );
+    const nearest = (
+      reachable: boolean,
+    ): {
+      x: number;
+      z: number;
+      nx: number;
+      nz: number;
+      distance: number;
+    } | null => {
+      let best: {
+        x: number;
+        z: number;
+        nx: number;
+        nz: number;
+        distance: number;
+      } | null = null;
+      for (const piece of pieces) {
+        let lo: number = 0;
+        let hi: number = piece.length;
+        if (reachable) {
+          // Where the piece's absolute velocity lies within the speed cap.
+          const ex: number = piece.ax + wx;
+          const ez: number = piece.az + wz;
+          const b: number = ex * piece.dx + ez * piece.dz;
+          const disc: number = b * b - (ex * ex + ez * ez - top * top);
+          if (disc < 0) continue;
+          lo = Math.max(lo, -b - Math.sqrt(disc));
+          hi = Math.min(hi, -b + Math.sqrt(disc));
+          if (lo > hi) continue;
+        }
+        const t: number = Math.min(
+          hi,
+          Math.max(lo, (ux - piece.ax) * piece.dx + (uz - piece.az) * piece.dz),
+        );
+        const x: number = piece.ax + piece.dx * t;
+        const z: number = piece.az + piece.dz * t;
+        const distance: number = Math.hypot(ux - x, uz - z);
+        if (best === null || distance < best.distance)
+          best = { x, z, nx: piece.nx, nz: piece.nz, distance };
+      }
+      return best;
+    };
+    // The two legs always bound the velocity obstacle, so the unrestricted search finds a point.
+    const touched: {
+      x: number;
+      z: number;
+      nx: number;
+      nz: number;
+      distance: number;
+    } | null = (inside ? nearest(true) : null) ?? nearest(false);
+    if (touched === null) return null;
+    if (!inside && touched.distance > 1e-12)
+      return line(
+        touched.x,
+        touched.z,
+        (ux - touched.x) / touched.distance,
+        (uz - touched.z) / touched.distance,
+      );
+    return line(touched.x, touched.z, touched.nx, touched.nz);
   }
 }

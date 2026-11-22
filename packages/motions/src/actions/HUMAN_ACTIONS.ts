@@ -44,11 +44,14 @@ import { ballSport } from "../sport/ballSport";
 import { baseball } from "../sport/baseball";
 import { gymnastics } from "../sport/gymnastics";
 import { martialArt } from "../sport/martialArt";
+import { chiSau } from "../sport/chiSau";
 import { racket } from "../sport/racket";
 import { swim } from "../sport/swim";
 import { defend } from "../striking/defend";
 import { guard } from "../striking/guard";
 import { kick } from "../striking/kick";
+import { closeStrike } from "../striking/closeStrike";
+import { footStrike } from "../striking/footStrike";
 import { knee } from "../striking/knee";
 import { punch } from "../striking/punch";
 import { step } from "../striking/step";
@@ -73,6 +76,8 @@ import { walk } from "./walk";
  * through. A law's parameter type is its own; the table erases it to
  * `never` so one table holds every law, and the chain method that names an
  * action is what supplies its parameters.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what the table holds, who dispatches through it and why its parameter type is erased.
  */
 export const HUMAN_ACTIONS: Readonly<
   Record<AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionLaw<never>>
@@ -95,6 +100,8 @@ export const HUMAN_ACTIONS: Readonly<
   knockdown,
   perturb,
   knee,
+  closeStrike,
+  footStrike,
   sit,
   rise,
   shift,
@@ -137,6 +144,7 @@ export const HUMAN_ACTIONS: Readonly<
   athletics,
   gymnastics,
   martialArt,
+  chiSau,
   ballSport,
   baseball,
   racket,

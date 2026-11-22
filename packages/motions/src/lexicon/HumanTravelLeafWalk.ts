@@ -1,14 +1,22 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Transform, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanSupportCarry,
   IAutoMovieMotionHumanWalkFacing,
   IAutoMovieMotionHumanWalkParams,
+  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { walk } from "../actions/walk";
 import { walkPaced } from "../actions/walkPaced";
+import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
+import { HumanFrame } from "../posture/HumanFrame";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
 /**
  * The walk a person takes with a door they pull open, the hand on its
@@ -36,7 +44,14 @@ import { walkPaced } from "../actions/walkPaced";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No door is named: the handle's path and normal are the prop's own.
  */
 export namespace HumanTravelLeafWalk {
-  /** What the walk is planned from. */
+  /**
+   * The door law's entry, action clock and actual held-handle path.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the entry context, action duration, local taking instant and world-frame handle reader with their units.
+   * @evidence contracts/development/design.md#principled-representation One action-local clock and a deterministic world point/normal reader describe the stance the held handle asks without duplicating the door's articulation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four fields supply every entry, timing and handle dependency the planner reads; geometry remains behind the supplied reader.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The path comes from the caller's held handle, never a named door, baked trajectory or invented sequence of stance points.
+   */
   export interface IProps {
     /** The door law's context; its entry is where the walk starts. */
     context: IAutoMovieMotionHumanActionContext<object>;
@@ -47,7 +62,18 @@ export namespace HumanTravelLeafWalk {
     /** When the hand has taken the handle, seconds from the start. */
     take: number;
 
-    /** Where the hand holds the handle at a second of the action, and the handle's outward normal, world. */
+    /**
+     * Where the hand holds the handle at an action-local second, metres in
+     * world coordinates, with the handle's outward world normal.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the action-second input and returned world position and outward normal used to carry the taking stance.
+     * @evidence contracts/development/implementation.md#principled-implementation A reader of the scene's own articulated handle, so the planner follows its path at every instant it asks.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure A reader contract only; the door law builds it and `plan` reads it.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reader returns the handle at the second asked, never a cached or normalised one.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declaration; the reader the door law gives owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declaration that shares no work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declaration; `plan` calls it only while it builds and does not keep it.
+     */
     handle: (seconds: number) => {
       point: IAutoMovieVector3;
       normal: IAutoMovieVector3;
@@ -75,12 +101,12 @@ export namespace HumanTravelLeafWalk {
    * @evidence contracts/development/implementation.md#principled-implementation The stances are the take relation carried with the handle; the hinge is the centre the leaf turns the stance about, solved from the first and last stances; the walk goes the feet's midpoint through them and is played at the share of its way the stance has gone, its cadence hurried at most to the walking gait's at the walk-to-run transition.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The stances, the end of the swing, the way, the hinge, the walk, the timing.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A leaf that does not turn plans no walk; the walk's own refusals pass on.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One walk plan and readings of the handle every `TICK`.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per opening.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns the plan and retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One walk plan; the handle is read at every 24th of a second of the action and the walk's root at every 24th of its own, so construction is linear in the two durations, and each stance distance finds its place on the walk's distances by binary search.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The root samples of the walk share one forward-kinematics reader; nothing is kept between plans.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The handle reader and the sample arrays end with construction; the returned plan holds the walk and its clock of numbers.
    */
   export function plan(props: IProps): IAutoMovieMotionHumanActionPlan | null {
-    const { context, seconds, take } = props;
+    const { context, seconds, take }: IProps = props;
     const entry: IAutoMovieMotionHumanActionContext["entry"] = context.entry;
     const yaw0: number = entry.posture.yaw;
     const mid0: IAutoMovieVector3 = {
@@ -88,30 +114,35 @@ export namespace HumanTravelLeafWalk {
       y: 0,
       z: (entry.feet.left.ankle.z + entry.feet.right.ankle.z) / 2,
     };
-    const heading = (v: IAutoMovieVector3): number =>
-      (Math.atan2(v.x, v.z) * 180) / Math.PI;
-    const turned = (from: number, to: number): number =>
-      ((((to - from) % 360) + 540) % 360) - 180;
-    const yawY = (v: IAutoMovieVector3, degrees: number): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees),
-        v,
-      );
+    const heading: (v: IAutoMovieVector3) => number = (
+      v: IAutoMovieVector3,
+    ): number => (Math.atan2(v.x, v.z) * 180) / Math.PI;
+    const turned: (from: number, to: number) => number = (
+      from: number,
+      to: number,
+    ): number => ((((to - from) % 360) + 540) % 360) - 180;
+    const yaw: ReturnType<typeof Quaternion.prepareAxisAngle> =
+      Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
+    const yawY: (v: IAutoMovieVector3, degrees: number) => IAutoMovieVector3 = (
+      v: IAutoMovieVector3,
+      degrees: number,
+    ): IAutoMovieVector3 => Quaternion.rotateVector(yaw(degrees), v);
     const taken: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
       props.handle(take);
     const local: IAutoMovieVector3 = Vector3.subtract(taken.point, mid0);
+    const takenHeading: number = heading(taken.normal);
 
     // The feet's midpoint and the turn the take relation asks at a second.
-    const asked = (t: number): { mid: IAutoMovieVector3; turn: number } => {
+    function asked(t: number): { mid: IAutoMovieVector3; turn: number } {
       const h: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
         props.handle(t);
-      const turn: number = turned(heading(taken.normal), heading(h.normal));
+      const turn: number = turned(takenHeading, heading(h.normal));
       const at: IAutoMovieVector3 = Vector3.subtract(
         h.point,
         yawY(local, turn),
       );
       return { mid: { x: at.x, y: 0, z: at.z }, turn };
-    };
+    }
 
     // Where the swing ends: the last reading at which the stance moves.
     let rests: number = take;
@@ -152,20 +183,20 @@ export namespace HumanTravelLeafWalk {
       toward: hinge,
       turn: turned(heading(Vector3.subtract(hinge, mid0)), yaw0),
     };
-    const walked: IAutoMovieMotionHumanActionPlan = walk.plan({
-      ...context,
-      params: {
-        to: last.mid,
-        ...(way.length === 0 ? {} : { via: way }),
-        facing,
-        armSwing: 0,
-      },
-    } as IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkParams>);
+    const walked: IAutoMovieMotionHumanActionPlan = walkOnEntryFloor(context, {
+      to: last.mid,
+      ...(way.length === 0 ? {} : { via: way }),
+      facing,
+      armSwing: 0,
+    });
     // The person drives the door, so the walk keeps pace with it, not
     // behind it: at each second the body has gone the share of its way the
     // stance it asks has gone of its own, and once the leaf rests the walk
     // closes at its own pace.
-    const travelled = (
+    const travelled: (
+      at: (t: number) => IAutoMovieVector3,
+      to: number,
+    ) => number[] = (
       at: (t: number) => IAutoMovieVector3,
       to: number,
     ): number[] => {
@@ -184,14 +215,22 @@ export namespace HumanTravelLeafWalk {
       (t: number): IAutoMovieVector3 => asked(Math.max(take, t)).mid,
       rests,
     );
+    const walking: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     const went: number[] = travelled(
-      (t: number): IAutoMovieVector3 => walked.posture(t).root,
+      (t: number): IAutoMovieVector3 =>
+        walked.posture(t, ["root"], walking).root,
       walked.duration,
     );
     const total: number = went.at(-1)!;
-    const reached = (length: number): number => {
+    const reached: (length: number) => number = (length: number): number => {
       let i: number = 0;
-      while (i < went.length - 1 && went[i + 1]! < length) i++;
+      let end: number = went.length - 1;
+      while (i < end) {
+        const middle: number = Math.floor((i + end) / 2);
+        if (went[middle + 1]! < length) i = middle + 1;
+        else end = middle;
+      }
       const span: number =
         (i + 1 < went.length ? went[i + 1]! : went[i]!) - went[i]!;
       return Math.min(
@@ -201,16 +240,104 @@ export namespace HumanTravelLeafWalk {
     };
     // No faster than the walk's fastest cadence: a leaf swung faster leaves
     // the walk behind, and the hand loses the handle.
+    const span: number = Math.max(1e-9, stance.at(-1)!);
     const clock: number[] = [];
     for (const length of stance)
       clock.push(
         Math.min(
-          reached((length / Math.max(1e-9, stance.at(-1)!)) * total),
+          reached((length / span) * total),
           (clock.at(-1) ?? -HURRY * TICK) + HURRY * TICK,
         ),
       );
     for (let at: number = clock.at(-1)!; at < walked.duration; )
       clock.push((at = Math.min(walked.duration, at + TICK)));
     return walkPaced(walked, TICK, clock);
+  }
+
+  /**
+   * Match the walk's level datum to the planted feet's floor and return
+   * its poses and contacts in world space. The path and obstacle check keep
+   * their XZ coordinates, and obstacle heights are already floor-relative.
+   */
+  function walkOnEntryFloor(
+    context: IAutoMovieMotionHumanActionContext<object>,
+    params: IAutoMovieMotionHumanWalkParams,
+  ): IAutoMovieMotionHumanActionPlan {
+    const entry: IAutoMovieMotionHumanEntryState = context.entry;
+    const floor: number = HumanSupportFrame.floor(context.body, entry);
+    if (floor === 0) return walk.plan({ ...context, params });
+
+    const frame: HumanFrame.IPrepared = HumanFrame.prepare({
+      origin: { x: 0, y: floor, z: 0 },
+      yaw: 0,
+    });
+    const lower: IAutoMovieMotionHumanSupportCarry.ICarry = {
+      point: frame.local,
+      turn: Quaternion.identity(),
+      yaw: 0,
+    };
+    const raise: IAutoMovieMotionHumanSupportCarry.ICarry = {
+      ...lower,
+      point: frame.point,
+    };
+    const root: IAutoMovieTransform = entry.pose.root ?? Transform.identity();
+    const walked: IAutoMovieMotionHumanActionPlan = walk.plan({
+      ...context,
+      params,
+      entry: {
+        ...entry,
+        pose: {
+          ...entry.pose,
+          root: { ...root, translation: frame.local(root.translation) },
+        },
+        posture: HumanSupportCarry.posture(lower, entry.posture),
+        feet: {
+          left: {
+            ...entry.feet.left,
+            ankle: frame.local(entry.feet.left.ankle),
+          },
+          right: {
+            ...entry.feet.right,
+            ankle: frame.local(entry.feet.right.ankle),
+          },
+        },
+        supports: entry.supports.map(
+          (
+            contact: IAutoMovieMotionHumanEntryState.ISupport,
+          ): IAutoMovieMotionHumanEntryState.ISupport =>
+            contact.support.kind === "ground" &&
+            contact.support.height !== undefined
+              ? {
+                  ...contact,
+                  support: {
+                    kind: "ground",
+                    height: contact.support.height - floor,
+                  },
+                }
+              : contact,
+        ),
+      },
+    });
+    return {
+      ...walked,
+      contacts: walked.contacts.map(
+        (
+          contact: IAutoMovieMotionHumanContactWindow,
+        ): IAutoMovieMotionHumanContactWindow =>
+          contact.support.kind === "ground"
+            ? {
+                ...contact,
+                support: {
+                  kind: "ground",
+                  height: floor + (contact.support.height ?? 0),
+                },
+              }
+            : contact,
+      ),
+      posture: (
+        ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+      ): ReturnType<IAutoMovieMotionHumanActionPlan["posture"]> =>
+        HumanSupportCarry.posture(raise, walked.posture(...args)),
+    };
   }
 }

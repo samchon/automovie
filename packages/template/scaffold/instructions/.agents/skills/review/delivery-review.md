@@ -1,72 +1,61 @@
 # Delivery review
 
-Delivery review runs in a [separate context](../story/workflow/routes.md#separate-contexts) from the author's, so an author never accepts its own commissioned output. The author's acceptances while building, such as a catalog case or a segment, are not delivery review.
-
-Identify the commissioned output from [project context](../production/project-context.md), inspect that complete output directly with the unfiltered validation reports, never through the author's account of it, and disclose what was not produced.
+Identify the commissioned output, revision and recipient from [project context](../production/project-context.md). Inspect the complete output. Use a [separate context](../story/workflow/routes.md#separate-contexts) for required narrative review and media acceptance. Label self-review and any checks that could not be performed.
 
 ## Output reviews
 
 ### Narrative
 
-Review narrative only when the [screenplay choice](../story/workflow/routes.md#who-writes-the-screenplay) calls for narrative passes. Check the required [passes and handoff](../story/workflow/routes.md#completion), and lock your first response as a recipient before reading plans or evidence.
+For [direct writing or fixed text](../story/workflow/routes.md#who-writes-the-screenplay), check completeness and compare fixed text verbatim with the supplied revision. Record the handoff without a narrative verdict.
 
-Then read every current body and contract and the answers of every enabled stage, and compare the beginning with its consequences and ending, part boundaries, promises and duration. A pilot establishes only its slice, and closed work keeps its boundary under [closed passes](../story/correction/repair.md#closed-passes).
+Where narrative passes apply, lock the recipient's first reading before consulting plans or Evidence. Check setups, consequences, ending, promises and duration, then verify the [narrative records](#narrative-records). Review commissioned references under [assets](#assets).
 
 ### Video
 
-Judge a film on stills, in two passes:
+Give the independent viewer the commission and complete candidate at its intended speed. Before disclosing plans or repairs, record where movement, stillness, simultaneous action or a cut sustained or broke the performance. For a disputed beat, identify the picture, sound or words that conveyed its cause. A score or caption can reveal the result while the action remains unreadable.
 
-| Pass | Stills come from | Shows |
-| --- | --- | --- |
-| Source | The film's source | Pose, contact, staging, camera and timing |
-| Artifact | The delivered or generated file | Every scene, raster, transitions, encode and, if generated, the picture |
+For a narrative, record what the opening led the viewer to expect, what they knew when a choice or reveal landed, and what the ending delivered. A sequence of convincing beats can still leave a payoff without its setup.
 
-Draw the source pass with the README's capture command, and extract the artifact pass at matched seconds with the README's capture of an encoded file. Make both for every delivery claim, because an accepted source pass does not show that the file holds it.
+If the reviewer cannot watch continuous playback, obtain that observation from the user or their delegated viewer. For commissioned sound, follow [user listening](../audio/listening.md#user-listening). Keep the cut a candidate while a required observation or material defect remains open.
 
-Review first as an audience that has not read the plans, covering the opening, the ending, the middle and every join, and lock that response before opening the screenplay or code. Then inspect contacts, support, facing, reactions, occlusion and continuity through the motion. Find every screenplay beat in the picture; a function name or a citation proves neither invocation nor visibility.
-
-Judge each output by what it promises. A whole motion hint carries staging, identity, camera, action and timing at its adopted representation, which polygon men and coarse forms do, and its control channels are checked at matched frames under [control channels](../motion/control-channels.md).
-
-A selected generator is judged on its accepted inputs and takes under [generation](../video/generation.md).
-
-A finished direct 3D or generated film is judged by its own picture for preserved action, identity, continuity and audience effect, not by its conditioning, and a direct 3D film also for what [direct film](../video/direct-film.md#what-to-look-for) lists.
-
-Ask the user for what only playback shows, and record each report against its film time so the repair can find the frames.
+Check a motion hint's [control channels](../motion/control-channels.md), a [direct film's finish](../video/direct-film.md#what-to-look-for) or the [generated takes](../video/generation.md) as commissioned. Check [narrative records](#narrative-records) after the independent viewing when those passes apply.
 
 ### Measurement and comparison
 
-Before any delivery claim, cut the film into review segments, each one capture of a stretch of the film, and inspect every segment on its contact sheets at the capture's default spacing, with the consecutive frames [capture](../visual-debugging/capture.md#times) requires around every contact, cut and join. The README owns the window, the spacing and the options that select exact frames.
+Read the production diagnostics the README describes in every inspection round and render, and repair their findings with the round's other findings. The cut stays a candidate while the render blocks publication. Use the README's capture commands to compare source and delivered frames across every scene and join. Label sheets in elapsed film time. Map generated takes by their request intervals, trims and conform. Inspect [consecutive output frames](../visual-debugging/capture.md#times) when the event falls between samples.
 
-With motion already accepted in its catalog cases, this pass judges staging, camera and timing under [motion judgment](../motion/judgment.md). Repeat it on every segment a fix touches.
+Follow participants, props and contacts through the edit under [motion judgment](../motion/judgment.md). For a pace finding, time the interval from cue to outcome in the staging and the delivered cut. For skilled practice, compare it with the observed exchange. Account for holds, cuts and replays.
 
-Study what [when to study](../story/planning/research.md#when-to-study) assigns to delivery review. Measure a study's visible targets on the displayed bodies and camera in those stills, because the resolved schedule only plans them, and its audible targets on the decoded audio, confirmed by the user's listening.
+Compare each release unit and the assembled running time with the commission. Trace a shortfall to the performed action, recorded speech or edit. Locate any promised event missing from the cut.
 
-Measure the delivered file against the [delivery profile](../production/project-context.md#the-delivery-profile) by reading the file itself: every property the profile records, as the file is tagged, with its frame count and loudness by the profile's measurement method. An untagged file is played with a guessed color matrix, so stills extracted from it can match the source while the audience sees shifted color.
-
-An encoder's exit or a matching nominal duration is not a measurement, and runtime comes from performed and measured timing, never from page or word count.
-
-Keep an accepted delivery's sheets and measures where [media records](../production/media-records.md#files) puts them. Every later delivery claim sets each segment's sheets and measures beside the previous delivery's at matched times under [comparison](../visual-debugging/comparison.md). A regression holds delivery until it is repaired or the owner accepts it.
+Verify the [delivery profile](../production/project-context.md#the-delivery-profile) on the assembled file, including raster, frame count, presentation times and commissioned audio levels. Measure picture targets on output frames and sound targets on decoded audio. Compare revisions at [matching times](../visual-debugging/comparison.md). Keep accepted sheets and measurements under [media records](../production/media-records.md#files). Repair regressions or obtain the owner's acceptance.
 
 ### Assets
 
-Inspect a model or visual export through its intended consumer, required views and promised controls, and its shape, contact, deformation and motion by [form inspection](../3d-modeling/inspection.md) at the uses [entity work](../development/entities.md#inspection-and-handoff) sets. Have the user listen to standalone audio as delivered.
+Open each commissioned [appearance reference](../image/canon-references.md) from its subject record, compare it with the description and record which views the user accepted.
+
+Test visual assets in their [commissioned use](../development/entities.md#inspection-and-handoff), including promised views and controls. Inspect shape, contact, deformation and movement under [form inspection](../3d-modeling/inspection.md) where applicable. For audio, follow [listening](../audio/listening.md).
+
+## Narrative records
+
+For open passes, check current bodies, contracts and answers under [route completion](../story/workflow/routes.md#completion). For closed passes, report the revision covered by their reviews and available validation results under [closed-pass rules](../story/correction/repair.md#closed-passes). Read required reports unfiltered after the independent reading. Limit a pilot verdict to its inspected slice.
 
 ## Acceptance record
 
-Every acceptance records the revision, the media and output identities, the checks completed, the observations and the unverified limits. A film's record is `docs/acceptance/<film>.md`, one tracked file per film across its revisions, and it also holds:
+For text or a standalone asset, include the revision, checks, observations and remaining limits in the handoff. For a film or whole motion hint, keep one `docs/acceptance/<film>.md` across revisions. Record:
 
-- technical file completion;
-- the separate verdict on the depicted practice;
-- rejected requirements and any exclusion the user adopted;
-- the checklist: every scene and beat seen, on-model entities, contacts, presences, camera and continuity;
-- the measures;
-- the views and passes reviewed;
-- what the user watched or heard, and what nobody did.
+- the exact candidate and the scenes, beats, subjects, contacts, views and joins examined;
+- who examined frames, who watched or listened at normal speed, and what each observed;
+- the measurements, technical result and separate judgment on the depicted practice;
+- disputed findings and their times, the evidence resolving them, and any open repairs or user-approved exclusions;
+- the director's decision on that cut.
 
-The catalog film has its record too, `docs/acceptance/catalog.md`, with one row per case giving the revision and views at which it was accepted. A film composes only cases that record lists, and a module changed after its row was written is accepted again before a film relies on it.
-
-The record holds review's observations and answers no contract item, because [the graph](../contracts/SKILL.md#outside-the-graph) cannot establish what a picture shows.
+A retake verdict covers the interval checked. Promote only a cut with current whole-film approval. Retain withdrawn decisions as history. Keep these observations [outside the contract graph](../contracts/items.md#outside-the-graph).
 
 ## Repairs
 
-Recheck [production coverage](../contracts/story/shared/discovery/common.md#requirement-ownership), and confirm the handoff carries what the production skill's assembly page lists. Repair media findings through the owners that page names and inspect the affected output again; narrative changes follow [repair](../story/correction/repair.md).
+From the first playable draft through delivery, give the director the affected passage, its film time and what the viewer saw or heard. Compare the performance, framing and edit with the current screenplay. Where the production obscures or changes the intended action, correct it and replay the passage.
+
+If the passage plays as written and the story still fails, the director gives the writer the observed loss to trace to its [earliest story decision](../story/correction/repair.md#upstream-defects). Changes to [user-fixed text](../story/workflow/routes.md#fixed-screenplay) go to the user. If a missing story decision prevents staging, follow [concretization](../story/correction/repair.md#concretization).
+
+Stage the affected passages and recheck their joins. Review the rebuilt candidate in order to verify the original loss is resolved before approval.

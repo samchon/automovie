@@ -1,26 +1,27 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
   IAutoMoviePose,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieRestFrame,
+  IAutoMovieResolvedBone,
+  IAutoMovieRestFrame,
   IAutoMovieSkeleton,
-  type IAutoMovieSkeletonTopology,
+  IAutoMovieSkeletonTopology,
 } from "@automovie/interface";
 
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
+import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import { resolvePose } from "../kinematics/resolvePose";
 
 /**
- * Index root-reachable FK results by humanoid bone name using the same clinical axes/rest frames as playback. Caller topology must describe the unchanged skeleton; omission builds it for this call. Rest and pose-root scale are ignored by resolvePose.
+ * Index root-reachable FK results by humanoid bone name using the same clinical axes/rest frames as playback. Caller topology must describe the unchanged skeleton; omission builds it for this call. Rest and pose-root scale are ignored by resolvePose. An optional prepared reader belongs to the current synchronous fit and shares only exact FK computation, never returned map or transform ownership. An optional requested set limits outputs and computed ancestry while every authored joint is still admitted in order.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Delegates parent-first FK to resolvePose and creates a name map over its reachable results, preserving its omitted-cycle/detached-bone and later-duplicate-joint semantics.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The map adapter supplies constant-time bone lookup to contact passes without duplicating the hierarchy or clinical quaternion rules.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No detached bone is reattached or fake transform inserted; map membership follows the FK owner exactly, and supplied semantic tables are used without consumer-specific overrides.
  * @evidence contracts/development/common.md#meaningful-documentation States reachable membership, optional topology/mapping premises and the no-scale FK frame used by planting and retargeting.
- * @evidence contracts/development/implementation.md#efficient-algorithms FK is linear in joints plus reachable bones, followed by one O(B) map build; topology construction adds O(total bones) only when omitted.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses caller-supplied topology for repeated poses of the same unchanged skeleton; the resolved pose itself changes per frame and is not cached.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a caller-owned map referencing fresh resolved bone records; the intermediate tuple/result arrays are temporary and no input rig or resource handle is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Raw FK keeps ordered joint admission and linear static rig scans with optional exact math reuse. Omitted demand returns B bones; explicit demand computes only its ancestor closure and returns K records. One O(K) direct map build uses no entry-tuple array, and omitted topology adds O(total bones).
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Passes caller topology and an optional operation-owned preparePoseResolution adapter to the same FK owner. Original raw reads/ordered admission remain live; exact admitted-basis/angle factors alone share pure work across source, zeroed and reference poses.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a caller-owned map and fresh resolved bone records. The result array is temporary; the adapter's weak admitted-basis workspaces remain with its operation, and no map, raw transform, handle or global cache is retained here.
  */
 export const resolveBoneMap: (
   skeleton: IAutoMovieSkeleton,
@@ -28,17 +29,27 @@ export const resolveBoneMap: (
   topology?: IAutoMovieSkeletonTopology,
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
+  prepared?: ReturnType<typeof preparePoseResolution>,
+  requested?: ReadonlySet<AutoMovieHumanoidBone>,
 ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
   skeleton: IAutoMovieSkeleton,
   pose: IAutoMoviePose,
   topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton),
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
-): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-  new Map(
-    resolvePose(pose, skeleton, jointAxes, restFrames, topology).map(
-      (
-        bone: IAutoMovieResolvedBone,
-      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [bone.bone, bone],
-    ),
-  );
+  prepared?: ReturnType<typeof preparePoseResolution>,
+  requested?: ReadonlySet<AutoMovieHumanoidBone>,
+): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+  const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+  for (const bone of resolvePose(
+    pose,
+    skeleton,
+    jointAxes,
+    restFrames,
+    topology,
+    prepared,
+    requested,
+  ))
+    map.set(bone.bone, bone);
+  return map;
+};

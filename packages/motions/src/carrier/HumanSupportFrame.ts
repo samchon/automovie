@@ -6,6 +6,7 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBase,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
@@ -45,6 +46,7 @@ import { poseBones } from "../posture/poseBones";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The frame is the prop's or the bone's own displayed one; nothing is extrapolated from the entry.
  */
 export namespace HumanSupportFrame {
+
   /**
    * The support the action is entered on: the first bearing contact on a
    * prop or a person, else the ground.
@@ -87,19 +89,19 @@ export namespace HumanSupportFrame {
   ): IAutoMovieMotionHumanContactWindow.Support {
     return (
       context.entry.supports.find(
-        (support: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-          support.part === part,
+        (support: IAutoMovieMotionHumanEntryState.ISupport): boolean => support.part === part,
       )?.support ?? { kind: "ground" }
     );
   }
   /**
    * The floor actually touched by the planted entry feet, read from their
-   * displayed sole sockets. With no planted foot the ground is the default.
+   * displayed sole sockets. A foot on a footrest of the seat sat on is not
+   * on a floor; with no foot on one the ground is the default.
    *
    * @param body The body.
    * @param entry The displayed entry.
    * @returns World metres.
-   * @evidence contracts/development/common.md#meaningful-documentation States the measured datum and absent-contact case.
+   * @evidence contracts/development/common.md#meaningful-documentation States the measured datum, the footrest case and the absent-contact case.
    * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics places each planted foot's actual sole sockets, including articulated toes; the lowest socket defines its bearing plane.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose and the minimum of the bearing sockets.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A raised heel's ankle height is never substituted for its contact height.
@@ -107,12 +109,18 @@ export namespace HumanSupportFrame {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses HumanFoot.sockets as the surface datum.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function floor(
-    body: IAutoMovieMotionHumanBody,
-    entry: IAutoMovieMotionHumanEntryState,
-  ): number {
+  export function floor(body: IAutoMovieMotionHumanBody, entry: IAutoMovieMotionHumanEntryState): number {
+    // A foot on a footrest of the seat sat on stands on the seat, not on a
+    // floor: a bar stool's rail or a scooter's deck is part of what is sat
+    // on, and the seat's height is still measured from the floor under it.
+    // Read as a floor, the rail made a bar stool a seat of chair height, and
+    // getting up from it stood the body on the rail (measured: the hips
+    // 0.34 m above the quiet stance's after getting off).
+    const rests: IAutoMovieMotionHumanBase.ISeat["footrests"] =
+      entry.base.kind === "seated" ? entry.base.seat?.footrests : undefined;
     const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
-      (side: "left" | "right"): boolean => entry.feet[side].planted,
+      (side: "left" | "right"): boolean =>
+        entry.feet[side].planted && rests?.[side] === undefined,
     );
     if (planted.length === 0) return 0;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
@@ -171,19 +179,15 @@ export namespace HumanSupportFrame {
    * @returns The frame.
    */
   export function at(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "entry" | "prop" | "performer"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, "entry" | "prop" | "performer">,
     seconds: number,
     named?: IAutoMovieMotionHumanContactWindow.Support,
   ): IAutoMovieMotionHumanSupportFrame.IFrame {
-    const support: IAutoMovieMotionHumanContactWindow.Support =
-      named ?? of(context);
+    const support: IAutoMovieMotionHumanContactWindow.Support = named ?? of(context);
     if (support.kind === "ground")
       return {
         support,
-        position: { x: 0, y: 0, z: 0 },
+        position: { x: 0, y: support.height ?? 0, z: 0 },
         rotation: { x: 0, y: 0, z: 0, w: 1 },
         velocity: { x: 0, y: 0, z: 0 },
         acceleration: { x: 0, y: 0, z: 0 },

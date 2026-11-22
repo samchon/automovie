@@ -1,65 +1,53 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  fitSeededChainToTarget,
-  resolvePose,
-} from "@automovie/engine";
+import { Quaternion, Vector3, placeChainPlant } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
+  IAutoMoviePlantChain,
   IAutoMoviePose,
-  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieSeededChainFit,
   IAutoMovieSwivelNear,
+  IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanArmClearance } from "./HumanArmClearance";
-import { HumanArmMirror } from "./HumanArmMirror";
-import { HumanFoot } from "./HumanFoot";
-import { HumanLimbFitMemory } from "./HumanLimbFitMemory";
+import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
+import { HumanArmOvershoot } from "./HumanArmOvershoot";
+import { HumanLimbAt } from "./HumanLimbAt";
 import { HumanLimbMirror } from "./HumanLimbMirror";
+import { fitHumanLimbContact } from "./fitHumanLimbContact";
 import { poseBones } from "./poseBones";
+import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { solveHumanLimbFit } from "./solveHumanLimbFit";
 
 /**
  * The fit of one limb onto its goal, which `resolveHumanPosture` runs for
  * each limb after the trunk: the goal carried into the world by the bone
  * it is attached to, the engine's two-bone fit clear of the trunk and the
- * other arm, the end joint re-aimed so a contact stays put, and the fits
- * remembered per body.
+ * other arm, and the end joint re-aimed so a contact stays put. Every fit is
+ * solved from its own inputs; nothing is remembered between fits.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the four parts of a limb's fit and who runs it.
+ * @evidence contracts/development/common.md#meaningful-documentation States the three parts of a limb's fit, who runs it and that no fit is remembered.
  * @evidence contracts/development/design.md#principled-representation The fit of one limb is one responsibility, apart from the assembly of a whole pose.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The chain, the world goal, the fit, the remembered fit and the memory's switch, all read by `resolveHumanPosture`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The chain, the world goal, the world-frame and kernel fits and the closed-form swivel readings, read by the resolver, its direct solve and the arm course.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The solver is the engine's; nothing here sets an angle past the rig's range.
  */
 export namespace HumanLimbFit {
   /**
-   * The three bones of a limb's chain.
+   * The engine's three required mutable bone identities: upper, lower and
+   * effector. `chain` chooses their Human names from the limb's side and kind.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its bone.
-   * @evidence contracts/development/design.md#principled-representation The engine's two-bone chain.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all read by the fit and the reference.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The bones follow from the limb's side and kind.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the three identities and distinguishes their engine-owned structure from the Human naming policy.
+   * @evidence contracts/development/design.md#principled-representation The existing engine descriptor has exactly the same three required mutable AutoMovieHumanoidBone fields as this Human chain.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Aliases IAutoMoviePlantChain instead of maintaining a parallel structure; the fit and reference keep their existing IChain name.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias changes no field, optionality or bone union; chain still selects names from the limb's side and kind.
    */
-  export interface IChain {
-    /** The bone at the shoulder or the hip. */
-    upper: AutoMovieHumanoidBone;
-
-    /** The bone at the elbow or the knee. */
-    lower: AutoMovieHumanoidBone;
-
-    /** The hand or the foot. */
-    effector: AutoMovieHumanoidBone;
-  }
+  export type IChain = IAutoMoviePlantChain;
 
   /**
    * The chain of a limb.
@@ -91,14 +79,6 @@ export namespace HumanLimbFit {
   }
 
   /**
-   * Turn the memory of limb fits off or on again (`HumanLimbFitMemory.memory`).
-   *
-   * @param on Whether fits are remembered.
-   */
-  export function memory(on: boolean): void {
-    HumanLimbFitMemory.memory(on);
-  }
-  /**
    * A limb goal in world terms: unchanged when it has no `on` bone, otherwise
    * its point and bend carried from the bone's posed frame to the world
    * (`p_world = P + R p`) and its rotation composed after the bone's
@@ -111,6 +91,7 @@ export namespace HumanLimbFit {
    * @param pose The pose that places the attachment bone, before the limb is fitted.
    * @param limb The limb the goal is for.
    * @param goal The goal, attached or not.
+   * @param readAuthored Optional exact FK containing the attachment bone for this body/pose and canonical mappings, shared only within the current fit operation.
    * @returns The goal with world point, bend and rotation and no `on`.
    * @throws {Error} When the goal is attached to a bone of its own limb's chain, or to a bone the rig lacks.
    *
@@ -118,8 +99,8 @@ export namespace HumanLimbFit {
    * @evidence contracts/development/implementation.md#principled-implementation A rigid transform of the goal by the bone's posed frame.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame read and one transform.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A goal on its own chain or on a missing bone throws instead of chasing itself.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics, only for an attached goal.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `poseBones`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms An attached goal requests only its carrying bone and ancestor FK while preserving ordered authored-joint admission; a supplied exact reading shares that completed frame.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses poseBones, or the same exact authored-FK reader the fit's clearance and engine source read consume; a self-chain refusal precedes that read.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function world(
@@ -127,34 +108,48 @@ export namespace HumanLimbFit {
     pose: IAutoMoviePose,
     limb: AutoMovieHumanLimb,
     goal: IAutoMovieHumanLimbGoal,
+    readAuthored?: () => ReadonlyMap<
+      AutoMovieHumanoidBone,
+      IAutoMovieResolvedBone
+    >,
   ): IAutoMovieHumanLimbGoal {
     const on: AutoMovieHumanoidBone | undefined = goal.on;
     if (on === undefined) return goal;
-    const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
-    const chain: readonly AutoMovieHumanoidBone[] = limb.endsWith("Arm")
-      ? [`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`]
-      : [`${side}UpperLeg`, `${side}LowerLeg`, `${side}Foot`];
-    if (chain.includes(on))
+    const own: IChain = chain(limb);
+    if (on === own.upper || on === own.lower || on === own.effector)
       throw new Error(
         `A ${limb} goal cannot be attached to ${on}, a bone of its own chain`,
       );
-    const frame: IAutoMovieResolvedBone | undefined = poseBones(body, pose).get(
-      on,
-    );
+    const frame: IAutoMovieResolvedBone | undefined = (
+      readAuthored === undefined ? poseBones(body, pose, undefined, new Set([on])) : readAuthored()
+    ).get(on);
     if (frame === undefined)
       throw new Error(
         `A ${limb} goal is attached to ${on}, which the rig lacks`,
       );
-    const place = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+    const place: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
+      p: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
       Vector3.add(
         frame.worldPosition,
         Quaternion.rotateVector(frame.worldRotation, p),
       );
-    const { on: _attached, ...rest } = goal;
+    const { on: _attached, clearanceOn, ...rest }: IAutoMovieHumanLimbGoal = goal;
+    const collider: (segment: IAutoMovieMotionHumanColliders.IPlaced) => IAutoMovieMotionHumanColliders.IPlaced = (segment: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanColliders.IPlaced => ({
+      ...segment,
+      pose: {
+        position: place(segment.pose.position),
+        rotation: Quaternion.normalize(Quaternion.multiply(frame.worldRotation, segment.pose.rotation)),
+      },
+    });
     return {
       ...rest,
       point: place(goal.point),
       bend: place(goal.bend),
+      ...(clearanceOn === undefined ? {} : {
+        clear: [...(rest.clear ?? []), ...clearanceOn.clear.map(collider)],
+        rests: [...(rest.rests ?? []), ...clearanceOn.rests.map(collider)],
+      }),
       ...(goal.rotation === undefined
         ? {}
         : {
@@ -200,194 +195,209 @@ export namespace HumanLimbFit {
    * @param placed The arms already placed, whose room the arm keeps.
    * @param rival Where the other arm's wrist will be, while it is still to be fitted.
    * @param near A nearby fit of the same limb to continue; omitted, the fit is solved cold.
+   * @param resolution Optional exact reader or lazy supplier borrowed from this synchronous person evaluation; otherwise the first FK demand creates one.
    * @returns The pose with the limb fitted, and the seed that continues it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fit, the re-aim with its sources and bounds, the attachment and the clearance.
    * @evidence contracts/development/implementation.md#principled-implementation The engine's two-bone fit, a fixed-point re-aim with Anderson mixing, and the clearance as the fit's obstruction.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One world goal, one obstruction, one fit, then the re-aim loop and the toes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The re-aim keeps the fit whose contact lay nearest, not its last pass, and stops at `REAIM_PASSES`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One fit without a contact; at most `REAIM_PASSES` with one.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's solver, `HumanArmClearance` and `HumanFoot.heelOff`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy canonical source read requests only the actual effector, attachment and selected trunk/thigh/placed-arm obstacle frames plus their ancestors, preserving all authored admission. At most REAIM_PASSES targets share rig work, a re-aim pass after the first continuing the previous pass's seed instead of searching again, and every obstruction candidate shares fixed shape-frame preparation; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One authored reader, limb workspace and prepared obstruction serve the fixed body/source pose, placed colliders, goal bend/rotation/reference and cold/near mode; only fit targets and candidate points vary. No callback value, distance or fitted answer is shared across distinct candidates.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one source-FK map, fit workspace and at most one opaque distance reader per queried fixed shape through synchronous return or failure. Its lazy reader is local or borrowed; only pose/seed/value escape, and no returned plan or body-memory entry captures readers or callbacks.
    */
-  export function fit(
-    body: IAutoMovieMotionHumanBody,
-    pose: IAutoMoviePose,
-    limb: AutoMovieHumanLimb,
-    attached: IAutoMovieHumanLimbGoal,
-    placed: readonly ("left" | "right")[],
-    rival?: IAutoMovieVector3,
-    near?: IAutoMovieSwivelNear,
-  ): IAutoMovieSeededChainFit {
-    // A left limb is fitted as the right limb in the mirror image of its
-    // world, so the two sides are mirror images to the bit.
-    if (limb.startsWith("left")) {
-      const image: IAutoMovieSeededChainFit = fit(
-        body,
-        HumanLimbMirror.pose(pose),
-        HumanLimbMirror.limb(limb),
-        HumanLimbMirror.goal(attached),
-        placed.map(HumanLimbMirror.side),
-        rival === undefined ? undefined : HumanArmMirror.flip(rival),
-        near,
-      );
-      return { ...image, pose: HumanLimbMirror.pose(image.pose) };
-    }
-    const goal: IAutoMovieHumanLimbGoal = world(body, pose, limb, attached);
-    // An arm's forearm stays clear of the trunk, the thighs and an arm fitted
-    // before it as the pose being fitted places them (`HumanArmClearance`),
-    // whatever the hint or the hand's turn prefer.
-    const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
-    const trunk: IAutoMovieMotionHumanColliders.IPlaced[] | null =
-      limb.endsWith("Arm")
-        ? HumanArmClearance.obstacles(
-            body,
-            poseBones(body, pose),
-            placed.filter((arm: "left" | "right"): boolean => arm !== side),
-          )
-        : null;
-    const clear: IObstruction | undefined =
-      trunk === null
-        ? undefined
-        : (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3): number =>
-            HumanArmClearance.overshoot(
-              body,
-              trunk,
-              elbow,
-              wrist,
-              side,
-              attached.clear ?? [],
-              true,
-              rival,
-              goal.bend,
-              attached.rests ?? [],
-            );
-    let fitted: IAutoMovieSeededChainFit = once(
-      body,
-      pose,
-      limb,
-      goal,
-      clear,
-      near,
-    );
-    if (goal.contact === undefined || goal.rotation === undefined)
-      return fitted;
-    const leg: boolean = limb.endsWith("Leg");
-    const effector: AutoMovieHumanoidBone = leg ? `${side}Foot` : `${side}Hand`;
-    const anchor: IAutoMovieVector3 = Vector3.add(
-      goal.point,
-      Quaternion.rotateVector(goal.rotation, goal.contact),
-    );
-    // The end joint's point is the fixed point of `x -> anchor - R(x) contact`,
-    // `R(x)` being the rotation the limb reaches when fitted to `x`. Plain
-    // iteration closes slowly while a joint stands on its limit, so each pass
-    // after the first takes Anderson's one-step mixing of the last two.
-    let point: IAutoMovieVector3 = goal.point;
-    let last: { image: IAutoMovieVector3; miss: IAutoMovieVector3 } | undefined;
-    let toes: number = 0;
-    // The fit whose contact lay nearest its place: the iteration need not
-    // close (a contact far from its joint, a blade's point a metre from the
-    // wrist, turns a small change of the hand into a large one of the joint's
-    // place, and a mixed step may then land far off), and its last pass is
-    // then no better than any other, so the nearest one is the one kept.
-    let nearest: {
-      fitted: IAutoMovieSeededChainFit;
-      miss: number;
-      toes: number;
-    } = {
-      fitted,
-      miss: Infinity,
-      toes: 0,
-    };
-    for (let i: number = 0; i < REAIM_PASSES; i++) {
-      const reached: IAutoMovieQuaternion = resolvePose(
-        fitted.pose,
-        body.skeleton,
-        HUMANOID_JOINT_AXES,
-        HUMANOID_REST_FRAME,
-      ).find(
-        (r: IAutoMovieResolvedBone): boolean => r.bone === effector,
-      )!.worldRotation;
-      const off = HumanFoot.heelOff(
-        goal.rotation,
-        reached,
-        anchor,
-        goal.contact,
-      );
-      // The toes belong to the fit they were read from, which is the one kept.
-      toes = off.toes;
-      const miss: IAutoMovieVector3 = Vector3.subtract(off.ankle, point);
-      if (Vector3.length(miss) < nearest.miss)
-        nearest = { fitted, miss: Vector3.length(miss), toes };
-      if (Vector3.length(miss) < REAIM_TOLERANCE || i === REAIM_PASSES - 1)
-        break;
-      let next: IAutoMovieVector3 = off.ankle;
-      if (last !== undefined) {
-        const change: IAutoMovieVector3 = Vector3.subtract(miss, last.miss);
-        const size: number = Vector3.dot(change, change);
-        if (size > 1e-18) {
-          const mixing: number = Math.max(
-            -20,
-            Math.min(20, Vector3.dot(change, miss) / size),
-          );
-          next = Vector3.subtract(
-            off.ankle,
-            Vector3.scale(Vector3.subtract(off.ankle, last.image), mixing),
-          );
-        }
-      }
-      last = { image: off.ankle, miss };
-      point = next;
-      fitted = once(body, pose, limb, { ...goal, point }, clear, near);
-    }
-    fitted = nearest.fitted;
-    toes = nearest.toes;
-    if (!leg || toes === 0) return fitted;
-    const bone: AutoMovieHumanoidBone = `${side}Toes`;
-    return {
-      pose: {
-        ...fitted.pose,
-        joints: fitted.pose.joints.map(
-          (j: IAutoMovieJointPose): IAutoMovieJointPose =>
-            j.bone === bone ? { ...j, flexion: (j.flexion ?? 0) + toes } : j,
-        ),
-      },
-      seed: fitted.seed,
-      ...(fitted.value === undefined ? {} : { value: fitted.value }),
-    };
+  export function fit(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limb: AutoMovieHumanLimb, attached: IAutoMovieHumanLimbGoal,
+    placed: readonly ("left" | "right")[], rival?: IAutoMovieVector3, near?: IAutoMovieSwivelNear,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieSeededChainFit {
+    return solveHumanLimbFit.world(body, pose, limb, attached, placed, rival, near, resolution, "ordinary");
   }
 
   /**
-   * The fit of one limb, remembered by every input it is a pure function of
-   * (`HumanLimbFitMemory.remembered`).
+   * Fit a constructor-owned continuous curve through current hinged correction.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names explicit continuous-curve point fitting and unchanged source, goal, near and result units.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the engine's prepared current-target hinged correction before generic cold work; the owned curve separately checks actual current constraints and deterministic branch continuity. Public fit keeps original ordering.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shares one attachment/clearance/contact kernel and changes only its point-fitting entry; no duplicate limb solver or contact algorithm is introduced.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No public prepared bit, changed goal, skipped source admission or altered tolerance; unsupported correction falls back through the engine's same-source cold owner.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Avoids generic pole/source ranking before a valid current hinged correction, while retaining actual FK/ROM/orientation and curve checks. Runtime gains are unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the same goal-specific workspace and actual source reader; every current/re-aimed point is fitted, with no prior pose answer reused.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Point-policy closures and workspaces remain synchronous, and independent output/cache ownership stays with the existing fitting owner.
+   */
+  export function continued(...args: Parameters<typeof fit>): IAutoMovieSeededChainFit {
+    return solveHumanLimbFit.world(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], "continuous");
+  }
+
+  /**
+   * The fit of a limb's own chain in the pose and frame given, with no
+   * mirror image and no reduction of the pose: what `solveHumanLimbFit`
+   * runs on the reduced pose of a right limb, or of a left limb's mirror
+   * image, after moving it into the frame it solves in.
    *
    * @param body The performer's body.
-   * @param pose The pose before the fit.
-   * @param limb The limb.
-   * @param goal Its goal, attached or not.
+   * @param pose The pose the chain is solved in, holding at least the records the fit reads (`HumanLimbView.of`).
+   * @param limb The limb whose own chain is solved.
+   * @param attached Its goal, attached or not.
    * @param placed The arms already placed.
    * @param rival Where the other arm's wrist will be, while it is still to be fitted.
    * @param near A nearby fit of the same limb to continue; omitted, the fit is solved cold.
-   * @returns The pose with the limb fitted, and the seed that continues it.
+   * @param resolution Optional exact reader or lazy supplier borrowed from this synchronous evaluation.
+   * @param policy The ordinary fit, or the owned continuous curve's current hinged correction.
+   * @param admit Run before the fit's first forward-kinematics read, where the whole pose was admitted when the fit read every joint.
+   * @returns The given pose with the limb fitted, and the seed that continues it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is solved, what the pose must hold, the two policies and when `admit` runs.
+   * @evidence contracts/development/implementation.md#principled-implementation The world goal, the arm's obstruction, the engine's prepared two-bone fit placed from the body's chain constants, and the contact re-aim, as `fit` documents them.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One kernel serves both policies; the mirror image, the root-position frame and the reduction belong to `solveHumanLimbFit`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No goal, tolerance or admission is changed; `admit` runs at the first read's own place, after an attachment's refusal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The fit's own search over the records given; every scan is linear in those records.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One authored reader, limb workspace and prepared obstruction serve every target of the contact re-aim; the body lends the limb's rig-only readers.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns its source reading and workspace until return or throw; only the pose, seed and value escape.
    */
-  export function remembered(
-    body: IAutoMovieMotionHumanBody,
-    pose: IAutoMoviePose,
-    limb: AutoMovieHumanLimb,
-    goal: IAutoMovieHumanLimbGoal,
-    placed: readonly ("left" | "right")[],
-    rival?: IAutoMovieVector3,
-    near?: IAutoMovieSwivelNear,
-  ): IAutoMovieSeededChainFit {
-    return HumanLimbFitMemory.remembered(
+  export function direct(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limb: AutoMovieHumanLimb, attached: IAutoMovieHumanLimbGoal,
+    placed: readonly ("left" | "right")[], rival: IAutoMovieVector3 | undefined, near: IAutoMovieSwivelNear | undefined,
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0], policy: "ordinary" | "continuous",
+    admit?: () => void, incumbent?: IAutoMovieSwivelSeed): IAutoMovieSeededChainFit {
+    return solved(body, pose, limb, attached, placed, rival, near, resolution,
+      policy === "ordinary" ? ordinary : correcting, admit, incumbent);
+  }
+
+  /** The chain's own solve in the pose given: the world goal, the obstruction, the prepared fit and the contact re-aim. */
+  function solved(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limb: AutoMovieHumanLimb, attached: IAutoMovieHumanLimbGoal,
+    placed: readonly ("left" | "right")[], rival: IAutoMovieVector3 | undefined, near: IAutoMovieSwivelNear | undefined,
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0], read: typeof ordinary,
+    admit?: () => void, incumbent?: IAutoMovieSwivelSeed): IAutoMovieSeededChainFit {
+    const readResolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(resolution);
+    const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+    let authoredBones:
+      | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+      | undefined;
+
+    // The chain as the rig alone fixes it: placed under this pose from the
+    // frame of its root's parent, which the source's one read gives, in
+    // place of a second read of the whole pose with the chain left out.
+    const constants: IAutoMovieMotionHumanBody["chains"][AutoMovieHumanLimb] = body.chains[limb];
+
+    // These consumers all read the unchanged source pose. Keep the reader
+    // lazy so attachment refusals and degenerate leg fits keep their original
+    // admission order, and never let a fitted pose replace this source.
+    const readAuthored: () => ReadonlyMap<
+      AutoMovieHumanoidBone,
+      IAutoMovieResolvedBone
+    > = (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+      if (authoredBones === undefined) {
+        // The body's bound demand of these bones (`IHumanBody.reads`) for a
+        // goal on no bone, or on one the demand already holds; another
+        // attachment reads its own set.
+        const arm: boolean = limb.endsWith("Arm");
+        const kept: IAutoMovieMotionHumanBody["reads"][AutoMovieHumanLimb][number] =
+          body.reads[limb][arm && placed.some((other: "left" | "right"): boolean => other !== side) ? 1 : 0];
+        if (attached.on === undefined || kept.requested.has(attached.on)) {
+          admit?.();
+          authoredBones = kept.demand.map(pose, readResolution());
+        } else {
+          const requested: Set<AutoMovieHumanoidBone> = new Set(arm
+            ? HumanArmObstacleBones(placed.filter((other: "left" | "right"): boolean => other !== side)) : []);
+          requested.add(chain(limb).effector);
+          requested.add(attached.on);
+          if (constants !== undefined && constants.parent !== null) requested.add(constants.parent);
+          admit?.();
+          authoredBones = poseBones(body, pose, readResolution(), requested);
+        }
+      }
+      return authoredBones;
+    };
+    const goal: IAutoMovieHumanLimbGoal = world(
       body,
       pose,
       limb,
-      goal,
-      placed,
-      rival,
-      near,
+      attached,
+      readAuthored,
     );
+    // An arm's forearm stays clear of the trunk, the thighs and an arm fitted
+    // before it as the pose being fitted places them (`HumanArmClearance`),
+    // whatever the hint or the hand's turn prefer.
+    const trunk: IAutoMovieMotionHumanColliders.IPlaced[] | null = limb.endsWith("Arm")
+      ? HumanArmClearance.obstacles(
+          body,
+          readAuthored(),
+          placed.filter((arm: "left" | "right"): boolean => arm !== side),
+        )
+      : null;
+    const clear: IObstruction | undefined =
+      trunk === null
+        ? undefined
+        : HumanArmOvershoot.prepare(
+            body,
+            trunk,
+            side,
+            // Another body's colliders and those of what no human body carries
+            // (a prop, an animal) alike.
+            goal.clearExternal === undefined
+              ? (goal.clear ?? [])
+              : [...(goal.clear ?? []), ...goal.clearExternal],
+            true,
+            rival,
+            goal.bend,
+            goal.rests ?? [],
+          );
+    const fitter: ReturnType<typeof prepareHumanLimbFit> = prepareHumanLimbFit(
+      body,
+      pose,
+      chain(limb),
+      goal,
+      clear,
+      near,
+      readAuthored,
+      readResolution(),
+      constants === undefined
+        ? undefined
+        : (): ReturnType<typeof placeChainPlant> | null => {
+            const parent: Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation"> | undefined =
+              constants.parent === null
+                ? {
+                    worldPosition: pose.root?.translation ?? { x: 0, y: 0, z: 0 },
+                    worldRotation: pose.root?.rotation ?? Quaternion.identity(),
+                  }
+                : readAuthored().get(constants.parent);
+            return parent === undefined ? null : placeChainPlant(constants, parent);
+          },
+    );
+    return fitHumanLimbContact(fitter, goal, side, limb.endsWith("Leg"),
+      (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear, capture?: fitHumanLimbContact.ICapture): IAutoMovieSeededChainFit =>
+        read(fitter, point, near, continued, incumbent, capture));
+  }
+
+  /**
+   * The limb posed at a prescribed swivel and bend branch, with no search or
+   * score (`HumanLimbAt.at`): mirrored and attached as `fit` is.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the owner of the closed-form placement.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to HumanLimbAt.at, the engine's fitHingedChainAt on the fit's own request.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forwarding call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The given swivel is kept; nothing is searched.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function at(...args: Parameters<typeof HumanLimbAt.at>): ReturnType<typeof HumanLimbAt.at> {
+    return HumanLimbAt.at(...args);
+  }
+
+  /**
+   * The swivel and bend branch of a posed limb in its fits' seed frame
+   * (`HumanLimbAt.seed`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the owner of the seed reading.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to HumanLimbAt.seed, the engine's readHingedChainSeed on the fit's own request.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forwarding call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No search.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function seed(...args: Parameters<typeof HumanLimbAt.seed>): ReturnType<typeof HumanLimbAt.seed> {
+    return HumanLimbAt.seed(...args);
   }
 
   /**
@@ -395,92 +405,44 @@ export namespace HumanLimbFit {
    *
    * @param goal The goal.
    * @returns Its mirror image.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies HumanLimbMirror.goal as the owner of median-plane goal reflection, including attachments and external colliders.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the shared median-plane reflection of points, rotations, attached bone and colliders; clinical reference angles keep their side convention.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation keeps every reflected goal field in HumanLimbMirror.goal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No goal part or side is special-cased by this wrapper; the shared owner reflects limits, clear and rests as well as the main target.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Work is linear in limits, placed segments/shapes and uncached hull vertices; already mirrored source hull arrays reuse their points. The wrapper adds no scan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses common goal/shape reflection and HumanArmMirror's mirrored hull points while source point arrays remain unchanged, without a new goal cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned goal and mirrored records; unchanged fields are borrowed and shared hull points follow their source-array weak cache. This wrapper owns no retained state, handles or tasks.
    */
-  export function reflected(
-    goal: IAutoMovieHumanLimbGoal,
-  ): IAutoMovieHumanLimbGoal {
+  export function reflected(goal: IAutoMovieHumanLimbGoal): IAutoMovieHumanLimbGoal {
     return HumanLimbMirror.goal(goal);
   }
-  /** How far a re-aimed end joint may still move between two fits of a limb with a contact, metres (provisional: a fiftieth of a millimetre, far inside every contact verdict). */
-  const REAIM_TOLERANCE: number = 2e-5;
 
-  /**
-   * The most fits a limb with a contact takes (provisional). The mixed
-   * iteration closes in three to five on a joint well past its limit. A foot
-   * whose flat pose misses the ankle's range by under a degree has its only
-   * solution far away, at a heel raised by centimetres, and the first passes
-   * move away from the flat pose slowly: up to eleven fits measured on a
-   * stagger's landed rear foot.
-   */
-  const REAIM_PASSES: number = 16;
+  /** Public near/cold fitting retains its original workspace entry and order; a re-aim pass continues its previous pass, prescribed where the fit's own seed is. */
+  function ordinary(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
+    near: IAutoMovieSwivelNear | undefined, continued?: IAutoMovieSwivelNear,
+    incumbent?: IAutoMovieSwivelSeed, capture?: fitHumanLimbContact.ICapture): IAutoMovieSeededChainFit {
+    // A re-aim pass of a prescribed fit keeps the prescription at the swivel
+    // the pass before it settled on: re-aiming moves the target, never the
+    // swivel the course chose.
+    const pass: IAutoMovieSwivelNear | undefined =
+      continued !== undefined && near?.prescribed === true ? { ...continued, prescribed: true } : continued;
+
+    // A held seed only starts a swept fit's bounded search (HumanLimbIncumbent).
+    return workspace.fit(point, pass, pass === undefined ? incumbent : undefined, capture);
+  }
+
+  /** Only the actual continuous-curve constructor selects current hinged correction. */
+  function correcting(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
+    given: IAutoMovieSwivelNear | undefined, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit {
+    const near: IAutoMovieSwivelNear | undefined = continued ?? given;
+    if (near === undefined) return workspace.fit(point);
+    return workspace.continued(point, near);
+  }
 
   /** What a limb's fit must keep clear of: the degrees a mid joint and an end joint, world metres, count as out of range. */
   type IObstruction = (
     mid: IAutoMovieVector3,
     end: IAutoMovieVector3,
   ) => number;
-
-  /** One fit of a limb by the engine's two-bone solver, clear of an obstruction when one is given, continued from `near` when one is given. */
-  function once(
-    body: IAutoMovieMotionHumanBody,
-    pose: IAutoMoviePose,
-    limb: AutoMovieHumanLimb,
-    goal: IAutoMovieHumanLimbGoal,
-    obstruction?: IObstruction,
-    near?: IAutoMovieSwivelNear,
-  ): IAutoMovieSeededChainFit {
-    const bones: IChain = chain(limb);
-    const angles = (
-      bone: AutoMovieHumanoidBone,
-      of: readonly [number, number, number],
-    ): IAutoMovieJointPose => ({
-      bone,
-      flexion: of[0],
-      abduction: of[1],
-      twist: of[2],
-    });
-    // An elbow left to the body (`HumanPosture.IGoal.elbow`) takes, among the
-    // swivels whose hand error is least, the one of least strain the fit's own
-    // sweep reads (`AutoMovieMotionHumanBend.strainOf`), task first (Nakamura;
-    // Siciliano and Slotine 1991); a continued fit keeps its seed's side.
-    const strain: ReturnType<typeof AutoMovieMotionHumanBend.strainOf> =
-      goal.elbow === "strain" && near === undefined && limb.endsWith("Arm")
-        ? AutoMovieMotionHumanBend.strainOf({
-            body,
-            side: limb.startsWith("left") ? "left" : "right",
-            rotation: goal.rotation,
-          })
-        : null;
-    return fitSeededChainToTarget({
-      skeleton: body.skeleton,
-      pose,
-      chain: bones,
-      target: goal.point,
-      bend: goal.bend,
-      ...(goal.rotation === undefined
-        ? {}
-        : { effectorRotation: goal.rotation }),
-      ...(obstruction === undefined ? {} : { obstruction }),
-      ...(near === undefined ? {} : { near }),
-      ...(strain === null ? {} : { strain }),
-      // A reference of no weight decides nothing, so it is left out entirely.
-      ...(goal.reference === undefined || goal.reference.weight === 0
-        ? {}
-        : {
-            ...(goal.reference.weight === undefined
-              ? {}
-              : { referenceWeight: goal.reference.weight }),
-            referencePose: {
-              ...pose,
-              joints: [
-                angles(bones.upper, goal.reference.upper),
-                angles(bones.lower, goal.reference.lower),
-              ],
-            },
-          }),
-      topology: body.topology,
-      jointAxes: HUMANOID_JOINT_AXES,
-      restFrames: HUMANOID_REST_FRAME,
-    });
-  }
 }

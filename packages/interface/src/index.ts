@@ -6,6 +6,7 @@ export type * from "./color";
 export type * from "./construction";
 export type * from "./core";
 export type * from "./drawing";
+export type * from "./environment";
 export type * from "./expression";
 export type * from "./fluid";
 export type * from "./geometry";

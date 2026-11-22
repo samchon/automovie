@@ -42,8 +42,8 @@ export function Transport(props: { clock: SceneClock }): ReactElement {
     };
   }, [clock]);
 
-  const frame: number = Math.round(clock.time * clock.fps);
-  const frames: number = Math.round(clock.duration * clock.fps);
+  const frame: number = clock.frame;
+  const frames: number = clock.lastFrame;
   return (
     <div className="am-transport" role="group" aria-label="Playback">
       <button
@@ -57,13 +57,13 @@ export function Transport(props: { clock: SceneClock }): ReactElement {
         type="range"
         className="am-transport-scrub"
         min={0}
-        max={clock.duration}
-        step={1 / clock.fps}
-        value={clock.time}
+        max={frames}
+        step={1}
+        value={frame}
         aria-label="Time"
         aria-valuetext={`${clock.time.toFixed(2)} seconds, frame ${frame} of ${frames}`}
         onChange={(event: ChangeEvent<HTMLInputElement>): void =>
-          clock.seek(Number(event.target.value))
+          clock.seekFrame(event.currentTarget.valueAsNumber)
         }
       />
       <span className="am-transport-time am-mono">

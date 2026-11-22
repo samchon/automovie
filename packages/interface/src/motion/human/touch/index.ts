@@ -1,4 +1,5 @@
 export type { IAutoMovieMotionHumanArmWrestle } from "./IAutoMovieMotionHumanArmWrestle";
+export type { IAutoMovieMotionHumanHeadRest } from "./IAutoMovieMotionHumanHeadRest";
 export type { IAutoMovieMotionHumanHighFive } from "./IAutoMovieMotionHumanHighFive";
 export type { IAutoMovieMotionHumanKiss } from "./IAutoMovieMotionHumanKiss";
 export type { IAutoMovieMotionHumanLegTouch } from "./IAutoMovieMotionHumanLegTouch";
@@ -7,3 +8,6 @@ export type { IAutoMovieMotionHumanSelfAction } from "./IAutoMovieMotionHumanSel
 export type { IAutoMovieMotionHumanTouch } from "./IAutoMovieMotionHumanTouch";
 export type { IAutoMovieMotionHumanTouchEffectors } from "./IAutoMovieMotionHumanTouchEffectors";
 export type { IAutoMovieMotionHumanTouchSite } from "./IAutoMovieMotionHumanTouchSite";
+export type { IAutoMovieMotionHumanEmbraceFromBehind } from "./IAutoMovieMotionHumanEmbraceFromBehind";
+export type { IAutoMovieMotionHumanBackToBack } from "./IAutoMovieMotionHumanBackToBack";
+export type { IAutoMovieMotionHumanSitOnLap } from "./IAutoMovieMotionHumanSitOnLap";

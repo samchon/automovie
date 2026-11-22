@@ -1,3 +1,4 @@
+import type { IAutoMovieEditorialMarker } from "../cinematics/IAutoMovieEditorialMarker";
 import type { IAutoMovieActionCall } from "../harness/IAutoMovieActionCall";
 
 /**
@@ -15,6 +16,9 @@ export interface IAutoMoviePerformance {
    * Non-blank script beat realized by this program. When the caller supplies no shot id, the compiled shot is identified as `shot:<beat>`.
    */
   beat: string;
+
+  /** Named editorial annotations on the shot clock, admitted independently of draft or final actions. */
+  editorialMarkers?: readonly IAutoMovieEditorialMarker[];
 
   /** How the intended action decomposes into verbs and timing; never read. */
   plan: string;

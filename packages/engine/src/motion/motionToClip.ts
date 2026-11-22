@@ -80,7 +80,7 @@ export const motionToClip: (
     skeletonJointAxes(skeleton, props.jointAxes);
   const times: number[] = sampleTimes(motion.duration, sampleRate);
   const samples: IAutoMoviePose[] = times.map(
-    (time: number): IAutoMoviePose => sampleMotion(motion, time).pose,
+    (time: number): IAutoMoviePose => sampleMotion.pose(motion, time),
   );
   const jointsBySample: Map<AutoMovieHumanoidBone, IAutoMovieJointPose>[] =
     samples.map(

@@ -3,13 +3,15 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieBodyContact,
   IAutoMovieBodyDrag,
+  IAutoMovieGeometry,
+  IAutoMovieMesh,
   IAutoMovieModelPart,
   IAutoMoviePrimitiveShape,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Archetype } from "./Archetype";
+import type { Archetype } from "./Archetype";
 import { ArchetypeBuilderParts } from "./ArchetypeBuilderParts";
 import type { ArchetypeBuilderTypes } from "./ArchetypeBuilderTypes";
 import { ArchetypeConvexCell } from "./ArchetypeConvexCell";
@@ -19,9 +21,10 @@ import { ArchetypeMass } from "./ArchetypeMass";
 import { ArchetypeMaterial } from "./ArchetypeMaterial";
 import { ArchetypeSpan } from "./ArchetypeSpan";
 import { archetypeSpanAnchor } from "./archetypeSpanAnchor";
+import { buildNativeArchetype } from "./buildNativeArchetype";
 
 /**
- * What every producer assembles an archetype with: dimensioned primitive or actual convex-cell parts, the affordances an act reads, and the total mass.
+ * What every producer assembles an archetype with: dimensioned primitives, actual convex cells or visual meshes, the affordances an act reads, and the total mass.
  *
  * A producer states named dimensions and formulas: a box by its size and centre, a rod by its radius and ends, a ball by its radius and centre, or an actual convex wall by its generating corners. Hollow forms assemble separate wall cells so rendering, mass and collision preserve their empty space. The repository keeps every model as coarse as identification allows. Parts carry unit scale, flat colours and no texture.
  *
@@ -187,6 +190,28 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
       "geometry" in points ? points : ArchetypeConvexCell.of(points);
     this.#inventory.add(id, cell.geometry, at, options?.rotation, options);
     this.#inventory.cells.set(id, cell);
+    return this;
+  }
+
+  /**
+   * Place a visual mesh in model metres with an optional flat colour and rotation. The builder takes the mesh buffers as supplied.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States placement, optional inputs and buffer ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Records a mesh through the common part inventory without declaring a primitive or convex cell, so mass and shape reductions omit it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One inventory call using the mesh unchanged.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither assigns mass options nor implies that the mesh is a collider.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The shared inventory scans the existing part ids; the vertex buffers are neither scanned nor copied.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same placement, material and id recording as primitives.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Buffers pass through the inventory to the built model without external resources.
+   */
+  public visualMesh(
+    id: string,
+    mesh: IAutoMovieMesh,
+    at: IAutoMovieVector3,
+    options?: Pick<ArchetypeBuilder.IOptions, "color" | "rotation">,
+  ): this {
+    const geometry: IAutoMovieGeometry = { type: "mesh", mesh };
+    this.#inventory.add(id, geometry, at, options?.rotation, options);
     return this;
   }
 
@@ -393,7 +418,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
             contact.ground ?? ArchetypeFriction.GROUND,
             this.#props.draw.archetype,
           );
-    return new Archetype<Id, Dimension>({
+    return buildNativeArchetype<Id, Dimension>({
       archetype: this.#props.draw.archetype,
       id: this.#props.id ?? this.#props.draw.archetype,
       name: this.#props.name,
@@ -440,20 +465,13 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
     rotation: IAutoMovieQuaternion | undefined,
     options: ArchetypeBuilder.IOptions | undefined,
   ): this {
-    this.#inventory.add(
-      id,
-      { type: "primitive", shape },
-      at,
-      rotation,
-      options,
-    );
+    const geometry: IAutoMovieGeometry = { type: "primitive", shape };
+    this.#inventory.add(id, geometry, at, rotation, options);
     return this;
   }
 }
 
-/**
- * Companion types of {@link ArchetypeBuilder}.
- */
+/** Companion types of {@link ArchetypeBuilder}. */
 export namespace ArchetypeBuilder {
   /** The colour of a part that states none: a mid grey. */
   export const NEUTRAL: string = ArchetypeBuilderParts.NEUTRAL;

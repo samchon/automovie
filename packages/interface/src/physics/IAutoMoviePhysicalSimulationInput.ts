@@ -48,6 +48,16 @@ export namespace IAutoMoviePhysicalSimulationInput {
     /** Distinct balance-pattern endpoint ids reserved by authored motion; omitted or empty reserves none, independently of whether an endpoint tracking motor remains active. */
     unavailableSupports?: string[];
 
+    /**
+     * Exact nonblank id of a mutually bound group for this output interval.
+     * Active targets with the same id at step k share one target fit against
+     * the simultaneous scene snapshot. Frame zero seeds the simulation.
+     * Omission keeps ordinary individual tracking. Admission refuses a member
+     * with releaseOnContact, and a member whose native root also takes
+     * balance or supportTracking goals at that step.
+     */
+    coupledGroup?: string;
+
     /** Optional collider-relative motor goals against actual scene states; omission or [] adds none. Shares maximumBindings and the combined 1024 residual-row budget with pointBounds. */
     bindings?: IAutoMoviePhysicalContactBinding[];
 

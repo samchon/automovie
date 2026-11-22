@@ -1,0 +1,106 @@
+---
+title: Writing scenes
+---
+
+# Writing scenes
+
+The screenplay is the complete audiovisual text of the film. An audience can follow it without the parent documents, and the code realizes it without making story decisions of its own. This page covers the scene file, its headings and anchors, and the beat record.
+
+## Files
+
+Each scene is one file, for one continuous place and time. A short keeps one folder per delivered video:
+
+```text
+docs/body/screenplay/<film>/NNN-<scene>.md
+```
+
+The long route keeps the script's partition, and each scene file realizes one script scene:
+
+```text
+docs/body/screenplay/NNN-part/NNN-episode/NNN-<scene>.md
+```
+
+The film name in code comes from the folder's path under `docs/body/screenplay/`, with `/` replaced by `--`. Number scene files with room for insertions, such as `010-` and `020-`.
+
+## Headings and anchors
+
+A scene file has an H1 for the scene, H2s for its sections and H3s for its beats. Every section and beat heading carries an explicit anchor, which code, Evidence answers and reviews cite:
+
+```markdown
+# The lift
+
+## Rehearsal hall {#s03}
+
+### Mara cues the lift {#s03-b04}
+```
+
+An anchor is never reused or renumbered, in any layer, and neither is a scene file's number. Removals and insertions keep the existing addresses valid:
+
+- a removed section or beat keeps its heading over the single line `OMITTED`;
+- a removed scene file keeps only its H1 over `OMITTED`, which retires its section and beat anchors;
+- an inserted section or beat takes a new anchor, such as `{#s03-b04a}`;
+- an inserted scene file takes an unused number between its neighbors.
+
+The scene composition that would have realized an `OMITTED` section or beat declares an exclusion for it, and the film does so for an omitted scene file.
+
+## Blocks
+
+Unless the commission sets another format, the text follows BBC or Final Draft screenplay blocks. A scene heading reads like `INT. LOCATION - DAY`. Action is short present-tense paragraphs of what is seen or heard, and a speaker cue is uppercase on its own line.
+
+A new action paragraph starts at each change of action, response or attention. Off-screen speech, voiceover, overlap, screen text and time shifts are marked wherever they would otherwise be ambiguous. Running time comes from the performed action, speech, pauses and edit, never from the length of the text.
+
+Where music is stated, its usage is named by these codes:
+
+| Code | Usage |
+| --- | --- |
+| `BI` | Background instrumental |
+| `BV` | Background vocal |
+| `VI` | Visual instrumental, from a source the picture shows |
+| `VV` | Visual vocal, from a source the picture shows |
+| `MT` | Main title music |
+| `ET` | End title music |
+
+## Beats
+
+A beat is one exchange. It ends when intent or initiative changes, and it lists its chained actions in order. Each action is named as one the installed motion vocabulary performs, alone or joined with others, or by the research law that describes it.
+
+The polygon man has no drawn face. The screenplay writes attention as the turn of a head and torso, and feeling as posture, tempo and distance from others. Distance is named by the bands the motion vocabulary performs, such as personal distance, never by a number.
+
+A beat that no composition of installed actions or cited law can produce is repaired in the screenplay, or at the parent that owns the decision, before code is written from it.
+
+## The beat record
+
+Each beat ends with its record. The record decides the beat completely, in terms the production can perform, and leaves derived values to code:
+
+```markdown
+### Mara cues the lift {#s03-b04}
+
+<action and dialogue blocks>
+
+- Cast: [Mara](../../brief/cast/mara.md#lead-hand), [Jun](../../brief/cast/jun.md#partnering-level)
+- Intent: Mara cues a lift with a press of her hand; Jun reads it a beat late.
+- Outcome: the lift lands short, within [the limits](../../../research/dance/lifts.md#limits) the study records for a late read.
+- Reaction: Mara braces under Jun's weight; Jun lands off balance; Jun's sleeve tears at the seam.
+- Start: about 12 s into the section, provisional.
+- Space: the pair drifts from center stage toward the downstage wing.
+- Camera: push-in from full to medium on Mara and Jun.
+- Sound: the music drops to the strings alone.
+```
+
+The links in the record cite the brief decisions and the study the beat depends on. A `Camera` entry that starts with `Cut to` starts a new shot; any other entry reframes or moves the current shot. The first section opens with a standing-state list, before its scene heading, that sets the scene's starting state and camera and cites the decisions it keeps. A scene that leaves by something other than a cut, or ends the film, closes with a transition block.
+
+An implementation decision the code needs and the text left open is resolved in the beat record, or in the standing state when it holds for the whole scene. If another scene depends on it, the same change adds an anchored fact to the brief or settings. An exchange, an outcome or a reaction is never left to code; a screenplay that lacks one returns to its author.
+
+## How code cites the screenplay
+
+A scene composition under `src/composition/scenes/<film>/<scene>/` cites its scene file, or each section and beat it realizes, in its doc comment:
+
+```ts
+/**
+ * Mara cues the lift and Jun reads it a beat late.
+ *
+ * @evidence docs/body/screenplay/rehearsal/030-lift.md#s03-b04 Realizes Mara's press, Jun's late read and the short landing.
+ */
+```
+
+Every section and beat must be realized by some scene composition, and every scene file by the film that plays it. [Evidence graph](/docs/screenplay/evidence-graph) describes how the check enforces that.

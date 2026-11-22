@@ -35,6 +35,16 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  */
 export namespace IAutoMovieMotionHumanKiss {
   /**
+   * Which participant writes a jointly timed hand kiss.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two acting roles in the same meeting.
+   * @evidence contracts/development/design.md#principled-representation One role writes the lips and one brings the hand to their common point.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The mutual action sets this role and the kiss law reads it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing role keeps the direct kiss's independently authored partner target.
+   */
+  export type HandRole = "kisser" | "presenter";
+
+  /**
    * Parameters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
@@ -51,6 +61,9 @@ export namespace IAutoMovieMotionHumanKiss {
     /** The partner's region. */
     region: AutoMovieHumanoidRegion;
 
+    /** The participant in a shared hand kiss. When absent, a kiss reads an already presented hand or the named region of the other person. */
+    handRole?: HandRole;
+
     /** Which way the head turns for a cheek or the lips; `right` when absent. */
     side?: "left" | "right";
 
@@ -65,8 +78,8 @@ export namespace IAutoMovieMotionHumanKiss {
    * A solved kiss: how the body brings the mouth to the point.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The four angles the plan raises on its envelope and the distance they leave.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, all read by the plan or the verdicts.
+   * @evidence contracts/development/design.md#principled-representation The movement's four angles, supported vertical travel and measured distance.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The fitted key and the distance the verdict reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The miss is a member, so an unreachable target is reported and not hidden.
    */
   export interface ISolved {
@@ -79,8 +92,24 @@ export namespace IAutoMovieMotionHumanKiss {
     /** The neck's and the head's flexion, degrees. */
     flexion: number;
 
+    /** An individually presented hand may require a turn toward the staged skin point, degrees. */
+    twist?: number;
+
+
     /** The heels' raise, degrees. */
     raise: number;
+
+    /** The descent over planted feet from the tilted body, metres; zero when absent. */
+    sink?: number;
+
+    /** Sideways pelvis displacement over the two planted supports, metres. */
+    shift?: number;
+
+    /** Forward pelvis displacement, metres in the planted stance frame. */
+    advance?: number;
+
+    /** Pelvis turn about the vertical over the two fixed feet, degrees. */
+    bearing?: number;
 
     /** The mouth's distance to the point, metres. */
     miss: number;

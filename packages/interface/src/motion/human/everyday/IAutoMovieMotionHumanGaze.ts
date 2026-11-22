@@ -135,16 +135,16 @@ export namespace IAutoMovieMotionHumanGaze {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanGaze.Recruit identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ILayer {
-    /** What to look at. */
+    /** What to look at, resolved through the layer's context. */
     target: IAutoMovieMotionTarget;
 
-    /** Film second the gaze shift starts. */
+    /** Film second when the shift starts. */
     from: number;
 
-    /** Film second the gaze returns to the body's own direction; never when absent. */
+    /** Film second when the gaze returns; omitted, it continues tracking. */
     to?: number;
 
-    /** Which segments may join; `auto` when absent. */
+    /** Which segments may join; auto when omitted. */
     with?: IAutoMovieMotionHumanGaze.Recruit;
   }
 
@@ -157,7 +157,7 @@ export namespace IAutoMovieMotionHumanGaze {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanGaze.split.
    */
   export interface ISplit {
-    /** Eye-in-head direction at the end of the shift. */
+    /** Eye-in-head yaw and pitch at the end of the shift, degrees. */
     eyes: {
       /** Yaw in degrees, positive toward the performer's left. */
       yaw: number;
@@ -165,7 +165,7 @@ export namespace IAutoMovieMotionHumanGaze {
       pitch: number;
     };
 
-    /** Head and neck. */
+    /** Combined head/neck yaw and pitch, degrees. */
     head: {
       /** Yaw in degrees, positive toward the performer's left. */
       yaw: number;
@@ -173,7 +173,7 @@ export namespace IAutoMovieMotionHumanGaze {
       pitch: number;
     };
 
-    /** Trunk yaw. */
+    /** Trunk yaw, degrees. */
     trunk: number;
   }
 

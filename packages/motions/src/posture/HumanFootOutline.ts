@@ -8,6 +8,7 @@ import {
 import type {
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
@@ -45,7 +46,7 @@ export namespace HumanFootOutline {
    * @evidence contracts/development/implementation.md#principled-implementation The colliders' points at rest dropped to the sole's plane and reduced to their convex hull, the outline a foot flat on the floor stands on.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading per side, made once per body.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown collider kind throws instead of being skipped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One hull per bone per body; every later call reads the cache.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One hull per bone per body; every later call reads the cache. The heel-floor observation reads the canonical surface point without constructing unused normal/forward directions.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's surface rays, its surface frames and its planar hull.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held per live body in a weak map.
    */
@@ -57,28 +58,28 @@ export namespace HumanFootOutline {
       | Record<"left" | "right", IAutoMovieHumanoidSurfaces.IFrame[]>
       | undefined = OUTLINES.get(body);
     if (found === undefined) {
-      const tools = AutoMovieHumanoidSurfaceRays.tools(
+      const tools: ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools> = AutoMovieHumanoidSurfaceRays.tools(
         body.skeleton,
         body.profile,
       );
-      const read = (
+      const read: (s: "left" | "right") => IAutoMovieHumanoidSurfaces.IFrame[] = (
         s: "left" | "right",
       ): IAutoMovieHumanoidSurfaces.IFrame[] => {
         const Side: "Left" | "Right" = s === "left" ? "Left" : "Right";
         const heel: IAutoMovieHumanoidSurfaces.IFrame =
           body.surfaces.sockets[`heel${Side}`];
-        const floor: number = resolveAutoMovieHumanoidSurfaces.place(
+        const floor: number = resolveAutoMovieHumanoidSurfaces.point(
           heel,
           tools.at(heel.bone),
-        ).point.y;
+        ).y;
         const out: IAutoMovieHumanoidSurfaces.IFrame[] = [];
         for (const bone of [`${s}Foot`, `${s}Toes`] as const) {
-          const segment = body.profile.segments.find(
-            (x): boolean => x.bone === bone,
+          const segment: IAutoMoviePhysicalSegment | undefined = body.profile.segments.find(
+            (x: IAutoMoviePhysicalSegment): boolean => x.bone === bone,
           );
           if (segment === undefined) continue;
           const points: IAutoMovieVector3[] = segment.shapes.flatMap(
-            (shape): IAutoMovieVector3[] =>
+            (shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] =>
               shapePoints(segment.neutral, shape).map(
                 (p: IAutoMovieVector3): IAutoMovieVector3 => ({
                   ...p,
@@ -138,9 +139,9 @@ function shapePoints(
     pose.position,
     Quaternion.rotateVector(pose.rotation, shape.transform.position),
   );
-  const at = (local: IAutoMovieVector3): IAutoMovieVector3 =>
+  const at: (local: IAutoMovieVector3) => IAutoMovieVector3 = (local: IAutoMovieVector3): IAutoMovieVector3 =>
     Vector3.add(centre, Quaternion.rotateVector(rotation, local));
-  const round = (
+  const round: (middle: IAutoMovieVector3, radius: number) => IAutoMovieVector3[] = (
     middle: IAutoMovieVector3,
     radius: number,
   ): IAutoMovieVector3[] =>

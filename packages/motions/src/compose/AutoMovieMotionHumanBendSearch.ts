@@ -1,29 +1,26 @@
 import {
-  DEFAULT_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  Quaternion,
   Vector3,
-  boxExcludedSwivels,
   decomposeJointRotation,
-  hingedArmArticulation,
-  jointRomOvershoot,
-  normalizeJointAxes,
-  swingTwistRange,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
-  IAutoMovieJointConstraint,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
+  IAutoMovieSwivelNear,
+  IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanArmClearance } from "../posture/HumanArmClearance";
+import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
+import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
+import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
+import { AutoMovieMotionHumanBendSweep } from "./AutoMovieMotionHumanBendSweep";
 
 /**
  * The elbow search of `AutoMovieMotionHumanBend`: the swivel sweep of a hand
@@ -38,18 +35,12 @@ import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Ranges, axes and clearance are the rig's and the engine's; the hanging arm is read from the body.
  */
 export namespace AutoMovieMotionHumanBendSearch {
-  /** The hanging arm's shoulder angles by body and side, clinical degrees. */
-  const NEUTRAL: WeakMap<
-    IAutoMovieMotionHumanBody,
-    Partial<Record<AutoMovieHumanSide, IAngles>>
-  > = new WeakMap();
-
   /**
    * Three clinical angles of a joint, degrees.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States that the members are the clinical flexion, abduction and twist in degrees.
    * @evidence contracts/development/design.md#principled-representation A ball joint's three clinical angles in degrees, the form the rig's range-of-motion tables and the hanging arm's reading use.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all read by `ICandidate` and by the hanging-arm cache; no member is added for another joint.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all read by `ICandidate` and by the body's hanging arm (`hanging`); no member is added for another joint.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts All three members are required and named by axis, not a positional tuple.
    */
   export interface IAngles {
@@ -102,44 +93,9 @@ export namespace AutoMovieMotionHumanBendSearch {
   }
 
   /**
-   * How far an elbow lies from a point's side of the shoulder-to-wrist line:
-   * 1 less the cosine of the angle between the two, each taken across the
-   * line, so 0 is the same side and 2 the opposite one. A point on the line has
-   * no side and reads 0.
-   *
-   * @param shoulder The shoulder, world metres.
-   * @param wrist The wrist, world metres.
-   * @param elbow The elbow, world metres.
-   * @param toward The point, world metres.
-   * @returns A number from 0 to 2.
-   */
-  function away(
-    shoulder: IAutoMovieVector3,
-    wrist: IAutoMovieVector3,
-    elbow: IAutoMovieVector3,
-    toward: IAutoMovieVector3,
-  ): number {
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(wrist, shoulder),
-    );
-    const across = (p: IAutoMovieVector3): IAutoMovieVector3 => {
-      const v: IAutoMovieVector3 = Vector3.subtract(p, shoulder);
-      return Vector3.subtract(v, Vector3.scale(axis, Vector3.dot(v, axis)));
-    };
-    const a: IAutoMovieVector3 = across(elbow);
-    const b: IAutoMovieVector3 = across(toward);
-    return Vector3.length(a) < 1e-9 || Vector3.length(b) < 1e-9
-      ? 0
-      : 1 - Vector3.dot(Vector3.normalize(a), Vector3.normalize(b));
-  }
-
-  /** `away` at one degree, the step of the engine's swivel sweep, so a side always holds a swept candidate. */
-  const SIDE: number = 1 - Math.cos(Math.PI / 180);
-
-  /**
    * The ranking that takes the elbow place on a point's side of the
    * shoulder-to-wrist line. Candidates within one degree of that side come
-   * first, ordered by their overshoot and then by their strain plus `away`,
+   * first, ordered by overshoot then strain plus the radial discrepancy,
    * which is under 0.0002 there. An elbow place has two arm poses, one per
    * bend branch, and this order takes the allowed one. Every other candidate
    * follows, nearer sides first.
@@ -151,23 +107,18 @@ export namespace AutoMovieMotionHumanBendSearch {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the order it gives and why the allowed pose of a place comes first.
    * @evidence contracts/development/implementation.md#principled-implementation Within one degree of the side, the sweep's own step, a candidate keeps its overshoot and strain; every other ranks behind by its side.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closure over one side reading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the original cold radial projection and band ranking to AutoMovieMotionHumanBendSide's numerical owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A candidate off the side never ranks as allowed.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per candidate.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The ranking closes over three points.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Cold rankings read current supplied points every candidate; fixed internal sweeps explicitly use the same owner's prepared geometry without changing this live-input facade.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a closure over three points until its ranking is released; fresh scores retain no reader, point history or external handle.
    */
   export function toward(
     shoulder: IAutoMovieVector3,
     wrist: IAutoMovieVector3,
     bend: IAutoMovieVector3,
   ): (candidate: ICandidate) => IScore {
-    return (candidate: ICandidate): IScore => {
-      const side: number = away(shoulder, wrist, candidate.elbow, bend);
-      return side <= SIDE
-        ? { overshoot: candidate.overshoot, deviation: candidate.strain + side }
-        : { overshoot: 1e9 * (1 + side), deviation: 0 };
-    };
+    return AutoMovieMotionHumanBendSide(shoulder, wrist, bend);
   }
 
   /**
@@ -179,7 +130,6 @@ export namespace AutoMovieMotionHumanBendSearch {
    * @param body The body.
    * @param side The arm.
    * @param rotation The hand's world rotation, when its turn counts as strain.
-   * @param hang The `hang` preset's hint for an upright trunk at the origin, from which the hanging arm's angles are read.
    * @returns The strain of a candidate, or null when the rig has no arm chain.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is read, from which rotations, and the null case.
@@ -194,10 +144,6 @@ export namespace AutoMovieMotionHumanBendSearch {
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
     rotation: IAutoMovieQuaternion | undefined,
-    hang: (
-      body: IAutoMovieMotionHumanBody,
-      side: AutoMovieHumanSide,
-    ) => IAutoMovieVector3,
   ):
     | ((
         upper: IAutoMovieQuaternion,
@@ -211,7 +157,7 @@ export namespace AutoMovieMotionHumanBendSearch {
         { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
         side,
       );
-    const neutral: IAngles | null = neutralOf(body, side, hang);
+    const neutral: IAngles | null = body.hanging(side);
     if (chain === null || neutral === null) return null;
     const upperBone: AutoMovieHumanoidBone = chain.prepared.chain.upper;
     const lowerAxes: IAutoMovieJointAxes | undefined =
@@ -245,177 +191,118 @@ export namespace AutoMovieMotionHumanBendSearch {
   }
 
   /**
-   * The best elbow place of a chain for a wrist's place under a ranking.
+   * `AutoMovieMotionHumanBend.solve`'s search with the seed it was chosen
+   * at, on one request's trunk prepared once: cold, or continued from a
+   * nearby solve's seed; legality first, then the least strain.
    *
-   * @param chain The prepared chain.
-   * @param body The body, for the hand's range.
-   * @param side The arm.
-   * @param point The wrist, world metres.
-   * @param rotation The hand's world rotation, when its turn counts as strain.
-   * @param neutral The hanging arm's shoulder angles; null leaves the shoulder's strain at 0.
-   * @param score The ranking of a candidate.
-   * @returns The chosen candidate with its true overshoot, or null for a degenerate chain.
+   * @param props The request; its `fallback` is not read.
+   * @returns The search of the request, given the seed of a nearby solve of the same arm to continue (`IAutoMovieSwivelNear`) or none to sweep every swivel: the candidate and its swivel and bend branch, or the reason there is none.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the ranking, the two modes, the result and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's swivel search cold, or its continuation of a seed within one step either way on the seed's branch (`hingedArmArticulation`'s `near`), under `solve`'s ranking.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare once; each call refuses, then searches.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A continued candidate's overshoot is reported as scored, so a caller sees a seed that left the legal places.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One chain preparation for every search of the request, as a walk along one request makes many; cold, the bounded sweep; continued, the refinement's probes alone.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The chain depends on the request's body, trunk and side alone, so every search of the request shares it; the hanging arm is the body's.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains the chain until released.
    */
-  function best(
-    chain: AutoMovieMotionHumanBendChain.IChain,
-    body: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-    point: IAutoMovieVector3,
-    rotation: IAutoMovieQuaternion | undefined,
-    neutral: IAngles | null,
-    score: (candidate: ICandidate) => IScore,
-  ): ICandidate | null {
-    const { prepared } = chain;
-    const upperBone: AutoMovieHumanoidBone = prepared.chain.upper;
-    const lowerBone: AutoMovieHumanoidBone = prepared.chain.lower;
-    const lowerAxes: IAutoMovieJointAxes | undefined = chain.axes[lowerBone];
-    if (lowerAxes === undefined) return null;
-    const upperRange: IAutoMovieJointConstraint | null =
-      prepared.upperDomain.constraint;
-    const upperBasis: IAutoMovieJointAxes = normalizeJointAxes(
-      chain.axes[upperBone] ?? DEFAULT_JOINT_AXES,
-      "AutoMovieMotionHumanBendSearch axes",
-    );
-    const strained: (
-      u: IAngles,
-      lowerWorld: () => IAutoMovieQuaternion,
-    ) => number = AutoMovieMotionHumanBendStrain.of(
-      chain,
-      body,
-      side,
-      rotation,
-      neutral,
-      lowerAxes,
-    );
-    // A branch's candidates share one lower rotation, the same record, and
-    // differ only in the swivel of the upper arm, so the lower joint's
-    // overshoot is read once per record: the same value, read once.
-    let mid: { rotation: IAutoMovieQuaternion; overshoot: number } | undefined;
-    const midOf = (lower: IAutoMovieQuaternion): number => {
-      if (mid !== undefined && mid.rotation === lower) return mid.overshoot;
-      const l: IAngles = decomposeJointRotation(
-        lower,
-        lowerAxes,
-        HUMANOID_REST_FRAME[lowerBone],
-        prepared.lowerDomain,
-      );
-      mid = {
-        rotation: lower,
-        overshoot: jointRomOvershoot(
-          { bone: lowerBone, ...l },
-          prepared.lowerDomain.constraint,
-        ),
-      };
-      return mid.overshoot;
-    };
-    const read = (
-      upper: IAutoMovieQuaternion,
-      lower: IAutoMovieQuaternion,
-    ): ICandidate => {
-      const u: IAngles = decomposeJointRotation(
-        upper,
-        chain.axes[upperBone],
-        HUMANOID_REST_FRAME[upperBone],
-        prepared.upperDomain,
-      );
-      const turned: IAutoMovieQuaternion = Quaternion.multiply(
-        prepared.upper.worldRotation,
-        upper,
-      );
-      const elbow: IAutoMovieVector3 = Vector3.add(
-        chain.shoulder,
-        Quaternion.rotateVector(turned, prepared.lowerOffset),
-      );
-      const strain: number = strained(
-        u,
-        (): IAutoMovieQuaternion =>
-          Quaternion.multiply(
-            Quaternion.multiply(turned, prepared.lowerRotation),
-            lower,
-          ),
-      );
-      return {
-        elbow,
-        angles: u,
-        overshoot:
-          jointRomOvershoot({ bone: upperBone, ...u }, upperRange) +
-          midOf(lower) +
-          HumanArmClearance.overshoot(body, chain.shapes, elbow, point, side),
-        strain,
-      };
-    };
-    const solved: ReturnType<typeof hingedArmArticulation> =
-      hingedArmArticulation({
-        upper: prepared.upper,
-        midOffset: prepared.lowerOffset,
-        midRest: prepared.lowerRotation,
-        endOffset: prepared.effectorOffset,
-        hinge: lowerAxes.flexion,
-        target: point,
-        // The upper arm's range refuses swivels its overshoot can only score
-        // above zero, which every ranking scores above zero in turn, so the
-        // sweep spares them (`boxExcludedSwivels`), read in the frame the
-        // overshoot reads it in.
-        excluded: (
-          upper: (swivel: number) => IAutoMovieQuaternion,
-        ): ((low: number, high: number) => boolean) =>
-          boxExcludedSwivels({
-            basis: upperBasis,
-            frame: HUMANOID_REST_FRAME[upperBone],
-            constraint: upperRange,
-            joint: swingTwistRange.of(upperBone),
-            rotation: upper,
+  export function continued(
+    props: Pick<
+      IAutoMovieMotionHumanBend.ISolve,
+      "body" | "posture" | "side" | "point" | "rotation"
+    >,
+  ): (
+    near?: IAutoMovieSwivelNear,
+  ) => { candidate: ICandidate; seed: IAutoMovieSwivelSeed } | string {
+    const chain: AutoMovieMotionHumanBendChain.IChain | null =
+      AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side);
+    const neutral: IAngles | null = props.body.hanging(props.side);
+    return (
+      near?: IAutoMovieSwivelNear,
+    ): { candidate: ICandidate; seed: IAutoMovieSwivelSeed } | string => {
+      if (chain === null || neutral === null) return "the rig has no arm chain";
+      if (
+        Vector3.length(Vector3.subtract(props.point, chain.shoulder)) >
+        chain.span
+      )
+        return "the wrist is beyond the arm's span";
+      return (
+        AutoMovieMotionHumanBendSweep(
+          chain,
+          props.body,
+          props.side,
+          props.point,
+          props.rotation,
+          neutral,
+          (candidate: ICandidate): IScore => ({
+            overshoot: candidate.overshoot,
+            deviation: candidate.strain,
           }),
-        score: (
-          upper: IAutoMovieQuaternion,
-          lower: IAutoMovieQuaternion,
-        ): IScore => score(read(upper, lower)),
-      });
-    return solved === null ? null : read(solved.upper, solved.lower);
+          near,
+        ) ?? "the arm chain is degenerate"
+      );
+    };
   }
 
   /**
-   * The shoulder angles of an unloaded hanging arm: the wrist 0.99 arm lengths
-   * straight below the shoulder of an upright trunk, the elbow on the `hang`
-   * preset's side. Computed once per body and side.
+   * The shoulder angles of an unloaded hanging arm: the wrist straight below
+   * the shoulder of an upright trunk, as far as the relaxed elbow
+   * (`stand.ELBOW`) leaves it, the elbow on the hint's side. The body reads
+   * it once per side (`IAutoMovieMotionHumanBody.hanging`).
    *
    * @param body The body.
    * @param side The arm.
-   * @param hang The `hang` preset's hint for an upright trunk at the origin.
+   * @param hint The `hang` preset's hint for an upright trunk at the origin.
    * @returns The angles, or null when the rig has no arm chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the posture read, its source, the hint and the null case.
+   * @evidence contracts/development/implementation.md#principled-implementation The wrist under the elbow a standing posture relaxes the arm to, by the law of cosines on the two segments, and the sweep's best elbow on the hint's side for it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One chain, one wrist, one sweep.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rig without the chain, or a degenerate one, is null, never a guessed angle.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One chain preparation and one bounded sweep.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The body owns the result; this computes it.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the angles are returned.
    */
-  function neutralOf(
+  export function hanging(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
-    hang: (
-      body: IAutoMovieMotionHumanBody,
-      side: AutoMovieHumanSide,
-    ) => IAutoMovieVector3,
+    hint: IAutoMovieVector3,
   ): IAngles | null {
-    const known: IAngles | undefined = NEUTRAL.get(body)?.[side];
-    if (known !== undefined) return known;
-    const posture = { root: { x: 0, y: 0, z: 0 }, yaw: 0 };
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain.of(body, posture, side);
+      AutoMovieMotionHumanBendChain.of(
+        body,
+        { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
+        side,
+      );
     if (chain === null) return null;
+
+    // The wrist under the elbow a standing posture relaxes the arm to
+    // (`stand.ELBOW`): the law of cosines on the two segments, as a share
+    // of the straight arm.
+    const upper: number = body.measure.upperArm;
+    const fore: number = body.measure.forearm;
+    const flexion: number = (stand.ELBOW * Math.PI) / 180;
+    const share: number =
+      Math.sqrt(
+        upper * upper + fore * fore + 2 * upper * fore * Math.cos(flexion),
+      ) /
+      (upper + fore);
     const point: IAutoMovieVector3 = {
       x: chain.shoulder.x,
-      y: chain.shoulder.y - 0.99 * chain.span,
+      y: chain.shoulder.y - share * chain.span,
       z: chain.shoulder.z,
     };
-    const hint: IAutoMovieVector3 = hang(body, side);
-    const hanging: ICandidate | null = best(
-      chain,
-      body,
-      side,
-      point,
-      undefined,
-      null,
-      toward(chain.shoulder, point, hint),
+    return (
+      AutoMovieMotionHumanBendSweep(
+        chain,
+        body,
+        side,
+        point,
+        undefined,
+        null,
+        AutoMovieMotionHumanBendSide.prepare(chain.shoulder, point, hint),
+      )?.candidate.angles ?? null
     );
-    if (hanging === null) return null;
-    NEUTRAL.set(body, { ...NEUTRAL.get(body), [side]: hanging.angles });
-    return hanging.angles;
   }
 
   /**
@@ -424,7 +311,6 @@ export namespace AutoMovieMotionHumanBendSearch {
    *
    * @param props The request.
    * @param rank The ranking of a candidate, given the prepared chain; its overshoot is positive wherever the candidate's is, so the swivels the upper arm's range refuses are spared.
-   * @param hang The `hang` preset's hint for an upright trunk at the origin, from which the hanging arm's angles are read.
    * @returns The candidate, or the reason there is none.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the reasons there is none.
@@ -432,38 +318,69 @@ export namespace AutoMovieMotionHumanBendSearch {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare, refuse, sweep.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rig without the chain, an unreachable wrist and a degenerate chain each return their reason, never a guessed place.
    * @evidence contracts/development/implementation.md#efficient-algorithms One chain preparation and the engine's bounded sweep.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The hanging arm's angles are computed once per body and side.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only those angles, in a weak map keyed by the body.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The hanging arm's angles are the body's, read once per side.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function search(
     props: IAutoMovieMotionHumanBend.ISolve,
     rank: (
       chain: AutoMovieMotionHumanBendChain.IChain,
     ) => (candidate: ICandidate) => IScore,
-    hang: (
-      body: IAutoMovieMotionHumanBody,
-      side: AutoMovieHumanSide,
-    ) => IAutoMovieVector3,
   ): ICandidate | string {
+    return prepare(props)(props, rank);
+  }
+
+  /**
+   * Prepare one unchanged body's trunk/side for actual differently ranked sweeps.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Fixes body/root/heading/side while each query supplies its world wrist, optional rest-relative rotation and original ranking. An optional same-trunk source shares only FK/placement preparation across sides.
+   * @evidence contracts/development/implementation.md#principled-implementation The same prepared arm chain, original colliders and the body's hanging angles are independent of target/ranking; every call retains the original reach refusal and sweep.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed chain preparation precedes the original actual target admission and ranked numerical owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sweep, candidate, overshoot, score, legality bound or refinement is omitted or reused as a result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One chain FK/preparation serves Q original target/rank sweeps. Each actual sweep prepares unchanged obstruction geometry once across its candidates; side ranking also shares its fixed axis/hint projection. Every original candidate, screen, sample and distance evaluation remains, with no measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged body/profile/rig/ROM, rootXYZ/yaw/pitch/roll/side and scoring context establish chain equivalence; an optional trunk source from `AutoMovieMotionHumanBendChain.prepare` shares that trunk's preparation. Each sweep shares HumanArmOvershoot.prepare only across its own placed shapes, never between goals.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A synchronous search or bounded authored support-state plan owns one chain/collider record per fixed state until release. Obstruction readers and candidate closures remain inside one sweep and release on return or throw; no FK reader, target result, sampled pose or global history is retained.
+   */
+  export function prepare(
+    props: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
+    source?: AutoMovieMotionHumanBendChain.IPrepared,
+  ): (
+    goal: Pick<IAutoMovieMotionHumanBend.ISolve, "point" | "rotation">,
+    rank: Parameters<typeof search>[1],
+    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
+  ) => ICandidate | string {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side);
-    const neutral: IAngles | null = neutralOf(props.body, props.side, hang);
-    if (chain === null || neutral === null) return "the rig has no arm chain";
-    const distance: number = Vector3.length(
-      Vector3.subtract(props.point, chain.shoulder),
-    );
-    if (distance > chain.span)
-      return `the wrist is ${distance.toFixed(3)} m from the shoulder and the arm is ${chain.span.toFixed(3)} m long`;
-    return (
-      best(
-        chain,
+      AutoMovieMotionHumanBendChain.of(
         props.body,
+        props.posture,
         props.side,
-        props.point,
-        props.rotation,
-        neutral,
-        rank(chain),
-      ) ?? "the arm chain is degenerate"
-    );
+        source,
+      );
+    const neutral: IAngles | null = props.body.hanging(props.side);
+    return (
+      goal: Pick<IAutoMovieMotionHumanBend.ISolve, "point" | "rotation">,
+      rank: Parameters<typeof search>[1],
+      trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
+    ): ICandidate | string => {
+      if (chain === null || neutral === null) return "the rig has no arm chain";
+      const distance: number = Vector3.length(
+        Vector3.subtract(goal.point, chain.shoulder),
+      );
+      if (distance > chain.span)
+        return `the wrist is ${distance.toFixed(3)} m from the shoulder and the arm is ${chain.span.toFixed(3)} m long`;
+      return (
+        AutoMovieMotionHumanBendSweep(
+          chain,
+          props.body,
+          props.side,
+          goal.point,
+          goal.rotation,
+          neutral,
+          rank(chain),
+          undefined,
+          trial,
+        )?.candidate ?? "the arm chain is degenerate"
+      );
+    };
   }
 }

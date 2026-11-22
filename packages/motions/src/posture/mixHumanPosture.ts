@@ -1,11 +1,14 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanDigitGoal,
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
+
+import { HumanPosture } from "./HumanPosture";
 
 /**
  * A posture part of the way from one to another: the weight of an additive
@@ -17,21 +20,23 @@ import type {
  * set moves its point and its bend by the weight and keeps everything else
  * of `from` (its planting, its contact, its attachment), since a layer adds
  * to a goal and never changes what holds it; a goal only one of them sets
- * is kept as that one has it. A whole-body `rotation` blends as a rotation,
- * the shorter-arc slerp of the two turns at constant angular speed with a
- * line between their points; a posture without one counts as the identity
- * turn about the other's point.
+ * is kept as that one has it. A digit goal moves its point the same way and
+ * keeps the rest of `from`'s (its surface, its facing, its attachment), so a
+ * hand's grip holds through the mix as it does at both ends. A whole-body
+ * `rotation` blends as a rotation, the shorter-arc slerp of the two turns at
+ * constant angular speed with a line between their points; a posture
+ * without one counts as the identity turn about the other's point.
  *
  * @param from The posture at weight 0.
  * @param to The posture at weight 1.
  * @param weight The weight in [0, 1].
  * @returns The mixed posture; `from` itself at 0 and `to` itself at 1.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the two postures are, how each field moves and what a limb goal keeps.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the two postures are, how each field moves and what a limb or digit goal keeps.
  * @evidence contracts/development/implementation.md#principled-implementation Linear interpolation of the additive difference: clinical angles and world offsets are the quantities a layer adds, so scaling the difference scales the layer.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Four scalars, one pass over the joints either sets and one over the four limbs.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A goal's planting, contact and attachment are never mixed; the ends return the given postures unchanged, so a full or absent layer costs and changes nothing.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the joints the two postures hold.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Four scalars, one pass over the joints either sets, one over the four limbs and one over the digits either sets.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A goal's planting, contact and attachment are never mixed, and no goal either posture holds is dropped between the ends; the ends return the given postures unchanged, so a full or absent layer costs and changes nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the joints and digit goals the two postures hold.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
@@ -71,6 +76,23 @@ export function mixHumanPosture(
           };
     if (goal !== undefined) limbs[limb] = goal;
   }
+
+  // A digit goal either posture holds is kept through the mix, as a limb
+  // goal is: a grip dropped between the ends would open the hand mid-blend.
+  let digits: IAutoMovieMotionHumanPosture["digits"];
+  if (from.digits !== undefined || to.digits !== undefined) {
+    digits = {};
+    for (const digit of HumanPosture.DIGITS) {
+      const a: IAutoMovieHumanDigitGoal | undefined = from.digits?.[digit];
+      const b: IAutoMovieHumanDigitGoal | undefined = to.digits?.[digit];
+      const goal: IAutoMovieHumanDigitGoal | undefined =
+        a === undefined || b === undefined
+          ? (a ?? b)
+          : { ...a, point: move(a.point, b.point) };
+      if (goal !== undefined) digits[digit] = goal;
+    }
+  }
+
   // A whole-body turn blends as a rotation: the shorter-arc slerp of the two
   // turns and a line between their points, a missing one the identity turn
   // about the other's point.
@@ -95,5 +117,6 @@ export function mixHumanPosture(
     joints,
     limbs,
     ...(rotation === undefined ? {} : { rotation }),
+    ...(digits === undefined ? {} : { digits }),
   };
 }

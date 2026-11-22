@@ -2,26 +2,46 @@
 
 Each exported declaration under `src/entities/` answers these items in its doc comment, beside [common](common.md), [design](design.md) and [implementation](implementation.md). An entity is one cast member, crowd, prop, set, camera or light.
 
-Its settings realization answer names each fact it realizes as `docs/body/settings/<domain>/<subject>.md#<fact>` or `docs/body/brief/<domain>/<subject>.md#<fact>`, and each measurement's study as `docs/research/<discipline>/<topic>.md` with the section it uses.
-
-Two cases name another source. On a short, a decision the brief leaves to the screenplay is named by its screenplay scene file and anchor. When no narrative pass runs, the answer names the screenplay or instruction section, and cites each instruction section as `@evidence docs/instructions/<topic>.md#<anchor> <how>`.
-
-Statements: [statements/entities.md](statements/entities.md).
+For a short's screenplay decision, cite its scene file and anchor. With no narrative pass, name the screenplay or instruction section and tag each instruction as `@evidence docs/instructions/<topic>.md#<anchor> <how>`.
 
 ## Settings realization
 
-Does the declaration build its subject from the settings or brief facts it cites and its measurements from the research it cites, so that the subject is identifiable and on-model at every view and state the scenes use, in its coarse form and at each commissioned detail? An entity that invents a fact or a measurement has no basis a reviewer can check, and one that models what its form cannot show spends on surface the effort motion needed.
+Does the entity realize the cited facts and measurements and stay identifiable and on-model in every required view and state, on coarse and commissioned detailed forms?
 
-State each fact it realizes and how, each fact it hands on and to which consumer, and each measurement's study.
+### Facts and instances
+
+For a cast member, crowd, prop or set, cite its [subject file](../../story/document-layout.md#canon-records) once on the production entity type, including when it uses a shared class or installed motion. State what it realizes, for example `@evidence docs/body/brief/props/ball.md The ball uses the brief's red panels.` For a record outside the filmed scope, give the reason with `@evidenceExclude`.
+
+Identify a scene-only instance by its scene section and local name. Show where the cited facts are realized, including appearance that needs the commissioned detail option. When several instances share a model, preserve their distinct positions, holders and histories across cuts and detail settings.
+
+Derive a cast body from its record and an incidental body from the standing state. Without a cast layer, use the commissioned appearance, screenplay or asset instructions. Use the same prepared body for the polygon man and its motion.
+
+### Measurements and decisions
+
+Keep law, action and archetype parameters within their owner's range. Source measurements to a [study](../../story/planning/research.md#when-to-study) section or a sourced package value. Derive placement, weights, texture coordinates and measurements from the generating definition so detail changes preserve them.
+
+Keep durable choices at their owner. Cite a [short's scene decisions](../../story/layers/brief.md#what-it-holds) by file and anchor. A direct screenplay owns story choices. Instructions own [implementation choices for a fixed screenplay](../../story/correction/repair.md#concretization) and standalone asset decisions.
+
+## Realization comments
+
+Can a reader trace each value the entity or its capabilities set, and each default they rely on, to the record fact, study section or decision it realizes?
+
+Comment each such value with its source and how it realizes it, so a reader can check it against that source without deriving it again.
 
 ## Object shape
 
-Is the entity an immutable object built from its facts, whose capabilities say what the subject does and to whom, and leave alignment and timing to the motion vocabulary and the outcome to the scene? Hidden mutable state or a method that answers with a position makes the entity untestable without mocks and the film unseekable.
+Is the entity immutable and constructed from its subject's facts? Do its capabilities express actions and targets, leaving contact alignment to motion and outcomes to scenes?
 
-State what each capability returns and where the entity's state lives.
+Compose the class from small fragments, cited facts and immutable configuration. Use `readonly` fields and keep other entities outside its imports.
+
+A capability returns an immutable action and target. The vocabulary resolves poses, offsets and contact times within the chosen action. People and crowds use vocabulary compositions and [registered extensions](../../motion/laws/extension.md), or a commissioned or user-chosen clip after [retargeting](../../motion/retargeting.md).
+
+Resolve equipment, fatigue and habits into explicit schedule snapshots. Connect a habit's trigger and response as its fact describes, at a timing supported by its research.
 
 ## Controls and source
 
-Does one module serve every use of the subject: the controls its scenes drive, every version of the subject as a parameter or a seed, the coarse form and each commissioned detail from one definition, and a rebuild from a fixed source? A copied variant or a second definition for the detailed form drifts from the first at its next repair.
+Does one module provide the subject's controls and variants, generate coarse and commissioned detailed forms from one definition, and rebuild from fixed inputs?
 
-State its controls, parameters, detail options, source and usage rights. Trace an installed producer's result into the actual drawing and performance.
+Expose the controls the scenes need. Generate the default coarse form and commissioned detail from one definition, parameterized by variant or seed. Give the detailed form the deformations its actions require. Declare the [affordances](../../development/entities.md#objects) used when a person holds, operates, sits on or rides the object.
+
+Trace an installed producer's actual output and connection frames through drawing and interaction. Rebuild from fixed inputs with usage rights. For adopted assets, name the channels and deformations that conversion and runtime preserve.

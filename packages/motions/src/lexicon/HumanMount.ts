@@ -6,6 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { sitPlace } from "../everyday/sitPlace";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 
@@ -31,8 +32,23 @@ export namespace HumanMount {
   /** Seconds a body already on the seat takes to settle into sitting on it, as after getting off is broken off (provisional). */
   export const SETTLE: number = 0.5;
 
+  /** How near its rest an entry foot's ankle lies for the foot to be on it already, metres: the campaign's 5 mm contact bound. */
+  export const ON: number = 0.005;
+
   /** Peak forward trunk inclination while getting onto or off a high seat, degrees (provisional). */
   export const LEAN: number = 20;
+
+  /** How far each hanging upper arm abducts while the legs climb onto or off a high seat, clear of a lifted thigh, degrees (provisional). */
+  export const OPEN: number = 20;
+
+  /** How far a pushing foot's toes point down as it leaves the floor, degrees: it pushes off from the ball (provisional). */
+  export const POINT: number = 40;
+
+  /** How far a pushing foot's heel rolls up over its ball before the toes leave the floor, degrees: the toes' extension at the metatarsophalangeal joints in a push-off (provisional). */
+  export const TOE_ROLL: number = 50;
+
+  /** The share of the leg's length a swinging foot's ankle keeps within from its hip: short of straight, so the knee keeps a bend the limb fit can follow (provisional). */
+  export const SWING_REACH: number = 0.97;
 
   /**
    * The thigh's direction from the hip when a foot hangs from a high seat,
@@ -80,33 +96,25 @@ export namespace HumanMount {
   }
 
   /**
-   * The distances from a hip joint an ankle can be placed at: from the
-   * distance a knee flexed to its 150 degree limit leaves, to 0.995 of the
-   * leg's length.
+   * The distances from a hip joint an ankle can be placed at: the sitting's
+   * own band (`sitPlace.band`), so getting on and off a high seat places
+   * feet where sitting does.
    *
    * @param body The body.
    * @returns The least and the greatest distance, metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States both ends and their unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The law of cosines on the thigh and the shank at the knee's range end, the band `sit` already refuses feet outside of.
+   * @evidence contracts/development/implementation.md#principled-implementation The sitting's band, the law of cosines on the thigh and the shank at the knee's range-table limit and at a planted leg's least flexion (`sitPlace.band`).
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the body's own measures.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `sitPlace.band`, the one owner of the band.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function span(
     body: IAutoMovieMotionHumanBody,
   ): readonly [number, number] {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    return [
-      Math.sqrt(
-        m.thigh * m.thigh +
-          m.shank * m.shank -
-          2 * m.thigh * m.shank * Math.cos((30 * Math.PI) / 180),
-      ),
-      0.995 * (m.thigh + m.shank),
-    ];
+    return sitPlace.band(body, "left");
   }
 
   /**

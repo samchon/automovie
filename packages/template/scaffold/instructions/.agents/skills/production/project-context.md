@@ -2,9 +2,17 @@
 
 The production's `PROJECT.md` is its one current account of what is made and how, written for the user and the next agent. It states only the current choices; Git keeps the superseded ones.
 
+## Intake
+
+Read the request, `PROJECT.md`, the instructions and existing work. Establish what the user wants to make and receive. Where the answer is open, ask which outputs they want and where the work should stop.
+
+Present the choices those outputs require. For a screenplay, confirm the [writing route](../story/workflow/routes.md#who-writes-the-screenplay) and [creative requirements](../story/planning/requirements.md#asking-the-user). For an image or motion, establish its use and the views, movement or controls to deliver.
+
+Use decisions already given. Ask the user to choose or delegate unresolved matters when the work first depends on them, including a method or model.
+
 ## What to record
 
-Record only the topics below that this project needs: a standalone asset needs no story, and a screenplay-only request no renderer.
+Record only topics the commission needs.
 
 Keep every other fact with its owner and link to it: creative instructions in `docs/instructions`, canon and text in their layers, findings and reviews in their records, and setup and secrets under the development skill's source layout.
 
@@ -17,6 +25,8 @@ On long work a settings record owns both, and a link to it may replace them.
 ### Commissioned scope
 
 Record the commissioned output and its boundary, with any authorized slice, deferred work and exclusions.
+
+When an output depends on earlier work, check that its inputs exist. An exclusion applies only to the delivery for which it was agreed. Resolve missing inputs within the delegation and refer any change in deliverables to the user.
 
 ### Representation
 
@@ -49,13 +59,15 @@ Record what the work runs on and within:
 
 ### Authority and open choices
 
-Record what the user fixed, what the agent decided within delegation and why, and what remains open.
+Record what the user fixed, what the director decided within delegation and why, and what remains open. Record the scope of an authorized exception.
 
 ### The delivery profile
 
+<!-- @source [YouTube upload encoding](https://support.google.com/youtube/answer/1722171) gives one platform's scan, color and audio requirements. -->
+
 The profile records, for each delivered video:
 
-- dimensions, scan, running time, and frame rate as an exact fraction such as 24000/1001;
+- dimensions, scan, running time and frame rate as an exact fraction;
 - container and codec;
 - color primaries, transfer, matrix and range;
 - caption tracks, with their format and style guide;
@@ -63,18 +75,18 @@ The profile records, for each delivered video:
 
 For a film with sound, it also records the audio tracks and sample rate, the loudness target with its measurement method and true-peak limit, and any stems or music-and-effects mix the release requires.
 
-This file is the profile's one owner. Each film module realizes it, and on long work the settings scope record states running time and frame as story conditions that agree with it. When they disagree, correct the profile from the user's commission first and the others from the profile, because each check otherwise passes against its own copy.
+For standalone audio, record the promised format, sample rate and any required loudness targets.
+
+This file owns the profile. The film implements it, and long-form settings state matching runtime and frame conditions. Resolve conflicts from the user's commission through the profile.
 
 ## When to read and update it
 
-Read it when starting or resuming work, and update it when a consequential choice is adopted or changed, before later work relies on it. When the user changes direction, update the affected owners in the same change, keeping closed narrative work under [repair](../story/correction/repair.md).
-
-Ask for an operating choice the user neither made nor delegated, such as the video model or a cost limit, when the first task that uses it begins, and record the answer here, because a user asked earlier answers before knowing what the choice changes. Story choices, running time and frame among them, are asked under the story skill's creative requirements when the agent writes the story.
+Read project context when starting or resuming. Record adopted changes before consumers use them. Update affected owners together and follow [repair](../story/correction/repair.md) for closed narrative work.
 
 ## How it controls the work
 
 The recorded scope sets the acceptance boundary. An adopted user decision is fixed within its scope, and the agent makes routine delegated decisions and records them without another permission round.
 
-An exclusion the user adopted, such as a film without generated voice, stays excluded: plan, prepare and propose nothing for it.
+Preserve adopted exclusions in planning and production.
 
-A proposal or an inference is not an adopted choice, and a recorded preference proves no execution or approval. Leave an undecided choice explicit and continue only the work that does not depend on it.
+Mark undecided choices explicitly. Continue independent work.

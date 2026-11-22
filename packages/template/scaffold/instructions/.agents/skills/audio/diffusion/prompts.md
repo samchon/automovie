@@ -1,6 +1,6 @@
 # Audio prompts
 
-An audio request carries the screenplay's words and sound decisions into the chosen model. Keep spoken text, reference transcript and performance instructions distinct. The chosen model's guide, linked from [models](models.md), owns syntax and takes precedence over these defaults.
+Keep requested speech, reference transcript and performance instructions distinct. Follow the chosen [model's](models.md) syntax.
 
 ## Speech
 
@@ -12,9 +12,9 @@ Use pronunciation dictionaries, aliases or phonemes only in the languages and fo
 
 ### Voice design
 
-Describe the lasting traits the character needs: language and regional pronunciation, pitch, resonance, texture and perceived age. Distinguish regional accent from intonation or emphasis. A neutral voice can take a short description; add detail only where it distinguishes the intended voice.
+Specify the lasting language, regional pronunciation, pitch, resonance, texture and age cues that distinguish the voice. Specify intonation and emphasis separately.
 
-Keep the accepted description with its request record. For an existing voice, supply its reference by cloning rather than recreate its identity through a new description.
+Keep each accepted voice description with its request. Use a reference when preserving an existing voice.
 
 ### Performance and dialogue
 
@@ -28,13 +28,13 @@ Set duration through documented controls, then measure the bytes. Prompted pace 
 
 ### First take
 
-Compare candidate voices on the same complete lines, with text suited to their intended performance. Include difficult names and the required emotional range before a batch; a very short catchphrase may hide instability. Decode the result and have the user [listen](../acquisition.md#listening).
+Compare voices on identical complete lines with difficult names and required emotions. Decode the results and have the user [listen](../listening.md#user-listening) before batching.
 
 Adopt the accepted take under [take adoption](../acquisition.md#take-adoption), with the request's text, controls and inputs in its record. An accepted designed voice can become the cloning reference for later lines; a seed alone does not preserve identity.
 
 ## Effects and ambience
 
-Turn the sound cue into an audible source and action, then describe its attack, decay, texture, distance and room character. State whether it is an isolated event, repeating texture or continuous ambience; a dramatic scene description alone leaves the sound unspecified.
+Describe source, action, attack, decay, texture, distance and room. State whether the cue is isolated, recurring or continuous.
 
 Keep effects separate from dialogue unless the model supports a combined request, and bind picture references in their documented role.
 

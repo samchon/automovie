@@ -88,10 +88,6 @@ export namespace ConstructionConicFieldBoundary {
       if (Math.abs(s) === 2 ** -40)
         compare(value, limit, 1, `vanishing support ${s}`);
     }
-    console.log({
-      nativeFieldTieLimitObservations: observations,
-      scope: "finite joint-limit probes, not a continuous certificate",
-    });
   }
 
   /** Raw native=T(s,p) and the cubic endpoint follow one moving path; reflected tangents obey det(S)=-1. */

@@ -31,4 +31,7 @@ export interface IAutoMovieDrawCall {
 
   /** Font pixel size in picture pixels of the labels the host stamps, which label placement uses to keep labels apart. */
   scale: number;
+
+  /** An ordered delivery sample. The page still reports diagnostics and leaves the delivered picture free of review overlays. */
+  inspectionDiagnostics?: "delivery";
 }

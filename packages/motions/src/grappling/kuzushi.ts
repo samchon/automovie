@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionHumanActionContext,
@@ -10,8 +10,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanBound } from "../law/HumanBound";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * A broken base (kuzushi): the receiver of a judo throw drawn off balance
@@ -61,18 +61,17 @@ export namespace kuzushi {
    * @throws {HumanRefusal} When the depth lies outside (0, 30] degrees or the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The root is turned about the ankles' midpoint by the pitch, the rest skeleton's midpoint kept in place, so the body rotates rigidly about it while the planted leg goals bend the ankles.
+   * @evidence contracts/development/implementation.md#principled-implementation The base's posture is turned rigidly about the planted ankles' midpoint by the pitch (`AutoMovieMotionHumanLean.about`), the midpoint read in that posture's own frame, so the body rotates about it from wherever the base holds it while the planted leg goals bend the ankles.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The pivot, the clock, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both bounds refuse; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolve at plan time; constant work per frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the base under the action and the posture resolver's heading.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per frame: one base posture and one rigid turn, with no posture resolve at plan time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the base under the action and the lean owner's rigid turn about a point.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan and the pivot.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKuzushi.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanKuzushi.IParams = context.params;
-    const body = context.body;
     const depth: number = p.depth ?? DEPTH;
     HumanBound.within("depth", depth, 0, 30, "degrees", "minimum");
     const hold: number = p.hold ?? 1;
@@ -81,32 +80,14 @@ export namespace kuzushi {
     const base: IAutoMovieMotionHumanActionPlan =
       AutoMovieMotionHumanBase.under(context, duration);
 
-    // The pivot: the ankles' midpoint, in the world and in the rest body.
-    const feet = context.entry.feet;
+    // The pivot: the planted ankles' midpoint in the world. The body turns
+    // about it from the base's own posture, so a body entered with bent
+    // knees or swaying keeps its root where no tip is added.
+    const feet: IAutoMovieMotionHumanActionContext["entry"]["feet"] = context.entry.feet;
     const pivot: IAutoMovieVector3 = Vector3.scale(
       Vector3.add(feet.left.ankle, feet.right.ankle),
       0.5,
     );
-    const rest: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(body.rest.get("leftFoot")!, body.rest.get("rightFoot")!),
-      0.5,
-    );
-    const tipped = (
-      posture: IAutoMovieMotionHumanPosture,
-      pitch: number,
-    ): IAutoMovieMotionHumanPosture => {
-      const turned: IAutoMovieMotionHumanPosture = {
-        ...posture,
-        pitch: posture.pitch + pitch,
-      };
-      return {
-        ...turned,
-        root: Vector3.subtract(
-          pivot,
-          Quaternion.rotateVector(resolveHumanPosture.heading(turned), rest),
-        ),
-      };
-    };
     return {
       duration,
       events: [
@@ -118,11 +99,14 @@ export namespace kuzushi {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number =
           t < TIP
-            ? minimumJerk(t / TIP).s
+            ? minimumJerk.share(t / TIP)
             : t <= TIP + hold
               ? 1
-              : 1 - minimumJerk((t - TIP - hold) / TIP).s;
-        return tipped(base.posture(t), depth * s);
+              : 1 - minimumJerk.share((t - TIP - hold) / TIP);
+        return AutoMovieMotionHumanLean.about(base.posture(t), pivot, {
+          pitch: depth * s,
+          roll: 0,
+        });
       },
     };
   }

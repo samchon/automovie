@@ -13,6 +13,8 @@ import type { IAutoMovieMotionHumanTouchEffector } from "../compose/IAutoMovieMo
 import type { IAutoMovieMotionHumanTouchForm } from "../compose/IAutoMovieMotionHumanTouchForm";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanHeldUse } from "../handling/IAutoMovieMotionHumanHeldUse";
+import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
+import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanBalance";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
@@ -69,6 +71,15 @@ export namespace IAutoMovieMotionHumanTouch {
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
+    /**
+     * A balancing shift (`IAutoMovieMotionHumanBalance`): one closed-form shift
+     * of its part, scaled by its weight between its two event-named instants,
+     * each field absent taking the law's recommendation. Absent, none: the
+     * posture is the law's own kinematic one with no balance shift or
+     * centre-of-mass reading.
+     */
+    balance?: IAutoMovieMotionHumanBalance;
+
     /** The region touched: a partner's (`person`) or the performer's own (`self`). */
     target: IAutoMovieMotionTarget;
 
@@ -159,19 +170,23 @@ export namespace IAutoMovieMotionHumanTouch {
      *
      * @param posture The posture written so far in this frame.
      * @param seconds Seconds since the action's start.
+     * @param resolution Optional same-body FK metadata borrowed only during this invocation.
+     * @param projection Optional genuine same-body ROM metadata borrowed only during this invocation.
      * @returns The region's point in world metres and its unit normal, pointing away from the surface.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States both arguments, the space and unit of the point and the sense of the normal.
      * @evidence contracts/development/implementation.md#principled-implementation The region is read on the posture so far, so a region on a moving partner or on the performer's own body is followed frame by frame.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One query returning the surface frame's two quantities; the touch builds its lift and travel on them.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The normal is required, so the lift's direction is never guessed from the point alone.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Touch.goal invokes one actual region read per target query; touchRegion/touchHold choose the original own-entry, current trunk or partner observation, paying only its demanded FK and surface placement when needed.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual adapters may borrow same-body FK/ROM metadata for the current posture and invocation; partner bodies and film instants retain separate observations, with no sampled region result cache.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Touch.goal retains the region callback with its action props; query loans are synchronous arguments only and never enter the returned numeric region frame or retained action state.
      */
     region(
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
     ): Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">;
 
     /** The kind. */
@@ -195,13 +210,13 @@ export namespace IAutoMovieMotionHumanTouch {
     /** The arm laid on the region at the entry (`laid`), which every second's fit is held to; no reference when absent. */
     reference?: NonNullable<IAutoMovieHumanLimbGoal["reference"]>;
 
-    /** What the effector's along axis lies on: the travel's tangent, or `arm`, the direction away from the elbow across the region (`AutoMovieMotionHumanTouchPath.lay`), or `reach`, for an effector that meets its place end on: its facing axis runs from the elbow straight to the place (`AutoMovieMotionHumanTouchPath.reach`) and its along axis lies on the world's up, or `upright`, the world's up as a held vessel stands, the effector facing against `facing`; the tangent when absent. */
-    lay?: "tangent" | "arm" | "reach" | "upright";
+    /** What the effector's along axis lies on: the travel's tangent, or `arm`, the direction away from the elbow across the region (`AutoMovieMotionHumanTouchPath.lay`), or `reach`, for an effector that meets its place end on: its facing axis runs from the elbow straight to the place (`AutoMovieMotionHumanTouchPath.reach`) and its along axis lies on the world's up, or `upright`, the world's up as a held vessel stands, the effector facing against `facing`, or `limb`, the long axis of the touched limb (`facing`) square to the region's normal, so a flat hand lies along a curved segment rather than across it; the tangent when absent. */
+    lay?: "tangent" | "arm" | "reach" | "upright" | "limb";
 
     /** The hand's rotation the stroke keeps, world, on the entry posture, turned with the posture's heading: a held tool laid as the grasp chosen for its use presents it (`HumanGraspUse.presented`), so only its point moves. The effector is laid by `lay` when absent. */
     held?: IAutoMovieQuaternion;
 
-    /** With `upright`, the level world direction the effector faces against (`AutoMovieMotionHumanTouchUpright`); the region's level normal when absent. */
+    /** With `upright`, the level world direction the effector faces against (`AutoMovieMotionHumanTouchUpright`); the region's level normal when absent. With `limb`, the touched limb's long axis, world, that the effector's along axis follows; the travel's tangent when absent. */
     facing?: IAutoMovieVector3;
 
     /** With `upright` or `held`, how far the vessel leans toward the region at the face, degrees (`AutoMovieMotionHumanTouchUpright.tip`): the goal holds it so leaned, so the arm is carried toward the arm that holds it at the lips, while the hand's attitude on the way (`AutoMovieMotionHumanDrinkingArm.carried`) carries it as it is laid or held, tipped over the last `TIP` of the carry's progress and righted over the first `TIP` of the way back; no lean when absent. */
@@ -230,6 +245,8 @@ export namespace IAutoMovieMotionHumanTouch {
 
     /** The radius about its site the hand may land within on the region, metres: the site's own, or the region's extent; the audit's contact skin when absent. */
     disc?: number;
+    /** Maximum distance in metres between the hand skin and a held material site. */
+    skinDistance?: number;
 
     /** The region and the colliders as a plan perceives them, for a touch of another person (`IAutoMovieMotionHumanArmCarry.ICarry.perceived`); the hand then follows the person on the hold. */
     perceived?: Pick<IAutoMovieMotionHumanTouch.ITouch, "region" | "others">;
@@ -242,19 +259,23 @@ export namespace IAutoMovieMotionHumanTouch {
      *
      * @param posture The posture written so far in this frame.
      * @param seconds Seconds since the action's start.
+     * @param resolution Optional same-body FK metadata borrowed only during this invocation.
+     * @param projection Optional genuine same-body ROM metadata borrowed only during this invocation.
      * @returns The colliders, placed in the world, kept clear of and rested on.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States both arguments, the result's frame and the default.
      * @evidence contracts/development/implementation.md#principled-implementation A partner moves, so their colliders are read at the second the goal is written.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One query, written into the arm's goal.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The colliders are the profile's, placed by the partner's displayed bones.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Touch.goal performs this optional collider query once per actual target read; touchHold places the original partner profile parts in O(P) for P parts without reducing the requested film instants.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Callback adapters may share fixed profile/demand metadata and explicit same-body invocation loans; different partner poses, reaction instants and stop states remain separate actual placement queries.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action retains the callback, while each invocation owns its collider arrays and numeric placements. Borrowed query metadata is not stored in those outputs or the retained action.
      */
     others?(
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
     ): Pick<IAutoMovieHumanLimbGoal, "clear" | "rests">;
   }
 }

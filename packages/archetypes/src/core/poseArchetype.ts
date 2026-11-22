@@ -1,4 +1,5 @@
 import { ArchetypeArticulation } from "./ArchetypeArticulation";
+import { ArchetypePartOwnership } from "./ArchetypePartOwnership";
 import { ArchetypeSpan } from "./ArchetypeSpan";
 import type { IArchetypeProps } from "./IArchetypeProps";
 
@@ -7,6 +8,11 @@ type Props = Pick<
   IArchetypeProps<string, string>,
   "archetype" | "parts" | "affordances" | "spans"
 >;
+
+/** Original runtime methods required for a constructor allocation receipt. */
+const ARTICULATE: typeof ArchetypeArticulation.pose =
+  ArchetypeArticulation.pose;
+const SPAN: typeof ArchetypeSpan.pose = ArchetypeSpan.pose;
 
 /**
  * Resolve one archetype's articulations, flexible geometry and held contact axes.
@@ -28,6 +34,7 @@ export function poseArchetype(
   props: Props,
   travels: ReadonlyMap<string, number>,
 ): ArchetypeArticulation.IResult {
+  if (ArchetypePartOwnership.active()) return observed(props, travels);
   const posed: ArchetypeArticulation.IResult = ArchetypeArticulation.pose(
     props.archetype,
     { parts: props.parts, affordances: props.affordances },
@@ -40,4 +47,41 @@ export function poseArchetype(
     posed.affordances,
   );
   return { ...posed, parts: spans.parts, affordances: spans.affordances };
+}
+
+/** Observe actual method identities while preserving lookup and argument order. */
+function observed(
+  props: Props,
+  travels: ReadonlyMap<string, number>,
+): ArchetypeArticulation.IResult {
+  const articulate: typeof ARTICULATE = ArchetypeArticulation.pose;
+  const archetype: string = props.archetype;
+  const original: Props["parts"] = props.parts;
+  const posed: ArchetypeArticulation.IResult = Reflect.apply(
+    articulate,
+    ArchetypeArticulation,
+    [archetype, { parts: original, affordances: props.affordances }, travels],
+  );
+  const span: typeof SPAN = ArchetypeSpan.pose;
+  const spanOwner: string = props.archetype;
+  const declarations: Props["spans"] = props.spans;
+  const articulated: ArchetypeArticulation.IResult["parts"] = posed.parts;
+  const spans: ArchetypeSpan.IPose = Reflect.apply(span, ArchetypeSpan, [
+    spanOwner,
+    declarations,
+    articulated,
+    posed.affordances,
+  ]);
+  const result: ArchetypeArticulation.IResult = {
+    ...posed,
+    parts: spans.parts,
+    affordances: spans.affordances,
+  };
+  if (articulate === ARTICULATE && span === SPAN)
+    ArchetypePartOwnership.afterNormalization(
+      original,
+      articulated,
+      result.parts,
+    );
+  return result;
 }

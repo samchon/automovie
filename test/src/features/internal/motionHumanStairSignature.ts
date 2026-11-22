@@ -31,14 +31,18 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  * @evidence contracts/development/implementation.md#principled-implementation Reads displayed joints at the law's own tread contacts; every bound is from the cited stair kinematics or marked provisional.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader over the rows of one body.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A row whose law names no tread contacts is a complaint, never skipped.
- * @evidence contracts/development/implementation.md#efficient-algorithms Seven films of one body, read at their tread contacts and on a 30 Hz grid for the trunk.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Six films of one body, read at their tread contacts and on a 30 Hz grid for the trunk.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Films and readings come from `motionHumanSignature`.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing once read.
  */
 export namespace motionHumanStairSignature {
-  /** The rows read: both directions, both patterns and both lead feet. */
+  /**
+   * The rows read: both directions, both patterns and both lead feet. The
+   * row that leaves the direction is not read apart: the stair stage names
+   * the way up itself when the row leaves it (`MOTION_HUMAN_LAW_STAGES`), so
+   * its film would repeat `direction=up`'s.
+   */
   export const ROWS: readonly string[] = [
-    "default",
     "direction=up",
     "direction=down",
     "pattern=stepOverStep",

@@ -122,8 +122,11 @@ export namespace staggerBounds {
   /** The divergent component's feedback gain over the righting (provisional): its error from its course decays at this many times the pendulum's own rate (Englsberger, Ott and Albu-Schaffer 2015). */
   export const TRACKING: number = 1;
 
-  /** Knots per second of the stances' course (`walkStanceCourse`). */
+  /** Samples per second a swing's bow reads its curve at (`staggerSwingBow`). */
   export const KNOTS: number = 48;
+
+  /** The share of the way back toward the stance foot a shortened landing is bisected to (`staggerStep`), the model's resolution (provisional): 1/64, about a centimetre of the longest measured step. */
+  export const ADAPTED: number = 1 / 64;
 
   /** The settling's integration step, seconds. */
   export const STEP: number = 0.001;

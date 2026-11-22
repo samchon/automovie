@@ -1,37 +1,39 @@
 # Repair
 
-Identify the earliest owner, the consumers that use it, the current pass and the closed boundaries before changing the work. For a requested revision, name the change, what the user wants preserved and the smallest useful scope, then trace its impact through dependent facts, scenes, assets, performance and edit.
+Identify the earliest owner, its consumers, the current pass and closed boundaries. Record the requested change, what to preserve and its smallest useful scope. Trace dependencies through facts, scenes, assets, performance and edit.
 
 ## Owner repairs
 
 ### Upstream defects
 
-A construction author who finds a missing, conflicting or unrealizable parent decision repairs its earliest owner before writing from it, using the selected [upstream questions](../../contracts/story/SKILL.md); a downstream workaround leaves every other consumer with the defect.
+Trace a story finding to the first decision that must change. On a short, check whether the [brief](../layers/brief.md#what-it-holds) fixed that decision or left it to the screenplay. On the long route, follow the [actual parents](../workflow/long.md#parents). Scripts organize scenes, treatments establish event causes and reveals, and settings establish world and character facts. If the decision depends on a disputed fact, check its study. Use the selected [upstream questions](../../contracts/story/SKILL.md#testing-the-parents).
+
+Repair that decision before its dependents. Follow a shared change into every affected scene or film in the commission. Refer changes to [user-fixed requirements](../planning/requirements.md#requirements) to the user.
 
 ### Cause rounds
 
-Finish the inspection the [route](../workflow/SKILL.md) sets before editing. Group the findings by cause, including every member of a recurring class, and repair each cause where its action or explanation belongs, recomposing a passage when cutting would lose its meaning.
+Finish any inspection required by [the adopted route](../workflow/SKILL.md) before editing. Group all findings by cause. Repair each cause at its owner. Rewrite passages whose meaning would be lost by cutting.
 
-In the same repair, reconcile dependent statements, quotations, values and, while their stage is enabled, answers. Then read the changed passages and the whole progression for new uniformity, fidelity losses and broken seams before the next round.
+Update dependent text, quotations and values together. Update answers for open Evidence passes. Before the next round, reread passages and the whole progression for uniformity, fidelity and continuity.
 
 ### Concretization
 
-A decision the screenplay left vague, which scene composition or a generation prompt must make, belongs to the screenplay. Add it to the beat's record in the same change, or to the scene file's standing state when it holds for the whole scene. When another scene or film must keep it, also add it as a new anchored fact citing that beat, to settings, or to the brief when it is of a kind the brief holds.
+If staging requires deciding who acts or responds, what changes hands, what fills an interval or when the audience learns the result, return the beat to the writer. Put the decision in the beat or its standing state. On a short, send newly identified subjects and facts through [brief growth](../layers/brief.md#growth). On long work, add the baseline facts to their settings records.
 
-A closed screenplay stays closed: a concretized beat keeps its answers and reviews under closed passes, and the next review of that screenplay reads the beat afresh.
-
-An exchange, an outcome or a reaction is never a concretization. A screenplay that lacks one is defective and returns to its author under upstream defects. A user's fixed screenplay is never edited: its concretizations go to the instructions.
+Keep derived coordinates, joint fitting and interpolation in the implementing module. For a user-fixed screenplay, put delegated staging decisions in the instructions and refer a missing story decision to the user.
 
 ## Boundaries
 
 ### Closed passes
 
-Completed layers stay closed when their bodies or parents change: do not reopen their evidence, reviews or approvals. While their stage is enabled, remove answers for deleted H2s and write answers for new ones only; report other diagnostics without repairing them, keeping the original failed reports.
+Keep completed layers closed after body or parent changes. While their stage is enabled, remove answers for deleted H2s and answer new ones. Keep and report other diagnostics without repairing them.
 
-Replacing a unit from scratch removes its obsolete answers, reviews and replaced descendants and keeps other material. A reused filename grants no approval, and the new unit begins its own cycle.
+Closure records the revision reviewed. After a film exposes a defect, the director reads the repaired passage in sequence, follows the change into affected scenes and inspects the rebuilt film. A prior verdict covers only its recorded revision.
+
+If a unit is rewritten from scratch, replace its obsolete answers, reviews and descendants. Start the new unit's own cycle and preserve unrelated work.
 
 ### Scope expansion
 
 A first-part pilot needs the user's commission and its exact part. Settings stay work-wide; the other layers cover the slice with its lineage, and the result states what the slice cannot establish.
 
-To expand, reconfigure through the evidence skill's configuration page, reset the affected passes together, design the complete treatment sequence including the pilot, and establish whole-population evidence and review; pilot approval cannot stand for the whole work.
+To expand a pilot, reconfigure Evidence and reset affected passes together. Design the full treatment sequence including the pilot and run whole-population Evidence and review.

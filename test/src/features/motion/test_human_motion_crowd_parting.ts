@@ -39,12 +39,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    crowd of 40 was measured to show (1.8e-15 m at 0 s, 1.2e-6 m at 2 s),
  *    and every member of the moved scene arrives (the pass refuses any
  *    contact in it too).
+ * 6. Authored groups of two and four receive exactly one sampled course and
+ *    arrival each, with independent route goals for the two leaders.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Steers an ensemble with a moving obstacle and reads every member's course: a member entering the carriage or another member, a member that never arrives, a non-replaying pass or a frame-dependent one is caught.
  * @evidence contracts/development/testing.md#independent-expectations Non-penetration and arrival are the scene's requirement; the breadths are the bodies' own measures; the span is the law's own speed floor, start and arrival; replay follows from keyed draws, and the moved scene's bound is the measured divergence of a crowd sensitive to its initial conditions.
  * @evidence contracts/development/testing.md#distinguishing-cases A moving obstacle, two opposing flows, a replay and a moved scene; the engine law's own cases belong to `test_engine_steer_crowd`, the members' steps on their courses to the civil crowd scene.
  * @evidence contracts/development/testing.md#execution-ownership A unit test of the motions package on prepared polygon-man bodies, discovered by its exported name; courses only, no pose, no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the moving-carriage, replay, moved-frame and group course cases.
  */
 export function test_human_motion_crowd_parting(): void {
   const findings: string[] = [];
@@ -204,6 +206,58 @@ export function test_human_motion_crowd_parting(): void {
         `${ensemble.members[i]!.subject} never arrives in the moved scene`,
       );
   });
+  const grouped: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
+    id: "walking-groups",
+    seed: "parting",
+    count: 6,
+    bodies: pool,
+    places: (index: number): IAutoMovieMotionHumanEnsemble.IPlace => ({
+      at: { x: index < 2 ? -4 : 4, y: 0, z: 0 },
+      yaw: 0,
+    }),
+  });
+  const requested: number[] = [];
+  const groups: IAutoMovieMotionHumanCrowd.IResult = HumanCrowd.steer(grouped, {
+    goals: (
+      member: IAutoMovieMotionHumanEnsemble.IMember,
+    ): IAutoMovieVector3 => {
+      requested.push(member.index);
+      return { ...member.place.at, z: 2 };
+    },
+    gait: "walk",
+    start: 3,
+    until: 10,
+    groups: [
+      { index: 0, members: [0, 1] },
+      { index: 1, members: [2, 3, 4, 5] },
+    ],
+  });
+  TestValidator.equals(
+    "only authored group leaders supply goals",
+    requested,
+    [0, 2],
+  );
+  TestValidator.equals(
+    "all six members keep a course",
+    groups.frames.length,
+    6,
+  );
+  for (const [index, course] of groups.frames.entries()) {
+    const leader: number = index < 2 ? 0 : 2;
+    const arrival: number | null = groups.arrivals[index]!;
+    TestValidator.predicate(
+      `member ${index} keeps the group's route and arrival on the film clock`,
+      course === groups.frames[leader] &&
+        arrival === groups.arrivals[leader] &&
+        arrival !== null &&
+        arrival >= 3 &&
+        arrival <= 10 &&
+        course.samples[0]!.seconds === 3 &&
+        course.samples[course.samples.length - 1]!.seconds === 10 &&
+        Math.abs(at(course, 5.317).x - grouped.members[index]!.place.at.x) <
+          1e-9,
+    );
+  }
   TestValidator.equals("a street parting round a carriage", findings, []);
 }
 

@@ -1,4 +1,5 @@
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanCrossing } from "../lexicon/IAutoMovieMotionHumanCrossing";
 
 /**
  * Stepping over a low obstacle placed in the scene, a kerb or a hurdle
@@ -22,7 +23,9 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * sole point clears. The lead foot lands so the obstacle's middle falls at
  * mid-swing, at least one tenth of a foot length beyond the far side and
  * no farther than the legs' stride allows; the trail foot lands beside it
- * at the body's rest separation.
+ * at the body's rest separation. Both land on the floor the step leaves,
+ * or on the level surface `onto` names, such as a tub's floor inside its
+ * rim, the pelvis coming down or up with them.
  *
  * While the lead foot swings, the trail foot rises on its ball by `PUSH`,
  * the forefoot rocker of a stance foot the body passes over (Perry and
@@ -78,5 +81,13 @@ export namespace IAutoMovieMotionHumanStepOver {
 
     /** How it is performed: the manner's tempo scales the whole crossing's time, every phase keeping its share; neutral when absent. */
     manner?: IAutoMovieMotionManner;
+
+    /**
+     * The level surface beyond the obstacle both feet land on, such as a
+     * bathtub's floor inside its rim, higher or lower than the floor the step
+     * leaves; the feet land at the starting floor's height when absent. The
+     * landing must lie on it, or the step is refused.
+     */
+    onto?: IAutoMovieMotionHumanCrossing.ISurface;
   }
 }

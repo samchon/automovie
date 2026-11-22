@@ -234,45 +234,50 @@ export namespace ArchetypeSea {
 
     // Reduce whole turns before trigonometry so large headings retain angular periodicity.
     const radians: number = (heading % 360) * ArchetypeUnits.DEGREE;
+    const headingX: number = Math.sin(radians);
+    const headingZ: number = Math.cos(radians);
     const along: (x: number, z: number) => number = (
       x: number,
       z: number,
-    ): number => x * Math.sin(radians) + z * Math.cos(radians);
+    ): number => x * headingX + z * headingZ;
     return {
       heading,
       components,
       crest,
       steepest,
-      elevation: (x: number, z: number, seconds: number): number =>
-        components.reduce(
+      elevation: (x: number, z: number, seconds: number): number => {
+        const distance: number = along(x, z);
+        return components.reduce(
           (sum: number, c: IComponent): number =>
             sum +
             c.amplitude *
               Math.cos(
-                c.wavenumber * along(x, z) -
+                c.wavenumber * distance -
                   2 * Math.PI * c.frequency * seconds +
                   c.phase,
               ),
           0,
-        ),
+        );
+      },
       slope: (
         x: number,
         z: number,
         seconds: number,
       ): { x: number; z: number } => {
+        const distance: number = along(x, z);
         const rise: number = components.reduce(
           (sum: number, c: IComponent): number =>
             sum -
             c.amplitude *
               c.wavenumber *
               Math.sin(
-                c.wavenumber * along(x, z) -
+                c.wavenumber * distance -
                   2 * Math.PI * c.frequency * seconds +
                   c.phase,
               ),
           0,
         );
-        return { x: rise * Math.sin(radians), z: rise * Math.cos(radians) };
+        return { x: rise * headingX, z: rise * headingZ };
       },
     };
   }
@@ -331,6 +336,43 @@ export namespace ArchetypeSea {
   }
 
   /**
+   * Place a level support on the sampled sea tangent, without posing the support's own parts.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Returns the root world frame from the sea, level course placement and film second.
+   * @evidence contracts/development/implementation.md#principled-implementation Apply heave, pitch about local minus X and roll about local Z from the same motion reader as a floating ride.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One sea motion and one transform.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts All headings use the same tangent-plane construction.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One sea evaluation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by floating whole rides and selected sockets.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function floated(
+    sea: ISea,
+    level: IAutoMovieTransform,
+    seconds: number,
+  ): IAutoMovieTransform {
+    const moved: IMotion = motion(sea, level, seconds);
+    const tilt: IAutoMovieTransform["rotation"] = Quaternion.multiply(
+      Quaternion.fromAxisAngle(
+        { x: -1, y: 0, z: 0 },
+        moved.pitch / ArchetypeUnits.DEGREE,
+      ),
+      Quaternion.fromAxisAngle(
+        { x: 0, y: 0, z: 1 },
+        moved.roll / ArchetypeUnits.DEGREE,
+      ),
+    );
+    return {
+      translation: {
+        ...level.translation,
+        y: level.translation.y + moved.heave,
+      },
+      rotation: Quaternion.multiply(level.rotation, tilt),
+      scale: { ...ArchetypeFrame.UNIT },
+    };
+  }
+
+  /**
    * A ride level on still water, heaved and turned onto the sea's tangent plane at each root sample.
    *
    * @param ride The ride on still water.
@@ -353,25 +395,11 @@ export namespace ArchetypeSea {
       seconds: number,
     ): ArchetypeRide.ISample<Id, Dimension> => {
       const sample: ArchetypeRide.ISample<Id, Dimension> = ride.at(seconds);
-      const moved: IMotion = motion(sea, sample.placement, seconds);
-      const tilt: IAutoMovieTransform["rotation"] = Quaternion.multiply(
-        Quaternion.fromAxisAngle(
-          { x: -1, y: 0, z: 0 },
-          moved.pitch / ArchetypeUnits.DEGREE,
-        ),
-        Quaternion.fromAxisAngle(
-          { x: 0, y: 0, z: 1 },
-          moved.roll / ArchetypeUnits.DEGREE,
-        ),
+      const placement: IAutoMovieTransform = floated(
+        sea,
+        sample.placement,
+        seconds,
       );
-      const placement: IAutoMovieTransform = {
-        translation: {
-          ...sample.placement.translation,
-          y: sample.placement.translation.y + moved.heave,
-        },
-        rotation: Quaternion.multiply(sample.placement.rotation, tilt),
-        scale: { ...ArchetypeFrame.UNIT },
-      };
       return { ...sample, placement, course: { ...sample.course, placement } };
     };
     return {

@@ -1,28 +1,26 @@
 # Rigging
 
-Rigging owns an asset's rest state: where the joints sit, which vertices follow them, its attachments, its limits and the still poses that test them. Anything over time, such as clips, retargeting, inverse kinematics and the laws that generate motion, belongs to [motion](../motion/SKILL.md).
+Define the rig's rest state, joints, weights, attachments and limits. Verify them in the poses the asset uses. [Motion](../motion/SKILL.md) owns time-dependent behavior.
 
-Before changing a skeleton, skin, attachment or deformation control, read the asset's required use, its retained source, and the import, model, skinning and viewer contracts of the packages it uses. A generated rig is a candidate until its consumer deforms it correctly.
+Read the required use, retained source and package contracts for import, model, skinning and viewing. Accept a generated rig after its consumer deforms it correctly.
 
 ## Rig choice
 
 | The asset | Rig |
 | --- | --- |
-| Rigid parts on pivots, such as a door or a robot | No skin; a node per part, pivoted on the real axis |
+| Rigid parts on pivots | One node per part on its real pivot |
 | A humanoid | A skin bound to the humanoid joint set the installed packages' motion performs on |
-| Another deforming body, such as an animal or a cloak | A skin bound to the joints its motion drives |
-
-Rigid parts get their nodes and pivots when the asset is modularized.
+| Other deforming body | Skin bound to the joints its motion drives |
 
 Add no joint that nothing drives.
 
-When a detailed mesh replaces a body whose skeleton and proportions are already accepted, align the mesh to that skeleton's rest pose and joint positions. Adopting the mesh's own proportions instead changes the character and sends its motion back through retargeting, so that choice is the user's.
+Align added detail to the accepted skeleton's rest pose and joints. Changing the character's proportions requires the user's choice and retargeting.
 
 ## Characterization
 
 ### Fixed inputs
 
-Keep the exact mesh, skeleton, textures, source pose and transforms as fixed inputs, and identify their units, handedness, up and forward axes, local and world transforms, rest and bind pose, hierarchy, joint identifiers, pivots and attachment ownership. An exported rest pose, an animation's first frame and the display's zero pose need not coincide.
+Freeze mesh, skeleton, textures, source pose and transforms. Record units, handedness, up and forward axes, local and world transforms, rest and bind poses, hierarchy, joint IDs, pivots and attachment owners. Verify what pose the importer displays at rest.
 
 Inspect the required bones and every used influence, rigid accessories included.
 
@@ -34,17 +32,17 @@ Give a rigid prop a transform or attachment, not a skin. Keep unknown joints and
 
 ## Weight sources
 
-Bind a mesh whose conditioning has finished reducing it, in a rest pose with the limbs apart, with each loose piece joined to the surface or set aside as a rigid attachment. Take the weights from the first of the four sources below that the asset allows; they run from least work to most. A crafted form evaluates its weights on its [generating definition](crafting/construction.md#generating-definition) instead.
+Bind the reduced mesh in rest pose with limbs apart. Join loose deforming pieces or make them rigid attachments. Use the first applicable weight source below. For crafted forms, evaluate weights on the [generating definition](crafting/construction.md#generating-definition).
 
 Prove one representative export, import and deformation path before rigging many assets the same way.
 
 ### Rig carried by the source
 
-Use the rig the source carries, from a generation service or the asset's author, when its joints map onto the target joint set. Request the service's standard skeleton nearest that set. Watch for its own joint names, rest pose, extra joints and unit.
+Reuse a source rig when its joints map to the target. Request the nearest standard skeleton from a service. Check joint names, rest pose, extra joints and units.
 
 ### Transfer from a rigged body
 
-Transfer the weights from an already rigged body of the same kind and pose when one exists, such as the project's own figure. Copy only where the nearest surface matches in position and normal, and fill the rest by smoothing from those vertices.
+Transfer weights from a rigged body of the same kind and pose where the nearest surface matches in position and normal. Fill remaining weights by smoothing from the transferred vertices.
 
 ### Automatic weights
 
@@ -52,7 +50,7 @@ Compute the weights automatically from the skeleton and the surface when the sur
 
 ### Learned rigging model
 
-Use a learned rigging model that predicts skeleton and weights when no existing skeleton fits, such as for an unusual creature. Its skeleton is its own, so it needs a joint mapping and its motion needs retargeting.
+Use learned rigging when no existing skeleton fits. Map its joints and retarget its motion.
 
 ## Deformation proof
 
@@ -75,21 +73,21 @@ Look also for clothing or accessories passing through the body, and for normals 
 
 ### Skinning method and variants
 
-Read the current API before choosing linear or dual-quaternion skinning and its scale constraints, and compare their results where the asset needs that choice. The preserve-volume preview of a digital content creation (DCC) tool, such as Blender or Maya, shows that tool, not the imported consumer.
+Check the API's linear and dual-quaternion skinning support and scale limits. Compare them in the actual consumer where the asset needs a choice.
 
 Keep proportions and control identities stable across detail variants, and recheck weights, rig assumptions and attachments when topology or proportions change.
 
 ### What survives export
 
-A DCC's constraints, drivers, corrective shapes and modifier stack are evaluated behavior, not portable controls. List which operations produce the promised deformation and which channels the exporter, ingest profile and runtime keep: an interchange format such as glTF defines animation and skin semantics, and the ingest profile in use can accept a narrower subset.
+Record which DCC operations produce the required deformation and which channels the exporter, ingest profile and runtime preserve. Check the ingest profile's subset of the interchange format.
 
 Where needed, bake evaluated results into kept channels or a supported fixed representation, preserving the original and the conversion's identity. Report required behavior the path cannot carry instead of exporting only the rest mesh.
 
-Compare the source's evaluated deformation with the imported result at matched times and views, including required corrective or facial states, attachments and nonuniform scale where used. The kept channels and the visible error show whether the deformation is the same; matching bone names or key counts do not. Cover the promised screen-scale performance without requiring unused controls.
+Compare evaluated source and imported deformation at matched times and views. Cover required corrective or facial states, attachments and nonuniform scale where used. Judge visible error at the promised scale and verify the retained channels.
 
 ## Handoff
 
-Hand the admitted skeleton interpretation, controls, source identities and unresolved limits to the owner of the asset's performance under the motion skill, so every rig repair stays with the rig rather than inside a shot. A pose screenshot, a finished auto-rig job or a low fitting residual covers only what it shows.
+Hand accepted skeleton interpretation, controls, inputs and unresolved limits to the motion owner. Repair rig defects in the rig.
 
 ## References
 

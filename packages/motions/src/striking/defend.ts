@@ -19,6 +19,7 @@ import { DefenceOutcome } from "./DefenceOutcome";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
+import { defendFootwork } from "./defendFootwork";
 import { defendGeometry } from "./defendGeometry";
 
 /**
@@ -66,7 +67,7 @@ import { defendGeometry } from "./defendGeometry";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States when the defence starts, where it goes, each kind with its coaching source, and that contact is left to the strike.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters with a closed union of kinds, and a pure plan of postures in world metres and seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the plan, and the telegraph and decision queries the outcome law's audits and tests read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the plan, and the telegraph the outcome law reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, placed-action and outcome types; the strike is named by its anchor, not by a production's scene.
  */
 export namespace defend {
@@ -117,46 +118,20 @@ export namespace defend {
     return 0.8;
   }
 
-  /** Every planned defence's decision, for audits. */
-  const DECISIONS: WeakMap<
-    IAutoMovieMotionHumanActionPlan,
-    IAutoMovieMotionHumanDefenceOutcome.IDecision
-  > = new WeakMap();
-
-  /**
-   * The outcome decision of a planned defence.
-   *
-   * @param plan A defence's plan.
-   * @returns Its decision, or undefined for another action's plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result and the meaning of undefined.
-   * @evidence contracts/development/implementation.md#principled-implementation A lookup in the weak map the plan registered its decision in.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads a stored decision.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Decisions are keyed weakly by their plans, so each is released with its plan.
-   */
-  export function decision(
-    plan: IAutoMovieMotionHumanActionPlan,
-  ): IAutoMovieMotionHumanDefenceOutcome.IDecision | undefined {
-    return DECISIONS.get(plan);
-  }
-
   /**
    * Plan a defence.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the answered strike has no contact or shown peak, or does not strike this performer at a region.
+   * @throws {HumanRefusal} When the answered strike has no contact or shown peak, does not strike this performer at a region, or the forced outcome is one plausible timing cannot meet (`DefenceOutcome.decide`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The outcome law times the start from the strike's launch and contact; the goal is built from what the defender sees at that read second, the guard held before it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Decides the timing once, builds the geometry on first use after the read, and evaluates each posture from it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A strike that cannot be defended throws; nothing about contact is decided here, so no outcome is faked geometrically.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the limb fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The decision is made once per plan and the geometry built once, dropped on settle when the strike may have changed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry, cleared by settle, and one decision keyed weakly by the plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The original reaction decision, attacker reads and all current native posture fitting remain. Waiting and built-defence branches prepare fixed foot geometry and demanded rig names once, evaluate the movement envelope once per query and borrow genuine current FK/ROM inputs; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The decision is made once and built geometry is dropped on settle when the strike may change. The native context fixes entry feet and body, so waiting shares only their authored geometry/name preparation; every posture remains fresh, and query-supplied exact FK/ROM loans are forwarded without retaining them.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one built geometry cleared by settle and one lazy fixed-entry waiting reader. Plan release drops fixed metadata, and current maps, pose fits and borrowed query sources end with each synchronous return or failure.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
@@ -246,6 +221,14 @@ export namespace defend {
       duration,
       read: Math.max(context.start, decided.start),
     };
+    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
+    const checking: "left" | "right" | undefined =
+      p.kind === "check" ? defendGeometry.attacked(region, lead) : undefined;
+    const support: defendFootwork.ISupport | undefined = defendFootwork(
+      context,
+      timing,
+      checking,
+    );
     // Before the read the defender only holds the guard, and nothing reads
     // the attacker: every read of another performer then looks back in time,
     // so two performers reading each other never recurse at one instant.
@@ -259,54 +242,71 @@ export namespace defend {
         );
       building = true;
       try {
-        built = defendGeometry.build(context, timing);
+        built = defendGeometry.build(context, timing, support);
       } finally {
         building = false;
       }
       return built;
     };
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const contacts: IAutoMovieMotionHumanContactWindow[] =
-      defendGeometry.windows(
-        p.kind === "check" ? defendGeometry.attacked(region, lead) : undefined,
-        timing,
-      );
+      defendGeometry.windows(checking, timing, support);
+    let waiting: IAutoMovieMotionHumanActionPlan["posture"] | undefined;
     const out: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
       contacts,
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+      posture: (
+        seconds: number,
+        channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        return t <= begin + 1e-9 ? idle(context, lead) : geometry().posture(t);
+        return t <= begin + 1e-9
+          ? (waiting ??= idle(context, lead, support))(
+              t,
+              channels,
+              resolution,
+              projection,
+            )
+          : geometry().posture(t, channels, resolution, projection);
       },
       settle: (): void => {
         built = undefined;
       },
     };
-    DECISIONS.set(out, decided);
     return out;
   }
 
-  /** The guard held while waiting for the read: the entry's feet planted and the gloves up. */
+  /** Fixed entry-foot and guard demands while waiting; each query still resolves its complete current authored posture. */
   function idle(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
     lead: "left" | "right",
-  ): IAutoMovieMotionHumanPosture {
-    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const posture: IAutoMovieMotionHumanPosture = {
-      ...entry,
-      joints: { ...entry.joints, ...StrikingStance.joints() },
-      limbs: StrikingStance.legs(
+    support: defendFootwork.ISupport | undefined,
+  ): IAutoMovieMotionHumanActionPlan["posture"] {
+    const legs: ReturnType<typeof StrikingStance.prepareLegs> =
+      StrikingStance.prepareLegs(
         context.body,
         StrikingTarget.feet(context.entry),
-      ),
-    };
-    return {
-      ...posture,
-      limbs: {
-        ...posture.limbs,
-        ...StrikingStance.guard(context.body, posture, { lead }),
-      },
+      );
+    const guard: ReturnType<typeof StrikingStance.prepareGuard> =
+      StrikingStance.prepareGuard(context.body, { lead });
+    return (
+      seconds: number,
+      _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture => {
+      const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+      const posture: IAutoMovieMotionHumanPosture = {
+        ...entry,
+        joints: { ...entry.joints, ...StrikingStance.joints(entry.joints) },
+        limbs: support?.legs(seconds) ?? legs(),
+      };
+      return {
+        ...posture,
+        limbs: { ...posture.limbs, ...guard(posture, resolution, projection) },
+      };
     };
   }
 }

@@ -12,19 +12,43 @@
  * uncovered and takes, factor by factor, the value that covers the most
  * uncovered tuples, ties to the earlier value, so the array is deterministic.
  *
+ * The construction is a pure function of the factors, their order and the
+ * strength, so each distinct input is built once a process and every later
+ * call receives fresh copies of its rows: the partitioned law sweep builds
+ * the same arrays in each of its parts.
+ *
  * @param factors Each factor's values, in a stable order.
  * @param t The strength, 1 to the number of factors.
- * @returns The rows, each a value per factor.
+ * @returns The rows, each a value per factor; the caller owns them.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what is covered, why the strength suffices, the construction and its determinism.
+ * @evidence contracts/development/common.md#meaningful-documentation States what is covered, why the strength suffices, the construction, its determinism and its per-process reuse.
  * @evidence contracts/development/implementation.md#principled-implementation The greedy one-row-at-a-time construction of AETG over the set of uncovered t-tuples.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One tuple enumeration, one loop building a row, one coverage update.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup of a built array, else one tuple enumeration, one loop building a row and one coverage update; then a copy for the caller.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every t-tuple is enumerated and the loop ends only when none is uncovered; a strength larger than the factors is reduced to their count.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each value choice scans the uncovered tuples it could close; the arrays here have a few hundred rows over a handful of factors.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each value choice scans the uncovered tuples it could close; the arrays here have a few hundred rows over a handful of factors. A repeated input costs one JSON key and a copy of R rows.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The result depends only on the factors' names, values and order and on the strength, all of which the key `JSON.stringify([factors, t])` holds exactly; the construction reads no other state, so a stored array is the array a new construction would give, and each caller gets its own copies so none can alter another's.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The process keeps one array per distinct input, bounded by the laws, body sets and seed sets the tests ask for (a few hundred small arrays); nothing else is retained.
  */
 export function motionCoveringArray(
+  factors: Readonly<Record<string, readonly string[]>>,
+  t: number,
+): Record<string, string>[] {
+  const key: string = JSON.stringify([factors, t]);
+  let rows: Record<string, string>[] | undefined = BUILT.get(key);
+  if (rows === undefined) {
+    rows = build(factors, t);
+    BUILT.set(key, rows);
+  }
+  return rows.map(
+    (row: Record<string, string>): Record<string, string> => ({ ...row }),
+  );
+}
+
+/** Every array built in this process, by its exact input. */
+const BUILT: Map<string, Record<string, string>[]> = new Map();
+
+/** The greedy construction of {@link motionCoveringArray}. */
+function build(
   factors: Readonly<Record<string, readonly string[]>>,
   t: number,
 ): Record<string, string>[] {

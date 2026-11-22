@@ -1,0 +1,114 @@
+---
+title: CLI
+---
+
+# CLI
+
+The `automovie` package provides one command. `create` and `add` install the scaffold; `capture`, `inspect`, `render` and `review` are the hosts that draw, serve, export and record a production.
+
+```text
+npx automovie create <directory> [--workspace] [--name <name>] [--force]
+pnpm automovie add <shorts|series>/<name> [--name <name>] [--force]
+automovie capture --module <file> [--props <json>] [--backend software|gpu] [--out <dir>] [<request>]
+automovie capture --file <video> [--out <dir>] [<request>]
+automovie inspect --module <file> [--props <json>] [--port <n>] [<request>]
+automovie render --module <file> [--subject <name>] [--props <json>] [--out <dir>] [--backend software|gpu]
+automovie review --url <inspector address> --seconds <s> [--out <dir>]
+```
+
+`automovie --help` prints this usage and `automovie --version` the installed version.
+
+## create
+
+`create` writes a single production, a pnpm project whose `pnpm-workspace.yaml` holds the catalogs that pin its dependencies. With `--workspace` it writes a pnpm workspace root instead, whose members are `movies/shorts/*`, `movies/series/*` and `packages/*`. The package name is `--name` when given and otherwise comes from the directory name; for the current directory, `create` asks.
+
+## add
+
+`add` runs at a workspace root and writes a production into `movies/shorts/<name>` or `movies/series/<name>`. A short runs brief → screenplay, and a series the long route. It fills missing dependency entries in `pnpm-workspace.yaml` and keeps existing pins and overrides. Run `pnpm install` again to link the production.
+
+`create` and `add` refuse a non-empty target unless `--force` is given, which replaces files at the same paths and keeps every other file.
+
+## capture
+
+`capture` runs in a production. It builds a draw-only page for the module's subjects with the production's Vite and draws every planned still in headless Chromium. It writes stills, contact sheets and `record.json` into `--out`, or `media/capture/<subject>` by default. With `--file`, it captures a video file's own frames with FFmpeg instead. It exits 1 when a cell could not be drawn.
+
+## inspect
+
+`inspect` serves the inspector page over the subjects a module offers and prints its address, whose query is the request. It runs in a production or a package, and Ctrl+C stops it.
+
+## render
+
+`render` runs in a production. It draws every frame of one subject, `--subject` or the module's only one, through the same draw page and function as `capture`, and encodes them once with FFmpeg into `film.mp4` with `render-report.json` beside it. The output goes into `--out`, or `media/automovie/<subject>/videos` by default. Of the request keys it takes only `--subject`.
+
+## review
+
+`review` records real-time playback of the running inspector page at `--url`, for `--seconds` of wall time after pressing its Play button. It writes a video and `playback.json` of the readings and page errors into `--out`, or `media/automovie/review` by default. It exits 1 when the page reported a script error.
+
+## Options
+
+These options belong to the commands themselves; every other option of `capture` and `inspect` is a request key:
+
+| Option | Meaning |
+| --- | --- |
+| `--workspace` | `create`: a pnpm workspace root instead of a single production |
+| `--name` | `create`, `add`: the package name |
+| `--force` | `create`, `add`: install into a non-empty directory, replacing same-path files |
+| `--module` | `capture`, `inspect`, `render`: the module whose `subjects(props)` the page draws |
+| `--props` | `capture`, `inspect`, `render`: a JSON file the module's `subjects` is called with, `null` by default |
+| `--file` | `capture`: an encoded video file instead of a subject |
+| `--backend` | `capture`, `render`: `software`, SwiftShader and the default, or `gpu` |
+| `--port` | `inspect`: the port to serve on, a free one by default |
+| `--out` | `capture`, `render`, `review`: the output folder |
+| `--url` | `review`: the running inspector page's address |
+| `--seconds` | `review`: wall-clock seconds of playback recorded |
+
+## Request keys
+
+A request key is written with `--` before it, and the inspector page's address carries the same keys, so a picture found on the page repeats on the command line. These keys are used most:
+
+| Key | Asks for |
+| --- | --- |
+| `subject` | The film to draw, the module's only one by default |
+| `from`, `to`, `rate` | An even sampling, five stills per second by default |
+| `at` | Exact seconds separated by commas, instead of an even sampling |
+| `events`, `window` | Every frame within `window` frames, three by default, of each listed second |
+| `views` | View texts separated by `;`, such as `front`, `right@ortho` or `three-quarter@focus=<pattern>` |
+| `passes` | Several shades sharing each view's camera, such as `beauty,pose,depth` |
+| `marks` | Marks such as `joint`, `bone` and `contact` drawn over the picture |
+| `round`, `compare` | Keeping the capture as a named round, and comparing it cell by cell with an earlier round |
+
+The [render README](https://github.com/samchon/automovie/tree/master/packages/render#request-keys) lists every key with the requirement it serves. A request the subject cannot give, such as an unknown view or a time outside the film, is refused before anything is drawn.
+
+## Records and backends
+
+A capture's `record.json` keeps the revision, the request as text, and one row per planned cell with its hash, backend and resolved camera, or the cause it was not drawn.
+
+Capture and render use SwiftShader through ANGLE, a software renderer, by default, so they need no GPU; `--backend gpu` uses the machine's GPU. Every still's record names the backend, the Chromium version and the WebGL renderer, and pixels are compared only between stills of one backend.
+
+## Environment
+
+The hosts read these variables:
+
+| Variable | Selects |
+| --- | --- |
+| `CHROME_PATH` | Another browser than the headless Chromium `pnpm run review:setup` installs |
+| `FFMPEG_PATH` | Another FFmpeg for render and file capture, which otherwise use `ffmpeg-static` |
+
+## Production scripts
+
+A production's `package.json` wraps the commands:
+
+| Script | Runs |
+| --- | --- |
+| `pnpm run lint` | TypeScript and source correctness |
+| `pnpm run evidence` | The evidence graph |
+| `pnpm test` | The exported `test_*` functions under `test/features` |
+| `pnpm run format` | Source formatting |
+| `pnpm run dev` | The inspector page on `127.0.0.1:5173` |
+| `pnpm run build` | A bundle of the inspector page |
+| `pnpm run capture` | `automovie capture --module src/subjects.ts` |
+| `pnpm run render` | `automovie render --module src/subjects.ts` |
+| `pnpm run review` | `automovie review` |
+| `pnpm run review:setup` | `playwright-core install ffmpeg chromium-headless-shell` |
+| `pnpm run physics` | A simulated performance computed once into an archive |
+| `pnpm run motion:take` | Saving, opening or branching a registered take |

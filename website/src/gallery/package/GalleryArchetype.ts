@@ -1,5 +1,4 @@
 import {
-  type Archetype,
   ArchetypeArticulation,
   type ArchetypeDrawSession,
   ArchetypeMarks,
@@ -13,15 +12,24 @@ import { GalleryCatalogue } from "./GalleryCatalogue";
 
 /**
  * Builds one archetype for the gallery and reads off what the page lists:
- * the dimensions its seed drew with their bands or the model they belong to,
+ * the dimensions it records with a band, a model or a derived value,
  * as the archetype records them, and its affordances with
  * the range each articulation moves through.
  */
 export namespace GalleryArchetype {
+  /** Read a reference recipe only when the gallery needs its subject. */
+  function referenceOf(
+    producer: GalleryCatalogue.IProducer | undefined,
+  ): GalleryCatalogue.ReferenceParams | undefined {
+    const reference: GalleryCatalogue.Reference | undefined =
+      producer?.REFERENCE;
+    return typeof reference === "function" ? reference() : reference;
+  }
+
   /** One built archetype. */
   export interface IBuilt {
     /** The archetype, with its articulations at the request's state. */
-    archetype: Archetype<string, string>;
+    archetype: GalleryCatalogue.Model;
 
     /** What the page lists; the stage adds the floor grid it draws. */
     view: Omit<IGalleryView, "grid">;
@@ -44,11 +52,11 @@ export namespace GalleryArchetype {
     // A dispatcher inherits the selected factory's reference only. A dog's
     // authored specimen mass therefore cannot override an equid's derived mass.
     const params: Record<string, unknown> = {
-      ...producer.REFERENCE,
-      ...producer.PRODUCERS?.[request.variant]?.REFERENCE,
+      ...referenceOf(producer),
+      ...referenceOf(producer.PRODUCERS?.[request.variant]),
       ...(key === "" ? {} : { [key]: request.variant }),
     };
-    const rest: Archetype<string, string> = producer(
+    const rest: GalleryCatalogue.Model = producer(
       params,
       request.seed === "" ? undefined : request.seed,
     );
@@ -60,13 +68,13 @@ export namespace GalleryArchetype {
         rest.affordances.some((a): boolean => a.id === id),
       ),
     );
-    const archetype: Archetype<string, string> =
+    const archetype: GalleryCatalogue.Model =
       Object.keys(state).length === 0 ? rest : rest.articulate(state);
 
     // Each dimension is listed from the archetype's own record of where it came
     // from: a drawn one with the band it was drawn in, a picked model's figure
     // as that fixed value in its dimension's unit, named by the model it
-    // belongs to.
+    // belongs to. A derived value has only its recorded unit.
     const provenance: ArchetypeDrawSession.IProvenance<string> =
       rest.provenance;
     const drawn: Readonly<Partial<Record<string, number>>> =
@@ -92,19 +100,20 @@ export namespace GalleryArchetype {
                 },
               ];
             const axis: string | undefined = provenance.figures[name];
-            return axis === undefined
-              ? []
-              : [
-                  {
-                    name,
-                    value,
-                    minimum: value,
-                    maximum: value,
-                    unit: provenance.units[name] ?? "",
-                    source: `${axis} ${provenance.models[axis]}`,
-                    provisional: false,
-                  },
-                ];
+            return [
+              {
+                name,
+                value,
+                minimum: value,
+                maximum: value,
+                unit: provenance.units[name] ?? "",
+                source:
+                  axis === undefined
+                    ? "Derived by the archetype"
+                    : `${axis} ${provenance.models[axis]}`,
+                provisional: false,
+              },
+            ];
           },
         ),
 

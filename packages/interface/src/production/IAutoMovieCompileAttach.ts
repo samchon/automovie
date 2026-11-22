@@ -1,3 +1,4 @@
+import type { IAutoMovieRigidTransform } from "../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 import type { IAutoMovieMotion } from "../motion/IAutoMovieMotion";
 import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
@@ -17,19 +18,19 @@ export namespace IAutoMovieCompileAttach {
   /**
    * Bake the `attachTo` verb into the child object's follow clip, the per-frame realisation of a rigid coupling to a parent's bone (a sword in a hand, a prop on a saddle). The child is not a rig, so, like a projectile, it moves by a node clip of translation and rotation tracks, not a pose motion.
    *
-   * Each sample resolves the parent's posed skeleton at that instant through {@link resolveAttachment}, which runs the parent's FK, to find the bone's frame in the parent's model space, then composes that onto the parent's world frame: its staged placement, or, when the parent itself rides a coupling this shot, its ridden frame from `parentTransformAt` (#1140):
+   * Each sample resolves the parent's posed skeleton at that instant through {@link resolveAttachment}, which runs the parent's FK, to compose the child's bone-local offset into the parent's model space, then composes that onto the parent's world frame: its staged placement, or, when the parent itself rides a coupling this shot, its ridden frame from `parentTransformAt` (#1140):
    *
-   * - `translation = parentPos + parentRot · boneLocal.translation`
-   * - `rotation = parentRot ∘ boneLocal.rotation`
+   * - `translation = parentPos + parentRot · childLocal.translation`
+   * - `rotation = parentRot ∘ childLocal.rotation`
    *
    * The parent's scale is not applied, which matches the renderer for the unit-scale actors staging places. Pass the same `jointAxes` the renderer poses the parent with (`HUMANOID_JOINT_AXES`), plus the same `restFrames` when parent clips are authored in clinical space, or the child follows a bone where the renderer does not draw it. A parent with no motion holds its rest pose.
    *
-   * The clip is shot-local: N = max(1, round(duration × fps)) equal intervals give N + 1 keys including both ends of [start, start + duration], with duration set to `shotDuration`, the same convention as `cameraMotion`. Read alone through `sampleClip` it clamps to the bone's first frame before `start`; playback reads it through `sampleClipSequence`, where it writes nothing before `start` and holds its last frame after the coupling ends. The clip id is `attach:<child>`; a caller baking several couplings of one child suffixes repeats. Throws a `RangeError` for nonfinite/nonpositive duration or fps, or an unsafe rounded interval count that cannot support an advancing indexed loop. This representability gate is not a workload cap; callers still own feasible memory use and representable distinct key times.
+   * The clip is shot-local: N = max(1, round(duration × fps)) equal intervals give N + 1 keys including both ends of [start, start + duration], with duration set to `shotDuration`, the same convention as `cameraMotion`. Read alone through `sampleClip` it clamps to the child's first frame before `start`; playback reads it through `sampleClipSequence`, where it writes nothing before `start` and holds its last frame after the coupling ends. The clip id is `attach:<child>`; a caller baking several couplings of one child suffixes repeats. Throws a `RangeError` for nonfinite/nonpositive duration or fps, or an unsafe rounded interval count that cannot support an advancing indexed loop. This representability gate is not a workload cap; callers still own feasible memory use and representable distinct key times.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Bake the `attachTo` verb into the child object's follow clip, the per-frame realisation of a rigid coupling to a parent's bone (a sword in a hand, a prop on a saddle). The child is not a rig, so, like a projectile, it moves by a node clip of translation and rotation tracks, not a pose motion. Member documentation states the supplied records, units and absence meanings used by compileAttach.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The callback contract exposes a synchronous transform lookup rather than a particular scene implementation; its frame and lifetime obligations are documented on the member.
    * @evidence contracts/development/design.md#principled-representation Attachment timing uses shot-local seconds and parentTransformAt supplies the parent frame at the requested instant; the input keeps the authored attachment and compiled motion context together.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieCompileAttach.IProps, used by compileAttach. Its child, bone, parentTransform, parentTransformAt, parentSkeleton, parentMotion, start, duration, shotDuration, fps, jointAxes, restFrames members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieCompileAttach.IProps, used by compileAttach. Its child, bone, offset, parentTransform, parentTransformAt, parentSkeleton, parentMotion, start, duration, shotDuration, fps, jointAxes, restFrames members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** The coupled child's scene node: the clip's target. */
@@ -37,6 +38,9 @@ export namespace IAutoMovieCompileAttach {
 
     /** The parent bone the child rides. */
     bone: AutoMovieHumanoidBone;
+
+    /** Child frame in the posed bone, with finite metre translation and a unit rotation. Defaults to the identity. */
+    offset?: IAutoMovieRigidTransform | undefined;
 
     /** The parent's staged world placement. */
     parentTransform: IAutoMovieTransform;

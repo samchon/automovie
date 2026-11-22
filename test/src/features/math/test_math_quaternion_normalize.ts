@@ -1,5 +1,5 @@
 import { Quaternion } from "@automovie/engine";
-import { IAutoMovieQuaternion } from "@automovie/interface";
+import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose, qunit } from "../internal/predicates";
@@ -16,12 +16,14 @@ import { qclose, qunit } from "../internal/predicates";
  *    NaNs. Exercises the zero-length guard a normal rotation never hits.
  * 4. Equal components at tiny, huge and subnormal magnitudes normalize to the
  *    independently known four-component direction (0.5,0.5,0.5,0.5).
+ * 5. Single X components2^±500 reach exact squared-norm certificate edges;
+ *    2^±600 require the extreme-scale fallback. All retain literalX180.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls Quaternion.normalize and checks identity, unit magnitude and equal-component direction, catching overflow or underflow that loses a finite quaternion orientation.
- * @evidence contracts/development/testing.md#independent-expectations Four equal nonzero components have norm twice their magnitude and therefore normalize to four halves; zero quaternion follows the declared identity convention.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers scaled identity, ordinary unequal values, exact zero and tiny/huge/subnormal equal components; inverse and interpolation tests own their separate compositions.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Quaternion.normalize and checks identity, unit magnitude, equal-component direction and exact-power cardinal scales, catching overflow or underflow that loses a finite quaternion orientation.
+ * @evidence contracts/development/testing.md#independent-expectations Four equal nonzero components have norm twice their magnitude and therefore normalize to four halves; zero quaternion follows the declared identity convention. A positive sole X component normalizes to(1,0,0,0); squaring2^±500 gives exact2^±1000, while2^±600 lies beyond binary64 squared range.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers scaled identity, ordinary unequal values, exact zero and tiny/huge/subnormal equal components plus exact squared-norm certificate edges and outside-range cardinal scales; inverse and interpolation tests own their separate compositions.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable math entry directly imports pure quaternion source and owns local scalar cases without a real host or native artifact.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A pure-scale quaternion (0,0,0,2) normalizes onto the identity.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A pure-scale quaternion (0,0,0,2) normalizes onto the identity.).
  */
 export function test_math_quaternion_normalize(): void {
   TestValidator.predicate(
@@ -54,5 +56,10 @@ export function test_math_quaternion_normalize(): void {
       qunit(normalized) &&
         qclose(normalized, { x: 0.5, y: 0.5, z: 0.5, w: 0.5 }),
     );
+  }
+  for (const exponent of [-600, -500, 500, 600]) {
+    const normalized: IAutoMovieQuaternion = Quaternion.normalize({ x: 2 ** exponent, y: 0, z: 0, w: 0 });
+    TestValidator.predicate(`exact-power cardinal normalization retainsX180 at2^${exponent}`,
+      qunit(normalized) && qclose(normalized, { x: 1, y: 0, z: 0, w: 0 }, 1e-12));
   }
 }

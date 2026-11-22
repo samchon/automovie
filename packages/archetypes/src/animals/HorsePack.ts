@@ -201,9 +201,23 @@ export namespace HorsePack {
     );
     straps.push(["croup", v(0, rig.back + r, centre - size.along / 2), end]);
 
+    // The tie a following animal's lead is made fast to: the pads' back on the spine, where the croup piece leaves the saddle.
+    builder.affordance({
+      id: "tie",
+      kind: "rein",
+      frame: ArchetypeFrame.facing(
+        v(0, rig.back + r, centre - size.along / 2),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
+      extent: null,
+      symmetry: "round",
+    });
+
     // The breeching an inch behind the hindquarters' rounded end at the point of buttock's height, held up from the croup piece's end.
     // Its straight straps circumscribe the strap's circle: each strap's middle, its nearest to the body, keeps the inch.
-    const reach: number = (barrel + BREECHING + r) / Math.cos(Math.PI / (2 * steps));
+    const reach: number =
+      (barrel + BREECHING + r) / Math.cos(Math.PI / (2 * steps));
     const behind = (angle: number): IAutoMovieVector3 =>
       v(
         reach * Math.cos(angle),

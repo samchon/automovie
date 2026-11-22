@@ -1,4 +1,4 @@
-import { Vector3, physicalShapeBounds } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -19,6 +19,7 @@ import { StrikingQuality } from "../../striking/StrikingQuality";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
+import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
@@ -200,18 +201,16 @@ export function reactionCases(
         body,
         performance.bones("a", end),
       );
-      const landed = performance.bones("a", event(performance, "seated"));
-      const low = (of: (bone: string) => boolean): number => {
-        let value: number = Infinity;
-        for (const { bone, pose, shapes } of HumanColliders.placed(
+      const low: (of: (bone: string) => boolean) => number = (
+        of: (bone: string) => boolean,
+      ): number =>
+        FamilyCaseKit.lowest(
+          performance,
           body,
-          landed,
-        ))
-          if (of(bone))
-            for (const shape of shapes)
-              value = Math.min(value, physicalShapeBounds(pose, shape).min.y);
-        return value;
-      };
+          "a",
+          event(performance, "seated"),
+          of,
+        );
       out.push({
         name: `reaction-knockdown${suffix}`,
         times: times(performance, 0.1, [

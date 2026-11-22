@@ -1,9 +1,0 @@
-# Settings principles
-
-Each settings H2 answers as one facet of its subject, owning the anchored H3 facts beneath it. It does not answer for every person or place in the work.
-
-Statements: [statements/principles/settings.md](../statements/principles/settings.md).
-
-## Usable facts
-
-Does it name its subject and settle a value, its scope and the conditions, limits, costs or exceptions that affect use, specifically enough that a later author or reviewer can hold the work to it? "A nervous partner" binds no scene; "hesitates before every jump, and the hesitation shows in his shoulders" does. A record filled with facets nothing uses buries its decisions in material nobody can be held to.

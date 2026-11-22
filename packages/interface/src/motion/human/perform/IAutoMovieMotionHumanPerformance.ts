@@ -15,11 +15,13 @@ import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLay
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanBlast } from "./IAutoMovieMotionHumanBlast";
 import type { IAutoMovieMotionHumanForce } from "./IAutoMovieMotionHumanForce";
+import type { IAutoMovieMotionHumanObject } from "./IAutoMovieMotionHumanObject";
 import type { IAutoMovieMotionHumanObstacle } from "./IAutoMovieMotionHumanObstacle";
 import type { IAutoMovieMotionHumanPerformanceAim } from "./IAutoMovieMotionHumanPerformanceAim";
 import type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerformer";
 import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPropFlight";
+import type { IAutoMovieMotionHumanPropFracture } from "./IAutoMovieMotionHumanPropFracture";
 import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
 
 /**
@@ -153,6 +155,30 @@ export interface IAutoMovieMotionHumanPerformance {
   prop(subject: string, seconds: number): IAutoMovieRigidTransform;
 
   /**
+   * A prop's named point as a world frame at a film second: the prop's
+   * displayed frame composed with the point's frame on the posed prop, so a
+   * contact on a moving part (a pedal on a turning crank) is read on that
+   * part. Absent from a performance that poses no prop points.
+   *
+   * @param subject The prop.
+   * @param point The point's name.
+   * @param seconds Film seconds.
+   * @returns The point's world frame, metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.site: a prop point's world frame at a film second.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanPerformance.site is used through packages/motions/src/perform/HumanPerformanceSite.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanPerformance.site is used through packages/motions/src/perform/HumanPerformanceSite.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanPerformance.site is used through packages/motions/src/perform/HumanPerformanceSite.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanPerformance.site is used through packages/motions/src/perform/HumanPerformanceSite.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPerformance.site is used through packages/motions/src/perform/HumanPerformanceSite.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPerformance.site is used through packages/motions/src/perform/HumanPerformanceSite.ts.
+   */
+  site?(
+    subject: string,
+    point: string,
+    seconds: number,
+  ): IAutoMovieRigidTransform;
+  /**
    * One input per coupled degree of freedom a prop's acts or tracks have
    * moved by a film second (`HumanPerformanceObject.state`), in the latest
    * begun writer's coordinate. A later writer of another coordinate of the
@@ -208,6 +234,21 @@ export interface IAutoMovieMotionHumanPerformance {
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPerformance.hits is used through packages/motions/src/perform/HumanPerformance.ts.
    */
   hits(subject?: string): readonly IAutoMovieInteractionEvent[];
+
+  /**
+   * Stages a breakaway prop at a recorded hit, or returns null while intact.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The request binds a model and authored budget to a hit on its placed prop.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation HumanPerformance.fracture owns hit selection and staging.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the staging boundary.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The implementation owns admission and trajectory math.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The implementation owns hit lookup and preparation cost.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The returned plan owns its prepared data.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The implementation documents the returned plan's lifetime.
+   */
+  fracture<Piece extends IAutoMovieMotionHumanObject.IModel>(
+    request: IAutoMovieMotionHumanPropFracture.IRequest<Piece>,
+  ): IAutoMovieMotionHumanPropFracture.IPlan<Piece> | null;
 
   /**
    * A soft prop's particle positions at a film second: its lattice solved
@@ -407,6 +448,9 @@ export namespace IAutoMovieMotionHumanPerformance {
 
     /** What everyone does. */
     composition: IAutoMovieComposition;
+
+    /** Authored airborne turns use deterministic staged rotation by default, preserving the law's centre path and fitted articulation without claiming angular-momentum conservation. The existing landing pose requires complete revolutions on each axis; nonclosing fractional turns need a compatible landing outcome and are refused. Physical solves turns from the composed body's inertia and take-off limit but does not repair that legacy landing limitation. A flight with explicitly supplied momentum always remains physical. */
+    flight?: "staged" | "physical";
 
     /**
      * The production's legality rules, such as `KickboxingRules.rules`,

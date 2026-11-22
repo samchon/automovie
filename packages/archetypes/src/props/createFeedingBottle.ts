@@ -1,0 +1,116 @@
+import { Vector3 } from "@automovie/engine";
+
+import {
+  type Archetype,
+  ArchetypeBand,
+  ArchetypeBuilder,
+  ArchetypeDrawSession,
+  ArchetypeFrame,
+  type IArchetypeBand,
+} from "../core";
+
+/** No maker's page was read. */
+const STAGED: string =
+  "a feeding bottle: its dimensions and mass are provisional estimates, no maker's page was read";
+
+/**
+ * A feeding bottle with a teat. Its origin is the base's centre, `+Y` up
+ * the bottle to the teat. `grip` is the barrel a hand holds; `teat` the
+ * teat's tip, facing `+Y`, which goes to an infant's mouth.
+ *
+ * @param params Scene identity and dimensions within their bands.
+ * @param seed Draws free dimensions within their bands.
+ * @returns The bottle with its contacts.
+ * @evidence contracts/development/common.md#meaningful-documentation States the frame and the contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation Two rods sized by the drawn height.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, then build the barrel, the teat and the contacts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rigid coarse parts; the milk is not modelled.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two parts and two contacts.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ */
+export function createFeedingBottle(
+  params: createFeedingBottle.IParams = {},
+  seed?: number | string,
+): Archetype<createFeedingBottle.Affordance, createFeedingBottle.Dimension> {
+  const draw: ArchetypeDrawSession<createFeedingBottle.Dimension> =
+    new ArchetypeDrawSession(
+      "feedingBottle",
+      createFeedingBottle.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createFeedingBottle.Dimension, number> = draw.dimensions(
+    createFeedingBottle.BANDS,
+  );
+  const builder: ArchetypeBuilder<
+    createFeedingBottle.Affordance,
+    createFeedingBottle.Dimension
+  > = new ArchetypeBuilder({
+    id: params.id,
+    name: "a feeding bottle",
+    material: "plastic",
+    draw,
+  });
+  const v: typeof Vector3.create = Vector3.create;
+  const barrel: number = d.height - 0.03;
+  builder.rod("barrel", 0.03, v(0, 0, 0), v(0, barrel, 0), {
+    color: "#f4f1ea",
+    share: 0.9,
+  });
+  builder.rod("teat", 0.008, v(0, barrel, 0), v(0, d.height, 0), {
+    color: "#e2b07a",
+    share: 0.1,
+  });
+  builder.affordance({
+    id: "grip",
+    kind: "handle",
+    symmetry: "round",
+    frame: ArchetypeFrame.facing(v(0, barrel / 2, 0), v(0, 0, -1), v(0, 1, 0)),
+    extent: null,
+    grip: "power",
+    aperture: 0.06,
+    length: barrel,
+  });
+  builder.affordance({
+    id: "teat",
+    kind: "socket",
+    frame: ArchetypeFrame.upright(v(0, d.height, 0)),
+    extent: null,
+  });
+  return builder.build(d.mass);
+}
+
+/**
+ * Dimensions and contacts of {@link createFeedingBottle}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the contacts, the dimensions and their staged provenance.
+ * @evidence contracts/development/design.md#principled-representation Metres and kilograms in provisional bands.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The grip and the teat a law reads.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is marked provisional.
+ */
+export namespace createFeedingBottle {
+  /** The barrel held, and the teat's tip. */
+  export type Affordance = "grip" | "teat";
+
+  /** The height to the teat's tip, and the mass. */
+  export type Dimension = "height" | "mass";
+
+  /** Scene identity and fixed dimensions. */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Scene subject id. */
+    id?: string;
+  }
+
+  /** Units of each dimension. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    mass: "kg",
+  };
+
+  /** Staged bands. */
+  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+    height: ArchetypeBand.metres(0.16, 0.2, STAGED, true),
+    mass: ArchetypeBand.of("kg", 0.15, 0.3, STAGED, true),
+  };
+}

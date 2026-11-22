@@ -1,0 +1,23 @@
+---
+title: Evidence graph
+---
+
+# Evidence graph
+
+The evidence graph is how a screenplay keeps its world. Every principle and every decision about the setting, the characters, the places and the era becomes an obligation, and the layer that must keep it states in writing how it does, or why it does not apply. No decision is left without a written answer, so the screenplay holds to its world and the film computed from it holds to the screenplay.
+
+A respondent, such as a screenplay section or a scene composition, cites what it realizes and answers the questions it owes, each with a written reason. `pnpm run evidence` reads those citations and fails while any selected decision is unrealized or any question is unanswered. The error list is the agent's list of remaining work.
+
+A production runs the graph over Markdown and TypeScript through [`@wrtnlabs/evidence`](https://github.com/wrtnlabs/evidence), configured by `@automovie/evidence`.
+
+## What it holds a production to
+
+Each check is turned on per layer in the production's `evidence.config.ts`, so a production checks the layers it writes. Once a layer's check is on:
+
+- every question its checklists ask is answered in writing, or declined with the concrete reason it does not apply;
+- every decision of the layer above is kept by some unit of this layer, down to the film;
+- a review is tied to the text it read, so an edited beat needs reading again.
+
+The agent cannot report a layer done while one of these fails. [Evidence configuration](/reference/evidence) lists the options, the answer formats, the exclusions and the diagnostic codes.
+
+[Independent review](/docs/screenplay/review) decides whether the answers are true and the writing works.

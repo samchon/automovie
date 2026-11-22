@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -7,6 +8,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanAthletics,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -17,13 +19,17 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { HumanFrame } from "../posture/HumanFrame";
+import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { sprintStartBlocks } from "./sprintStartBlocks";
 import { sprintStartSet } from "./sprintStartSet";
 
 /**
@@ -46,12 +52,21 @@ import { sprintStartSet } from "./sprintStartSet";
  *
  * The crouch takes 1.5 s (provisional): the front foot steps back to its
  * block over the first half, the rear foot over the second, while the hips
- * travel and the trunk pitches down; the set is held, and the action ends
- * at the gun. Events: `onYourMarks` (the crouch's start), `set`, `gun`.
+ * travel and the trunk pitches down. With an authored drive, the hands
+ * leave at the gun, the rear foot leaves next, and the front foot pushes
+ * to block exit. Slawinski et al. (2010, PMID 19935105) separate these
+ * phases; this pass stages the hip acceleration and rear-foot recovery
+ * while the front foot still bears. The drive's shape shares are
+ * provisional. The first airborne stride belongs to the subsequent act.
  *
- * Not drafted: the on-your-marks kneel with the rear knee down, the drive
- * out of the blocks (the run law's), hurdles, relays, jumps and throws (the
- * jump and throw laws' rows).
+ * With `on`, the feet sit on a placed starting block's `front` and `rear`
+ * plates instead of the body-scaled setting, each ball at its plate's lower
+ * edge, and bear on that prop; the plate on the runner's left or right
+ * decides the front foot. The front knee then keeps within its measured
+ * spread (90 +/- 8) and the centre of mass follows from the plates.
+ *
+ * Events: `onYourMarks`, `set`, `gun`, and when driving, `rearBlockOff`
+ * and `blockExit`. The knee-down marks posture is a separate phase.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the posture with its source, how each place derives from the body, the timing, the events and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record composed of root, leg and arm rows over one phrase.
@@ -75,11 +90,11 @@ export namespace athletics {
   /** The front block's distance behind the start line, a share of the leg's length (greater trochanter to lateral malleolus): the anthropometry-driven setting (Cavedon et al. 2019, table 2). */
   export const FRONT_DISTANCE: number = sprintStartSet.FRONT_DISTANCE;
 
-  /** The rear block's distance behind the front block, a share of the leg's length: the same setting's spacing (Cavedon et al. 2019). */
-  export const SPACING: number = sprintStartSet.SPACING;
+  /** The rear knee's included angle in the set, degrees (`sprintStartSet.REAR`), from which the rear block is placed. */
+  export const REAR: readonly [number, number] = sprintStartSet.REAR;
 
-  /** The most the trunk's total tilt is searched to, degrees: a half turn, past which the trunk would point back up. */
-  export const TILT: number = sprintStartSet.TILT;
+  /** The front hip's included angle in the set, degrees (`sprintStartSet.HIP`). */
+  export const HIP: readonly [number, number] = sprintStartSet.HIP;
 
   /**
    * The whole body's centre of mass behind the start line in the set, metres
@@ -92,9 +107,6 @@ export namespace athletics {
    */
   export const CENTRE: Readonly<Record<"female" | "male", number>> =
     sprintStartSet.CENTRE;
-
-  /** The most the straight arms are searched to lean forward from the vertical, degrees: a quarter turn, past which the hands would no longer bear. */
-  export const LEAN: number = sprintStartSet.LEAN;
 
   /** The front block's face from the floor, degrees (provisional, within a competition block's adjustment). */
   export const FRONT_BLOCK: number = sprintStartSet.FRONT_BLOCK;
@@ -126,7 +138,7 @@ export namespace athletics {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function set(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
     entry: IAutoMovieMotionHumanPosture,
     front: "left" | "right",
     sex: "female" | "male" = "male",
@@ -138,14 +150,14 @@ export namespace athletics {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative.
+   * @throws {HumanRefusal} When the hold is negative, the optional drive is not positive, a named block's plates are missing, misaligned or contradict `front` (`sprintStartBlocks.of`), or the set cannot be fitted to them.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The set position solved once; the root, the feet and the hands carried into it on one phrase.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Set, clock, root row, two leg rows, two arm rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every place is the body's; provisional times are named.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per arm per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the leg arc, the placed arm and the posture heading.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed entry/block pairs prepare each leg's original quaternion arc once; fixed standing/set hip points share Vector3.prepareLerp's original component deltas. Trunk pitch/flexion differences and the joint reader also prepare once, while current joints/shares/points evaluate each second. Placed-arm and posture-heading formulas remain shared owners.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the set position and the clock.
    */
   export function plan(
@@ -155,42 +167,65 @@ export namespace athletics {
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const hold: number = p.seconds ?? 1.5;
     HumanBound.least("seconds", hold, 0, "s");
+    if (p.drive !== undefined) HumanBound.above("drive", p.drive, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const front: "left" | "right" = p.front ?? "left";
+    const blocks: sprintStartBlocks.IPlaced | undefined =
+      p.on === undefined
+        ? undefined
+        : sprintStartBlocks.of(context, p.on, p.front);
+    const front: "left" | "right" = blocks?.front ?? p.front ?? "left";
     const rear: "left" | "right" = front === "left" ? "right" : "left";
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const target: ReturnType<typeof set> = set(
+    const target: ReturnType<typeof set> = sprintStartSet.of(
       context,
       entry,
       front,
       p.sex ?? "male",
+      blocks?.feet,
     );
     const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: CROUCH,
         attack: 0,
         hold,
-        retract: 0.001,
+        retract: p.drive ?? 0.001,
       }),
       modifiers,
     );
+    const gun: number = timed.at("relax");
+    const end: number = timed.duration;
+    const rearOff: number = gun + (end - gun) / 2;
+    const drive: (seconds: number) => number = (seconds: number): number =>
+      p.drive === undefined
+        ? 0
+        : Math.max(0, Math.min(1, (seconds - gun) / (end - gun)));
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,
         { name: "onYourMarks", seconds: 0 },
         { name: "set", seconds: timed.at("ready") },
-        { name: "gun", seconds: timed.at("relax") },
+        { name: "gun", seconds: gun },
+        ...(p.drive === undefined
+          ? []
+          : [
+              { name: "rearBlockOff", seconds: rearOff },
+              { name: "blockExit", seconds: end },
+            ]),
       ],
     );
-    const into: (seconds: number) => number = (seconds: number): number =>
-      clock.progress("start", "ready", seconds);
-    // The span the arms are planned over: the reach to the place, held to the end.
+    const ready: number = clock.at("ready");
+    const into: (seconds: number) => number = AutoMovieMotionClock.prepare(
+      clock,
+      "start",
+      "ready",
+    ).progress;
+    // The hands release the track at the gun and open into the drive.
     const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
       start: clock.at("start"),
       ready: clock.at("ready"),
-      relax: clock.at("end"),
+      relax: p.drive === undefined ? end : gun,
       end: clock.at("end"),
     };
     const hipsRest: IAutoMovieVector3 = body.rest.get("hips")!;
@@ -198,9 +233,36 @@ export namespace athletics {
       entry.root,
       Quaternion.rotateVector(resolveHumanPosture.heading(entry), hipsRest),
     );
+    const hipsAt: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(
+      standingHips,
+      target.hips,
+    );
+    const ahead: IAutoMovieVector3 = HumanFrame.forward(entry.yaw);
+    const push: IAutoMovieVector3 = {
+      ...Vector3.scale(ahead, 0.12 * body.measure.stature),
+      y: 0.04 * body.measure.stature,
+    };
+    const flexions: Record<"spine" | "chest", number> = {
+      spine: (target.joints.spine?.[0] ?? 0) - (entry.joints.spine?.[0] ?? 0),
+      chest: (target.joints.chest?.[0] ?? 0) - (entry.joints.chest?.[0] ?? 0),
+    };
+    const pitchDelta: number = target.pitch - entry.pitch;
+    const flexed: (
+      joints: IAutoMovieMotionHumanPosture["joints"],
+      bone: "spine" | "chest",
+      share: number,
+    ) => readonly [number, number, number] = (
+      joints: IAutoMovieMotionHumanPosture["joints"],
+      bone: "spine" | "chest",
+      share: number,
+    ): readonly [number, number, number] => {
+      const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+      return [was[0] + flexions[bone] * share, was[1], was[2]];
+    };
     const primitives: IAutoMovieMotionHumanPrimitive[] = [
       {
         channels: ["root", "trunk"],
+        reads: ["root", "trunk"],
         from: 0,
         to: clock.duration,
         write: (
@@ -208,32 +270,20 @@ export namespace athletics {
           seconds: number,
         ): IAutoMovieMotionHumanPosture => {
           const w: number = into(seconds);
+          const t: number = drive(seconds);
           // The spine's share of the trunk's tilt comes in with the pelvis's.
-          const flexed: (
-            bone: "spine" | "chest",
-          ) => readonly [number, number, number] = (
-            bone: "spine" | "chest",
-          ): readonly [number, number, number] => {
-            const was: readonly [number, number, number] = posture.joints[
-              bone
-            ] ?? [0, 0, 0];
-            const added: number =
-              (target.joints[bone]?.[0] ?? 0) - (entry.joints[bone]?.[0] ?? 0);
-            return [was[0] + added * w, was[1], was[2]];
-          };
           const pitched: IAutoMovieMotionHumanPosture = {
             ...posture,
-            pitch: posture.pitch + (target.pitch - entry.pitch) * w,
+            pitch: posture.pitch + pitchDelta * w - 0.25 * target.pitch * t * t,
             joints: {
               ...posture.joints,
-              spine: flexed("spine"),
-              chest: flexed("chest"),
+              spine: flexed(posture.joints, "spine", w - 0.2 * t * t),
+              chest: flexed(posture.joints, "chest", w - 0.2 * t * t),
             },
           };
-          const hips: IAutoMovieVector3 = Vector3.lerp(
-            standingHips,
-            target.hips,
-            w,
+          const hips: IAutoMovieVector3 = Vector3.add(
+            hipsAt(w),
+            Vector3.scale(push, t * t),
           );
           return {
             ...pitched,
@@ -257,32 +307,98 @@ export namespace athletics {
         rotation: context.entry.feet[side].rotation,
       };
       const block: IAutoMovieMotionHumanFoot.IPlacement = target.feet[side];
+      const trajectory: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> =
+        AutoMovieMotionHumanLeg.prepareArc(
+          stance,
+          block,
+          0.05 * body.measure.stature,
+        );
+      const recovery:
+        | ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>
+        | undefined =
+        p.drive === undefined || side === front
+          ? undefined
+          : AutoMovieMotionHumanLeg.prepareArc(
+              block,
+              {
+                ankle: Vector3.add(block.ankle, {
+                  ...Vector3.scale(ahead, 0.24 * body.measure.stature),
+                  y: 0.11 * body.measure.stature,
+                }),
+                rotation: stance.rotation,
+              },
+              0.04 * body.measure.stature,
+            );
+      const half: number = ready / 2;
+      const a: number = from === "start" ? 0 : half;
+      const b: number = to === "half" ? half : ready;
       const share: (seconds: number) => number = (seconds: number): number => {
-        const half: number = clock.at("ready") / 2;
-        const a: number = from === "start" ? 0 : half;
-        const b: number = to === "half" ? half : clock.at("ready");
         return Math.min(1, Math.max(0, (seconds - a) / (b - a)));
       };
-      primitives.push(
-        AutoMovieMotionHumanLeg.place({
+      const leg: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanLeg.place(
+        {
           body,
           side,
           from: 0,
           to: clock.duration,
+          // The rear foot recovering off its block bears nothing, so it
+          // keeps within the passive dorsal range.
           placement: (
-            _: IAutoMovieMotionHumanPosture,
+            posture: IAutoMovieMotionHumanPosture,
             seconds: number,
           ): IAutoMovieMotionHumanFoot.IPlacement =>
-            AutoMovieMotionHumanLeg.arc(
-              stance,
-              block,
-              0.05 * body.measure.stature,
-              share(seconds),
-            ),
-          planted: (seconds: number): boolean =>
-            share(seconds) <= 0 || share(seconds) >= 1,
-        }),
+            recovery !== undefined && seconds > rearOff
+              ? AutoMovieMotionHumanFootRelax.of(
+                  body,
+                  posture,
+                  side,
+                  recovery((seconds - rearOff) / (end - rearOff)),
+                  0,
+                  false,
+                )
+              : trajectory(share(seconds)),
+          planted: (seconds: number): boolean => {
+            if (recovery !== undefined && seconds > rearOff) return false;
+            const at: number = share(seconds);
+            return at <= 0 || at >= 1;
+          },
+        },
       );
+      const toes: AutoMovieHumanoidBone = `${side}Toes`;
+      const articulated: ReturnType<typeof blendHumanJoint.between> =
+        blendHumanJoint.between(
+          body,
+          toes,
+          entry.joints[toes] ?? [0, 0, 0],
+          target.joints[toes] ?? [0, 0, 0],
+        );
+      primitives.push({
+        ...leg,
+        reads: ["root", `${side}Leg`],
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanPosture => {
+          // The block fit placed both the rigid foot and the toe hinge.
+          // Preserve that hinge as the foot lands and through its hold.
+          const moved: IAutoMovieMotionHumanPosture = leg.write(
+            posture,
+            seconds,
+          );
+          return {
+            ...moved,
+            joints: {
+              ...moved.joints,
+              [toes]: articulated(
+                into(seconds) *
+                  (recovery === undefined
+                    ? 1
+                    : 1 - Math.max(0, 2 * drive(seconds) - 1)),
+              ),
+            },
+          };
+        },
+      });
     }
     for (const side of ["left", "right"] as const)
       primitives.push(
@@ -292,40 +408,50 @@ export namespace athletics {
           from: 0,
           to: clock.duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-          weight: into,
+          weight: (seconds: number): number =>
+            into(seconds) * (1 - drive(seconds)),
           span,
+          // The clock is the law's own, lengthened by a slower tempo.
+          together: AutoMovieMotionHumanArm.together(
+            context.handover,
+            true,
+            context.tempo,
+          ),
           place: () => target.palms[side],
           bend: "front",
         }),
       );
+    // Feet on a placed block bear on that prop, so its frame carries them.
+    const footSupport: IAutoMovieMotionHumanContactWindow["support"] =
+      p.on === undefined ? { kind: "ground" } : { kind: "prop", subject: p.on };
     return composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(clock.duration, entry, [
         {
           part: "leftFoot",
           kind: "plant",
           from: clock.at("ready") / clock.duration,
-          to: 1,
-          support: { kind: "ground" },
+          to: p.drive !== undefined && rear === "left" ? rearOff / end : 1,
+          support: footSupport,
         },
         {
           part: "rightFoot",
           kind: "plant",
           from: clock.at("ready") / clock.duration,
-          to: 1,
-          support: { kind: "ground" },
+          to: p.drive !== undefined && rear === "right" ? rearOff / end : 1,
+          support: footSupport,
         },
         {
           part: "leftHand",
           kind: "plant",
           from: clock.at("ready") / clock.duration,
-          to: 1,
+          to: p.drive === undefined ? 1 : gun / end,
           support: { kind: "ground" },
         },
         {
           part: "rightHand",
           kind: "plant",
           from: clock.at("ready") / clock.duration,
-          to: 1,
+          to: p.drive === undefined ? 1 : gun / end,
           support: { kind: "ground" },
         },
       ]),

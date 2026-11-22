@@ -232,6 +232,26 @@
     "kickBall": {},
     "kiss": {},
     "knee": {},
+    "closeStrike": {},
+    "footStrike": {},
+    "chiSau": {
+      "properties": {
+        "cycles": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
     "kneel": {
       "properties": {
         "hold": {
@@ -442,6 +462,589 @@
     }
   },
   "rows": {
+    "frailWalk": {
+      "properties": {
+        "severity": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "x-unit": "1"
+          }
+        }
+      }
+    },
+    "aidWalk": {},
+    "assistedTransferBody": {},
+    "wardrobe": {},
+    "grapple": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "aquatic": {},
+    "baseballHit": {},
+    "bicycleEffort": {},
+    "bikeGuide": {},
+    "bikeTransfer": {},
+    "floatBeside": {},
+    "holdHandles": {},
+    "leadHorse": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "transition": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "lungeHorse": {
+      "properties": {
+        "change": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "transition": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "mounted": {},
+    "unseat": {},
+    "polo": {},
+    "board": {},
+    "clasp": {},
+    "drape": {},
+    "trick": {},
+    "roman": {},
+    "lasso": {},
+    "sabre": {},
+    "lanceCouch": {},
+    "board": {},
+    "clasp": {},
+    "drape": {},
+    "boardRide": {},
+    "supportStep": {},
+    "swingPump": {},
+    "seesawRide": {},
+    "roundaboutPush": {},
+    "swingLeap": {},
+    "mediumWalk": {},
+    "bowlingDelivery": {},
+    "bowlingSlide": {
+      "properties": {
+        "distance": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        },
+        "from": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "to": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "cricketBowl": {},
+    "cricketDrive": {},
+    "cueStroke": {},
+    "curlDelivery": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "speed": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m/s"
+          }
+        },
+        "drop": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        },
+        "trail": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        },
+        "heel": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 90,
+            "x-unit": "deg"
+          }
+        }
+      }
+    },
+    "golfChip": {},
+    "golfDrive": {},
+    "golfPutt": {},
+    "gridironPass": {},
+    "gridironSnap": {},
+    "rugbyPass": {},
+    "sittingVolley": {},
+    "skate": {},
+    "skateboardPhrase": {},
+    "snowGlide": {},
+    "softballWindmill": {},
+    "stageBladeFootwork": {},
+    "stageProp": {},
+    "stickBall": {},
+    "surfboardPhrase": {},
+    "tennisForehandReturn": {},
+    "tableTennisForehand": {},
+    "squashDrive": {},
+    "padelForehand": {},
+    "badmintonClear": {},
+    "fieldHockeyHit": {},
+    "volleyballServe": {},
+    "volleyballSet": {},
+    "volleyballSpike": {},
+    "volleyballDig": {},
+    "bowViolin": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "default": 1,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "button": {},
+    "coverFace": {
+      "properties": {
+        "seconds": {
+          "alternatives": [
+            {
+              "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
+              "occurrence": 0,
+              "tree": {
+                "numeric": {
+                  "type": "number",
+                  "minimum": 0,
+                  "x-unit": "s"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "environmentalRecovery": {
+      "alternatives": [
+        {
+          "shape": "{\"type\":\"object\",\"required\":[\"coefficient\",\"foot\",\"kind\"],\"properties\":[\"coefficient\",\"foot\",\"kind\",\"outcome\",\"rail\",\"support\"],\"discriminants\":[[\"kind\",\"slip\"]]}",
+          "occurrence": 0,
+          "tree": {
+            "properties": {
+              "coefficient": {
+                "numeric": {
+                  "type": "number",
+                  "minimum": 0,
+                  "x-unit": ""
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "moveInCover": {},
+    "wallRun": {},
+    "rope": {},
+    "stuntFall": {},
+    "climbTree": {},
+    "skydive": {},
+    "edgeRescue": {},
+    "crossObstacle": {
+      "alternatives": [
+        {
+          "shape": "{\"type\":\"object\",\"required\":[\"kind\",\"obstacle\"],\"properties\":[\"apex\",\"kind\",\"obstacle\"],\"discriminants\":[[\"kind\",\"jump\"]]}",
+          "occurrence": 0,
+          "tree": {
+            "properties": {
+              "apex": {
+                "numeric": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "x-unit": "m"
+                }
+              }
+            }
+          }
+        },
+        {
+          "shape": "{\"type\":\"object\",\"required\":[\"from\",\"kind\",\"to\"],\"properties\":[\"apex\",\"from\",\"kind\",\"to\"],\"discriminants\":[[\"kind\",\"gap\"]]}",
+          "occurrence": 0,
+          "tree": {
+            "properties": {
+              "apex": {
+                "numeric": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "x-unit": "m"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "crossAnkleOverKnee": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "default": 1,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "curtsy": {
+      "properties": {
+        "depth": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 0.08,
+            "default": 0.045,
+            "x-unit": "hip heights"
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "cymbalStrike": {},
+    "getOut": {},
+    "guitarChord": {},
+    "guitarNote": {},
+    "handrimStroke": {
+      "properties": {
+        "approach": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "push": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "recovery": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "headTilt": {
+      "properties": {
+        "degrees": {
+          "numeric": {
+            "type": "number",
+            "minimum": -20,
+            "maximum": 20,
+            "x-unit": "degrees"
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0.6,
+            "default": 0.9,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "pianoPedal": {},
+    "pianoPerformance": {},
+    "pianoScore": {},
+    "pickUpMoving": {},
+    "playWindInstrument": {
+      "properties": {
+        "delay": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0,
+            "x-unit": "s"
+          }
+        },
+        "prepare": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "default": 1,
+            "x-unit": "s"
+          }
+        },
+        "retract": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "pour": {},
+    "putDownAperture": {},
+    "takeFromCarrier": {},
+    "drawFromCarrier": {},
+    "collapse": {},
+    "thrown": {},
+    "vehicleDive": {},
+    "vehicleHit": {},
+    "wireFlight": {},
+    "shamble": {},
+    "lurch": {},
+    "stalk": {},
+    "crabWalk": {},
+    "lungeGrab": {},
+    "disarm": {},
+    "disarmed": {},
+    "hostageHold": {},
+    "heldHostage": {},
+    "stopDropRoll": {},
+    "wireArrest": {},
+    "ropeSkip": {
+      "properties": {
+        "flightSeconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0.12,
+            "maximum": 0.36,
+            "default": 0.26,
+            "x-unit": "s"
+          }
+        },
+        "periodSeconds": {
+          "numeric": {
+            "type": "number",
+            "default": 0.5882352941176471,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "seatedHeelBounce": {
+      "properties": {
+        "beats": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "cadence": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "beats/s"
+          }
+        }
+      }
+    },
+    "shiftStandingWeight": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "hold": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "returnSeconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "sideDrumStrike": {},
+    "spacecraftGlide": {},
+    "stageCatch": {},
+    "stageDeflect": {},
+    "swimImmersed": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "speed": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0,
+            "x-unit": "m/s"
+          }
+        },
+        "water": {
+          "properties": {
+            "density": {
+              "numeric": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "x-unit": "kg/m³"
+              }
+            }
+          }
+        }
+      }
+    },
+    "swipeTouchscreen": {
+      "properties": {
+        "from": {
+          "numeric": {
+            "type": "number",
+            "minimum": -0.5,
+            "maximum": 0.5,
+            "x-unit": "width"
+          }
+        },
+        "to": {
+          "numeric": {
+            "type": "number",
+            "minimum": -0.5,
+            "maximum": 0.5,
+            "x-unit": "width"
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "default": 0.2851,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "tipHat": {},
+    "tuckHair": {},
+    "wipeTears": {
+      "properties": {
+        "seconds": {
+          "alternatives": [
+            {
+              "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
+              "occurrence": 0,
+              "tree": {
+                "numeric": {
+                  "type": "number",
+                  "minimum": 0,
+                  "x-unit": "s"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "write": {},
+    "workHeld": {},
+    "conduct": {},
+    "throwPottery": {},
+    "extinguish": {},
+    "hoseLine": {},
+    "beatFlames": {},
+    "zip": {},
     "advance": {},
     "aim": {
       "properties": {
@@ -521,6 +1124,24 @@
         }
       }
     },
+    "arabesque": {
+      "properties": {
+        "reps": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "hold": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
     "armAtSide": {},
     "armCircles": {
       "properties": {
@@ -560,6 +1181,24 @@
             "type": "integer",
             "minimum": 1,
             "x-unit": ""
+          }
+        }
+      }
+    },
+    "babyFreeze": {
+      "properties": {
+        "reps": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "hold": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
           }
         }
       }
@@ -630,6 +1269,54 @@
       }
     },
     "backwardRoll": {},
+    "ballet": {
+      "properties": {
+        "position": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "x-unit": ""
+          }
+        },
+        "turnout": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "degrees"
+          }
+        },
+        "turns": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2,
+            "x-unit": ""
+          }
+        },
+        "split": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "degrees"
+          }
+        },
+        "bpm": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "beats/min"
+          }
+        },
+        "beats": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        }
+      }
+    },
     "barSwing": {
       "properties": {
         "reps": {
@@ -1831,6 +2518,7 @@
         }
       }
     },
+    "facePinchNose": {},
     "faceRead": {
       "properties": {
         "seconds": {
@@ -2015,7 +2703,106 @@
     },
     "foreheadKiss": {},
     "forwardRoll": {},
-    "fosburyFlop": {},
+    "fosburyFlop": {
+      "properties": {
+        "apexReserve": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0,
+            "x-unit": "m"
+          }
+        }
+      }
+    },
+    "fieldThrow": {
+      "properties": {
+        "distance": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        }
+      }
+    },
+    "hurdleClear": {},
+    "juggling": {
+      "properties": {
+        "height": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        },
+        "throws": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        }
+      }
+    },
+    "longJump": {
+      "properties": {
+        "distance": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        }
+      }
+    },
+    "stilts": {
+      "properties": {
+        "steps": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        }
+      }
+    },
+    "trampoline": {
+      "properties": {
+        "bounces": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "apex": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        }
+      }
+    },
+    "lineWalk": {
+      "properties": {
+        "steps": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "sag": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "m"
+          }
+        }
+      }
+    },
     "fret": {},
     "frontCrawl": {
       "properties": {
@@ -2588,7 +3375,15 @@
         }
       }
     },
+    "burpInfant": {},
+    "chop": {},
+    "cradleInfant": {},
+    "dig": {},
+    "feedInfant": {},
     "hammer": {},
+    "rake": {},
+    "sideChop": {},
+    "sledge": {},
     "hammerStrokes": {},
     "hammerTurn": {
       "properties": {
@@ -3565,6 +4360,19 @@
         }
       }
     },
+    "raceWalk": {
+      "properties": {
+        "elbows": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 30,
+            "default": 0,
+            "x-unit": "degrees"
+          }
+        }
+      }
+    },
     "raiseHandHigh": {},
     "reachHolster": {},
     "readingWalk": {
@@ -4133,6 +4941,38 @@
         }
       }
     },
+    "socialDance": {
+      "properties": {
+        "bpm": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "beats/min"
+          }
+        },
+        "repeats": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "members": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 3,
+            "x-unit": ""
+          }
+        },
+        "vary": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
     "southpaw": {},
     "spike": {
       "properties": {
@@ -4306,6 +5146,49 @@
     },
     "stirStrokes": {},
     "stopHand": {},
+    "streetGroove": {
+      "properties": {
+        "bpm": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "beats/min"
+          }
+        },
+        "beats": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "vary": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "streetRock": {
+      "properties": {
+        "reps": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "hold": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
     "strides": {},
     "strokeDown": {},
     "stroll": {
@@ -4480,6 +5363,24 @@
     },
     "takeAKnee": {},
     "takeCover": {},
+    "tap": {
+      "properties": {
+        "bpm": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "beats/min"
+          }
+        },
+        "repeats": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        }
+      }
+    },
     "tapOn": {},
     "teethBrushing": {},
     "thighTrap": {
@@ -4949,6 +5850,197 @@
       }
     },
     "wipeAcross": {},
-    "wipeMouthAcross": {}
+    "wipeMouthAcross": {},
+    "leadHook": {},
+    "rearHook": {},
+    "leadUppercut": {},
+    "rearUppercut": {},
+    "backfist": {},
+    "hammerfist": {},
+    "palmHeel": {},
+    "horizontalElbow": {},
+    "risingElbow": {},
+    "descendingElbow": {},
+    "spinningElbow": {},
+    "spinningBackfist": {},
+    "headbutt": {},
+    "stagePalmStrike": {},
+    "stageHeadbutt": {},
+    "sideKick": {},
+    "backKick": {},
+    "hookKick": {},
+    "crescentKick": {},
+    "axeKick": {},
+    "stomp": {},
+    "legSweep": {},
+    "spinningHookKick": {},
+    "jumpingSideKick": {},
+    "chainPunch": {},
+    "rearChainPunch": {},
+    "meiaLuaDeFrente": {},
+    "armada": {},
+    "esquiva": {},
+    "au": {},
+    "switchKick": {},
+    "pushKick": {},
+    "teep": {},
+    "leadKnee": {},
+    "rearKnee": {},
+    "cover": {},
+    "handParry": {},
+    "elbowBlock": {},
+    "highBlock": {},
+    "checkKick": {},
+    "slip": {},
+    "rollUnder": {},
+    "swayBack": {},
+    "braceImpact": {},
+    "bracePush": {},
+    "throwJavelin": {},
+    "throwSpear": {},
+    "throwKnife": {},
+    "throwGrenade": {},
+    "hurlStone": {},
+    "hurlBottle": {},
+    "sling": {},
+    "castAtlatl": {},
+    "coverVent": {},
+    "spongeBore": {},
+    "passCharge": {},
+    "loadCharge": {},
+    "ramCharge": {},
+    "prickVent": {},
+    "runUp": {},
+    "layGun": {},
+    "hookPrimer": {},
+    "pullLanyard": {},
+    "takeFirelock": {},
+    "orderArms": {},
+    "handleCartridge": {},
+    "biteCartridge": {},
+    "prime": {},
+    "shutPan": {},
+    "charge": {},
+    "drawRammer": {},
+    "ramDown": {},
+    "returnRammer": {},
+    "seize": {},
+    "makeReady": {},
+    "fireMusket": {},
+    "liftBolt": {},
+    "drawBolt": {},
+    "closeBolt": {},
+    "lowerBolt": {},
+    "seatMagazine": {},
+    "pressRelease": {},
+    "dropMagazine": {},
+    "cockRevolver": {},
+    "fanHammer": {},
+    "openGate": {},
+    "loadChamber": {},
+    "closeGate": {},
+    "takeArrow": {},
+    "nockArrow": {},
+    "drawBow": {},
+    "loose": {},
+    "spanCrossbow": {},
+    "shootCrossbow": {},
+    "shoulderArms": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "castAbout": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "recover": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "presentMusket": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "presentBow": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "presentCrossbow": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "standClear": {
+      "properties": {
+        "stride": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0.6,
+            "maximum": 1.3,
+            "default": 1,
+            "x-unit": ""
+          }
+        },
+        "armSwing": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2,
+            "default": 1,
+            "x-unit": ""
+          }
+        },
+        "elbows": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 30,
+            "default": 0,
+            "x-unit": "degrees"
+          }
+        }
+      }
+    }
   }
 }

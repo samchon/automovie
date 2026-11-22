@@ -10,7 +10,10 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
+import { HumanBendRead } from "./HumanBendRead";
 
 /**
  * An action composed of part primitives over a base.
@@ -21,7 +24,9 @@ import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionH
  * that second writes its channels onto it, in {@link AutoMovieMotionHumanChannel.ORDER}, so
  * an arm reads the trunk the action already placed. The plan's contact
  * windows and weapons are the base's followed by the primitives', and its
- * `channels` are the channels some primitive claims, in that order. Each
+ * `channels` are the channels some primitive claims, in that order; where
+ * none claims the root, the trunk or a leg, the base's legs-still or still
+ * window is the plan's `legsStill`. Each
  * primitive is also given the posture so far at any second of the action
  * (`IAutoMovieMotionHumanPrimitive.write`'s `before`): the base and the
  * primitives before it, so a movement planned once over its span (an arm's
@@ -29,18 +34,25 @@ import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionH
  * is a constant of the action. That plan is made here, when the action is
  * composed (`IAutoMovieMotionHumanPrimitive.prepare`, in writing order), so
  * no posture read plans and a plan that cannot be made refuses the action.
+ * Completed posture prefixes are shared at each exact clamped second within
+ * one prefix read during preparation or one posture evaluation. A reader
+ * retained by a primitive uses the scope active when it is called, never
+ * the scope in which it was given to that primitive.
+ * A posture or prefix reader may demand only named channels. The composer
+ * follows active writers' declared input dependencies backward and leaves
+ * unrelated writers unevaluated; omitted dependencies require all channels.
  *
  * @param props The base, the clock and the primitives.
  * @returns The plan.
  * @throws {Error} When the base and the clock differ in duration, a primitive claims no channel, a primitive's window is reversed or leaves the clock, or two primitives claim one channel over overlapping windows; and whatever a primitive's plan refuses with (a planned arm's `HumanRefusal`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the base and the clock give, the writing order, where contacts and weapons come from, which channels the plan reports and every refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the base's with each active primitive's channels merged in, in the order of the kinematic tree, so a part reads the parts it hangs from as already placed; the posture so far before a primitive is the same composition stopped at it, at any second, so it is a pure function of time.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Sort once, validate once, collect contacts and weapons once, then one loop per posture.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Two primitives on one channel at one time throw instead of the later one winning; windows that only touch at an instant are allowed, and the sort is stable by the given order.
- * @evidence contracts/development/implementation.md#efficient-algorithms Validation is quadratic in the primitives once per plan, and an action has tens of them; each posture is linear in the primitives, and the posture so far is composed only when a primitive reads it (a planned movement, once per action).
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanChannel.merge` and `ORDER` and the clock's events; the sorted list is computed once and shared by every posture.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base, the clock and the sorted primitives, and holds no per-second state.
+ * @evidence contracts/development/implementation.md#principled-implementation Backward data-flow starts with demanded output channels, replaces each active contributor's claims by its declared reads, then evaluates those writers in their original order. A missing read declaration means the whole posture, preserving arbitrary callback dependencies. A time-local declaration applies at the same clamped local second passed to its writer.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Sort and validate once, encode fixed channel masks once, collect contacts/weapons once and give each prefix one stable reader. One recursive dependency evaluator owns both complete and restricted posture reads.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overlapping channel windows still refuse and endpoint allowances and stable order are unchanged. Only explicitly demanded channels may be read from a restricted result; declared-independent writes remain pure. Every primitive still prepares once, even when a later partial read needs none of its output.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Sorting is O(P log P) and overlap admission O(P squared) once. Each actual prefix/demand/time key costs one lookup plus its not-yet-completed contributors and posture merges. There are nine channels, at most 512 masks per prefix and exact second; normal full-only reads visit at most P prefixes per second. Preparation queries release each separate refinement history. Runtime and peak-byte changes are unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed claims/dependencies reuse plan masks; exact time/prefix/demand keys share completed pure writes only inside one query/context. FK/ROM loans reach actual base reads and synchronous primitive writes. Prefix readers inherit omitted loans; a changed explicit loan starts a fresh map, while top-level preparation/posture reads remain independent.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains base/clock/primitives, masks/mergers and stable readers only. Each query owns up to 512*(P+1)*T posture references for its actual T seconds, without global history or arbitrary eviction. Every ordinary or changed-loan query finally restores enclosing map/FK/projector on success/throw; failed writes publish nothing and retained readers capture no completed map or loan.
  */
 export function composeAutoMovieMotionHumanAction(
   props: IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction.IProps,
@@ -48,7 +60,9 @@ export function composeAutoMovieMotionHumanAction(
   const duration: number = props.clock.duration;
   if (Math.abs(props.base.duration - duration) > 1e-6)
     throw new Error("A composed action's base lasts as long as its clock");
-  const rank = (p: IAutoMovieMotionHumanPrimitive): number =>
+  const rank: (p: IAutoMovieMotionHumanPrimitive) => number = (
+    p: IAutoMovieMotionHumanPrimitive,
+  ): number =>
     Math.min(
       ...p.channels.map((c: AutoMovieMotionHumanChannel): number =>
         HumanChannels.ORDER.indexOf(c),
@@ -59,18 +73,17 @@ export function composeAutoMovieMotionHumanAction(
       (
         p: IAutoMovieMotionHumanPrimitive,
         i: number,
-      ): [IAutoMovieMotionHumanPrimitive, number] => [p, i],
+      ): [IAutoMovieMotionHumanPrimitive, number, number] => [p, i, rank(p)],
     )
     .sort(
       (
-        a: [IAutoMovieMotionHumanPrimitive, number],
-        b: [IAutoMovieMotionHumanPrimitive, number],
-      ): number =>
-        rank(a[0]) - rank(b[0]) || a[0].from - b[0].from || a[1] - b[1],
+        a: [IAutoMovieMotionHumanPrimitive, number, number],
+        b: [IAutoMovieMotionHumanPrimitive, number, number],
+      ): number => a[2] - b[2] || a[0].from - b[0].from || a[1] - b[1],
     )
     .map(
       (
-        pair: [IAutoMovieMotionHumanPrimitive, number],
+        pair: [IAutoMovieMotionHumanPrimitive, number, number],
       ): IAutoMovieMotionHumanPrimitive => pair[0],
     );
   for (const p of primitives) {
@@ -117,15 +130,116 @@ export function composeAutoMovieMotionHumanAction(
     ),
   ];
   const base: IAutoMovieMotionHumanActionPlan = props.base;
-  // What is planned once over a span is planned now, in the order the
-  // primitives write, each on the posture so far before it.
-  primitives.forEach((p: IAutoMovieMotionHumanPrimitive, i: number): void =>
-    p.prepare?.(so(i)),
+
+  /** Completed demanded prefixes at each exact second of one evaluation: the first second read and its prefixes, and every other second's prefixes in `later`, made when a second one is read. */
+  interface Evaluation {
+    /** Contextual numeric loan, owned by one explicit native raw evaluation. */
+    bend?: AutoMovieMotionHumanBendRepeat.IRead;
+
+    /** The first clamped second this evaluation read; absent until one is. */
+    seconds: number | undefined;
+
+    /** That second's completed prefixes by prefix and demand. */
+    first: Map<number, IAutoMovieMotionHumanPosture> | undefined;
+
+    /** Every other second's completed prefixes, the map `Map`'s own key equality finds a second in. */
+    later: Map<number, Map<number, IAutoMovieMotionHumanPosture>> | undefined;
+  }
+
+  /** Fixed-claim posture merge retained by each primitive's plan. */
+  type Merger = ReturnType<typeof HumanChannels.prepareMerge>;
+
+  /** Exact FK metadata borrowed only by the currently active synchronous query. */
+  type Resolution = Parameters<typeof prepareHumanPoseResolution>[0];
+
+  /** Genuine direct ROM metadata borrowed with the same synchronous query. */
+  type Projection = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3];
+
+  // Nine owned channels fit in one integer. A write may replace a channel
+  // without reading it; only its declared prerequisites propagate backward.
+  const width: number = 1 << HumanChannels.ORDER.length;
+  const all: number = width - 1;
+  const masks: number[] = primitives.map(
+    (p: IAutoMovieMotionHumanPrimitive): number => mask(p.channels),
   );
-  return {
+  const mergers: Merger[] = primitives.map(
+    (p: IAutoMovieMotionHumanPrimitive): Merger =>
+      HumanChannels.prepareMerge(p.channels),
+  );
+  const dependencies: (number | ((seconds: number) => number))[] =
+    primitives.map(
+      (
+        p: IAutoMovieMotionHumanPrimitive,
+      ): number | ((seconds: number) => number) => {
+        const reads: IAutoMovieMotionHumanPrimitive["reads"] = p.reads;
+        return reads === undefined
+          ? all
+          : typeof reads === "function"
+            ? (seconds: number): number => mask(reads(seconds))
+            : mask(reads);
+      },
+    );
+
+  // A retained reader selects its scope when called: a follower may keep
+  // it after the evaluation in which it first received it has ended.
+  let scope: Evaluation | undefined;
+  let resolution: Resolution = undefined;
+  let projection: Projection = undefined;
+  const readers: IAutoMovieMotionHumanPrimitive.Reader[] = Array.from(
+    { length: primitives.length },
+    (_: unknown, index: number): IAutoMovieMotionHumanPrimitive.Reader =>
+      (
+        seconds: number,
+        channels?: readonly AutoMovieMotionHumanChannel[],
+        source?: Resolution,
+        projector?: Projection,
+      ): IAutoMovieMotionHumanPosture =>
+        scope === undefined ||
+        (source !== undefined && source !== resolution) ||
+        (projector !== undefined && projector !== projection)
+          ? evaluate(
+              (current: Evaluation): IAutoMovieMotionHumanPosture =>
+                so(
+                  index,
+                  seconds,
+                  current,
+                  channels === undefined ? all : mask(channels),
+                ),
+              source ?? resolution,
+              projector ?? projection,
+            )
+          : so(
+              index,
+              seconds,
+              scope,
+              channels === undefined ? all : mask(channels),
+            ),
+  );
+
+  // What is planned once over a span is planned now, in the order the
+  // primitives write, each on the posture so far before it. Each preparation
+  // reader query owns its scope, so a long refinement does not retain
+  // every intermediate prefix after the planner has consumed that query.
+  primitives.forEach((p: IAutoMovieMotionHumanPrimitive, i: number): void =>
+    p.prepare?.(readers[i]!),
+  );
+
+  // Primitives that move only the head, the arms and the hands leave the
+  // root, the trunk and the legs as the base keeps them: still wherever the
+  // base keeps its legs still or holds still altogether.
+  const legsStill: readonly [number, number] | undefined = primitives.some(
+    (p: IAutoMovieMotionHumanPrimitive): boolean =>
+      p.channels.some((c: AutoMovieMotionHumanChannel): boolean =>
+        LEGGED.includes(c),
+      ),
+  )
+    ? undefined
+    : (base.legsStill ?? base.still);
+  const plan: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: props.clock.events(),
     contacts,
+    ...(legsStill === undefined ? {} : { legsStill }),
     channels: HumanChannels.ORDER.filter(
       (c: AutoMovieMotionHumanChannel): boolean =>
         primitives.some((p: IAutoMovieMotionHumanPrimitive): boolean =>
@@ -136,7 +250,9 @@ export function composeAutoMovieMotionHumanAction(
       ? {}
       : { contact: props.clock.at(props.contact) }),
     ...(base.holds === undefined ? {} : { holds: base.holds }),
-    ...(base.settle === undefined ? {} : { settle: () => base.settle!() }),
+    ...(base.settle === undefined
+      ? {}
+      : { settle: (): void => base.settle!() }),
     ...(weapons.length === 0 ? {} : { weapons }),
     ...(base.stop === undefined
       ? {}
@@ -144,28 +260,189 @@ export function composeAutoMovieMotionHumanAction(
           stop: (events: readonly IAutoMovieMotionWeaponContact[]): void =>
             base.stop!(events),
         }),
-    posture: (seconds: number): IAutoMovieMotionHumanPosture =>
-      so(primitives.length)(seconds),
+    posture,
   };
-  // The posture so far before the primitive at `index`, at any second: the
-  // base and every primitive before it that is active then, each given its
-  // own posture so far in turn.
+  if (
+    primitives.some((primitive: IAutoMovieMotionHumanPrimitive): boolean =>
+      HumanBendRead.writes.has(primitive),
+    )
+  )
+    HumanBendRead.postures.set(
+      posture,
+      (
+        bend: AutoMovieMotionHumanBendRepeat.IRead,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture =>
+        evaluate(
+          (current: Evaluation): IAutoMovieMotionHumanPosture =>
+            so(primitives.length, seconds, current, all),
+          undefined,
+          undefined,
+          bend,
+        ),
+    );
+  return plan;
+
+  function posture(
+    seconds: number,
+    channels?: readonly AutoMovieMotionHumanChannel[],
+    source?: Resolution,
+    projector?: Projection,
+  ): IAutoMovieMotionHumanPosture {
+    return evaluate(
+      (current: Evaluation): IAutoMovieMotionHumanPosture =>
+        so(
+          primitives.length,
+          seconds,
+          current,
+          channels === undefined ? all : mask(channels),
+        ),
+      source,
+      projector,
+    );
+  }
+
+  /** Run with a fresh scope, restoring an enclosing evaluation even if this one throws. */
+  function evaluate<T>(
+    run: (current: Evaluation) => T,
+    source?: Resolution,
+    projector?: Projection,
+    bend?: AutoMovieMotionHumanBendRepeat.IRead,
+  ): T {
+    const previous: Evaluation | undefined = scope;
+    const previousResolution: Resolution = resolution;
+    const previousProjection: Projection = projection;
+    const current: Evaluation = {
+      seconds: undefined,
+      first: undefined,
+      later: undefined,
+      ...(bend === undefined ? {} : { bend }),
+    };
+    scope = current;
+    resolution = source;
+    projection = projector;
+    try {
+      return run(current);
+    } finally {
+      scope = previous;
+      resolution = previousResolution;
+      projection = previousProjection;
+    }
+  }
+
+  /** Encode the owned partition once for each fixed primitive dependency. */
+  function mask(channels: readonly AutoMovieMotionHumanChannel[]): number {
+    let result: number = 0;
+    for (const channel of channels)
+      result |= 1 << HumanChannels.ORDER.indexOf(channel);
+    return result;
+  }
+
+  /** Resolve only contributors to a demand; a failed write publishes no result. */
   function so(
     index: number,
-  ): (seconds: number) => IAutoMovieMotionHumanPosture {
-    return (seconds: number): IAutoMovieMotionHumanPosture => {
-      const t: number = Math.min(duration, Math.max(0, seconds));
-      let posture: IAutoMovieMotionHumanPosture = base.posture(t);
-      for (let i: number = 0; i < index; ++i) {
-        const p: IAutoMovieMotionHumanPrimitive = primitives[i]!;
-        if (t >= p.from - 1e-9 && t <= p.to + 1e-9)
-          posture = HumanChannels.merge(
-            posture,
-            p.write(posture, Math.min(p.to, Math.max(p.from, t)), so(i)),
-            p.channels,
-          );
+    seconds: number,
+    current: Evaluation,
+    demand: number,
+  ): IAutoMovieMotionHumanPosture {
+    const t: number = Math.min(duration, Math.max(0, seconds));
+
+    // One evaluation reads one second, apart from a primitive that reads its
+    // prefix at others: the first second's prefixes stand in the scope itself.
+    let postures: Map<number, IAutoMovieMotionHumanPosture> | undefined;
+    if (current.first === undefined) {
+      postures = new Map();
+      current.seconds = t;
+      current.first = postures;
+    } else if (
+      current.seconds === t ||
+      (Number.isNaN(current.seconds) && Number.isNaN(t))
+    )
+      // The same second as a `Map` key is: equal, or both not a number.
+      postures = current.first;
+    else {
+      const later: Map<
+        number,
+        Map<number, IAutoMovieMotionHumanPosture>
+      > = (current.later ??= new Map());
+      postures = later.get(t);
+      if (postures === undefined) {
+        postures = new Map();
+        later.set(t, postures);
       }
-      return posture;
-    };
+    }
+    const key: number = index * width + demand;
+    const known: IAutoMovieMotionHumanPosture | undefined =
+      postures.get(key) ?? postures.get(index * width + all);
+    if (known !== undefined) return known;
+    if (index === 0) {
+      const initial: IAutoMovieMotionHumanPosture = base.posture(
+        t,
+        demand === all
+          ? undefined
+          : HumanChannels.ORDER.filter(
+              (_: AutoMovieMotionHumanChannel, index: number): boolean =>
+                (demand & (1 << index)) !== 0,
+            ),
+        resolution,
+        projection,
+      );
+      postures.set(key, initial);
+      return initial;
+    }
+
+    const previous: number = index - 1;
+    const p: IAutoMovieMotionHumanPrimitive = primitives[previous]!;
+    const contributes: boolean =
+      (masks[previous]! & demand) !== 0 &&
+      t >= p.from - 1e-9 &&
+      t <= p.to + 1e-9;
+    const dependency: number | ((seconds: number) => number) =
+      dependencies[previous]!;
+    const needed: number = contributes
+      ? (demand & ~masks[previous]!) |
+        (typeof dependency === "function"
+          ? dependency(Math.min(p.to, Math.max(p.from, t)))
+          : dependency)
+      : demand;
+    let posture: IAutoMovieMotionHumanPosture = so(
+      previous,
+      t,
+      current,
+      needed,
+    );
+    if (contributes) {
+      const contextual: HumanBendRead.Write | undefined =
+        current.bend === undefined ? undefined : HumanBendRead.writer(p);
+      posture = mergers[previous]!(
+        posture,
+        contextual === undefined
+          ? p.write(
+              posture,
+              Math.min(p.to, Math.max(p.from, t)),
+              readers[previous]!,
+              resolution,
+              projection,
+            )
+          : contextual(
+              current.bend!,
+              posture,
+              Math.min(p.to, Math.max(p.from, t)),
+              readers[previous]!,
+              resolution,
+              projection,
+            ),
+      );
+    }
+    postures.set(key, posture);
+    return posture;
   }
 }
+
+/** The channels that move the root, the trunk or a leg, which a leg fit reads. */
+const LEGGED: readonly AutoMovieMotionHumanChannel[] = [
+  "root",
+  "trunk",
+  "leftLeg",
+  "rightLeg",
+];

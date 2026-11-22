@@ -19,10 +19,17 @@ export interface IChunkObject {
    */
   runtime: IAutoMovieCompiledFormation["chunks"][number];
 
-  /**
-   * Stores the metre-space chunk radius used with the model projection radius in frustum admission.
-   */
+  /** Group-local metre center of the current base arrangement. */
+  center: THREE.Vector3;
+
+  /** Conservative radius of the compiled rest placement bounds, in metres. */
+  restRadius: number;
+
+  /** Group-local radius of the base arrangement, before sparse offsets and model extent. */
   radius: number;
+
+  /** Greatest distance from center among the present sparse exceptions at the current time. */
+  exceptionRadius: number;
 
   /**
    * Retains exact compiled placements for the anonymous members represented by this chunk.

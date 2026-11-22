@@ -35,11 +35,13 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanForceResponse } from "../grappling/HumanForceResponse";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
+import { collapse } from "./collapse";
 import { knockdown } from "./knockdown";
 import { stagger } from "./stagger";
 import { staggerBounds } from "./staggerBounds";
@@ -64,7 +66,9 @@ import { staggerBounds } from "./staggerBounds";
  *   impulse, from the side the impulse comes from (Hof, Gazendam and Sinke
  *   2005; the step's landing from Maki and McIlroy 1997, as `stagger`
  *   cites).
- * - **fall**: `knockdown` from the side the impulse comes from.
+ * - **fall**: the way the impulse pushes in the body's frame: a push from
+ *   behind a forward `collapse`, one from a side a sideways `collapse` away
+ *   from it, and one from ahead the `knockdown`, from the side it comes from.
  *
  * An author's outcome the impulse cannot produce is refused with the
  * impulse range that would produce it, never clamped; with no impulse on
@@ -84,6 +88,9 @@ import { staggerBounds } from "./staggerBounds";
 export namespace perturb {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "perturb";
+
+  /** A perturbation's content is the body's physical answer to a force (a shove, a pull, a throw), so its balance is judged (`IAutoMovieMotionHumanActionLaw.physical`). */
+  export const physical: boolean = true;
 
   /** Cancel table: a perturbation flows into a guard or a knockdown, as a stagger does. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
@@ -108,9 +115,9 @@ export namespace perturb {
    * @evidence contracts/development/implementation.md#principled-implementation The impulse changes the centre's velocity by `J / m`; the engine's balance outcome reads it against the planted feet's base, its first capture step landing when the step `stagger` lays for this push lands (a push `stagger` cannot catch is a fall); the absorb is the critically damped linear inverted pendulum at the body's own frequency, and the step and the fall are the shipped laws at the impulse's speed and side.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the impulse, decide the outcome, then plan one of three motions.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An outcome the impulse cannot give is refused with the feasible range; no impulse is scaled to fit.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One mass model and one base of support per plan, and `stagger`'s plan laid once past the absorb, its landing read and the same plan returned for the step; the absorb is a closed form per evaluated second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `stagger`'s and `knockdown`'s plans for the step and the fall, and the engine's outcome.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its composed parts for as long as the performance does.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Uses the body's prepared mass model and fixed profile/both-foot socket ancestry after complete entry admission. The actual centre is measured before planted-foot state is read. One base serves both outcome decisions and one stagger plan serves step. Absorb stays closed form and prepares fixed authored foot hints/contacts once; every current native fit remains and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Canonical body metadata fixes mass/profile/both-foot socket demand without observing entry feet early. After the original pose admission and centre read, actual bearing sides select the base shared by both decisions. Absorb's authored foot placements fix only knee/contact geometry and both callbacks receive fresh goals. Step/fall retain their shipped owners without pose or fit-answer reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Absorb owns fixed body/entry-foot geometry and its two-foot authored producer until plan release, issuing fresh independent goals per read without an FK/ROM loan or queried-pose history. Other outcomes retain their delegated plans' resource ownership; this function adds no global model/answer cache.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPerturb.IParams>,
@@ -118,7 +125,7 @@ export namespace perturb {
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanEntryState = context.entry;
     const model: IAutoMovieResolveCenterOfMass.IModel =
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+      body.massModel;
     const length: number = resolveAutoMovieCenterOfMass.pendulum(
       body.measure.hipHeight,
     );
@@ -128,26 +135,37 @@ export namespace perturb {
     const impulses: IAutoMovieMotionHumanImpulse[] = (
       context.forces?.(-1 / w0, 0) ?? []
     ).filter(
-      (f: IAutoMovieMotionHumanForce): f is IAutoMovieMotionHumanImpulse =>
-        f.kind === "impulse",
+      (f: IAutoMovieMotionHumanForce): f is IAutoMovieMotionHumanImpulse => f.kind === "impulse",
     );
     const impulse: IAutoMovieVector3 = impulses.reduce(
-      (
-        sum: IAutoMovieVector3,
-        f: IAutoMovieMotionHumanImpulse,
-      ): IAutoMovieVector3 => Vector3.add(sum, f.impulse),
+      (sum: IAutoMovieVector3, f: IAutoMovieMotionHumanImpulse): IAutoMovieVector3 =>
+        Vector3.add(sum, f.impulse),
       { x: 0, y: 0, z: 0 },
     );
+    const requestedBones: Set<AutoMovieHumanoidBone> = new Set(HumanColliders.bones(body));
+
+    // Prepare both sides' fixed socket demand without observing planted
+    // state before the original pose admission and centre measurement.
+    for (const side of ["left", "right"] as const) {
+      const suffix: "Left" | "Right" = side === "left" ? "Left" : "Right";
+      for (const socket of ["heel", "ball", "toe"] as const)
+        requestedBones.add(body.surfaces.sockets[`${socket}${suffix}`].bone);
+    }
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       entry.pose,
+      undefined,
+      requestedBones,
     );
-    const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-      model,
-      bones,
-    );
+    const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(model, bones);
     const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
       (side: "left" | "right"): boolean => entry.feet[side].planted,
+    );
+    const bearing: readonly ("left" | "right")[] = planted.length === 0 ? ["left", "right"] : planted;
+    const support: IAutoMovieVector3[] = HumanFoot.base(
+      body,
+      bones,
+      bearing,
     );
     // The steps' times are `stagger`'s: each later one after the swing of a
     // recovery step in the push's direction from the heading, the first at
@@ -170,18 +188,14 @@ export namespace perturb {
             ? "backward"
             : "side"
       ];
-    const decide = (first: number): IAutoMovieResolveBalanceOutcome.IOutcome =>
+    const decide: (first: number) => IAutoMovieResolveBalanceOutcome.IOutcome = (first: number): IAutoMovieResolveBalanceOutcome.IOutcome =>
       resolveAutoMovieBalanceOutcome({
         centre,
         velocity: entry.velocity.linear,
         mass: model.mass,
         impulse,
         length,
-        support: HumanFoot.base(
-          body,
-          bones,
-          planted.length === 0 ? ["left", "right"] : planted,
-        ),
+        support,
         reach: body.measure.thigh + body.measure.shank,
         margin: body.measure.footLength / 2,
         step: swing,
@@ -225,9 +239,8 @@ export namespace perturb {
         : caught === null || landing === undefined
           ? { ...balanced, outcome: "fall" }
           : decide(landing.share * caught.duration);
-    const requested: NonNullable<
-      IAutoMovieMotionHumanPerturb.IParams["outcome"]
-    > = context.params.outcome ?? "auto";
+    const requested: NonNullable<IAutoMovieMotionHumanPerturb.IParams["outcome"]> =
+      context.params.outcome ?? "auto";
 
     // The two-body outcomes are the two-body response's (#3439), which
     // answers them before this law plans its own.
@@ -277,8 +290,25 @@ export namespace perturb {
         });
       return caught!;
     }
-    if (chosen === "fall")
+    // A fall goes the way the push goes in the body's frame: a push from
+    // behind pitches it forward, one from the side topples it to the other
+    // side, and one from ahead knocks it down backward as before.
+    if (chosen === "fall") {
+      const local: IAutoMovieVector3 = HumanFrame.local(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: entry.posture.yaw },
+        push,
+      );
+      if (local.z >= -Math.abs(local.x) && Math.hypot(local.x, local.z) > 0)
+        return collapse.plan({
+          ...context,
+          params: {
+            direction: local.z >= Math.abs(local.x) ? "forward" : "sideways",
+            side: local.x >= 0 ? "left" : "right",
+            from,
+          },
+        });
       return knockdown.plan({ ...context, params: { from } });
+    }
     return absorb(context, outcome, push);
   }
 
@@ -303,71 +333,84 @@ export namespace perturb {
     );
     const speed: number = Vector3.dot(outcome.velocity, push);
 
-    // Settled to within e^-4 (under 2 %) of the peak's own scale by 6 / ω0.
-    const duration: number = 6 / w0;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
-      { name: "peak", seconds: 1 / w0 },
-    ]);
+    // Settled to within e^-4 (under 2 %) of the peak: x(t) / x(1 / ω0) =
+    // τ e^(1 - τ) at τ = ω0 t, which falls to e^-4 where τ - ln τ = 5.
+    const duration: number = SETTLED / w0;
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+      duration,
+      [{ name: "peak", seconds: 1 / w0 }],
+    );
     const local: IAutoMovieVector3 = HumanFrame.local(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       push,
     );
     const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
-    const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
-        base: AutoMovieMotionHumanBase.still(duration, {
-          root: entry.root,
-          yaw: entry.yaw,
-          pitch: entry.pitch,
-          roll: entry.roll,
-          joints: entry.joints,
-          limbs: {},
-        }),
-        clock,
-        primitives: [
-          AutoMovieMotionHumanLean.sway({
-            body,
-            from: 0,
-            to: duration,
-            angles: (): IAutoMovieMotionHumanLean.IAngles => ({
-              pitch: 0,
-              roll: 0,
-            }),
-            shift: (seconds: number): IAutoMovieVector3 =>
-              Vector3.scale(local, speed * seconds * Math.exp(-w0 * seconds)),
-            legs: (): Pick<
-              IAutoMovieMotionHumanPosture["limbs"],
-              "leftLeg" | "rightLeg"
-            > => StrikingStance.legs(body, feet),
+    const legsAt: ReturnType<typeof StrikingStance.prepareLegs> = StrikingStance.prepareLegs(body, feet);
+    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
+      base: AutoMovieMotionHumanBase.still(duration, {
+        root: entry.root,
+        yaw: entry.yaw,
+        pitch: entry.pitch,
+        roll: entry.roll,
+        joints: entry.joints,
+        limbs: {},
+      }),
+      clock,
+      primitives: [
+        AutoMovieMotionHumanLean.sway({
+          body,
+          from: 0,
+          to: duration,
+          angles: (): IAutoMovieMotionHumanLean.IAngles => ({
+            pitch: 0,
+            roll: 0,
           }),
+          shift: (seconds: number): IAutoMovieVector3 =>
+            Vector3.scale(local, speed * seconds * Math.exp(-w0 * seconds)),
+          legs: legsAt,
+        }),
 
-          // The sway reads the legs for the hips' height only; the legs stand
-          // on the entry's feet through their own channels.
-          {
-            channels: ["leftLeg", "rightLeg"],
-            from: 0,
-            to: duration,
-            write: (
-              posture: IAutoMovieMotionHumanPosture,
-            ): IAutoMovieMotionHumanPosture => ({
-              ...posture,
-              limbs: { ...posture.limbs, ...StrikingStance.legs(body, feet) },
-            }),
-          },
-        ],
-      });
+        // The sway reads the legs for the hips' height only; the legs stand
+        // on the entry's feet through their own channels.
+        {
+          channels: ["leftLeg", "rightLeg"],
+          from: 0,
+          to: duration,
+          write: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => ({
+            ...posture,
+            limbs: { ...posture.limbs, ...legsAt() },
+          }),
+        },
+      ],
+    });
 
     // Both feet stay planted through the absorb.
-    const plant = (
-      part: "leftFoot" | "rightFoot",
-    ): IAutoMovieMotionHumanContactWindow => ({
+    const plant: (part: "leftFoot" | "rightFoot") => IAutoMovieMotionHumanContactWindow = (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
       part,
       kind: "plant",
       from: 0,
       to: 1,
       support: { kind: "ground" },
     });
-    return { ...composed, contacts: [plant("leftFoot"), plant("rightFoot")] };
+    return {
+      ...composed,
+      contacts: [plant("leftFoot"), plant("rightFoot")],
+      physicalWindow: speed === 0 ? null : { from: 0, to: duration },
+    };
   }
+
+  /**
+   * The absorb's settling time in pendulum time constants: the root of
+   * τ - ln τ = 5 past the peak at τ = 1, where the critically damped
+   * travel τ e^(1 - τ) of the peak has fallen to e^-4. Newton's method on
+   * the convex g(τ) = τ - ln τ - 5 from τ = 7, right of the root, decreases
+   * monotonically onto it; eight steps reach the double's precision.
+   */
+  const SETTLED: number = ((): number => {
+    let tau: number = 7;
+    for (let i: number = 0; i < 8; i++)
+      tau -= (tau - Math.log(tau) - 5) / (1 - 1 / tau);
+    return tau;
+  })();
 }

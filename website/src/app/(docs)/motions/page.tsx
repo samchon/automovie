@@ -1,119 +1,35 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { ReactElement } from "react";
 
-import { MotionNav } from "../../../components/motions/MotionNav";
-import { MotionReference } from "../../../motions/package/MotionReference";
-import type { IMotionReference } from "../../../motions/structures/IMotionReference";
+import { MotionCatalogue } from "../../../components/motions/MotionCatalogue";
+import { MotionIndex } from "../../../motions/package/MotionIndex";
 
 export const metadata: Metadata = {
   title: "Motions",
   description:
-    "The pieces scenes are composed from: the actions of @automovie/motions, the lexicon's named rows by family, and the grammar that joins them.",
+    "The actions of @automovie/motions by category and family, each with its still, the code that writes it, its API entry and the scenes that use it.",
 };
 
 /**
- * The motion reference's overview, written while the site is exported from
- * the installed `@automovie/motions`.
+ * The motion catalogue, written while the site is exported from the
+ * installed `@automovie/motions` and the baked stills.
  *
  * @returns The page.
  */
 export default function MotionsPage(): ReactElement {
-  const reference: IMotionReference = MotionReference.read();
-  const rows: number = reference.families.reduce(
-    (sum: number, f: IMotionReference.IFamily): number => sum + f.rows.length,
-    0,
-  );
+  const index: MotionIndex.IIndex = MotionIndex.index();
   return (
-    <main className="am-app" data-pagefind-body>
-      <header className="am-app-head">
+    <main className="am-app am-catalogue" data-pagefind-body>
+      <header className="am-catalogue-head">
         <h1>Motions</h1>
-        <p className="am-lede">
-          The pieces every scene is composed from. A scene chains them per
-          person; this reference lists each one with what it takes and the
-          scenes that use it.
+        <p>
+          Each motion is a typed call over the engine&apos;s primitives, and
+          each composes with the others: chained, laid over one another or timed
+          to another person. Point at a card to see it move; open it for the
+          code that writes it, the scenes that use it and a 3D take.
         </p>
       </header>
-      <div className="am-motion-layout">
-        <MotionNav
-          families={reference.families.map(
-            (f: IMotionReference.IFamily): { name: string; rows: number } => ({
-              name: f.name,
-              rows: f.rows.length,
-            }),
-          )}
-          actions={reference.actions.length}
-          current={null}
-        />
-        <div className="am-stack">
-          <p>
-            <Link href="/motions/actions/">
-              {reference.actions.length} actions
-            </Link>{" "}
-            make up the vocabulary
-            {reference.families.length === 0
-              ? ". The installed release has no lexicon of named rows yet."
-              : `, and the lexicon names ${rows} rows in ${reference.families.length} families that compose them.`}
-          </p>
-          {reference.families.length === 0 ? null : (
-            <ul className="am-family-grid">
-              {reference.families.map(
-                (family: IMotionReference.IFamily): ReactElement => (
-                  <li key={family.name} className="am-roadmap-item">
-                    <Link href={`/motions/${family.name}/`}>
-                      <strong>{family.name}</strong>
-                    </Link>
-                    <span className="am-muted am-small">
-                      {family.rows.length} rows:{" "}
-                      {family.rows
-                        .slice(0, 6)
-                        .map((r: IMotionReference.IRow): string => r.name)
-                        .join(", ")}
-                      {family.rows.length > 6 ? ", …" : ""}
-                    </span>
-                  </li>
-                ),
-              )}
-            </ul>
-          )}
-          {reference.grammar === null ? null : (
-            <>
-              <h2>The grammar</h2>
-              {(["axes", "operators"] as const).map(
-                (part: "axes" | "operators"): ReactElement => (
-                  <div key={part} className="am-table-wrap">
-                    <table className="am-table">
-                      <caption>
-                        {part === "axes"
-                          ? "The axes an action is decided on"
-                          : "The operators that join actions"}
-                      </caption>
-                      <thead>
-                        <tr>
-                          <th scope="col">Name</th>
-                          <th scope="col">Decides</th>
-                          <th scope="col">Carried by</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {reference.grammar![part].map(
-                          (entry: IMotionReference.IEntry): ReactElement => (
-                            <tr key={entry.name}>
-                              <td className="am-mono">{entry.name}</td>
-                              <td>{entry.says}</td>
-                              <td className="am-mono">{entry.carriedBy}</td>
-                            </tr>
-                          ),
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                ),
-              )}
-            </>
-          )}
-        </div>
-      </div>
+      <MotionCatalogue index={index} />
     </main>
   );
 }

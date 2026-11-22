@@ -17,7 +17,8 @@
 // 4. runs the created scripts: `lint`, `test`, `build` in each production, and
 //    `evidence`, including a nested test that imports the installed SDK;
 // 5. loads those SDK imports in the development and built inspector pages,
-//    and exercises Play and Pause in the pinned headless browser.
+//    and exercises Play and Pause in the pinned headless browser;
+// 6. saves and reopens a motion take in separate processes in the production.
 //
 // Packing `@automovie/template` runs its `prepare` script, which rebuilds the
 // checkout's `packages/template/generated`, so run one layout at a time per
@@ -29,8 +30,11 @@
 // failing one, or always with `--keep`.
 import { spawnSync } from "node:child_process";
 import * as fs from "node:fs";
+import { createRequire } from "node:module";
 import * as os from "node:os";
 import * as path from "node:path";
+
+import { installedSdkTestSource } from "./installedSdkTestSource.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "../..");
 const layout = process.argv[2];
@@ -172,28 +176,104 @@ const install = (directory) =>
 const addSdkConsumer = (directory) => {
   const nested = path.join(directory, "test", "features", "installed-sdk");
   fs.mkdirSync(nested, { recursive: true });
+  const contactBody = JSON.parse(
+    fs.readFileSync(path.join(ROOT, "test", "src", "features", "internal", "MOTION_HUMAN_PEOPLE.json"), "utf8"),
+  )["f-average"];
   fs.writeFileSync(
     path.join(nested, "test_installed_sdk.ts"),
-    `import assert from "node:assert/strict";
-import { createRing } from "@automovie/archetypes";
-import { HumanChain } from "@automovie/motions";
+    installedSdkTestSource(contactBody),
+  );
+  fs.writeFileSync(
+    path.join(directory, "src", "composition", "films", "starter.ts"),
+    `import { createBuilding, createEnvironment, createEnvironmentProp } from "@automovie/archetypes/environments";
+import { createBookcase, createSeat } from "@automovie/archetypes/furniture";
+import { compileDefinedShot, defineShot } from "@automovie/engine";
+import type { IAutoMovieCompiledDefinedShot, IAutoMovieEnvironment, IAutoMovieModel, IAutoMovieStage } from "@automovie/interface";
+import {
+  type IAutoMovieSceneObject,
+  buildModel,
+  buildScene,
+  collectAutoMovieOwnedResources,
+} from "@automovie/render";
+
+import type { IFilm } from "../../IFilm";
+import type { IFilmProduction } from "../../IFilmProduction";
 
 /**
- * Execute installed SDK consumers through the generated nested test project.
+ * A packed-SDK room exercised by the generated production's existing film.
  *
- * Scenarios: a real archetype and a typed motion chain are constructed after
- * dynamic test discovery, so the runtime must find the production's lint
- * configuration through the test directory's inherited compiler options.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the nested runtime integration and two actual installed SDK consumers.
- * @evidence contracts/development/testing.md#behavioral-verification Test discovery must load and execute both public producers; a missing inherited lint configuration fails before either assertion.
- * @evidence contracts/development/testing.md#independent-expectations The public producers return a nonempty model and a composition node. No package algorithm or observed fixture value is repeated.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers installed archetype and motion imports in a nested discovered module, beyond the starter's Node-only tests.
- * @evidence contracts/development/testing.md#execution-ownership Runs through the generated pnpm test command and its actual dynamic loader, without a browser or patched dependency.
+ * @evidence contracts/development/implementation.md#principled-implementation Passes installed place outputs through defineShot, compileDefinedShot and buildScene.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The film builds one static scene per mount and the generated host owns playback and capture.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The packed builder and mesh loader own geometry and clipping. A compiler refusal prevents the mount.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The furnished room compiles once per mount and model resolution uses its id map.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The Viewer and capture use the same registered starter film and scene factory.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The film owns and disposes the mounted native scene's resources.
  */
-export function test_installed_sdk(): void {
-  assert.ok(createRing({ id: "sdk-consumer" }).parts.length > 0);
-  assert.ok(HumanChain.subject("sdk-consumer").stand({ seconds: 1 }).node);
+export function starter(): IFilm {
+  return {
+    durationSeconds: 2,
+    fps: 24,
+    width: 640,
+    height: 360,
+    create: async (): Promise<IFilmProduction> => {
+      const room: IAutoMovieEnvironment = createEnvironment({
+        id: "installed-room",
+        items: {
+          hall: { use: createBuilding({ levels: [{
+            id: "ground",
+            rooms: { studio: [0, 0, 6, 4] },
+            openings: [{ id: "entry", kind: "passage", between: ["studio", null], edge: [[0, 0], [6, 0]], width: 1.2, height: 2.1 }],
+          }] }) },
+          bench: { use: createEnvironmentProp({ model: createSeat({ kind: "bench" }) }), at: { anchor: "hall/ground/studio" } },
+          bookcase: { use: createEnvironmentProp({ model: createBookcase() }), at: { x: 4.6, y: 0, z: 2.85 } },
+        },
+      });
+      const id: string = "starter";
+      const description: string = "A furnished room with an open entrance";
+      const target = { kind: "point" as const, point: { x: 2.8, y: 0.8, z: 1.6 } };
+      const stage: IAutoMovieStage = {
+        ...room.stage,
+        scene: { id, name: description },
+        plan: description,
+        actors: [],
+        cameras: [{ node: "camera", position: { x: 0.8, y: 1.65, z: 3.3 }, lookAt: target, fovDeg: 48, near: 0.1, far: 20, depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 0.03 } }],
+        lights: [{ node: "key", role: "key", direction: { x: -1, y: -2, z: -1 }, intensity: 2.5 }],
+      };
+      const compiled: IAutoMovieCompiledDefinedShot = compileDefinedShot({
+        shot: defineShot(id, {
+          scene: id,
+          contract: { beat: id, durationSeconds: 2, participants: [], opening: [], closing: [], camera: { intent: description, requiredSubjects: ["installed-room/bench"], maxOcclusionRatio: 0.2 }, events: [], reviewFrames: [{ id: "room", time: 1, passes: ["beauty"] }] },
+          build: () => ({
+            stage,
+            actors: [],
+            script: { logline: description, theme: description, cast: [], beats: [{ id, name: description, summary: description, durationHint: 2 }] },
+            blocking: { beat: id, analysis: description, rationale: description, actors: [], camera: { framing: "wide", move: "static", on: target }, duration: 2 },
+            performance: { beat: id, plan: description, draft: [], revise: { review: description, final: null }, duration: 2 },
+            eventSamples: [],
+          }),
+        }),
+        context: null,
+        runtime: { ...room.runtime, synthesize: () => null, skeleton: () => null, hasActorContext: () => false, frameFormat: { width: 640, height: 360 } },
+      });
+      if (!compiled.success) throw new Error(JSON.stringify(compiled.diagnostics));
+      if (!compiled.source.scene.space?.walkable.includes("installed-room/hall/ground/entry/threshold"))
+        throw new Error("The named entry did not reach the compiled room");
+      const models: Map<string, IAutoMovieModel> = new Map(room.runtime.models.map((model: IAutoMovieModel) => [model.id, model]));
+      const drawing: IAutoMovieSceneObject = buildScene(compiled.source.scene, (id: string) => {
+        const model: IAutoMovieModel | undefined = models.get(id);
+        return model === undefined ? undefined : buildModel(model);
+      });
+      return {
+        scene: drawing.scene,
+        camera: drawing.cameras[0]!,
+        seek: (): void => drawing.scene.updateMatrixWorld(true),
+        dispose: (): void => {
+          for (const resource of collectAutoMovieOwnedResources(drawing.scene)) resource.dispose();
+          drawing.scene.clear();
+        },
+      };
+    },
+  };
 }
 `,
   );
@@ -205,7 +285,7 @@ import { HumanChain } from "@automovie/motions";
 // E2E-only: execute published SDK imports in the inspector's browser graph.
 if (createRing({ id: "browser-sdk" }).parts.length === 0 ||
     !HumanChain.subject("browser-sdk").stand({ seconds: 1 }).node)
-  throw new Error("Installed SDK returned no model or motion chain");
+  throw new Error("Installed SDK returned an incomplete model or motion");
 document.documentElement.dataset.sdkSmoke = "ready";
 `,
   );
@@ -233,7 +313,7 @@ const browserSmoke = (directory) => {
       ],
       directory,
     )
-  )
+  ) {
     run(
       "development and built inspector",
       process.execPath,
@@ -243,6 +323,55 @@ const browserSmoke = (directory) => {
       ],
       directory,
     );
+    return true;
+  }
+  return false;
+};
+
+/** Run the same installed take across a real process restart. */
+const motionTakeSmoke = (directory) => {
+  const fixture = "test/e2e-motion-take";
+  fs.cpSync(
+    path.join(import.meta.dirname, "motion-take"),
+    path.join(directory, fixture),
+    {
+      recursive: true,
+    },
+  );
+  const body = JSON.parse(
+    fs.readFileSync(
+      path.join(ROOT, "test/src/features/internal/MOTION_HUMAN_PEOPLE.json"),
+      "utf8",
+    ),
+  );
+  fs.writeFileSync(
+    path.join(directory, fixture, "body.json"),
+    JSON.stringify(body["m-average"]),
+  );
+  for (const stage of ["save", "reopen"])
+    if (
+      !run(
+        `installed motion take: ${stage}`,
+        "pnpm",
+        [
+          "exec",
+          "ttsx",
+          "--cache-dir",
+          "node_modules/.cache/ttsc",
+          "-P",
+          "tsconfig.json",
+          `${fixture}/${stage}.ts`,
+        ],
+        directory,
+      )
+    )
+      return;
+  run(
+    "pnpm run motion:take open (saved branch)",
+    "pnpm",
+    ["run", "motion:take", "open", `${fixture}/branch.ts`, `${fixture}/branch.json`],
+    directory,
+  );
 };
 
 // 2. Install the packed CLI, as `npx automovie` would fetch it.
@@ -291,7 +420,7 @@ if (layout === "production") {
   run("pnpm run test", "pnpm", ["run", "test"], target);
   run("pnpm run build", "pnpm", ["run", "build"], target);
   run("pnpm run evidence", "pnpm", ["run", "evidence"], target);
-  browserSmoke(target);
+  if (browserSmoke(target)) motionTakeSmoke(target);
 } else {
   if (
     !run(
@@ -305,6 +434,18 @@ if (layout === "production") {
   bind(target);
   if (!install(target)) finish();
   const productions = ["shorts/alpha", "series/beta"];
+  // An older workspace still has its pinned CLI and tarball overrides, but
+  // predates these production dependencies. The installed add must fill both.
+  const { parseDocument } = createRequire(path.join(ROOT, "test/package.json"))(
+    "yaml",
+  );
+  const config = path.join(target, "pnpm-workspace.yaml");
+  const workspace = parseDocument(fs.readFileSync(config, "utf8"));
+  const missing = ["@automovie/archetypes", "@automovie/motions"];
+  for (const name of missing)
+    if (!workspace.deleteIn(["catalogs", "automovie", name]))
+      throw new Error(`Fresh scaffold lacks ${name}`);
+  fs.writeFileSync(config, workspace.toString());
   for (const production of productions)
     if (
       !run(
@@ -315,6 +456,13 @@ if (layout === "production") {
       )
     )
       finish();
+  const completed = parseDocument(fs.readFileSync(config, "utf8"));
+  results.push({
+    label: "add restores both missing SDK catalog entries",
+    ok: missing.every((name) =>
+      completed.hasIn(["catalogs", "automovie", name]),
+    ),
+  });
   if (!install(target)) finish();
   verifyLockfile(target);
   for (const production of productions)

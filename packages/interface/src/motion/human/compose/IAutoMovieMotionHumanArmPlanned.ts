@@ -59,6 +59,24 @@ export namespace IAutoMovieMotionHumanArmPlanned {
 
     /** Whether the group is being solved, so a member asked during the solve is refused instead of solved twice. */
     solving?: boolean;
+
+    /** The refusal the group's solve ended in, kept as the solution is: every later read of a member throws it again, so a problem no trajectory meets is solved once, not again at each read. */
+    refused?: Error;
+
+    /** The solutions an earlier plan of this same action reached (`last` of that plan's group), by the arms solved together (`IWarm`'s key): given by whoever plans the action again, each is the first start of the matching solve. Absent, every solve starts from its course. */
+    warm?: ReadonlyMap<string, IWarm>;
+
+    /** The solutions this plan's optimiser reached, by the arms solved together, written as each is solved: what a replan of the same action hands to its group's `warm`. A problem whose laid course was admitted is not optimised and writes none. */
+    last?: Map<string, IWarm>;
+
+    /** The group's place among the groups its action's plan makes, from 0, in the order the law makes them, which a replan of the same law repeats: it keys the group's handover with its arms, so two groups of one action that move the same arms (two strokes) do not read each other's solutions. Absent for a group made outside an action's plan. */
+    ordinal?: number;
+
+    /** Whether the group's span is its law's own, which a replan at a slower tempo lengthens (`HumanPerformanceTempo`); unset for a span an end of which another performer or a cue fixes (a meeting). Only such a span is handed back for a longer one before an optimisation (`HumanArmTrajectory.solve`). */
+    stretches?: boolean;
+
+    /** The elapsed-time multiplier applied by the action's explicit replan. */
+    tempo?: number;
   }
 
   /**
@@ -78,10 +96,31 @@ export namespace IAutoMovieMotionHumanArmPlanned {
     | "weight"
     | "rests"
     | "grasp"
+    | "skinDistance"
     | "disc"
     | "on"
   > {
     /** The arm at the end of the span, where it returns to another arm than it left; `rest` when absent. */
     back?: IAutoMovieMotionHumanArmAngles.IAngles;
+  }
+
+  /**
+   * An optimised arm trajectory as plan data, handed from one plan of an
+   * action to the next plan of the same action (an alignment trial and its
+   * placement, a replan over a longer span). Its key in a group's `warm` and
+   * `last` is the sides of the arms solved together, in the group's order,
+   * joined by `+` (`right`, `left+right`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is handed on, between whom, and the key it is filed under.
+   * @evidence contracts/development/design.md#principled-representation The span the solution was reached on beside the solver's own state, so the next plan can carry it phrase by phrase onto its own span.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read by `planned`; a holder between two plans passes it on unread.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No verdict or pose is carried; the next solve admits the state anew, so a state of another action can cost time and never a wrong plan.
+   */
+  export interface IWarm {
+    /** The span the solution was reached on. */
+    span: IAutoMovieMotionHumanArmPlanned.ISpan;
+
+    /** The solver's state (`HumanArmTrajectory.ISolved.state`). */
+    state: IAutoMovieMotionHumanArmTrajectory.IState;
   }
 }

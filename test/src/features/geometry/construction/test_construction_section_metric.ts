@@ -212,11 +212,6 @@ export function test_construction_section_metric(): void {
     "actual native target-refinement observation",
   );
   refused(source, failures);
-  console.log({
-    fixedNativeMetric: timings,
-    scope:
-      "synthetic functional walltime only; not a Human neck or full-figure speed claim",
-  });
   TestValidator.predicate(
     failures.join("\n"),
     (): boolean => failures.length === 0,

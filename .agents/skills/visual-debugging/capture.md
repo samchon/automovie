@@ -1,24 +1,24 @@
 # Capture
 
-A capture is the stills, contact sheets and record that one plan produces. This page owns keeping the instrument working, the conditions that make a capture repeatable, and the choice of subject, views and times.
+One capture contains the stills, contact sheets and record of one plan.
 
 ## Restoring the instrument
 
-The instrument, the inspection and capture core with the inspector page and the capture host that drive it, is one tool. Restore a broken one before other work, because every judgment of a picture passes through it. Confirm through its consumer the adopted scene, its required subjects, the current displayed artifact and the relevant controls, seeking, playback and capture, and protect other owners' processes meanwhile.
+Restore the instrument before other work. Verify required subjects, the displayed artifact, controls, seeking, playback and capture through the affected consumer. Protect other owners' processes.
 
-Repair a missing capability at its owner, or tell the user where the project cannot change that owner; a view, pass or selection the judgment needs and the instrument lacks is a missing capability too. Then reconnect and verify the consumer, because a build, a server response or an unrelated demonstration does not prove recovery.
+Fix broken or missing capabilities at their owner, including needed views, passes and selections. Reconnect and verify the consumer, or report an ownership block.
 
 ## Plan
 
-Before capturing, write what the stills must show as questions with a yes or no answer, such as whether every leg reaches the floor, and answer each from the stills, because an overall impression passes over what a definite question finds.
+Before capture, write yes-or-no questions for the observation. Answer them from the stills.
 
-The questions fix the capture's cells. A cell is one still, fixed by its subject, its time or pose, its view and its [pass](passes.md). Plan every cell the questions need before drawing any, so one run gathers the whole round's evidence.
+Plan one cell per required subject, time or pose, view and [pass](passes.md). Gather all evidence for the round in one run.
 
 ## Conditions
 
-Capture the consumer itself with current source, and record what repeats the observation: the source revision, asset identities, input, time or pose, resolved camera, light, pass, raster size, renderer and detail settings. The capture's record keeps the revision, the request and each still's resolved camera and renderer backend, so that revision must fix the assets, light and detail settings.
+Capture the actual consumer at the current revision. Record assets, input, time or pose, resolved camera, light, pass, size, renderer and detail settings. Tie assets, light and detail to the revision.
 
-The renderer is one of the conditions. A simplified renderer establishes pose, contact, staging and silhouette; material, lighting, shadow and texture are judged on the renderer that draws the delivered picture.
+Use a simplified renderer for pose, contacts, staging and silhouette. Judge materials, lighting, shadows and textures on the delivery renderer.
 
 A result holds for the use its capture covered; broader reuse needs broader subjects, views, times and states.
 
@@ -26,39 +26,39 @@ A result holds for the use its capture covered; broader reuse needs broader subj
 
 ### Subject
 
-A unit that passes alone can fail against its neighbor, and close-ups that each pass can add up to a whole that fails at first sight, so choose the selections the questions need from all of these:
+Select the coverage the questions need:
 
 - the whole, as a viewer first meets it;
 - each unit alone;
 - each unit with the neighbors it touches or shares a boundary with;
 - each defect's region.
 
-Select by the groups and parts the subject's own definition names, and keep enough of the reference or the neighbors visible to read placement and depth. Confirm from the capture's record that each selection matched what was meant, because an empty selection draws a still with no defect in it.
+Select by the subject's own group and part names. Keep enough reference or surrounding geometry visible to judge placement and depth. Confirm the selection in the capture record.
 
 ### Views
 
-Name each view so that it repeats: a direction, a distance or scale and a target, or the delivery's own camera. Front and side alone hide what faces neither, so add the back, the top, the quarters and the high and low obliques the subject needs. To tell a wrong bend from a foreshortened one, capture the same cells from a second view.
+Name each view by direction, distance or scale and target, or use the delivery camera. Add angles to expose occlusions and a second view to distinguish shape from foreshortening.
 
-Frame a close-up on the affected region from outside the subject. The record keeps each still's resolved camera for a later [comparison](comparison.md#matched-cells), because a view that fits itself to its subject moves when the subject changes.
+Frame a close-up from outside the subject. Reuse its resolved camera in later [comparisons](comparison.md#matched-cells).
 
 ### Times
 
-Read a moving picture as stills in time order, sampled at five to ten stills per second and at the denser end where more happens; sparser stills no longer show how one pose becomes the next.
+Sample in time order at five to ten stills per second. Sample faster action at the higher rate.
 
-Around every contact, cut, join and decisive instant, capture the output's own consecutive frames, which sparse stills never replace. A contact shorter than the gap between two stills leaves an arm out and an arm back with nothing wrong between them.
+Capture consecutive output frames around contacts, cuts, joins and decisive instants.
 
-Sample an encoded or generated file from the file itself, at the same seconds as its source, because stills of the source cannot show what the file holds.
+Sample the encoded or generated file at the same times as its source.
 
-A reviewer who sees a moving picture only as stills says so, and claims nothing about how it plays that the stills do not show.
+Record the sampled times as still-image coverage. Report any continuous viewing separately.
 
 ## Stills and sheets
 
-Read a contact sheet first for the whole capture, with each cell captioned by what fixes it. A sheet shrinks every still, so open the full-size still wherever a contact, a joint, a seam or a small part decides the judgment.
+Read contact sheets with labeled cells. Open full-size stills for detail that decides the finding.
 
-Lay sheets out for their reader. A vision model downsizes an image over its longest-edge or token limit and reads detail unreliably below a smallest edge; take these limits from the reading model's documentation, such as the [Claude vision guide](https://platform.claude.com/docs/en/build-with-claude/vision). Keep every sheet within them and every cell at least the smallest, and spread the cells over more sheets rather than shrink them.
+Use the reading model's documented image limits and enough pixels per cell to see the deciding detail. Split oversized sheets and open full-size stills or crops when necessary. For GPT image inputs, see [Images and vision](https://developers.openai.com/api/docs/guides/images-vision#analyze-images).
 
-A cell that could not be drawn stays on the sheet with its cause and stays unverified; an uncomputed subject is unavailable evidence.
+Mark missing cells with their cause and leave them unverified.
 
 ## Rounds
 
-Keep each round's capture apart from the next, with its record, under a name that states its round or revision, given when capturing it. A record still marked unfinished belongs to an interrupted capture, so capture that round again rather than read it.
+Save each capture and record under its round or revision. Recapture any unfinished round.

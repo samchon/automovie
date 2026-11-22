@@ -1,6 +1,7 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
@@ -44,7 +45,10 @@ export namespace AutoMovieMotionHumanTouchUpright {
   /**
    * The facing an upright vessel's arm reaches best, with its tilt: of the
    * candidate facings, the one whose reached hand keeps the vessel's axis
-   * nearest the world's up, the nearest to head on on a tie. A vessel at
+   * nearest the world's up, the nearest to head on on a tie: two tilts
+   * within the joints' tolerance (`ROM_TOLERANCE`, the resolution a fit
+   * meets a rotation to) are one, so a rounding-sized difference between a
+   * hand's fit and its mirror's never chooses another facing. A vessel at
    * the lips is `AutoMovieMotionHumanTouchDrink.drinking`'s.
    *
    * @param body The body.
@@ -60,8 +64,8 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of goal, solve and compare.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every candidate that could still win is solved; head on is tried first, so a tie keeps it.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per candidate, at most thirteen per call: a tilt is never below 0, so the search stops at the first facing that holds the vessel exactly upright, a bound that returns what the whole search would.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `tilt`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One fixed body/side observation reader shares genuine FK/ROM metadata through the actual facing loop; tilt retains every distinct raw goal and actual fit.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous facing search releases its reader on return or throw; the returned facing/lean/tilt holds only original numeric payloads and no workspace or pose history.
    */
   export function solve(
     body: IAutoMovieMotionHumanBody,
@@ -73,9 +77,11 @@ export namespace AutoMovieMotionHumanTouchUpright {
   ): IAutoMovieMotionHumanTouchUpright.IFacing {
     const level: number = Math.hypot(place.normal.x, place.normal.z);
     if (!(level > 1e-6)) return { facing: place.normal, lean: 0, tilt: 0 };
+    const read: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.prepareRead> =
+      AutoMovieMotionHumanDrinkingArm.prepareRead(body, side);
     let best: IAutoMovieVector3 = place.normal;
     let least: number = Infinity;
-    for (const facing of facings(place.normal, level)) {
+    for (const facing of facings(place.normal, level, SPAN, side)) {
       const error: number = tilt(
         body,
         posture,
@@ -84,14 +90,15 @@ export namespace AutoMovieMotionHumanTouchUpright {
         place,
         hint,
         facing,
+        read,
       );
-      if (error < least - 1e-9) {
+      if (error < least - ROM_TOLERANCE) {
         least = error;
         best = facing;
       }
       // A tilt is an angle, never below 0, so once the best is within the
-      // margin of 0 no later facing can replace it.
-      if (least <= 1e-9) break;
+      // tolerance of 0 no later facing can replace it.
+      if (least <= ROM_TOLERANCE) break;
     }
     return { facing: best, lean: 0, tilt: least };
   }
@@ -147,7 +154,7 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal and one read.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reached rotation is the resolver's, within the joints' ranges, never the asked one.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanTouchLaid.rest` and `AutoMovieMotionHumanDrinkingArm.read`; `solve` calls it per candidate and a held prop's choice calls it with the stroke's own elbow hint.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses rest and the actual drinking-arm observation; solve may lend its genuine same-body fixed-side reader across candidate calls while each current goal still receives its own native fit. Omitted preparation keeps the original cold read.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function tilt(
@@ -158,38 +165,41 @@ export namespace AutoMovieMotionHumanTouchUpright {
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
     facing: IAutoMovieVector3,
+    read?: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.prepareRead>,
   ): number {
-    return AutoMovieMotionHumanDrinkingArm.read(
+    const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
       body,
       posture,
       side,
-      AutoMovieMotionHumanTouchLaid.rest(
-        body,
-        posture,
-        side,
-        effector,
-        place,
-        "up",
-        hint,
-        "upright",
-        facing,
-      ),
-      false,
-    ).tilt;
+      effector,
+      place,
+      "up",
+      hint,
+      "upright",
+      facing,
+    );
+    return read === undefined
+      ? AutoMovieMotionHumanDrinkingArm.read(body, posture, side, goal, false).tilt
+      : read(posture, goal, false).tilt;
   }
 
   /**
    * The candidate facings of an upright vessel at a region: its level
    * normal turned by multiples of `STEP` degrees within `SPAN` either way,
    * head on first and then alternately either way, so a search that keeps
-   * the first of equals keeps the one nearest head on.
+   * the first of equals keeps the one nearest head on. Of the two turns of
+   * one size the hand's side decides which comes first, a left hand's the
+   * mirror image of a right hand's, so a scene and its mirror image search
+   * mirrored facings in one order.
    *
    * @param normal The region's outward normal, world.
    * @param level The length of the normal's level part.
+   * @param span The turn either way of head on, degrees, a multiple of `STEP`; `SPAN` when absent. A search whose vessel's side about its own axis is free as well (`handToFaceVessel`) needs only the turn between two sides.
+   * @param side The hand the vessel is in; the right when absent.
    * @returns The level unit directions, world.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the candidates and their order.
-   * @evidence contracts/development/implementation.md#principled-implementation A turn about the world's up of the level normal, by the step either way.
+   * @evidence contracts/development/common.md#meaningful-documentation States the candidates, their span and their order.
+   * @evidence contracts/development/implementation.md#principled-implementation A turn about the world's up of the level normal, by the step either way; a mirror across the sagittal plane reverses a turn about the up axis, so the left hand's first turn is the reverse of the right's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The caller passes a level part it has checked is not zero.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `solve` and by the drinking search (`AutoMovieMotionHumanTouchDrink`).
@@ -199,11 +209,14 @@ export namespace AutoMovieMotionHumanTouchUpright {
   export function facings(
     normal: IAutoMovieVector3,
     level: number,
+    span: number = SPAN,
+    side: AutoMovieHumanSide = "right",
   ): IAutoMovieVector3[] {
+    const first: 1 | -1 = side === "left" ? -1 : 1;
     const out: IAutoMovieVector3[] = [];
-    for (let k: number = 0; k <= 2 * (SPAN / STEP); k++) {
+    for (let k: number = 0; k <= 2 * Math.floor(span / STEP + 1e-9); k++) {
       const turn: number =
-        ((k % 2 === 0 ? 1 : -1) * Math.ceil(k / 2) * STEP * Math.PI) / 180;
+        ((k % 2 === 0 ? 1 : -1) * first * Math.ceil(k / 2) * STEP * Math.PI) / 180;
       out.push({
         x: (normal.x * Math.cos(turn) + normal.z * Math.sin(turn)) / level,
         y: 0,

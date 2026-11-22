@@ -1,3 +1,5 @@
+import { AutoMovieFrameGrid } from "@automovie/render";
+
 import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
 
 /**
@@ -21,6 +23,8 @@ const INTERACTIVE: string = [
 /**
  * The inspector's playback keys, as a video player's: Space and K play or pause, J and L seek one second back and forward, comma and full stop step one frame back and forward with playback paused, Home and End go to the first and last second. K, J and L work in either case.
  *
+ * Frame steps start at the slider's displayed frame and include the exact end of the subject, even when it falls between regular frames.
+ *
  * A key is left to the page, unhandled and moving nothing, when Ctrl, Meta or Alt is held, so the browser's and the system's shortcuts keep working, and when the key's target is or sits inside an element that takes the key itself (a field, a button, a summary, a link, editable text, or a widget by its role), so Space still presses a button and opens a section. Shift is allowed, since it only changes a letter's case.
  *
  * A seek or a step returns the second the playhead now shows, which the caller makes the request's `time`, as the slider does; play and pause return null, because a stop already becomes the request's second through the time readout. A key the inspector does not use is not handled either.
@@ -31,11 +35,11 @@ const INTERACTIVE: string = [
  * @returns Whether the key was used, so the caller prevents its default, and the second a seek left the playhead on.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States every key, when a key is left to the page and why, what each returns and why play and pause return no second.
- * @evidence contracts/development/implementation.md#principled-implementation The keys follow the web's established video-player bindings, every move goes through the playhead's own `play`, `pause` and `seek`, and the interactive target is found with the platform's `Element.closest` over one selector list.
+ * @evidence contracts/development/implementation.md#principled-implementation Every move goes through the playhead's own `play`, `pause` and `seek`; a frame step advances the slider's displayed index; the interactive target is found with the platform's `Element.closest` over one selector list.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two early returns, then one table from key to move and one lookup.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The playhead clamps every seek to the film, so nothing here restates its bounds; a key is never taken from a control that answers it, so no control loses its own keyboard behaviour.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per key, besides one `closest` walk up the target's ancestors.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure dispatch with nothing to reuse.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same presentation grid as the slider.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds nothing between calls.
  */
 export function handleAutoMovieInspectorKey(
@@ -55,10 +59,26 @@ export function handleAutoMovieInspectorKey(
   if (event.target !== null && event.target.closest(INTERACTIVE) !== null)
     return { handled: false, seconds: null };
 
-  const step: number = 1 / (fps ?? 24);
   const seek: (seconds: number) => number = (seconds: number): number => {
     playhead.seek(seconds);
     return playhead.getSnapshot().seconds;
+  };
+  const step: (direction: -1 | 1) => number = (direction: -1 | 1): number => {
+    playhead.pause();
+    const { seconds, durationSeconds }: AutoMovieInspectorPlayhead.ISnapshot =
+      playhead.getSnapshot();
+    if (fps === null) return seek(seconds + direction / 24);
+
+    const last: number = AutoMovieFrameGrid.last(durationSeconds, fps);
+    const frame: number = AutoMovieFrameGrid.nearest(
+      seconds,
+      durationSeconds,
+      fps,
+      last,
+    );
+    return seek(
+      AutoMovieFrameGrid.time(frame + direction, durationSeconds, fps),
+    );
   };
   const toggle: () => null = (): null => {
     if (playhead.getSnapshot().playing) playhead.pause();
@@ -73,14 +93,8 @@ export function handleAutoMovieInspectorKey(
     J: (): number => seek(playhead.getSnapshot().seconds - 1),
     l: (): number => seek(playhead.getSnapshot().seconds + 1),
     L: (): number => seek(playhead.getSnapshot().seconds + 1),
-    ",": (): number => {
-      playhead.pause();
-      return seek(playhead.getSnapshot().seconds - step);
-    },
-    ".": (): number => {
-      playhead.pause();
-      return seek(playhead.getSnapshot().seconds + step);
-    },
+    ",": (): number => step(-1),
+    ".": (): number => step(1),
     Home: (): number => seek(0),
     End: (): number => seek(playhead.getSnapshot().durationSeconds),
   };

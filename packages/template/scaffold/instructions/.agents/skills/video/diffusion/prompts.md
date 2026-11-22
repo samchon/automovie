@@ -1,8 +1,8 @@
 # Video prompts
 
-A video prompt tells the model what the motion hint cannot show: who each figure is, how they look and act, what the place and light look like, and what the shot sounds like. The hint, its channels and the references already fix positions, timing and camera, so prose that restates or contradicts them competes with the stronger input.
+Describe identity, appearance, visible action, setting, light and sound where inputs leave them open. Preserve positions, timing and camera supplied by the hint and references.
 
-These defaults are common to most models' prompting guides; the chosen model's guide, linked from [video models](models.md), wins where it differs. Write natural sentences, because keyword lists and tag-style prompts pasted from another model steer less, in the order of the parts below: input roles, shared description, request paragraph, then sound.
+Use natural sentences for input roles, shared description, request and sound. Follow the chosen [model's guide](models.md) for its required format.
 
 A prompt assembles what the story already decided and invents no appearance or performance. A decision it needs and no record holds is made under [repair](../../story/correction/repair.md), never in the prompt.
 
@@ -16,7 +16,7 @@ State each input's role, as its request plans it, in the model's wording, with w
 
 Write each person, place and prop once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from [project context](../../production/project-context.md).
 
-Keep those descriptions in one file that every request cites, where [media records](../../production/media-records.md#files) puts generation requests, and reuse the identical words in every prompt, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, for the same reason. Where the model's guide asks, leave out what a first frame already shows.
+Cite the [shared descriptions](../../production/media-records.md) in each request. Reuse their exact text, disable prompt rewriting and omit visible first-frame details if the guide requires it.
 
 ### Request paragraph
 
@@ -28,15 +28,15 @@ Write what happens in the request's interval from the [beat records](../../story
 | Reaction | Each reaction the hint cannot show, such as a facial expression |
 | Camera | The depth of field and focus the screenplay decides |
 
-Identify each polygon man by screen position, and by the reference token or element name where the model binds references. Write the reactions in the order the hint performs the beats.
+Match each depicted person or prop to its [scene identity](../../story/document-layout.md#scene-elements) in the request record. In the prompt, use the model's reference token where available and describe a distinguishing feature or starting position. Track the same subject through crossings and handovers. Write reactions in beat order.
 
-Leave out what the request keeps from the hint, such as positions, actions, timing and the camera's framing, moves and lens; write action and camera only where the hint does not carry them. Where the model's guide gives a form for timed segments, time each from the frames where the hint performs its beat.
+State action or camera details the hint does not carry. Where supported, time prompt segments from the performed beat's frames.
 
 ### Sound
 
-Write the request's sound, as the audio skill's generated sound page decides it, in the dialogue form the chosen model's current guide gives, because forms differ and quotation marks make one model render a line as on-screen text. Attribute each line to its speaker by the name the shared description gives, and keep effects and ambience apart from speech.
+Write sound directions only for commissioned sound the model can produce. Use the documented dialogue notation, name speakers as in the shared description and separate dialogue, effects and ambience.
 
-Leave the scene's score out, because [film sound](../../audio/film-sound.md#one-bed-and-one-score-per-scene) lays it as one track; music played on screen stays as the screenplay decides it. When the model makes no sound, leave sound out.
+Leave the scene's score for [film sound](../../audio/film-sound.md#one-bed-and-one-score-per-scene). Keep music played on screen as the screenplay decides it when sound is commissioned.
 
 ## Wording
 

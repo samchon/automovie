@@ -78,11 +78,23 @@ export namespace PlaygroundPerformance {
 
     // Props exist only where the composition places objects; lexicon rows are
     // registered only where the installed package takes registered laws.
+    const gaits: Record<string, IPlaygroundComposition.ICue[]> = {};
     const props: IAutoMovieMotionHumanPerformance.IInput["props"] =
-      PlaygroundObjects.props(composition.objects ?? []);
+      PlaygroundObjects.props(
+        composition.objects ?? [],
+        composition.performers,
+        gaits,
+      );
+
+    // The authored cue tracks and each ridden animal's own gait track reach the performance as one set of tracks.
+    const cues: Record<string, readonly IPlaygroundComposition.ICue[]> = {
+      ...(composition.cues ?? {}),
+      ...gaits,
+    };
     const full: IAutoMovieMotionHumanPerformance.IInput = {
       ...input,
       ...(props === undefined || props.length === 0 ? {} : { props }),
+      ...(Object.keys(cues).length === 0 ? {} : { cues }),
     };
     return {
       performance: new HumanPerformance(

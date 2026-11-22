@@ -4,6 +4,8 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingHeld,
@@ -17,13 +19,20 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingSupport } from "../striking/StrikingSupport";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { HumanFirearmReady } from "./HumanFirearmReady";
+import { HumanMountedPresentation } from "./HumanMountedPresentation";
 import { HumanWeaponHeld } from "./HumanWeaponHeld";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
+
+/** The most passes a held frame is stepped back along the line to bring the wrist within the arm's length; each re-chooses the frame's roll (provisional). */
+const PASSES: number = 3;
 
 /**
  * The pose a presentation strokes to (`HumanWeaponPresent.present`) and
@@ -45,11 +54,11 @@ export namespace HumanWeaponPose {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
    * @evidence contracts/development/design.md#principled-representation What the stroke and its refusal read of a presentation: the trunk's turn, the posture, the sight line's ends and the hand frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, each read by the plan.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The stroke and grip admission read the same modeled tool and pivot as the pose choice.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None optional.
    */
   export interface IPosed {
-    /** The trunk's turn toward the firing side, degrees. */
+    /** The trunk's whole turn, degrees, positive toward the performer's left: a long gun's blade toward the firing side on foot, with a seated performer's turn toward the target. */
     turn: number;
 
     /** The entry posture with the trunk turned and the supporting hand on its planned handle. */
@@ -69,6 +78,12 @@ export namespace HumanWeaponPose {
 
     /** The firing hand's grip frame the carriage asks. */
     pose: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
+
+    /** Tool geometry in the hand frame, using both prop ends for a one-hand shoulder carriage. */
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool;
+
+    /** Distance in metres from the tip to the point the stroke keeps. */
+    back: number;
   }
 
   /**
@@ -78,13 +93,14 @@ export namespace HumanWeaponPose {
    * @param entry The posture the presentation begins from.
    * @param start The film second it begins, the instant its target is read at.
    * @param s The setup.
+   * @param seated Whether the performer sits a mount, whose trunk then turns toward the target (`HumanMountedPresentation`).
    * @returns The stance and the pose.
-   * @throws {HumanRefusal} On `target` when the target lies more than `TURN` degrees off the heading, or an extended arm's line of aim passes beyond its reach.
+   * @throws {HumanRefusal} On `target` when the target lies more than `TURN` degrees off the heading, or past a seated performer's trunk turn and `TURN`, or an extended arm's line of aim passes beyond its reach.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The bore's line on the line from the anchor to the target, an extended arm's working point where that line meets the arm's own reach, a ready region's pose (`HumanFirearmReady`), or the recover's upright bore above the support side's breast (the 1764 Manual Exercise), on the bladed trunk a long gun is shouldered from, square at the recover.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The entry, the turn, the anchor, the target and its angle, then the pose by carriage.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target past `TURN` is refused, never clamped.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target past `TURN`, or past a seated trunk's turn and `TURN`, is refused, never clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution and the carriage's pose choice.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan and once per weighed grip.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -97,23 +113,71 @@ export namespace HumanWeaponPose {
     entry: IAutoMovieMotionHumanPosture,
     start: number,
     s: IAutoMovieMotionHumanWeaponHeld.ISetup,
+    seated: boolean,
   ): IPosed {
     const p: IAutoMovieMotionHumanWeaponPresent.IPresent = context.params;
     const carriage: IAutoMovieMotionHumanWeaponPresent.Carriage =
       p.carriage ?? "aim";
+    // The shoulder pose, its reach check, and the displayed fit must all
+    // use the same physical end of the prop as their pivot. The tool's
+    // original axis and length describe its tip from the active grip.
+    const piece: IAutoMovieVector3 | undefined = carriage === "shoulder" && s.butt !== undefined
+      ? Vector3.subtract(s.tool.tip, s.butt)
+      : undefined;
+    const shoulderTool: IAutoMovieMotionHumanStrikingHeld.ITool = piece === undefined
+      ? s.tool
+      : { ...s.tool, axis: Vector3.normalize(piece), length: Vector3.length(piece) };
+    // A two-hand plan's support offsets use the original tool axes.
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = s.support === null
+      ? shoulderTool
+      : s.tool;
+    const back: number = carriage === "aim" ? 0 : tool.length;
     // A long gun is shouldered with the support shoulder forward: the
     // trunk turns toward the firing side, and the eye, the shoulders and
     // the reach are read on the turned trunk. At the recover the body stays
-    // "as square to the front as possible".
+    // "as square to the front as possible". A seated shooter takes no blade:
+    // standing, the hips and the feet take it, but the saddle holds the pelvis,
+    // so it would all land in the spine; the seated turn toward the target is
+    // the trunk's own (`mounted`).
     const turn: number =
-      !s.long || carriage === "recover" || carriage === "shoulder"
+      seated || !s.long || carriage === "recover" || carriage === "shoulder"
         ? 0
         : s.tool.side === "right"
           ? -HumanWeaponPresent.BLADED
           : HumanWeaponPresent.BLADED;
+    const ahead = (yaw: number): IAutoMovieVector3 =>
+      HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw },
+        { x: 0, y: 0, z: 1 },
+      );
+    const aimed: IAutoMovieVector3 | undefined =
+      p.target === undefined ? undefined : context.aim(p.target, start).point;
+    // In the saddle the pelvis keeps the horse's heading, so the trunk turns
+    // toward a target the arms alone cannot present to (HumanMountedPresentation),
+    // by the signed bearing read on the same floor line the arms' bound reads.
+    const mounted: number = ((): number => {
+      if (!seated || aimed === undefined) return 0;
+      const floor: IAutoMovieVector3 = StrikingTarget.line(
+        entry.root,
+        aimed,
+        entry.yaw,
+      );
+      const left: IAutoMovieVector3 = HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
+        { x: 1, y: 0, z: 0 },
+      );
+      const bearing: number =
+        (Math.atan2(
+          Vector3.dot(floor, left),
+          Vector3.dot(floor, ahead(entry.yaw)),
+        ) *
+          180) /
+        Math.PI;
+      return HumanMountedPresentation.turn(bearing, turn, s.tool.side, "target");
+    })();
     const bladed: IAutoMovieMotionHumanPosture = StrikingBlade.turned(
       entry,
-      turn,
+      turn + mounted,
     );
 
     // Both arms are judged where the presentation will put them. Leaving
@@ -160,27 +224,23 @@ export namespace HumanWeaponPose {
                 bones.get(context.body.surfaces.regions.mouth.bone)!,
               ).point;
     const chest: IAutoMovieVector3 = bones.get("chest")!.worldPosition;
-    const ahead = (yaw: number): IAutoMovieVector3 =>
-      HumanFrame.point(
-        { origin: { x: 0, y: 0, z: 0 }, yaw },
-        { x: 0, y: 0, z: 1 },
-      );
     const target: IAutoMovieVector3 =
-      p.target === undefined
-        ? Vector3.add(eye, Vector3.scale(ahead(entry.yaw), 10))
-        : context.aim(p.target, start).point;
+      aimed ?? Vector3.add(eye, Vector3.scale(ahead(entry.yaw), 10));
     const line: IAutoMovieVector3 = StrikingTarget.line(
       entry.root,
       target,
-      entry.yaw,
+      entry.yaw + mounted,
     );
     const off: number =
       (Math.acos(
-        Math.max(-1, Math.min(1, Vector3.dot(line, ahead(entry.yaw)))),
+        Math.max(-1, Math.min(1, Vector3.dot(line, ahead(entry.yaw + mounted)))),
       ) *
         180) /
       Math.PI;
-    if (off > HumanWeaponPresent.TURN)
+    // A seated turn has already refused a target past the trunk's reach and
+    // brought the target to the arms' bound, so only an unturned
+    // presentation is judged against it here.
+    if (mounted === 0 && off > HumanWeaponPresent.TURN)
       throw new HumanRefusal({
         kind: "reach",
         axis: "target",
@@ -215,18 +275,8 @@ export namespace HumanWeaponPose {
               0,
               supported,
             );
-          if (!p.extended) return held((s.long ? 0.3 : 0.7) * s.arm);
-
-          // An extended arm (a bow's) keeps only the solver's angular
-          // resolution short of straight: the law of cosines at
-          // ROM_TOLERANCE. A skin-sized setback bends a bow arm visibly.
-          // The hand frame is
-          // chosen once, where the line meets that length with the grip's
-          // distance beyond the wrist; the tool is rigid in the hand, so sliding
-          // that frame along the line moves its wrist by the same step, and the
-          // step that brings the wrist to the length is the larger root of
-          // `|w + s u - c|^2 = r^2` (the wrist `w`, the line `u`, the shoulder
-          // `c`, the length `r`). A line the length never meets is refused.
+          // The arm's length short of straight by only the solver's angular
+          // resolution: the law of cosines at ROM_TOLERANCE.
           const upper: number = context.body.measure.upperArm;
           const lower: number = context.body.measure.forearm;
           const goal: number = Math.sqrt(
@@ -234,6 +284,48 @@ export namespace HumanWeaponPose {
               lower * lower +
               2 * upper * lower * Math.cos((ROM_TOLERANCE * Math.PI) / 180),
           );
+          if (!p.extended) {
+            // Held a share of the arm out along the line, or nearer where the
+            // arm's length ends first: the wrist rides the rigid frame along
+            // the line, so the step back that brings it to the length is the
+            // root of `|w + k u - c|^2 = r^2` nearest none.
+            // Laying the frame again re-chooses its roll about the line, which
+            // moves the wrist a little, so the step is taken again until the
+            // wrist is within the length (a few passes at most).
+            let out: number = (s.long ? 0.3 : 0.7) * s.arm;
+            let laid: IAutoMovieMotionHumanStrikingHeld.IHandFrame = held(out);
+            for (let pass: number = 0; pass < PASSES; ++pass) {
+              const v: IAutoMovieVector3 = Vector3.subtract(
+                HumanHand.place(
+                  context.body,
+                  s.tool.side,
+                  "grip",
+                  laid.point,
+                  laid.rotation,
+                  "relaxed",
+                ).point,
+                shoulder,
+              );
+              const excess: number = Vector3.dot(v, v) - goal * goal;
+              if (excess <= 0) return laid;
+              const along: number = Vector3.dot(v, sight);
+              const room: number = along * along - excess;
+              if (room < 0) return laid;
+              out += Math.sqrt(room) - along;
+              laid = held(out);
+            }
+            return laid;
+          }
+
+          // An extended arm (a bow's) keeps only that resolution short of
+          // straight. A skin-sized setback bends a bow arm visibly.
+          // The hand frame is
+          // chosen once, where the line meets that length with the grip's
+          // distance beyond the wrist; the tool is rigid in the hand, so sliding
+          // that frame along the line moves its wrist by the same step, and the
+          // step that brings the wrist to the length is the larger root of
+          // `|w + s u - c|^2 = r^2` (the wrist `w`, the line `u`, the shoulder
+          // `c`, the length `r`). A line the length never meets is refused.
           const outward = (from: IAutoMovieVector3, r: number): number => {
             const step: number | undefined = reach(
               Vector3.subtract(from, shoulder),
@@ -284,33 +376,40 @@ export namespace HumanWeaponPose {
           // from it; the barrel almost perpendicular". The piece's butt-to-
           // muzzle line runs from the holding side's hip to before its
           // shoulder, the butt on the hip.
-          const surface = (
-            id: "hipLeft" | "hipRight" | "shoulderLeft" | "shoulderRight",
-          ): IAutoMovieVector3 => {
+          const left: boolean = s.tool.side === "left";
+          const hipName: AutoMovieHumanoidRegion = left ? "hipLeft" : "hipRight";
+          const shoulderName: AutoMovieHumanoidRegion = left ? "shoulderLeft" : "shoulderRight";
+          // The upper leg carries the hip skin landmark. Read its actual
+          // planted fit instead of the authored angles used for trunk FK.
+          const names: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+            context.body.surfaces.regions[hipName].bone,
+            context.body.surfaces.regions[shoulderName].bone,
+          ]);
+          const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+          const shown: ReturnType<typeof poseBones> = poseBones(
+            context.body,
+            resolveHumanPosture.seeded(context.body, bladed, undefined, undefined, resolution, names).pose,
+            resolution(),
+            names,
+          );
+          const surface = (id: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
             const region: typeof context.body.surfaces.regions.mouth =
               context.body.surfaces.regions[id];
             return resolveAutoMovieHumanoidSurfaces.place(
               region,
-              bones.get(region.bone)!,
+              shown.get(region.bone)!,
             ).point;
           };
-          const left: boolean = s.tool.side === "left";
-          const hip: IAutoMovieVector3 = surface(left ? "hipLeft" : "hipRight");
-          const before: IAutoMovieVector3 = surface(
-            left ? "shoulderLeft" : "shoulderRight",
-          );
-          const piece: IAutoMovieVector3 =
-            s.butt === undefined
-              ? Vector3.scale(s.tool.axis, s.tool.length)
-              : Vector3.subtract(s.tool.tip, s.butt);
+          const hip: IAutoMovieVector3 = surface(hipName);
+          const before: IAutoMovieVector3 = surface(shoulderName);
           const along: IAutoMovieVector3 = Vector3.normalize(
             Vector3.subtract(before, hip),
           );
           const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
             StrikingRoll.hand(
               context,
-              { ...s.tool, axis: Vector3.normalize(piece) },
-              Vector3.length(piece),
+              shoulderTool,
+              shoulderTool.length,
               hip,
               along,
               0,
@@ -329,7 +428,7 @@ export namespace HumanWeaponPose {
             held.rotation,
             "relaxed",
           ).point;
-          const lift: number | undefined = rise(
+          const lift: number | undefined = HumanWeaponHeld.rise(
             Vector3.subtract(wrist, shoulder),
             along,
             s.arm - HumanVerdicts.SKIN,
@@ -402,7 +501,18 @@ export namespace HumanWeaponPose {
           posture: supported,
         });
       })();
-    return { turn, bladed: supported(pose), eye, target, line, carriage, pose };
+    // The stroke twists the trunk by the whole turn the pose was laid on.
+    return {
+      turn: turn + mounted,
+      bladed: supported(pose),
+      eye,
+      target,
+      line,
+      carriage,
+      pose,
+      tool,
+      back,
+    };
   }
 
   /**
@@ -420,25 +530,5 @@ export namespace HumanWeaponPose {
     const b: number = Vector3.dot(d, u);
     const disc: number = b * b - Vector3.dot(d, d) + r * r;
     return disc < 0 ? undefined : -b + Math.sqrt(disc);
-  }
-
-  /**
-   * The least step along a line from a point that brings it within a
-   * distance of a centre: 0 when it already is, the smaller root of
-   * `|d + s u|^2 = r^2` ahead of it otherwise; undefined when the line never
-   * comes that near ahead.
-   */
-  function rise(
-    d: IAutoMovieVector3,
-    u: IAutoMovieVector3,
-    r: number,
-  ): number | undefined {
-    const c: number = Vector3.dot(d, d) - r * r;
-    if (c <= 0) return 0;
-    const b: number = Vector3.dot(d, u);
-    const disc: number = b * b - c;
-    if (disc < 0) return undefined;
-    const step: number = -b - Math.sqrt(disc);
-    return step >= 0 ? step : undefined;
   }
 }

@@ -287,6 +287,8 @@ export function buildFieldGun(
     direction: "along",
     frame: ArchetypeFrame.facing(v(0, axis, muzzle), v(0, 0, 1), v(1, 0, 0)),
     extent: null,
+    // The bore runs its read length in from the muzzle's face.
+    depth: t.boreLength,
     rides: "elevation",
   });
 

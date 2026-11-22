@@ -1,6 +1,6 @@
 # Passes
 
-A pass is what a cell draws of its subject. This page owns choosing passes, keeping them matched and marking what a measurement found.
+A pass specifies what a still draws.
 
 ## Choosing a pass
 
@@ -12,17 +12,17 @@ A pass is what a cell draws of its subject. This page owns choosing passes, keep
 | An overlay on the picture | Where joints, contacts, targets and paths are |
 | The guide channel itself, read through the receiver's input path | What a receiver is given |
 
-Use a structural pass only for the quantity it documents, and read its range and convention before reading its colors, because a plausible image does not establish that a pass holds what its name says. Fields such as skin weights or curvature are judged only where a production's models need them, as [inspecting a form](../3d-modeling/inspection.md#fields-judged-only-where-needed) decides.
+Verify the structural quantity's range and convention. Inspect optional fields only for required uses under [form inspection](../3d-modeling/inspection.md#fields-judged-only-where-needed).
 
 ## Matched passes
 
-Draw every pass of a set from the same evaluated state, at the same subjects, views and times, so two passes of one cell differ only in what they draw. Switching pass must not advance or restart motion, and each pass returns the scene and renderer state it borrowed.
+Draw passes from the same subjects, camera, time and evaluated state. Preserve motion state and restore the scene and renderer state after each pass.
 
-A pass drawn over another shares its camera exactly. A pass drawn through a surface says so in its caption, because a line seen through a surface reads as lying on it.
+An overlay shares its underlying pass's camera. Label marks drawn through surfaces.
 
 ## Marking what a measurement found
 
-A measurement that finds a defect knows where it is. Draw that place on the subject in a color the pass uses for nothing else, with a legend naming each color's finding, so the reviewer looks at the defect instead of searching the picture for a number from a report. The measurement's owner hands the place to the instrument as plain data, a mark of its own kind, so a new finding needs no new pass.
+Draw measured defect locations in a reserved color and identify the finding in the legend. The measurement owner supplies locations as marks, so adding a finding requires no new pass.
 
 Draw each kind of thing in one color throughout a capture. Show labels to establish identity, and hide them where they cover what is judged.
 

@@ -39,15 +39,14 @@ import type {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No `any`, `unknown`, index signature or cast beyond naming a carrier; ring geometry and hull mathematics stay with their engine owners.
  */
 export namespace AutoMovieHumanCanonicalSolids {
+
   /**
    * Build every solid of the body.
    *
    * @param joints Every drawn Human joint by id, parent before child.
    * @returns The solids in the ring owner's module order.
    */
-  export function build(
-    joints: ReadonlyMap<string, IAutoMovieHumanCanonicalSolids.IJoint>,
-  ): IAutoMovieHumanCanonicalSolids.ISolid[] {
+  export function build(joints: ReadonlyMap<string, IAutoMovieHumanCanonicalSolids.IJoint>): IAutoMovieHumanCanonicalSolids.ISolid[] {
     const tuple = (p: IAutoMovieVector3): [number, number, number] => [
       p.z,
       p.y,
@@ -61,8 +60,10 @@ export namespace AutoMovieHumanCanonicalSolids {
     // A run of rings is one hull when the hull's surface passes through
     // every ring: no ring point is buried, and no ring edge either, since
     // two points can lie on a hull whose surface cuts across between them.
-    const convex = (run: IAutoMovieVector3[][]): boolean => {
-      const points: IAutoMovieVector3[] = run.flat();
+    const convex = (
+      run: IAutoMovieVector3[][],
+      points: IAutoMovieVector3[],
+    ): boolean => {
       const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
       return (
         hull.buried <= hull.tolerance &&
@@ -103,9 +104,19 @@ export namespace AutoMovieHumanCanonicalSolids {
       let start: number = 0;
       while (start + 1 < layers.length) {
         let end: number = start + 1;
-        while (end + 1 < layers.length && convex(layers.slice(start, end + 2)))
+
+        // The points of the longest run found convex are kept as the array
+        // its hull was searched on, so the solid's mass reads that hull from
+        // the engine's per-array memo instead of searching it again.
+        let accepted: IAutoMovieVector3[] | null = null;
+        while (end + 1 < layers.length) {
+          const run: IAutoMovieVector3[][] = layers.slice(start, end + 2);
+          const points: IAutoMovieVector3[] = run.flat();
+          if (!convex(run, points)) break;
+          accepted = points;
           end++;
-        runs.push(layers.slice(start, end + 1).flat());
+        }
+        runs.push(accepted ?? layers.slice(start, end + 1).flat());
         start = end;
       }
       runs.forEach((points: IAutoMovieVector3[], index: number): void => {
@@ -115,13 +126,9 @@ export namespace AutoMovieHumanCanonicalSolids {
           id: runs.length === 1 ? module.bone : `${module.bone}.${index}`,
           carrier,
           centre: solid.centerOfMass,
-          points: points.map(
-            (p: IAutoMovieVector3): IAutoMovieVector3 => ({
-              x: p.x - solid.centerOfMass.x,
-              y: p.y - solid.centerOfMass.y,
-              z: p.z - solid.centerOfMass.z,
-            }),
-          ),
+          // The centred points are a translation of the run, so their hull
+          // is read from the run's instead of being searched again.
+          points: physicalHullFaces.shift(points, solid.centerOfMass),
           volume: solid.volume,
           inertia: solid.inertia,
           inertiaRotation: solid.inertiaRotation,

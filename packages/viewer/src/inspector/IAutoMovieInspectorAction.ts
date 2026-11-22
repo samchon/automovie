@@ -19,6 +19,7 @@ import type {
  * | `switch` | `surface` or `xray` | that switch |
  * | `view` | `views` | `views` |
  * | `time` | `at`, dropping `from`, `to` and `rate` | `sampling` |
+ * | `locate` | `at` as `time` does, and `label` replaced | `sampling` and `inspection.label` |
  * | `subject` | `subject` | `subject` |
  * | `text` | every key | the whole request |
  * | `restore` | none | the whole request, set back by the scene |
@@ -35,6 +36,7 @@ export type IAutoMovieInspectorAction =
   | IAutoMovieInspectorAction.ISwitch
   | IAutoMovieInspectorAction.IView
   | IAutoMovieInspectorAction.ITime
+  | IAutoMovieInspectorAction.ILocate
   | IAutoMovieInspectorAction.ISubject
   | IAutoMovieInspectorAction.IText
   | IAutoMovieInspectorAction.IRestore;
@@ -142,6 +144,25 @@ export namespace IAutoMovieInspectorAction {
 
     /** Subject second, zero or more. */
     seconds: number;
+  }
+
+  /**
+   * Show a finding: fix the picture at its second and name its entities on it.
+   *
+   * @evidence contracts/development/design.md#principled-representation Subject seconds written as `at`, as `time` writes them, and the path patterns that replace the `label` list.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The discriminant, the second and the patterns.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller passes only paths the scene draws, because a label pattern that matches nothing is refused; an empty list clears the labels.
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit, the replacement and the empty case.
+   */
+  export interface ILocate {
+    /** Discriminant. */
+    type: "locate";
+
+    /** Subject second of the finding's witness, zero or more. */
+    seconds: number;
+
+    /** Drawn paths to label, replacing the current labels. */
+    label: string[];
   }
 
   /**

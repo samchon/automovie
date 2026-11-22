@@ -1,6 +1,6 @@
 # {{name}}
 
-Use an LLM to author a complete movie screenplay, then program the main scenes' motion, staging and camera and assemble the whole video as a reproducible motion hint. Every person is a polygon man, drawn from the body the installed Human package prepares, and every other subject is the simplest form that identifies it, as [entity work]({{skills}}/development/entities.md#coarse-first) sets; the accuracy goes to motion.
+Use an LLM to author a complete screenplay and program its motion, staging and camera in 3D. Assemble the result as a reproducible motion hint or finish it as a direct 3D or generated film. Start with the polygon man prepared by the installed Human package and [coarse forms]({{skills}}/development/entities.md#coarse-first) for the other subjects.
 
 ## First run
 
@@ -42,19 +42,65 @@ pnpm exec automovie capture --file media/automovie/<film>/videos/film.mp4 --from
 
 The render writes `media/automovie/<film>/videos/film.mp4`, or into `--out <dir>`, with `render-report.json` beside it. Export requires a whole number of frames. The report's hashes describe the drawn frames, and [delivery review]({{skills}}/review/delivery-review.md) judges the film.
 
+## Production diagnostics
+
+Every host inspects the placed film through `src/inspectFilmProduction.ts`: the inspector on each painted picture, the capture on each drawn still and the render on every delivered frame. It judges the evaluated pose whoever produced it, a native action, raw authored keyframes or a physical performance, so one fault is reported the same way from each. Extend it per film through `IFilmProduction.inspectionLayers`, `inspectionChecks`, `inspectionCamera` and `inspectPlaced`.
+
+Declare contact and continuity expectations by returning `selectAutoMoviePlacedChecks({ scene: sample.scene, time: sample.time, fps, supports, grips, custody, continuity })` from `@automovie/render` in `inspectionChecks(sample)`.
+
+- **Supports** are half-open film-second phases `[from, to)`, each with the displayed socket, the support node and a support-local anchor. A moving deck carries its anchor. Consecutive phases express a foot roll or a transfer, and the incoming phase owns the boundary second.
+- **Grips** are windows naming the hand, the prop and the expected hand-local frame.
+- **Custody** lists the holder nodes and a schedule of `{ from, holder }`. The actual holder is read from the scene graph, so parent the prop to the receiving hand on the handoff frame.
+- **Continuity** takes the film's admitted cut (`cutSequence`), its `sequenceTimeline` layout and deliberate breaks `{ shot, seconds }`. Each track's `observe(shot, shotSeconds)` returns the authored world transform as `{ kind: "present" }` or `{ kind: "missing" }`, or `null` when the shot does not involve the entity, with `maxSpeed` and `maxAngularSpeed` per shot-local second. Cuts, transitions and declared breaks are excluded. A resuming seam and retimes are checked on shot time.
+
+Nothing reads proximity, contact receipts or physics to choose a support, grip or holder.
+
+The inspector checks each picture under a work budget sized to fit the checks into a 60 Hz frame, and marks a check that would exceed it as `deferred`. Large formations or dense touching surfaces can exceed it. Capture and delivery both complete the checks the interactive preview deferred.
+
+A finding has a stable check, key, code and entity paths, a confidence, and a witness with its film seconds and, on the delivery grid, its output frame. Each check also reports its coverage: `checked`, `excluded` with a reason, or `deferred` or `unsupported` with a reason.
+
+- **Inspector.** A confirmed error draws a red cube at its witness under the `beauty` shade, a possible one an amber cube, and goes to the console once per incident: at its first visit and when its span closes. A span over consecutive frames is frame-exact. A span over uninterrupted playback names only the painted samples, and the film between them is unchecked, so step the frames before trusting its extent. The Diagnostics section lists the incidents. Its buttons pause, move to the first or worst witness and label the finding's drawn entities, so the address and the capture command reproduce it. Unticking "show witnesses" hides the cubes and the status line only. The status line names checks the preview deferred.
+- **Capture.** `record.json` holds the episodes and coverage of the drawn stills.
+- **Render.** `render-report.json` holds the episodes and coverage of every frame. The render also decodes `film.mp4` and compares its black, frozen and silent intervals with the drawn frames and the padded soundtrack it encoded. An interval the encode introduced blocks publication. One the film itself drew blocks only when the film declares `delivery` intent and none of its `allowances` covers it. A confirmed error, or a required check still deferred or unsupported, blocks publication: the command exits non-zero naming the first cursor, keeps the report and leaves the previous `film.mp4` in place.
+
+Repair a blocking finding at the source that placed it, then render again.
+
 With `pnpm run dev` running, `pnpm run review --url <inspector-address> --seconds <s>` runs `automovie review`: it presses the inspector's Play button and records real-time playback as a video, with the time readout it showed and the page's errors, into `media/automovie/review/` or `--out <dir>`, for the user to watch. `pnpm run review:setup` installs its recording FFmpeg and headless Chromium.
 
 ## Physical performance
 
-[Physical feedback]({{skills}}/motion/physical-feedback.md) chooses each scene's physical mode; the installed Engine's README and public declarations own its profiles, simulation, checkpoints, archives and audits.
+[Physical feedback]({{skills}}/motion/physical-feedback.md) defines when to simulate. Read the installed Engine's README and types for its simulation and playback APIs.
 
 `pnpm run physics <input-module.ts> <output.amphys> [maximum-bytes]` computes a simulated performance once from a Node module exporting `createPhysicalInput()` and writes the archive with its JSON manifest, 256 MiB at most by default. Keep the archive as a [stage cache]({{skills}}/production/stage-caches.md) under `.cache/` and regenerate it after changing physical inputs; playback, seeking and capture read it through the Engine's physical playback, which checks it against the current input's identity.
 
-Supply `IFilmProduction.performance` from the displayed state: `src/markFilmProduction.ts` hands it to the inspection in every host, and `marks=joint,bone,contact` draws its skeleton and contact forces. The starter's empty scene supplies none.
+Supply `IFilmProduction.performance` from the displayed state: `src/markFilmProduction.ts` hands it to the inspection in every host, and `marks=joint,bone,contact` draws its skeleton and contact forces. Each contact draws the force each touching body receives, from the solver's world contact point, for the step's mean force; with `ownership: () => playback.ownership`, a dynamic body that received none of a solved force, as an exaggerated mode can round it away, is flagged, while static and kinematic sides never are. An impact can be tens of times a body's weight; set `maximumArrowLength` to keep it in frame, and a longer contact arrow is drawn at that length as `contact/clamped`, labelled with the clamp and the least force it stands for. Supply `supports` from the same playback, `{ wrenches: playback.supportWrenches, interval: 1 / playback.rate }`, and `marks=support/*` draws the support force the controller allocated from each body's centre of mass, with any shortfall from its request flagged at the arrow's tip. Support arrows are motor demand before integration; only contact arrows show transferred force. Marks are opt-in, so delivered frames are unchanged. The starter's empty scene supplies none.
 
-## Make a motion hint
+### Save and branch a Human take
 
-Follow the [production workflow]({{skills}}/production/workflow.md) for the requested output and its delivery checks.
+Register a take in a project-relative TypeScript module that exports `createMotionTakeSource()`. Return the [source inputs](src/executable/motionTake/IMotionTakeSource.ts), including the normal edit plan and built shots, the Human owner input for the selected shot, and any data files read outside the module graph. Register each callback used by the owner under a stable ID and version with its rebuilt function value. Keep referenced source and data files available when moving the project.
+
+Run these commands from the production directory after choosing unused artifact paths with an existing parent directory.
+
+```sh
+pnpm run motion:take save src/takes/rehearsal.ts rehearsal.take.json 0.55
+pnpm run motion:take open src/takes/rehearsal.ts rehearsal.take.json
+pnpm run motion:take branch src/takes/alternate.ts alternate.take.json
+pnpm run motion:take open src/takes/alternate.ts alternate.take.json
+```
+
+Save time is in edited-sequence seconds. The artifact carries the exact source-shot second, zero-based edit entry and seam side. Give an explicit entry after the seconds during a transition overlap. At a hard cut the default `after` selects the incoming occurrence. Use `before` after the outgoing entry number to save its exact endpoint. The Human owner uses its normal exact-time evaluation at that source instant.
+
+Open verifies source bytes, data dependencies, provider versions, seeds and placement before returning the saved instant's poses. [The Node API](src/executable/motionTake/openMotionTake.ts) also returns a prepared performance for repeated exact source-time reads. Keep both the prepared replay and the film's editorial mapping for the duration of a preview or render. Start a fresh process after changing source modules or installed packages. Register any runtime-loaded code or data the static import graph cannot discover as project-relative dependencies.
+
+For an alternate, register a separate take and a `branch` with the saved original's artifact and trusted source module, a count of leading outer sequence groups to retain and the new suffix composition. The save point can lie within a group. The supported join is the start of a replaceable later group. The owner preserves the active group through that join and checks the shared prefix. The original source and artifact remain available to reopen both alternatives. Edit placement and event ownership must agree through the join.
+
+To draw an admitted take in the browser, use a trusted project subject module that admits the artifact props with `admitMotionTake` and calls [the replay adapter](src/executable/motionTake/replayMotionTake.ts) with its explicitly imported source recipe and, for a branch, the original recipe. Use the returned `performanceAt(sourceSeconds, entry)` in the draw scene's seek, with the film's normal mapping from edited to source time. Passing the entry keeps occurrences before the save's selected entry on the original take. Run `motion:take open` to verify current files, then capture or render the same verified artifact and source in a separate output directory for each alternative.
+
+```sh
+pnpm exec automovie capture --module src/takeSubjects.ts --props rehearsal.take.json --subject rehearsal --from 0.5 --to 0.75 --out media/capture/rehearsal
+```
+
+Version 1 reconstructs authored Human performance, including its supported prop, articulation, contact and event evaluation. It refuses opaque owner callbacks or missing inputs. Native solver snapshot restore and partial raster export resume use separate workflows.
 
 ## Commands
 
@@ -68,6 +114,7 @@ Follow the [production workflow]({{skills}}/production/workflow.md) for the requ
 | `pnpm run dev` | The inspector page on `127.0.0.1:5173` |
 | `pnpm run build` | Bundle the inspector page |
 | `pnpm run physics <input-module.ts> <output.amphys> [maximum-bytes]` | Precompute an adopted physical performance outside the browser |
+| `pnpm run motion:take save`, `open` or `branch` | Persist, verify or branch a registered Human take |
 | `pnpm run render --subject <film>` | Export one film as a picture-only video |
 | `pnpm run review --url <address> --seconds <s>` | Record real-time playback of the running inspector page |
 | `pnpm run capture --subject <film> [request]` | Stills, sheets and a record of a film, with views, passes, marks and round comparison |

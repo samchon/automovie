@@ -1,25 +1,20 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSeated,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanHand } from "../posture/HumanHand";
-import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { handGoals } from "./handGoals";
+import { seatedHands } from "./seatedHands";
 
 /**
  * The geometry every seat law shares: where on a seat the body's seat
@@ -52,15 +47,66 @@ import { handGoals } from "./handGoals";
  * the thigh's underside meets a level seat.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the seat frame, the socket placement rule and the suitability band with sources.
- * @evidence contracts/development/implementation.md#principled-implementation The seat socket is an effector placed by solving the root for a pitch; the legs and arms are inverse-kinematics goals.
+ * @evidence contracts/development/design.md#principled-representation World-metre seat geometry and degree headings name the original socket/foot/hand targets; body-derived popliteal ratios keep low/ordinary/high-seat decisions in one geometric representation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Seat/base laws share only suitability, socket/root geometry and hand-placement facades here; native support-frame and seatedHands owners retain their existing responsibilities.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Original provisional seat clearances and suitability band remain named/documented, while body, posture, seat and hand types retain their owners without a scene/body-specific shape.
  */
 export namespace seated {
+
   /**
    * Seat heights as shares of the popliteal height that are sat on with both
    * feet on the floor. Below the band a seat is refused; above it the seat
    * is a high one ({@link high}).
    */
   export const RATIO: readonly [number, number] = [0.8, 1.2];
+
+  /** How far the knee stands ahead of the front edge with a level thigh, metres (provisional clearance, as the namespace states). */
+  const KNEE_CLEAR: number = 0.05;
+
+  /** How far inside a shallow seat's depth the socket stays, metres (provisional, as the namespace states). */
+  const DEPTH_CLEAR: number = 0.02;
+
+  /** How far above its standing height an ankle stands off the floor: half the thigh's radius, as a share of it (provisional). */
+  const OFF_FLOOR: number = 0.5;
+
+  /**
+   * Whether a seated entry sits on a high seat with a foot off the floor, as
+   * a bar stool or a saddle is sat on: the socket stands above the band and a
+   * foot is unplanted or its ankle stands more than half the thigh's radius
+   * above its standing height over the floor.
+   *
+   * @param body The body.
+   * @param entry The seated entry.
+   * @param socket The entry's seat socket, world metres.
+   * @param under The floor's height under the feet, world metres.
+   * @returns Whether the body is perched, so it gets off rather than rising or edging over its feet.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two conditions and what follows from them.
+   * @evidence contracts/development/implementation.md#principled-implementation The socket's height ratio against the band's upper end and each foot's bearing and height against its standing height.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ratio and one test per foot, the one owner the rise and the shift read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height margin is the named provisional `OFF_FLOOR` share of the body's own thigh radius.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function perched(
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMovieMotionHumanEntryState,
+    socket: IAutoMovieVector3,
+    under: number,
+  ): boolean {
+    return (
+      (socket.y - under) / popliteal(body) > RATIO[1] &&
+      (["left", "right"] as const).some(
+        (side: "left" | "right"): boolean =>
+          !entry.feet[side].planted ||
+          entry.feet[side].ankle.y >
+            under +
+              body.measure.ankleHeight +
+              OFF_FLOOR * body.measure.thighRadius,
+      )
+    );
+  }
 
   /**
    * Whether a seat is a high one for a body: above the band, so the feet
@@ -97,6 +143,14 @@ export namespace seated {
    * @param seat The seat.
    * @param under The floor's height under the feet, world metres; the ground's 0 when absent.
    * @returns The ratio.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the ratio and the floor it is measured from.
+   * @evidence contracts/development/implementation.md#principled-implementation The seat's height over the feet's floor divided by the popliteal height, the measure seat heights are set against (ANSI/HFES 100-2007).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One quotient.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height is the body's own popliteal height, never a typed one.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function ratio(
     body: IAutoMovieMotionHumanBody,
@@ -117,22 +171,36 @@ export namespace seated {
    * @param body The body.
    * @param entry The entry state.
    * @returns The floor's height, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which floor is read and why the lowest sole sets it.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to `HumanSupportFrame.floor`, which reads the planted feet's displayed sole sockets.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the support frame's owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the support frame owns the reading.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms What the support frame's reading costs.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A delegating facade.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function floor(
-    body: IAutoMovieMotionHumanBody,
-    entry: IAutoMovieMotionHumanEntryState,
-  ): number {
+  export function floor(body: IAutoMovieMotionHumanBody, entry: IAutoMovieMotionHumanEntryState): number {
     return HumanSupportFrame.floor(body, entry);
   }
 
   /**
    * Refuse a seat too low to sit on from standing, naming the least height.
-   * A seat above the band is not refused: it is a high seat ({@link high}).
+   * A fixed working seat is judged by physical reach; its sitting surface
+   * must stand above the feet's floor. An ordinary seat uses the height band.
    *
    * @param body The body.
    * @param seat The seat.
    * @param under The floor's height under the feet, world metres; the ground's 0 when absent.
-   * @throws {HumanRefusal} When the seat height lies below the band.
+   * @throws {HumanRefusal} When the seat lies below its appropriate height range.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the refusal and the least height it names.
+   * @evidence contracts/development/implementation.md#principled-implementation An ordinary seat needs the height band's lower end times popliteal height above the floor. A working seat above the floor then proceeds to the seated joint reach test.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ratio and one refusal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A low seat is refused with the feasible range, never sat on lower than the body can.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function check(
     body: IAutoMovieMotionHumanBody,
@@ -140,8 +208,9 @@ export namespace seated {
     under: number = 0,
   ): void {
     const r: number = ratio(body, seat, under);
-    const least: number = under + RATIO[0] * popliteal(body);
-    if (r < RATIO[0])
+    const working: boolean = seat.workingSeat === true;
+    const least: number = working ? under : under + RATIO[0] * popliteal(body);
+    if (working ? seat.at.y <= least : seat.at.y < least)
       throw new HumanRefusal({
         kind: "reach",
         axis: "seat",
@@ -152,8 +221,10 @@ export namespace seated {
           maximum: null,
           unit: "m",
         },
-        reason: `A seat ${(seat.at.y - under).toFixed(3)} m high is ${r.toFixed(2)} of this body's popliteal height; seats from ${(RATIO[0] * popliteal(body)).toFixed(3)} m up suit it`,
-        fix: "use a seat whose height suits this body",
+        reason: working
+          ? "The working seat must be above the floor that supports the feet"
+          : `A seat ${(seat.at.y - under).toFixed(3)} m high is ${r.toFixed(2)} of this body's popliteal height; seats from ${(least - under).toFixed(3)} m up suit it`,
+        fix: working ? "put the working seat above its floor" : "use a seat whose height suits this body",
       });
   }
 
@@ -167,19 +238,37 @@ export namespace seated {
    * @param body The body.
    * @param seat The seat.
    * @returns The socket's seated point.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the placement back from the edge, the lift and why each holds.
+   * @evidence contracts/development/implementation.md#principled-implementation The thigh's length less `KNEE_CLEAR` behind the front edge, corrected by the socket's offset from the hip joints, capped `DEPTH_CLEAR` inside a shallow seat, and raised by however far the thigh's underside hangs below the socket.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One distance back, one lift and one frame placement.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both clearances are named provisional constants; every length is the body's own.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function point(
-    body: IAutoMovieMotionHumanBody,
-    seat: IAutoMovieMotionHumanSeated.ISeat,
-  ): IAutoMovieVector3 {
+  export function point(body: IAutoMovieMotionHumanBody, seat: IAutoMovieMotionHumanSeated.ISeat): IAutoMovieVector3 {
     const socket: IAutoMovieVector3 = offset(body);
     const hipJoint: IAutoMovieVector3 = body.rest.get("leftUpperLeg")!;
-    let back: number = body.measure.thigh - 0.05 + hipJoint.z - socket.z;
-    if (seat.depth !== undefined) back = Math.min(back, seat.depth - 0.02);
+    let back: number = body.measure.thigh - KNEE_CLEAR + hipJoint.z - socket.z;
+    if (seat.depth !== undefined) back = Math.min(back, seat.depth - DEPTH_CLEAR);
     const lift: number = Math.max(
       0,
       socket.y - (hipJoint.y - body.measure.thighRadius),
     );
+    // On a tipped or tilted seat, as a saddle on a grade, the place lies along the surface.
+    if (seat.pitch !== undefined || seat.roll !== undefined)
+      return Vector3.add(
+        seat.at,
+        Quaternion.rotateVector(
+          resolveHumanPosture.heading({
+            yaw: seat.yaw,
+            pitch: seat.pitch ?? 0,
+            roll: seat.roll ?? 0,
+          }),
+          { x: 0, y: lift, z: -back },
+        ),
+      );
     return HumanFrame.point(
       { origin: seat.at, yaw: seat.yaw },
       { x: 0, y: lift, z: -back },
@@ -191,6 +280,14 @@ export namespace seated {
    *
    * @param body The body.
    * @returns The offset.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the offset and its frame.
+   * @evidence contracts/development/implementation.md#principled-implementation The hips' rest position plus the body's `seat` socket in the hips' frame, which is the rest frame's at rest.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One sum.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The socket is the body's declared one.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function offset(body: IAutoMovieMotionHumanBody): IAutoMovieVector3 {
     return Vector3.add(
@@ -206,6 +303,14 @@ export namespace seated {
    * @param at Where the socket goes, world metres.
    * @param heading Yaw, pitch and roll, degrees.
    * @returns The root.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the desired world-metre socket point, degree heading units and returned world rig origin under the existing rigid socket representation.
+   * @evidence contracts/development/implementation.md#principled-implementation Solves at=root+headingRotation(offset(body)) for root by the original rigid-point subtraction, exactly inverting socket's representation without introducing a second FK or target model.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One canonical heading, owned body socket offset, quaternion-vector rotation and subtraction expose the effector-to-root relation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the original rest socket offset and heading policy; it neither alters a leg/arm goal nor claims to solve additional joint articulation or admit an unreachable seat.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant geometry and one fresh vector, without a rig traversal, numerical search or temporary posed map.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses offset and the canonical heading owner shared with socket; every actual point/heading is evaluated independently, without retaining another root answer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh vector and retains no body, input point, pose, callback, workspace, history or external handle.
    */
   export function root(
     body: IAutoMovieMotionHumanBody,
@@ -227,6 +332,14 @@ export namespace seated {
    * @param body The body.
    * @param posture The posture.
    * @returns World metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result's frame.
+   * @evidence contracts/development/implementation.md#principled-implementation The rest offset turned by the posture's heading and added to its root, the inverse of `root`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation and one sum.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The trunk's joints are not read: the socket rides the pelvis, which the root and heading place.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function socket(
     body: IAutoMovieMotionHumanBody,
@@ -247,55 +360,27 @@ export namespace seated {
    *
    * @param body The body.
    * @param posture The posture with its leg goals.
+   * @param side One hand when supplied; both when absent.
+   * @param resolution Optional same-query FK source, released with this observation.
+   * @param projection Optional genuine same-query ROM source; actual joints still project.
    * @returns Arm goals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the goal, the side choice and the borrowed sources.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to `seatedHands.hands`, which lays each palm on the solved thigh's front surface.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the owner of seated hand placements.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the hand placements' owner states its rules.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms What the owner's solve costs.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A delegating facade.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function hands(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
+    side?: "left" | "right",
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanPosture["limbs"] {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      resolveHumanPosture(body, posture),
-    );
-    const requests: IAutoMovieMotionHumanArmTarget.ISided[] = [];
-    for (const side of ["left", "right"] as const) {
-      const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
-        body.surfaces.regions[
-          `thighFront${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
-        ];
-      const thigh: IAutoMovieResolvedBone = bones.get(frame.bone)!;
-      const point: IAutoMovieVector3 = Vector3.add(
-        thigh.worldPosition,
-        Quaternion.rotateVector(thigh.worldRotation, frame.point),
-      );
-      const normal: IAutoMovieVector3 = Quaternion.rotateVector(
-        thigh.worldRotation,
-        frame.normal,
-      );
-      const along: IAutoMovieVector3 = Vector3.subtract(
-        bones.get(`${side}LowerLeg`)!.worldPosition,
-        thigh.worldPosition,
-      );
-      // The hand lies flat along the thigh, its palm on the surface: a
-      // relaxed curl would close the fingers into the thigh they lie on.
-      requests.push({
-        side,
-        surface: "palm",
-        shape: "flat",
-        point,
-        rotation: HumanHand.rotation(side, {
-          fingers: along,
-          palm: Vector3.scale(normal, -1),
-        }),
-        bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
-      });
-    }
-    const placed: IAutoMovieMotionHumanPosture = handGoals(
-      body,
-      posture,
-      requests,
-    );
-    return { leftArm: placed.limbs.leftArm!, rightArm: placed.limbs.rightArm! };
+    return seatedHands.hands(body, posture, side, resolution, projection);
   }
 
   /**
@@ -308,37 +393,26 @@ export namespace seated {
    * @param body The body.
    * @param posture The posture with its legs placed and no arm goals.
    * @param share 0 hanging to 1 on the thighs.
+   * @param resolution Optional same-query FK source, released with this placement.
+   * @param projection Optional genuine same-query ROM source; actual joints still project.
    * @returns The posture with arm goals, or unchanged at 0.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two endpoints, the path and the share's easing.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to `seatedHands.arms`, which interpolates each wrist linearly and its turn spherically.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the owner of seated hand placements.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the hand placements' owner states its rules.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms What the owner's solve costs.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A delegating facade.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function arms(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     share: number,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanPosture {
-    if (share <= 0) return posture;
-    const onThighs: IAutoMovieMotionHumanPosture["limbs"] = hands(
-      body,
-      posture,
-    );
-    if (share >= 1)
-      return { ...posture, limbs: { ...posture.limbs, ...onThighs } };
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      resolveHumanPosture(body, posture),
-    );
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-    for (const side of ["left", "right"] as const) {
-      const limb: "leftArm" | "rightArm" =
-        side === "left" ? "leftArm" : "rightArm";
-      const goal: IAutoMovieHumanLimbGoal = onThighs[limb]!;
-      const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      limbs[limb] = {
-        point: Vector3.lerp(hand.worldPosition, goal.point, share),
-        rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, share),
-        bend: goal.bend,
-      };
-    }
-    return { ...posture, limbs };
+    return seatedHands.arms(body, posture, share, resolution, projection);
   }
 
   /**
@@ -352,14 +426,16 @@ export namespace seated {
    * @param rests The seat's armrests, world metres; none when absent.
    * @param yaw The seat's heading, degrees.
    * @param share 0 hanging to 1 resting.
+   * @param resolution Optional exact FK source borrowed only for this synchronous placement.
+   * @param projection Optional genuine same-body ROM metadata from that placement.
    * @returns The posture with arm goals, or unchanged at 0; a hand on an armrest bears once it is down.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States where the hands rest and when.
-   * @evidence contracts/development/implementation.md#principled-implementation The thighs' rest (`arms`) and the armrests' (`onArmrests`), each the one owner of its placement.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One choice between two calls.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the unchanged thigh and armrest placements to seatedHands, which measures only the active thigh targets.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the owner of seated hand placements.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms What the chosen call costs.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work seatedHands shares one pose solve between thigh targets and hanging origins, forwarding optional current-query FK/ROM sources to actual admission/fit and FK without retaining them across postures.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rested(
@@ -368,67 +444,18 @@ export namespace seated {
     rests: Partial<Record<"left" | "right", IAutoMovieVector3>> | undefined,
     yaw: number,
     share: number,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanPosture {
-    return rests === undefined
-      ? arms(body, posture, share)
-      : onArmrests(body, arms(body, posture, share), rests, yaw, share);
-  }
-
-  /**
-   * A posture whose hands have moved a share of the way from where its own
-   * joints hold them to the armrests: each wrist on the straight line to a
-   * point a hand's thickness above its armrest, the palm turning down with
-   * the fingers ahead. A hand whose side has no armrest keeps the goal the
-   * posture already gives it.
-   *
-   * @param body The body.
-   * @param posture The posture with its legs placed, and its thigh goals for the hands without an armrest.
-   * @param rests The armrests, world metres.
-   * @param yaw The seat's heading, degrees.
-   * @param share 0 where the hands are to 1 on the armrests.
-   * @returns The posture with the arm goals; a hand bears (`planted`) once it is on its armrest.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the path, the palm's turn, the hand left alone and when a hand bears.
-   * @evidence contracts/development/implementation.md#principled-implementation An effector goal on a target the seat declares, travelled on the caller's eased share, as the hands' way to the thighs is; the hand's thickness is the body's own, a fifth of the hand's length (provisional).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the two hands.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An armrest out of the arm's reach is not checked here: the limb fit leaves the hand short of it, which the contact audit reports; a refusal with the reachable band is owed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass and constant work per hand.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function onArmrests(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    rests: Partial<Record<"left" | "right", IAutoMovieVector3>>,
-    yaw: number,
-    share: number,
-  ): IAutoMovieMotionHumanPosture {
-    if (share <= 0) return posture;
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    return seatedHands.rested(
       body,
-      resolveHumanPosture(body, { ...posture, limbs: legsOnly(posture) }),
+      posture,
+      rests,
+      yaw,
+      share,
+      resolution,
+      projection,
     );
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-    const s: number = Math.min(1, share);
-    for (const side of ["left", "right"] as const) {
-      const rest: IAutoMovieVector3 | undefined = rests[side];
-      if (rest === undefined) continue;
-      const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      const goal: IAutoMovieHumanLimbGoal = armrest(
-        body,
-        posture,
-        side,
-        rest,
-        yaw,
-      );
-      limbs[`${side}Arm`] = {
-        point: Vector3.lerp(hand.worldPosition, goal.point, s),
-        rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, s),
-        bend: goal.bend,
-        planted: s >= 1,
-      };
-    }
-    return { ...posture, limbs };
   }
 
   /**
@@ -442,6 +469,14 @@ export namespace seated {
    * @param rest The armrest's point, world metres.
    * @param yaw The seat's heading, degrees.
    * @returns The arm's goal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the wrist's place, the hand's turn and the bearing.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to `seatedHands.armrest`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the owner of seated hand placements.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the hand placements' owner states its rules.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function armrest(
     body: IAutoMovieMotionHumanBody,
@@ -450,32 +485,7 @@ export namespace seated {
     rest: IAutoMovieVector3,
     yaw: number,
   ): IAutoMovieHumanLimbGoal {
-    return {
-      point: { ...rest, y: rest.y + 0.2 * body.measure.hand },
-      rotation: HumanHand.rotation(side, {
-        fingers: HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw },
-          { x: 0, y: 0, z: 1 },
-        ),
-        palm: { x: 0, y: -1, z: 0 },
-      }),
-      bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
-      planted: true,
-    };
-  }
-
-  /** A posture's leg goals alone, so its hands are read where its own joints hold them. */
-  function legsOnly(
-    posture: IAutoMovieMotionHumanPosture,
-  ): IAutoMovieMotionHumanPosture["limbs"] {
-    return {
-      ...(posture.limbs.leftLeg === undefined
-        ? {}
-        : { leftLeg: posture.limbs.leftLeg }),
-      ...(posture.limbs.rightLeg === undefined
-        ? {}
-        : { rightLeg: posture.limbs.rightLeg }),
-    };
+    return seatedHands.armrest(body, posture, side, rest, yaw);
   }
 
   /**
@@ -486,6 +496,14 @@ export namespace seated {
    *
    * @param body The body.
    * @returns Metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the height, what it is measured to and its standard.
+   * @evidence contracts/development/implementation.md#principled-implementation The knee joint's height (ankle height plus shank) less the thigh's radius.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One sum of the body's measures.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every term is the body's own measure.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function popliteal(body: IAutoMovieMotionHumanBody): number {
     return (

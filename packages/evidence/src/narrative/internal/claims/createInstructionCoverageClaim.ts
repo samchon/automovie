@@ -13,9 +13,9 @@ import { createUnitFiles } from "../utilities/createUnitFiles";
  * Tracks instruction adoption in long work's settings, and realization in treatments or a short's screenplay.
  * Each layer covers the targets independently through its own construction
  * hosts and stage. Settings accounts for every adopted requirement; treatments
- * can exclude requirements outside its selected narrative population. A
- * short's brief holds only what the commission leaves open, so it owes no
- * instruction citation and its screenplay realizes every requirement.
+ * can exclude requirements outside its selected narrative population. On a
+ * short, the brief defines subjects and the screenplay accounts for every
+ * instruction.
  * Instructions remain targets only. No instructions folder means no claim.
  *
  * @evidence contracts/development/implementation.md#principled-implementation When docs/instructions exists, selected body H2 hosts independently cover every instruction H2; treatments may exclude out-of-population requirements while settings or short screenplay may not.

@@ -41,7 +41,9 @@ interface Invalid {
  *
  * Scenarios:
  * 1. Explicitly authored yoke, side pack and lead dimensions build admissible
- *    real ox/camel models; the public dispatcher preserves the camel assembly.
+ *    real ox/camel models with exactly their equipment's contacts (the ox's
+ *    own roping contacts beside them); the public dispatcher preserves the
+ *    camel assembly.
  * 2. Each hitch/load contact is on its actual cylinder's upper bearing surface,
  *    with +Y outward, two physical upright bars and the authored clear opening
  *    and depth. Leads describe their actual bar's midpoint and diameter.
@@ -100,8 +102,11 @@ export function test_archetype_animal_equipment(): void {
       findings.push(
         `${animal.archetype}: actual equipped model admission failed`,
       );
+    // The ox keeps its own roping contacts (head, horns, hind) beside the equipment's.
     const expected: string =
-      animal === ox ? "hitch|lead" : "lead|leftLoad|rightLoad";
+      animal === ox
+        ? "head|hind|hitch|horns|lead"
+        : "lead|leftLoad|rightLoad";
     if (
       animal.affordances
         .map((contact: IAutoMovieAffordance): string => contact.id)

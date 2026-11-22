@@ -1,6 +1,8 @@
 import type { IAutoMovieMotionHumanBrace } from "../everyday/IAutoMovieMotionHumanBrace";
+import type { IAutoMovieMotionHumanCrossAnkleOverKnee } from "../everyday/IAutoMovieMotionHumanCrossAnkleOverKnee";
 import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHumanCrouch";
 import type { IAutoMovieMotionHumanKneel } from "../everyday/IAutoMovieMotionHumanKneel";
+import type { IAutoMovieMotionHumanShiftStandingWeight } from "../everyday/IAutoMovieMotionHumanShiftStandingWeight";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanFlinch } from "../reaction/IAutoMovieMotionHumanFlinch";
 import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionHumanStagger";
@@ -8,10 +10,10 @@ import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionH
 /**
  * Open parameters of the pose lexicon family, keyed by each runtime export name.
  * Omitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.
- * HumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values.
+ * HumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
- * @evidence contracts/development/design.md#principled-representation The pose family is a closed export-name map with the exact Omit projection of each source law.
+ * @evidence contracts/development/design.md#principled-representation The pose family is a closed export-name map. Each key uses the law contract directly or projects its open parameters.
  * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the pose row parameter map used by the family registry and schema generator.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
@@ -58,6 +60,12 @@ export interface IAutoMovieMotionHumanLexiconPoseParams {
   /** A wince: the slight flinch. */
   wince: Omit<IAutoMovieMotionHumanFlinch.IParams, "intensity">;
 
-  /** A stumble from a shove at walking speed (1.2 m/s, provisional). */
+  /** A stumble from a shove the body steps out of: a 0.5 m/s push from ahead, about what the largest backward lean young adults recover from by stepping gives a small woman (`HumanPose.stumble`). */
   stumble: Omit<IAutoMovieMotionHumanStagger.IParams, "speed">;
+
+  /** Cross a seated ankle onto the opposite knee. */
+  crossAnkleOverKnee: IAutoMovieMotionHumanCrossAnkleOverKnee;
+
+  /** Transfer load between planted feet. */
+  shiftStandingWeight: IAutoMovieMotionHumanShiftStandingWeight;
 }

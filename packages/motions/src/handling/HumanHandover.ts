@@ -1,16 +1,14 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieMutualGoal,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGrasp,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHandover,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -21,7 +19,10 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
+import { HumanGraspHand } from "./HumanGraspHand";
+import { HumanGraspTarget } from "./HumanGraspTarget";
 import { HumanHandoverMeeting } from "./HumanHandoverMeeting";
+import { HumanHandoverUpright } from "./HumanHandoverUpright";
 import { HumanPrehension } from "./HumanPrehension";
 
 /**
@@ -87,42 +88,38 @@ export namespace HumanHandover {
    * @param input Both people, the prop and the outcome.
    * @returns The plan.
    * @throws {Error} When the partners stand beyond reach of each other or the prop lacks the receiving grip.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The namespace defines both bodies, displayed starting bones, held prop and exchange timing; this method returns their common receiver grip and transfer schedule.
+   * @evidence contracts/development/implementation.md#principled-implementation The mutual exchange point translates the held prop; the grasp search ranks each receiver turn by the fit at the offered grip and at the upright carry key; the times are the cited reach, carry and mass-interpolated transfer times.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The offered frame, one receiver grip search, then the timing.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The release follows the receiver's grip by the transfer time; partners beyond reach are refused by the mutual goal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The carry wrist and the hanging elbow are read once for every candidate key; one turn grid of thirteen grasp fits plus the keys the lower bound does not prune.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The turn grid shares one alignment per turn (`HumanGraspHand.turns`); each candidate is fitted on its own.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search's geometry ends with the call; the plan holds frames, the target, wrists, the arm reference and scalar times.
    */
-  export function plan(
-    input: IAutoMovieMotionHumanHandover.IInput,
-  ): IAutoMovieMotionHumanHandover.IPlan {
-    const outcome: IAutoMovieMotionHumanHandover.Outcome =
-      input.outcome ?? "transfer";
-    const giver = input.giver.bones;
-    const receiver = input.receiver.bones;
-    const hand = (
+  export function plan(input: IAutoMovieMotionHumanHandover.IInput): IAutoMovieMotionHumanHandover.IPlan {
+    const outcome: IAutoMovieMotionHumanHandover.Outcome = input.outcome ?? "transfer";
+    const giver: IAutoMovieMotionHumanHandover.IPerson["bones"] = input.giver.bones;
+    const receiver: IAutoMovieMotionHumanHandover.IPerson["bones"] = input.receiver.bones;
+    const hand: (bones: IAutoMovieMotionHumanHandover.IPerson["bones"], side: AutoMovieHumanSide) => IAutoMovieMotionHumanHand.IWrist = (
       bones: IAutoMovieMotionHumanHandover.IPerson["bones"],
       side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanHand.IWrist => {
-      const b = bones.get(`${side}Hand`)!;
+      const b: Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation"> = bones.get(`${side}Hand`)!;
       return { point: b.worldPosition, rotation: b.worldRotation };
     };
-    const giverFrom: IAutoMovieMotionHumanHand.IWrist = hand(
-      giver,
-      input.giver.side,
-    );
-    const receiverFrom: IAutoMovieMotionHumanHand.IWrist = hand(
-      receiver,
-      input.receiver.side,
-    );
+    const giverFrom: IAutoMovieMotionHumanHand.IWrist = hand(giver, input.giver.side);
+    const receiverFrom: IAutoMovieMotionHumanHand.IWrist = hand(receiver, input.receiver.side);
 
     // Where: the receiving grip on the mutual goal, the prop turned as held,
     // its middle at the exchange share of the mean sternum height.
-    const atStart: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.at(
-      input.prop,
-      input.handle,
-      input.frame,
-    );
+    const handle: ReturnType<typeof HumanGraspTarget> = HumanGraspTarget(input.prop, input.handle);
+    const atStart: IAutoMovieVector3 = handle.point(input.frame);
     const meet: IAutoMovieVector3 =
       input.meet ??
       resolveAutoMovieMutualGoal(HumanHandoverMeeting.goal(input, EXCHANGE))
         .point;
-    const shift: IAutoMovieVector3 = Vector3.subtract(meet, atStart.point);
+    const shift: IAutoMovieVector3 = Vector3.subtract(meet, atStart);
     const offered: IAutoMovieRigidTransform = {
       position: Vector3.add(input.frame.position, shift),
       rotation: input.frame.rotation,
@@ -135,52 +132,37 @@ export namespace HumanHandover {
     // reach from standing, as a pick up does, and can still hold as it took
     // it at the place it then carries the prop to, so the prop is not tipped
     // on the way there.
-    const authored: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.at(
-      input.prop,
-      input.handle,
-      offered,
-    );
+    const authored: IAutoMovieMotionHumanGrasp.ITarget = handle.at(offered);
     const standing: IAutoMovieMotionHumanPosture = HumanGrasp.standing(
       input.receiver.body,
       receiver,
+    );
+    const place: ReturnType<typeof HumanGraspHand.turns> =
+      HumanGraspHand.turns(input.receiver.body, input.receiver.side, authored);
+    const carriedPoint: IAutoMovieVector3 = carried(input.receiver.body, standing, input.receiver.side);
+    const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      input.receiver.body, standing, input.receiver.side,
     );
     const chosen: IAutoMovieMotionHumanGrasp.IReach = HumanGrasp.reachable(
       input.receiver.body,
       standing,
       input.receiver.side,
-      AutoMovieMotionHumanBend.hang(
-        input.receiver.body,
-        standing,
-        input.receiver.side,
-      ),
+      hang,
       (turn: number): IAutoMovieMotionHumanHand.IWrist =>
-        HumanGrasp.hand(
-          input.receiver.body,
-          input.receiver.side,
-          HumanGrasp.around(authored, turn),
-        ),
+        place(turn, 0),
       [0],
-      (
-        wrist: IAutoMovieMotionHumanHand.IWrist,
-      ): IAutoMovieMotionHumanGrasp.IKey[] => [
+      (wrist: IAutoMovieMotionHumanHand.IWrist): IAutoMovieMotionHumanGrasp.IKey[] => [
         {
           posture: standing,
           wrist: {
-            point: carried(input.receiver.body, standing, input.receiver.side),
+            point: carriedPoint,
             rotation: wrist.rotation,
           },
-          bend: AutoMovieMotionHumanBend.hang(
-            input.receiver.body,
-            standing,
-            input.receiver.side,
-          ),
+          bend: hang,
         },
       ],
     );
-    const target: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.around(
-      authored,
-      chosen.turn,
-    );
+    const target: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
     const receiverAt: IAutoMovieMotionHumanHand.IWrist = chosen.wrist;
     const receiverShown: IAutoMovieMotionHumanHand.IWrist = chosen.shown;
 
@@ -243,25 +225,10 @@ export namespace HumanHandover {
     side: AutoMovieHumanSide,
     pitch: number = 0,
   ): IAutoMovieVector3 {
-    const raised: number = (pitch * Math.PI) / 180;
-    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, posture).get(
+    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(
       `${side}UpperArm`,
     )!.worldPosition;
-    return HumanFrame.point(
-      {
-        origin: {
-          x: shoulder.x,
-          y: shoulder.y - body.measure.upperArm,
-          z: shoulder.z,
-        },
-        yaw: posture.yaw,
-      },
-      {
-        x: 0,
-        y: body.measure.forearm * Math.sin(raised),
-        z: body.measure.forearm * Math.cos(raised),
-      },
-    );
+    return carriedAt(shoulder, posture.yaw, body.measure.upperArm, body.measure.forearm, pitch);
   }
 
   /** The longest interval between two instants an upright carry's turn is chosen at, seconds (provisional: a carry's arm changes its best turn over about a tenth of a second). */
@@ -295,9 +262,9 @@ export namespace HumanHandover {
    * @evidence contracts/development/implementation.md#principled-implementation An upright vessel's rotation is fixed up to a turn about the vertical, so that turn is the arm's to choose; the tip is read as the asked rotation's error applied to the world's up, the only error that spills what the hand holds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A fixed number of instants, a fixed set of turns, one linear interpolation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The turn is chosen at plan time and is a function of time alone, never of a previous frame.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Nine posture resolves per instant, one instant per `STEP` of the path, at plan time.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Nine posture resolves per instant, one instant per STEP of the path, at plan time; each later read finds its interval in O(log K) comparisons and interpolates linearly.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by the giver's offer and the receiver's take-away, the two upright carries of a handover.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned function closes over the chosen turns.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains K times and K scalar turns until its action is released; actual sample postures and solver workspaces are not captured or retained.
    */
   export function upright(
     body: IAutoMovieMotionHumanBody,
@@ -307,41 +274,7 @@ export namespace HumanHandover {
     to: number,
     ends: readonly [number, number | undefined],
   ): (seconds: number) => number {
-    const count: number = Math.max(1, Math.ceil((to - from) / STEP - 1e-9));
-    const tip = (seconds: number, yaw: number): number =>
-      tipped(body, side, at(seconds, yaw));
-    const times: number[] = [from];
-    const turns: number[] = [ends[0]];
-    for (let k: number = 1; k <= count; k++) {
-      const seconds: number = from + ((to - from) * k) / count;
-      times.push(seconds);
-      if (k === count && ends[1] !== undefined) {
-        turns.push(ends[1]);
-        continue;
-      }
-      const before: number = turns.at(-1)!;
-      let best: number = before;
-      let least: number = Infinity;
-      for (const yaw of YAWS) {
-        const cost: number = tip(seconds, yaw) + 0.1 * Math.abs(yaw - before);
-        if (cost < least - 1e-9) {
-          least = cost;
-          best = yaw;
-        }
-      }
-      turns.push(best);
-    }
-    return (seconds: number): number => {
-      if (!(seconds > from)) return turns[0]!;
-      for (let k: number = 1; k < times.length; k++)
-        if (seconds <= times[k]!)
-          return (
-            turns[k - 1]! +
-            ((turns[k]! - turns[k - 1]!) * (seconds - times[k - 1]!)) /
-              (times[k]! - times[k - 1]!)
-          );
-      return turns.at(-1)!;
-    };
+    return HumanHandoverUpright.ordinary(body, side, at, from, to, ends);
   }
 
   /**
@@ -371,21 +304,17 @@ export namespace HumanHandover {
     const reached: IAutoMovieQuaternion | undefined = poseBones(
       body,
       resolveHumanPosture(body, posture),
+      undefined,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
     ).get(`${side}Hand`)?.worldRotation;
-    if (asked === undefined || reached === undefined) return Infinity;
-    const off: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.normalize(reached),
-      Quaternion.inverse(Quaternion.normalize(asked)),
-    );
-    return (
-      (Math.acos(
-        Math.max(
-          -1,
-          Math.min(1, Quaternion.rotateVector(off, { x: 0, y: 1, z: 0 }).y),
-        ),
-      ) *
-        180) /
-      Math.PI
-    );
+    return HumanHandoverUpright.angle(asked, reached);
   }
+}
+
+/** The carried wrist: a forearm, raised by `pitch` degrees, ahead of the elbow hanging an upper arm under the shoulder, along the heading. */
+function carriedAt(shoulder: IAutoMovieVector3, yaw: number, upper: number,
+  forearm: number, pitch: number): IAutoMovieVector3 {
+  const raised: number = (pitch * Math.PI) / 180;
+  return HumanFrame.point({ origin: { x: shoulder.x, y: shoulder.y - upper, z: shoulder.z }, yaw },
+    { x: 0, y: forearm * Math.sin(raised), z: forearm * Math.cos(raised) });
 }

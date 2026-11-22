@@ -54,7 +54,12 @@ export function equidAttachmentMatrix(
     canter: [5, 0.496, 0.172],
     gallop: [5, 0.472, 0.176],
   };
-  const contactIds: Readonly<Record<createHorse.Tack, readonly string[]>> = {
+  const contactIds: Readonly<
+    Record<
+      Exclude<createHorse.Tack, "bare" | createHorse.Alternative>,
+      readonly string[]
+    >
+  > = {
     saddle: [
       "seat",
       "pommel",
@@ -64,6 +69,7 @@ export function equidAttachmentMatrix(
       "leftRein",
       "rightRein",
       "lead",
+      "mane",
     ],
     harness: ["hitch"],
     both: [
@@ -76,8 +82,9 @@ export function equidAttachmentMatrix(
       "rightRein",
       "lead",
       "hitch",
+      "mane",
     ],
-    pack: ["lead", "leftLoad", "rightLoad"],
+    pack: ["lead", "leftLoad", "rightLoad", "tie"],
   };
   for (const tack of ["saddle", "harness", "both", "pack"] as const) {
     try {

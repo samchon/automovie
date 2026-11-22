@@ -1,18 +1,14 @@
-import { Vector3, convexHull2D, pointInHull } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanWalkStanceCourse,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { walkStanceCourse } from "../actions/walkStanceCourse";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanFoot } from "../posture/HumanFoot";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
-import { staggerKnots } from "./staggerKnots";
 import type { staggerRecover } from "./staggerRecover";
-import { staggerSequential } from "./staggerSequential";
 
 /**
  * One recovery step of a stagger (`staggerRecover`): the weight shifts onto
@@ -23,72 +19,79 @@ import { staggerSequential } from "./staggerSequential";
  * The region is the stance foot's: within its direction's longest measured
  * recovery step of where the foot stood beside the stance foot at the entry,
  * the stance the measured steps were taken from, so a foot that steps again
- * cannot split the legs further than one step does; the legs' clearance of
- * each other is the stance course's, so a foot may cross the other. A foot
- * stepping forward strikes with its heel and one stepping backward lands on
- * its forefoot (Grasso, Bianchi and Lacquaniti 1998, J Neurophysiol 80:1868),
- * so the point runs from the heel to the ball with the step's share along
- * the foot.
+ * cannot split the legs further than one step does. A landing on the stance
+ * foot's far side, or nearer it than the feet stand side by side, crosses
+ * it, in front of it or behind it, at least a sole's length ahead of or
+ * behind the stance foot so the two soles do not overlap; of the two, the
+ * one nearer its aim. A foot stepping forward strikes with its heel and one
+ * stepping backward lands on its forefoot (Grasso, Bianchi and Lacquaniti
+ * 1998, J Neurophysiol 80:1868), so the point runs from the heel to the ball
+ * with the step's share along the foot.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the step's phases, its region, its landing point and its source.
- * @evidence contracts/development/design.md#principled-representation One step over a shared pendulum, its course passed in and out, so the orders of the feet search reuses the steps they share.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function, read by `staggerRecover`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every bound is a measured one from `staggerBounds`; the region scales with the body's stature.
+ * The step is placed in closed form on the pendulum alone; whether the legs
+ * hold it is the admission's (`staggerAdmission`), which reads the step but
+ * never moves it, so the pendulum's outcome is the whole model's wherever
+ * the legs hold the steps.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the step's phases, its region, its crossing, its landing point, its source and the admission's separation.
+ * @evidence contracts/development/design.md#principled-representation One step over a shared pendulum, so the orders of the feet search reuses the steps they share.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One function and its result, read by `staggerRecover`.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every bound is a measured one from `staggerBounds`; the region scales with the body's stature and the crossing with its soles.
  */
 export namespace staggerStep {
-  /** What a step reads besides its pendulum. */
-  export interface IProps {
-    /** The trunk's shift of the centre of mass per sine of its tilt (`staggerKnots.bending`). */
-    bend: Record<"pitch" | "roll", IAutoMovieVector3>;
-
-    /** Whether the landing is placed by the stance course under the legs' ranges; the pendulum alone when false. */
-    kinematic: boolean;
-
-    /** The course of the steps before this one, its start. */
-    checking: IAutoMovieMotionHumanWalkStanceCourse.ICourse | undefined;
-  }
-
-  /** A step's outcome. */
+  /** A step's outcome.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the capture flag and whether the landing crosses the stance foot.
+   * @evidence contracts/development/design.md#principled-representation The capture decision and the crossing the admission reads; the step itself is on the pendulum.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Recovery reads both to continue an order and to admit its prefix.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reports the pendulum's actual capture, with no success override.
+   */
   export interface IResult {
-    /** Whether the body is caught after it; null when the legs hold no landing in its region. */
+    /** Whether the body is caught after it; null when the legs admit no landing in its region. */
     done: boolean | null;
 
-    /** The course the next step starts from. */
-    checking: IAutoMovieMotionHumanWalkStanceCourse.ICourse | undefined;
+    /** Whether the landing crosses the stance foot. */
+    crossing: boolean;
   }
 
   /**
    * Take one step on the pendulum.
    *
    * @param pendulum The pendulum, advanced through the step.
-   * @param props The trunk's shift, whether the legs' ranges place the landing, and the course so far.
    * @param side The stepping foot.
    * @param reaction Seconds both feet bear before the weight shifts.
    * @param unloaded Whether this is a sideways push's first step with the leg it unloads (`staggerBounds.LATERAL`).
-   * @returns Whether it catches the body, and the course the next step starts from.
+   * @param admit Whether the legs hold a candidate step at the given instants, whose feet cross when the flag says so (`staggerAdmission`); every landing is the aimed one when absent, the pendulum alone.
+   * @returns Whether it catches the body, and whether the landing crosses.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input and the outcome.
-   * @evidence contracts/development/implementation.md#principled-implementation Step adaptation (Khadiv et al. 2016; Griffin et al. 2017): the stance course up to the landing and through the weight's shift onto both feet after it places the landing itself, pulled toward the ankle that puts its landing point on the extrapolated centre of mass and held inside the region, the legs' ranges and their clearance of each other.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shift, the swing, the aim, the region, then the course from each start, the better kept.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A landing the legs cannot hold in the region is null, never a shortened bound.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One course per start, at most three, each solved only from the last step's landing on.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Continues the course of the steps before it.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the chosen course in its result only.
+   * @evidence contracts/development/implementation.md#principled-implementation Capture-point stepping (Koolen et al. 2012; Hof 2008): the foot lands its landing point on the extrapolated centre of mass at touch-down, held inside the measured region and, crossing, a sole's length clear of the stance foot; caught once the extrapolated centre of mass is inside the two feet's base.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shift, the swing, the aim, the region, the crossing, the landing.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The region and the times are the measured bounds; a landing is never moved by the legs' admission, which refuses it instead.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Closed form: one weight-shift span (`staggerTransfer`, its end a fixed point of a few passes), one held swing span, two region clamps and two support hulls; admitted, at most 3 + log2(1 / `ADAPTED`) landing admissions.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Ball, heel and sole positions are read once from the departing placement and shared by its toe direction, aim and landing point.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Appends the step and its spans to the pendulum the search owns.
    */
   export function take(
     pendulum: StaggerPendulum,
-    props: IProps,
     side: "left" | "right",
     reaction: number,
     unloaded: boolean,
+    admit?: (step: staggerRecover.IStep, instants: readonly number[], crossing: boolean) => boolean,
   ): IResult {
-    const body = pendulum.body;
-    const flat = StaggerPendulum.flat;
-    const { REACTION, TRANSFER, LATERAL, STEP_TIME, STEP_LENGTH, KNOTS } =
-      staggerBounds;
-    const { centre, forward, across, entered, width, length } = pendulum;
+    const body: StaggerPendulum["body"] = pendulum.body;
+    const flat: typeof StaggerPendulum.flat = StaggerPendulum.flat;
+    const {
+      REACTION,
+      TRANSFER,
+      LATERAL,
+      STEP_TIME,
+      STEP_LENGTH,
+    }: typeof staggerBounds = staggerBounds;
+    const { centre, forward, across, entered, width, length }: StaggerPendulum = pendulum;
     const stance: "left" | "right" = side === "left" ? "right" : "left";
     if (reaction > 0) pendulum.bear(["left", "right"], reaction);
+
     // The leg a sideways push unloads leaves the floor sooner and swings
     // longer than a forward or backward step's (`LATERAL`).
     const forth: number =
@@ -104,230 +107,134 @@ export namespace staggerStep {
     const swing: number = unloaded
       ? (LATERAL.swing * (STEP_TIME.forward + STEP_TIME.backward)) / 2
       : pendulum.bound(
-          flat(
-            Vector3.subtract(Vector3.add(centre, pendulum.xi()), from.ankle),
-          ),
+          flat(Vector3.subtract(Vector3.add(centre, pendulum.xi()), from.ankle)),
           STEP_TIME,
         );
     const start: number = pendulum.t;
-    pendulum.bear([stance], swing);
-    const goal: IAutoMovieVector3 = Vector3.add(centre, pendulum.xi());
-    const toes: IAutoMovieVector3 = flat(
-      Vector3.subtract(
-        HumanFoot.point(body, side, "ball", from),
-        HumanFoot.point(body, side, "heel", from),
-      ),
+
+    // Over the swing the stance foot alone bears, its centre of pressure
+    // held where the weight shift ended, the stance foot's point nearest the
+    // extrapolated centre of mass at lift-off.
+    pendulum.hold(swing);
+
+    // The aim: the landing point where the extrapolated centre of mass will
+    // be once the landed foot has taken the weight, over the measured weight
+    // shift (`StaggerPendulum.loaded`).
+    const goal: IAutoMovieVector3 = Vector3.add(
+      centre,
+      pendulum.loaded(AutoMovieMotionHumanTiming.seconds(TRANSFER)),
     );
-    const aim: IAutoMovieVector3 = flat(
-      Vector3.subtract(goal, HumanFoot.point(body, side, "sole", from)),
-    );
+    const ball: IAutoMovieVector3 = HumanFoot.point(body, side, "ball", from);
+    const heel: IAutoMovieVector3 = HumanFoot.point(body, side, "heel", from);
+    const toes: IAutoMovieVector3 = flat(Vector3.subtract(ball, heel));
+    const sole: IAutoMovieVector3 = HumanFoot.point(body, side, "sole", from);
+    const aim: IAutoMovieVector3 = flat(Vector3.subtract(goal, sole));
+    const aimed: number = Vector3.length(aim);
+    const toeLength: number = Vector3.length(toes);
     const share: number =
-      Vector3.length(aim) > 0 && Vector3.length(toes) > 0
-        ? Vector3.dot(aim, toes) / (Vector3.length(aim) * Vector3.length(toes))
+      aimed > 0 && toeLength > 0
+        ? Vector3.dot(aim, toes) / (aimed * toeLength)
         : 0;
     const lands: IAutoMovieVector3 = Vector3.lerp(
-      HumanFoot.point(body, side, "sole", from),
-      HumanFoot.point(body, side, share >= 0 ? "heel" : "ball", from),
+      sole,
+      share >= 0 ? heel : ball,
       Math.abs(share),
     );
     const wanted: IAutoMovieVector3 = Vector3.add(
       from.ankle,
       flat(Vector3.subtract(goal, lands)),
     );
+
     // The region: the step's length from where the foot stood beside the
     // stance foot.
     const beside: IAutoMovieVector3 = Vector3.add(
       pendulum.feet[stance].ankle,
       flat(Vector3.subtract(entered[side].ankle, entered[stance].ankle)),
     );
-    const reached = (ankle: IAutoMovieVector3): IAutoMovieVector3 => {
+    const reached: (ankle: IAutoMovieVector3) => IAutoMovieVector3 = (ankle: IAutoMovieVector3): IAutoMovieVector3 => {
       const travel: IAutoMovieVector3 = flat(Vector3.subtract(ankle, beside));
       const longest: number =
         pendulum.bound(travel, STEP_LENGTH) * body.measure.stature;
-      return Vector3.length(travel) > longest
-        ? Vector3.add(
-            beside,
-            Vector3.scale(travel, longest / Vector3.length(travel)),
-          )
+      const distance: number = Vector3.length(travel);
+      return distance > longest
+        ? Vector3.add(beside, Vector3.scale(travel, longest / distance))
         : ankle;
     };
     const ankle0: IAutoMovieVector3 = reached(wanted);
-    // Then the legs' own reachable set, in one solve: the stance course up
-    // to the landing and through the weight's shift onto both feet after
-    // it (`staggerKnots.of`, `walkStanceCourse`) places the landing itself,
-    // pulled toward the ankle that puts its landing point on the
-    // extrapolated centre of mass and held inside the region, the legs'
-    // ranges and their clearance of each other, as step adaptation places a
-    // step (Khadiv et al. 2016; Griffin et al. 2017). Where the legs can hold
-    // no landing in the region, this order of the feet does not catch the
-    // body.
-    const region = (ankle: IAutoMovieVector3): number[] => {
-      const travel: IAutoMovieVector3 = flat(Vector3.subtract(ankle, beside));
-      return [
-        Vector3.length(travel) -
-          pendulum.bound(travel, STEP_LENGTH) * body.measure.stature,
-      ];
-    };
-    const placed: IAutoMovieMotionHumanFoot.IPlacement = {
-      ankle: { ...ankle0, y: from.ankle.y },
-      rotation: from.rotation,
-    };
+
     // A landing on the stance foot's far side, or nearer it than the feet
-    // stand side by side, crosses it: it lands in front of it or behind
-    // it, each start at least a sole's length ahead of or behind the
-    // stance foot.
+    // stand side by side, crosses it: it lands in front of it or behind it,
+    // at least a sole's length ahead of or behind the stance foot, the one
+    // nearer the aim.
     const sign: number = side === "left" ? 1 : -1;
     const crossing: boolean =
-      sign *
-        Vector3.dot(
-          Vector3.subtract(ankle0, pendulum.feet[stance].ankle),
-          across,
-        ) <
+      sign * Vector3.dot(Vector3.subtract(ankle0, pendulum.feet[stance].ankle), across) <
       width;
-    const crossed = (way: number): IAutoMovieMotionHumanFoot.IPlacement => {
+    const crossed: (way: number) => IAutoMovieVector3 = (way: number): IAutoMovieVector3 => {
       const ahead: number = Vector3.dot(
         Vector3.subtract(ankle0, pendulum.feet[stance].ankle),
         forward,
       );
       const shift: number =
         way > 0 ? Math.max(0, length - ahead) : Math.min(0, -length - ahead);
-      return {
-        ankle: {
-          ...reached(Vector3.add(ankle0, Vector3.scale(forward, shift))),
-          y: from.ankle.y,
-        },
-        rotation: from.rotation,
-      };
+      return reached(Vector3.add(ankle0, Vector3.scale(forward, shift)));
     };
-    const both: IAutoMovieVector3[] = convexHull2D(
-      [
-        ...HumanFoot.sole(body, stance, pendulum.feet[stance]),
-        ...HumanFoot.sole(body, side, placed),
-      ].map(
-        (q: IAutoMovieVector3): IAutoMovieVector3 =>
-          flat(Vector3.subtract(q, centre)),
-      ),
-    );
-    // The pendulum alone (`staggerLimit`'s bound) lands where the region puts it.
-    if (!props.kinematic) {
-      pendulum.steps.push({ side, from, to: placed, start, land: pendulum.t });
-      pendulum.feet[side] = placed;
-      return { done: pendulum.captured(), checking: props.checking };
-    }
-    const nearest = (): IAutoMovieVector3 =>
-      StaggerPendulum.nearest(both, pendulum.xi());
-    pendulum.phases.push({
-      from: pendulum.t,
-      p: nearest(),
-      s: pendulum.s,
-      v: pendulum.v,
+    const off: (ankle: IAutoMovieVector3) => number = (ankle: IAutoMovieVector3): number =>
+      Vector3.length(flat(Vector3.subtract(ankle, wanted)));
+    const crosses: (ankle: IAutoMovieVector3) => boolean = (ankle: IAutoMovieVector3): boolean =>
+      sign * Vector3.dot(Vector3.subtract(ankle, pendulum.feet[stance].ankle), across) < width;
+    const sides: IAutoMovieVector3[] = crossing
+      ? ((front: IAutoMovieVector3, back: IAutoMovieVector3): IAutoMovieVector3[] =>
+          off(front) <= off(back) ? [front, back] : [back, front])(crossed(1), crossed(-1))
+      : [ankle0];
+    const stepTo: (ankle: IAutoMovieVector3) => staggerRecover.IStep = (ankle: IAutoMovieVector3): staggerRecover.IStep => ({
+      side,
+      from,
+      to: { ankle: { ...ankle, y: from.ankle.y }, rotation: from.rotation },
+      start,
+      land: pendulum.t,
     });
-    const swung: staggerRecover.ICourses = pendulum.courses();
-    // Each start's course: the landing placed from a start on the floor,
-    // the course run on through the weight's shift onto both feet that
-    // follows it.
-    const t: number = pendulum.t;
-    const steps = pendulum.steps;
-    const solveFrom = (
-      origin: IAutoMovieMotionHumanFoot.IPlacement,
-      warm: IAutoMovieMotionHumanWalkStanceCourse.ICourse | undefined,
-    ): {
-      course: IAutoMovieMotionHumanWalkStanceCourse.ICourse;
-      to: IAutoMovieMotionHumanFoot.IPlacement;
-    } => {
-      const knots: staggerKnots.IKnot[] = staggerKnots.of(
-        body,
-        pendulum.entry,
-        props.bend,
-        {
-          ...swung,
-          steps: [...steps, { side, from, to: origin, start, land: t }],
-          caught:
-            both.length >= 3 && pointInHull(pendulum.xi(), both) ? t : Infinity,
-          landing: {
-            placement: origin,
-            goal: { ...wanted, y: from.ankle.y },
-            region,
-          },
-        },
-        t + AutoMovieMotionHumanTiming.seconds(TRANSFER),
-      );
-      // The steps before this one are settled up to the last one's landing:
-      // only the course from there on is solved again.
-      const settled: number =
-        warm === undefined || steps.length === 0
-          ? 0
-          : Math.min(
-              warm.knots.length,
-              Math.floor(steps.at(-1)!.land * KNOTS + 1e-9),
-            );
-      const course: IAutoMovieMotionHumanWalkStanceCourse.ICourse =
-        staggerSequential.solve(body, knots, warm, settled);
-      const at: number = Math.min(
-        course.knots.length - 1,
-        Math.ceil(t * KNOTS - 1e-9),
-      );
-      return {
-        course,
-        to: {
-          ankle: {
-            x: origin.ankle.x + course.slide[side].x[at]!,
-            y: from.ankle.y,
-            z: origin.ankle.z + course.slide[side].z[at]!,
-          },
-          rotation: from.rotation,
-        },
-      };
-    };
-    // The starts: the aim the region allows, from the course of the steps
-    // before it, or for a crossing landing a start in front of the stance
-    // foot and one behind it; and, where those end short of the ranges,
-    // the place beside the stance foot: a local solve from one start can
-    // stop at the edge of what the legs hold, and the one that meets the
-    // ranges, or comes nearer, decides. Of two crossings that both meet
-    // them, the one that lands nearer its aim does.
-    pendulum.phases.push({
-      from: pendulum.t,
-      p: nearest(),
-      s: pendulum.s,
-      v: pendulum.v,
-    });
-    const off = (l: ReturnType<typeof solveFrom>): number =>
-      Vector3.length(flat(Vector3.subtract(l.to.ankle, wanted)));
-    const better = (
-      a: ReturnType<typeof solveFrom>,
-      b: ReturnType<typeof solveFrom>,
-    ): ReturnType<typeof solveFrom> => {
-      const met = (l: ReturnType<typeof solveFrom>): boolean =>
-        l.course.unmet <= walkStanceCourse.MET;
-      if (met(a) !== met(b)) return met(a) ? a : b;
-      if (!met(a)) return a.course.unmet <= b.course.unmet ? a : b;
-      return off(a) <= off(b) ? a : b;
-    };
-    let landed = crossing
-      ? better(
-          solveFrom(crossed(1), props.checking),
-          solveFrom(crossed(-1), props.checking),
-        )
-      : solveFrom(placed, props.checking);
-    if (landed.course.unmet > walkStanceCourse.MET) {
-      const near = solveFrom(
-        { ankle: { ...beside, y: from.ankle.y }, rotation: from.rotation },
-        undefined,
-      );
-      if (near.course.unmet < landed.course.unmet) landed = near;
+    let chosen: IAutoMovieVector3 = sides[0]!;
+    if (admit !== undefined) {
+      // The centre of mass's course up to the touch-down does not depend on
+      // where the foot lands, so each candidate landing is admitted on the
+      // same course: the stance leg at mid-swing once, then the aimed
+      // landing, the other side of a crossing, and else the farthest point
+      // the legs hold on the way back to where the foot stood beside the
+      // stance foot, as a step past the legs' reach shortens toward the
+      // stance foot (step adaptation, Khadiv et al. 2016), bisected to
+      // `ADAPTED` of the way, its admission taken as monotone along it.
+      const landing: (ankle: IAutoMovieVector3) => boolean = (ankle: IAutoMovieVector3): boolean =>
+        admit(stepTo(ankle), [pendulum.t], crosses(ankle));
+      if (!admit(stepTo(sides[0]!), [(start + pendulum.t) / 2], false))
+        return { done: null, crossing };
+      const held: IAutoMovieVector3 | undefined = sides.find(landing);
+      if (held !== undefined) chosen = held;
+      else {
+        const toward: (share: number) => IAutoMovieVector3 = (share: number): IAutoMovieVector3 =>
+          Vector3.lerp(beside, sides[0]!, share);
+        if (!landing(beside)) return { done: null, crossing };
+        let lo: number = 0;
+        let hi: number = 1;
+        while (hi - lo > staggerBounds.ADAPTED) {
+          const mid: number = (lo + hi) / 2;
+          if (landing(toward(mid))) lo = mid;
+          else hi = mid;
+        }
+        chosen = toward(lo);
+      }
     }
-    pendulum.phases.pop();
-    // The next step's course starts from this one.
-    const checking: IAutoMovieMotionHumanWalkStanceCourse.ICourse =
-      landed.course;
-    if (landed.course.unmet > walkStanceCourse.MET)
-      return { done: null, checking };
-    const to: IAutoMovieMotionHumanFoot.IPlacement = landed.to;
+    const to: IAutoMovieMotionHumanFoot.IPlacement = stepTo(chosen).to;
     pendulum.steps.push({ side, from, to, start, land: pendulum.t });
     pendulum.feet[side] = to;
+
+    // From the touch-down both feet may bear, but a foot takes no weight as
+    // it touches down: the centre of pressure stays where the swing held it
+    // until the next weight shift, or the close's, carries it onto the
+    // landed foot (`StaggerPendulum.transfer`), so it never jumps.
+
     // Caught once the extrapolated centre of mass lies inside the base the
     // two feet now make, the zero-step capture region (Koolen et al. 2012).
-    return { done: pendulum.captured(), checking };
+    return { done: pendulum.captured(), crossing: crosses(chosen) };
   }
 }
