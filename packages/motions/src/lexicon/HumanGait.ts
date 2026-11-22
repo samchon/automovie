@@ -58,7 +58,7 @@ import { HUMAN_DRILL_CADENCES } from "./HUMAN_DRILL_CADENCES";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No entry writes steps of its own: every one is planned by `walk.locomote`.
  */
 export namespace HumanGait {
-  /** A stroll: slow, the stride a little short, the arms easy. */
+  /** A stroll: the `slow` walk (about 1.05 m/s) on steps 0.9 times the pace's, about 106 steps a minute, the arms swung 0.8; leisure, waiting about, a quiet street ({@link IAutoMovieMotionHumanWalkParams.pace}). */
   export const stroll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["stroll"]
   > = HumanActionRow.of("stroll", walk, {
@@ -67,7 +67,7 @@ export namespace HumanGait {
     armSwing: 0.8,
   });
 
-  /** A hurry: fast, the stride long, the arms driving. */
+  /** A hurry: the `fast` walk (about 1.7 m/s) on steps 1.1 times the pace's, about 124 steps a minute, the arms swung 1.3; late for something, a purposeful errand that is not a run ({@link IAutoMovieMotionHumanWalkParams.pace}). */
   export const hurry: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["hurry"]
   > = HumanActionRow.of("hurry", walk, {
@@ -76,7 +76,7 @@ export namespace HumanGait {
     armSwing: 1.3,
   });
 
-  /** A weary trudge: slow, short, the arms barely swinging. */
+  /** A weary trudge: the `slow` walk (about 1.05 m/s) on steps 0.8 times the pace's, about 120 steps a minute, the arms swung 0.4; exhaustion, defeat, a long march home ({@link IAutoMovieMotionHumanWalkParams.pace}). */
   export const trudge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["trudge"]
   > = HumanActionRow.of("trudge", walk, {
@@ -85,7 +85,7 @@ export namespace HumanGait {
     armSwing: 0.4,
   });
 
-  /** A swagger: the elbows out and the arms swung wide. */
+  /** A swagger: the `normal` walk (about 1.5 m/s), the arms swung 1.5 and the elbows 20 degrees out; confidence, a challenge, showing off ({@link IAutoMovieMotionHumanWalkParams.pace}). */
   export const swagger: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["swagger"]
   > = HumanActionRow.of("swagger", walk, {
@@ -94,12 +94,12 @@ export namespace HumanGait {
     elbows: 20,
   });
 
-  /** A jog. */
+  /** A jog: the `jog` run (about 2.3 m/s, about 165 steps a minute); exercise, an easy pace held for a long way ({@link IAutoMovieMotionHumanRun.IParams.pace}). */
   export const jog: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["jog"]
   > = HumanActionRow.of("jog", run, { pace: "jog" });
 
-  /** A sprint. */
+  /** A sprint: the `sprint` run (about 6.8 m/s, about 234 steps a minute); a charge, chase or escape at full effort ({@link IAutoMovieMotionHumanRun.IParams.pace}). */
   export const sprint: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["sprint"]
   > = HumanActionRow.of("sprint", run, { pace: "sprint" });

@@ -3,25 +3,47 @@ import type { IAutoMovieMotionHumanEffort } from "../everyday/IAutoMovieMotionHu
 /**
  * The authored manner shared by human motion primitives: effort, intensity, pace, proficiency and variation. AutoMovieMotionManner resolves these controls into motion-specific modifiers.
  *
- * @evidence contracts/development/common.md#meaningful-documentation The authored manner shared by human motion primitives: effort, intensity, pace, proficiency and variation. AutoMovieMotionManner resolves these controls into motion-specific modifiers.
+ * A manner changes how an action is performed and never which contacts it makes: a goal on a solid place keeps its place. A member reaches an action only where that action's `manner` admits it; the punch admits `variation` and `proficiency` alone and takes its timing from the performer's skill. Every member is neutral when absent, and the action then performs its own natural timing and size, stated on the action's type.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The authored manner shared by human motion primitives: effort, intensity, pace, proficiency and variation, and what each changes. AutoMovieMotionManner resolves these controls into motion-specific modifiers.
  * @evidence contracts/development/design.md#principled-representation Five independent qualities of a performance: Laban Effort for its quality, intensity for its size, pace for its rate, proficiency for its consistency and variation for how much it differs between performances.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Primitive authors share these manner controls; AutoMovieMotionManner resolves them into operation-specific modifiers and timing spans without storing an additional posture.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional controls retain runtime defaults, and effort reuses its closed canonical contract. AutoMovieMotionManner owns interpretation and modifier calculation.
  */
 export interface IAutoMovieMotionManner {
-  /** Laban Effort, each factor in [-1, 1]; neutral when absent. */
+  /** Laban Effort, each factor in [-1, 1]; 0 when absent. {@link IAutoMovieMotionHumanEffort} gives what each factor changes. */
   effort?: IAutoMovieMotionHumanEffort.IEffort;
 
-  /** How much of the action's full size is performed, in (0, 1]; 1 when absent. */
+  /**
+   * The share of the action's full size, in (0, 1]; 1 when absent. The full
+   * size is what the action performs without a manner, stated on its type.
+   * It multiplies the excursions about the base and the free-space
+   * amplitudes (a gesture's amplitude, a stroke's reach); the Effort `weight`
+   * and `flow` factors scale the same size ({@link IAutoMovieMotionHumanEffort}).
+   */
   intensity?: number;
 
-  /** The rate as a multiple of the action's natural rate; positive, 1 when absent. */
+  /**
+   * The rate as a multiple of the action's natural rate, positive; 1 when
+   * absent. The natural rate is the action's own timing, stated on its type
+   * (a gait's speed on its `pace`). `pace: 1.5` divides every duration the
+   * action does not fix physically by 1.5 and the holds likewise; a flight or
+   * a fall keeps its length. A gait's speed is multiplied by 1.5
+   * ({@link IAutoMovieMotionHumanWalkParams.manner}). An Effort `time` factor
+   * multiplies the durations by `1 - 0.3 time` on top.
+   */
   pace?: number;
 
-  /** Skill in [0, 1], which narrows the variation; the performer's own when absent. */
+  /**
+   * Skill in [0, 1], which narrows the offsets `variation` draws: at
+   * `variation` 1 the duration and the size differ by up to 14 % and 20 % for
+   * 0 and 5 % and 8 % for 1, in proportion between (`AutoMovieMotionManner.BOUNDS`;
+   * the duration's are measured, the size's provisional). It changes nothing
+   * at `variation` 0. The performer's own timing skill when absent.
+   */
   proficiency?: number;
 
-  /** How much one performance differs from the next, in [0, 1]; 0 when absent. */
+  /** The share of the offset bound a seeded draw takes, in [0, 1], so one performance differs from the next in duration and size; 0 when absent: every performance is the same. */
   variation?: number;
 }
 

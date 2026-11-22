@@ -36,7 +36,7 @@ export namespace IAutoMovieMotionHumanPursuit {
     /** The person headed off, by subject id; composed before the performer. */
     target: string;
 
-    /** The pace; `run` when absent. */
+    /** The running gait ({@link IAutoMovieMotionHumanRun.IParams.pace} gives the speeds); `run` when absent. A pace the target outruns is refused. */
     pace?: IAutoMovieMotionHumanRun.IParams["pace"];
   }
 
@@ -52,12 +52,12 @@ export namespace IAutoMovieMotionHumanPursuit {
     /** The person fled from, by subject id. */
     from: string;
 
-    /** How far to run, metres; `FLIGHT` hip heights when absent.
+    /** How far to run, metres; `FLIGHT` hip heights when absent (9 hip heights, about 8 m at the reference hip).
      * Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     metres?: number;
 
-    /** The pace; `run` when absent. */
+    /** The running gait ({@link IAutoMovieMotionHumanRun.IParams.pace} gives the speeds); `run` when absent. An escape at full effort is `sprint`. */
     pace?: IAutoMovieMotionHumanRun.IParams["pace"];
   }
 }

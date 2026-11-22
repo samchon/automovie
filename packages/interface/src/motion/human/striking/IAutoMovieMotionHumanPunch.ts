@@ -46,14 +46,27 @@ import type { IAutoMovieMotionHumanStrikingQuality } from "./IAutoMovieMotionHum
  * along the line at the band's reach and falls short, the declared
  * miss-at-maximum-reach rule.
  *
- * Timing: a lone punch takes the single maximal jab's 0.405 s (Stanley et al.
- * 2018); a punch that follows another punch's contact keeps the measured
- * combination intervals, 0.35 s between alternating hands and 0.45 s for the
- * same hand (Piorkowski et al. 2011), counted from that contact. The return
- * to the guard takes one alternating interval. Skill scales them
- * ({@link StrikingSkill}), and a seeded guard drop may hold the returning
+ * Timing, from launch to contact ({@link StrikingSkill.JAB_DELIVERY}): a lone
+ * punch takes 0.405 s at elite skill (Stanley et al. 2018); a punch that
+ * follows another punch's contact reaches its own contact 0.35 s after that
+ * contact when the hands alternate and 0.45 s when it is the same hand
+ * (Piorkowski et al. 2011), less the time already passed since that contact
+ * when it launches, never under 0.12 s. The return to the guard after contact takes 0.35 s at elite skill.
+ * The performer's `speed` skill multiplies the delivery by 1.06 at novice,
+ * 1.04 at amateur, 1.02 at trained and 1.0 at elite, so a lone punch takes
+ * 0.43, 0.42, 0.41 and 0.405 s ({@link StrikingSkill.strike}, the novice
+ * ratio from Vagner et al. 2023, the levels between on a smoothstep,
+ * {@link HumanSkill.LEVELS}), and its `recovery` skill the return by 1.4,
+ * 1.3, 1.1 and 1.0 ({@link StrikingSkill.recovery}). A seeded timing
+ * variability, 7 % of the time and 25 ms at novice to 2.5 % and 10 ms at
+ * elite, is added ({@link HumanSkill.jitter}), and a seeded guard drop may hold the returning
  * glove low before it reaches the guard. A feint shows a share of the
- * delivery without contact and returns in the same time.
+ * delivery without contact and returns in the same time. The fist peaks at
+ * 3.2 m/s at novice to 7.16 m/s at elite (Liu et al. 2022; the novice end
+ * provisional) and meets the target at 0.78 of that
+ * ({@link StrikingSkill.PUNCH_PEAK_SPEED}). The performer's skill is its
+ * `proficiency` ({@link IAutoMovieMotionHumanPerformer}); `manner` does not
+ * change these times.
  *
  * @evidence contracts/development/common.md#meaningful-documentation hand: Which hand: the stance's lead or rear; lead for a straight or a hook and rear for an uppercut when absent. accuracy: Declared accuracy; `hit` when absent. feint: A feint: the share of the delivery shown before returning, in (0, 1).
  * @evidence contracts/development/design.md#principled-representation hand: Which hand: the stance's lead or rear; lead for a straight or a hook and rear for an uppercut when absent. accuracy: Declared accuracy; `hit` when absent. feint: A feint: the share of the delivery shown before returning, in (0, 1).
@@ -91,7 +104,9 @@ export namespace IAutoMovieMotionHumanPunch {
      * How much repeats of the punch differ: `variation` in [0, 1] scales the
      * spread of the point aimed at within a person's region, and
      * `proficiency` replaces the performer's skill for that spread. Absent or
-     * 0, every repeat is aimed at the region's own point.
+     * 0, every repeat is aimed at the region's own point. Neither member
+     * changes the times or the fist's speed: these follow the performer's
+     * skill (see the namespace).
      */
     manner?: Pick<IAutoMovieMotionManner, "variation" | "proficiency">;
   }

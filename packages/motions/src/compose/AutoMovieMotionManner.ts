@@ -215,6 +215,16 @@ export namespace AutoMovieMotionManner {
    * population values were located (sad walks are slower with shorter strides
    * and proud ones larger in direction, Montepare, Goldstein and Clausen 1987,
    * J Nonverbal Behav 11:33; the magnitudes here are not from it).
+   *
+   * What a preset does to durations and to a normal walk at the reference
+   * hip (`IAutoMovieMotionHumanGait` gives the speed model): the Effort
+   * actions `punch`, `dab`, `slash` and `flick` take 0.7 times the time (a
+   * walk of about 2.2 m/s) and `press`, `glide`, `wring` and `float` 1.3
+   * times (about 1.2 m/s). `weary` takes 1.51 times the time, a walk of
+   * about 1.0 m/s, at an intensity of 0.7; `brisk` 0.68 times, about
+   * 2.2 m/s; `sad` 1.39 times, about 1.1 m/s, at an intensity of 0.7; `proud`
+   * 1.05 times, about 1.4 m/s; `enclosing` and `spreading` do
+   * not change the time. Each is `1 - 0.3 time` over the preset's `pace`.
    */
   export const PRESETS: Readonly<
     Record<IAutoMovieMotionManner.Preset, IAutoMovieMotionManner>

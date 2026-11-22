@@ -43,10 +43,15 @@ export namespace IAutoMovieMotionHumanProxemics {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanProxemics.gap.
    */
   export type Band =
+    /** 0.3 m ({@link HumanProxemics.GAPS}): an embrace, a whisper. */
     | "intimate"
+    /** 0.6 m: squared up within arm's reach; a confrontation or a fight at punching range. */
     | "faceToFace"
+    /** 1.0 m: acquaintances talking; out of arm's reach. */
     | "personal"
+    /** 1.6 m: impersonal business, a follower's distance. */
     | "social"
+    /** The gap where both people's hands meet midway with the elbows bent 35 degrees ({@link HumanProxemics.HANDING_ELBOW}); it follows the arm length. */
     | "handing";
 
   /**

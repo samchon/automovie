@@ -69,7 +69,7 @@ export namespace IAutoMovieMotionHumanCarry {
      */
     load?: number;
 
-    /** The walk's pace; `normal` when absent. */
+    /** The walk's pace ({@link IAutoMovieMotionHumanWalkParams.pace} gives the speeds); `normal` when absent. The load leans the trunk and does not change the speed. */
     pace?: "slow" | "normal" | "fast";
 
     /** How the walk is performed (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent. */

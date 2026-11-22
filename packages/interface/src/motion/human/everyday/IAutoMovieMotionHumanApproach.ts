@@ -78,7 +78,7 @@ export namespace IAutoMovieMotionHumanApproach {
     /** What to approach. */
     target: IAutoMovieMotionTarget;
 
-    /** The gap: a named band or metres; `personal` when absent. */
+    /** The gap from the performer's chest to the target, metres or a named band ({@link IAutoMovieMotionHumanProxemics.Band} gives the metres of each band); `personal` when absent. */
     at?: IAutoMovieMotionHumanProxemics.Band | number;
 
     /**
@@ -88,10 +88,10 @@ export namespace IAutoMovieMotionHumanApproach {
      */
     side?: "front" | "left" | "right" | "behind";
 
-    /** The pace; `normal` when absent. */
+    /** The walk's pace ({@link IAutoMovieMotionHumanWalkParams.pace} gives the speeds); `normal` when absent. An approach never runs: for a charge or a chase use `run` or `sprint`. */
     pace?: IAutoMovieMotionHumanWalkParams["pace"];
 
-    /** Movement quality: steps, arm swing and elbow width of the walk. */
+    /** Movement quality: Flow shortens the step by `0.15 flow`, Weight and Flow scale the arm swing, Flow draws the elbows in ({@link HumanEffort.modifiers}); its `time` factor is not read. */
     effort?: IAutoMovieMotionHumanEffort.IEffort;
 
     /** How the walk there is performed (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent. */

@@ -50,7 +50,7 @@ export namespace IAutoMovieMotionHumanTravelDoor {
     /** The posture fitted through the opening; `upright` when absent. */
     mode?: Mode;
 
-    /** The standing gait's pace; `normal` upright and `slow` for duck and squeeze when absent. The crawl ignores it. */
+    /** The standing gait's walk pace ({@link IAutoMovieMotionHumanWalkParams.pace} gives the speeds); `normal` upright and `slow` for duck and squeeze when absent. The crawl ignores it. */
     pace?: IAutoMovieMotionHumanWalkParams["pace"];
   }
 }

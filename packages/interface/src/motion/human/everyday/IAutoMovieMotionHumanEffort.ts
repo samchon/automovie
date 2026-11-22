@@ -63,16 +63,16 @@ export namespace IAutoMovieMotionHumanEffort {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanEffort.modifiers.
    */
   export interface IEffort {
-    /** -1 light to 1 strong. */
+    /** -1 light to 1 strong. Strong reaches farther and swings the arms more: extent `1 + 0.1 weight`, arm swing `1 + 0.2 weight` ({@link HumanEffort.modifiers}, provisional). */
     weight?: number;
 
-    /** -1 sustained to 1 sudden. */
+    /** -1 sustained to 1 sudden. Sudden is shorter: every duration `1 - 0.3 time` (0.7 at 1, 1.3 at -1), provisional. */
     time?: number;
 
-    /** -1 indirect to 1 direct. */
+    /** -1 indirect to 1 direct. Indirect curves the hand's path sideways by `0.15 max(0, -space)` of its length; direct is straight, provisional. */
     space?: number;
 
-    /** -1 free to 1 bound. */
+    /** -1 free to 1 bound. Bound holds in: extent and step `1 - 0.15 flow`, arm swing `1 - 0.4 flow`, elbows `0.15 flow` upper-arm lengths nearer the body, holds `1 + 0.3 flow` longer; free releases them outward, provisional. */
     flow?: number;
   }
 
