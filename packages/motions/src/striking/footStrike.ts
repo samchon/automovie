@@ -25,6 +25,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { CloseStrikeLegs } from "./CloseStrikeLegs";
 import { FootStrikeForms } from "./FootStrikeForms";
 import { FootStrikeLeg } from "./FootStrikeLeg";
+import { FootStrikeTilt } from "./FootStrikeTilt";
 import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingSkill } from "./StrikingSkill";
@@ -39,9 +40,12 @@ import { StrikingTarget } from "./StrikingTarget";
  *
  * The ankle's goal is the contact point's: the foot turned to the
  * technique's attitude (`StrikingBody.foot`) and the ankle placed so the
- * heel or sole lands on the target; one beyond the leg's reach is moved
- * along the hip's line to the leg's full reach, where it lands short; a
- * sweep that cannot reach the partner's ankle is refused with the distance. The
+ * heel or sole lands on the target. A leg asked higher than the hip's range
+ * reaches tilts the body away through the support hip (`FootStrikeTilt`). A
+ * contact beyond the leg's reach is moved along the hip's line to the leg's
+ * full reach, where it lands short, as a capoeira kick passes the partner
+ * across the roda; a sweep that cannot reach the partner's ankle is refused
+ * with the distance. The
  * chamber folds the knee in front of the hip (above it for an axe kick, on
  * the far side of the travel for a hook or a crescent), and the extension
  * aims through the target so it meets it at 0.82 of its unit, after its peak
@@ -195,7 +199,10 @@ export namespace footStrike {
       const feet: ReturnType<typeof StrikingTarget.feet> = StrikingTarget.feet(
         context.entry,
       );
-      const lowerWith = (drop: number): IAutoMovieMotionHumanPrimitive =>
+      const lowerWith = (
+        drop: number,
+        tilt?: CloseStrikeLegs.ITilt,
+      ): IAutoMovieMotionHumanPrimitive =>
         CloseStrikeLegs(body, entry, feet, support, {
           duration,
           turn,
@@ -209,6 +216,7 @@ export namespace footStrike {
           // The support rises onto its ball with the strike, as a round
           // kick's does (`KickForm.PIVOT`).
           raise: KickForm.PIVOT.raise,
+          ...(tilt === undefined ? {} : { tilt }),
         });
       const hipOf = (
         primitive: IAutoMovieMotionHumanPrimitive,
@@ -252,8 +260,21 @@ export namespace footStrike {
               ),
             )
           : 0;
-      const lower: IAutoMovieMotionHumanPrimitive = lowerWith(drop);
-      const hip: IAutoMovieVector3 = drop === 0 ? standing : hipOf(lower);
+      const dropped: IAutoMovieMotionHumanPrimitive = lowerWith(drop);
+      const low: IAutoMovieVector3 = drop === 0 ? standing : hipOf(dropped);
+      // A leg asked higher than the hip's range reaches at its azimuth tilts
+      // the body away from it through the support hip, at most
+      // `KickForm.LEAN_MOST` (`FootStrikeTilt`); the contact is placed again
+      // from the tilted hip below.
+      const tilt: CloseStrikeLegs.ITilt | undefined = FootStrikeTilt.of(
+        side,
+        dropped.write(entry, shown).yaw,
+        low,
+        ankle,
+      );
+      const lower: IAutoMovieMotionHumanPrimitive =
+        tilt === undefined ? dropped : lowerWith(drop, tilt);
+      const hip: IAutoMovieVector3 = tilt === undefined ? low : hipOf(lower);
       // A sweep that cannot reach the partner's ankle is refused: it has no
       // miss to show.
       if (

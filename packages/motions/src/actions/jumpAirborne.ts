@@ -246,6 +246,43 @@ export namespace jumpAirborne {
         fixed.end.legs.right.rotation,
       ),
     };
+    // The two feet pass each other along the heading where their forward
+    // gap, linear in the share, changes sign, s* = g0 / (g0 − g1); a lateral
+    // gap there under two shank radii (the passing clearance a line walk
+    // keeps) is opened half by each foot, outward, by a bump that is the
+    // shortfall at s* and zero at both ends, s(1 − s) / (s*(1 − s*)).
+    const along: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
+      { x: 0, y: 0, z: 1 },
+    );
+    const rightward: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.cross(along, { x: 0, y: 1, z: 0 }),
+    );
+    const apart: IAutoMovieVector3 = Vector3.subtract(
+      fixed.start.legs.right.point,
+      fixed.start.legs.left.point,
+    );
+    const apartEnd: IAutoMovieVector3 = Vector3.subtract(
+      fixed.end.legs.right.point,
+      fixed.end.legs.left.point,
+    );
+    const g0: number = Vector3.dot(apart, along);
+    const g1: number = Vector3.dot(apartEnd, along);
+    const passAt: number = g0 * g1 < 0 ? g0 / (g0 - g1) : Number.NaN;
+    const passBump: number = Number.isNaN(passAt)
+      ? 0
+      : Math.max(
+          0,
+          2 * body.measure.shankRadius -
+            Vector3.dot(Vector3.lerp(apart, apartEnd, passAt), rightward),
+        );
+    const passing = (s: number): IAutoMovieVector3 =>
+      passBump === 0
+        ? { x: 0, y: 0, z: 0 }
+        : Vector3.scale(
+            rightward,
+            (passBump / 2) * ((s * (1 - s)) / (passAt * (1 - passAt))),
+          );
     const posture: (
       root: IAutoMovieVector3,
       u: number,
@@ -265,8 +302,12 @@ export namespace jumpAirborne {
         ];
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
       const arch: number = archHeight * Math.sin(Math.PI * u);
+      const passed: IAutoMovieVector3 = passing(s);
       for (const side of ["left", "right"] as const) {
-        const point: IAutoMovieVector3 = points[side](s, root, arch);
+        const point: IAutoMovieVector3 = Vector3.add(
+          points[side](s, root, arch),
+          Vector3.scale(passed, side === "right" ? 1 : -1),
+        );
         const asked: IAutoMovieQuaternion = Quaternion.multiply(
           turn,
           rotations[side](s),

@@ -11,6 +11,7 @@ import type {
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { KickCarriage } from "./KickCarriage";
 import { StrikingFootPoint } from "./StrikingFootPoint";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -28,8 +29,9 @@ import { punchFootwork } from "./punchFootwork";
  * turn with the heel raised, as a rear-hand punch does; a drop lowers the
  * hips for a low target; a jump lifts both feet and the root. The root is
  * lowered until both legs reach their feet (`resolveHumanPosture.lower`). A
- * kick's support may rise onto its ball with the share. A leg another
- * primitive writes (a kick's) is left out.
+ * kick's support may rise onto its ball with the share, and a tilt turns
+ * the whole body about a world axis through the pivoting foot's hip, which
+ * stays put. A leg another primitive writes (a kick's) is left out.
  *
  * @param body The body.
  * @param entry The entry posture.
@@ -182,13 +184,47 @@ export function CloseStrikeLegs(
       // A low target drops the hips by bending the support knee.
       const drop: number = (motion.drop ?? 0) * share;
       const yaw: number = entry.yaw + spun + motion.turn * share;
+      // A tilt turns the whole body about its world axis through the
+      // pivoting foot's hip, the root moved so that hip stays put.
+      const flat: IAutoMovieMotionHumanPosture = {
+        ...posture,
+        root: { ...root, y: entry.root.y + hop - drop },
+        yaw,
+        pitch: entry.pitch + motion.lean * share,
+      };
+      const degrees: number =
+        motion.tilt === undefined ? 0 : motion.tilt.degrees * share;
+      const leaned: IAutoMovieMotionHumanPosture =
+        motion.tilt === undefined || degrees === 0
+          ? flat
+          : {
+              ...flat,
+              ...resolveHumanPosture.angles(
+                Quaternion.normalize(
+                  Quaternion.multiply(
+                    Quaternion.fromAxisAngle(motion.tilt.axis, degrees),
+                    resolveHumanPosture.heading(flat),
+                  ),
+                ),
+              ),
+            };
+      const tilted: IAutoMovieMotionHumanPosture =
+        leaned === flat
+          ? flat
+          : {
+              ...leaned,
+              root: Vector3.add(
+                leaned.root,
+                Vector3.subtract(
+                  KickCarriage.hip(body, flat, lead),
+                  KickCarriage.hip(body, leaned, lead),
+                ),
+              ),
+            };
       const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
         body,
         {
-          ...posture,
-          root: { ...root, y: entry.root.y + hop - drop },
-          yaw,
-          pitch: entry.pitch + motion.lean * share,
+          ...tilted,
           joints: {
             ...StrikingStance.facing(posture.joints, yaw - entry.yaw),
             // A pivot's raised heel bends the toes to stay flat on the floor.
@@ -284,5 +320,17 @@ export namespace CloseStrikeLegs {
 
     /** The pivoting foot's heel raise onto its ball at full share, degrees, its toes bent as far; flat when absent. */
     raise?: number;
+
+    /** The whole body's tilt at full share about a world axis through the pivoting foot's hip; none when absent. */
+    tilt?: ITilt;
+  }
+
+  /** A tilt of the whole body about a world axis through a hip. */
+  export interface ITilt {
+    /** The world axis, unit; a positive angle turns by the right hand about it. */
+    axis: IAutoMovieVector3;
+
+    /** The angle at full share, degrees. */
+    degrees: number;
   }
 }

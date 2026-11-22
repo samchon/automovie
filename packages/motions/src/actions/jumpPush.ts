@@ -1,5 +1,6 @@
 import {
   Quaternion,
+  Vector3,
   carriedAcceleration,
   carriedRate,
   minimumJerk,
@@ -419,6 +420,43 @@ export namespace jumpPush {
       );
     };
 
+    // The reaching foot passes the take-off shank on its own side: along the
+    // heading its gap to the take-off ankle is linear in the path's share, so
+    // it passes at s* = g0 / (g0 − g1); a lateral gap there under two shank
+    // radii (the passing clearance a line walk keeps) is opened by a bump that
+    // is the shortfall at s* and zero at both ends, s(1 − s) / (s*(1 − s*)).
+    const forward: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
+      { x: 0, y: 0, z: 1 },
+    );
+    const aside: IAutoMovieVector3 = Vector3.scale(
+      Vector3.normalize(Vector3.cross({ x: 0, y: 1, z: 0 }, forward)),
+      reaching === "left" ? 1 : -1,
+    );
+    const clearance: number = 2 * body.measure.shankRadius;
+    const passing = (
+      from: IAutoMovieVector3,
+      into: IAutoMovieVector3,
+      s: number,
+    ): IAutoMovieVector3 => {
+      const g0: number = Vector3.dot(
+        Vector3.subtract(from, support.ankle),
+        forward,
+      );
+      const g1: number = Vector3.dot(
+        Vector3.subtract(into, support.ankle),
+        forward,
+      );
+      if (!(g0 * g1 < 0)) return { x: 0, y: 0, z: 0 };
+      const at: number = g0 / (g0 - g1);
+      const gap: number = Vector3.dot(
+        Vector3.subtract(Vector3.lerp(from, into, at), support.ankle),
+        aside,
+      );
+      const bump: number = Math.max(0, clearance - gap);
+      return Vector3.scale(aside, (bump * s * (1 - s)) / (at * (1 - at)));
+    };
+
     return {
       sample,
       swinging,
@@ -461,7 +499,10 @@ export namespace jumpPush {
         const b: number = reachBend(t);
         const from: IAutoMovieVector3 = entry.feet[reaching].ankle;
         const into: IAutoMovieVector3 = reachingPoint(root);
-        const path: IAutoMovieVector3 = jumpPath.lerp(from, into, s);
+        const path: IAutoMovieVector3 = Vector3.add(
+          jumpPath.lerp(from, into, s),
+          passing(from, into, s),
+        );
         const turned: IAutoMovieQuaternion = reachingRotation(s);
         limbs[`${reaching}Leg`] = {
           point: {
