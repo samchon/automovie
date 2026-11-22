@@ -25,6 +25,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HeldRideArms } from "./HeldRideArms";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 import { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
@@ -100,7 +101,9 @@ export namespace HumanRide {
           fix: "sit on the support's seat first, then ride it",
         });
       const support: IAutoMovieMotionHumanPropReader = context.prop(on);
-      const seated: IAutoMovieMotionHumanPosture = context.entry.posture;
+      // A hand that holds a prop and takes no grip of the ride keeps the carriage it brought in, its prop gripped through the ride (`HeldRideArms`).
+      const kept: HeldRideArms.IKept = HeldRideArms.of(context);
+      const seated: IAutoMovieMotionHumanPosture = kept.posture;
       const origin: IAutoMovieRigidTransform = support.frame(context.start);
       const bears = (
         part: IAutoMovieMotionHumanContactWindow["part"],
@@ -150,7 +153,7 @@ export namespace HumanRide {
       }
 
       // A foot that hung when the ride began keeps hanging.
-      const contacts: IAutoMovieMotionHumanContactWindow[] = [];
+      const contacts: IAutoMovieMotionHumanContactWindow[] = [...kept.contacts];
       for (const side of ["left", "right"] as const)
         if (
           context.entry.feet[side].planted &&
@@ -407,6 +410,8 @@ export namespace HumanRide {
         duration: seconds,
         events: [],
         contacts,
+
+        ...(kept.holds.length === 0 ? {} : { holds: kept.holds }),
 
         // The seat sat on is passed on, so getting off after the ride still knows it.
         base: entered,
