@@ -28,7 +28,7 @@ export namespace HumanManipulate {
   /** The keyed contact sequence itself, for a production that names its own contacts. */
   export const sequence = manipulate;
 
-  /** Touch typing: a text on a keyboard, both hands, each letter by the digit the home-row chart assigns. */
+  /** Touch typing: a text on a keyboard, both hands, each letter by the digit the home-row chart assigns; one letter every 0.5 s at novice skill to 0.15 s at elite ({@link manipulate}, Salthouse 1986). */
   export const type: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["manipulate"]["type"]
   > = HumanActionRow.of("type", manipulate, { side: "both" });
@@ -58,7 +58,7 @@ export namespace HumanManipulate {
     side: "right",
   });
 
-  /** Dialling: the right forefinger on each key in turn. */
+  /** Dialling: the right forefinger on each key in turn; one key every 0.5 s at novice skill to 0.15 s at elite ({@link manipulate}, Salthouse 1986) unless the contacts give their times. */
   export const dial: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["manipulate"]["dial"]
   > = HumanActionRow.of("dial", manipulate, {

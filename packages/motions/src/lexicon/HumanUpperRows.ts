@@ -25,6 +25,16 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * provisional, set from each act's description with no measured source
  * read.
  *
+ * Duration of every row (the phrase's timing, {@link armPhrase}): the hand
+ * reaches its place in the free-space time of its travel and returns in as
+ * long again, `0.25 + 0.5 D` seconds for `D` metres, about 0.5 s for a
+ * 0.5 m reach ({@link AutoMovieMotionHumanTiming.transport}). A visit (a
+ * hand on the hip, a phone to the ear, a hat on) holds the place for a beat,
+ * 0.4 s, unless `hold` names another pause ({@link AutoMovieMotionHumanTiming.PAUSES}).
+ * An oscillation (a wave, a rub, a scratch, a stir) lasts 2 beats, 0.8 s,
+ * unless `cycles` says more. `manner.pace` and the Effort `time` factor
+ * scale every phase. All of these are provisional.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States what each row fixes, what it leaves open, the offsets' unit and their provisional status.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of `armPhrase` (`HumanActionRow`): data over one phrase law built from the vocabulary's arm phrases.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One row per re-expressed act and nothing else.

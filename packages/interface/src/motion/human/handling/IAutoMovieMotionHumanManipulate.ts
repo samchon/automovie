@@ -30,7 +30,9 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * between placements on minimum-jerk paths; the digit's own inverse
  * kinematics (`IAutoMovieMotionHumanPosture.digits`) then takes the tip down by the key's
  * travel and up again. Times come from `at` when every contact gives it, or
- * from typing skill otherwise (the interval of `typeText`, Salthouse 1986),
+ * from typing skill otherwise (the interval of `typeText`, Salthouse 1986:
+ * 0.5 s a press for a novice, 0.15 s for an elite performer, in
+ * proportion between, `manipulate`),
  * each press taking the first 40 % of its interval to reach the key and the
  * rest to lift, as `typeText` does. The body holds the posture it is entered
  * in. Events `press1` to `pressN`.
