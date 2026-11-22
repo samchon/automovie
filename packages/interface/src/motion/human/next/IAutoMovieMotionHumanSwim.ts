@@ -7,8 +7,6 @@ import type { IAutoMovieMotionHumanSwimStroke } from "../sport/IAutoMovieMotionH
  * Moving and floating in water: the strokes, the immersed float and glide, and the aquatic actions. The crawl cycle is 1.4 s at a 1 m/s glide (provisional); the breaststroke glides at 0.9 m/s, the backstroke at 1 m/s and floating at 0 (`SwimStroke.strokes`); skill does not change the glide.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per law of the Swim family, each taking the law's own parameter type.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The Swim laws and nothing the other families own.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
@@ -144,10 +142,8 @@ export namespace IAutoMovieMotionHumanSwim {
  *
  * Not drafted: the eggbeater proper, entering and leaving the water.
  *
- * @evidence contracts/development/common.md#meaningful-documentation water: The water plane's world height, metres; the entry's chest height when absent. count: Cycles; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation water: The water plane's world height, metres; the entry's chest height when absent. count: Cycles; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.swim, params); sport/swim.ts (swim.plan, context); sport/swim.ts (swim.plan); executable/cases/swimCases.ts (swimCases).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner, IAutoMovieMotionHumanSwimStroke.Name identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/common.md#meaningful-documentation water: The water plane's world height, metres; the entry's chest height when absent. count: Cycles; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless.
+ * @evidence contracts/development/design.md#principled-representation water: The water plane's world height, metres; the entry's chest height when absent. count: Cycles; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless.
  */
 export namespace IAutoMovieMotionHumanSwim {
   /**

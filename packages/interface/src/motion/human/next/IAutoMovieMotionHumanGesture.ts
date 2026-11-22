@@ -345,7 +345,7 @@ export namespace IAutoMovieMotionHumanGesture {
  * standing or moving before its stroke or after it; its stroke is never cut,
  * since a cut stroke loses the gesture's meaning.
  *
- * @evidence contracts/development/common.md#meaningful-documentation hand: The hand of a one-hand gesture; `right` when absent. region: The face region a `touchFace` reaches; `forehead` when absent. count: Stroke repetitions (waves, nods, claps); the gesture's own count when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/common.md#meaningful-documentation hand: The hand of a one-hand gesture; `right` when absent. region: The face region a `touchFace` reaches; `forehead` when absent. count: Stroke repetitions (waves, nods, claps); the gesture's own count when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless.
  */
 export namespace IAutoMovieMotionHumanGesture {
   /**

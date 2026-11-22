@@ -27,8 +27,8 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * 2017; De Koninck et al. 1992), rolling over and rising from a bed; the
  * feet are not planted while the body goes down, so they slide.
  *
- * @evidence contracts/development/common.md#meaningful-documentation kind: The position; `supine` when absent. hold: Seconds held lying; 2 when absent. Inclusive minimum: 0. Schema default: 2. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. pitch: Forward tilt, degrees.
- * @evidence contracts/development/design.md#principled-representation kind: The position; `supine` when absent. hold: Seconds held lying; 2 when absent. Inclusive minimum: 0. Schema default: 2. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. pitch: Forward tilt, degrees.
+ * @evidence contracts/development/common.md#meaningful-documentation kind: The position; `supine` when absent. hold: Seconds held lying; 2 when absent. Inclusive minimum: 0. Schema default: 2. Unit: "s". pitch: Forward tilt, degrees.
+ * @evidence contracts/development/design.md#principled-representation kind: The position; `supine` when absent. hold: Seconds held lying; 2 when absent. Inclusive minimum: 0. Schema default: 2. Unit: "s". pitch: Forward tilt, degrees.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.lieDown, params); floor/lieDown.ts (lieDown.plan, context); floor/crawlInchworm.ts (crawlInchworm.plan.prefer, return); floor/crawlInchwormPose.ts (crawlInchwormPose.of, return); floor/getUp.ts (getUp.quiet, return); floor/getUp.ts (getUp.keyed, return).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner, IAutoMovieMotionHumanJoints.Angles identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */

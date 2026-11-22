@@ -29,8 +29,8 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
  * Not yet: pummelling, underhooks and overhooks, and the turn-in's own
  * footwork (Koshida et al. 2016).
  *
- * @evidence contracts/development/common.md#meaningful-documentation grip: The grip; `plum` when absent. hand: The collar hand of `collarSleeve`; `right` when absent. hold: Seconds the grip is held; 2 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation grip: The grip; `plum` when absent. hand: The collar hand of `collarSleeve`; `right` when absent. hold: Seconds the grip is held; 2 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/common.md#meaningful-documentation grip: The grip; `plum` when absent. hand: The collar hand of `collarSleeve`; `right` when absent. hold: Seconds the grip is held; 2 when absent. Inclusive minimum: 0. Unit: "s".
+ * @evidence contracts/development/design.md#principled-representation grip: The grip; `plum` when absent. hand: The collar hand of `collarSleeve`; `right` when absent. hold: Seconds the grip is held; 2 when absent. Inclusive minimum: 0. Unit: "s".
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.clinch, params); grappling/clinch.ts (clinch.plan, context); grappling/clinch.ts (clinch.regions, grip); grappling/clinch.ts (clinch.regions, return); grappling/clinch.ts (clinch.place, return); grappling/clinch.ts (clinch.plan).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, AutoMovieHumanoidRegion, IAutoMovieMotionManner, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */

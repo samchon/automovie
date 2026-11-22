@@ -3,7 +3,6 @@ export type * from "./affordance";
 export type * from "./audit";
 export type { AutoMovieMotionHumanActionKey } from "./AutoMovieMotionHumanActionKey";
 export type { AutoMovieMotionHumanActionName } from "./AutoMovieMotionHumanActionName";
-export type { AutoMovieMotionHumanUnit } from "./AutoMovieMotionHumanUnit";
 export type * from "./ballStrike";
 export type * from "./body";
 export type * from "./capture";

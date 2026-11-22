@@ -6,11 +6,9 @@ import type {
   IAutoMovieMotionHumanPerformanceState,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
-import { HumanPerformanceParams } from "./HumanPerformanceParams";
 
 /**
  * What a performer's next action on a prop demands of a grip an earlier
@@ -40,8 +38,7 @@ export namespace HumanPerformanceAhead {
    * before that action is planned (`IHumanActionLaw.IAhead`): its resolved
    * parameters, the performer's body and skill, the props, and its aiming
    * from the posture the grip leaves the body in, read at the earlier
-   * action's start. An action whose parameters its schema refuses asks
-   * nothing here; it is refused where it is placed.
+   * action's start.
    * The caller keeps the body and candidate posture unchanged during this
    * synchronous demand call; retained aiming callbacks may read later changes.
    *
@@ -50,10 +47,10 @@ export namespace HumanPerformanceAhead {
    * @param ordinal Its place among its performer's actions that carry the body.
    * @returns The reader.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each grip is asked with and the refused case.
+   * @evidence contracts/development/common.md#meaningful-documentation States what each grip is asked with.
    * @evidence contracts/development/implementation.md#principled-implementation The action asked reads its own resolved parameters, and aims from the posture the grip leaves, so a target placed by the performer's frame is placed where they will stand. Sharing successful FK requires the body and candidate posture to remain unchanged during the synchronous demand call; their types do not enforce that premise.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The action found once per prop, then asked per grip with a lazy aiming frame and lazy candidate bones.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a `HumanRefusal` of the parameters is taken as asking nothing; any other error propagates.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An action the vocabulary lacks asks nothing; any error a law raises propagates.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the performer's later actions, once per prop; each demands query constructs at most one successful scalar aiming frame and shares one successful candidate resolve and FK when own bones are requested. Failed constructions are not memoized. Query-local closures add constant allocation even when no own-body target is read; speed improvement is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each prop's action is kept for every grip of it; repeated aiming reads within one candidate query share the body's unchanged measures, candidate root and heading, and resolved bones. Target- and second-dependent aiming still runs on every call and its return ownership is unchanged.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The kept actions, one per prop asked, live as long as the context. A finally block releases candidate bones and the scalar frame on return or throw; an aim callback retained by a law reads both fresh after that invocation, so neither memo persists on the reader, grip or performance.
@@ -157,12 +154,6 @@ export namespace HumanPerformanceAhead {
       // An action the vocabulary lacks is refused where it is placed.
       if (law === undefined) return null;
       const given: object = params(intent);
-      try {
-        HumanPerformanceParams.check(intent.capability, given);
-      } catch (error) {
-        if (error instanceof HumanRefusal) return null;
-        throw error;
-      }
       const resolved: object = law.resolve?.(given) ?? given;
       if (Object.values(resolved).includes(prop))
         return { law, params: resolved };

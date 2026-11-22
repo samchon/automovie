@@ -17,8 +17,8 @@ import type { IAutoMovieMotionHumanGuard } from "./IAutoMovieMotionHumanGuard";
  * the ring-movement reading (provisional).
  * A supplied turn or changed lead plans a different support schedule.
  *
- * @evidence contracts/development/common.md#meaningful-documentation steps: How many steps; 1 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. length: Each step's length, metres; half a stance length when absent.
- * @evidence contracts/development/design.md#principled-representation steps: How many steps; 1 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. length: Each step's length, metres; half a stance length when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation steps: How many steps; 1 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. length: Each step's length, metres; half a stance length when absent.
+ * @evidence contracts/development/design.md#principled-representation steps: How many steps; 1 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. length: Each step's length, metres; half a stance length when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.step, params); striking/step.ts (step.plan, context); striking/step.ts (step.plan).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanChainStriking.step.
  */

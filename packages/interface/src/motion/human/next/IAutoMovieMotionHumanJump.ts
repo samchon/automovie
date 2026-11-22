@@ -229,18 +229,13 @@ export namespace IAutoMovieMotionHumanJump {
  * Planted legs are kept reachable by `resolveHumanPosture.lower`. The
  * push-off is drawn by `jumpPush`, the landing's places by `jumpLanding`
  * and the paths by `jumpPath`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation to: The point to land on, world metres: its height is the landing surface's, the floor's 0, a box's top or a step's. on: The prop whose top is landed on, its subject id, so the feet bear on it; the floor when absent. apex: Apex height of the flight above take-off, metres; positive. Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation to: The point to land on, world metres: its height is the landing surface's, the floor's 0, a box's top or a step's. on: The prop whose top is landed on, its subject id, so the feet bear on it; the floor when absent. apex: Apex height of the flight above take-off, metres; positive. Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/jump.ts (jump.plan, context); chain/HumanChainTravel.ts (HumanChainTravel.jump, params).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanJumpAirborne.IRotation, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanJump {
   /**
    * Parameters.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation to: The point to land on, world metres: its height is the landing surface's, the floor's 0, a box's top or a step's. on: The prop whose top is landed on, its subject id, so the feet bear on it; the floor when absent. apex: Apex height of the flight above take-off, metres; positive. Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-   * @evidence contracts/development/design.md#principled-representation to: The point to land on, world metres: its height is the landing surface's, the floor's 0, a box's top or a step's. on: The prop whose top is landed on, its subject id, so the feet bear on it; the floor when absent. apex: Apex height of the flight above take-off, metres; positive. Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+   * @evidence contracts/development/common.md#meaningful-documentation to: The point to land on, world metres: its height is the landing surface's, the floor's 0, a box's top or a step's. on: The prop whose top is landed on, its subject id, so the feet bear on it; the floor when absent. apex: Apex height of the flight above take-off, metres; positive. Exclusive minimum: 0. Unit: "m".
+   * @evidence contracts/development/design.md#principled-representation to: The point to land on, world metres: its height is the landing surface's, the floor's 0, a box's top or a step's. on: The prop whose top is landed on, its subject id, so the feet bear on it; the floor when absent. apex: Apex height of the flight above take-off, metres; positive. Exclusive minimum: 0. Unit: "m".
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/jump.ts (jump.plan, context); chain/HumanChainTravel.ts (HumanChainTravel.jump, params).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanJumpAirborne.IRotation, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */

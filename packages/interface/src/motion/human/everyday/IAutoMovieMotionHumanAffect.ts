@@ -44,8 +44,8 @@
  * Amplitudes and timings are provisional except where cited; an intensity
  * scales every amplitude.
  *
- * @evidence contracts/development/common.md#meaningful-documentation duration: How long, seconds; the display's own length when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. amplitude: Amplitude scale; 1 when absent.
- * @evidence contracts/development/design.md#principled-representation duration: How long, seconds; the display's own length when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. amplitude: Amplitude scale; 1 when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation duration: How long, seconds; the display's own length when absent. Exclusive minimum: 0. Unit: "s". amplitude: Amplitude scale; 1 when absent.
+ * @evidence contracts/development/design.md#principled-representation duration: How long, seconds; the display's own length when absent. Exclusive minimum: 0. Unit: "s". amplitude: Amplitude scale; 1 when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanAffect.ts (HumanAffect.angles, kind); everyday/HumanAffect.ts (HumanAffect.layer, displays); everyday/HumanAffect.ts (HumanAffect.LENGTH).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanAffect.angles.
  */

@@ -22,8 +22,8 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * Each is a phrase: into the position in 0.6 s, the stroke (the hop or the
  * waggle), held, and back in 0.6 s.
  *
- * @evidence contracts/development/common.md#meaningful-documentation hand: The racket or lead hand; `right` when absent. hold: Seconds held; 0.6 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation hand: The racket or lead hand; `right` when absent. hold: Seconds held; 0.6 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/common.md#meaningful-documentation hand: The racket or lead hand; `right` when absent. hold: Seconds held; 0.6 when absent. Inclusive minimum: 0. Unit: "s".
+ * @evidence contracts/development/design.md#principled-representation hand: The racket or lead hand; `right` when absent. hold: Seconds held; 0.6 when absent. Inclusive minimum: 0. Unit: "s".
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.racket, params); sport/racket.ts (racket.plan, context); sport/racket.ts (racket.plan); executable/cases/racketCases.ts (racketCases).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */

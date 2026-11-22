@@ -5,7 +5,6 @@ import type {
   IAutoMovieMotionHumanPickUpMoving,
 } from "@automovie/interface";
 
-import { HumanPerformanceParams } from "../perform/HumanPerformanceParams";
 import { pickUp } from "./pickUp";
 import { pickUpIntercept } from "./pickUpIntercept";
 
@@ -25,8 +24,7 @@ export const pickUpMoving: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanP
     plan: (
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUpMoving>,
     ): IAutoMovieMotionHumanActionPlan => {
-      const { closeAt, ...pickup } = context.params;
-      HumanPerformanceParams.check(pickUp.name, pickup);
+      const { closeAt } = context.params;
       return pickUp.planGrasp(context, pickUpIntercept(context, closeAt));
     },
   };

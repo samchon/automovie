@@ -6,10 +6,10 @@ import type { IAutoMovieMotionHumanHandover } from "../next/IAutoMovieMotionHuma
  * handOver.plan resolves both performers and the prop through the action
  * context, obtains their shared meeting, and releases the giver's grip only
  * after the receiver's grip closes for a transfer. Withdraw and decline keep
- * the prop with the giver. HumanPerformanceParams admits the record before
- * the law checks the named grip and the physical reach of the two bodies.
+ * the prop with the giver. The law checks the named grip and the physical
+ * reach of the two bodies.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the two roles, shared prop meeting, grip transfer rule and admission owners.
+ * @evidence contracts/development/common.md#meaningful-documentation States the two roles, shared prop meeting, grip transfer rule and the checks the law makes.
  * @evidence contracts/development/design.md#principled-representation Required subject and affordance identifiers identify the giver's held object and receiving contact; optional hands, mass and outcome carry the law's omission rules.
  * @evidence contracts/development/design.md#minimal-and-owned-surface This action parameter contract is distinct from HumanHandover's resolved two-body planning input.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A registered prop and receiver are named explicitly; the contract does not substitute a fixed body or prop kind.

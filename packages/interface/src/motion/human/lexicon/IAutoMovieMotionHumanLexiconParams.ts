@@ -49,14 +49,11 @@ import type { IAutoMovieMotionHumanLexiconWeaponMeleeParams } from "./IAutoMovie
  * then by the row's export key: what a row leaves to the author after the
  * parameters it fixes, each with its law's own default, unit and required
  * status. A row's export key may differ from its registered
- * name; `HUMAN_LEXICON_FAMILIES` pairs them when the schema is generated.
- * Rows are admitted at run time as actions are
- * (`IAutoMovieMotionHumanActionParams`): `HumanPerformanceParams` checks the
- * given parameters against the row's generated schema before its law plans.
+ * name; `HUMAN_LEXICON_FAMILIES` pairs them.
  *
  * @evidence contracts/development/common.md#meaningful-documentation emblem: Export-name to open parameters for the emblem family; registered law names are read from the runtime law records. habit: Export-name to open parameters for the habit family; registered law names are read from the runtime law records. stance: Export-name to open parameters for the stance family; registered law names are read from the runtime law records. name: Action-law name required for structural recognition by this parameter-extraction utility. plan: Planning function whose context parameter determines the extracted parameter type; never invoked by this type utility.
  * @evidence contracts/development/design.md#principled-representation emblem: Export-name to open parameters for the emblem family; registered law names are read from the runtime law records. habit: Export-name to open parameters for the habit family; registered law names are read from the runtime law records. stance: Export-name to open parameters for the stance family; registered law names are read from the runtime law records. name: Action-law name required for structural recognition by this parameter-extraction utility. plan: Planning function whose context parameter determines the extracted parameter type; never invoked by this type utility.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: executable/lexiconSchemas.ts (lexiconSchemas); lexicon/HumanBlade.ts (HumanBlade.enGarde); lexicon/HumanBlade.ts (HumanBlade.vomTag); lexicon/HumanBlade.ts (HumanBlade.ochs); lexicon/HumanBlade.ts (HumanBlade.pflug); lexicon/HumanBlade.ts (HumanBlade.alber).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanBlade.ts (HumanBlade.enGarde); lexicon/HumanBlade.ts (HumanBlade.vomTag); lexicon/HumanBlade.ts (HumanBlade.ochs); lexicon/HumanBlade.ts (HumanBlade.pflug); lexicon/HumanBlade.ts (HumanBlade.alber).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanLexiconEmblemParams, IAutoMovieMotionHumanLexiconHabitParams, IAutoMovieMotionHumanLexiconStanceParams, IAutoMovieMotionHumanLexiconPoseParams, IAutoMovieMotionHumanLexiconGaitParams, IAutoMovieMotionHumanLexiconPursuitParams identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers. Shares the canonical IAutoMovieMotionHumanActionContext identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanLexiconParams {
@@ -194,7 +191,7 @@ export interface IAutoMovieMotionHumanLexiconParams {
 }
 
 /**
- * Contracts used by lexiconSchemas, HumanBlade.enGarde, HumanBlade.vomTag, HumanBlade.ochs.
+ * Contracts used by HumanBlade.enGarde, HumanBlade.vomTag, HumanBlade.ochs.
  *
  */
 export namespace IAutoMovieMotionHumanLexiconParams {

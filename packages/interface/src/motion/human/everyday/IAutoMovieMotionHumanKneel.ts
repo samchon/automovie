@@ -30,8 +30,8 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
  * both knees, `seatOnHeels` for sitting back, `settled`, and when it rises
  * `kneeOff` and `stood`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation kind: The kneeling posture; `one` when absent. knee: The knee that goes down first; `right` when absent. hold: Seconds held kneeling, at least zero; 1.5 when absent. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation kind: The kneeling posture; `one` when absent. knee: The knee that goes down first; `right` when absent. hold: Seconds held kneeling; 1.5 when absent. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/common.md#meaningful-documentation kind: The kneeling posture; `one` when absent. knee: The knee that goes down first; `right` when absent. hold: Seconds held kneeling, at least zero; 1.5 when absent. Unit: "s".
+ * @evidence contracts/development/design.md#principled-representation kind: The kneeling posture; `one` when absent. knee: The knee that goes down first; `right` when absent. hold: Seconds held kneeling; 1.5 when absent. Unit: "s".
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.kneel, params); everyday/kneel.ts (kneel.plan, context); executable/cases/crouchCases.ts (crouchCases); everyday/kneel.ts (kneel.plan).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */

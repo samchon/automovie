@@ -87,7 +87,7 @@ export namespace IAutoMovieMotionHumanRefusal {
    *
    * @evidence contracts/development/common.md#meaningful-documentation minimum: The least accepted value, or null when unbounded below. maximum: The greatest accepted value, or null when unbounded above. unit: The unit of both ends (`m`, `s`, `degrees`), or empty for a pure number.
    * @evidence contracts/development/design.md#principled-representation minimum: The least accepted value, or null when unbounded below. maximum: The greatest accepted value, or null when unbounded above. unit: The unit of both ends (`m`, `s`, `degrees`), or empty for a pure number.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: law/HumanBound.ts (HumanBound.within, open); law/HumanBound.ts (HumanBound.refuse, feasible); perform/HumanPerformanceParams.ts (bounds, return); perform/HumanPerformanceParams.ts (read).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: law/HumanBound.ts (HumanBound.within, open); law/HumanBound.ts (HumanBound.refuse, feasible).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanBound.within.
    */
   export interface IRange {
@@ -202,7 +202,7 @@ export namespace IAutoMovieMotionHumanRefusal {
    *
    * @evidence contracts/development/common.md#meaningful-documentation What an axis accepts: a numeric range or a list of alternatives.
    * @evidence contracts/development/design.md#principled-representation A feasible alternative is either a numerical range or a discrete alternative list, with the discriminant selecting which information an author can act on.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HumanEnsembleMembers.ts (HumanEnsembleMembers.resolve.refuse, feasible); law/HumanRefusal.ts (HumanRefusal.describe, feasible); law/HumanRefusal.ts (HumanRefusal); law/HumanRefusal.ts (HumanRefusal.message); perform/HumanPerformanceParams.ts (HumanPerformanceParams).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HumanEnsembleMembers.ts (HumanEnsembleMembers.resolve.refuse, feasible); law/HumanRefusal.ts (HumanRefusal.describe, feasible); law/HumanRefusal.ts (HumanRefusal); law/HumanRefusal.ts (HumanRefusal.message).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanRefusal.IRange, IAutoMovieMotionHumanRefusal.IAlternatives identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type Feasible =

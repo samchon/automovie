@@ -69,8 +69,8 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * read at the start, so the partner's earlier actions must be placed first,
  * which `HumanChain.pair` arranges.
  *
- * @evidence contracts/development/common.md#meaningful-documentation hand: The shaking hand; `right` when absent. count: Pump cycles; 2 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. height: How high the shoulder joint stands above the floor, metres.
- * @evidence contracts/development/design.md#principled-representation hand: The shaking hand; `right` when absent. count: Pump cycles; 2 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. height: How high the shoulder joint stands above the floor, metres.
+ * @evidence contracts/development/common.md#meaningful-documentation hand: The shaking hand; `right` when absent. count: Pump cycles; 2 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. height: How high the shoulder joint stands above the floor, metres.
+ * @evidence contracts/development/design.md#principled-representation hand: The shaking hand; `right` when absent. count: Pump cycles; 2 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. height: How high the shoulder joint stands above the floor, metres.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/HumanMutual.ts (HumanMutual.handshake, params); chain/HumanChainMutual.ts (HumanChainMutual.handshake, params); handling/handshake.ts (handshake.plan, context); HumanChain.ts (HumanChain.pair, return); HumanChain.ts (HumanChain.pair, params); handling/handshake.ts (handshake.stance, return).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -78,8 +78,8 @@ export namespace IAutoMovieMotionHumanHandshake {
   /**
    * Parameters.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation hand: The shaking hand; `right` when absent. count: Pump cycles; 2 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-   * @evidence contracts/development/design.md#principled-representation hand: The shaking hand; `right` when absent. count: Pump cycles; 2 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+   * @evidence contracts/development/common.md#meaningful-documentation hand: The shaking hand; `right` when absent. count: Pump cycles; 2 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless.
+   * @evidence contracts/development/design.md#principled-representation hand: The shaking hand; `right` when absent. count: Pump cycles; 2 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/HumanMutual.ts (HumanMutual.handshake, params); chain/HumanChainMutual.ts (HumanChainMutual.handshake, params); handling/handshake.ts (handshake.plan, context); HumanChain.ts (HumanChain.pair, return); HumanChain.ts (HumanChain.pair, params); actions/HumanMutual.ts (HumanMutual.handshake).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */

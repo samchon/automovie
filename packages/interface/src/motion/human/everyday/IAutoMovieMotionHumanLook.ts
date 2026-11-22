@@ -29,8 +29,8 @@ import type { IAutoMovieMotionHumanGaze } from "../next/IAutoMovieMotionHumanGaz
  * Events: `gazeOn`, when the eyes reach the target, and `settled`, when the
  * head and trunk end their turn.
  *
- * @evidence contracts/development/common.md#meaningful-documentation recruit: Which segments may join; `auto` when absent. cue: What drew the look; an immediate, willed look when absent. duration: How long the action lasts, seconds; 0.6 s after `settled` when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation recruit: Which segments may join; `auto` when absent. cue: What drew the look; an immediate, willed look when absent. duration: How long the action lasts, seconds; 0.6 s after `settled` when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/common.md#meaningful-documentation recruit: Which segments may join; `auto` when absent. cue: What drew the look; an immediate, willed look when absent. duration: How long the action lasts, seconds; 0.6 s after `settled` when absent. Exclusive minimum: 0. Unit: "s".
+ * @evidence contracts/development/design.md#principled-representation recruit: Which segments may join; `auto` when absent. cue: What drew the look; an immediate, willed look when absent. duration: How long the action lasts, seconds; 0.6 s after `settled` when absent. Exclusive minimum: 0. Unit: "s".
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.look, params); everyday/look.ts (look.plan, context); everyday/look.ts (look.reactionLaw, return).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanGaze.Recruit identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */

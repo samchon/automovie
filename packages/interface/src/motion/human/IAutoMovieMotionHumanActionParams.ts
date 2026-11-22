@@ -75,14 +75,10 @@ import type { IAutoMovieMotionHumanSelfAction } from "./touch/IAutoMovieMotionHu
  * are exactly `HumanActionName`: `HumanChain.act` indexes it by the name, so
  * a name without a member, or a member without a name, fails to compile.
  *
- * At run time `HumanPerformanceParams` in motions admits the parameters:
- * before a law plans, it checks them against the action's schema, generated
- * from these types and motions' numeric bounds, and refuses the first member
- * the schema does not accept with its path, the value given and what it
- * accepts. What only planning finds, such as an unreachable target, the law
- * refuses as its own type states.
+ * What only planning finds, such as an unreachable target, the law refuses
+ * as its own type states.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table types, where each member comes from, and who admits the parameters at run time and how a refusal reads.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the table types, where each member comes from, and who refuses what planning finds.
  * @evidence contracts/development/design.md#principled-representation A record from the closed action name to that law's parameter type, the shape a name-indexed call needs.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One member per action name, each owned by its law.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Restates no parameter: every member refers to the law's own type.

@@ -46,7 +46,6 @@ export type { IAutoMovieMotionHumanLexiconPursuitParams } from "./IAutoMovieMoti
 export type { IAutoMovieMotionHumanLexiconRegraspParams } from "./IAutoMovieMotionHumanLexiconRegraspParams";
 export type { IAutoMovieMotionHumanLexiconRevolverParams } from "./IAutoMovieMotionHumanLexiconRevolverParams";
 export type { IAutoMovieMotionHumanLexiconRideParams } from "./IAutoMovieMotionHumanLexiconRideParams";
-export type { IAutoMovieMotionHumanLexiconSchemas } from "./IAutoMovieMotionHumanLexiconSchemas";
 export type { IAutoMovieMotionHumanLexiconSocialParams } from "./IAutoMovieMotionHumanLexiconSocialParams";
 export type { IAutoMovieMotionHumanLexiconSportCarryParams } from "./IAutoMovieMotionHumanLexiconSportCarryParams";
 export type { IAutoMovieMotionHumanLexiconSportGymParams } from "./IAutoMovieMotionHumanLexiconSportGymParams";

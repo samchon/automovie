@@ -19,8 +19,8 @@ import type { IAutoMovieMotionHumanGait } from "../next/IAutoMovieMotionHumanGai
  * where they are when it begins. It is a law of its own over the run,
  * since its destination comes from the person and not from the scene.
  *
- * @evidence contracts/development/common.md#meaningful-documentation pace: The pace; `run` when absent. metres: How far to run, metres; `FLIGHT` hip heights when absent. Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. pace: The pace; `run` when absent.
- * @evidence contracts/development/design.md#principled-representation pace: The pace; `run` when absent. metres: How far to run, metres; `FLIGHT` hip heights when absent. Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. pace: The pace; `run` when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation pace: The pace; `run` when absent. metres: How far to run, metres; `FLIGHT` hip heights when absent. Exclusive minimum: 0. Unit: "m". pace: The pace; `run` when absent.
+ * @evidence contracts/development/design.md#principled-representation pace: The pace; `run` when absent. metres: How far to run, metres; `FLIGHT` hip heights when absent. Exclusive minimum: 0. Unit: "m". pace: The pace; `run` when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanPursuit.ts (HumanPursuit.intercept, context); lexicon/HumanPursuit.ts (HumanPursuit.flee, context); lexicon/HumanPursuit.ts (HumanPursuit.intercept); lexicon/HumanPursuit.ts (HumanPursuit.flee).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanGait.RunPace identity used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -44,8 +44,8 @@ export namespace IAutoMovieMotionHumanPursuit {
   /**
    * Parameters of a flight from a person.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation metres: How far to run, metres; `FLIGHT` hip heights when absent. Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. pace: The pace; `run` when absent.
-   * @evidence contracts/development/design.md#principled-representation metres: How far to run, metres; `FLIGHT` hip heights when absent. Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. pace: The pace; `run` when absent.
+   * @evidence contracts/development/common.md#meaningful-documentation metres: How far to run, metres; `FLIGHT` hip heights when absent. Exclusive minimum: 0. Unit: "m". pace: The pace; `run` when absent.
+   * @evidence contracts/development/design.md#principled-representation metres: How far to run, metres; `FLIGHT` hip heights when absent. Exclusive minimum: 0. Unit: "m". pace: The pace; `run` when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanPursuit.ts (HumanPursuit.flee, context); lexicon/HumanPursuit.ts (HumanPursuit.flee).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanGait.RunPace identity used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */

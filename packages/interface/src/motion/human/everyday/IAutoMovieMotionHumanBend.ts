@@ -43,8 +43,8 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  * `contact` and `deepest` at the bottom, `upright` at the end. A target the
  * strategy cannot reach is refused with the lowest height it reaches.
  *
- * @evidence contracts/development/common.md#meaningful-documentation hand: The hand; `right` when absent. strategy: How the body lowers; `auto` when absent. hold: Seconds the hand stays at the target; 0.5 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation hand: The hand; `right` when absent. strategy: How the body lowers; `auto` when absent. hold: Seconds the hand stays at the target; 0.5 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/common.md#meaningful-documentation hand: The hand; `right` when absent. strategy: How the body lowers; `auto` when absent. hold: Seconds the hand stays at the target; 0.5 when absent. Inclusive minimum: 0. Unit: "s".
+ * @evidence contracts/development/design.md#principled-representation hand: The hand; `right` when absent. strategy: How the body lowers; `auto` when absent. hold: Seconds the hand stays at the target; 0.5 when absent. Inclusive minimum: 0. Unit: "s".
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.bend, params); everyday/bend.ts (bend.plan, context); compose/AutoMovieMotionHumanBend.ts (AutoMovieMotionHumanBend.arm, preset); compose/AutoMovieMotionHumanResolve.ts (AutoMovieMotionHumanResolve.bend, preset).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
