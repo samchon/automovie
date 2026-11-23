@@ -3,7 +3,14 @@ import { HumanVerdictInspection } from "@automovie/motions";
 
 import type { IFilmProduction } from "./IFilmProduction";
 
-/** The findings and coverage one inspection packet carries. */
+/**
+ * The findings and coverage one inspection packet carries.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States which part of the inspection diagnostics one verdict packet carries.
+ * @evidence contracts/development/design.md#principled-representation Picks its members from the interface's inspection diagnostics, so the packet keeps the inspector's own shape.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Carries only the two members the verdict reader fills; the rest of the diagnostics stays with the inspector.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Derives the members from the interface type instead of restating them.
+ */
 export type FilmVerdictPacket = Pick<
   IAutoMovieInspectionDiagnostics,
   "findings" | "coverage"
