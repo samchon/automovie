@@ -30,6 +30,7 @@ export type { IAutoMovieSceneCollision } from "./IAutoMovieSceneCollision";
 export type { IAutoMovieSceneEnvironmentUse } from "./IAutoMovieSceneEnvironmentUse";
 export type { IAutoMovieSupportResult } from "./IAutoMovieSupportResult";
 export type { IAutoMovieSweptCapsuleCollision } from "./IAutoMovieSweptCapsuleCollision";
+export type { IAutoMovieSurfaceGraphicImageUse } from "./IAutoMovieSurfaceGraphicImageUse";
 export type { IAutoMovieTextureClosureInput } from "./IAutoMovieTextureClosureInput";
 export type { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
 export type { IAutoMovieToppling } from "./IAutoMovieToppling";
@@ -57,4 +58,3 @@ export type { IAutoMovieValidateTransformScalars } from "./IAutoMovieValidateTra
 export type { IAutoMovieValidateUniqueBy } from "./IAutoMovieValidateUniqueBy";
 export type { IAutoMovieValidation } from "./IAutoMovieValidation";
 export type { IAutoMovieViolationCollector } from "./IAutoMovieViolationCollector";
-export type { IAutoMovieSurfaceGraphicImageUse } from "./IAutoMovieSurfaceGraphicImageUse";
