@@ -289,3 +289,63 @@ Reads `union`'s cover.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 A pure function that retains nothing.
+
+# src/kinematics/swivelArcs.ts#swivelArcs.complement
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the result's form, the gap across 360 and the empty and full cases.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Merged arcs are disjoint and ordered over the turn, so the swivels outside them are the gaps between neighbours and the one across 360.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+Clip to the turn, take the gaps, keep each in the turn from 0.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The ends are the union's own, never resampled.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Linear in the few merged arcs.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure function of its argument.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns a fresh list and retains nothing.
+
+# src/kinematics/swivelArcs.ts#swivelArcs.holding
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the result's turn and the case with none.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+An arc no wider than a turn holds a swivel exactly where the swivel, taken into the arc's turn, lies between its ends.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One shift and one comparison an arc.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+None.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Linear in the few arcs.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure function of its arguments.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns a fresh arc and retains nothing.

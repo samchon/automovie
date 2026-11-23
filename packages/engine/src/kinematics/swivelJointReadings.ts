@@ -186,25 +186,9 @@ export namespace swivelJointReadings {
     alternate: boolean,
     margin: number,
   ): boolean {
-    const sLow: number = swivelArcs.lowest(cone.middle, low, high);
-    const sHigh: number = -swivelArcs.lowest(
-      swivelArcs.scaled(cone.middle, -1),
-      low,
-      high,
-    );
-    const squared: number =
-      sLow <= 0 && sHigh >= 0 ? 0 : Math.min(sLow * sLow, sHigh * sHigh);
-    const rhoHigh: number = Math.sqrt(Math.max(0, 1 - squared));
-    const rhoLow: number = Math.sqrt(
-      Math.max(0, 1 - Math.max(sLow * sLow, sHigh * sHigh)),
-    );
-    if (!(rhoLow > 1e-9)) return false;
-    const xLow: number = swivelArcs.lowest(cone.outer, low, high);
-    const xHigh: number = -swivelArcs.lowest(
-      swivelArcs.scaled(cone.outer, -1),
-      low,
-      high,
-    );
+    const range: IConeRange | null = coneRange(cone, low, high);
+    if (range === null) return false;
+    const { rhoLow, rhoHigh, xLow, xHigh }: IConeRange = range;
     const sign: number = alternate ? -1 : 1;
     // The greatest of `1 + sign · cos` for the outer cosine `x / ρ` and for
     // the middle cosine `ρ`, each at the end of its range the sign favours.
@@ -220,6 +204,54 @@ export namespace swivelJointReadings {
     const least: number = 2 * Math.acos(Math.min(1, Math.sqrt(most) / 2));
     const limit: number = 2 * Math.acos(Math.min(1, Math.sqrt(cone.held) / 2));
     return least - limit > margin;
+  }
+
+  /**
+   * Whether a swing cone certainly stays within its limit plus `margin` radians
+   * at every swivel from `low` to `high` degrees, in one chart: the counterpart
+   * of `coneExceeded`, which then refuses no part of the interval.
+   *
+   * The middle cosine `ρ` and the outer cosine `x / ρ` lie in the ranges
+   * `coneExceeded` reads, and the product `(1 ± cos f)(1 ± cos a)` of two
+   * non-negative factors is at least the product of their least values, so the
+   * cone is at most `2 acos(sqrt(that) / 2)` over the whole interval. Every
+   * part's `coneExceeded` bound reads the product at its greatest there, no
+   * less than this least, so none of them exceeds the limit by more than
+   * `margin` either.
+   *
+   * @param cone The cone's reading (`cone`).
+   * @param low The interval's start, degrees.
+   * @param high Its end, degrees.
+   * @param alternate Whether the chart is the alternate one, whose cosines are
+   *   negated.
+   * @param margin Radians the cone may exceed its limit by.
+   * @returns Whether the cone certainly stays within; false where the middle
+   *   cosine may vanish, which leaves the outer cosine unbounded.
+   */
+  export function coneWithin(
+    cone: ICone,
+    low: number,
+    high: number,
+    alternate: boolean,
+    margin: number,
+  ): boolean {
+    const range: IConeRange | null = coneRange(cone, low, high);
+    if (range === null) return false;
+    const { rhoLow, rhoHigh, xLow, xHigh }: IConeRange = range;
+    const sign: number = alternate ? -1 : 1;
+    // The least of `1 + sign · cos` for the outer cosine `x / ρ` and for the
+    // middle cosine `ρ`, each at the end of its range the sign disfavours.
+    const outer: number = Math.min(
+      1 + (sign * xLow) / rhoLow,
+      1 + (sign * xLow) / rhoHigh,
+      1 + (sign * xHigh) / rhoLow,
+      1 + (sign * xHigh) / rhoHigh,
+    );
+    const middle: number = 1 + sign * (alternate ? rhoHigh : rhoLow);
+    const least: number = Math.max(0, outer) * Math.max(0, middle);
+    const widest: number = 2 * Math.acos(Math.min(1, Math.sqrt(least) / 2));
+    const limit: number = 2 * Math.acos(Math.min(1, Math.sqrt(cone.held) / 2));
+    return widest - limit <= margin;
   }
 
   /** A swing cone as the swivel reads it (`cone`). */
@@ -350,4 +382,54 @@ export namespace swivelJointReadings {
     ];
     return [Math.min(...ends), Math.max(...ends)];
   }
+}
+
+/**
+ * The ranges a swing cone's two cosines read over an interval of swivels: the
+ * middle cosine `ρ = sqrt(1 - s²)` from the range of its sine `s`, and the
+ * outer vector `x`, each sinusoid's range read in closed form.
+ */
+interface IConeRange {
+  /** The least middle cosine. */
+  rhoLow: number;
+
+  /** The greatest middle cosine. */
+  rhoHigh: number;
+
+  /** The least outer vector. */
+  xLow: number;
+
+  /** The greatest outer vector. */
+  xHigh: number;
+}
+
+/**
+ * A swing cone's cosine ranges over the swivels from `low` to `high` degrees;
+ * none where the middle cosine may vanish, which leaves the outer cosine
+ * unbounded.
+ */
+function coneRange(
+  cone: swivelJointReadings.ICone,
+  low: number,
+  high: number,
+): IConeRange | null {
+  const sLow: number = swivelArcs.lowest(cone.middle, low, high);
+  const sHigh: number = -swivelArcs.lowest(
+    swivelArcs.scaled(cone.middle, -1),
+    low,
+    high,
+  );
+  const squared: number =
+    sLow <= 0 && sHigh >= 0 ? 0 : Math.min(sLow * sLow, sHigh * sHigh);
+  const rhoHigh: number = Math.sqrt(Math.max(0, 1 - squared));
+  const rhoLow: number = Math.sqrt(
+    Math.max(0, 1 - Math.max(sLow * sLow, sHigh * sHigh)),
+  );
+  if (!(rhoLow > 1e-9)) return null;
+  return {
+    rhoLow,
+    rhoHigh,
+    xLow: swivelArcs.lowest(cone.outer, low, high),
+    xHigh: -swivelArcs.lowest(swivelArcs.scaled(cone.outer, -1), low, high),
+  };
 }

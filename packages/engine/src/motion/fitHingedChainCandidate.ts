@@ -28,11 +28,13 @@ import type { distalTwistSwivelRange } from "../kinematics/distalTwistSwivelRang
 import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { hingedSwivelAhead } from "../kinematics/hingedSwivelAhead";
+import { hingedSwivelFeasible } from "../kinematics/hingedSwivelFeasible";
 import { immobileAxisSwivels } from "../kinematics/immobileAxisSwivels";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { readsSwingTwistFrame } from "../kinematics/readsSwingTwistFrame";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
+import { swivelArcs } from "../kinematics/swivelArcs";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
@@ -122,9 +124,12 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * Goswami and Badler 2000, section 3.2.4, the feasible swivel nearest the
  * desired one), and a cold fit whose rotation's certified miss exceeds the
  * tolerance at every swivel skips the pole start that could not be accepted. A
- * cold fit with no obstruction whose root's box refuses every swivel (a hip
- * whose flexion the target takes past its range on the whole swivel circle) has
- * no legal candidate: its least overshoot is searched for from the swivels at
+ * continued fit starts inside the root's feasible interval overlapping its
+ * seed's (`hingedSwivelFeasible`) and the admitted arc overlapping its seed's,
+ * and reports an interval's vanishing instead of jumping to another. A cold fit
+ * with no obstruction whose root's box refuses every swivel (a hip whose
+ * flexion the target takes past its range on the whole swivel circle) has no
+ * legal candidate: its least overshoot is searched for from the swivels at
  * which each limit of the box is least violated (`boxLeastSwivels`, Tolani,
  * Goswami and Badler 2000, section 3.2.3), not by the sweep.
  *
@@ -574,6 +579,7 @@ export function fitHingedChainCandidate(
   // whether the arc a continued seed was admitted in vanished
   // (`IAutoMovieSwivelSeed`), read once for the answer.
   let admittedArc: IAutoMovieSwivelArcs.IArc | null = null;
+  let feasibleArc: IAutoMovieSwivelArcs.IArc | null = null;
   let vanished: boolean = false;
 
   // The swivels of a branch at which the requested rotation reads the end
@@ -776,6 +782,139 @@ export function fitHingedChainCandidate(
     anchor > 0 &&
     (before[0] !== null || before[1] !== null);
   const certifying: boolean = strain !== undefined && turn !== null && missed;
+  // The root's feasible swivels on a branch (`hingedSwivelFeasible`): the
+  // intervals its limits leave, in closed form, the frame its overshoot
+  // reads it in without a rig.
+  const feasibleOf = (
+    posed: ReturnType<typeof hingedArmSwivel.pose>,
+  ): IAutoMovieSwivelArcs.IArc[] | "all" =>
+    hingedSwivelFeasible({
+      basis: upperBasis,
+      frame: props.restFrames?.[props.chain.upper],
+      constraint: prepared.upperDomain.constraint,
+      joint: swingTwistRange.of(props.chain.upper),
+      rotation: (swivel: number): IAutoMovieQuaternion => posed(swivel).upper,
+    });
+
+  // A continued seed kept inside the root's limits (Tolani, Goswami and
+  // Badler 2000, section 3.2.3): the seed itself where a feasible interval
+  // holds it, else the nearer end of the feasible interval overlapping the
+  // seed's own (`IAutoMovieSwivelSeed.feasible`), the same connected
+  // interval moved by the target. Where none overlaps it, the interval
+  // vanished: null, reported (`IAutoMovieSwivelSeed.vanished`). A seed with
+  // no interval of its own stays where it is.
+  const feasibleStart = (
+    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    swivel: number,
+  ): number | null => {
+    const held: IAutoMovieSwivelArcs.IArc | undefined = props.near?.feasible;
+    if (held === undefined) return swivel;
+    const arcs: IAutoMovieSwivelArcs.IArc[] | "all" = feasibleOf(posed);
+    if (arcs === "all" || swivelArcs.holding(arcs, swivel) !== null)
+      return swivel;
+    const next: IAutoMovieSwivelArcs.IArc | undefined = arcs.find(
+      (arc: IAutoMovieSwivelArcs.IArc): boolean => overlapping(arc, held),
+    );
+    if (next === undefined) {
+      vanished = true;
+      return null;
+    }
+    const shift: number =
+      360 * Math.round(((next.from + next.to) / 2 - swivel) / 360);
+    const from: number = next.from - shift;
+    const to: number = next.to - shift;
+    return Math.abs(from - swivel) <= Math.abs(to - swivel) ? from : to;
+  };
+
+  // A requested rotation on a limb whose mid segment twists distally is
+  // continued in the arc of swivels its seed was admitted in, where the end
+  // joint's box and the mid segment's twist range both admit the rotation
+  // (Tolani, Goswami and Badler 2000, section 3.2.4): the start itself while
+  // the arc still holds it, else the admitted swivel nearest it
+  // (`distalEndSwivelNearest`) only where that swivel's arc overlaps the
+  // seed's. Where none does, the arc vanished: null, reported. A seed
+  // admitted in no arc follows an admitted swivel only within the
+  // refinement's own step.
+  const admittedStart = (
+    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    swivel: number,
+  ): number | null => {
+    const arcs: ReturnType<typeof distalEndSwivelArcs> = arcsOf(posed);
+    if (arcs === null) return swivel;
+    const range: distalTwistSwivelRange.IRange | null = twisting(posed);
+    const start: number | null = distalEndSwivelNearest(arcs, range, swivel);
+    if (start === null || start === swivel) return swivel;
+    const held: IAutoMovieSwivelArcs.IArc | undefined = props.near?.admitted;
+    if (held === undefined) {
+      const turn: number = start - swivel;
+      return Math.abs(turn - 360 * Math.round(turn / 360)) <=
+        hingedArmSwivel.STEP
+        ? start
+        : swivel;
+    }
+    const around: IAutoMovieSwivelArcs.IArc | null = distalEndSwivelAdmitted(
+      arcs,
+      range,
+      start,
+    );
+    if (around !== null && overlapping(around, held)) return start;
+    vanished = true;
+    return null;
+  };
+
+  // On a limb whose mid segment takes no distal twist and whose end joint
+  // has an immobile axis (an ankle), the requested rotation holds only at
+  // that axis's roots, at most two swivels a branch in closed form
+  // (`immobileAxisSwivels`, Tolani, Goswami and Badler 2000, section
+  // 3.2.3: an end-joint limit is a sinusoid of the swivel): the root nearest
+  // the start, so a knee keeps the side the seed chose.
+  const rootStart = (
+    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    swivel: number,
+  ): number => {
+    const roots: number[] | null = immobileRoots(posed);
+    if (roots === null || roots.length === 0) return swivel;
+    let best: number = swivel;
+    let apart: number = Infinity;
+    for (const root of roots) {
+      const turn: number = root - swivel;
+      const distance: number = Math.abs(turn - 360 * Math.round(turn / 360));
+      if (distance < apart) {
+        apart = distance;
+        best = root;
+      }
+    }
+    return best;
+  };
+
+  // A continued fit's start: the seed kept inside the root's feasible
+  // interval, then inside the arc its requested rotation is admitted in or
+  // at the immobile axis's root nearest it; a start the rotation moves out of
+  // the feasible interval keeps the feasible one, which the ranking puts
+  // first. Null where an interval vanished, the seed then refined alone.
+  const continuedStart = (
+    posed: ReturnType<typeof hingedArmSwivel.pose>,
+    swivel: number,
+  ): number | null => {
+    const feasible: number | null = feasibleStart(posed, swivel);
+    if (feasible === null) return null;
+    const turned: number | null =
+      rotation === undefined
+        ? feasible
+        : lowerBasis.twistPlacement === "distal"
+          ? admittedStart(posed, feasible)
+          : strain === undefined
+            ? rootStart(posed, feasible)
+            : feasible;
+    if (turned === null) return null;
+    if (turned === feasible || props.near?.feasible === undefined)
+      return turned;
+    const arcs: IAutoMovieSwivelArcs.IArc[] | "all" = feasibleOf(posed);
+    return arcs === "all" || swivelArcs.holding(arcs, turned) !== null
+      ? turned
+      : feasible;
+  };
+
   const search = (
     trusting: boolean,
   ): ReturnType<typeof hingedArmArticulation> =>
@@ -802,87 +941,10 @@ export function fitHingedChainCandidate(
       ...(props.near !== undefined || props.incumbent === undefined
         ? {}
         : { incumbent: props.incumbent }),
-      // Such a fit of a requested rotation on a limb whose mid segment twists
-      // distally continues the arc of swivels its seed was admitted in, where
-      // the end joint's box and the mid segment's twist range both admit the
-      // rotation (Tolani, Goswami and Badler 2000, section 3.2.4): the seed
-      // itself while the arc still holds it, else the admitted swivel
-      // nearest it (`distalEndSwivelNearest`) only where that swivel's arc
-      // overlaps the seed's, the same connected arc moved by the target.
-      // Where none does, the arc vanished: the fit refines its seed alone
-      // and reports it (`IAutoMovieSwivelSeed.vanished`), so no fit jumps to
-      // another arc. A seed admitted in no arc follows an admitted swivel
-      // only within the refinement's own step.
-      ...(props.near !== undefined &&
-      rotation !== undefined &&
-      lowerBasis.twistPlacement === "distal"
-        ? {
-            nearest: (
-              posed: ReturnType<typeof hingedArmSwivel.pose>,
-              swivel: number,
-            ): number | null => {
-              const arcs: ReturnType<typeof distalEndSwivelArcs> =
-                arcsOf(posed);
-              if (arcs === null) return null;
-              const range: distalTwistSwivelRange.IRange | null =
-                twisting(posed);
-              const start: number | null = distalEndSwivelNearest(
-                arcs,
-                range,
-                swivel,
-              );
-              if (start === null || start === swivel) return start;
-              const held: IAutoMovieSwivelArcs.IArc | undefined =
-                props.near!.admitted;
-              if (held === undefined) {
-                const turn: number = start - swivel;
-                return Math.abs(turn - 360 * Math.round(turn / 360)) <=
-                  hingedArmSwivel.STEP
-                  ? start
-                  : null;
-              }
-              const around: IAutoMovieSwivelArcs.IArc | null =
-                distalEndSwivelAdmitted(arcs, range, start);
-              if (around !== null && overlapping(around, held)) return start;
-              vanished = true;
-              return null;
-            },
-          }
-        : {}),
-      // On a limb whose mid segment takes no distal twist and whose end joint
-      // has an immobile axis (an ankle), the requested rotation holds only at
-      // that axis's roots, at most two swivels a branch in closed form
-      // (`immobileAxisSwivels`, Tolani, Goswami and Badler 2000, section
-      // 3.2.3: an end-joint limit is a sinusoid of the swivel). A continued
-      // fit starts from the root nearest its seed, so a knee keeps the side
-      // the seed chose instead of leaving for whichever root scores best.
-      ...(props.near !== undefined &&
-      rotation !== undefined &&
-      lowerBasis.twistPlacement !== "distal" &&
-      strain === undefined
-        ? {
-            nearest: (
-              posed: ReturnType<typeof hingedArmSwivel.pose>,
-              swivel: number,
-            ): number | null => {
-              const roots: number[] | null = immobileRoots(posed);
-              if (roots === null || roots.length === 0) return null;
-              let best: number | null = null;
-              let apart: number = Infinity;
-              for (const root of roots) {
-                const turn: number = root - swivel;
-                const distance: number = Math.abs(
-                  turn - 360 * Math.round(turn / 360),
-                );
-                if (distance < apart) {
-                  apart = distance;
-                  best = root;
-                }
-              }
-              return best;
-            },
-          }
-        : {}),
+      // A continued fit starts from its seed continued along time
+      // (`continuedStart`): kept inside the root's feasible interval and the
+      // arc the requested rotation is admitted in, never jumping to another.
+      ...(props.near === undefined ? {} : { nearest: continuedStart }),
       ...(strain === undefined ? {} : { tie: ROM_TOLERANCE }),
       // With no hint side, reference or obstruction, every actual term is
       // non-negative in the original arithmetic: ROM excess, rotation angle
@@ -1096,21 +1158,21 @@ export function fitHingedChainCandidate(
                 }),
       // The arc the chosen swivel's requested rotation is admitted in, which
       // the seed carries for the fit continuing it.
-      ...(rotation !== undefined && lowerBasis.twistPlacement === "distal"
-        ? {
-            chosen: (
-              posed: ReturnType<typeof hingedArmSwivel.pose>,
-              swivel: number,
-            ): void => {
-              const arcs: ReturnType<typeof distalEndSwivelArcs> =
-                arcsOf(posed);
-              admittedArc =
-                arcs === null
-                  ? null
-                  : distalEndSwivelAdmitted(arcs, twisting(posed), swivel);
-            },
-          }
-        : {}),
+      chosen: (
+        posed: ReturnType<typeof hingedArmSwivel.pose>,
+        swivel: number,
+      ): void => {
+        const feasible: IAutoMovieSwivelArcs.IArc[] | "all" = feasibleOf(posed);
+        feasibleArc =
+          feasible === "all" ? null : swivelArcs.holding(feasible, swivel);
+        if (rotation === undefined || lowerBasis.twistPlacement !== "distal")
+          return;
+        const arcs: ReturnType<typeof distalEndSwivelArcs> = arcsOf(posed);
+        admittedArc =
+          arcs === null
+            ? null
+            : distalEndSwivelAdmitted(arcs, twisting(posed), swivel);
+      },
       excluded: (
         upper: (swivel: number) => IAutoMovieQuaternion,
       ): ((low: number, high: number) => boolean) =>
@@ -1289,6 +1351,7 @@ export function fitHingedChainCandidate(
       swivel: solved.swivel,
       branch: solved.branch,
       ...(admittedArc === null ? {} : { admitted: admittedArc }),
+      ...(feasibleArc === null ? {} : { feasible: feasibleArc }),
       ...(vanished ? { vanished: true } : {}),
     },
     ...(strain === undefined

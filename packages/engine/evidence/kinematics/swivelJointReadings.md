@@ -154,6 +154,36 @@ A pure reading of its arguments.
 
 Retains nothing.
 
+# src/kinematics/swivelJointReadings.ts#swivelJointReadings.coneWithin
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the certainty, the interval, the chart, the margin, why no part of the interval is then refused and the case that answers false.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The same interval arithmetic as `coneExceeded` read the other way: a product of two non-negative factors is at least the product of their least values, so the cone's angle is at most the bound at every swivel of the interval, and every part's `coneExceeded` bound, which reads the product at its greatest, refuses nothing there.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The shared ranges, one least product and one comparison.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Certain by construction, never sampled; a middle cosine that may vanish certifies nothing.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Constant work per interval.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Reads the cosine ranges `coneExceeded` reads, from one private reader.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Retains nothing.
+
 # src/kinematics/swivelJointReadings.ts#swivelJointReadings.ICone
 
 ## @evidence contracts/development/common.md#meaningful-documentation

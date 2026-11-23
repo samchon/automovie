@@ -41,11 +41,24 @@ export interface IAutoMovieSwivelSeed {
   admitted?: IAutoMovieSwivelArcs.IArc;
 
   /**
-   * Whether the admitted arc the fit continued from (the seed's `admitted`)
-   * vanished at this fit's target: no admitted arc overlaps it, so no swivel
-   * connected to the seed takes the requested end rotation and the fit only
+   * The feasible interval of swivels around `swivel`, degrees in its own turn:
+   * the interval the chain root's limits leave that holds it (Tolani, Goswami
+   * and Badler 2000, section 3.2.3; `hingedSwivelFeasible`). Absent where the
+   * root has no limits or the swivel lies in no feasible interval. A fit
+   * continued from the seed whose swivel leaves the feasible set moves to the
+   * feasible interval overlapping this one, the same connected interval moved
+   * by the target, and never to another.
+   */
+  feasible?: IAutoMovieSwivelArcs.IArc;
+
+  /**
+   * Whether an interval the fit continued from vanished at this fit's target:
+   * the seed's `feasible` interval, where no feasible interval overlaps it
+   * while the seed lies outside every one, or its `admitted` arc, where no
+   * admitted arc overlaps it. No swivel connected to the seed is then within
+   * the root's limits or takes the requested end rotation, and the fit only
    * refined the seed. The course continuing such fits refuses there or plans
-   * the span, never jumps; absent, the arc held.
+   * the span, never jumps; absent, the intervals held.
    */
   vanished?: boolean;
 }

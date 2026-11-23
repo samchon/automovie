@@ -1,22 +1,13 @@
 import type {
-  IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
   IAutoMovieRestFrame,
-  IAutoMovieSwingTwistLimit,
   IAutoMovieSwivelArcs,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
-import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
-import { toRigAngle } from "../rom/toRigAngle";
-import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
-import { readsSwingTwistFrame } from "./readsSwingTwistFrame";
-import { swingTwistRegion } from "./swingTwistRegion";
+import { swingTwistRefusedArcs } from "./swingTwistRefusedArcs";
 import { swivelArcs } from "./swivelArcs";
 
 /**
@@ -89,86 +80,10 @@ export function swingTwistExcludedSwivels(props: {
    */
   rotation: (swivel: number) => IAutoMovieQuaternion;
 }): (low: number, high: number) => boolean {
-  const constraint: IAutoMovieJointConstraint | null = props.constraint;
-  const gate: IAutoMovieSwingTwistLimit | null | undefined =
-    constraint?.swingTwist;
-  if (
-    constraint === null ||
-    gate === null ||
-    gate === undefined ||
-    !readsSwingTwistFrame(props.basis, props.frame, props.joint)
-  )
-    return (): boolean => false;
-  const u: IAutoMovieVector3 = SwingTwistFramePreparation.basis(props.joint).u;
-
-  // The rotation's half-angle readings and its rest direction's cosine at
-  // swivels 0, 90 and 180.
-  const sampled: { s: number; w: number; d: number }[] = [0, 90, 180].map(
-    (swivel: number): { s: number; w: number; d: number } => {
-      const q: IAutoMovieQuaternion = Quaternion.normalize(
-        props.rotation(swivel),
-      );
-      return {
-        s: q.x * u.x + q.y * u.y + q.z * u.z,
-        w: q.w,
-        d: Vector3.dot(u, Quaternion.rotateVector(q, u)),
-      };
-    },
-  );
-  const fit = (
-    read: (sample: { s: number; w: number; d: number }) => number,
-  ): IAutoMovieSwivelArcs.ISinusoid => {
-    const [zero, quarter, half] = sampled.map(read) as [number, number, number];
-    return swivelArcs.fitted(zero, quarter, half);
-  };
-
-  const arcs: IAutoMovieSwivelArcs.IArc[] = [];
-  const refuse = (f: IAutoMovieSwivelArcs.ISinusoid): boolean => {
-    const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(
-      f,
-      MARGIN,
-    );
-    if (arc === "all") return true;
-    if (arc !== null) arcs.push(arc);
-    return false;
-  };
-
-  // The twist past its rig interval, read on the half twist.
-  const twist: IAutoMovieAngleRange = gate.twist;
-  const ends: number[] = [twist.min, twist.max].map(
-    (clinical: number): number =>
-      toRigAngle(clinical, props.joint.frame?.twist)!,
-  );
-  const lo: number = (Math.min(...ends) / 2) * Quaternion.DEG2RAD;
-  const hi: number = (Math.max(...ends) / 2) * Quaternion.DEG2RAD;
-  if (
-    hi - lo < Math.PI &&
-    refuse(
-      fit(
-        ({ s, w }): number =>
-          (s * Math.cos(hi) - w * Math.sin(hi)) *
-          (s * Math.cos(lo) - w * Math.sin(lo)),
-      ),
-    )
-  )
-    return (): boolean => true;
-
-  // The swing past the region's greatest radius.
-  const greatest: number = swingTwistRegion.greatest(constraint, props.joint);
-  if (
-    greatest < 180 &&
-    refuse(fit(({ d }): number => Math.cos(greatest * Quaternion.DEG2RAD) - d))
-  )
-    return (): boolean => true;
-
-  const merged: IAutoMovieSwivelArcs.IArc[] | "all" = swivelArcs.union(arcs);
+  // The refused arcs in closed form (`swingTwistRefusedArcs`), read by every
+  // test of the sweep.
+  const merged: IAutoMovieSwivelArcs.IArc[] | "all" =
+    swingTwistRefusedArcs(props);
   return (low: number, high: number): boolean =>
     swivelArcs.covers(merged, low, high);
 }
-
-/**
- * How far past a bound, in sine or cosine units, a reading must lie to be
- * refused: the joints' tolerance (`ROM_TOLERANCE`) in radians, past the
- * rounding of every step.
- */
-const MARGIN: number = (ROM_TOLERANCE * Math.PI) / 180;

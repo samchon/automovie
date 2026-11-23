@@ -230,4 +230,66 @@ export namespace swivelArcs {
     if (holding === undefined) return swivel;
     return at - holding.from <= holding.to - at ? holding.from : holding.to;
   }
+
+  /**
+   * The swivels outside a union: the gaps between its merged arcs over one turn
+   * from 0, a gap across 360 kept whole.
+   *
+   * @param merged The union (`union`), or every swivel.
+   * @returns The disjoint arcs outside it, degrees, each starting in [0, 360);
+   *   every swivel as one turn from 0 when the union is empty; none when it is
+   *   every swivel.
+   */
+  export function complement(
+    merged: readonly IAutoMovieSwivelArcs.IArc[] | "all",
+  ): IAutoMovieSwivelArcs.IArc[] {
+    if (merged === "all") return [];
+    // The union's arcs that meet the turn [0, 360], clipped to it, in order.
+    const inside: IAutoMovieSwivelArcs.IArc[] = merged
+      .filter(
+        (arc: IAutoMovieSwivelArcs.IArc): boolean =>
+          arc.to > 0 && arc.from < 360,
+      )
+      .map(
+        (arc: IAutoMovieSwivelArcs.IArc): IAutoMovieSwivelArcs.IArc => ({
+          from: Math.max(0, arc.from),
+          to: Math.min(360, arc.to),
+        }),
+      );
+    if (inside.length === 0) return [{ from: 0, to: 360 }];
+    const gaps: IAutoMovieSwivelArcs.IArc[] = [];
+    for (let i: number = 0; i + 1 < inside.length; ++i)
+      if (inside[i]!.to < inside[i + 1]!.from)
+        gaps.push({ from: inside[i]!.to, to: inside[i + 1]!.from });
+    // The gap across 360: from the last arc's end to the first's start a
+    // turn later.
+    const first: IAutoMovieSwivelArcs.IArc = inside[0]!;
+    const last: IAutoMovieSwivelArcs.IArc = inside[inside.length - 1]!;
+    if (last.to < first.from + 360)
+      gaps.push({ from: last.to, to: first.from + 360 });
+    return gaps.map(
+      (gap: IAutoMovieSwivelArcs.IArc): IAutoMovieSwivelArcs.IArc =>
+        gap.from >= 360 ? { from: gap.from - 360, to: gap.to - 360 } : gap,
+    );
+  }
+
+  /**
+   * The arc of a list that holds a swivel, taken in the swivel's own turn.
+   *
+   * @param arcs Disjoint arcs, degrees, any turn.
+   * @param swivel The swivel, degrees.
+   * @returns The arc holding it, shifted by whole turns to the swivel's; none
+   *   when no arc holds it.
+   */
+  export function holding(
+    arcs: readonly IAutoMovieSwivelArcs.IArc[],
+    swivel: number,
+  ): IAutoMovieSwivelArcs.IArc | null {
+    for (const arc of arcs) {
+      const shift: number = 360 * Math.floor((swivel - arc.from) / 360);
+      if (swivel - shift <= arc.to)
+        return { from: arc.from + shift, to: arc.to + shift };
+    }
+    return null;
+  }
 }

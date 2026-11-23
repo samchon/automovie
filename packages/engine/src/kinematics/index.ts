@@ -14,6 +14,7 @@ export * from "./fitDigitDescent";
 export * from "./fitDigitToTarget";
 export * from "./gazeChainJoints";
 export * from "./hingedArmArticulation";
+export * from "./hingedSwivelFeasible";
 export * from "./hingedArmSwivel";
 export * from "./indexSkeletonTopology";
 export * from "./jointRomOvershoot";

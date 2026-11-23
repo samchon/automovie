@@ -6,7 +6,7 @@ The swivel parameterisation of Tolani, Goswami and Badler 2000: a branch and a s
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Two members, an optional distal twist and the admitted arc with its vanishing, what a fit chose and a seeded fit continues.
+Two members, an optional distal twist, the feasible interval and admitted arc with their vanishing, what a fit chose and a seeded fit continues.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

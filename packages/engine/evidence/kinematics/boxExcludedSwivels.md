@@ -10,7 +10,7 @@ Rodrigues' formula makes each entry an exact sinusoid in the swivel, so each bou
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The entries are fitted once, each reading's axes give their bound sinusoids, the sinusoids their arcs, the arcs one merged list per reading, and the test reads the lists.
+Each chart's refused arcs are built once (`boxRefusedArcs`) and the test reads both lists.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

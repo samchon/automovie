@@ -1,14 +1,12 @@
 import type {
-  IAutoMovieAngleRange,
   IAutoMovieBoxExcludedSwivels,
   IAutoMovieJointConstraint,
   IAutoMovieSwivelArcs,
 } from "@automovie/interface";
 
-import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
+import { boxRefusedArcs } from "./boxRefusedArcs";
 import { swingTwistExcludedSwivels } from "./swingTwistExcludedSwivels";
 import { swivelArcs } from "./swivelArcs";
-import { swivelJointReadings } from "./swivelJointReadings";
 
 /**
  * The swivels a joint's three-angle box provably refuses: for a joint whose
@@ -30,9 +28,9 @@ import { swivelJointReadings } from "./swivelJointReadings";
  * refused only past the highest ceiling the coupling reaches, which bounds it
  * at every flexion (`swivelJointReadings.interval`). A swing cone (`swingDeg`)
  * couples flexion and abduction too, so no arc of one sinusoid bounds it: each
- * piece of at most `PIECE` degrees the axes leave is refused in a chart where
- * the cone's closed-form bound over the piece certainly exceeds it by `MARGIN`
- * (`swivelJointReadings.coneExceeded`).
+ * one-degree piece of the turn the axes leave is refused in a chart where the
+ * cone's closed-form bound over the piece certainly exceeds it by `MARGIN`
+ * (`swivelJointReadings.coneExceeded`). The arcs are `boxRefusedArcs`'s.
  *
  * Every refusal is certain. A sinusoid above `MARGIN` puts its angle past the
  * bound by more than `MARGIN` radians, the joints' tolerance (`ROM_TOLERANCE`,
@@ -67,93 +65,14 @@ export function boxExcludedSwivels(
           joint: props.joint,
           rotation: props.rotation,
         });
-  const reading: Record<Axis, IRead> = swivelJointReadings.of(
-    props.basis,
-    props.rotation,
-  );
 
-  // Each chart's refused swivels: the union of its axes' arcs.
-  const charts: (IAutoMovieSwivelArcs.IArc[] | "all")[] = [false, true].map(
-    (alternate: boolean): IAutoMovieSwivelArcs.IArc[] | "all" => {
-      const arcs: IAutoMovieSwivelArcs.IArc[] = [];
-      for (const axis of AXES) {
-        const range: IAutoMovieAngleRange | null = swivelJointReadings.interval(
-          constraint,
-          axis,
-        );
-        if (range === null) continue;
-        const read: IRead = reading[axis];
-        for (const bound of swivelJointReadings.bounds(
-          read,
-          rig(range, props.frame?.[axis]),
-          alternate,
-        )) {
-          const arc: IAutoMovieSwivelArcs.IArc | "all" | null =
-            swivelArcs.above(bound, MARGIN);
-          if (arc === "all") return "all";
-          if (arc !== null) arcs.push(arc);
-        }
-      }
-      return swivelArcs.union(arcs);
-    },
-  );
-
-  // A swing cone couples flexion and abduction, so it refuses no arc of one
-  // sinusoid: each piece of at most `PIECE` degrees the axes' arcs leave is
-  // refused where the cone is certainly exceeded over it
-  // (`swivelJointReadings.coneExceeded`).
-  const cone: swivelJointReadings.ICone | null = swivelJointReadings.cone(
-    constraint,
-    props.frame,
-    reading,
-  );
-  const refused = (
-    chart: IAutoMovieSwivelArcs.IArc[] | "all",
-    alternate: boolean,
-    low: number,
-    high: number,
-  ): boolean => {
-    if (swivelArcs.covers(chart, low, high)) return true;
-    if (cone === null) return false;
-    const pieces: number = Math.max(1, Math.ceil((high - low) / PIECE));
-    for (let k: number = 0; k < pieces; ++k) {
-      const from: number = low + ((high - low) * k) / pieces;
-      const to: number = low + ((high - low) * (k + 1)) / pieces;
-      if (
-        !swivelArcs.covers(chart, from, to) &&
-        !swivelJointReadings.coneExceeded(cone, from, to, alternate, MARGIN)
-      )
-        return false;
-    }
-    return true;
-  };
+  // Each chart's refused arcs (`boxRefusedArcs`), built once and read by
+  // every test of the sweep: a swivel is refused where both charts refuse it.
+  const [principal, alternate]: [
+    IAutoMovieSwivelArcs.IArc[] | "all",
+    IAutoMovieSwivelArcs.IArc[] | "all",
+  ] = boxRefusedArcs(props);
   return (low: number, high: number): boolean =>
-    refused(charts[0]!, false, low, high) &&
-    refused(charts[1]!, true, low, high);
+    swivelArcs.covers(principal, low, high) &&
+    swivelArcs.covers(alternate, low, high);
 }
-
-/**
- * The widest piece of swivels, degrees, a cone's refusal is read over: the
- * sweep's step (`hingedArmSwivel.STEP`), over which the sinusoids' ranges stay
- * tight.
- */
-const PIECE: number = 1;
-
-/**
- * How far past a bound, in sine or projected units, a reading must lie to be
- * refused: the joints' tolerance (`ROM_TOLERANCE`) in radians, past the
- * rounding of every step and the decomposition's gimbal band.
- */
-const MARGIN: number = (ROM_TOLERANCE * Math.PI) / 180;
-
-/** The three clinical axes (`swivelJointReadings.AXES`). */
-const AXES: readonly Axis[] = swivelJointReadings.AXES;
-
-/** A clinical axis. */
-type Axis = swivelJointReadings.Axis;
-
-/** How an axis is read (`swivelJointReadings.IRead`). */
-type IRead = swivelJointReadings.IRead;
-
-/** A clinical interval as rest-relative degrees (`swivelJointReadings.rig`). */
-const rig: typeof swivelJointReadings.rig = swivelJointReadings.rig;
