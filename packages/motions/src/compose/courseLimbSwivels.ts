@@ -190,16 +190,19 @@ export namespace courseLimbSwivels {
       }
       const seeds: Map<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = new Map();
       // A held limb whose fit reports no seed here (its fit fell back to the
-      // bend planes, the legal reach shell missed) is seeded by the swivel and
-      // branch its fitted arm shows, read in closed form (`HumanLimbFit.seed`),
-      // so the course leaves no second a read would fill from another
-      // solution and the next knot continues the arm, never cold.
+      // bend planes, the legal reach shell missed) keeps the knot before's
+      // seed, the continuation the fallback's other solution must not break;
+      // with none before, it is seeded by the swivel and branch its fitted arm
+      // shows, read in closed form (`HumanLimbFit.seed`). So the course leaves
+      // no second a read would fill from another solution, and the next knot
+      // continues the arm, never cold.
       for (const limb of limbs) {
         const seed: IAutoMovieSwivelSeed | null | undefined =
           solved.seeds[limb] ??
           (posture.limbs[limb] === undefined
             ? undefined
-            : HumanLimbFit.seed(body, solved.pose, limb));
+            : (from?.seeds.get(limb) ??
+              HumanLimbFit.seed(body, solved.pose, limb)));
         if (seed !== undefined && seed !== null) seeds.set(limb, seed);
       }
       return {
