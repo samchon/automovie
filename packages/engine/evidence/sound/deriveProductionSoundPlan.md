@@ -6,7 +6,7 @@ Event trim joins use the film frame clock and optional adopted cues resolve agai
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The plan owner joins current shot contract/compiled source and camera sampling, while propagation is optional receipt derivation; acousticProfile is copied into the plan but does not derive per-event acoustic responses here.
+The plan owner joins current shot contract/compiled source and camera sampling, while propagation is optional receipt derivation and each caption lowers to its dialogue line through `productionCaptionDialogueLine`; acousticProfile is copied into the plan but does not derive per-event acoustic responses here.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
