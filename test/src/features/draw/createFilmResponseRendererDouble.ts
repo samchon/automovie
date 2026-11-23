@@ -118,17 +118,12 @@ function programOf(object: THREE.Object3D): Record<string, unknown> | null {
     Object.entries(material.uniforms).map(
       ([name, uniform]: [string, THREE.IUniform]): [string, unknown] => {
         const value: unknown = uniform.value;
-        return [
-          name,
-          typeof value === "number"
-            ? value
-            : value instanceof THREE.Vector2 ||
-                value instanceof THREE.Vector3 ||
-                value instanceof THREE.Matrix3 ||
-                value instanceof THREE.Matrix4
-              ? value.toArray()
-              : null,
-        ];
+        if (typeof value === "number") return [name, value];
+        if (value instanceof THREE.Vector2) return [name, value.toArray()];
+        if (value instanceof THREE.Vector3) return [name, value.toArray()];
+        if (value instanceof THREE.Matrix3) return [name, value.toArray()];
+        if (value instanceof THREE.Matrix4) return [name, value.toArray()];
+        return [name, null];
       },
     ),
   );

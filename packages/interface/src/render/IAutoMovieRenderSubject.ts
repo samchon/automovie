@@ -1,12 +1,13 @@
 import type { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
 import type { IAutoMovieFlameCue } from "../cinematics/IAutoMovieFlameCue";
 import type { IAutoMovieSurfaceGraphicTrack } from "../cinematics/IAutoMovieSurfaceGraphicTrack";
-import type { IAutoMovieFontSource } from "../typography/IAutoMovieFontSource";
 import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 import type { IAutoMovieCompiledEffect } from "../production/IAutoMovieCompiledEffect";
 import type { IAutoMovieCompiledFormation } from "../production/IAutoMovieCompiledFormation";
 import type { IAutoMovieCompiledInstanceSet } from "../production/IAutoMovieCompiledInstanceSet";
 import type { IAutoMovieScene } from "../scene/IAutoMovieScene";
+import type { IAutoMovieFontSource } from "../typography/IAutoMovieFontSource";
+import type { IAutoMovieRenderFilm } from "./IAutoMovieRenderFilm";
 import type { IAutoMovieRenderPlanting } from "./IAutoMovieRenderPlanting";
 import type { IAutoMovieRenderSoftPanel } from "./IAutoMovieRenderSoftPanel";
 import type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
@@ -112,4 +113,12 @@ export interface IAutoMovieRenderSubject {
    * Omission describes a fresh context containing only this subject.
    */
   textureResidency?: IAutoMovieRenderTextureResidency;
+
+  /**
+   * The directly rendered film's optics and shading at its most demanding
+   * second, whose film stage targets the inventory counts at the drawing
+   * buffer's raster. Omitted describes a frame drawn without optics, which
+   * allocates no film stage target.
+   */
+  film?: IAutoMovieRenderFilm;
 }

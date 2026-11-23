@@ -24,17 +24,19 @@ import type {
  * (`measureRenderTextures`) and resident geometry
  * (`measureRenderGeometryBytes`) only after both phases have named their
  * resources. Finally add light, shadow, outline, feed and background passes
- * (`measureRenderPasses`) before sorting attribution rows and emitting the
- * report. Each phase continues the previous counts without reordering
- * floating-point addition. Owned caches and owner rows are mutable; the input
- * subject is not. Null totals preserve declared analysis gaps rather than
- * treating unknowns as zero. Display geometry, resource bytes and whole-frame
- * pass costs differ, so changing one requires checking its consumer in the
- * viewer and budget report.
+ * (`measureRenderPasses`) and a directly rendered film's stage targets
+ * (`measureAutoMovieRenderFilmTargets`) before sorting attribution rows and
+ * emitting the report. Each phase continues the previous counts without
+ * reordering floating-point addition. Owned caches and owner rows are mutable;
+ * the input subject is not. Null totals preserve declared analysis gaps rather
+ * than treating unknowns as zero. Display geometry, resource bytes and
+ * whole-frame pass costs differ, so changing one requires checking its consumer
+ * in the viewer and budget report.
  */
 
 import { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
+import { measureAutoMovieRenderFilmTargets } from "./measureAutoMovieRenderFilmTargets";
 import { measureRenderGeometryBytes } from "./measureRenderGeometryBytes";
 import { measureRenderPasses } from "./measureRenderPasses";
 import { measureRenderPopulation } from "./measureRenderPopulation";
@@ -323,6 +325,15 @@ export const measureAutoMovieRenderInventory: (
   drawCalls = passes.drawCalls;
   triangles = passes.triangles;
 
+  // --- film stage targets ---------------------------------------------------
+  const film: measureAutoMovieRenderFilmTargets.IResult =
+    measureAutoMovieRenderFilmTargets({
+      subject,
+      ...(props.settings === undefined ? {} : { settings: props.settings }),
+      add,
+      gaps,
+    });
+
   const nodes: number =
     subject.scene.nodes.length + (space === null ? 0 : 1) + simulatedNodes;
   // A cluster whose drawn prototype nobody stated leaves an unknown share of
@@ -335,8 +346,13 @@ export const measureAutoMovieRenderInventory: (
     drawCalls,
     materials: materials.size + defaultMaterials,
     textures:
-      textureAllocations === null ? null : textureAllocations + feeds.targets,
-    textureBytes: textureBytes === null ? null : textureBytes + feeds.bytes,
+      textureAllocations === null || film.targets === null
+        ? null
+        : textureAllocations + feeds.targets + film.targets,
+    textureBytes:
+      textureBytes === null || film.bytes === null
+        ? null
+        : textureBytes + feeds.bytes + film.bytes,
     geometryBytes: partial ? null : geometryBytes,
     lights: subject.scene.lights.length,
     shadowMaps,

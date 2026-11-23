@@ -53,7 +53,9 @@ export function test_material_procedural_pattern_sheet(): void {
           zone({
             region: rectangle(0, 0, 3, 1),
             period: { u: 1, v: 0.2 },
-            reach: { u: 1.5, v: 0.2 },
+            // A shifted board's far end lies 1.5 m from its cell origin; the
+            // margin keeps rounded corners inside the declared reach.
+            reach: { u: 2, v: 0.4 },
             generate: runningBond,
           }),
         ],

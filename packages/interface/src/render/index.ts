@@ -63,6 +63,7 @@ export type { IAutoMovieRenderObservationAuditRequest } from "./IAutoMovieRender
 export type { IAutoMovieRenderObservationBreach } from "./IAutoMovieRenderObservationBreach";
 export type { IAutoMovieRenderOwnerCost } from "./IAutoMovieRenderOwnerCost";
 export type { IAutoMovieRenderPassManifest } from "./IAutoMovieRenderPassManifest";
+export type { IAutoMovieRenderFilm } from "./IAutoMovieRenderFilm";
 export type { IAutoMovieRenderPlanting } from "./IAutoMovieRenderPlanting";
 export type { IAutoMovieRenderPrototypeCost } from "./IAutoMovieRenderPrototypeCost";
 export type { IAutoMovieRenderReassembly } from "./IAutoMovieRenderReassembly";

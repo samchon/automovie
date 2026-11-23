@@ -30,6 +30,7 @@ export * from "./filmShading";
 export * from "./exposure";
 export * from "./measure";
 export * from "./measureAutoMovieRenderFeeds";
+export * from "./measureAutoMovieRenderFilmTargets";
 export * from "./measureAutoMovieRenderInventory";
 export * from "./measureAutoMovieRenderTextureClosure";
 export * from "./measureAutoMovieRenderTextureTarget";

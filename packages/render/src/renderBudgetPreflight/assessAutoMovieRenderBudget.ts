@@ -13,11 +13,21 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Measure one caller-supplied compiled shot against an explicitly supplied budget, renderer identity, settings, assets and decoded texture/residency facts. The subject feeds both mask ownership and inventory measurement; the sealed target names those supplied inputs rather than proving that a renderer drew a frame.
+ * Measure one caller-supplied compiled shot against an explicitly supplied
+ * budget, renderer identity, settings, assets, decoded texture/residency facts
+ * and, for a directly rendered film, its most demanding optics and shading,
+ * whose film stage targets join the texture totals. The subject feeds both mask
+ * ownership and inventory measurement; the sealed target names those supplied
+ * inputs rather than proving that a renderer drew a frame.
  *
- * A null renderer produces not-run without inventing graphics identity. The helper performs no draw, capture-host acquisition or texture allocation, and the caller owns the provenance of its observation records.
+ * A null renderer produces not-run without inventing graphics identity. The
+ * helper performs no draw, capture-host acquisition or texture allocation, and
+ * the caller owns the provenance of its observation records.
  *
- * Maintained callers are tests and the internal budget-helper chain. ProductionDesign.renderBudgets has no current execution reader wiring this assessment into an automatic render-job gate; accepting an explicit budget here does not establish that integration.
+ * Maintained callers are tests and the internal budget-helper chain.
+ * ProductionDesign.renderBudgets has no current execution reader wiring this
+ * assessment into an automatic render-job gate; accepting an explicit budget
+ * here does not establish that integration.
  */
 export const assessAutoMovieRenderBudget: (
   props: IAutoMovieAssessRenderBudgetProps,
@@ -36,12 +46,16 @@ export const assessAutoMovieRenderBudget: (
       target: null,
     };
   try {
-    const subject: ReturnType<typeof autoMovieRenderSubjectOfCompiledShot> =
-      autoMovieRenderSubjectOfCompiledShot({
+    // The film's settings are a draw-scene fact no compiled shot carries, so
+    // they join the subject here, where the inventory reads them.
+    const subject: ReturnType<typeof autoMovieRenderSubjectOfCompiledShot> = {
+      ...autoMovieRenderSubjectOfCompiledShot({
         compiled: props.compiled,
         textures: props.textures,
         textureResidency: props.textureResidency,
-      });
+      }),
+      ...(props.film === undefined ? {} : { film: props.film }),
+    };
     const mask: ReturnType<typeof deriveAutoMovieSemanticMask> =
       deriveAutoMovieSemanticMask(subject);
     const targetBase: ReturnType<typeof sealAutoMovieRenderTarget> =
