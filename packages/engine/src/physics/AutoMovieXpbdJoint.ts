@@ -7,16 +7,16 @@ import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 
 /**
  * One articulation of the engine's extended position-based dynamics world
- * (`AutoMovieXpbdWorld`): the two bodies it joins, its anchor frames on
- * each, its rotational limits and one velocity motor per free axis.
+ * (`AutoMovieXpbdWorld`): the two bodies it joins, its anchor frames on each,
+ * its rotational limits and one velocity motor per free axis.
  *
- * The anchors coincide (a ball joint's attachment, Mueller et al. 2020,
- * section 3.3.1). The rotation of the child's anchor frame relative to the
- * parent's is held inside the profile's limits: its free axes' coordinates
- * `2 atan(q.axis / w)` inside their boxes and its locked axes' at zero
- * (`projectPhysicalJointRotation`), and inside its clinical swing-twist
- * limit when it declares one. A motor drives its axis's relative angular
- * velocity toward a speed through implicit damping up to a torque cap.
+ * The anchors coincide (a ball joint's attachment, Mueller et al. 2020, section
+ * 3.3.1). The rotation of the child's anchor frame relative to the parent's is
+ * held inside the profile's limits: its free axes' coordinates `2 atan(q.axis /
+ * w)` inside their boxes and its locked axes' at zero
+ * (`projectPhysicalJointRotation`), and inside its clinical swing-twist limit
+ * when it declares one. A motor drives its axis's relative angular velocity
+ * toward a speed through implicit damping up to a torque cap.
  */
 export class AutoMovieXpbdJoint {
   /** Its handle, unique in its world. */
@@ -74,9 +74,7 @@ export class AutoMovieXpbdJoint {
 
 /** Companion types of {@link AutoMovieXpbdJoint}. */
 export namespace AutoMovieXpbdJoint {
-  /**
-   * One free axis's velocity motor.
-   */
+  /** One free axis's velocity motor. */
   export interface IMotor {
     /** Target relative angular speed about the axis, radians per second. */
     speed: number;
@@ -84,7 +82,40 @@ export namespace AutoMovieXpbdJoint {
     /** Implicit damping, newton metre seconds per radian. */
     damping: number;
 
-    /** Torque cap, newton metres. */
+    /** Torque cap toward the axis's positive direction, newton metres. */
     maximumTorque: number;
+
+    /**
+     * Torque cap toward the axis's negative direction, newton metres;
+     * `maximumTorque` both ways when absent. A joint whose two directions
+     * differ in strength bounds each one by its own (Herzog et al. 2016,
+     * Section 2.1).
+     */
+    reverseTorque?: number;
+
+    /**
+     * The relative speed the PD alone asks, without its feed-forward torque,
+     * radians per second: the posture a support cascade moves the joint toward
+     * (`solveXpbdSupportCascade`); `speed` when absent.
+     */
+    target?: number;
+  }
+
+  /**
+   * A motor's cap on an impulse's direction over a substep: the positive
+   * direction's for a positive impulse, the negative direction's otherwise.
+   *
+   * @param motor The motor.
+   * @param impulse The impulse whose direction picks the cap, newton metre
+   *   seconds.
+   * @param h The substep, seconds.
+   * @returns The cap, newton metre seconds, never negative.
+   */
+  export function cap(motor: IMotor, impulse: number, h: number): number {
+    return (
+      (impulse < 0
+        ? (motor.reverseTorque ?? motor.maximumTorque)
+        : motor.maximumTorque) * h
+    );
   }
 }

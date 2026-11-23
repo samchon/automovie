@@ -9,41 +9,63 @@ import type { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArtic
 import { solveXpbdDualActiveSet as ActiveSet } from "./solveXpbdDualActiveSet";
 
 /**
- * The strict two-level cascade of hierarchical inverse dynamics (Herzog,
- * Rotella, Mason, Grimminger, Schaal and Righetti 2016, eq. 5) over one
- * tree's support rows and actuated axes, each level one quadratic program
- * over the same feasible set: the support rows bring their contacts to rest,
- * the row's velocity after the step zero as in sticking contact (Mirtich
- * 1996), through the independent ones, a normal row's impulse stays at or
- * above its
- * Signorini bound, each patch's whole friction, the contact passes' plus
- * the rows', stays inside the inscribed pyramid `|t1| + |t2| <= mu (N + sum
- * lambda_n)` the wrench allocation uses, and every joint impulse within its
- * motor's cap. Level one minimizes the task's residual `e = G x - g`,
- * regularized by `sqrt(eps)` as the allocation is; level two fixes that
- * residual at its optimum and tracks the motors' own impulses, `min |tau -
- * b|^2 + sqrt(eps) |lambda|^2`. Both objectives are diagonal and positive,
- * the fixed residual's weight changing nothing.
+ * The strict cascade of hierarchical inverse dynamics (Herzog, Rotella, Mason,
+ * Grimminger, Schaal and Righetti 2016, eq. 5) over one tree's support rows and
+ * actuated axes, each level one quadratic program over the same feasible set:
+ * the support rows bring their contacts to rest, the row's velocity after the
+ * step zero as in sticking contact (Mirtich 1996), through the independent
+ * ones, a normal row's impulse stays at or above its Signorini bound, each
+ * patch's whole friction, the contact passes' plus the rows', stays inside the
+ * inscribed pyramid `|t1| + |t2| <= mu (N + sum lambda_n)` the wrench
+ * allocation uses, every joint impulse within its motor's cap on its own
+ * direction (Herzog et al. 2016, Section 2.1), and each bounded group's summed
+ * normal impulse within its bound, the ramp a leaving contact's force follows
+ * to zero (Section 5.3).
  *
- * Each level is solved by the dual active-set method (Goldfarb and Idnani
- * 1983, `solveXpbdDualActiveSet`), warm-started from the active set the
+ * - Level one minimizes the task's residual `e = G x - g`, regularized by
+ *   `sqrt(eps)` as the allocation is.
+ * - Level two fixes that residual at its optimum and minimizes the motion rows'
+ *   residual `m = W x - w`: the posture's joint rates and the root's spin after
+ *   the step against what their servos ask, a task in motion, as whole-body
+ *   controllers rank posture (Herzog et al. 2016; TSID's `TaskJointPosture`),
+ *   the joint impulses left free within their caps so the torques the support
+ *   needs come out of the solve. A torque-space posture, the motors' own
+ *   impulses as targets, lets every wrench change bend the stance unopposed.
+ * - When level one has no feasible point, the holds that cannot be met within the
+ *   caps and cones are kept as nearly as they can: a level zero minimizes their
+ *   velocity residual, fixed below the wrench and the motion, so every level
+ *   stays feasible (hierarchical least squares; Escande, Mansard and Wieber
+ *   2014) and the support never falls back to a solve without its task.
+ *
+ * Every objective is diagonal and positive, a fixed residual's weight changing
+ * nothing. Each level is solved by the dual active-set method (Goldfarb and
+ * Idnani 1983, `solveXpbdDualActiveSet`), warm-started from the active set the
  * same level ended with on the previous substep, as whole-body controllers
  * solve their per-cycle programs; the engine's interior-point solver is the
  * cold fallback when the active-set solve reports no solution.
  *
- * @param input The rows, the task, the actuators, the posture and the warm start.
- * @returns The rows' and joint impulses, or null when level one has no feasible point.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the levels, the feasible set, the objectives, the solver, its warm start and the fallback.
- * @evidence contracts/development/implementation.md#principled-implementation Herzog et al. 2016, eq. 5, each level by Goldfarb and Idnani 1983 warm-started from the previous active set; the interior-point solve only when it reports no solution.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the rows once, solve level one, fix its residual, solve level two.
+ * @param input The rows, the task, the actuators, the motion rows, the bounds
+ *   and the warm start.
+ * @returns The rows' and joint impulses, or null when even the relaxed holds
+ *   leave no feasible point.
+ * @evidence contracts/development/common.md#meaningful-documentation States the levels, the feasible set, the objectives, the relaxed holds, the solver, its warm start and the fallback.
+ * @evidence contracts/development/implementation.md#principled-implementation Herzog et al. 2016, eq. 5, with the posture as a motion task; hierarchical least squares for infeasible holds; each level by Goldfarb and Idnani 1983 warm-started from the previous active set; the interior-point solve only when it reports no solution.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the rows once, solve level one, fix its residual, solve level two; on an infeasible level one, the same with a hold level first.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A failed level is solved again cold, never accepted; bounds and coefficients are the rows'.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two dense active-set solves of O(n^2) per added or dropped row; a warm solve whose active set did not change adds its rows once each.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The rows are built once for both levels; the active sets carry over in the caller's warm store.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two dense active-set solves of O(n^2) per added or dropped row, three when the holds are relaxed; a warm solve whose active set did not change adds its rows once each.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The rows are built once for every level; the active sets carry over in the caller's warm store.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Writes only the warm store's two key lists; returns a fresh array.
  */
 export function solveXpbdSupportCascade(
   input: solveXpbdSupportCascade.IInput,
+): number[] | null {
+  return cascade(input, false) ?? cascade(input, true);
+}
+
+/** The cascade with the holds strict, or relaxed behind a level of their own. */
+function cascade(
+  input: solveXpbdSupportCascade.IInput,
+  relaxed: boolean,
 ): number[] | null {
   const {
     k,
@@ -52,11 +74,22 @@ export function solveXpbdSupportCascade(
     target,
     set,
     actuators,
-    posture,
+    motion,
     warm,
   }: solveXpbdSupportCascade.IInput = input;
+  const bounds: readonly solveXpbdSupportCascade.IBound[] = input.bounds ?? [];
   const rows: number = set.rows.length;
   const size: number = k[0]!.length;
+  const holds: number[] = [...independent(set)].sort(
+    (a: number, b: number): number => a - b,
+  );
+
+  // The variables: the unknowns, the wrench residual, the motion residual
+  // and, relaxed, the holds' residual.
+  const wrench: number = size;
+  const moved: number = wrench + 6;
+  const held: number = moved + motion.length;
+  const count: number = held + (relaxed ? holds.length : 0);
   const equalities: ActiveSet.IRow[] = [];
   const inequalities: ActiveSet.IRow[] = [];
   const keys: string[] = [];
@@ -69,14 +102,15 @@ export function solveXpbdSupportCascade(
     keys.push(key);
     inequalities.push({ indices, weights, value });
   };
-  const holds: ReadonlySet<number> = independent(set);
-  set.rows.forEach((_: Contacts.IRow, r: number): void => {
-    if (holds.has(r))
-      equalities.push({
-        indices: k[r]!.map((_: number, s: number): number => s),
-        weights: [...k[r]!],
-        value: -u[r]! - set.rows[r]!.velocity,
-      });
+  holds.forEach((r: number, h: number): void => {
+    equalities.push({
+      indices: [
+        ...k[r]!.map((_: number, s: number): number => s),
+        ...(relaxed ? [held + h] : []),
+      ],
+      weights: [...k[r]!, ...(relaxed ? [-1] : [])],
+      value: -u[r]! - set.rows[r]!.velocity,
+    });
   });
   // A patch is named by its body's state and its order among that body's
   // patches, so the warm start finds its rows again on the next substep.
@@ -102,12 +136,13 @@ export function solveXpbdSupportCascade(
           ),
         );
   }
+  // Each direction of an actuated axis is bounded by its own cap.
   actuators.forEach((actuator: Contacts.IActuator, j: number): void => {
     inequality(
       `c${actuator.edge}:${actuator.axis}-`,
       [rows + j],
       [1],
-      -actuator.cap,
+      -actuator.reverse,
     );
     inequality(
       `c${actuator.edge}:${actuator.axis}+`,
@@ -116,45 +151,81 @@ export function solveXpbdSupportCascade(
       -actuator.cap,
     );
   });
+  // A bounded group's normal rows add at most its impulse.
+  bounds.forEach((bound: solveXpbdSupportCascade.IBound, b: number): void =>
+    inequality(
+      `b${b}`,
+      [...bound.rows],
+      bound.rows.map((): number => -1),
+      -bound.impulse,
+    ),
+  );
   // The task's residual e = G x - g, one variable per wrench row.
   for (let m: number = 0; m < 6; ++m)
     equalities.push({
-      indices: [...columns.map((_: number[], s: number): number => s), size + m],
+      indices: [
+        ...columns.map((_: number[], s: number): number => s),
+        wrench + m,
+      ],
       weights: [...columns.map((column: number[]): number => column[m]!), -1],
       value: target[m]!,
     });
+  // The motion's residual m = W x - w, one variable per motion row.
+  const rates: ActiveSet.IRow[] = motion.map(
+    (row: solveXpbdSupportCascade.IMotion, i: number): ActiveSet.IRow => ({
+      indices: [
+        ...row.weights.map((_: number, s: number): number => s),
+        moved + i,
+      ],
+      weights: [...row.weights, -1],
+      value: row.value,
+    }),
+  );
+  const weigh = (from: number, to: number): number[] =>
+    new Array<number>(count)
+      .fill(REGULARIZATION)
+      .map((value: number, i: number): number =>
+        i >= from && i < to ? 1 : value,
+      );
+  const fix = (
+    solution: number[],
+    from: number,
+    to: number,
+  ): ActiveSet.IRow[] =>
+    solution.slice(from, to).map(
+      (value: number, i: number): ActiveSet.IRow => ({
+        indices: [from + i],
+        weights: [1],
+        value,
+      }),
+    );
+  const zero: number[] = new Array<number>(count).fill(0);
+  let fixed: ActiveSet.IRow[] = [];
+  if (relaxed) {
+    const hold: number[] | null = level(
+      weigh(held, count),
+      zero,
+      equalities,
+      inequalities,
+      keys,
+      [],
+    );
+    if (hold === null) return null;
+    fixed = fix(hold, held, count);
+  }
   const first: number[] | null = level(
-    [
-      ...new Array<number>(size).fill(REGULARIZATION),
-      ...new Array<number>(6).fill(1),
-    ],
-    new Array<number>(size + 6).fill(0),
-    equalities,
+    weigh(wrench, moved),
+    zero,
+    [...equalities, ...fixed],
     inequalities,
     keys,
     warm.first,
   );
   if (first === null) return null;
   const second: number[] | null = level(
-    [
-      ...new Array<number>(rows).fill(REGULARIZATION),
-      ...new Array<number>(size - rows + 6).fill(1),
-    ],
-    [
-      ...new Array<number>(rows).fill(0),
-      ...posture.map((value: number): number => -value),
-      ...new Array<number>(6).fill(0),
-    ],
-    [
-      ...equalities,
-      ...first.slice(size, size + 6).map(
-        (value: number, m: number): ActiveSet.IRow => ({
-          indices: [size + m],
-          weights: [1],
-          value,
-        }),
-      ),
-    ],
+    weigh(moved, held),
+    zero,
+    [...equalities, ...fixed, ...fix(first, wrench, moved), ...rates],
     inequalities,
     keys,
     warm.second,
@@ -166,20 +237,26 @@ export function solveXpbdSupportCascade(
  * The input and the warm store of solveXpbdSupportCascade.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the input's members and the warm store's.
- * @evidence contracts/development/design.md#principled-representation Dense rows of velocity changes per unit impulse, newton-second targets, and the active sets as row keys.
+ * @evidence contracts/development/design.md#principled-representation Dense rows of velocity changes per unit impulse, newton-second targets, motion rows of velocity changes per unit impulse with their asked change per second, and the active sets as row keys.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Built by solveXpbdArticulationContacts; the warm store is kept by the world per tree.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required but `bounds`, whose absence is no bounded group.
  */
 export namespace solveXpbdSupportCascade {
   /** One tree's program. */
   export interface IInput {
-    /** Each support row's velocity change per unit impulse of every unknown, rows then actuators. */
+    /**
+     * Each support row's velocity change per unit impulse of every unknown,
+     * rows then actuators.
+     */
     k: readonly number[][];
 
     /** Each support row's velocity change under the motors without the unknowns. */
     u: readonly number[];
 
-    /** Each unknown's ground-reaction wrench per unit impulse, force then moment over the lever. */
+    /**
+     * Each unknown's ground-reaction wrench per unit impulse, force then moment
+     * over the lever.
+     */
     columns: readonly number[][];
 
     /** The ground-reaction wrench the rows should add, over the substep. */
@@ -191,11 +268,50 @@ export namespace solveXpbdSupportCascade {
     /** The actuated axes, in the unknowns' order after the rows. */
     actuators: readonly Contacts.IActuator[];
 
-    /** The motors' own impulses on those axes, level two's targets. */
-    posture: readonly number[];
+    /**
+     * Level two's motion rows: what the posture's rates and the root's spin
+     * should be after the step.
+     */
+    motion: readonly IMotion[];
 
-    /** The tree's active sets from the previous substep, rewritten with this one's. */
+    /** Groups of normal rows whose summed impulse is bounded; none when absent. */
+    bounds?: readonly IBound[];
+
+    /**
+     * The tree's active sets from the previous substep, rewritten with this
+     * one's.
+     */
     warm: IWarm;
+  }
+
+  /**
+   * One motion row: a velocity after the step, linear in the unknowns, and the
+   * change in it the row asks of them.
+   */
+  export interface IMotion {
+    /**
+     * The velocity's change per unit impulse of every unknown, rows then
+     * actuators.
+     */
+    weights: readonly number[];
+
+    /**
+     * The change asked: the servo's velocity less the velocity without the
+     * unknowns, per second.
+     */
+    value: number;
+  }
+
+  /** A group of normal rows whose summed added impulse is bounded. */
+  export interface IBound {
+    /** The rows' indices. */
+    rows: readonly number[];
+
+    /**
+     * The largest summed impulse they may add, newton seconds; negative takes
+     * back part of the contact passes'.
+     */
+    impulse: number;
   }
 
   /** The keys of the inequalities each level ended active on. */
@@ -209,8 +325,8 @@ export namespace solveXpbdSupportCascade {
 }
 
 /**
- * One level: the warm active-set solve, else the interior-point solve; the
- * warm keys become the level's active set, or none after the fallback.
+ * One level: the warm active-set solve, else the interior-point solve; the warm
+ * keys become the level's active set, or none after the fallback.
  */
 function level(
   diagonal: number[],
@@ -266,13 +382,12 @@ function level(
 }
 
 /**
- * The rows whose holds are independent. A row reads its body's velocity
- * change through its own unit impulse, `(r x d, d)`, so the rows of one
- * patch on one rigid body are
- * dependent exactly when those functionals are: four coplanar points span
- * three. Gram-Schmidt over each patch's functionals, normals first, keeps a
- * row whose functional leaves more than `sqrt(eps)` of itself outside the
- * ones kept; the others hold with them, and leaving them out keeps the
+ * The rows whose holds are independent. A row reads its body's velocity change
+ * through its own unit impulse, `(r x d, d)`, so the rows of one patch on one
+ * rigid body are dependent exactly when those functionals are: four coplanar
+ * points span three. Gram-Schmidt over each patch's functionals, normals first,
+ * keeps a row whose functional leaves more than `sqrt(eps)` of itself outside
+ * the ones kept; the others hold with them, and leaving them out keeps the
  * program's equality rows of full rank.
  */
 function independent(set: Contacts.ISet): Set<number> {
@@ -309,5 +424,9 @@ function product(a: readonly number[], b: readonly number[]): number {
 /** The Tikhonov weight: the square root of float64's machine epsilon. */
 const REGULARIZATION: number = Math.sqrt(Number.EPSILON);
 
-/** The rows' violation an interior-point solve may leave and still count as solved: the wrench allocation's own acceptance (`distributePhysicalSupportWrench`). */
+/**
+ * The rows' violation an interior-point solve may leave and still count as
+ * solved: the wrench allocation's own acceptance
+ * (`distributePhysicalSupportWrench`).
+ */
 const ACCEPTANCE: number = 1e-6;

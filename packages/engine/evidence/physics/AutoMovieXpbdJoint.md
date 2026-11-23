@@ -80,16 +80,46 @@ Returns the joint's record; retains nothing new.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the speed, damping and cap.
+States the speed, the damping, the cap of each direction and the posture's own speed.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Radians per second, newton metre seconds per radian and newton metres.
+Radians per second, newton metre seconds per radian and newton metres. The reverse cap defaults to the forward one and the posture speed to the speed, so a symmetric or plain motor carries neither.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Set by the joint motor configuration and read by the solver's motors.
+Set by the joint motor configuration and read by the solver's motors and the support cascade's posture rows.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 One record per free axis.
+
+# src/physics/AutoMovieXpbdJoint.ts#AutoMovieXpbdJoint.cap
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States which direction's cap applies and the units.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+A torque bound per direction (Herzog et al. 2016, Section 2.1), times the substep.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One expression.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The absent reverse cap is the forward one, the motor's declared meaning.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Constant work.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure function of its arguments.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+It retains and allocates nothing.

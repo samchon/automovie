@@ -2,6 +2,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieXpbdArticulation } from "./AutoMovieXpbdArticulation";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import { AutoMovieXpbdSupportRows as Rows } from "./AutoMovieXpbdSupportRows";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
@@ -9,23 +11,22 @@ import { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 import { solveXpbdSupportComplementarity } from "./solveXpbdSupportComplementarity";
 
 /**
- * The pressed supports of an articulation held inside its motors' solve,
- * by impulse-based articulated contact (Mirtich 1996, "Impulse-based
- * Dynamic Simulation of Rigid Body Systems", chapter 6).
+ * The pressed supports of an articulation held inside its motors' solve, by
+ * impulse-based articulated contact (Mirtich 1996, "Impulse-based Dynamic
+ * Simulation of Rigid Body Systems", chapter 6).
  *
  * The rows are the supports' (`AutoMovieXpbdSupportRows`): a normal row per
- * touching point and two tangential rows per patch. A
- * unit test impulse along every row, propagated through the tree's factor
- * with the motors' damping in it, gives the rows' coupling matrix `K`. A
- * tree with a root task solves the rows and its support chains' joint
- * impulses by the whole-body cascade (`solveXpbdSupportCascade`); any other
- * tree, or one whose cascade has no feasible point, solves `K lambda = -u`,
- * `u` being the motors' velocity change at the rows, as a complementarity
- * problem (`solveXpbdSupportComplementarity`), so the motors move the tree
- * as it is held at its supports instead of as if it floated. Coplanar
- * points make that system rank-deficient, so its diagonal carries a
- * Tikhonov term of `sqrt(eps)` times itself, the float64 scale at which it
- * changes no well-posed solution.
+ * touching point and two tangential rows per patch. A unit test impulse along
+ * every row, propagated through the tree's factor with the motors' damping in
+ * it, gives the rows' coupling matrix `K`. A tree with a root task solves the
+ * rows and its support chains' joint impulses by the whole-body cascade
+ * (`solveXpbdSupportCascade`); any other tree, or one whose cascade has no
+ * feasible point, solves `K lambda = -u`, `u` being the motors' velocity change
+ * at the rows, as a complementarity problem
+ * (`solveXpbdSupportComplementarity`), so the motors move the tree as it is
+ * held at its supports instead of as if it floated. Coplanar points make that
+ * system rank-deficient, so its diagonal carries a Tikhonov term of `sqrt(eps)`
+ * times itself, the float64 scale at which it changes no well-posed solution.
  */
 export namespace solveXpbdArticulationContacts {
   /**
@@ -37,8 +38,10 @@ export namespace solveXpbdArticulationContacts {
    * @param contacts The step's contacts.
    * @param h The substep, seconds.
    * @param task The root's momentum task, when the supports should meet one.
-   * @param warm The tree's active sets from the previous substep, for the task's cascade.
-   * @returns The combined response with the impulses to record; `base` itself, recording nothing, when no support takes part or the rows are singular.
+   * @param warm The tree's active sets from the previous substep, for the
+   *   task's cascade.
+   * @returns The combined response with the impulses to record; `base` itself,
+   *   recording nothing, when no support takes part or the rows are singular.
    */
   export function solve(
     tree: AutoMovieXpbdArticulation.ITree,
@@ -52,13 +55,17 @@ export namespace solveXpbdArticulationContacts {
     const set: ISet = Rows.collect(tree, contacts, h);
     if (set.rows.length === 0) return { response: base, records: [] };
     // Without a feasible cascade this substep, the supports hold the motors'
-    // own response, as for a tree without a root task.
+    // own response, as for a tree without a root task. The task holds only
+    // the supports it keeps: a released body's patches are left to the
+    // contact passes.
     if (task !== undefined) {
+      const kept: ISet = keep(tree, set, task.released);
+      if (kept.rows.length === 0) return { response: base, records: [] };
       const tasked: IHeld | null = solveTask(
         tree,
         factored,
         base,
-        set,
+        kept,
         h,
         task,
         warm ?? { first: [], second: [] },
@@ -96,25 +103,29 @@ export namespace solveXpbdArticulationContacts {
    * The supports and the motors solved with the root's task, the whole-body
    * contact-wrench quadratic program of humanoid control (Herzog, Rotella,
    * Mason, Grimminger, Schaal and Righetti 2016, "Momentum control with
-   * hierarchical inverse dynamics on a torque-controlled humanoid", eqs. 1
-   * to 4; Wensing and Orin 2013, "Generation of dynamic humanoid behaviors
-   * through task-space control with conic optimization"), restricted to the
-   * root task and solved in factored form: the operational-space responses
-   * come from unit test impulses through the articulated-body factor, as
-   * Lilly and Orin's direct use of the articulated-body algorithm and
-   * Mirtich 1996 compute them (Wensing, Featherstone and Orin 2012 survey
-   * the family), not from the joint-space mass matrix.
+   * hierarchical inverse dynamics on a torque-controlled humanoid", eqs. 1 to
+   * 4; Wensing and Orin 2013, "Generation of dynamic humanoid behaviors through
+   * task-space control with conic optimization"), restricted to the root task
+   * and solved in factored form: the operational-space responses come from unit
+   * test impulses through the articulated-body factor, as Lilly and Orin's
+   * direct use of the articulated-body algorithm and Mirtich 1996 compute them
+   * (Wensing, Featherstone and Orin 2012 survey the family), not from the
+   * joint-space mass matrix.
    *
    * The unknowns are the support rows' impulses and one joint impulse per
    * actuated axis between a pressed support and the root, each within its
-   * motor's cap. The support chains' own motor impulses leave the base
-   * response and become those unknowns' posture targets. The strict
-   * two-level cascade first brings the ground reaction, the contact passes'
-   * impulses plus the rows', as near the task's wrench over the substep as
-   * the contacts, cones and caps allow, then tracks the posture targets
-   * without giving any of that up.
+   * motor's cap on either direction. The support chains' own motor impulses
+   * leave the base response; what their PDs ask becomes motion instead, each
+   * axis's rate after the substep at its servo's speed, with the root's spin at
+   * the task's when it asks one. A bounded group's patches give at most its
+   * force over the substep. The cascade first brings the ground reaction, the
+   * contact passes' impulses plus the rows', as near the task's wrench over the
+   * substep as the contacts, cones, caps and bounds allow, then brings the
+   * motion as near its targets as it can without giving any of that up
+   * (`solveXpbdSupportCascade`).
    *
-   * @returns The response with the impulses to record, or null when the cascade has no feasible point.
+   * @returns The response with the impulses to record, or null when the cascade
+   *   has no feasible point.
    */
   function solveTask(
     tree: AutoMovieXpbdArticulation.ITree,
@@ -158,9 +169,8 @@ export namespace solveXpbdArticulationContacts {
       { rows: [], patches: [] },
     ).response;
     const k: number[][] = set.rows.map((row: IRow): number[] =>
-      responses.map(
-        (response: AutoMovieXpbdArticulation.IResponse): number =>
-          Rows.along(row, response),
+      responses.map((response: AutoMovieXpbdArticulation.IResponse): number =>
+        Rows.along(row, response),
       ),
     );
     const u: number[] = set.rows.map((row: IRow): number =>
@@ -174,7 +184,9 @@ export namespace solveXpbdArticulationContacts {
     );
     const length: number = Math.max(
       Number.EPSILON,
-      ...levers.map((lever: IAutoMovieVector3): number => Vector3.length(lever)),
+      ...levers.map((lever: IAutoMovieVector3): number =>
+        Vector3.length(lever),
+      ),
     );
     const wrench = (row: IRow, lever: IAutoMovieVector3): number[] => {
       const force: IAutoMovieVector3 = row.direction;
@@ -218,6 +230,63 @@ export namespace solveXpbdArticulationContacts {
       (task.torque.y * h) / length,
       (task.torque.z * h) / length,
     ].map((value: number, m: number): number => value - prior[m]!);
+    // A bounded group's normal rows add at most its bound over the substep
+    // less what the contact passes already gave its patches.
+    const bounds: solveXpbdSupportCascade.IBound[] = (task.bounds ?? []).map(
+      (bound: AutoMovieXpbdWorld.IBound): solveXpbdSupportCascade.IBound => {
+        const patches: IPatch[] = set.patches.filter((patch: IPatch): boolean =>
+          bound.bodies.includes(
+            tree.states[set.rows[patch.normals[0]!]!.state]!.body,
+          ),
+        );
+        return {
+          rows: patches.flatMap((patch: IPatch): number[] => patch.normals),
+          impulse:
+            Math.max(0, bound.force) * h -
+            patches.reduce(
+              (sum: number, patch: IPatch): number => sum + patch.normal,
+              0,
+            ),
+        };
+      },
+    );
+    // The posture as motion: each support-chain axis's rate after the step
+    // should be what its servo asks, and the root's spin what the task asks.
+    const motion: solveXpbdSupportCascade.IMotion[] = [
+      ...actuators.map(
+        (actuator: IActuator): solveXpbdSupportCascade.IMotion => {
+          const axis: AutoMovieXpbdArticulation.IAxis =
+            tree.edges[actuator.edge]!.axes[actuator.axis]!;
+          return {
+            weights: responses.map(
+              (response: AutoMovieXpbdArticulation.IResponse): number =>
+                response.rates[actuator.edge]![actuator.axis]!,
+            ),
+            value:
+              (axis.motor!.target ?? axis.motor!.speed) -
+              axis.present -
+              free.rates[actuator.edge]![actuator.axis]!,
+          };
+        },
+      ),
+      ...(task.spin === undefined
+        ? []
+        : (["x", "y", "z"] as const).map(
+            (
+              name: "x" | "y" | "z",
+              m: number,
+            ): solveXpbdSupportCascade.IMotion => ({
+              weights: responses.map(
+                (response: AutoMovieXpbdArticulation.IResponse): number =>
+                  response.change[0]![m]!,
+              ),
+              value:
+                task.spin![name] -
+                tree.states[0]!.body.angularVelocity[name] -
+                free.change[0]![m]!,
+            }),
+          )),
+    ];
     const x: number[] | null = solveXpbdSupportCascade({
       k,
       u,
@@ -225,7 +294,11 @@ export namespace solveXpbdArticulationContacts {
       target,
       set,
       actuators,
-      posture: drive,
+      motion,
+      bounds: bounds.filter(
+        (bound: solveXpbdSupportCascade.IBound): boolean =>
+          bound.rows.length > 0,
+      ),
       warm,
     });
     if (x === null) return null;
@@ -233,7 +306,8 @@ export namespace solveXpbdArticulationContacts {
   }
 
   /**
-   * One actuated axis between a pressed support and the root: a joint-impulse unknown.
+   * One actuated axis between a pressed support and the root: a joint-impulse
+   * unknown.
    */
   export interface IActuator {
     /** The edge's index in the tree's edges. */
@@ -242,8 +316,17 @@ export namespace solveXpbdArticulationContacts {
     /** The axis's index in the edge's axes. */
     axis: number;
 
-    /** Its motor's cap over the substep, newton metre seconds. */
+    /**
+     * Its motor's cap toward the axis's positive direction over the substep,
+     * newton metre seconds.
+     */
     cap: number;
+
+    /**
+     * Its motor's cap toward the axis's negative direction over the substep,
+     * newton metre seconds.
+     */
+    reverse: number;
   }
 
   /** The actuated axes on the chains from the pressed supports to the root. */
@@ -254,10 +337,10 @@ export namespace solveXpbdArticulationContacts {
   ): IActuator[] {
     const into: Map<number, number> = new Map(
       tree.edges.map(
-        (edge: AutoMovieXpbdArticulation.IEdge, index: number): [number, number] => [
-          edge.child,
-          index,
-        ],
+        (
+          edge: AutoMovieXpbdArticulation.IEdge,
+          index: number,
+        ): [number, number] => [edge.child, index],
       ),
     );
     const edges: Set<number> = new Set();
@@ -274,15 +357,55 @@ export namespace solveXpbdArticulationContacts {
       .sort((a: number, b: number): number => a - b)
       .flatMap((edge: number): IActuator[] =>
         tree.edges[edge]!.axes.flatMap(
-          (axis: AutoMovieXpbdArticulation.IAxis, index: number): IActuator[] =>
+          (
+            axis: AutoMovieXpbdArticulation.IAxis,
+            index: number,
+          ): IActuator[] =>
             axis.motor === undefined
               ? []
-              : [{ edge, axis: index, cap: axis.motor.maximumTorque * h }],
+              : [
+                  {
+                    edge,
+                    axis: index,
+                    cap: AutoMovieXpbdJoint.cap(axis.motor, 1, h),
+                    reverse: AutoMovieXpbdJoint.cap(axis.motor, -1, h),
+                  },
+                ],
         ),
       );
   }
 
-  /** The base response plus each unknown's response times its impulse, and the support rows' records. */
+  /**
+   * The set without the patches of released bodies, its rows renumbered in
+   * order; the set itself when none is released.
+   */
+  function keep(
+    tree: AutoMovieXpbdArticulation.ITree,
+    set: ISet,
+    released: ReadonlySet<AutoMovieXpbdBody> | undefined,
+  ): ISet {
+    if (released === undefined || released.size === 0) return set;
+    const kept: ISet = { rows: [], patches: [] };
+    for (const patch of set.patches) {
+      if (released.has(tree.states[set.rows[patch.normals[0]!]!.state]!.body))
+        continue;
+      const copy = (r: number): number => {
+        kept.rows.push(set.rows[r]!);
+        return kept.rows.length - 1;
+      };
+      kept.patches.push({
+        ...patch,
+        normals: patch.normals.map(copy),
+        tangents: patch.tangents.map(copy),
+      });
+    }
+    return kept;
+  }
+
+  /**
+   * The base response plus each unknown's response times its impulse, and the
+   * support rows' records.
+   */
   function combine(
     base: AutoMovieXpbdArticulation.IResponse,
     responses: readonly AutoMovieXpbdArticulation.IResponse[],
@@ -331,10 +454,10 @@ export namespace solveXpbdArticulationContacts {
   }
 
   /**
-   * Record the supports' impulses on their contacts, so the step's
-   * receipts carry the momentum they gave: a normal row's impulse joins its
-   * point's velocity impulse, a patch's tangential impulse joins its
-   * dynamic friction impulse.
+   * Record the supports' impulses on their contacts, so the step's receipts
+   * carry the momentum they gave: a normal row's impulse joins its point's
+   * velocity impulse, a patch's tangential impulse joins its dynamic friction
+   * impulse.
    *
    * @param held The solve to record.
    */
@@ -345,8 +468,8 @@ export namespace solveXpbdArticulationContacts {
   }
 
   /**
-   * A support solve: the combined response and the impulses to record on
-   * the contacts once it is final.
+   * A support solve: the combined response and the impulses to record on the
+   * contacts once it is final.
    */
   export interface IHeld {
     /** The motors' response with the supports' impulses added. */
@@ -356,14 +479,15 @@ export namespace solveXpbdArticulationContacts {
     records: IRecord[];
   }
 
-  /**
-   * One support impulse to record.
-   */
+  /** One support impulse to record. */
   export interface IRecord {
     /** The contact recorded on. */
     contact: solveXpbdContacts.IContact;
 
-    /** Whether the impulse is a normal row's; a patch's tangential magnitude otherwise. */
+    /**
+     * Whether the impulse is a normal row's; a patch's tangential magnitude
+     * otherwise.
+     */
     normal: boolean;
 
     /** The impulse, newton seconds. */
@@ -384,27 +508,41 @@ export namespace solveXpbdArticulationContacts {
     /** Unit world direction of the force on the tree body. */
     direction: IAutoMovieVector3;
 
-    /** The least impulse of a normal row, newton seconds; absent for a tangential row. */
+    /**
+     * The least impulse of a normal row, newton seconds; absent for a
+     * tangential row.
+     */
     lower?: number;
 
-    /** The present velocity along the direction relative to the other side, metres per second. */
+    /**
+     * The present velocity along the direction relative to the other side,
+     * metres per second.
+     */
     velocity: number;
 
-    /** The contact the row records on: its point for a normal row, its patch's first otherwise. */
+    /**
+     * The contact the row records on: its point for a normal row, its patch's
+     * first otherwise.
+     */
     contact: solveXpbdContacts.IContact;
   }
 
-  /**
-   * One taking-part patch's rows and friction.
-   */
+  /** One taking-part patch's rows and friction. */
   export interface IPatch {
     /** The patch's Coulomb coefficient. */
     friction: number;
 
-    /** The normal impulse the contact passes gave the patch this substep, `sum (lambda_n / h + velocity impulse)`, the part of the normal its whole friction is bounded by that the rows do not add, newton seconds. */
+    /**
+     * The normal impulse the contact passes gave the patch this substep, `sum
+     * (lambda_n / h + velocity impulse)`, the part of the normal its whole
+     * friction is bounded by that the rows do not add, newton seconds.
+     */
     normal: number;
 
-    /** The friction the contact passes already gave the tree body, on the two tangential rows' directions, newton seconds. */
+    /**
+     * The friction the contact passes already gave the tree body, on the two
+     * tangential rows' directions, newton seconds.
+     */
     prior: ISlip;
 
     /** Its normal rows' indices. */
@@ -412,12 +550,9 @@ export namespace solveXpbdArticulationContacts {
 
     /** Its two tangential rows' indices. */
     tangents: number[];
-
   }
 
-  /**
-   * The rows and patches of one tree.
-   */
+  /** The rows and patches of one tree. */
   export interface ISet {
     /** Every row. */
     rows: IRow[];
@@ -427,7 +562,8 @@ export namespace solveXpbdArticulationContacts {
   }
 
   /**
-   * A pair of values on a patch's two tangential rows: a sliding direction or a friction impulse.
+   * A pair of values on a patch's two tangential rows: a sliding direction or a
+   * friction impulse.
    */
   export interface ISlip {
     /** Along the first tangential row. */
@@ -437,6 +573,9 @@ export namespace solveXpbdArticulationContacts {
     second: number;
   }
 
-  /** The Tikhonov weight on K's diagonal: the square root of float64's machine epsilon. */
+  /**
+   * The Tikhonov weight on K's diagonal: the square root of float64's machine
+   * epsilon.
+   */
   const REGULARIZATION: number = Math.sqrt(Number.EPSILON);
 }

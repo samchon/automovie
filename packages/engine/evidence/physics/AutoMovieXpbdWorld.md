@@ -350,11 +350,11 @@ Holds one number.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what the record asks and of whom.
+States what the record asks and of whom: the wrench, the supports leaving or released, and the root's spin.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-A world force in newtons and a moment in newton metres about a world origin in metres.
+A world force in newtons and a moment in newton metres about a world origin in metres; force bounds in newtons on groups of tree bodies; a set of released bodies; a world angular velocity in radians per second.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -363,6 +363,24 @@ Set by trackPhysicalRoot under internal actuation and read by solveXpbdArticulat
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 The wrench is the root controller's own demand; nothing is allocated before the solve.
+
+# src/physics/AutoMovieXpbdWorld.ts#AutoMovieXpbdWorld.IBound
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the bodies and their shared force bound.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The world's own body records and a nonnegative force in newtons.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Set by trackPhysicalRoot for a foot leaving the stance and read by solveXpbdArticulationContacts.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+One bound per group of carriers, so a foot of several segments shares one ramp.
 
 # src/physics/AutoMovieXpbdWorld.ts#AutoMovieXpbdWorld.IManifold
 

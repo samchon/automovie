@@ -50,11 +50,11 @@ Returns fresh arrays; retains nothing.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the edge, the axis and the cap.
+States the edge, the axis and the cap of each direction.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Indices into the tree and a cap in newton metre seconds.
+Indices into the tree and caps in newton metre seconds.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -62,7 +62,7 @@ Built here and read by solveXpbdSupportCascade.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The cap is the motor's own over the substep.
+Each cap is the motor's own for its direction over the substep (`AutoMovieXpbdJoint.cap`).
 
 # src/physics/solveXpbdArticulationContacts.ts#solveXpbdArticulationContacts.commit
 

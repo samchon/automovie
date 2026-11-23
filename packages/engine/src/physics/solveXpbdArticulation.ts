@@ -9,7 +9,7 @@ import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalJointChart } from "./AutoMoviePhysicalJointChart";
 import { AutoMovieXpbdArticulation } from "./AutoMovieXpbdArticulation";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
-import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
+import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import { solveXpbdArticulationContacts } from "./solveXpbdArticulationContacts";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
@@ -297,8 +297,8 @@ export namespace solveXpbdArticulation {
   }
 
   /**
-   * Hold every free motor whose impulse `b - h c qd'` exceeds its cap at the
-   * cap; true when any was newly held.
+   * Hold every free motor whose impulse `b - h c qd'` exceeds its cap on that
+   * impulse's direction at the cap; true when any was newly held.
    */
   function clamp(
     tree: AutoMovieXpbdArticulation.ITree,
@@ -315,7 +315,7 @@ export namespace solveXpbdArticulation {
             if (axis.motor === undefined || axis.fixed !== undefined) return;
             const mu: number =
               f.impulse[k]! - f.damping[k]! * response.rates[e]![k]!;
-            const cap: number = axis.motor.maximumTorque * h;
+            const cap: number = AutoMovieXpbdJoint.cap(axis.motor, mu, h);
             if (Math.abs(mu) > cap) {
               axis.fixed = Math.sign(mu) * cap;
               clamped = true;
