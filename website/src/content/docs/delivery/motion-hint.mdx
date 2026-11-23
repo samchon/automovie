@@ -24,6 +24,8 @@ A channel is a pass drawn from the same performance and camera as the picture. `
 | `normal` | Surface orientation |
 | `outline` | Edges, for edge-conditioned models |
 | `mask` | A semantic mask, rendered from the scene rather than estimated from pictures |
+| `albedo` | Each surface's base colour, unlit and on black, for renderers that take a material channel |
+| `graphics` | Surface graphics alone, such as screens, signs and flat lettering, as RGBA frames whose straight alpha is their coverage |
 
 The production renders only the channels its receiver requires, and records them in `PROJECT.md`. Each channel is read for its limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities.
 

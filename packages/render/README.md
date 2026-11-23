@@ -32,7 +32,7 @@ You write the two adapters, or use the `automovie` command (see [Node tooling](#
 - `renderVideo` renders one clip and `renderSequenceVideo` an edited sequence, both through your adapters.
 - `assessAutoMovieRenderBudget` refuses a job whose memory it cannot bound.
 - `planCaptionSidecar` and the delivery profiles cover captions and the delivered video's format.
-- `AUTOMOVIE_GUIDE_PASSES` names the passes a motion hint is captured in, `beauty`, `depth`, `mask`, `normal`, `outline`, `pose` and `albedo`, and `planGuidePassOutputs` plans each pass's frame paths; `planPoseKeypointSidecar` and `renderPoseKeypointSidecar` write the pose keypoints beside them.
+- `AUTOMOVIE_GUIDE_PASSES` names the passes a motion hint is captured in, `beauty`, `depth`, `mask`, `normal`, `outline`, `pose`, `albedo` and `graphics`, and `planGuidePassOutputs` plans each pass's frame paths; `planPoseKeypointSidecar` and `renderPoseKeypointSidecar` write the pose keypoints beside them.
 
 ## Inspection
 
