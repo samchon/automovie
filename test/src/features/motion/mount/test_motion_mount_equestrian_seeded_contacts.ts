@@ -23,7 +23,6 @@ import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionHumanBody } from "../../internal/motionHumanBody";
-import { mountedHorseScene } from "../../internal/mountedHorseScene";
 
 type Horse = ReturnType<typeof createHorse>;
 type Ride = ReturnType<typeof rideHorse>;
@@ -191,17 +190,12 @@ function mounted(
     gait,
   );
   const seconds = (at: number): number => Math.max(0, at - WAIT);
-  // One horse sample per distinct instant read, shared by the placement and every part.
-  const sampled: mountedHorseScene.ISampler = mountedHorseScene.sampler(
-    ride,
-    seconds,
-  );
   const place = (at: number): IAutoMovieRigidTransform => {
-    const frame: IAutoMovieTransform = sampled.placement(at);
+    const frame: IAutoMovieTransform = ride.at(seconds(at)).placement;
     return { position: frame.translation, rotation: frame.rotation };
   };
   const part = (id: string, at: number): IAutoMovieTransform =>
-    sampled.part(id, at);
+    ride.frame(id as Parameters<Ride["frame"]>[0], seconds(at));
   const diagonal: number[] = [];
   if (rising) {
     const hind: Set<number> = new Set(
