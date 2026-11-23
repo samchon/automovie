@@ -12,6 +12,15 @@ import type { createBall } from "./createBall";
 const GREEN: number = 1.83 ** 2 / (2 * 9.80665 * 3.05);
 
 /**
+ * A thin hollow shell's gyration, its moment of inertia about a diameter over
+ * its mass times its radius squared: 2/3. An inflated football, futsal ball,
+ * basketball, volleyball or handball, and a celluloid table tennis ball, have a
+ * wall a few hundredths of their radius thick, which lowers it by only a few
+ * per cent.
+ */
+const THIN_SHELL: number = 2 / 3;
+
+/**
  * A spherical ball with a centre grip and upper surface.
  *
  * The model rests on the floor at the origin with its centre one radius above
@@ -65,27 +74,42 @@ export function createSphericalBall(
   // 012038, table 3). The basketball's rubber slides as rubber on dry
   // concrete, an outdoor court; the tennis ball's felt slides on a hard
   // court's medium pace rating.
+  // An inflated ball and a celluloid one are thin shells (`THIN_SHELL`).
   return builder.build(
     d.mass!,
     kind === "basketball"
-      ? { rests: "rubber", restitution: Math.sqrt(1.06 / 1.8) }
+      ? {
+          rests: "rubber",
+          restitution: Math.sqrt(1.06 / 1.8),
+          outcome: { gyration: THIN_SHELL },
+        }
       : kind === "tennis"
         ? { rests: "felt", restitution: Math.sqrt(1.41 / 2.54) }
         : kind === "golf"
           ? { outcome: { rolling: GREEN } }
           : kind === "football"
-            ? { restitution: Math.sqrt(1.5 / 2) }
+            ? {
+                restitution: Math.sqrt(1.5 / 2),
+                outcome: { gyration: THIN_SHELL },
+              }
             : kind === "tableTennis"
-              ? { restitution: Math.sqrt(0.2525 / 0.305) }
-              : kind === "padel"
-                ? { restitution: Math.sqrt(1.4 / 2.54) }
-                : kind === "squash"
-                  ? { restitution: Math.sqrt(0.275) }
-                  : kind === "cricket"
-                    ? { restitution: 0.609 }
-                    : kind === "fieldHockey"
-                      ? { restitution: 0.653 }
-                      : undefined,
+              ? {
+                  restitution: Math.sqrt(0.2525 / 0.305),
+                  outcome: { gyration: THIN_SHELL },
+                }
+              : kind === "futsal" ||
+                  kind === "volleyball" ||
+                  kind === "handball"
+                ? { outcome: { gyration: THIN_SHELL } }
+                : kind === "padel"
+                  ? { restitution: Math.sqrt(1.4 / 2.54) }
+                  : kind === "squash"
+                    ? { restitution: Math.sqrt(0.275) }
+                    : kind === "cricket"
+                      ? { restitution: 0.609 }
+                      : kind === "fieldHockey"
+                        ? { restitution: 0.653 }
+                        : undefined,
   );
 }
 

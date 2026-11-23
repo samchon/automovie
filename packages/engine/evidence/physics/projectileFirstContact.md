@@ -10,7 +10,7 @@ Admit, bound the speed, sweep with the one resolver, read the contact's point an
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The step derives from the flight and stated thickness. Initial overlap is preserved unless the caller identifies a resolved episode and its collider supplies physical departure knowledge; no tolerance, time push, permanent collider removal or bounce cap masks that episode.
+The step derives from the flight and stated thickness. Initial overlap is preserved unless the caller identifies a resolved episode and its collider supplies physical departure knowledge; no tolerance, time push, permanent collider removal or bounce cap masks that episode. A fixed convex shape's proof is its supporting plane at the contact, behind which the whole shape lies; an opaque pose reader gives none.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -18,7 +18,7 @@ One signed separation per eligible pair and scan question. A scalar collider nee
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-One sampled state supplies both weapon endpoints; plane and shape scalar and full queries use the same distance equations, with the unchanged fixed shape frame prepared within a collider's lifetime.
+One sampled state supplies both weapon endpoints; plane and shape scalar and full queries use the same distance equations, with the unchanged fixed shape frame prepared within a collider's lifetime. The step is one function the scan and a collider's departure certificate both read, and a fixed shape's departure reuses the plane's proof.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

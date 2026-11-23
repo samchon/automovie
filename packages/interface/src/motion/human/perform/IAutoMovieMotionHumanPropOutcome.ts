@@ -1,3 +1,4 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieHit } from "../../../physics/IAutoMovieHit";
 import type { IAutoMovieProjectile } from "../../../physics/IAutoMovieProjectile";
 import type { IAutoMovieProjectileContinue } from "../../../physics/IAutoMovieProjectileContinue";
@@ -17,9 +18,11 @@ import type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPro
  *   on through that body, slower by the loss;
  * - `bounce` where it declares a restitution and a friction pair (its
  *   `kineticFriction`, else its static `friction`): Newton's restitution and
- *   Coulomb's impulse limit (`projectileContinue`), rolling on at its rolling
- *   resistance (`contact.rolling`) once a rebound would rise less than its
- *   radius, and coming to rest where it struck when it declares no rolling
+ *   Coulomb's impulse limit on its velocity relative to the struck surface
+ *   (`projectileContinue`), a spherical launch turning as a ball of its body's
+ *   `contact.gyration` whose spin carries to the next bounce, rolling on at its
+ *   rolling resistance (`contact.rolling`) once a rebound would rise less than
+ *   its radius, and coming to rest where it struck when it declares no rolling
  *   resistance;
  * - `roll` along the ground where it declares a rolling resistance and no
  *   restitution to bounce with;
@@ -63,6 +66,13 @@ export namespace IAutoMovieMotionHumanPropOutcome {
      * departure query.
      */
     collider: string;
+
+    /**
+     * The struck surface's velocity at the contact, world metres per second: a
+     * bounce acts on the prop's velocity relative to it. At rest when absent,
+     * as the floor and a prop that does not move are.
+     */
+    surface?: IAutoMovieVector3;
   }
 
   /**

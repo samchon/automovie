@@ -6,10 +6,12 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieHit,
+  IAutoMoviePhysicalShape,
   IAutoMovieProjectile,
   IAutoMovieProjectileContinue,
   IAutoMovieProjectileFirstContact,
   IAutoMovieResolveContactEvents,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -19,34 +21,36 @@ import { nclose } from "../internal/nclose";
 /**
  * Resolved plane contact departs without a clock nudge and may meet again.
  *
- * Default overlap, stationary/approaching motion, an unrelated id and an
- * opaque moving collider still report the initial contact. The opt-in plane
- * query distinguishes outward/accelerating motion, a fixed tail and an
- * unsupported rotating tail. A single scan step spanning a whole parabola
- * finds its positive reentry at 2v/g; a wall before the clearance witness
- * keeps its own time in either collider order. A real 24-bisection impact
- * feeds continuation, carrying its unprojected origin into the next query.
+ * Default overlap, stationary/approaching motion, an unrelated id and an opaque
+ * moving collider still report the initial contact. The opt-in plane query
+ * distinguishes outward/accelerating motion, a fixed tail and an unsupported
+ * rotating tail. A single scan step spanning a whole parabola finds its
+ * positive reentry at 2v/g; a wall before the clearance witness keeps its own
+ * time in either collider order. A real 24-bisection impact feeds continuation,
+ * carrying its unprojected origin into the next query.
  *
  * Drag-free times use the existing contact accuracy of 1e-5 s. A vertical
  * quadratic-drag return uses its closed-form atan/acosh time and the flight
- * acceptance of 1 ms (#3470), independently of the integrated reader.
- * Invalid model certificates must throw rather than suppress a contact.
+ * acceptance of 1 ms (#3470), independently of the integrated reader. Invalid
+ * model certificates must throw rather than suppress a contact.
  *
  * Scenarios:
  *
- * 1. Raw, unresolved, stationary, approaching and unrelated-id contacts stay
- *    at zero; resolved outgoing and outward-accelerating planes depart.
+ * 1. Raw, unresolved, stationary, approaching and unrelated-id contacts stay at
+ *    zero; resolved outgoing and outward-accelerating planes depart.
  * 2. Fixed-tail departure is supported; rotating-tail contact stays visible.
- * 3. A whole-parabola step finds reentry at 2v/g, while other colliders keep
- *    their initial or distance/speed contact in either input order.
- * 4. A real impact's carried position departs after continuation; quadratic
- *    drag returns at the independent vertical-flight closed-form time.
+ * 3. A whole-parabola step finds reentry at 2v/g, while other colliders keep their
+ *    initial or distance/speed contact in either input order.
+ * 4. A real impact's carried position departs after continuation; quadratic drag
+ *    returns at the independent vertical-flight closed-form time.
  * 5. An opaque moving collider has no inferred departure, and malformed
  *    shared-resolver clearance certificates throw.
+ * 6. A box in a fixed frame departs by its supporting plane and is met again at
+ *    2v/g; the same box read through an opaque pose keeps the contact.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Public contact and continuation queries collect initial-policy, full-span reentry, competing-body, carried-penetration, attitude, drag and malformed-certificate failures in one named unit; no launch time or collision threshold is shifted.
  * @evidence contracts/development/testing.md#independent-expectations Default initial contact is exactly zero. Constant-acceleration reentry is 2v/g, the wall time is distance/speed, and the drag return is [atan(v sqrt(k/g))+acosh(sqrt(1+kv²/g))]/sqrt(kg). These equations do not read production candidates or the departure witness.
- * @evidence contracts/development/testing.md#distinguishing-cases Resolved versus raw contact, outward versus stationary/approaching motion, real plane versus opaque collider, fixed versus rotating tail, another collider before/at departure, drag-free versus drag and valid versus invalid certificates exercise separate branches.
+ * @evidence contracts/development/testing.md#distinguishing-cases Resolved versus raw contact, outward versus stationary/approaching motion, real plane versus opaque collider, fixed versus opaque shape pose, fixed versus rotating tail, another collider before/at departure, drag-free versus drag and valid versus invalid certificates exercise separate branches.
  * @evidence contracts/development/testing.md#execution-ownership The exported unit invokes only public engine APIs with test-owned immutable input records and pure collider callbacks; the shared test runner owns execution, with no monkeypatch, private import or process.
  * @evidence contracts/development/common.md#meaningful-documentation States the physical equations, input variants, untouched default policy and the existing drag-free and integrated-flight accuracy used by the assertions.
  */
@@ -317,6 +321,61 @@ export function test_physics_projectile_departure(): void {
         ...options,
         departing: moving.id,
       })?.time === 0,
+    );
+  });
+
+  observe("fixed convex shape", (): void => {
+    // A box whose top face lies in the ground plane: its fixed frame proves
+    // a resolved departure by that supporting plane, as the plane itself does,
+    // while the same box read through an opaque pose keeps the contact.
+    const block: IAutoMoviePhysicalShape = {
+      id: "block",
+      material: "solid",
+      kind: "box",
+      halfExtents: { x: 1, y: 1, z: 1 },
+      transform: {
+        position: { x: 0, y: -1, z: 0 },
+        rotation: { x: 0, y: 0, z: 0, w: 1 },
+      },
+    };
+    const frame: IAutoMovieRigidTransform = {
+      position: zero,
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+    };
+    const fixed: IAutoMovieProjectileFirstContact.ICollider =
+      projectileFirstContact.shape("block", block, frame);
+    const opaque: IAutoMovieProjectileFirstContact.ICollider =
+      projectileFirstContact.shape(
+        "block",
+        block,
+        (): IAutoMovieRigidTransform => frame,
+      );
+    const resolved: IAutoMovieProjectileFirstContact.IOptions = {
+      ...options,
+      departing: "block",
+    };
+    check(
+      "a fixed box's supporting plane proves an outgoing departure",
+      projectileFirstContact(outgoing, [fixed], span, resolved) === null,
+    );
+    check(
+      "an opaque pose of the same box keeps its initial contact",
+      projectileFirstContact(outgoing, [opaque], span, resolved)?.time === 0,
+    );
+    const thrown: IAutoMovieProjectile = {
+      origin: zero,
+      velocity: up,
+      gravity: { x: 0, y: -2, z: 0 },
+    };
+    const back: IAutoMovieHit | null = projectileFirstContact(
+      thrown,
+      [fixed],
+      span,
+      resolved,
+    );
+    check(
+      "a departed ball meets the fixed box again at 2v/g",
+      back !== null && nclose(back.time, 1, 1e-5),
     );
   });
 

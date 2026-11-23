@@ -15,13 +15,21 @@ import { projectileAt } from "./projectileAt";
  *
  * - `stick`: it stops at the contact, its point carried `depth` on along its
  *   velocity into the struck body, and rests there;
- * - `bounce`: it leaves on a new flight from the contact, its velocity's normal
- *   part reversed and scaled by the restitution and its tangential part reduced
- *   by Coulomb friction's impulse, `min(mu (1 + e) |v_n|, |v_t|)` (the
- *   rigid-body impact model of Brach, Mechanical Impact Dynamics, 1991, ch. 4);
- *   when `roll` is given and the rebound would rise less than the body's radius
- *   above the surface under gravity pressing toward the surface, it rolls
- *   instead;
+ * - `bounce`: it leaves on a new flight from the contact, its velocity relative
+ *   to the struck surface (`surface`, at rest when absent) split on the normal:
+ *   the normal part reversed and scaled by the restitution, and the sliding of
+ *   the contact point reduced by Coulomb friction's impulse, `min(mu (1 + e)
+ *   |v_n|, J*)`, where `J*` is the impulse that stops the sliding (the
+ *   rigid-body impact model of Brach, Mechanical Impact Dynamics, 1991, ch. 4,
+ *   with its critical impulse ratio). A particle slides at its tangential
+ *   velocity and `J* = |v_t|`. A `ball` of radius `r` and gyration `k` slides
+ *   at `v_t - r (w x n)` for its spin `w`, and its spin takes up part of the
+ *   impulse, so `J* = |s| k / (1 + k)`: a ball arriving without spin on a
+ *   gripping bounce keeps `1 / (1 + k)` of its tangential speed, 3/5 for a thin
+ *   shell (Cross 2002, Am J Phys 70:1093), and leaves turning at `w + J (n x
+ *   s^) / (k r)`, the spin the next bounce reads; when `roll` is given and the
+ *   rebound would rise less than the body's radius above the surface under
+ *   gravity pressing toward the surface, it rolls instead;
  * - `roll`: it rolls along the surface with its velocity's tangential part,
  *   slowed at the rolling-resistance coefficient times the gravity pressing it
  *   on the surface, `a = c max(0, -g_n)`, to rest at `v^2 / (2 a)`;
@@ -129,19 +137,67 @@ export function projectileContinue(
         admit("rolling radius", outcome.roll.radius);
         admit("rolling resistance", outcome.roll.resistance);
       }
-      const rebound: number = -outcome.restitution * vn;
-      const slip: number = Vector3.length(tangent);
-      const kept: number =
+      const surface: IAutoMovieVector3 = outcome.surface ?? STILL;
+      const ball: IAutoMovieProjectileContinue.IBall | undefined = outcome.ball;
+      if (!finite(surface))
+        throw new RangeError("projectile surface velocity must be finite");
+      if (ball !== undefined) {
+        if (!(Number.isFinite(ball.radius) && ball.radius > 0))
+          throw new RangeError(
+            `projectile ball radius must be finite and positive, but was ${ball.radius}`,
+          );
+        if (!(Number.isFinite(ball.gyration) && ball.gyration > 0))
+          throw new RangeError(
+            `projectile ball gyration must be finite and positive, but was ${ball.gyration}`,
+          );
+        if (ball.spin !== undefined && !finite(ball.spin))
+          throw new RangeError("projectile ball spin must be finite");
+      }
+
+      // Newton's restitution and Coulomb's friction act on the velocity
+      // relative to the struck surface.
+      const relative: IAutoMovieVector3 = Vector3.subtract(
+        state.velocity,
+        surface,
+      );
+      const approach: number = Vector3.dot(relative, n);
+      const across: IAutoMovieVector3 = Vector3.subtract(
+        relative,
+        Vector3.scale(n, approach),
+      );
+      const rebound: number = -outcome.restitution * approach;
+      const spin: IAutoMovieVector3 = ball?.spin ?? STILL;
+
+      // The contact point's sliding: a particle's tangential velocity, a
+      // ball's less its spin's turn of the point a radius below its centre.
+      const slide: IAutoMovieVector3 =
+        ball === undefined
+          ? across
+          : Vector3.subtract(
+              across,
+              Vector3.scale(Vector3.cross(spin, n), ball.radius),
+            );
+      const slip: number = Vector3.length(slide);
+      const stop: number =
+        ball === undefined
+          ? slip
+          : (slip * ball.gyration) / (1 + ball.gyration);
+      const impulse: number =
         slip > 0
-          ? Math.max(
-              0,
-              slip -
-                outcome.friction * (1 + outcome.restitution) * Math.abs(vn),
-            ) / slip
+          ? Math.min(
+              outcome.friction * (1 + outcome.restitution) * Math.abs(approach),
+              stop,
+            )
           : 0;
+      const along: IAutoMovieVector3 =
+        slip > 0 ? Vector3.scale(slide, 1 / slip) : STILL;
+      const kept: IAutoMovieVector3 = Vector3.subtract(
+        across,
+        Vector3.scale(along, impulse),
+      );
       const velocity: IAutoMovieVector3 = Vector3.add(
-        Vector3.scale(n, rebound),
-        Vector3.scale(tangent, kept),
+        surface,
+        Vector3.add(Vector3.scale(n, rebound), kept),
       );
 
       // Only inward gravity can return the rebound to this surface.
@@ -153,13 +209,27 @@ export function projectileContinue(
           outcome.roll.radius
       )
         return roll(
-          Vector3.scale(tangent, kept),
+          Vector3.subtract(
+            velocity,
+            Vector3.scale(n, Vector3.dot(velocity, n)),
+          ),
           outcome.roll.resistance,
           normalGravity,
         );
       return {
         kind: "flight",
         from: hit.time,
+        ...(ball === undefined
+          ? {}
+          : {
+              spin: Vector3.add(
+                spin,
+                Vector3.scale(
+                  Vector3.cross(n, along),
+                  impulse / (ball.gyration * ball.radius),
+                ),
+              ),
+            }),
         projectile: {
           ...projectile,
           origin: state.position,
@@ -260,4 +330,16 @@ export namespace projectileContinue {
         };
     }
   }
+}
+
+/** A surface at rest and a ball that does not turn. */
+const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+
+/** Whether every component of a vector is finite. */
+function finite(vector: IAutoMovieVector3): boolean {
+  return (
+    Number.isFinite(vector.x) &&
+    Number.isFinite(vector.y) &&
+    Number.isFinite(vector.z)
+  );
 }

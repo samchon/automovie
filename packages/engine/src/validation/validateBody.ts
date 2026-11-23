@@ -7,8 +7,10 @@ import {
 /**
  * Require finite positive mass, declared restitution in inclusive [0,1],
  * optional static and kinetic friction, finite optional center-of-mass
- * coordinates and the declared drag and contact ranges. A missing restitution
- * remains unknown and does not invalidate kinematic model construction.
+ * coordinates and the declared drag and contact ranges, a round body's gyration
+ * no more than a thin shell's 2/3, all its mass at its radius. A missing
+ * restitution remains unknown and does not invalidate kinematic model
+ * construction.
  */
 export const validateBody: (
   body: IAutoMovieBody,
@@ -95,6 +97,16 @@ export const validateBody: (
       `${path}.contact.fracture`,
       `contact fracture must be a finite energy > 0, but was ${body.contact.fracture}`,
       body.contact.fracture,
+    );
+  if (
+    body.contact?.gyration !== undefined &&
+    !(body.contact.gyration > 0 && body.contact.gyration <= 2 / 3)
+  )
+    collector.push(
+      "range",
+      `${path}.contact.gyration`,
+      `contact gyration must be > 0 and no more than a thin shell's 2/3, but was ${body.contact.gyration}`,
+      body.contact.gyration,
     );
   if (body.contact?.passLoss !== undefined)
     collector.range(

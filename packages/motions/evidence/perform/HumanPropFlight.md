@@ -6,7 +6,7 @@ Defines film ordering, action-window launch filtering, the placed horizon during
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Collects the prop's published launches inside their surviving action windows and stably sorts them by film time. While scheduling, point-in-time reads include only launches and collisions through the requested second, while hit scans cover the placed horizon. Once placed, the final schedule provides the horizon. Later grips or launches limit each flight, and final capture checks require the selected flight to agree with the staged grip before caching.
+Collects the prop's published launches inside their surviving action windows and stably sorts them by film time. While scheduling, point-in-time reads include only launches and collisions through the requested second, while hit scans cover the placed horizon. Once placed, the final schedule provides the horizon. Later grips or launches limit each flight, and final capture checks require the selected flight to agree with the staged grip before caching; a capture that disagrees is refused in the name of the action that took the staged hold.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

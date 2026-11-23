@@ -10,7 +10,10 @@ import { projectileAt } from "./projectileAt";
 import { projectileDragDeparture } from "./projectileDragDeparture";
 
 /**
- * Establish departure from one already resolved fixed-plane contact.
+ * Establish departure from one already resolved fixed-plane contact, or from a
+ * fixed convex shape's contact through its supporting plane there: the shape
+ * lies behind that plane, so its actual gap is never below the plane's, and
+ * outward motion that clears the plane clears the shape.
  *
  * The opt-in id identifies that initial episode. Without it, or with a rotating
  * tail whose normal extent is not classified, the caller keeps ordinary

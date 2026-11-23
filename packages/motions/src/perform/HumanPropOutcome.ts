@@ -27,10 +27,15 @@ import { HumanRefusal } from "../law/HumanRefusal";
  *   on through that body, slower by the loss;
  * - `bounce` where it declares a restitution and a friction pair (its
  *   `kineticFriction`, else its static `friction`): Newton's restitution and
- *   Coulomb's impulse limit (`projectileContinue`), rolling on at its rolling
- *   resistance (`contact.rolling`) once a rebound would rise less than its
- *   radius, and coming to rest where it struck when it declares no rolling
- *   resistance;
+ *   Coulomb's impulse limit on its velocity relative to the struck surface,
+ *   whose velocity the meeting carries (`projectileContinue`), rolling on at
+ *   its rolling resistance (`contact.rolling`) once a rebound would rise less
+ *   than its radius off that surface, and coming to rest where it struck when
+ *   it declares no rolling resistance. A spherical launch bounces as a ball of
+ *   its body's `contact.gyration` (a uniform solid's 2/5 when it declares
+ *   none): its spin takes up part of the sliding, so friction stops where its
+ *   contact point stops sliding, and the spin a bounce leaves, or the turn of a
+ *   roll, is what the next bounce reads;
  * - `roll` along the ground where it declares a rolling resistance and no
  *   restitution to bounce with;
  * - A contact with a friction pair and a measurable radius, but no rebound
@@ -47,6 +52,23 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * swept again by the flight's one sweep.
  */
 export namespace HumanPropOutcome {
+  /**
+   * The second a contact's time resolves to, seconds: the microsecond at which
+   * the engine's contact specifications and a hit's id read it
+   * (`firstAutoMovieContactImpact` brackets a contact a thousandth of this wide
+   * so the reading does not depend on where its search stopped). Two contacts
+   * nearer than this are one event at that resolution, and a struck surface's
+   * velocity is read over it.
+   */
+  export const CONTACT_SECOND: number = 1e-6;
+
+  /**
+   * A ball's gyration when its body declares none: a uniform solid's 2/5, the
+   * uniform density an undeclared mass distribution is taken to have
+   * (`IAutoMovieBodyContact.gyration`).
+   */
+  export const UNIFORM: number = 2 / 5;
+
   /**
    * The quadratic drag a prop's body declares (`IAutoMovieBody.drag`), with its
    * mass; none when it declares none.
@@ -169,13 +191,37 @@ export namespace HumanPropOutcome {
     let meeting: IAutoMovieMotionHumanPropOutcome.IMeeting = props.meeting;
     let base: number = 0;
     const size: number | undefined = props.sphereRadius ?? radius(props.prop);
+
+    // A spherical launch turns as a ball: its spin, none at the release, is
+    // what its last bounce left, and the next bounce reads it.
+    const gyration: number =
+      props.prop.body?.contact?.gyration ?? HumanPropOutcome.UNIFORM;
+    let spin: IAutoMovieVector3 | undefined;
     for (;;) {
-      const outcome: IAutoMovieProjectileContinue.Outcome | undefined = decide(
+      const decided: IAutoMovieProjectileContinue.Outcome | undefined = decide(
         props.prop,
         meeting.struck,
         size,
       );
-      if (outcome === undefined || outcome.kind === "stick") return out;
+      if (decided === undefined || decided.kind === "stick") return out;
+      const outcome: IAutoMovieProjectileContinue.Outcome =
+        decided.kind !== "bounce"
+          ? decided
+          : {
+              ...decided,
+              ...(meeting.surface === undefined
+                ? {}
+                : { surface: meeting.surface }),
+              ...(props.sphereRadius === undefined
+                ? {}
+                : {
+                    ball: {
+                      radius: props.sphereRadius,
+                      gyration,
+                      ...(spin === undefined ? {} : { spin }),
+                    },
+                  }),
+            };
       const next: IAutoMovieProjectileContinue.Segment = shift(
         projectileContinue(projectile, meeting.hit, outcome),
         base,
@@ -219,11 +265,20 @@ export namespace HumanPropOutcome {
           contact: props.settle(met, rolling!, next.from),
         });
         // The contact goes on as a flight under the prop's own gravity from
-        // the roll's state there.
+        // the roll's state there, a ball turning as it rolled: its contact
+        // point at rest on the ground, `w = n x v / r`.
         const state: IAutoMovieProjectileState = projectileContinue.at(
           next,
           end,
         );
+        if (props.sphereRadius !== undefined)
+          spin = Vector3.scale(
+            Vector3.cross(
+              Vector3.normalize(meeting.hit.normal!),
+              state.velocity,
+            ),
+            1 / props.sphereRadius,
+          );
         projectile = {
           ...props.projectile,
           origin: state.position,
@@ -238,10 +293,12 @@ export namespace HumanPropOutcome {
       // Outward or tangent gravity must not attach a departing prop to it.
       const n: IAutoMovieVector3 = Vector3.normalize(meeting.hit.normal!);
       const pull: number = Math.max(0, -Vector3.dot(projectile.gravity, n));
+      const leaving: IAutoMovieVector3 =
+        meeting.surface === undefined
+          ? next.projectile.velocity
+          : Vector3.subtract(next.projectile.velocity, meeting.surface);
       const rise: number =
-        pull > 0
-          ? Vector3.dot(next.projectile.velocity, n) ** 2 / (2 * pull)
-          : Infinity;
+        pull > 0 ? Vector3.dot(leaving, n) ** 2 / (2 * pull) : Infinity;
       if (outcome.kind === "bounce" && rise < size!) return out;
       if (!(next.from < props.horizon)) return out;
       const met: IAutoMovieMotionHumanPropOutcome.IMeeting | null = props.meet(
@@ -286,6 +343,9 @@ export namespace HumanPropOutcome {
           : { contact: props.settle(met, next.projectile, next.from) }),
       });
       if (met === null) return out;
+
+      // A pass keeps the spin it had; a bounce leaves the ball's own.
+      spin = next.spin ?? (outcome.kind === "pass" ? spin : undefined);
       projectile = next.projectile;
       meeting = met;
       base = next.from;
@@ -381,12 +441,3 @@ export namespace HumanPropOutcome {
     }
   }
 }
-
-/**
- * The second a contact's time resolves to, seconds: the microsecond at which
- * the engine's contact specifications and a hit's id read it
- * (`firstAutoMovieContactImpact` brackets a contact a thousandth of this wide
- * so the reading does not depend on where its search stopped). Two contacts
- * nearer than this are one event at that resolution.
- */
-const CONTACT_SECOND: number = 1e-6;

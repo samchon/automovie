@@ -10,7 +10,7 @@ Draw the profile and build its parts and contacts at the same dimensions.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The models retain a smooth surface. The basketball's, football's and tennis ball's rebounds use their rules' drop references, and the tennis ball's felt slides at the ITF medium court pace; other kinds declare no rebound until a source is read.
+The models retain a smooth surface. The basketball's, football's and tennis ball's rebounds use their rules' drop references, and the tennis ball's felt slides at the ITF medium court pace; other kinds declare no rebound until a source is read. The inflated balls and the celluloid table tennis ball declare a thin shell's gyration, 2/3, their walls a few hundredths of their radius; the thick-walled and solid kinds declare none.
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 

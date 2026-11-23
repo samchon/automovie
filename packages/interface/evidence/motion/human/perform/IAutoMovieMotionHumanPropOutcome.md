@@ -20,7 +20,7 @@ A missing contact is explicit and no predicted impact is substituted for an obse
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the sweep-relative hit, target kind and collider identity used for pass exclusion or a resolved bounce's physical departure query.
+States the sweep-relative hit, target kind and collider identity used for pass exclusion or a resolved bounce's physical departure query, and the struck surface's velocity a bounce acts relative to.
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -28,7 +28,7 @@ Reuses the engine hit and the flight's target union; their correspondence is sup
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The continuation loop reads the hit, target and collider for outcome, settlement and the next sweep.
+The continuation loop reads the hit, target and collider for outcome, settlement and the next sweep, and the surface velocity for the bounce; the sweep records it only for a moving collider, a person or a moving prop.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

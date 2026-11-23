@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines resolved-contact opt-in, fixed-plane/constant-tail-extent premises, signed normal law, physical clearance witness, conservative unknown result and finite-time termination.
+Defines resolved-contact opt-in, fixed-plane/constant-tail-extent premises (a fixed convex shape through its supporting plane, which its gap never falls below), signed normal law, physical clearance witness, conservative unknown result and finite-time termination.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

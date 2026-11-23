@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanPropOutcome,
   IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionPropLaunch,
   IAutoMovieProjectile,
   IAutoMovieQuaternion,
@@ -255,10 +256,17 @@ export namespace HumanPropFlight {
         )
           continue;
       }
+      // The action that took the staged hold names the refusal: a stageCatch,
+      // or a production's own catch law. A capture grip is that hold's.
+      const held: IAutoMovieMotionHumanSegment.IHeld =
+        HumanPerformanceRead.person(self, grip.subject).holds.find(
+          (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
+            h.prop === subject && h.from === grip.from && h.capture === capture,
+        )!;
       throw new HumanRefusal({
         kind: "reach",
         performer: grip.subject,
-        act: "stageCatch",
+        act: held.source.name,
         axis: "ball",
         value: subject,
         reason: `the final flight misses the staged interception at ${grip.from} s`,

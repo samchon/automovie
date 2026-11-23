@@ -1,8 +1,8 @@
 /**
  * How a body in flight ends against what it strikes, beyond its restitution:
- * how deep it sticks, how it rolls on, how much speed it loses passing through
- * a body, the energy of a hit that breaks it, and the angle beyond which a
- * projectile glances off it.
+ * how deep it sticks, how it rolls on, how its spin grips a surface it bounces
+ * on, how much speed it loses passing through a body, the energy of a hit that
+ * breaks it, and the angle beyond which a projectile glances off it.
  *
  * Rough numbers, as everywhere in `interface`: units and ranges live here in
  * the JSDoc and are enforced at runtime by `@automovie/engine`, not by the
@@ -21,6 +21,18 @@ export interface IAutoMovieBodyContact {
    * resistance no source measured.
    */
   rolling?: number;
+
+  /**
+   * A round body's moment of inertia about a diameter over its mass times its
+   * radius squared, above 0 and no more than 2/3, which a ball reaches with all
+   * its mass at its radius: 2/5 for a uniform solid ball, 2/3 for a thin hollow
+   * shell such as an inflated ball. It decides how much of a bounce's sliding
+   * the ball's spin takes up, so a gripping bounce keeps `1 / (1 + gyration)`
+   * of the speed along the surface. Absent when no source gives it; a ball's
+   * bounce then reads a uniform solid's 2/5, the uniform density an undeclared
+   * mass distribution is taken to have.
+   */
+  gyration?: number;
 
   /**
    * The share of its speed the body loses passing through one body, `0` to `1`;

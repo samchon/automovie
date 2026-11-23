@@ -38,6 +38,21 @@ export namespace IAutoMovieProjectileContinue {
         friction: number;
 
         /**
+         * The struck surface's velocity at the contact, world metres per
+         * second: a moving hand, a swung bat. Restitution and friction act on
+         * the projectile's velocity relative to it, so the rebound leaves the
+         * surface whichever way it moves. At rest when absent.
+         */
+        surface?: IAutoMovieVector3;
+
+        /**
+         * The projectile as a ball turning about its centre, whose spin takes
+         * up part of the contact's sliding; a particle that does not turn when
+         * absent.
+         */
+        ball?: IAutoMovieProjectileContinue.IBall;
+
+        /**
          * Roll instead once a rebound rises less than `radius`, at the rolling
          * resistance `resistance`.
          */
@@ -73,6 +88,32 @@ export namespace IAutoMovieProjectileContinue {
       };
 
   /**
+   * A projectile that bounces as a ball: its contact lies `radius` from its
+   * centre along the surface normal, and its spin turns that point. Friction's
+   * impulse stops where the contact point stops sliding, the rolling limit of a
+   * rigid ball's oblique impact (Brach, Mechanical Impact Dynamics, 1991, ch.
+   * 4, the critical impulse ratio), the grip a bouncing ball shows once its
+   * bottom comes to rest on the surface (Cross 2002, Am J Phys 70:1093).
+   */
+  export interface IBall {
+    /** From the centre to the contact point, metres, finite and positive. */
+    radius: number;
+
+    /**
+     * The moment of inertia about a diameter over the mass times the radius
+     * squared, finite and positive: 2/5 for a uniform solid ball, 2/3 for a
+     * thin hollow shell.
+     */
+    gyration: number;
+
+    /**
+     * The angular velocity arriving at the contact, world radians per second;
+     * not turning when absent.
+     */
+    spin?: IAutoMovieVector3;
+  }
+
+  /**
    * Flight, rolling or resting continuation on the original flight's launch
    * clock.
    *
@@ -101,6 +142,13 @@ export namespace IAutoMovieProjectileContinue {
          * gravity and attitude data must not be mutated.
          */
         projectile: IAutoMovieProjectile;
+
+        /**
+         * The ball's angular velocity leaving the bounce, world radians per
+         * second, which no torque changes in flight; present only after a
+         * bounce given a `ball`.
+         */
+        spin?: IAutoMovieVector3;
       }
     | {
         /** A roll from `origin` until `until`, then at rest. */

@@ -48,9 +48,11 @@ import { projectileShapeDeparture } from "./projectileShapeDeparture";
  * departure for a sphere or fixed-attitude tail from the normal motion of this
  * flight, deferring only that pair until actual positive clearance or proving
  * no fresh entry in the span. Later reentry and other colliders keep the
- * original scan. A continuously bounded finite convex shape can certify the
- * same departure for a drag-free ball. Rotating tails and opaque colliders
- * retain initial reporting unless their physical model supplies a certificate.
+ * original scan. A convex shape in a fixed frame certifies the same departure
+ * by its supporting plane at the contact, behind which it lies whole, and a
+ * continuously bounded finite convex shape for a drag-free ball. Rotating tails
+ * and opaque colliders retain initial reporting unless their physical model
+ * supplies a certificate.
  *
  * @param projectile The flight.
  * @param colliders What it may meet; `projectileFirstContact.plane` and
@@ -103,32 +105,7 @@ export function projectileFirstContact(
   let owner: string = "projectile";
   while (ids.has(owner)) owner = `${owner}'`;
 
-  // Zero drag with gravity has no finite all-time bound. Its finite-span
-  // squared speed is convex, so the two endpoint speeds bound this search.
-  const flightBound: number | undefined =
-    projectile.drag === undefined
-      ? undefined
-      : projectileDragFlight(projectile).fastest;
-  const centre: number =
-    flightBound === undefined || flightBound === Infinity
-      ? Math.max(
-          Vector3.length(projectileAt(projectile, span.from).velocity),
-          Vector3.length(projectileAt(projectile, span.to).velocity),
-        )
-      : flightBound;
-  const reach: number =
-    options.tail === undefined ? 0 : Vector3.length(options.tail);
-  const turning: number =
-    projectile.attitude?.kind === "spin"
-      ? ((Math.abs(projectile.attitude.rate) * Math.PI) / 180) * reach
-      : 0;
-  const fastest: number = centre + turning;
-  // A step longer than the span, an infinite one where the thickness
-  // outruns any speed, is the span itself: one interval covers it.
-  const step: number = Math.min(
-    span.to - span.from,
-    fastest > 0 ? options.thickness / fastest : Infinity,
-  );
+  const step: number = projectileFirstContact.step(projectile, span, options);
 
   const tail = (
     state: IAutoMovieProjectileState,
@@ -230,6 +207,52 @@ export function projectileFirstContact(
 /** Companion types and collider builders of {@link projectileFirstContact}. */
 export namespace projectileFirstContact {
   /**
+   * The sweep's step: `thickness` over the largest speed any point of the
+   * projectile reaches in the span, so it moves less than the thinnest collider
+   * in one step. A drag-free flight's squared speed is convex in time, so its
+   * two endpoint speeds bound the span; positive drag uses the flight's finite
+   * global bound; a spinning tail adds its turning speed. A step longer than
+   * the span, an infinite one where the thickness outruns any speed, is the
+   * span itself. A collider's departure certificate reads the same step as the
+   * scan's next grid second.
+   *
+   * @param projectile The flight.
+   * @param span Seconds since launch the search covers.
+   * @param options The projectile's tail and the thinnest collider.
+   * @returns The step, seconds.
+   */
+  export function step(
+    projectile: IAutoMovieProjectile,
+    span: IAutoMovieProjectileFirstContact.ISpan,
+    options: IAutoMovieProjectileFirstContact.IOptions,
+  ): number {
+    // Zero drag with gravity has no finite all-time bound. Its finite-span
+    // squared speed is convex, so the two endpoint speeds bound this search.
+    const flightBound: number | undefined =
+      projectile.drag === undefined
+        ? undefined
+        : projectileDragFlight(projectile).fastest;
+    const centre: number =
+      flightBound === undefined || flightBound === Infinity
+        ? Math.max(
+            Vector3.length(projectileAt(projectile, span.from).velocity),
+            Vector3.length(projectileAt(projectile, span.to).velocity),
+          )
+        : flightBound;
+    const reach: number =
+      options.tail === undefined ? 0 : Vector3.length(options.tail);
+    const turning: number =
+      projectile.attitude?.kind === "spin"
+        ? ((Math.abs(projectile.attitude.rate) * Math.PI) / 180) * reach
+        : 0;
+    const fastest: number = centre + turning;
+    return Math.min(
+      span.to - span.from,
+      fastest > 0 ? options.thickness / fastest : Infinity,
+    );
+  }
+
+  /**
    * A fixed plane, solid on the side its normal points away from: the ground.
    *
    * @param id The collider's id.
@@ -274,10 +297,14 @@ export namespace projectileFirstContact {
 
   /**
    * An admitted convex collider placed by a fixed frame or by a reading on the
-   * supplied flight clock. A continuous pose can certify an explicitly resolved
-   * departure for a positive-radius sphere on a drag-free flight. The proof
-   * only reaches an observed positive clearance for this pair. Missing
-   * continuous bounds preserve initial contact.
+   * supplied flight clock. A fixed frame certifies an explicitly resolved
+   * departure by the shape's supporting plane at the contact
+   * (`projectilePlaneDeparture` with that plane's normal): the shape lies
+   * behind the plane, so a projectile that leaves the plane cannot enter it
+   * before the plane's witness. A continuous pose can certify one for a
+   * positive-radius sphere on a drag-free flight. The proof only reaches an
+   * observed positive clearance for this pair. An opaque reader, or missing
+   * continuous bounds, preserves initial contact.
    *
    * @param id The collider's id.
    * @param shape The shape, in its parent's frame.
@@ -309,17 +336,18 @@ export namespace projectileFirstContact {
             ...shape,
             transform: projectileShapeDeparture.admitPose(shape.transform),
           };
+    const still: IAutoMovieRigidTransform | undefined =
+      typeof pose === "function" || "bound" in pose ? undefined : pose;
     const fixed:
       | ReturnType<typeof physicalShapeSegmentDistance.prepare>
       | undefined =
-      typeof pose === "function" || "bound" in pose
+      still === undefined
         ? undefined
-        : physicalShapeSegmentDistance.prepare(pose, geometry);
+        : physicalShapeSegmentDistance.prepare(still, geometry);
     return {
       id,
-      ...(motion === undefined
-        ? {}
-        : {
+      ...(motion !== undefined
+        ? {
             departure: (
               projectile: IAutoMovieProjectile,
               options: IAutoMovieProjectileFirstContact.IOptions,
@@ -334,7 +362,40 @@ export namespace projectileFirstContact {
                 options,
                 contact,
               ),
-          }),
+          }
+        : still !== undefined
+          ? {
+              // A fixed convex shape lies behind its supporting plane at the
+              // contact, so a projectile leaving that plane leaves the shape:
+              // the plane's own departure proof holds for it.
+              departure: (
+                projectile: IAutoMovieProjectile,
+                options: IAutoMovieProjectileFirstContact.IOptions,
+                contact: IAutoMovieResolveContactEvents.IInitialContact,
+              ): IAutoMovieResolveContactEvents.Departure | undefined => {
+                if (options.departing !== id) return undefined;
+                const state: IAutoMovieProjectileState = projectileAt(
+                  projectile,
+                  contact.from,
+                );
+                const end: IAutoMovieVector3 =
+                  options.tail === undefined || state.rotation === undefined
+                    ? state.position
+                    : Vector3.add(
+                        state.position,
+                        Quaternion.rotateVector(state.rotation, options.tail),
+                      );
+                return projectilePlaneDeparture(
+                  id,
+                  physicalShapeNearest(still, geometry, state.position, end)
+                    .normal,
+                  projectile,
+                  options,
+                  contact,
+                );
+              },
+            }
+          : {}),
       distance: (a, b, seconds): number =>
         fixed === undefined
           ? physicalShapeSegmentDistance(read(seconds), geometry, a, b)
