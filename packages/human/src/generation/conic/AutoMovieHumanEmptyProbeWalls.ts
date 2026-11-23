@@ -2,6 +2,7 @@ import { AutoMovieViewChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicSection,
   IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
   IAutoMovieViewChain,
