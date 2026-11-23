@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Preserves authored node order under placement groups, admits the shadow profile, builds native lights/cameras, optional semantic support, fog and environment; each resolver call must supply a distinct mutable model object and valid admitted TRS. Static pose/props/compiled populations are not lowered here and current production pages assemble their own graph rather than calling this producer.
+Preserves authored node order under placement groups, admits the shadow profile, builds native lights/cameras, optional semantic support, fog, medium and environment; each resolver call must supply a distinct mutable model object and valid admitted TRS. Static pose/props/compiled populations are not lowered here and current production pages assemble their own graph rather than calling this producer.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

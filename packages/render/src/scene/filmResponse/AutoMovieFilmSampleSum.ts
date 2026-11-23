@@ -88,6 +88,12 @@ export class AutoMovieFilmSampleSum {
 
     /** The number of samples of the second, at least 2. */
     count: number;
+
+    /**
+     * Work on the sample's linear light before it is added, such as the
+     * medium's march; absent adds the scene's light as drawn.
+     */
+    march?: () => void;
   }): void {
     const { renderer, linear } = props;
     const sums: [THREE.WebGLRenderTarget, THREE.WebGLRenderTarget] =
@@ -114,6 +120,7 @@ export class AutoMovieFilmSampleSum {
       renderer.autoClear = true;
       renderer.setRenderTarget(linear);
       renderer.render(props.scene, props.camera);
+      props.march?.();
 
       // Sample k reads sum target k mod 2 and writes the other.
       const write: THREE.WebGLRenderTarget = sums[(props.index + 1) % 2];

@@ -4,12 +4,16 @@ import * as THREE from "three";
 import { recordFilmSamples } from "./recordFilmSamples";
 
 /**
- * The lens samples shear the frustum so the focus plane projects unchanged,
- * and a frame without a lens keeps every sample at the camera centre.
+ * The lens samples shear the frustum so the focus plane projects unchanged, and
+ * a frame without a lens keeps every sample at the camera centre.
  *
  * Scenarios:
- * 1. With `lens: { fNumber: 2, focusDistance: 2 }` and 64 samples, a point on the focus plane 2 m ahead, on axis and 0.4 m off axis, projects to the same pixel through every sample, within 0.001 pixels of the sharp projection.
- * 2. A frame with a shutter and no lens draws every sample through the unmoved camera, so a static point lands on one pixel.
+ *
+ * 1. With `lens: { fNumber: 2, focusDistance: 2 }` and 64 samples, a point on the
+ *    focus plane 2 m ahead, on axis and 0.4 m off axis, projects to the same
+ *    pixel through every sample, within 0.001 pixels of the sharp projection.
+ * 2. A frame with a shutter and no lens draws every sample through the unmoved
+ *    camera, so a static point lands on one pixel.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Projects through each recorded sample camera; a shear of the wrong sign or scale, or an eye moved without the shear, moves the focus plane by pixels.
  * @evidence contracts/development/testing.md#independent-expectations The sharp projection is the pinhole camera's own, and the issue requires the focus plane to stay within a pixel of it; the closed form is exact, so the tolerance only absorbs rounding.
@@ -56,8 +60,10 @@ export async function test_draw_film_lens_focus_plane(): Promise<void> {
     samples.every((sample: { x: number; y: number }[]): boolean =>
       sample.every(
         (point: { x: number; y: number }, index: number): boolean =>
-          Math.hypot(point.x - expected[index]!.x, point.y - expected[index]!.y) <=
-          0.001,
+          Math.hypot(
+            point.x - expected[index]!.x,
+            point.y - expected[index]!.y,
+          ) <= 0.001,
       ),
     );
   TestValidator.predicate(

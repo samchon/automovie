@@ -23,7 +23,7 @@ States the props, the admission before drawing and the refusal.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Draws the scene into a linear target with the renderer's own curve and exposure neutral, blurs the glare kernels on a box pyramid, then one final pass applies glare, the engine's exposure and white-balance matrix, the curve, the sRGB encoding and the CDL grade, writing the linear depth so display overlays drawn last are occluded by the scene. Absent optics is one plain render, the pre-stage behaviour. With `accumulated` the linear target already holds the average of the second's sub-frame samples and the scene draw is skipped, so the response, glare and overlays apply to that average.
+Draws the scene into a linear target with the renderer's own curve and exposure neutral, blurs the glare kernels on a box pyramid, then one final pass applies glare, the engine's exposure and white-balance matrix, the curve, the sRGB encoding and the CDL grade, writing the linear depth so display overlays drawn last are occluded by the scene. Absent optics is one plain render, the pre-stage behaviour. Each linear render is followed by the medium pass, which marches a scene's medium in place; a scene with a medium and no optics is refused, since no other path can draw it. With `accumulated` the linear target already holds the average of the second's sub-frame samples and the scene draw is skipped, so the response, glare and overlays apply to that average.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

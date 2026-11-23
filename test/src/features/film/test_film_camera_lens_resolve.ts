@@ -8,13 +8,19 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/nclose";
 
 /**
- * Resolve the lens a frame draws from a shot's intents: which intent is
- * active, when it resolves sharp, and how the focused depth is measured.
+ * Resolve the lens a frame draws from a shot's intents: which intent is active,
+ * when it resolves sharp, and how the focused depth is measured.
  *
  * Scenarios:
- * 1. With intents starting at 0 (f/2.8, focus 3 m ahead) and 2 (f/4, focus 5 m ahead), second 1 resolves f/2.8 at 3 m and second 2 resolves f/4 at 5 m; second −0.5, before any start, resolves null.
- * 2. An intent without `fNumber`, and one with `fNumber` but a null focus, resolve null.
- * 3. The depth is measured along the camera's forward axis from where it stands: a camera dollied 1 m toward the mark, with a forward of length 3, resolves 2 m; a mark 0.5 m to the side does not change the depth.
+ *
+ * 1. With intents starting at 0 (f/2.8, focus 3 m ahead) and 2 (f/4, focus 5 m
+ *    ahead), second 1 resolves f/2.8 at 3 m and second 2 resolves f/4 at 5 m;
+ *    second −0.5, before any start, resolves null.
+ * 2. An intent without `fNumber`, and one with `fNumber` but a null focus, resolve
+ *    null.
+ * 3. The depth is measured along the camera's forward axis from where it stands: a
+ *    camera dollied 1 m toward the mark, with a forward of length 3, resolves 2
+ *    m; a mark 0.5 m to the side does not change the depth.
  * 4. A mark behind the camera resolves null.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the exported resolver with explicit intents and placements and compares the stop and depth; picking the wrong intent, measuring Euclidean distance or from the shot opening, or ignoring a missing stop fails.

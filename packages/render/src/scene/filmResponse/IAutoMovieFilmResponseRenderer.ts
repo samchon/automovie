@@ -30,9 +30,18 @@ export interface IAutoMovieFilmResponseRenderer {
   /** Whether each `render` clears its target first. */
   autoClear: boolean;
 
-  /** Shadow-map policy; only automatic updates are read and set. */
+  /**
+   * Shadow-map policy: automatic updates are read and set, and whether shadow
+   * maps are drawn at all is read by the medium pass.
+   */
   shadowMap: {
     /** Whether each `render` redraws the shadow maps. */
     autoUpdate: boolean;
+
+    /**
+     * Whether the renderer draws shadow maps; absent reads as false, so a
+     * medium marches without shadows.
+     */
+    enabled?: boolean;
   };
 }

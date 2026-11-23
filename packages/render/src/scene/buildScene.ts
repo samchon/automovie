@@ -13,6 +13,7 @@ import type { IAutoMovieSceneSoftProps } from "./IAutoMovieSceneSoftProps.js";
 import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowParticipation.js";
 import { applySceneEnvironment } from "./applySceneEnvironment.js";
 import { applySceneFog } from "./applySceneFog.js";
+import { applySceneMedium } from "./medium/applySceneMedium.js";
 import { applyTransform } from "./applyTransform.js";
 import { buildLight } from "./buildLight.js";
 import { buildSceneSoftProps } from "./buildSceneSoftProps.js";
@@ -115,6 +116,7 @@ export const buildScene: (
   // The atmosphere is a scene property, not an object: it takes no top-level
   // child, so the mask palette's child indices are untouched by declaring it.
   applySceneFog(root, scene.fog);
+  applySceneMedium(root, scene.medium);
   applySceneEnvironment(root, scene.environment, environmentTexture);
 
   applyAutoMovieShadowParticipation(root);

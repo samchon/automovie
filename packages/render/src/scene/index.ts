@@ -61,6 +61,7 @@ export * from "./IAutoMovieSceneObject.js";
 export * from "./IAutoMovieSceneSoftProps.js";
 export * from "./applyAutoMovieShadowParticipation.js";
 export * from "./applySceneFog.js";
+export * from "./medium/index.js";
 export * from "./buildLight.js";
 export * from "./IAutoMovieSectionRenderer.js";
 export * from "./IApplyAutoMovieSectionPlanesProps.js";

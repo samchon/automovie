@@ -12,6 +12,7 @@ export type { IAutoMovieFog } from "./IAutoMovieFog";
 export type { IAutoMovieLight } from "./IAutoMovieLight";
 export type { IAutoMovieLightBase } from "./IAutoMovieLightBase";
 export type { IAutoMovieLightShadow } from "./IAutoMovieLightShadow";
+export type { IAutoMovieMedium } from "./IAutoMovieMedium";
 export type { IAutoMoviePointLight } from "./IAutoMoviePointLight";
 export type { IAutoMovieProductionLighting } from "./IAutoMovieProductionLighting";
 export type { IAutoMovieScene } from "./IAutoMovieScene";

@@ -5,12 +5,14 @@ import {
 import type { IAutoMovieFilmOptics } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieFilmMediumPass } from "../medium/AutoMovieFilmMediumPass.js";
+import { readAutoMovieSceneMedium } from "../medium/readAutoMovieSceneMedium.js";
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "./AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
 import { AutoMovieFilmSampleSum } from "./AutoMovieFilmSampleSum.js";
 import type { IAutoMovieFilmResponseRenderer } from "./IAutoMovieFilmResponseRenderer.js";
+import { allocateAutoMovieFilmTargets } from "./allocateAutoMovieFilmTargets.js";
 import { collectAutoMovieFilmOverlays } from "./collectAutoMovieFilmOverlays.js";
 import { freeAutoMovieFilmOverlayLayer } from "./freeAutoMovieFilmOverlayLayer.js";
-import { planAutoMovieFilmGlare } from "./planAutoMovieFilmGlare.js";
 
 /**
  * The beauty stage of a directly rendered film: draw a scene's linear light
@@ -36,8 +38,11 @@ import { planAutoMovieFilmGlare } from "./planAutoMovieFilmGlare.js";
  *    boxes state display colours rather than scene light. They are left out of
  *    step 1, so under optics they cast no shadow.
  *
- * A sampled film's second replaces step 1 with `accumulate`, once per
- * sub-frame sample, and then `draw` with `accumulated: true`.
+ * A sampled film's second replaces step 1 with `accumulate`, once per sub-frame
+ * sample, and then `draw` with `accumulated: true`. A scene carrying a medium
+ * (`applySceneMedium`) is marched by `AutoMovieFilmMediumPass` right after each
+ * linear render; without optics such a scene is refused, since only the linear
+ * target can carry it.
  *
  * Without optics `draw` is one `renderer.render` into the current target,
  * exactly what the host drew before the stage existed. The renderer's target,
@@ -57,7 +62,7 @@ export class AutoMovieFilmResponseStage {
    * The targets of the current raster, or null before the first draw with
    * optics.
    */
-  private targets_: ITargets | null = null;
+  private targets_: allocateAutoMovieFilmTargets.ITargets | null = null;
 
   /**
    * The full-frame quad every pass of the stage draws, carrying the pass's
@@ -86,6 +91,10 @@ export class AutoMovieFilmResponseStage {
 
   /** The running sum of a sampled second's sub-frame samples. */
   private readonly sum_: AutoMovieFilmSampleSum = new AutoMovieFilmSampleSum();
+
+  /** The participating medium's march over the linear light. */
+  private readonly medium_: AutoMovieFilmMediumPass =
+    new AutoMovieFilmMediumPass();
 
   /**
    * Make the stage's programs; no GPU resource is allocated until the first
@@ -188,11 +197,19 @@ export class AutoMovieFilmResponseStage {
   }): void {
     const { renderer, scene, camera, optics } = props;
     if (optics === undefined) {
+      if (readAutoMovieSceneMedium(scene) !== null)
+        throw new Error(
+          `At ${props.seconds} s the scene carries a medium, which needs the film's optics to draw`,
+        );
       renderer.render(scene, camera);
       return;
     }
     admitAutoMovieFilmOptics(optics, props.seconds);
-    const targets: ITargets = this.prepare(props.width, props.height, optics);
+    const targets: allocateAutoMovieFilmTargets.ITargets = this.prepare(
+      props.width,
+      props.height,
+      optics,
+    );
     const prior: {
       target: THREE.WebGLRenderTarget | null;
       toneMapping: THREE.ToneMapping;
@@ -221,6 +238,7 @@ export class AutoMovieFilmResponseStage {
       if (props.accumulated !== true) {
         renderer.setRenderTarget(targets.linear);
         renderer.render(scene, camera);
+        this.medium_.apply({ ...props, linear: targets.linear, index: 0 });
       }
 
       // 2. The glare kernels, each at its pyramid level.
@@ -280,15 +298,22 @@ export class AutoMovieFilmResponseStage {
   ): void {
     if (props.index === 0)
       admitAutoMovieFilmOptics(props.optics, props.seconds);
+    const linear: THREE.WebGLRenderTarget = this.prepare(
+      props.width,
+      props.height,
+      props.optics,
+    ).linear;
     this.sum_.add({
       ...props,
-      linear: this.prepare(props.width, props.height, props.optics).linear,
+      linear,
+      march: (): void => this.medium_.apply({ ...props, linear }),
     });
   }
   /** Release the stage's targets, programs and quad. */
   public dispose(): void {
     this.release();
     this.sum_.dispose();
+    this.medium_.dispose();
     this.downsample_.dispose();
     this.blur_.dispose();
     this.final_.dispose();
@@ -303,16 +328,16 @@ export class AutoMovieFilmResponseStage {
     width: number,
     height: number,
     optics: IAutoMovieFilmOptics,
-  ): ITargets {
+  ): allocateAutoMovieFilmTargets.ITargets {
     if (
       this.targets_ === null ||
       this.targets_.width !== width ||
       this.targets_.height !== height
     ) {
       this.release();
-      this.targets_ = allocate(width, height);
+      this.targets_ = allocateAutoMovieFilmTargets(width, height);
     }
-    const targets: ITargets = this.targets_;
+    const targets: allocateAutoMovieFilmTargets.ITargets = this.targets_;
     const uniforms: Record<string, THREE.IUniform> = this.final_.uniforms;
     const m: number[] = autoMovieFilmResponseMatrix(optics);
     uniforms.tLinear!.value = targets.linear.texture;
@@ -330,9 +355,14 @@ export class AutoMovieFilmResponseStage {
     );
     uniforms.uCurve!.value = optics.toneMapping === "acesFilmic" ? 1 : 0;
     uniforms.uGlareStrength!.value = optics.glare?.strength ?? 0;
-    targets.kernels.forEach((kernel: IKernelTargets, index: number): void => {
-      uniforms[`tGlare${index}`]!.value = kernel.output.texture;
-    });
+    targets.kernels.forEach(
+      (
+        kernel: allocateAutoMovieFilmTargets.IKernelTargets,
+        index: number,
+      ): void => {
+        uniforms[`tGlare${index}`]!.value = kernel.output.texture;
+      },
+    );
     (uniforms.uGlareWeights!.value as THREE.Vector3).set(
       targets.kernels[0]!.plan.weight,
       targets.kernels[1]!.plan.weight,
@@ -355,7 +385,7 @@ export class AutoMovieFilmResponseStage {
    */
   private glare(
     renderer: IAutoMovieFilmResponseRenderer,
-    targets: ITargets,
+    targets: allocateAutoMovieFilmTargets.ITargets,
   ): void {
     const pass: (
       material: THREE.RawShaderMaterial,
@@ -406,91 +436,4 @@ export class AutoMovieFilmResponseStage {
     }
     this.targets_ = null;
   }
-}
-
-/** The targets of one raster. */
-interface ITargets {
-  /** Raster width in pixels. */
-  width: number;
-
-  /** Raster height in pixels. */
-  height: number;
-
-  /** The linear frame with its depth. */
-  linear: THREE.WebGLRenderTarget;
-
-  /**
-   * Pyramid levels 1 and deeper, each half the one above, as deep as the
-   * deepest kernel.
-   */
-  pyramid: THREE.WebGLRenderTarget[];
-
-  /** One pair of blur targets per glare kernel, in the kernels' order. */
-  kernels: IKernelTargets[];
-}
-
-/** The blur targets of one glare kernel at its level. */
-interface IKernelTargets {
-  /** The kernel's plan. */
-  plan: planAutoMovieFilmGlare.IKernel;
-
-  /** The frame blurred along rows. */
-  across: THREE.WebGLRenderTarget;
-
-  /** The frame blurred along rows and columns. */
-  output: THREE.WebGLRenderTarget;
-}
-
-/** Make the linear target, the pyramid and the blur targets of a raster. */
-function allocate(width: number, height: number): ITargets {
-  const target: (
-    w: number,
-    h: number,
-    depth: boolean,
-  ) => THREE.WebGLRenderTarget = (
-    w: number,
-    h: number,
-    depth: boolean,
-  ): THREE.WebGLRenderTarget =>
-    new THREE.WebGLRenderTarget(w, h, {
-      type: THREE.HalfFloatType,
-      format: THREE.RGBAFormat,
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
-      wrapS: THREE.ClampToEdgeWrapping,
-      wrapT: THREE.ClampToEdgeWrapping,
-      generateMipmaps: false,
-      depthBuffer: depth,
-      ...(depth ? { depthTexture: new THREE.DepthTexture(w, h) } : {}),
-    });
-  const size: (level: number) => [number, number] = (
-    level: number,
-  ): [number, number] => [
-    Math.max(1, Math.ceil(width / 2 ** level)),
-    Math.max(1, Math.ceil(height / 2 ** level)),
-  ];
-  const plans: planAutoMovieFilmGlare.IKernel[] =
-    planAutoMovieFilmGlare(height);
-  const deepest: number = Math.max(
-    ...plans.map((plan: planAutoMovieFilmGlare.IKernel): number => plan.level),
-  );
-  return {
-    width,
-    height,
-    linear: target(width, height, true),
-    pyramid: Array.from({ length: deepest }, (_: unknown, index: number) => {
-      const [w, h] = size(index + 1);
-      return target(w, h, false);
-    }),
-    kernels: plans.map(
-      (plan: planAutoMovieFilmGlare.IKernel): IKernelTargets => {
-        const [w, h] = size(plan.level);
-        return {
-          plan,
-          across: target(w, h, false),
-          output: target(w, h, false),
-        };
-      },
-    ),
-  };
 }

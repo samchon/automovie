@@ -4,7 +4,7 @@
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The set is one record of typed lists, one per kind of placement, plus optional world members, with one authored form selected for fog; each list's rules live on its element type, and the cross-list id uniqueness is stated once here.
+The set is one record of typed lists, one per kind of placement, plus optional world members, with one authored form selected for fog and an optional physical medium that staging refuses beside it; each list's rules live on its element type, and the cross-list id uniqueness is stated once here.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

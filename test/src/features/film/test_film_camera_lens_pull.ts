@@ -9,9 +9,15 @@ import { nclose } from "../internal/nclose";
  * and landing with zero rate.
  *
  * Scenarios:
- * 1. For a static camera at the origin looking down −Z, a pull from a mark 2 m deep to one 4 m deep with `start` 1 s and `end` 2 s resolves 2 m at 0.5 s, 3 m at 1.5 s and 4 m at 2.5 s.
- * 2. At 1.25 s, a quarter through, the depth is 2 + 2 × s(0.25) = 2.3125 m with s(u) = u²(3 − 2u).
- * 3. The depth's rate just after the start and just before the end is near zero, while at the middle it is the peak 1.5 × (z1 − z0) / (end − start) = 3 m/s.
+ *
+ * 1. For a static camera at the origin looking down −Z, a pull from a mark 2 m
+ *    deep to one 4 m deep with `start` 1 s and `end` 2 s resolves 2 m at 0.5 s,
+ *    3 m at 1.5 s and 4 m at 2.5 s.
+ * 2. At 1.25 s, a quarter through, the depth is 2 + 2 × s(0.25) = 2.3125 m with
+ *    s(u) = u²(3 − 2u).
+ * 3. The depth's rate just after the start and just before the end is near zero,
+ *    while at the middle it is the peak 1.5 × (z1 − z0) / (end − start) = 3
+ *    m/s.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the exported resolver across the pull; a linear ramp, a missing hold before or after, or marks measured at the wrong second fail.
  * @evidence contracts/development/testing.md#independent-expectations Values are the issue's worked example and the smoothstep polynomial evaluated by hand; the middle rate is its derivative 6u(1 − u) at u = 0.5 times the 2 m span over 1 s.

@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The members are the renderer state the stage changes and restores: the current target, the renderer's own curve and exposure, the clear policy and shadow-map updates, plus drawing itself.
+The members are the renderer state the stage changes and restores: the current target, the renderer's own curve and exposure, the clear policy and shadow-map updates, plus drawing itself; the optional `shadowMap.enabled` is read by the medium pass so a recording double without it marches unshadowed.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

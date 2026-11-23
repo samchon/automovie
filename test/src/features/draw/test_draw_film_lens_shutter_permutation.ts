@@ -11,9 +11,14 @@ import { TestValidator } from "@nestia/e2e";
  * not correlated.
  *
  * Scenarios:
- * 1. For 2, 7, 16 and 64 samples with both members, the lens point indices are a permutation of 0 … N − 1 that differs from the identity, and planning again gives the same order.
- * 2. With a lens alone the indices are 0 … N − 1 in order; with a shutter alone every sample has no lens point.
- * 3. Every eye offset lies within the aperture radius 12 mm / tan(fovY / 2) / fNumber / 2.
+ *
+ * 1. For 2, 7, 16 and 64 samples with both members, the lens point indices are a
+ *    permutation of 0 … N − 1 that differs from the identity, and planning
+ *    again gives the same order.
+ * 2. With a lens alone the indices are 0 … N − 1 in order; with a shutter alone
+ *    every sample has no lens point.
+ * 3. Every eye offset lies within the aperture radius 12 mm / tan(fovY / 2) /
+ *    fNumber / 2.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the planner's point indices and eye offsets; an identity order under both members, a duplicated index or an eye outside the aperture fails.
  * @evidence contracts/development/testing.md#independent-expectations The permutation and identity requirements are the issue's; the aperture radius is the issue's lens geometry.
@@ -36,10 +41,15 @@ export function test_draw_film_lens_shutter_permutation(): void {
       fovY: 40,
       optics: { ev100: 10, toneMapping: "none", samples, ...members },
     });
-  const points: (samples: IAutoMoviePlanFilmSamples.ISample[]) => (number | null)[] = (
+  const points: (
+    samples: IAutoMoviePlanFilmSamples.ISample[],
+  ) => (number | null)[] = (
     samples: IAutoMoviePlanFilmSamples.ISample[],
   ): (number | null)[] =>
-    samples.map((sample: IAutoMoviePlanFilmSamples.ISample): number | null => sample.point);
+    samples.map(
+      (sample: IAutoMoviePlanFilmSamples.ISample): number | null =>
+        sample.point,
+    );
 
   for (const count of [2, 7, 16, 64]) {
     const both: (number | null)[] = points(
@@ -51,8 +61,9 @@ export function test_draw_film_lens_shutter_permutation(): void {
     );
     TestValidator.predicate(
       `${count} samples take a fixed permutation other than the identity`,
-      [...both].sort((a: number | null, b: number | null): number => a! - b!).join() ===
-        identity.join() &&
+      [...both]
+        .sort((a: number | null, b: number | null): number => a! - b!)
+        .join() === identity.join() &&
         both.join() !== identity.join() &&
         both.join() ===
           points(plan(count, { shutter: { angle: 180 }, lens })).join(),

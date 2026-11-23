@@ -1,6 +1,7 @@
 import type { IAutoMovieColor } from "../color/IAutoMovieColor";
 import type { IAutoMovieNamedId } from "../core/IAutoMovieNamedId";
 import type { IAutoMovieFog } from "../scene/IAutoMovieFog";
+import type { IAutoMovieMedium } from "../scene/IAutoMovieMedium";
 import type { IAutoMovieSceneEnvironment } from "../scene/IAutoMovieSceneEnvironment";
 import type { IAutoMovieSpace } from "../scene/IAutoMovieSpace";
 import type { IAutoMovieStageActor } from "./IAutoMovieStageActor";
@@ -56,6 +57,12 @@ export interface IAutoMovieStage {
     color: IAutoMovieColor;
   };
 
+  /**
+   * The set's physical haze, range-checked and lowered verbatim to the scene's
+   * `medium`. Staging refuses it beside `fog` or `fogVisibility`. Omit it, or
+   * give `null`, for clear air.
+   */
+  medium?: IAutoMovieMedium | null;
   /**
    * Image lighting, exposure, tone mapping and shadow policy, checked against these lights by `validateSceneEnvironment` and lowered verbatim. Omitted leaves those decisions to the host renderer.
    */

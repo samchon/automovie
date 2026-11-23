@@ -20,7 +20,7 @@ The class comment states the per-sample render, the unit-weight sum and final sc
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the caller's placement premise, the hidden overlays, the neutral curve and exposure, and what is restored.
+States the caller's placement premise, the optional march hook run on each sample's linear light before it is added, the hidden overlays, the neutral curve and exposure, and what is restored.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

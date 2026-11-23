@@ -19,9 +19,13 @@ import { createSkeleton } from "../internal/fixtures";
  * `shot.cameraIntent` exactly when authored.
  *
  * Scenarios:
- * 1. A frame with `focus: knightB` and `fNumber: 2` performs and its intent carries `fNumber: 2`.
- * 2. The same frame without `fNumber` performs and its intent has no `fNumber` member.
- * 3. `fNumber: 0` and `fNumber: NaN` are each refused with a `range` violation at `.fNumber`.
+ *
+ * 1. A frame with `focus: knightB` and `fNumber: 2` performs and its intent
+ *    carries `fNumber: 2`.
+ * 2. The same frame without `fNumber` performs and its intent has no `fNumber`
+ *    member.
+ * 3. `fNumber: 0` and `fNumber: NaN` are each refused with a `range` violation at
+ *    `.fNumber`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the real staging and performance assembly and reads the emitted intent and the violations; a gate that let a zero or NaN stop through, or a compiler that dropped or invented the member, fails.
  * @evidence contracts/development/testing.md#independent-expectations The issue states the gate mirrors the focal length's: finite and above zero, a `range` violation at the field; presence follows the issue's "present exactly when the action authored it".

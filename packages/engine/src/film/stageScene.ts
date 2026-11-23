@@ -2,6 +2,7 @@ import {
   IAutoMovieCamera,
   IAutoMovieConstraintViolation,
   type IAutoMovieFog,
+  type IAutoMovieMedium,
   IAutoMovieLight,
   IAutoMovieSceneNode,
   IAutoMovieScript,
@@ -32,6 +33,7 @@ import { lightTypeOf } from "./staging/lightTypeOf";
 import { lowerCameraClearanceEnvelope } from "./staging/lowerCameraClearanceEnvelope";
 import { lowerLightPlacement } from "./staging/lowerLightPlacement";
 import { resolveStagedFog } from "./staging/resolveStagedFog";
+import { resolveStagedMedium } from "./staging/resolveStagedMedium";
 import { setPieceScale } from "./staging/setPieceScale";
 import { setPieceTransform } from "./staging/setPieceTransform";
 import { validateCameraClearanceEnvelope } from "./staging/validateCameraClearanceEnvelope";
@@ -54,7 +56,7 @@ const LOOK_DISTANCE_EPSILON: number = 1e-9;
  *
  * Conversions: an actor's `facingDeg`, about `+Y` with 0 facing `+Z`, becomes its rotation; a set piece becomes a static node through {@link setPieceTransform}; a camera's `lookAt` resolves to a point and the level-horizon look basis aims its `-Z` there; a light lowers through {@link lowerLightPlacement} to the scene light its `type` names.
  *
- * The optional `space`, the ground's walkable meaning, is accepted by {@link validateSpace} with its paths re-rooted under `$input.space`, and is composed as `space: null` when omitted, the scalar ground plane. An authored `fog` lowers verbatim, while `fogVisibility` solves the density from camera-axis depth and transmittance. {@link resolveStagedFog} admits one form and leaves fog absent when neither is authored. The optional `environment` is checked by {@link validateSceneEnvironment} against the staged lights and lowered verbatim.
+ * The optional `space`, the ground's walkable meaning, is accepted by {@link validateSpace} with its paths re-rooted under `$input.space`, and is composed as `space: null` when omitted, the scalar ground plane. An authored `fog` lowers verbatim, while `fogVisibility` solves the density from camera-axis depth and transmittance. {@link resolveStagedFog} admits one form and leaves fog absent when neither is authored. A `medium` is admitted by {@link resolveStagedMedium}, refused beside either fog form, and lowered verbatim. The optional `environment` is checked by {@link validateSceneEnvironment} against the staged lights and lowered verbatim.
  *
  * @param script The screenplay whose cast staging must place.
  * @param staging The staging write.
@@ -266,6 +268,7 @@ export function stageScene(
     staging.fogVisibility,
     out,
   );
+  const medium: IAutoMovieMedium | undefined = resolveStagedMedium(staging, out);
   if (staging.environment !== undefined) {
     const validated: IAutoMovieValidation = validateSceneEnvironment({
       environment: staging.environment,
@@ -472,6 +475,7 @@ export function stageScene(
       // `fog: null` would change the bytes, and so the content digest, of
       // every production that never mentioned fog.
       ...(fog === undefined ? {} : { fog }),
+      ...(medium === undefined ? {} : { medium }),
       ...(staging.environment === undefined
         ? {}
         : { environment: staging.environment }),

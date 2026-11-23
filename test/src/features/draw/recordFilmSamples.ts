@@ -10,13 +10,12 @@ import { createFilmResponseRendererDouble } from "./createFilmResponseRendererDo
  * through the sample's camera, in pixels from the top-left of a `width` by
  * `height` raster.
  *
- * The camera stands at the origin looking down −Z with the given vertical
- * field of view and the raster's aspect. `place` moves the scene for a second
- * before each sample is drawn; `probe` returns the world points to project.
+ * The camera stands at the origin looking down −Z with the given vertical field
+ * of view and the raster's aspect. `place` moves the scene for a second before
+ * each sample is drawn; `probe` returns the world points to project.
  *
  * @param props The optics, frame, raster, field of view, placement and probe.
  * @returns One list of projected pixel positions per sample, in sample order.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the fixed camera, the pixel convention, and what is recorded per sample.
  * @evidence contracts/development/implementation.md#principled-implementation Projects through the camera object the loop hands the stage, after updating its world matrix, with three's own `project`, so the record is what the GPU's vertex stage would compute.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One recorder shared by the shutter and lens tests so each states only its geometry and expectation.
@@ -48,13 +47,15 @@ export async function recordFilmSamples(props: {
       accumulate: (sample: { camera: THREE.Camera }): void => {
         sample.camera.updateMatrixWorld(true);
         recorded.push(
-          props.probe().map((point: THREE.Vector3): { x: number; y: number } => {
-            const ndc: THREE.Vector3 = point.clone().project(sample.camera);
-            return {
-              x: ((ndc.x + 1) / 2) * props.width,
-              y: ((1 - ndc.y) / 2) * props.height,
-            };
-          }),
+          props
+            .probe()
+            .map((point: THREE.Vector3): { x: number; y: number } => {
+              const ndc: THREE.Vector3 = point.clone().project(sample.camera);
+              return {
+                x: ((ndc.x + 1) / 2) * props.width,
+                y: ((1 - ndc.y) / 2) * props.height,
+              };
+            }),
         );
       },
     },

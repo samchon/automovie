@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Refuses failed shadow ownership by renderer key and failed material restoration by scene key before effects, admits requested profile, draws once and independently restores pass/environment/program/target owners without retrying unknown native owners.
+Refuses a beauty pass of a scene carrying a medium, which only a film's linear target can draw, then refuses failed shadow ownership by renderer key and failed material restoration by scene key before effects, admits requested profile, draws once and independently restores pass/environment/program/target owners without retrying unknown native owners.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
