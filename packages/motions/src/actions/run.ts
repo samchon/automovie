@@ -1,8 +1,10 @@
+import { AutoMovieGravity } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanRun,
   IAutoMovieMotionHumanWalkGait,
 } from "@automovie/interface";
@@ -130,6 +132,35 @@ export namespace run {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRun.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     return walk.locomote(context, GAITS[context.params.pace ?? "run"]);
+  }
+
+  /**
+   * The speed a pace runs at on a body, m/s: the Froude number's own
+   * relation, v = √(Fr · g · l) with l the body's hip height, the speed
+   * walk.locomote plans the pace's strides at before any manner, fatigue
+   * or facing scales it.
+   *
+   * @param body The body.
+   * @param pace The pace; `run` when absent, as the plan defaults.
+   * @returns The speed, m/s.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the relation, the leg length and what is left out.
+   * @evidence contracts/development/implementation.md#principled-implementation The Froude number's definition Fr = v² / (g l), solved for v, with the gait table's number and the planner's own leg length.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One table read and one closed form.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The number is the gait's, never restated.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function speed(
+    body: IAutoMovieMotionHumanBody,
+    pace: IAutoMovieMotionHumanRun.IParams["pace"] = "run",
+  ): number {
+    return Math.sqrt(
+      GAITS[pace ?? "run"].froude *
+        AutoMovieGravity.STANDARD *
+        body.measure.hipHeight,
+    );
   }
 
   /** A running gait from its Froude number, duty factor, swing lift, shoulder swing and trunk lean. */

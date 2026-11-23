@@ -1,17 +1,26 @@
-import { ANKLE_DORSIFLEXION, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  ANKLE_DORSIFLEXION,
+  Quaternion,
+  Vector3,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanLimbReference,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { walkFoot } from "../actions/walkFoot";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { crawl } from "../floor/crawl";
+import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -89,6 +98,51 @@ export function crutchHeldLeg(
       },
     };
   };
+  // The least hip flexion that keeps the held foot's every sole point a
+  // swing's clearance (`walkFoot.CLEARANCE`) above the level beneath it,
+  // in closed form: in the leg's sagittal plane the ankle hangs
+  // L1 cos θ + L2 cos(θ − k) = A cos(θ − φ) below the hip, θ the thigh's
+  // angle forward of vertical (the hip's flexion plus the pelvis's forward
+  // tilt) and k the knee's flexion, so it rises to a drop D at
+  // θ = φ + acos(D / A). The hip joint is the posture's own rigid offset of
+  // the rest hip from the root; nothing is resolved.
+  const thigh: number = body.measure.thigh;
+  const shank: number = body.measure.shank;
+  const restHip: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
+  // However the foot hangs, no point of it lies further below the ankle
+  // than its farthest sole socket.
+  const reachDown: number = Math.max(
+    ...HumanFoot.SOCKETS.map(
+      (socket: IAutoMovieMotionHumanFoot.Socket): number =>
+        Vector3.length(HumanFoot.offset(body, side, socket)),
+    ),
+  );
+  const clearing: (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+    knee: number,
+  ) => number = (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+    knee: number,
+  ): number => {
+    if (props.floor === undefined) return -Infinity;
+    const hipY: number =
+      posture.root.y +
+      Quaternion.rotateVector(resolveHumanPosture.heading(posture), restHip).y;
+    const drop: number =
+      hipY -
+      (props.floor(seconds) + reachDown + walkFoot.CLEARANCE);
+    const k: number = knee * Quaternion.DEG2RAD;
+    const a: number = Math.hypot(
+      thigh + shank * Math.cos(k),
+      shank * Math.sin(k),
+    );
+    if (drop >= a) return -Infinity;
+    const phi: number = Math.atan2(shank * Math.sin(k), thigh + shank * Math.cos(k));
+    const theta: number = phi + Math.acos(Math.max(-1, drop / a));
+    return theta / Quaternion.DEG2RAD - posture.pitch;
+  };
   return (
     base: IAutoMovieMotionHumanPosture,
     seconds: number,
@@ -120,8 +174,12 @@ export function crutchHeldLeg(
     const s: number = minimumJerk(
       Math.min(1, (seconds - start) / (held - start)),
     ).s;
-    const tilt: number =
-      (props.knee - from.lower[0] - (props.hip - from.upper[0])) * s;
+    const knee: number = from.lower[0] + (props.knee - from.lower[0]) * s;
+    const hip: number = Math.max(
+      from.upper[0] + (props.hip - from.upper[0]) * s,
+      clearing(base, seconds, knee),
+    );
+    const tilt: number = knee - from.lower[0] - (hip - from.upper[0]);
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...base.limbs };
     delete limbs[leg];
     return {
@@ -130,12 +188,12 @@ export function crutchHeldLeg(
       joints: {
         ...base.joints,
         [`${side}UpperLeg`]: [
-          from.upper[0] + (props.hip - from.upper[0]) * s,
+          hip,
           from.upper[1] * (1 - s),
           from.upper[2] * (1 - s),
         ],
         [`${side}LowerLeg`]: [
-          from.lower[0] + (props.knee - from.lower[0]) * s,
+          knee,
           from.lower[1] * (1 - s),
           from.lower[2] * (1 - s),
         ],
@@ -184,6 +242,9 @@ export namespace crutchHeldLeg {
 
     /** The law's posture before the leg is held, by action second. */
     read: (seconds: number) => IAutoMovieMotionHumanPosture;
+
+    /** The height of the level beneath the held foot at an action second, world metres; the held angles alone when absent. */
+    floor?: (seconds: number) => number;
   }
 
   /** The leg where it starts to fold: its hip's and knee's angles and its ankle's, degrees. */

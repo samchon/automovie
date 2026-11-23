@@ -243,7 +243,12 @@ function hockey(body: IAutoMovieMotionHumanBody): void {
   );
 
   // The square stance cleared the old arm-length check but swung the displayed
-  // blade well clear of the puck while publishing a launch.
+  // blade well clear of the puck while publishing a launch. Its hands are
+  // now laid on the shaft as one planned course, so the miss is refused
+  // where it starts: either no clear arm keeps a hand on its grip (`region`,
+  // its value the millimetres past the region's disc), or the fitted blade
+  // misses the rim (`stick`, past the 15 mm contact bound). Either way no
+  // launch is published.
   let refusal: unknown;
   try {
     play(ORIGIN, 0, "right");
@@ -251,14 +256,15 @@ function hockey(body: IAutoMovieMotionHumanBody): void {
     refusal = error;
   }
   TestValidator.predicate(
-    "the square grip's fitted miss refuses the puck launch",
+    `the square grip's fitted miss refuses the puck launch (${refusal instanceof Error ? refusal.message : "launched"})`,
     refusal instanceof HumanRefusal &&
       refusal.kind === "reach" &&
-      refusal.axis === "stick" &&
       typeof refusal.value === "number" &&
-      refusal.value > 0.015 &&
-      refusal.feasible?.kind === "range" &&
-      refusal.feasible.maximum === 0.015,
+      ((refusal.axis === "stick" &&
+        refusal.value > 0.015 &&
+        refusal.feasible?.kind === "range" &&
+        refusal.feasible.maximum === 0.015) ||
+        (refusal.axis === "region" && refusal.value > 0)),
   );
 }
 

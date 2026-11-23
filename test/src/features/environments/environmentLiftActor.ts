@@ -112,7 +112,8 @@ export function environmentLiftActor(input: {
         }),
       }),
   };
-  const exitFrom: number = 7.1;
+  // The upper doors stand open from 12 s (`environmentLiftFixture`).
+  const exitFrom: number = 12.1;
   const wait: IAutoMovieMotionHumanActionLaw = {
     name: "liftCabWait",
     interrupts: AutoMovieMotionHumanStance.stand.interrupts,

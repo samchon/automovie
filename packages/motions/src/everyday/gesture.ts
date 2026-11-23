@@ -226,6 +226,7 @@ export namespace gesture {
         region: p.region ?? "forehead",
         extent: mods.extent,
         ...(geometry[side] === undefined ? {} : { prepared: geometry[side] }),
+        ...(bent === undefined ? {} : { bend: bent }),
         ...(resolution === undefined ? {} : { resolution }),
         ...(point === undefined ? {} : { target: point }),
         ...(source === undefined || travel === undefined
@@ -277,6 +278,10 @@ export namespace gesture {
         : AutoMovieMotionHumanBase.under(context, seconds);
     const probe: IAutoMovieMotionHumanActionPlan = under(1);
     const at0: IAutoMovieMotionHumanPosture = probe.posture(0);
+    // The bend of the trunk the gesture is entered on, read once: the places
+    // of the air ride it (`gestureStroke.bend`).
+    const bent: gestureStroke.IBend | undefined =
+      sides.length === 0 ? undefined : gestureStroke.bend(body, at0);
     const restPose: IAutoMoviePose | undefined =
       sides.length === 0 ? undefined : resolveHumanPosture(body, at0);
     const begin: Partial<

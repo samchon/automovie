@@ -41,14 +41,12 @@ const GAP: number = 0.2;
  * Scenarios, the average man embracing another average man and the small
  * woman embracing another small woman, each take clean:
  * 1. Through the hold, the chest lies on the partner's upper back, the chin
- *    on the top of the partner's left shoulder beside the neck (halfway
- *    between the shoulder's and the neck's side regions), and the hands are
- *    clasped on the partner's abdomen: the left palm on the abdomen, the
- *    right palm on the back of the left hand (one hand resting on the other,
- *    as clasped hands are laid; placed each on its own, the two hands met
- *    fingertip into fingertip).
- * 2. The chest, the chin and the left palm bear on the partner in windows,
- *    the chest's loaded; the right palm lies on the performer's own hand.
+ *    on the top of the partner's left shoulder (its region; rested halfway
+ *    to the neck's side, the head lay in the partner's neck), and each palm on
+ *    the partner's abdomen within a hand's length of its middle: the palms
+ *    lie either side of the midline, their fingertips meeting at it.
+ * 2. The chest, the chin and the palms bear on the partner in windows, the
+ *    chest's loaded.
  * 3. The small woman cannot rest her chin on the tall man's shoulder from
  *    behind: the refusal states the miss.
  *
@@ -78,30 +76,25 @@ export function test_motion_touch_embrace_from_behind(): void {
         region(film, "a", a, "sternum", t),
         region(film, "b", b, "upperBack", t),
       );
-      const top: IAutoMovieVector3 = Vector3.lerp(
-        region(film, "b", b, "shoulderLeft", t),
-        region(film, "b", b, "neckLeft", t),
-        0.5,
-      );
+      const top: IAutoMovieVector3 = region(film, "b", b, "shoulderLeft", t);
       const chin: number = Vector3.distance(
         region(film, "a", a, "chin", t),
         top,
       );
-      const under: number = Vector3.distance(
-        region(film, "a", a, "palmLeft", t),
-        region(film, "b", b, "abdomen", t),
-      );
-      const over: number = Vector3.distance(
-        region(film, "a", a, "palmRight", t),
-        region(film, "a", a, "handBackLeft", t),
+      const palms: readonly number[] = (["palmLeft", "palmRight"] as const).map(
+        (palm: AutoMovieHumanoidRegion): number =>
+          Vector3.distance(
+            region(film, "a", a, palm, t),
+            region(film, "b", b, "abdomen", t),
+          ),
       );
       TestValidator.predicate(
         `${label}: at ${t.toFixed(2)} s the chest (${(chest * 1000).toFixed(0)} mm) and the chin (${(chin * 1000).toFixed(0)} mm) rest on the partner`,
         chest <= NEAR && chin <= NEAR,
       );
       TestValidator.predicate(
-        `${label}: at ${t.toFixed(2)} s the left palm lies on the abdomen (${(under * 1000).toFixed(0)} mm) and the right palm on the back of the left hand (${(over * 1000).toFixed(0)} mm)`,
-        under <= PALM + a.measure.hand / 2 && over <= PALM,
+        `${label}: at ${t.toFixed(2)} s the palms lie on the abdomen (${palms.map((p: number): string => (p * 1000).toFixed(0)).join(", ")} mm)`,
+        palms.every((p: number): boolean => p <= PALM + a.measure.hand),
       );
     }
     const windows: readonly IAutoMovieMotionHumanContactWindow[] =
@@ -110,8 +103,8 @@ export function test_motion_touch_embrace_from_behind(): void {
           w.support.kind === "person" && w.support.subject === "b",
       );
     TestValidator.predicate(
-      `${label}: chest, chin and the left palm bear on the partner, the chest loaded`,
-      windows.length === 3 &&
+      `${label}: chest, chin and palms bear on the partner, the chest loaded`,
+      windows.length === 4 &&
         windows.some(
           (w: IAutoMovieMotionHumanContactWindow): boolean =>
             w.part === "chest" && w.load !== undefined && w.load > 0,

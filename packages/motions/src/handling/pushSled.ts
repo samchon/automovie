@@ -24,6 +24,7 @@ import { walkDelayed } from "../actions/walkDelayed";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -429,7 +430,7 @@ export namespace pushSled {
     // The arms carried on the leaning walk from the entry's arms to the
     // handles by `SETTLE`, then held on them as the load is carried, the
     // fists closed from the grip on.
-    return {
+    const written: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [...base.events, { name: "gripped", share: SETTLE / duration }],
       contacts: [
@@ -471,36 +472,44 @@ export namespace pushSled {
             side,
             current === undefined ? kept[side] : current.hold(kept[side]),
           );
-        const carrying: IAutoMovieMotionHumanPosture = {
+        // The goals are the holds at every second: the reach to them is the
+        // course's (below), not a blend of joints written here.
+        return {
           ...posture,
           joints: { ...posture.joints, ...(t >= SETTLE ? fist : {}) },
           limbs,
         };
-        if (share >= 1) return carrying;
-        const walked: ReturnType<typeof resolveHumanPosture> =
-          resolveHumanPosture.seeded(
-            body,
-            posture,
-            undefined,
-            undefined,
-            resolution,
-            undefined,
-            projection,
-          ).pose;
-        return AutoMovieMotionHumanArm.carry(
-          body,
-          carrying,
-          {
-            left: AutoMovieMotionHumanArm.angles(walked, "left"),
-            right: AutoMovieMotionHumanArm.angles(walked, "right"),
-          },
-          share,
-          undefined,
-          resolution,
-          projection,
-        );
       },
     };
+    // Both hands on one load are one closed chain through it (cooperative
+    // manipulation's constant grasp transforms; Siciliano and Khatib,
+    // Springer Handbook of Robotics, ch. 29): the two arms are laid once as
+    // one course, the left hand on its handle and the right riding the left
+    // hand's planned site through the load (`on`, the arm planner's paired
+    // grip), so the hands keep the load's shape and the load, riding the
+    // carrying hand, never turns in either. Each arm fitted to its own goal
+    // afresh at each second left the two hands apart by what each fit gave.
+    return courseArmGoal({
+      body,
+      plan: written,
+      side: "left",
+      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
+      grasp: ["hand"],
+      span: { start: 0, ready: SETTLE, relax: duration, end: duration },
+      together: AutoMovieMotionHumanArm.together(
+        context.handover,
+        true,
+        context.tempo,
+      ),
+      with: [
+        {
+          side: "right",
+          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+          grasp: ["hand"],
+          on: "leftHand",
+        },
+      ],
+    });
   }
 }
 

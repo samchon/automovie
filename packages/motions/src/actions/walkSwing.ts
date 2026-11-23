@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionPlan,
@@ -64,8 +64,32 @@ export function walkSwing(
   ): ReadSwing => {
     const retained: IArrival | undefined = readers[side].get(swing.off);
     if (retained?.on === swing.on) return retained.read;
-    const from: walkFoot.IEnd = at(side, swing.off, resolution);
+    // The swing departs from the stance's own end, its left limit at the
+    // toe-off: the stance's last two readings, a tick and two ticks before,
+    // give its rates by a backward difference and its end one tick on. Read
+    // at the toe-off itself the foot is already the swing's, which the
+    // stance's rule no longer holds (a sprint's settled foot there stood
+    // 4.8 degrees and 12.6 mm off its stance a tick before), and the rates
+    // read across that seam carried the swing's foot past upright and its
+    // ankle away behind the running hip.
     const before: walkFoot.IEnd = at(side, swing.off - TICK, resolution);
+    const earlier: walkFoot.IEnd = at(side, swing.off - 2 * TICK, resolution);
+    const from: walkFoot.IEnd = {
+      ankle: Vector3.add(
+        before.ankle,
+        Vector3.subtract(before.ankle, earlier.ankle),
+      ),
+      rotation: Quaternion.normalize(
+        Quaternion.multiply(
+          Quaternion.multiply(
+            before.rotation,
+            Quaternion.inverse(earlier.rotation),
+          ),
+          before.rotation,
+        ),
+      ),
+      toes: 2 * before.toes - earlier.toes,
+    };
     const to: walkFoot.IEnd = at(side, swing.on, resolution);
     const bow: IAutoMovieVector3 | undefined = passing(
       side,
@@ -77,14 +101,15 @@ export function walkSwing(
     const read: ReadSwing = walkFoot.prepareSwing(body, side, {
       from,
       velocity: Vector3.scale(
-        Vector3.subtract(from.ankle, before.ankle),
+        Vector3.subtract(before.ankle, earlier.ankle),
         1 / TICK,
       ),
       rates: {
         pitch:
-          (HumanFoot.pitch(from.rotation) - HumanFoot.pitch(before.rotation)) /
+          (HumanFoot.pitch(before.rotation) -
+            HumanFoot.pitch(earlier.rotation)) /
           TICK,
-        toes: (from.toes - before.toes) / TICK,
+        toes: (before.toes - earlier.toes) / TICK,
       },
       to,
       ...(bow === undefined ? {} : { bow }),

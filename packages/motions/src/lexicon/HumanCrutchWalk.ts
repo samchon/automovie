@@ -31,6 +31,9 @@ const THROUGH: number = 0.15;
 /** The hip's and knee's flexion that hold a three-point gait's injured foot off the floor, degrees (provisional: the knee bent near a right angle and the hip a little forward, so the foot clears the floor by a hand's breadth even as the sound knee gives under the swing). */
 const HELD: Readonly<Record<"hip" | "knee", number>> = { hip: 30, knee: 80 };
 
+/** How far above the crutch pads the axillae stay while the body swings, metres: two to three finger widths (provisional, the axillary crutch fitting's clearance). */
+const PAD: number = 0.05;
+
 /** World vertical. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
@@ -251,6 +254,30 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
     };
     const prefer: IAutoMovieMotionHumanSupport.IStance["prefer"] =
       getUp.quiet(body);
+    // The body swings on its pushing arms, the axillae kept PAD above the
+    // higher crutch pad, which a crutch on the floor holds at its entry
+    // height (the pad is never hung on).
+    const padAt: (side: AutoMovieHumanSide) => number = (
+      side: AutoMovieHumanSide,
+    ): number => {
+      const read: ReturnType<typeof context.prop> = context.prop(
+        side === "left" ? params.left : params.right,
+      );
+      const pad: IAutoMovieAffordance | undefined = (
+        read.prop.affordances ?? []
+      ).find((a: IAutoMovieAffordance): boolean => a.id === "pad");
+      return pad === undefined
+        ? -Infinity
+        : crutches[side].start.position.y +
+            Quaternion.rotateVector(
+              crutches[side].start.rotation,
+              pad.frame.translation,
+            ).y;
+    };
+    const padTop: number = Math.max(padAt("left"), padAt("right"));
+    const shoulders: number | undefined = Number.isFinite(padTop)
+      ? padTop + PAD
+      : undefined;
     let standing: IAutoMovieMotionHumanSupport.IContact[] = feet.map(
       (
         side: AutoMovieHumanSide,
@@ -308,6 +335,7 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
           turn: station.turn ?? 0,
           event: `footLand${i + 1}`,
           prefer,
+          ...(shoulders !== undefined ? { shoulders } : {}),
         });
       },
     );

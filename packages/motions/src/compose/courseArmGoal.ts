@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannel,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
@@ -10,6 +11,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
+  IAutoMoviePose,
 } from "@automovie/interface";
 
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -194,12 +196,32 @@ export function courseArmGoal(
         let angles: IAutoMovieMotionHumanPosture["joints"] | undefined =
           kept.get(limb);
         if (angles === undefined) {
-          const ended: IAutoMovieMotionHumanPosture["joints"] =
-            composed.posture(span.end).joints;
+          // Until the composition is laid, another arm of the group whose
+          // span runs on is planned on this base past this arm's end, before
+          // the composition exists: the arm then stands where its course
+          // returns it, the plan's own arm at the span's end (its `back`).
           angles = {};
-          for (const bone of courseArmGoal.bones(arm.side))
-            if (ended[bone] !== undefined) angles[bone] = ended[bone];
-          kept.set(limb, angles);
+          if (laid) {
+            const ended: IAutoMovieMotionHumanPosture["joints"] =
+              composed.posture(span.end).joints;
+            for (const bone of courseArmGoal.bones(arm.side))
+              if (ended[bone] !== undefined) angles[bone] = ended[bone];
+            kept.set(limb, angles);
+          } else {
+            const returned: IAutoMoviePose = resolveHumanPosture(
+              props.body,
+              read(span.end),
+            );
+            const chain: ReadonlySet<AutoMovieHumanoidBone> =
+              new Set<AutoMovieHumanoidBone>(courseArmGoal.bones(arm.side));
+            for (const joint of returned.joints)
+              if (chain.has(joint.bone))
+                angles[joint.bone] = [
+                  joint.flexion ?? 0,
+                  joint.abduction ?? 0,
+                  joint.twist ?? 0,
+                ];
+          }
         }
         joints = { ...joints, ...angles };
       }
@@ -219,6 +241,9 @@ export function courseArmGoal(
           ? {}
           : { skinDistance: arm.skinDistance }),
         ...(arm.grasp === undefined ? {} : { grasp: arm.grasp }),
+        // A hand on an implement the other hand carries rides that hand's
+        // planned site (`IAutoMovieMotionHumanArmCarry.ICarry.on`).
+        ...(arm.on === undefined ? {} : { on: arm.on }),
         ...(props.pace === undefined ? {} : { pace: props.pace }),
         ...(arm.perceived === undefined ? {} : { perceived: arm.perceived }),
         ...(arm.tracked === undefined ? {} : { tracked: arm.tracked }),
@@ -339,7 +364,7 @@ export namespace courseArmGoal {
   export interface IArm extends Partial<
     Pick<
       IAutoMovieMotionHumanArmCarry.ICarry,
-      "disc" | "skinDistance" | "grasp" | "perceived" | "tracked"
+      "disc" | "skinDistance" | "grasp" | "perceived" | "tracked" | "on"
     >
   > {
     /** The arm. */

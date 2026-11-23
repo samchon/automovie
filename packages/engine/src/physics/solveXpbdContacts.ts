@@ -73,7 +73,6 @@ export namespace solveXpbdContacts {
 
     /** Tangential multiplier vector accumulated this step, newton seconds squared. */
     tangentLambda: IAutoMovieVector3;
-
     /** Dynamic friction impulse accumulated over this step's velocity passes, newton seconds. */
     tangentImpulse: number;
 
@@ -278,6 +277,7 @@ export namespace solveXpbdContacts {
       );
       const armA: IAutoMovieVector3 = arm(first, localA);
       const armB: IAutoMovieVector3 = arm(second, localB);
+
       const slip: IAutoMovieVector3 = Vector3.subtract(
         Vector3.subtract(
           Vector3.add(first.center, armA),
@@ -293,30 +293,32 @@ export namespace solveXpbdContacts {
         Vector3.scale(head.normal, Vector3.dot(slip, head.normal)),
       );
       const length: number = Vector3.length(tangent);
-      if (!(length > 0)) continue;
-      const back: IAutoMovieVector3 = {
-        x: -tangent.x / length,
-        y: -tangent.y / length,
-        z: -tangent.z / length,
-      };
-      const total: number =
-        AutoMovieXpbdMath.weight(first, back, armA) +
-        AutoMovieXpbdMath.weight(second, back, armB);
-      if (!(total > 0)) continue;
-      const wanted: IAutoMovieVector3 = Vector3.add(
-        head.tangentLambda,
-        Vector3.scale(back, length / total),
-      );
-      const bound: number = head.friction * pressed;
-      const size: number = Vector3.length(wanted);
-      const next: IAutoMovieVector3 =
-        size > bound ? Vector3.scale(wanted, bound / size) : wanted;
-      const step: IAutoMovieVector3 = Vector3.subtract(
-        next,
-        head.tangentLambda,
-      );
-      head.tangentLambda = next;
-      AutoMovieXpbdMath.apply(first, second, step, armA, armB);
+      if (length > 0) {
+        const back: IAutoMovieVector3 = {
+          x: -tangent.x / length,
+          y: -tangent.y / length,
+          z: -tangent.z / length,
+        };
+        const total: number =
+          AutoMovieXpbdMath.weight(first, back, armA) +
+          AutoMovieXpbdMath.weight(second, back, armB);
+        if (total > 0) {
+          const wanted: IAutoMovieVector3 = Vector3.add(
+            head.tangentLambda,
+            Vector3.scale(back, length / total),
+          );
+          const bound: number = head.friction * pressed;
+          const size: number = Vector3.length(wanted);
+          const next: IAutoMovieVector3 =
+            size > bound ? Vector3.scale(wanted, bound / size) : wanted;
+          const step: IAutoMovieVector3 = Vector3.subtract(
+            next,
+            head.tangentLambda,
+          );
+          head.tangentLambda = next;
+          AutoMovieXpbdMath.apply(first, second, step, armA, armB);
+        }
+      }
     }
   }
   /**

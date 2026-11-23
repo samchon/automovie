@@ -177,31 +177,29 @@ export namespace walkPoleCarriage {
         Vector3.scale(line(carrying, CARRY, across), pole.fulcrum),
       );
 
-      // The plant's elevation: the vault's grip as high above the shoulder
-      // as the arm reaches, or as lets the pole lean its least, its end on
-      // the floor.
+      // The plant's elevation: the vault's straight top arm at the grip's
+      // neutral angle to the pole, its end on the floor
+      // (`walkPoleFrame.plant`).
       const to: number | undefined =
         plant === undefined ? undefined : cutAt(context.cut!, events, duration);
-      const high: number = Math.min(
-        root.y +
-          shoulders[carrying]!.y +
-          context.body.measure.upperArm +
-          context.body.measure.forearm,
-        pole.length * Math.cos(radians(plant?.lean ?? 0)),
-      );
+      const planted: walkPoleFrame.IPlant | undefined =
+        plant === undefined
+          ? undefined
+          : walkPoleFrame.plant(
+              root.y + shoulders[carrying]!.y,
+              context.body.measure.upperArm + context.body.measure.forearm,
+              pole.length,
+              walkPoleFrame.neutral(pole),
+              plant.lean,
+            );
       out.push({
         pole,
         shoulders,
         fulcrum,
         across,
-        ...(to === undefined
+        ...(to === undefined || planted === undefined
           ? {}
-          : {
-              drop: {
-                to,
-                elevation: -degrees(Math.asin(Math.min(1, high / pole.length))),
-              },
-            }),
+          : { drop: { to, elevation: planted.pole } }),
       });
     }
     return out;

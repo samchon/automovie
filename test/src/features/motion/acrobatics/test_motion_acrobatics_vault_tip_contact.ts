@@ -1,4 +1,3 @@
-import { createLandingMat, createVaultingPole } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
@@ -8,24 +7,20 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAcrobatics,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanSignature,
-} from "@automovie/motions";
+import { HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";
+import type { IStagedVault } from "../../internal/IStagedVault";
+import { stageVaultingPole } from "../../internal/stageVaultingPole";
 
 /**
  * A vaulting pole serves the pole vault (#3529): a performer takes the pole up in both hands, runs, plants its `tip` and swings on it, and the vault reads the pole's own plant end and length, not a stand-in.
  *
- * The pole is UCS Spirit's 305 series, a beginner's 10 ft (3.05 m), lying across a rack in front of the performer at about hip height, its tip to the left, so both grip bands are in reach. A vaulter carries the pole in two hands, the top hand at the hip near the pole's top and the lower hand a fulcrum toward the tip (Coaches Insider, "Pole carry and drop"), and plants from the top hand overhead (Frontiers in Sports and Active Living 2022, 10.3389/fspor.2022.835659: the upper grip at take-off 121 % of stature in men), so the pole is taken up by `topGrip` in the right hand and steadied by `lowerGrip` in the left. The landing mat is the pole vault's, placed ahead.
+ * The take is `stageVaultingPole`'s: the pole taken up in both hands on its `shaft`, the top hand as far from the tip as the sprint's own speed swings a rigid pole upright, the lower hand a shoulder width toward the tip; that helper states the derivation and its sources.
  *
  * Scenarios, on the average man:
- * 1. Taking the pole up by `topGrip` and `lowerGrip`, running and vaulting with `vaultOnPole` (its `tip` the planted end by default) plans.
+ * 1. Taking the pole up in both hands, running and vaulting with `vaultOnPole` (its `tip` the planted end by default) plans.
  * 2. At the take-off the pole's `tip` is on the floor, within 15 mm.
  * 3. Through the swing, from the take-off to just before the release, the planted `tip` moves 5 mm at most (provisional: the campaign's planted-contact bound).
  * 4. The body's centre of mass at the release stands higher than at the take-off: the swing lifts it.
@@ -37,50 +32,18 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage and the 4 scenarios with their bounds.
  */
 export function test_motion_acrobatics_vault_tip_contact(): void {
-  const pole: ReturnType<typeof createVaultingPole> = createVaultingPole({
-    series: "305",
-  });
-  const mat: ReturnType<typeof createLandingMat> = createLandingMat({
-    kind: "poleVault",
-  });
-  const tip: IAutoMovieVector3 = pole.affordance("tip").frame.translation;
   const complaints: string[] = [];
   const name = "m-average" as const;
+  let tip: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   witness: {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
 
     // 1. It plans.
     let film: IAutoMovieMotionHumanPerformance;
     try {
-      film = new HumanPerformance({
-        seed: "pole",
-        laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.vaultOnPole],
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        props: [
-          // Across a rack, its top to the right: the pole's +Y turned onto -X.
-          HumanObject.prop("pole", pole, {
-            position: { x: 2.6, y: 1, z: 0.3 },
-            rotation: { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },
-          }),
-          HumanObject.prop("mat", mat, { at: { x: 0, y: 0, z: 20 }, yaw: 0 }),
-        ],
-        composition: HumanChain.subject("a")
-          .stand({ hold: 0.3 })
-          .pickUp({ prop: "pole", handle: "topGrip", hand: "right", lift: 0.05 })
-          .pickUp({ prop: "pole", handle: "lowerGrip", hand: "left" })
-          .stand({ hold: 0.3 })
-          .run({ to: { x: 0, y: 0, z: 10 }, pace: "sprint" })
-          .until({ event: "leftHeelStrike3" })
-          .registered("vaultOnPole", { pole: "pole" }).node,
-      });
+      const staged: IStagedVault = stageVaultingPole(body, "pole");
+      film = staged.film;
+      tip = staged.pole.affordance("tip").frame.translation;
     } catch (error) {
       complaints.push(
         `${name}: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,

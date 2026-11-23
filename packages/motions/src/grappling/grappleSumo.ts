@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGrapple,
   IAutoMovieMotionHumanLieDown,
   IAutoMovieMotionHumanSupport,
@@ -8,6 +9,7 @@ import type {
 
 import { getUp } from "../floor/getUp";
 import { lieDown } from "../floor/lieDown";
+import { grappleFront } from "./grappleFront";
 
 /**
  * The sumo bouts of the grapple law: both wrestlers crouch at the shikiri
@@ -76,13 +78,6 @@ export namespace grappleSumo {
     oshiDashi: 4.5,
     yoriKiri: 5,
     uwateNage: 4,
-  };
-
-  /** The two roots' gap at contact as a share of stature: arms' length for a push, chest to chest for a belt grip. */
-  const CLOSE: Readonly<Record<Kind, number>> = {
-    oshiDashi: 0.3,
-    yoriKiri: 0.22,
-    uwateNage: 0.22,
   };
 
   /** The shares at which the shikiri, tachiai and drive end. */
@@ -175,13 +170,23 @@ export namespace grappleSumo {
    * tachiai's two steps into contact, the drive's alternating steps or the
    * throw's fall, and the finish.
    *
+   * The tachiai brings the pair to the trunks' contact: each wrestler's
+   * chest stands ahead of his hips by his trunk's lean at the charge's pitch
+   * and half his chest's depth, and the two chests meet. The heads pass on
+   * one side, each wrestler stepping to his own left by his head's radius, so
+   * two leaning heads do not meet head on (the belt clinch's head beside the
+   * other's, as the staged judo pair's marks are staggered): head on, the
+   * heads overlapped 59 mm while the belt still lay 16 mm beyond the arm.
+   *
    * @param p The scene.
    * @param duration The scene's seconds.
-   * @param stature The performer's stature, metres.
+   * @param body The performer's body.
+   * @param partner The partner's body.
+   * @param pitch The trunk's pitch at the tachiai, degrees: the charge pose's own when absent, the pitch the support fit takes at the tachiai on a second reading (`grapple.plan`).
    * @returns The timed support keys.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the keys in order.
-   * @evidence contracts/development/implementation.md#principled-implementation Foot and fist targets in the performer's own frame; the charge steps both feet, one key each, so the root over them closes the authored gap; the receiver's drive mirrors the initiator's, both stepping the same distance on the same keys.
+   * @evidence contracts/development/common.md#meaningful-documentation States the keys in order, the contact the charge closes to and the heads' stagger.
+   * @evidence contracts/development/implementation.md#principled-implementation Foot and fist targets in the performer's own frame. The gap at contact is the two bodies' own: each chest's front ahead of its hips at the charge's pitch, from the bodies' chest and hip heights and chest depths; the root stands over the ankles, so a foot's target, its ball, lies the rest foot's ankle-to-ball length ahead of the place the root is to reach. The charge steps both feet, one key each, so the root over them closes the gap; the receiver's drive mirrors the initiator's, both stepping the same distance on the same keys.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Shikiri, the charge's two steps, then the drive or the throw, then the finish.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step count follows the drive's length; the floor fit stays the support law's.
    * @evidence contracts/development/implementation.md#efficient-algorithms A key per drive step, independent of the playback rate.
@@ -191,15 +196,28 @@ export namespace grappleSumo {
   export function keys(
     p: grappleSumo.IParams,
     duration: number,
-    stature: number,
+    body: IAutoMovieMotionHumanBody,
+    partner: IAutoMovieMotionHumanBody,
+    pitch: number = CHARGE.pitch,
   ): readonly IAutoMovieMotionHumanSupport.IStance[] {
+    const stature: number = body.measure.stature;
     const receiver: boolean = p.role === "receiver";
     const complete: boolean = p.outcome !== "denied";
     const foot: number = 0.15 * stature;
     const width: number = 0.14 * stature;
-    // The charge closes the gap from the lines to contact, half each.
-    const start: number = LINES + 2 * foot;
-    const charge: number = Math.max(0, (start - CLOSE[p.kind] * stature) / 2);
+    // The charge closes the gap from the lines, each root a foot's length
+    // behind its line, to the trunks' contact, half each.
+    const start: number = LINES + 0.15 * (stature + partner.measure.stature);
+    const charge: number = Math.max(
+      0,
+      (start - grappleFront.chest(body, pitch) - grappleFront.chest(partner, pitch)) / 2,
+    );
+    // The heads pass on the wrestler's own left.
+    const aside: number = body.measure.headRadius;
+    // A foot's target is its ball, which lies ahead of the ankle the root
+    // stands over.
+    const ball: number =
+      body.rest.get("leftToes")!.z - body.rest.get("leftFoot")!.z;
     const at = (
       side: AutoMovieHumanSide,
       z: number,
@@ -212,7 +230,11 @@ export namespace grappleSumo {
             step: true,
             target: {
               kind: "point",
-              at: { x: side === "left" ? width : -width, y: 0, z },
+              at: {
+                x: (side === "left" ? width : -width) + aside,
+                y: 0,
+                z: z + ball,
+              },
               frame: "performer",
             },
           }

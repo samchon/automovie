@@ -197,6 +197,9 @@ export namespace IAutoMovieMotionHumanSupport {
 
     /** The parts the stance lets go free: each lifts off the contact it bore by in the stance before and hangs as the stance's posture carries it, bearing on nothing, instead of holding its last place until another contact of its limb replaces it; none when absent. */
     free?: readonly IAutoMovieMotionHumanSupport.Part[];
+
+    /** The least height of both shoulder joints, world metres, in the lift keys of a step into this stance, where the stepping feet bear nothing and the body hangs on its hands: a crutch walker's pushing arms keep the axillae above the crutches' pads; no height when absent. */
+    shoulders?: number;
   }
 
   /**

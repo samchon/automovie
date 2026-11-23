@@ -80,7 +80,20 @@ export namespace HumanArmTrajectoryContext {
     /** Whether the problem is a still configuration (`HumanArmTrajectoryModel.IContext.still`). */
     still?: boolean;
 
-    /** The share of the reach made at a second, 0 at rest and 1 on the hold (`HumanArmTrajectory.IProblem.share`); a grasp's closing and parting keep its depth on the hold by it. Nothing is kept when absent. */
+    /**
+     * The share of the reach made at a second, 0 at rest and 1 on the hold (`HumanArmTrajectory.IProblem.share`); a grasp's closing and parting keep its depth on the hold by it. Nothing is kept when absent.
+     *
+     * @param seconds Seconds of the problem.
+     * @returns The share, 0 to 1.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the input, the result's range and what reads it.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callable slot with no body; the problem's owner supplies the share.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callable slot with no body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callable slot with no body.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callable slot selects no strategy.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callable slot defines no cache.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callable slot retains nothing.
+     */
     share?: (seconds: number) => number;
   }
 
@@ -401,9 +414,11 @@ export namespace HumanArmTrajectoryContext {
     };
 
     // A grasp both hands share (`HumanArmTrajectoryModel.IContext.grasped`):
-    // the depth a grasping pair has with both arms on the hold, the goal's
-    // own solution there (`guess`), read at a waypoint's own base as the rest
-    // reference is, once per waypoint and pair; none without both guesses.
+    // the depth a grasping segment has in the other arm's shape with both
+    // arms on the hold, the goal's own solution there (`guess`), read at a
+    // waypoint's own base as the rest reference is, once per waypoint,
+    // segment and shape; none without both guesses. The segment's deepest
+    // probe bounds it, since the solved hold lies near, not on, the guess.
     const holding: readonly boolean[] = problem.times.map(
       (_: number, k: number): boolean =>
         problem.arms.every(
@@ -422,6 +437,8 @@ export namespace HumanArmTrajectoryContext {
           )
         : undefined;
     const held: (IAutoMovieMotionHumanArmGeometry.IPlaced[] | undefined)[] =
+      [];
+    const heldShapes: (IAutoMovieMotionHumanArmGeometry.IShape[][] | undefined)[] =
       [];
     const holdDepths: Map<string, number> = new Map();
     const holdDepth = (
@@ -442,10 +459,15 @@ export namespace HumanArmTrajectoryContext {
             ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
               G.placed(setup, frames[b]![k]!, guessed[b]!),
           ));
-        const theirs: IAutoMovieMotionHumanArmGeometry.IShape = S.colliders(
-          frames[1 - a]![k]!,
-          placed[1 - a]!,
-        )[shape]!;
+        const theirs: IAutoMovieMotionHumanArmGeometry.IShape = (heldShapes[
+          k
+        ] ??= placed.map(
+          (
+            arm: IAutoMovieMotionHumanArmGeometry.IPlaced,
+            b: number,
+          ): IAutoMovieMotionHumanArmGeometry.IShape[] =>
+            S.colliders(frames[b]![k]!, arm),
+        ))[1 - a]![shape]!;
         let deepest: number = 0;
         placed[a]!.probes.forEach(
           ([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {

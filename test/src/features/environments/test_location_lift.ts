@@ -21,10 +21,16 @@ import { environmentLiftFixture } from "./environmentLiftFixture";
  * The same geometry and clip frames locate the lift, both doors and the rider.
  *
  * Scenarios:
- * 1. Call a fixed landing station, cross into the docked cab, turn on the
- *    moving cab, ride its vertical track, and land on the upper floor.
+ * 1. Call a fixed landing station, cross into the docked cab, turn about in
+ *    the cab, ride its vertical track, and land on the upper floor.
  * 2. Inspect both doors during travel, and inspect a different authored rise
  *    and the unchanging call stations and unsupported crossing times.
+ *
+ * The scene's timing is staging: the cab leaves after its rider has walked
+ * in and turned about, a walk whose honest length (its step turns taken a
+ * footfall at a time) sets the schedule, and every check samples the
+ * travel at the same share of it (the ride at 70 % of the travel, the doors
+ * at its half and half a second after the upper doors open).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the authored choreography, the movement consumers and the negative schedule cases.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public environment and transfer producer, native HumanPerformance plans and actual poses, and the engine's baked object motion frames.
@@ -88,9 +94,13 @@ export function test_location_lift(): void {
       ),
     );
   };
-  const rideTime: number = 5.6;
+  // The cab travels from 9.2 s to 11.2 s and its upper doors stand open from
+  // 12 s (`environmentLiftFixture`); the rider leaves the cab from 12.1 s.
+  const rideTime: number = 9.2 + 0.7 * 2;
+  const halfway: number = 9.2 + 0.5 * 2;
+  const opened: number = 12 + 0.5;
   const rising: IAutoMovieVector3[] = soles(rideTime);
-  const landed: IAutoMovieVector3[] = soles(9.3);
+  const landed: IAutoMovieVector3[] = soles(12.1 + 2 + 0.2);
   TestValidator.predicate(
     "the rider rises with the closed cab and stands on the named destination",
     nclose(at(cab, rideTime).translation.y, 2.38) &&
@@ -102,16 +112,24 @@ export function test_location_lift(): void {
   );
   TestValidator.predicate(
     "the moving leaf is closed during travel and the left landing leaf stays on its own floor",
-    vclose(at(`${cab}/leftDoor`, 5.2).translation, { x: 0, y: 1.7, z: 0 }) &&
-      vclose(at(`${fixture.id}/stops/upper/doors/leftDoor`, 5.2).translation, {
-        x: 0,
-        y: 3.4,
-        z: 0.055,
-      }) &&
-      at(`${fixture.id}/stops/upper/doors/leftDoor`, 7.5).translation.x > 0.5,
+    vclose(at(`${cab}/leftDoor`, halfway).translation, {
+      x: 0,
+      y: 1.7,
+      z: 0,
+    }) &&
+      vclose(
+        at(`${fixture.id}/stops/upper/doors/leftDoor`, halfway).translation,
+        {
+          x: 0,
+          y: 3.4,
+          z: 0.055,
+        },
+      ) &&
+      at(`${fixture.id}/stops/upper/doors/leftDoor`, opened).translation.x >
+        0.5,
   );
   const callId: string = `${fixture.id}/stops/ground/call`;
-  const plate: ReturnType<typeof film.prop> = film.prop(callId, 5.2);
+  const plate: ReturnType<typeof film.prop> = film.prop(callId, halfway);
   const button = fixture.environment.runtime.props.find(
     (prop): boolean => prop.node === callId,
   )!.model.affordances![0]!;
@@ -134,12 +152,13 @@ export function test_location_lift(): void {
         bakedTransformFromClipsAt(
           taller.environment.runtime.objectMotions,
           cab,
-          7.5,
+          halfway,
         )!.scale,
         { x: 1, y: 1, z: 1 },
       ),
   );
-  for (const start of [5.2, 6.3]) {
+  // Leaving while the cab travels, or docked with its doors still opening.
+  for (const start of [halfway, 11.3]) {
     let diagnosed: boolean = false;
     try {
       fixture.lift.transfer({

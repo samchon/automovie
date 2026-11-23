@@ -40,6 +40,12 @@ const BEHIND: number = 0.75;
 /** How far ahead of the dresser a partner seated facing the dresser has the seat's front edge, metres (staging: the dresser at the knees). */
 const FRONT: number = 0.3;
 
+/** The partner's sitting's anchor, which the dresser waits for. */
+const SEATING: string = "seating";
+
+/** How long the dresser may stand waiting for the partner to sit, seconds: an upper bound past any sitting's `seated`. */
+const SIT: number = 6;
+
 /** How the partner waits for the loop: seated facing the dresser, seated facing away, or standing facing the dresser. */
 type Pose = "front" | "behind" | "stand";
 
@@ -215,7 +221,26 @@ function scene(
   const first: Chain =
     pose === "stand"
       ? partner.stand({ hold: 8 })
-      : partner.sit({ seat, hold: 8 }).rise({});
+      : partner.sit({ seat, hold: 8 }, SEATING).rise({});
+  // The dresser reads the head where it is as the setting starts, so it
+  // waits until a seated partner has sat (the stand is cut there, its own
+  // length only an upper bound): read while the partner was still lowering,
+  // the crown stood a sitting's height above where it came to rest and the
+  // loop's apex fell inside the dresser's own trunk.
+  // A partner seated facing the dresser sits down, and later rises, with the
+  // trunk pitched forward over the knees the dresser stands at (its chest
+  // went 0.106 m into the dresser's spine as it sat), so the dresser waits
+  // `AWAY` back and walks in once the partner has sat.
+  const waiting: Chain =
+    pose === "stand"
+      ? HumanChain.subject("a")
+      : HumanChain.subject("a")
+          .stand({ hold: SIT })
+          .until({ of: SEATING, event: "seated" });
+  const dresser: Chain =
+    pose === "front"
+      ? waiting.walk({ to: { x: 0, y: 0, z: 0 }, face: 0 })
+      : waiting;
   return new HumanPerformance({
     seed: "place-over-head",
     laws: [AutoMovieMotionHumanGetDressed.placeOverHead],
@@ -223,7 +248,7 @@ function scene(
       {
         subject: "a",
         body: a,
-        at: { x: 0, y: 0, z: 0 },
+        at: { x: 0, y: 0, z: pose === "front" ? -AWAY : 0 },
         yaw: 0,
         proficiency: { level: "trained" },
       },
@@ -249,20 +274,31 @@ function scene(
     ],
     // The partner is placed first, so the dresser reads where the head is.
     composition: first.with(
-      HumanChain.subject("a")
-        .pickUp({
-          prop: "loop",
-          handle: behind ? "holdRight" : "holdLeft",
-          hand: "right",
-          lift: 0.05,
-        })
-        .registered(AutoMovieMotionHumanGetDressed.placeOverHead.name, {
+      ((placing: Chain): Chain =>
+        // A partner seated facing the dresser rises forward over the knees
+        // the dresser stands at (its head went 0.11 m into the dresser's
+        // hips), so the dresser turns and walks off first.
+        pose === "front"
+          ? placing.walk({ to: { x: 0, y: 0, z: -AWAY }, face: 180 })
+          : placing)(
+        dresser
+          .pickUp({
+            prop: "loop",
+            handle: behind ? "holdRight" : "holdLeft",
+            hand: "right",
+            lift: 0.05,
+          })
+          .registered(AutoMovieMotionHumanGetDressed.placeOverHead.name, {
             prop: "loop",
             partner: "b",
           }),
+      ),
     ).node,
   });
 }
+
+/** How far the dresser walks off a partner seated facing it before the partner rises, metres (staging: clear of a rising trunk's forward lean). */
+const AWAY: number = 0.6;
 
 /** A prop's position in a displayed bone's frame. */
 function local(

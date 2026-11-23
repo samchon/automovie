@@ -4,6 +4,8 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
@@ -315,6 +317,184 @@ export namespace walkPoleFrame {
       };
     return { ...posture, limbs };
   }
+
+  /**
+   * The angle between the carrying forearm and the pole's way to its end
+   * with the wrist at its neutral, degrees: the power grip's own angle, the
+   * pole crossing the palm, read from the carrying hand's hold.
+   *
+   * @param pole The prop and its hands.
+   * @returns The angle, degrees in [0, 180].
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the angle, its frame and where it is read.
+   * @evidence contracts/development/implementation.md#principled-implementation The forearm's way in the hand at the wrist's neutral (the reverse of `proximal`) against the pole's axis carried into the hand by the hold.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two directions and one angle.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angle is the hold's own, never a constant.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function neutral(pole: IPole): number {
+    const hand: IHand = pole.hands[0]!;
+    const along: IAutoMovieVector3 = Quaternion.rotateVector(
+      hand.held.rotation,
+      pole.axis,
+    );
+    return (
+      (Math.acos(
+        Math.max(
+          -1,
+          Math.min(1, -Vector3.dot(hand.proximal, Vector3.normalize(along))),
+        ),
+      ) *
+        180) /
+      Math.PI
+    );
+  }
+
+  /**
+   * A body's power-grip angle before it holds anything: the angle between
+   * the forearm, the wrist at its neutral, and the bar a grasp wraps
+   * (`HumanGraspHand` lays the grip frame's forward along the bar's
+   * wrapped axis), on the bar's side that makes it acute, as a grasp from a
+   * bar's declared frame leaves the planted end (`neutral` reads the same
+   * angle off a hold).
+   *
+   * @param body The body.
+   * @param side The hand.
+   * @returns The angle, degrees in [0, 90].
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the angle, its source and the side taken.
+   * @evidence contracts/development/implementation.md#principled-implementation The grip frame's forward, across its normal, against the forearm's way in the hand from one forward-kinematics pass of the arm at clinical zero.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One grip frame, one pass, one angle.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angle is the body's own grasp geometry, never a constant.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function power(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+  ): number {
+    const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+      body,
+      side,
+      "grip",
+      "flat",
+    );
+    const normal: IAutoMovieVector3 = Vector3.normalize(grip.normal);
+    const forward: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(
+        grip.forward,
+        Vector3.scale(normal, Vector3.dot(grip.forward, normal)),
+      ),
+    );
+    const posture: IAutoMovieMotionHumanPosture = {
+      root: { x: 0, y: 0, z: 0 },
+      yaw: 0,
+      pitch: 0,
+      roll: 0,
+      joints: {},
+      limbs: {},
+    };
+    const hung: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      HumanTrunk.resolve(
+        body,
+        posture,
+        {
+          [`${side}UpperArm`]: [0, 0, 0],
+          [`${side}LowerArm`]: [0, 0, 0],
+          [`${side}Hand`]: [0, 0, 0],
+        },
+        undefined,
+        new Set<AutoMovieHumanoidBone>([`${side}LowerArm`, `${side}Hand`]),
+      );
+    const hand: IAutoMovieResolvedBone = hung.get(`${side}Hand`)!;
+    const fore: IAutoMovieVector3 = Vector3.normalize(
+      Quaternion.rotateVector(
+        Quaternion.inverse(hand.worldRotation),
+        Vector3.subtract(
+          hand.worldPosition,
+          hung.get(`${side}LowerArm`)!.worldPosition,
+        ),
+      ),
+    );
+    const angle: number =
+      (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(fore, forward)))) *
+        180) /
+      Math.PI;
+    return Math.min(angle, 180 - angle);
+  }
+
+  /**
+   * The straight carrying arm's elevation at a plant, and the grip's height
+   * and the pole's elevation it gives: the arm raised so the forearm meets
+   * the pole at the grip's neutral angle (`neutral`), the pole running from
+   * the grip to its end on the floor ahead. With the grip at height
+   * h(e) = s + r·sin e and the pole at −asin(h / ℓ) below the horizontal,
+   * the angle between them, e + asin(h(e) / ℓ), rises with e, so it meets
+   * the neutral angle at one elevation, found by bisection on that monotone
+   * function, no higher than lets the pole lean `lean` from upright.
+   *
+   * @param shoulder The carrying shoulder's height above the floor, metres.
+   * @param reach The carrying arm's shoulder-to-wrist length, metres.
+   * @param length The carrying grip's distance from the pole's end, metres.
+   * @param neutral The grip's neutral angle, degrees (`neutral`).
+   * @param lean The pole's least lean from upright, degrees.
+   * @returns The plant; undefined when the pole is too short to reach the floor from the lowest grip.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the condition, its monotone form, the bound and the refusal case.
+   * @evidence contracts/development/implementation.md#principled-implementation The forearm at the grip's neutral angle to the pole holds the pole with the wrist and the forearm twist neutral; the angle is monotone in the elevation, so its root is bracketed and bisected.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The bracket, the bisection, the plant.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An angle the bracket never reaches takes the bracket's nearer end; a pole too short at the lowest grip gives none.
+   * @evidence contracts/development/implementation.md#efficient-algorithms `SPLITS` halvings of a half turn, once per plan.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function plant(
+    shoulder: number,
+    reach: number,
+    length: number,
+    neutral: number,
+    lean: number,
+  ): IPlant | undefined {
+    const top: number =
+      (length * Math.cos((lean * Math.PI) / 180) - shoulder) / reach;
+    if (top < -1) return undefined;
+    const angle = (e: number): number =>
+      e + Math.asin(Math.min(1, (shoulder + reach * Math.sin(e)) / length));
+    const want: number = (neutral * Math.PI) / 180;
+    let low: number = -Math.PI / 2;
+    let high: number = Math.asin(Math.min(1, top));
+    if (angle(high) <= want) low = high;
+    else if (angle(low) < want)
+      for (let k: number = 0; k < SPLITS; k++) {
+        const middle: number = (low + high) / 2;
+        if (angle(middle) < want) low = middle;
+        else high = middle;
+      }
+    const grip: number = shoulder + reach * Math.sin(low);
+    return {
+      arm: (low * 180) / Math.PI,
+      high: grip,
+      pole: (-Math.asin(Math.min(1, grip / length)) * 180) / Math.PI,
+    };
+  }
+
+  /** A plant's straight carrying arm. */
+  export interface IPlant {
+    /** The arm's elevation above the horizontal ahead, degrees. */
+    arm: number;
+
+    /** The grip's height above the floor, metres. */
+    high: number;
+
+    /** The pole's elevation from the grip to its end, degrees, below the horizontal. */
+    pole: number;
+  }
+
+  /** The halvings the plant's bisection takes: a half turn to a millionth of a degree. */
+  const SPLITS: number = 28;
 
   /** The shortest turn carrying one unit direction onto another. */
   function shortest(

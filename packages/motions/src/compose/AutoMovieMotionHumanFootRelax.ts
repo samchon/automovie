@@ -1,4 +1,8 @@
-import { ANKLE_DORSIFLEXION, minimumJerk } from "@automovie/engine";
+import {
+  ANKLE_DORSIFLEXION,
+  DEFAULT_HUMANOID_ROM,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -141,13 +145,19 @@ export namespace AutoMovieMotionHumanFootRelax {
     // is taken off again from where it leaves the ankle, a fixed number of
     // times (`PASSES`).
     const limit: number = dorsal - walkLeg.ANKLE;
-    const roll: number = HumanFoot.roll(placement.rotation);
+    const asked: number = HumanFoot.roll(placement.rotation);
     let foot: IAutoMovieMotionHumanFoot.IPlacement = placement;
     let pitch: number = direction.pitch;
+    let roll: number = asked;
     for (let pass: number = 0; pass < PASSES; pass++) {
       const excess: number = lean(hip, foot.ankle) + pitch - limit;
-      if (!(excess > 1e-6)) break;
-      pitch -= excess;
+      // A shank leaning sideways past the ankle's roll rolls the foot onto
+      // the forefoot's edge about the same pivot, as a foot rolls onto the
+      // ball's edge; within the range the foot keeps the roll asked.
+      const over: number = sideways(hip, foot.ankle, direction.heading, asked);
+      if (!(excess > 1e-6) && !(Math.abs(over) > 1e-6)) break;
+      if (excess > 1e-6) pitch -= excess;
+      roll = asked + over;
       foot = HumanFoot.pivot(
         body,
         side,
@@ -161,4 +171,46 @@ export namespace AutoMovieMotionHumanFootRelax {
     }
     return foot;
   }
+
+  /**
+   * How far a foot must roll past the roll asked of it so the ankle stays
+   * within its range: the shank's lean across the foot from the vertical,
+   * the hip over the ankle, less the ankle's own roll range
+   * (`DEFAULT_HUMANOID_ROM`'s foot abduction), signed as `HumanFoot.roll`.
+   *
+   * @param hip The hip joint, world metres.
+   * @param ankle The ankle joint, world metres.
+   * @param heading The foot's heading, degrees.
+   * @param asked The roll the placement asks, degrees.
+   * @returns Degrees to add to the roll; zero within the range.
+   */
+  function sideways(
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    heading: number,
+    asked: number,
+  ): number {
+    const yaw: number = (heading * Math.PI) / 180;
+    // The foot's lateral axis on the floor (`HumanFoot.heading` reads its
+    // heading off that axis: +X at rest).
+    const across: number =
+      (hip.x - ankle.x) * Math.cos(yaw) - (hip.z - ankle.z) * Math.sin(yaw);
+    const up: number = hip.y - ankle.y;
+    if (!(up > 1e-9)) return 0;
+    // A shank leaning toward +X asks the foot's -X border up: the roll that
+    // lays the sole square to the shank is minus the lean.
+    const square: number = -(Math.atan2(across, up) * 180) / Math.PI;
+    const demand: number = square - asked;
+    return demand > ROLL_MOST
+      ? demand - ROLL_MOST
+      : demand < ROLL_LEAST
+        ? demand - ROLL_LEAST
+        : 0;
+  }
+
+  /** The ankle's least roll, degrees: the foot's abduction range's low end (`DEFAULT_HUMANOID_ROM`). */
+  const ROLL_LEAST: number = DEFAULT_HUMANOID_ROM.leftFoot!.abduction!.min;
+
+  /** The ankle's greatest roll, degrees: the foot's abduction range's high end (`DEFAULT_HUMANOID_ROM`). */
+  const ROLL_MOST: number = DEFAULT_HUMANOID_ROM.leftFoot!.abduction!.max;
 }

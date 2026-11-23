@@ -316,7 +316,31 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           context.performer(hand.partner),
           flight,
           context.start,
-          boarding,
+          // A hand's hold on the partner as the plan's posture writes it:
+          // the boarding, the hand reached to the point, the partner's trunk
+          // and thighs the rests the arm keeps clear of up to the wrist.
+          (
+            t: number,
+            side: IAutoMovieMotionHumanBoard.IHand["side"],
+            point: IAutoMovieVector3,
+          ): IAutoMovieMotionHumanPosture => {
+            const reached: IAutoMovieMotionHumanPosture =
+              HumanUnseatPose.reach(boarding(t), side, point, 1);
+            const other: IAutoMovieMotionHumanPerformerReader =
+              context.performer(hand.partner!);
+            return {
+              ...reached,
+              limbs: {
+                ...reached.limbs,
+                [`${side}Arm`]: {
+                  ...reached.limbs[`${side}Arm`]!,
+                  rests: HumanColliders.preparePlaced(other.body, PARTNER)(
+                    other.bones(context.start + t, PARTNER),
+                  ),
+                },
+              },
+            };
+          },
         );
   const lets: number =
     handover === undefined ? release : Math.min(release, handover.lets);

@@ -312,9 +312,9 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
       // labor in human skilled bimanual action: the kinematic chain as a
       // model", J. Motor Behavior 19:486). Laid over one span, the two
       // reaches and returns crossed in front of the body (the ring hand
-      // 14.8 mm inside the steadying forearm). The ring hand's phrase runs
-      // inside the steadying hand's hold, each reach and return one
-      // `prepare` long.
+      // 14.8 mm inside the steadying forearm). The ring hand reaches once the
+      // steadying hand holds, and the steadying hand lets go once the ring
+      // hand is back.
       const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
         prepare: 2 * prepare,
         attack: AutoMovieMotionHumanTiming.transport(

@@ -1,18 +1,18 @@
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalShape,
-  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
+import { AutoMovieXpbdIntegration } from "./AutoMovieXpbdIntegration";
 import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import { AutoMovieXpbdSnapshot } from "./AutoMovieXpbdSnapshot";
 import { solveXpbdContacts } from "./solveXpbdContacts";
+import { readXpbdManifolds } from "./readXpbdManifolds";
 import { solveXpbdJoints } from "./solveXpbdJoints";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
@@ -210,7 +210,7 @@ export class AutoMovieXpbdWorld {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the phases in order, the single passes, the pair exclusions and what the step keeps.
    * @evidence contracts/development/implementation.md#principled-implementation The substep of Mueller et al. 2020, Algorithm 2: predict, solve positions, derive velocities, solve velocities; the inverse inertia is held fixed over the substep's corrections.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Orders the phases; integration and derivation are local helpers, contacts belong to solveXpbdContacts and joints and motors to solveXpbdJoints.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Orders the phases; integration and derivation belong to AutoMovieXpbdIntegration, contacts to solveXpbdContacts and joints and motors to solveXpbdJoints.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every coefficient is a world setting; no body, pair or scene has its own rule.
    * @evidence contracts/development/implementation.md#efficient-algorithms For b bodies, j joints, c colliders and k found contacts, integration is O(b), the joined-pair set O(j), detection is solveXpbdContacts.detect's cost over c colliders, and the position and velocity passes are O(j + k).
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The contacts found at the predicted poses serve every position and velocity pass of the substep and the readers after it.
@@ -219,7 +219,7 @@ export class AutoMovieXpbdWorld {
   public step(filter?: solveXpbdContacts.Filter): void {
     const h: number = this.timestep;
     for (const body of this.bodies) {
-      this.integrate(body, h);
+      AutoMovieXpbdIntegration.predict(body, this.gravity, h);
       if (body.dynamic) body.freezeInverseInertia();
     }
     const joined: Set<string> = new Set(
@@ -244,7 +244,7 @@ export class AutoMovieXpbdWorld {
       this.allowedError,
       this.contactFrequency,
     );
-    for (const body of dynamic) derive(body, h);
+    for (const body of dynamic) AutoMovieXpbdIntegration.derive(body, h);
     solveXpbdContacts.velocities(this.found, h, Vector3.length(this.gravity));
     solveXpbdJoints.motors(
       this.joints,
@@ -257,66 +257,21 @@ export class AutoMovieXpbdWorld {
   }
 
   /**
-   * The last step's touching pairs that responded, one manifold each:
-   * non-sensor pairs with their normal from the first collider toward the
-   * second and every patch point's world witness midpoint, its separation
-   * where the step found it and the normal impulse the step transferred
-   * there: the position passes' multiplier over the substep, `lambda / h`,
-   * plus the velocity passes' impulse, which together are the momentum the
-   * contact gave each body.
+   * The last step's touching pairs that responded, one manifold each, as
+   * `readXpbdManifolds` reads them.
    *
    * @returns Fresh manifolds, in pair order; their colliders are the world's.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States which pairs are reported, the normal's direction, each point's position, separation and impulse with units, and the order.
-   * @evidence contracts/development/implementation.md#principled-implementation Each point's impulse is the momentum the step's position and velocity passes transferred, so a reader sees the step's real load; the witness midpoint is the two bodies' contact points at their current poses.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass that opens a manifold whenever the pair index changes; detection and solving stay with solveXpbdContacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sensor pairs are left to intersections, which the compliant contacts read; no pair has its own rule.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is returned and its reader.
+   * @evidence contracts/development/implementation.md#principled-implementation The retained contacts and the substep are all the manifolds need.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to readXpbdManifolds.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the step's contacts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built on demand from the retained contacts; a caller reading twice gets equal fresh records.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built on demand from the retained contacts.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records; retains nothing.
    */
   public manifolds(): AutoMovieXpbdWorld.IManifold[] {
-    const result: AutoMovieXpbdWorld.IManifold[] = [];
-    for (const contact of this.found) {
-      if (contact.a.sensor || contact.b.sensor) continue;
-      let manifold: AutoMovieXpbdWorld.IManifold | undefined =
-        result[result.length - 1];
-      if (manifold === undefined || manifold.pair !== contact.pair) {
-        manifold = {
-          pair: contact.pair,
-          a: contact.a,
-          b: contact.b,
-          normal: { ...contact.normal },
-          friction: contact.friction,
-          points: [],
-        };
-        result.push(manifold);
-      }
-      manifold.points.push({
-        point: Vector3.scale(
-          Vector3.add(
-            Vector3.add(
-              contact.a.body.center,
-              Quaternion.rotateVector(
-                contact.a.body.orientation,
-                contact.localA,
-              ),
-            ),
-            Vector3.add(
-              contact.b.body.center,
-              Quaternion.rotateVector(
-                contact.b.body.orientation,
-                contact.localB,
-              ),
-            ),
-          ),
-          0.5,
-        ),
-        separation: contact.detected,
-        impulse: contact.normalLambda / this.timestep + contact.velocityImpulse,
-      });
-    }
-    return result;
+    return readXpbdManifolds(this.found, this.timestep);
   }
 
   /**
@@ -446,57 +401,6 @@ export class AutoMovieXpbdWorld {
   public resume(next: number): void {
     this.counter = next;
   }
-
-  /** Integrate one body's velocities and predict its pose; carry a kinematic body to its set pose. */
-  private integrate(body: AutoMovieXpbdBody, h: number): void {
-    body.previousCenter = { ...body.center };
-    body.previousOrientation = { ...body.orientation };
-    if (!body.dynamic) {
-      if (body.next !== undefined) {
-        body.place(body.next.position, body.next.rotation);
-        body.next = undefined;
-      }
-      derive(body, h);
-      return;
-    }
-    const m: number = body.mass();
-    body.velocity = Vector3.add(
-      body.velocity,
-      Vector3.scale(
-        Vector3.add(
-          Vector3.scale(this.gravity, body.gravityScale),
-          m > 0 ? Vector3.scale(body.force, 1 / m) : { x: 0, y: 0, z: 0 },
-        ),
-        h,
-      ),
-    );
-    const spin: IAutoMovieVector3 = body.angularVelocity;
-    body.angularVelocity = Vector3.add(
-      spin,
-      Vector3.scale(
-        body.inverseInertia(
-          Vector3.subtract(
-            body.torque,
-            Vector3.cross(spin, body.worldInertia(spin)),
-          ),
-        ),
-        h,
-      ),
-    );
-    body.center = Vector3.add(body.center, Vector3.scale(body.velocity, h));
-    const w: IAutoMovieVector3 = Vector3.scale(body.angularVelocity, 0.5 * h);
-    const q: IAutoMovieQuaternion = body.orientation;
-    const dq: IAutoMovieQuaternion = Quaternion.multiply(
-      { x: w.x, y: w.y, z: w.z, w: 0 },
-      q,
-    );
-    body.orientation = Quaternion.normalize({
-      x: q.x + dq.x,
-      y: q.y + dq.y,
-      z: q.z + dq.z,
-      w: q.w + dq.w,
-    });
-  }
 }
 
 /** Companion types of {@link AutoMovieXpbdWorld}. */
@@ -592,22 +496,4 @@ function key(a: AutoMovieXpbdBody, b: AutoMovieXpbdBody): string {
   return a.handle < b.handle
     ? `${a.handle}:${b.handle}`
     : `${b.handle}:${a.handle}`;
-}
-
-/** Re-derive a body's velocities from its pose change over the substep. */
-function derive(body: AutoMovieXpbdBody, h: number): void {
-  body.velocity = Vector3.scale(
-    Vector3.subtract(body.center, body.previousCenter),
-    1 / h,
-  );
-  const dq: IAutoMovieQuaternion = Quaternion.multiply(
-    body.orientation,
-    Quaternion.inverse(body.previousOrientation),
-  );
-  const sign: number = dq.w < 0 ? -1 : 1;
-  body.angularVelocity = {
-    x: (2 * sign * dq.x) / h,
-    y: (2 * sign * dq.y) / h,
-    z: (2 * sign * dq.z) / h,
-  };
 }

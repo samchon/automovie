@@ -79,14 +79,8 @@ export function planBendStrategy(
   // When the sagittal course is obstructed, direct the upper trunk's
   // inclination toward the unilateral contact. The angle is the lateral
   // displacement of the contact over the pelvis-to-shoulder lever.
-  const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-  const armBase: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
-  const local: IAutoMovieVector3 = HumanFrame.local(
-    { origin: upright.root, yaw: upright.yaw },
-    target,
-  );
   const lateralTilt: number = alignTrunk
-    ? (Math.atan2(hips.x - local.x, armBase.y - hips.y) * 180) / Math.PI
+    ? bendLower.lateralTilt(body, upright, target, side)
     : 0;
   const region: IAutoMovieHumanoidSurfaces.IFrame | undefined =
     context.params.target.kind === "self"

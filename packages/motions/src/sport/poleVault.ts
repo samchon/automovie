@@ -53,10 +53,10 @@ import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
  *
  * 1. Take-off: the jump's push-off (`GymnasticsTakeoff`) at the run's speed,
  *    kept, rising at `ANGLE`. Over it the hands carry the pole on from the
- *    run's drop (`plants`, `walkPoleCarriage`) to the plant: the top hand's
- *    grip rises as high above the shoulder as the arm reaches, unless the
- *    pole is too short to reach the floor from there leaning `LEAN` or
- *    more, then lower, and the pole's end slides along the planting line,
+ *    run's drop (`plants`, `walkPoleCarriage`) to the plant: the top arm
+ *    straight, raised until its forearm meets the pole at the grip's own
+ *    neutral angle (`walkPoleFrame.plant`), no higher than lets the pole
+ *    lean `LEAN` from upright, and the pole's end slides along the planting line,
  *    from where the run left it to the planted point on the floor ahead
  *    along the run, at the pole's length from that grip, each hand placed
  *    by its hold (`walkPoleFrame`): the end comes down onto the plant from
@@ -121,6 +121,15 @@ export namespace poleVault {
 
   /** The number of steps the swing's table is integrated in. */
   const STEPS: number = 200;
+
+  /** The centre's height at the take-off, share of the stature: 1.24 m of a 1.855 m vaulter (Frontiers in Sports and Active Living 2022, 10.3389/fspor.2022.835659, men's take-off CM height and upper grip at 121.3 % of stature). */
+  const CENTRE_HIGH: number = 1.24 / 1.855;
+
+  /** How far the centre stands behind the top hand at the take-off, share of the stature: the take-off foot 0.14 m behind the upper hand, the centre over it (the same study). */
+  const CENTRE_BEHIND: number = 0.14 / 1.855;
+
+  /** The halvings the grip's bisection takes: a pole's length to well under a millimetre. */
+  const SPLITS: number = 24;
 
   /**
    * Plan a pole vault.
@@ -209,8 +218,7 @@ export namespace poleVault {
       );
     const off: number = takeoff.seconds;
 
-    // The plant: the hand as high as the arm reaches over the shoulder, or
-    // as high as lets the pole lean `LEAN` to the floor, ahead of it.
+    // The plant's shoulders, on the take-off's trunk.
     const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> =
       new Set<AutoMovieHumanoidBone>(
         pole.hands.map(
@@ -252,11 +260,19 @@ export namespace poleVault {
     })();
     const shoulder: IAutoMovieVector3 = shoulders[side]!;
     const reach: number = body.measure.upperArm + body.measure.forearm;
-    const high: number = Math.min(
-      shoulder.y + reach,
-      length * Math.cos((LEAN * Math.PI) / 180),
+    // The top arm straight at the plant, raised so its forearm meets the
+    // pole at the grip's own neutral angle: a power grip holds the pole
+    // across the palm at that angle with the wrist and the forearm twist
+    // neutral, where an arm straight overhead asked the wrist past its
+    // range (`walkPoleFrame.plant`).
+    const stance: walkPoleFrame.IPlant | undefined = walkPoleFrame.plant(
+      shoulder.y,
+      reach,
+      length,
+      walkPoleFrame.neutral(pole),
+      LEAN,
     );
-    if (high < shoulder.y - reach)
+    if (stance === undefined)
       throw new HumanRefusal({
         kind: "reach",
         axis: "pole",
@@ -264,14 +280,17 @@ export namespace poleVault {
         reason: `the pole reaches ${length.toFixed(2)} m from the hand, too short to stand on the floor from a hand the arm can hold`,
         fix: "vault with a longer pole",
       });
-    // The top hand's grip at the plant, over the shoulder ahead, and the end
-    // on the floor ahead of it along the run.
+    const high: number = stance.high;
+    // The top hand's grip at the plant, along the straight arm ahead, and
+    // the end on the floor ahead of it along the run.
+    const raised: number = (stance.arm * Math.PI) / 180;
     const plantGrip: IAutoMovieVector3 = Vector3.add(
-      { ...shoulder, y: high },
-      Vector3.scale(
-        ahead,
-        Math.sqrt(Math.max(0, reach * reach - (high - shoulder.y) ** 2)),
-      ),
+      shoulder,
+      Vector3.add(Vector3.scale(ahead, reach * Math.cos(raised)), {
+        x: 0,
+        y: reach * Math.sin(raised),
+        z: 0,
+      }),
     );
     const planted: IAutoMovieVector3 = Vector3.add(
       { ...plantGrip, y: 0 },
@@ -611,6 +630,107 @@ export namespace poleVault {
     params: IAutoMovieMotionHumanPoleVault.IParams,
   ): IAutoMovieMotionHumanActionLaw.IPlant {
     return { prop: params.pole, end: params.end ?? "tip", lean: LEAN };
+  }
+
+  /**
+   * The farthest from the planted end the top hand can grip a rigid pole
+   * and still swing it upright from a run at `speed`: a rigid pole stands
+   * only as far as the run's energy carries the body over the planted end,
+   * so a slower run grips lower, as coaches set a beginner's grip from the
+   * approach speed.
+   *
+   * Each grip ℓ is planted as the vault plants (`walkPoleFrame.plant`, the
+   * straight top arm at the body's power-grip angle, `walkPoleFrame.power`), and its swing
+   * judged by the vault's own pendulum: the centre at the take-off 0.668
+   * of the stature high and 0.0755 of it behind the top hand (Frontiers in
+   * Sports and Active Living 2022, 10.3389/fspor.2022.835659: take-off CM
+   * height 1.24 m and the take-off foot 0.14 m behind the upper hand in
+   * men, whose upper grip 2.25 m is 121.3 % of stature, 1.855 m), the run's
+   * speed kept and rising at `ANGLE`, ω₀ = (v_f r_y − v_y r_f) / r², and the
+   * pole upright if ω₀² > (2g / r)(cos β − cos β₀) at its highest β. That
+   * holds for every grip up to one and for none past it, so the grip is
+   * found by bisection on that monotone condition.
+   *
+   * @param body The vaulter's body.
+   * @param side The top hand.
+   * @param speed The run's speed, m/s (`run.speed`).
+   * @param length The pole's whole length, metres: the farthest grip.
+   * @returns The grip's distance from the planted end, metres; the whole length when that already swings upright.
+   * @throws {HumanRefusal} When no grip that plants swings upright at that speed.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the physics, the source of every body figure, the monotone search and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The vault's own plant and pendulum condition on a centre placed by the cited take-off measures; bisection on a condition monotone in the grip.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One condition per grip, one bracket, one bisection.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A run no grip serves is refused with the speed asked; nothing is padded.
+   * @evidence contracts/development/implementation.md#efficient-algorithms `SPLITS` halvings of the pole's length, each a closed form.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function grip(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    speed: number,
+    length: number,
+  ): number {
+    // The body's own power-grip angle, as a grasp of the bar will hold it.
+    const neutral: number = walkPoleFrame.power(body, side);
+    const stature: number = body.measure.stature;
+    const shoulder: number =
+      body.rest.get(side === "left" ? "leftUpperArm" : "rightUpperArm")!.y -
+      body.rest.get(side === "left" ? "leftFoot" : "rightFoot")!.y +
+      body.measure.ankleHeight;
+    const reach: number = body.measure.upperArm + body.measure.forearm;
+    const rise: number = (ANGLE * Math.PI) / 180;
+    const vf: number = speed * Math.cos(rise);
+    const vy: number = speed * Math.sin(rise);
+    const swings = (l: number): boolean => {
+      const at: walkPoleFrame.IPlant | undefined = walkPoleFrame.plant(
+        shoulder,
+        reach,
+        l,
+        neutral,
+        LEAN,
+      );
+      if (at === undefined) return false;
+      // Along the run from the planted end: the grip behind it, the centre
+      // behind the grip.
+      const ahead: number = Math.sqrt(Math.max(0, l * l - at.high * at.high));
+      const rf: number = -ahead - CENTRE_BEHIND * stature;
+      const ry: number = CENTRE_HIGH * stature;
+      const r2: number = rf * rf + ry * ry;
+      const r: number = Math.sqrt(r2);
+      const omega: number = (vf * ry - vy * rf) / r2;
+      const beta: number = Math.atan2(rf, ry);
+      const upright: number = Math.atan2(ahead, at.high);
+      const top: number = beta + upright >= 0 ? 0 : beta + upright;
+      return (
+        omega > 0 &&
+        omega * omega >
+          ((2 * AutoMovieGravity.STANDARD) / r) * (Math.cos(top) - Math.cos(beta))
+      );
+    };
+    if (swings(length)) return length;
+    // The shortest grip that still plants: its end on the floor from the
+    // hand hanging straight down, leaning `LEAN`.
+    let low: number = Math.max(
+      0,
+      (shoulder - reach) / Math.cos((LEAN * Math.PI) / 180),
+    );
+    let high: number = length;
+    if (!swings(low))
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "run",
+        value: speed,
+        reason: `at ${speed.toFixed(2)} m/s no grip on a rigid pole swings it upright`,
+        fix: "run faster into the vault",
+      });
+    for (let k: number = 0; k < SPLITS; k++) {
+      const middle: number = (low + high) / 2;
+      if (swings(middle)) low = middle;
+      else high = middle;
+    }
+    return low;
   }
 }
 

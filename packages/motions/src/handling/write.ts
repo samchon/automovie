@@ -257,7 +257,32 @@ function planWrite(
     context.entry.posture,
     side,
   );
-  const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, contact);
+  // With the other hand steadying a tool of its own, both handles turn out
+  // toward their hands so the two grips stand a hand apart (`writeWith.splay`).
+  const aim: writeWith.IAim | undefined =
+    p.steady === undefined
+      ? undefined
+      : writeWith.steadyAim(context, p.steady, side, origin, facing);
+  const turns: writeWith.ISplay | undefined =
+    aim === undefined
+      ? undefined
+      : writeWith.splay(
+          context.body,
+          facing,
+          {
+            point: first.point,
+            lever: Quaternion.rotateVector(rotation, contact),
+          },
+          {
+            point: aim.target,
+            lever: Quaternion.rotateVector(aim.rotation, aim.contact),
+          },
+        );
+  const holding: IAutoMovieQuaternion =
+    turns === undefined
+      ? rotation
+      : Quaternion.normalize(Quaternion.multiply(turns.stroke, rotation));
+  const lever: IAutoMovieVector3 = Quaternion.rotateVector(holding, contact);
   writeWith.reach(
     context,
     side,
@@ -267,7 +292,15 @@ function planWrite(
   const steadied: writeWith.ISteadied | undefined =
     p.steady === undefined
       ? undefined
-      : writeWith.steady(context, p.steady, side, origin, facing, clock);
+      : writeWith.steady(
+          context,
+          p.steady,
+          side,
+          origin,
+          facing,
+          clock,
+          turns?.steady,
+        );
   const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried({
     body: context.body,
     side,
@@ -294,7 +327,7 @@ function planWrite(
         strokePoint(vertices, last.length * ((seconds - ready) / writing)),
         lever,
       ),
-      rotation,
+      rotation: holding,
       contact,
       bend,
     }),

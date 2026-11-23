@@ -162,10 +162,12 @@ export namespace mountedHorseScene {
     };
     const part = (id: string, at: number): IAutoMovieTransform =>
       graded(ride.frame(id as Parameters<Ride["frame"]>[0], local(at)));
+    // The saddle is the horse's: a sit on it is carried with the horse.
     const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
       ride.at(0).archetype,
       place(0),
       "seat",
+      "horse",
     );
     // The rider's chain to the acts: the acts before, then the sit unless the rider boards the seat itself.
     const mounted = (): Chain => {

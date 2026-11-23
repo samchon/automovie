@@ -69,7 +69,8 @@ const PATTERNS: readonly IAutoMovieMotionHumanCrutchWalk.Pattern[] = [
  * 1. Both crutch tips plant before each swing and stay planted through it.
  * 2. The hands bear on the handgrips through each swing, within 10 mm, and
  *    the underarm pads stay below the axillae.
- * 3. A three-point gait never puts the injured foot on the floor; a
+ * 3. A three-point gait, entered standing on both feet, never puts the
+ *    injured foot on the floor from its first crutch plant on; a
  *    swing-through gait lands the feet past the tips, a swing-to gait level
  *    with them.
  * 4. A swing-to walk that turns about its entry station carries each crutch
@@ -145,12 +146,15 @@ export function test_motion_gait_crutch_walk(): void {
       if (pattern === "threePoint") {
         const injured: AutoMovieHumanSide = params.injured ?? "left";
         const steps: number = 24;
+        // The walker enters standing on both feet; the injured foot is held
+        // off from the first crutch plant, once the hands bear.
+        const held: number = at("crutchPlant1");
         TestValidator.predicate(
-          `${label}: the injured foot never bears`,
+          `${label}: the injured foot never bears once the hands bear`,
           Array.from(
             { length: steps + 1 },
             (_v: unknown, k: number): number =>
-              segment.start + (segment.plan.duration * k) / steps,
+              held + ((segment.end - held) * k) / steps,
           ).every((t: number): boolean =>
             HumanFoot.sockets(body, film.bones("a", t), injured).every(
               (socket: IAutoMovieMotionHumanFoot.ISocket): boolean =>

@@ -239,8 +239,18 @@ export function grappleArms(
     },
   };
   // The plan's goals as the scene places the partner at each second, under
-  // the perception delays `seen` reads them through: the plan already holds
-  // the partner's motion, so no follower corrects toward it.
+  // the perception delays `seen` reads them through. This is the one
+  // exception to planning on the partner as perceived when the reach starts
+  // (`IAutoMovieMotionHumanArmCarry.ICarry.perceived`): a staged grapple is
+  // one rehearsed scene both performers play on one clock
+  // (`HumanCoupled.grappling`), so each knows the other's part before it is
+  // played, as a choreography is known, and a tachiai's charge starts with
+  // the reach itself, so no perception at the reach's start could foresee
+  // it. A reach to a moving target is aimed at where the target will be
+  // (Zago et al. 2009); here that is the scene's own partner. Nothing reads
+  // a performer the scene does not hold for both, and the reaction and
+  // feedback delays still apply. The plan already holds the partner's
+  // motion, so no follower corrects toward it.
   const scene =
     (side: AutoMovieHumanSide) =>
     (

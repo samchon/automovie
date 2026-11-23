@@ -95,18 +95,17 @@ export namespace HumanSupportFrame {
   }
   /**
    * The floor actually touched by the planted entry feet, read from their
-   * displayed sole sockets less the height a flat-standing foot's sockets
-   * stand above its floor. A foot on a footrest of the seat sat on is not
+   * displayed sole sockets. A foot on a footrest of the seat sat on is not
    * on a floor; with no foot on one the ground is the default.
    *
    * @param body The body.
    * @param entry The displayed entry.
    * @returns World metres.
    * @evidence contracts/development/common.md#meaningful-documentation States the measured datum, the footrest case and the absent-contact case.
-   * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics places each planted foot's actual sole sockets, including articulated toes; the lowest socket, less a flat-standing foot's socket height at the body's ankle height, defines its bearing plane.
+   * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics places each planted foot's actual sole sockets, including articulated toes; the lowest socket defines its bearing plane.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose and the minimum of the bearing sockets.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A raised heel's ankle height is never substituted for its contact height.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics, six socket readings and three flat-foot socket points per planted foot at most.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics and six socket readings at most.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses HumanFoot.sockets as the surface datum.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -128,26 +127,12 @@ export namespace HumanSupportFrame {
       body,
       entry.pose,
     );
-    // A foot standing flat on a floor holds its sole sockets the height they
-    // stand above it with the ankle at the body's ankle height, so the plane
-    // lies that far below the lowest socket: read as the floor itself, a
-    // walk on a raised top stood every footfall that height too high.
     return Math.min(
-      ...planted.flatMap((side: "left" | "right"): number[] => {
-        const above: number = Math.min(
-          ...HumanFoot.SOCKETS.map(
-            (socket: IAutoMovieMotionHumanFoot.Socket): number =>
-              HumanFoot.point(body, side, socket, {
-                ankle: { x: 0, y: body.measure.ankleHeight, z: 0 },
-                rotation: HumanFoot.rotation(0, 0),
-              }).y,
-          ),
-        );
-        return HumanFoot.sockets(body, bones, side).map(
-          (socket: IAutoMovieMotionHumanFoot.ISocket): number =>
-            socket.point.y - above,
-        );
-      }),
+      ...planted.flatMap((side: "left" | "right"): number[] =>
+        HumanFoot.sockets(body, bones, side).map(
+          (socket: IAutoMovieMotionHumanFoot.ISocket): number => socket.point.y,
+        ),
+      ),
     );
   }
   /**

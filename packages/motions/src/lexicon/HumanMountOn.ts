@@ -63,7 +63,9 @@ type Frame = HumanMountOnFrame.Frame;
  * body and the foot has arrived: a leg cannot hold a fixed rest under a pelvis
  * that still travels. So between the push-off and the contact the body is off
  * the floor, as in a hop onto a stool or a vault onto a saddle; a climb that
- * stands in a stirrup is not modelled.
+ * stands in a stirrup is not modelled. A seat on a carrier
+ * (`IAutoMovieMotionHumanSeated.ISeat.carrier`) bears, with its rests, on
+ * that carrier, while the floor plants stay on the floor the feet leave.
  *
  * It continues from the entry: a foot the entry holds off the floor, on a
  * rest, hanging or in flight, goes on from where it is, and a body already
@@ -288,9 +290,7 @@ export namespace HumanMountOn {
 
     // A foot bears on its rest once the seat has taken the body and the foot has arrived: before that the pelvis is still on its way, and a leg cannot hold a fixed rest under a pelvis that travels.
     const bears = (side: "left" | "right"): number =>
-      stays[side]
-        ? 0
-        : Math.max(contact, flight[side][1]);
+      stays[side] ? 0 : Math.max(contact, flight[side][1]);
     const bearing: Record<"left" | "right", number> = {
       left: bears("left"),
       right: bears("right"),
@@ -310,13 +310,18 @@ export namespace HumanMountOn {
       onFloor.left ? flight.left[0] : 0,
       onFloor.right ? flight.right[0] : 0,
     );
+    // The seat and its rests bear on the seat's carrier when it has one, and so move with it; the floor the feet leave stays the floor.
+    const carried: IAutoMovieMotionHumanContactWindow.Support | undefined =
+      seat.carrier === undefined
+        ? undefined
+        : { kind: "prop", subject: seat.carrier };
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         part: "seat",
         kind: "seat",
         from: touch / duration,
         to: 1,
-        support: { kind: "ground" },
+        support: carried ?? { kind: "ground" },
       },
     ];
     for (const side of ["left", "right"] as const) {
@@ -335,8 +340,8 @@ export namespace HumanMountOn {
           kind: "plant",
           from: bearing[side] / duration,
           to: 1,
-          // A foot rest bears at its own height, a stirrup's above the floor, under the ball the foot is placed on it by.
-          support: { kind: "ground", height: places[side].height },
+          // A foot rest bears at its own height, a stirrup's above the floor, under the ball the foot is placed on it by, on the carrier it hangs from when there is one.
+          support: carried ?? { kind: "ground", height: places[side].height },
           socket: "ball",
         });
     }
@@ -436,7 +441,10 @@ export namespace HumanMountOn {
                 : goal,
             ),
             places[side].rests && t >= bearing[side]
-              ? 1 - minimumJerk.share((t - bearing[side]) / Math.max(1e-6, climb - bearing[side]))
+              ? 1 -
+                  minimumJerk.share(
+                    (t - bearing[side]) / Math.max(1e-6, climb - bearing[side]),
+                  )
               : 1,
           );
         }

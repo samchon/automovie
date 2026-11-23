@@ -96,9 +96,30 @@ export function supportStep(props: supportStep.IProps): number {
   );
   const interval: number =
     steps === 1 ? props.move / 3 : (2 * props.move) / (3 * (steps + 1));
+  // A stepping foot's course keeps the heading it leaves with (turned out
+  // from the body's), read once from the key it leaves.
+  const headings: Partial<Record<AutoMovieHumanSide, number>> = {};
+  const first: IAutoMovieMotionHumanPosture = keys.at(-1)!.posture;
+  const leaving: (foot: AutoMovieHumanSide) => number = (
+    foot: AutoMovieHumanSide,
+  ): number =>
+    (headings[foot] ??= supportCourse.footHeading(body, first, foot));
+  // A stance that names its shoulders' height holds both shoulder joints
+  // there in the step's lift keys, the body hanging on its hands.
+  const height: number | undefined = props.stance.shoulders;
+  const shoulders: IAutoMovieMotionHumanBodyFitTypes.ITarget[] =
+    height === undefined
+      ? []
+      : (["leftUpperArm", "rightUpperArm"] as const).map(
+          (bone: AutoMovieHumanoidBone): IAutoMovieMotionHumanBodyFitTypes.ITarget => ({
+            bone,
+            goal: { x: 0, y: height, z: 0 },
+            axes: ["y"],
+          }),
+        );
   const route = (stretch: number): void => {
     const legs: supportCourse.ILeg[] = supportCourse.swings(
-      props.yaw,
+      leaving,
       crossings,
       stretch,
       steps,
@@ -238,6 +259,7 @@ export function supportStep(props: supportStep.IProps): number {
         props.miss,
         [
           ...props.heels(kept, oldPlace),
+          ...shoulders,
           ...crossings.flatMap(
             (
               crossing: supportCourse.ICrossing,
@@ -320,9 +342,6 @@ export namespace supportStep {
 
     /** Appends a key. */
     push: (key: supportPlan.IKey) => void;
-
-    /** The heading a course's foot keeps, degrees. */
-    yaw: number;
 
     /** The staged route, if any. */
     course: supportCourse.ICourse | undefined;

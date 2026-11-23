@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanBodyFitTypes,
@@ -9,6 +10,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { prepareSupportFootCourse } from "./prepareSupportFootCourse";
 import { supportContact } from "./supportContact";
 import { supportWindows } from "./supportWindows";
@@ -226,7 +229,7 @@ export namespace supportCourse {
    * stretch 0 runs from the old place to the first waypoint, stretch k from
    * waypoint k to k + 1, and stretch `steps` to the new place.
    *
-   * @param yaw The heading the foot keeps, degrees.
+   * @param yaw The heading each foot keeps, degrees: the one it leaves with.
    * @param crossings The step's moving limbs.
    * @param index The stretch.
    * @param steps The number of waypoints of the longest crossing.
@@ -243,7 +246,7 @@ export namespace supportCourse {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The writers are retained by the plan for its lifetime.
    */
   export function swings(
-    yaw: number,
+    yaw: (foot: AutoMovieHumanSide) => number,
     crossings: readonly ICrossing[],
     index: number,
     steps: number,
@@ -264,7 +267,7 @@ export namespace supportCourse {
           ? to(crossing.contact)
           : waypoints[Math.min(index, waypoints.length - 1)]!;
       if (start === null || end === null) continue;
-      legs.push({ side: side(crossing.contact), yaw, from: start, to: end });
+      legs.push({ side: side(crossing.contact), yaw: yaw(side(crossing.contact)), from: start, to: end });
     }
     return legs;
   }
@@ -341,6 +344,24 @@ export namespace supportCourse {
   ): IBearings | undefined {
     const level: ICourse["level"] = course?.level;
     if (level === undefined) return undefined;
+    // A foot holds one heading on its place for as long as it bears there:
+    // the heading the first key placing it there solved.
+    const held: IHeldHeading[] = [];
+    const headingOf: (
+      key: IKey,
+      contact: IAutoMovieMotionHumanSupport.IContact,
+    ) => number = (
+      key: IKey,
+      contact: IAutoMovieMotionHumanSupport.IContact,
+    ): number => {
+      const known: IHeldHeading | undefined = held.find(
+        (h: IHeldHeading): boolean => supportContact.same(h.contact, contact),
+      );
+      if (known !== undefined) return known.heading;
+      const heading: number = footHeading(body, key.posture, side(contact));
+      held.push({ contact, heading });
+      return heading;
+    };
     const placed: IPlacedBearing[][] = keys.map((key: IKey): IPlacedBearing[] =>
       key.contacts.flatMap(
         (contact: IAutoMovieMotionHumanSupport.IContact): IPlacedBearing[] => {
@@ -350,10 +371,13 @@ export namespace supportCourse {
           return [
             {
               contact,
+              // The foot keeps the heading its key solved it to (turned out
+              // from the body's), so writing it flat does not swing its
+              // ankle about the toes' joint.
               write: prepareSupportFootCourse(
                 body,
                 side(contact),
-                key.posture.yaw,
+                headingOf(key, contact),
                 point,
                 point,
                 true,
@@ -380,6 +404,38 @@ export namespace supportCourse {
             .map((b: IPlacedBearing): Write => b.write),
       ),
     };
+  }
+
+  /**
+   * The heading a posture turns a foot to, degrees: its posed foot's.
+   *
+   * @param body The canonical motion body.
+   * @param posture The posture.
+   * @param foot Which foot.
+   * @returns The foot's heading about the vertical, degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and its unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The posed foot bone's rotation decomposed by HumanFoot.heading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolve, one demanded bone, one heading.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The foot's own heading, not the body's.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Forward kinematics of the foot's chain alone.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per key and foot at plan time.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function footHeading(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    foot: AutoMovieHumanSide,
+  ): number {
+    const bone: AutoMovieHumanoidBone = `${foot}Foot`;
+    return HumanFoot.heading(
+      poseBones(
+        body,
+        resolveHumanPosture(body, posture),
+        undefined,
+        new Set<AutoMovieHumanoidBone>([bone]),
+      ).get(bone)!.worldRotation,
+    );
   }
 
   /**
@@ -412,6 +468,15 @@ export namespace supportCourse {
       posture,
     );
   }
+}
+
+/** A level contact and the heading its foot holds there, degrees. */
+interface IHeldHeading {
+  /** The bearing contact. */
+  contact: IAutoMovieMotionHumanSupport.IContact;
+
+  /** The foot's heading on it, degrees. */
+  heading: number;
 }
 
 /** A level contact and its flat-foot writer. */

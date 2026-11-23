@@ -17,6 +17,7 @@ import { refitHumanPosture } from "../posture/refitHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { courseLimbJudgement } from "./courseLimbJudgement";
+import { courseLimbSwivelKnots } from "./courseLimbSwivelKnots";
 
 /**
  * The swivel-and-branch course of a plan's limb goals, read by a display
@@ -279,48 +280,8 @@ export namespace courseLimbSwivels {
         ),
       };
     };
-    const between = (
-      seconds: number,
-      a: ISwivelKnot,
-      b: ISwivelKnot,
-    ): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> => {
-      const share: number =
-        b.seconds > a.seconds
-          ? Math.min(
-              1,
-              Math.max(0, (seconds - a.seconds) / (b.seconds - a.seconds)),
-            )
-          : 0;
-      const out: Map<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = new Map();
-      for (const [limb, from] of a.seeds) {
-        const to: IAutoMovieSwivelSeed | undefined = b.seeds.get(limb);
-        if (to === undefined || to.branch !== from.branch) {
-          out.set(limb, from);
-          continue;
-        }
-        const turn: number = to.swivel - from.swivel;
-        const unwrapped: number = turn - 360 * Math.round(turn / 360);
-        // The forearm's twist is carried between the knots too, so the
-        // placement between them continues it (`IAutoMovieSwivelSeed.twist`).
-        const twist: number | undefined =
-          from.twist === undefined
-            ? undefined
-            : to.twist === undefined
-              ? from.twist
-              : from.twist + (to.twist - from.twist) * share;
-        out.set(limb, {
-          swivel: from.swivel + unwrapped * share,
-          branch: from.branch,
-          ...(twist === undefined ? {} : { twist }),
-        });
-      }
-      // A limb whose goal begins inside the interval (the plan writes it none
-      // at the earlier knot) takes the later knot's placement, the arm its
-      // goal starts from there.
-      for (const [limb, to] of b.seeds)
-        if (!out.has(limb) && a.held?.has(limb) === false) out.set(limb, to);
-      return out;
-    };
+    const between: typeof courseLimbSwivelKnots.between =
+      courseLimbSwivelKnots.between;
     // A second's assembly (the posture's root, heading and clamped direct
     // joints before any limb fit, `resolveHumanPosture.assemble`), made once
     // and shared by both placements judged there: a placement is the
@@ -507,57 +468,32 @@ export namespace courseLimbSwivels {
   }
 
   /**
-   * The limbs' swivels and branches at one knot.
+   * The limbs' swivels and branches at one knot (`courseLimbSwivelKnots.ISwivelKnot`).
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the members.
-   * @evidence contracts/development/design.md#principled-representation The resolver's own seeds at a second.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read only by `swivels`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose is kept.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the record and its owner file.
+   * @evidence contracts/development/design.md#principled-representation An alias of the one record its owner defines.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the course's public name for the moved record.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second definition: the alias is the owner's type.
    */
-  export interface ISwivelKnot {
-    /** The second, from the plan's start. */
-    seconds: number;
-
-    /** Each fitted limb's seed. */
-    seeds: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>;
-
-    /** The coursed limbs the plan writes a goal for at this second; unknown for the entered knot. */
-    held?: ReadonlySet<AutoMovieHumanLimb>;
-  }
+  export type ISwivelKnot = courseLimbSwivelKnots.ISwivelKnot;
 
   /**
-   * The limbs placed at given swivels at one second, as the course's
-   * judgement reads them.
+   * The limbs placed at given swivels at one second (`courseLimbSwivelKnots.IPlacement`).
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the members.
-   * @evidence contracts/development/design.md#principled-representation The bones where the swivels show and the seeds the resolver reported for the placement.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read only by `swivels`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The resolver's own records; no pose is kept.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the record and its owner file.
+   * @evidence contracts/development/design.md#principled-representation An alias of the one record its owner defines.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the course's public name for the moved record.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second definition: the alias is the owner's type.
    */
-  export interface IPlacement {
-    /** The judged bones: each limb's mid and end joints and the point past its end. */
-    bones: ReturnType<typeof poseBones>;
-
-    /** Each fitted limb's seed as the resolver reported it. */
-    seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"];
-  }
+  export type IPlacement = courseLimbSwivelKnots.IPlacement;
 
   /**
-   * An interval between two swivel knots, split where interpolation leaves the fit.
+   * An interval between two swivel knots (`courseLimbSwivelKnots.ISwivelInterval`).
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the members.
-   * @evidence contracts/development/design.md#principled-representation A binary refinement over knot pairs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read only by `swivels`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The split is decided once from the interval's own ends.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the record and its owner file.
+   * @evidence contracts/development/design.md#principled-representation An alias of the one record its owner defines.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the course's public name for the moved record.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second definition: the alias is the owner's type.
    */
-  export interface ISwivelInterval {
-    /** The knot at its start. */
-    a: ISwivelKnot;
-
-    /** The knot at its end. */
-    b: ISwivelKnot;
-
-    /** Its halves, where it was split; undefined until judged, null for a leaf. */
-    halves?: readonly [ISwivelInterval, ISwivelInterval] | null;
-  }
+  export type ISwivelInterval = courseLimbSwivelKnots.ISwivelInterval;
 }

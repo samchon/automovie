@@ -121,10 +121,14 @@ export namespace balletStep {
           leading === "left" ? "leftUpperLeg" : "rightUpperLeg",
           "flexion",
         ) ?? 0) +
-        (AutoMovieMotionHumanRange.limit(
-          leading === "left" ? "rightUpperLeg" : "leftUpperLeg",
-          "extension",
-        ) ?? 0);
+        // The extension's limit is signed (the range's low end): the split
+        // adds its magnitude.
+        Math.abs(
+          AutoMovieMotionHumanRange.limit(
+            leading === "left" ? "rightUpperLeg" : "leftUpperLeg",
+            "extension",
+          ) ?? 0,
+        );
       const split: number = p.split ?? 150;
       if (!(split > 0 && split <= reach))
         throw new HumanRefusal({

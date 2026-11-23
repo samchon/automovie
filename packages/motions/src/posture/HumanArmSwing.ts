@@ -119,7 +119,14 @@ export namespace HumanArmSwing {
     return cleared(body, posture, sides, source, projection, resolved, undefined, entered);
   }
 
-  /** Each arm's room as it entered an action, by side (`of`'s `entered`). */
+  /**
+   * Each arm's room as it entered an action, by side (`of`'s `entered`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each side's entry holds and who reads it.
+   * @evidence contracts/development/design.md#principled-representation One clearance baseline per side, the same record the clearance owner measures.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A partial map by side; an absent side lies as the quiet stance allows.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No depth is invented: an entry room is a measured baseline or absent.
+   */
   export type Entered = Readonly<
     Partial<Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmClearance.IBaseline>>
   >;

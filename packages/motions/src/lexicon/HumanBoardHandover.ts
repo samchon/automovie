@@ -1,4 +1,4 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -11,8 +11,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
-import { HumanColliders } from "../posture/HumanColliders";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 
@@ -35,33 +33,33 @@ export namespace HumanBoardHandover {
     /** The hand that takes over. */
     side: AutoMovieHumanSide;
 
-    /** The partner's waist it holds: the side of the pelvis on its own side. */
+    /** The partner's waist it holds: the back of it on its own side. */
     region: AutoMovieHumanoidRegion;
 
     /** When it takes its hold, local seconds: the first instant its arm's own fit places it on its hold with the forearm clear, at or before the first hand lets go. */
     takes: number;
 
-    /** When the first hand lets go, local seconds: the first instant its arm would pass through the partner's trunk. */
+    /** When the first hand lets go, local seconds: the last instant its arm's own fit still places it on its hold clear of both trunks. */
     lets: number;
   }
 
   /**
-   * Plan the hand-over of a hold on a partner, or none when the first hand
-   * never comes to pass through the partner's trunk over the flight.
+   * Plan the hand-over of a hold on a partner, or none when the first hand's
+   * arm still places it on its hold, clear, through the whole flight.
    *
    * @param body The boarding body.
    * @param hand The first hold.
    * @param partner The partner held.
    * @param flight The flight's seconds.
    * @param start The boarding's film second.
-   * @param boarding The boarding posture at a local second, without its holding hands.
+   * @param holding The plan's posture at a local second with a hand's goal on a point, as the plan writes a hold on the partner (its rests with it).
    * @returns The hand-over, or none.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the two instants and when none is planned.
-   * @evidence contracts/development/implementation.md#principled-implementation The first hand lets go at the first of the flight's even samples at which its arm, the segment from the boarding posture's shoulder to the wrist a hand's length short of its hold, tapered from the upper arm's radius to the forearm's, reaches inside the partner's displayed trunk colliders (`HumanColliders.distanceToSegment`), and the other hand takes its hold at the first sample before that at which its arm's own fit places it there with the forearm clear (`HumanUnseatPose.placeable`), the still problem the course solves.
+   * @evidence contracts/development/implementation.md#principled-implementation The first hand lets go at the last of the flight's even samples at which the plan's own fit of its hold still places it there (`HumanUnseatPose.placed`), and the other hand takes its hold at the first sample before that at which the plan's fit places it on the waist (`HumanUnseatPose.placeable`): the still problem the course solves, the same goals, rests and clearances.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The letting go, then the taking.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A hand-over the other hand cannot take before the first lets go is none; nothing is stretched.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen samples of the flight, each one shoulder resolve, one hold read and one segment distance to the partner's trunk, then at most seventeen arm fits: the boarding's own sampling of its hold's release.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most sixteen arm fits for the letting go and seventeen for the taking: the boarding's own sampling of its hold's release.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a small record.
    */
@@ -71,70 +69,87 @@ export namespace HumanBoardHandover {
     partner: IAutoMovieMotionHumanPerformerReader,
     flight: number,
     start: number,
-    boarding: (t: number) => IAutoMovieMotionHumanPosture,
+    holding: (
+      t: number,
+      side: AutoMovieHumanSide,
+      point: IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanPosture,
   ): IHandover | undefined {
     // A thigh is held at the waist: the other hand takes the waist on its
-    // own side, as a pillion passenger rides holding the rider's waist, at
-    // the back of it (the kidney's region), the side of the waist away from
-    // the thigh the first hand holds in front, so the two hands' arms keep
-    // apart while both hold.
+    // own side, at the side of the pelvis above the thigh the first hand
+    // holds, as a pillion passenger rides holding the rider's waist. The
+    // back of the waist lies between the two bodies once the passenger sits
+    // close behind, where the plan's own fit cannot lay a hand until after
+    // the first must let go.
     if (hand.bone !== "leftUpperLeg" && hand.bone !== "rightUpperLeg")
       return undefined;
     const side: AutoMovieHumanSide = hand.side === "left" ? "right" : "left";
     const taken: AutoMovieHumanoidRegion =
-      side === "left" ? "kidneyLeft" : "kidneyRight";
+      side === "left" ? "hipLeft" : "hipRight";
 
-    // The first hand lets go as its arm, the line from its shoulder to its
-    // wrist a hand short of its hold, widened by the arm's radii, would pass
-    // through the partner's displayed trunk.
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    // The first hand lets go at the last instant the plan's own fit of its
+    // hold still places it there, its arm clear of the body and resting on
+    // the partner (`HumanUnseatPose.placed`), the still problem the course
+    // solves: past it the arm would pass through the partner.
     let lets: number | undefined;
-    for (let k: number = 0; k <= 16 && lets === undefined; ++k) {
+    for (let k: number = 1; k <= 16 && lets === undefined; ++k) {
       const t: number = (flight * k) / 16;
-      const shoulder: IAutoMovieVector3 = HumanUnseatPose.shoulder(
-        body,
-        boarding(t),
-        hand.side,
-      );
-      const hold: IAutoMovieVector3 = HumanMountedFrame.partnerHold(
+      const point: IAutoMovieVector3 = HumanMountedFrame.partnerHold(
         partner,
         hand.bone,
         start + t,
       );
-      const reach: number = Vector3.distance(shoulder, hold);
-      const wrist: IAutoMovieVector3 =
-        reach <= m.hand
-          ? shoulder
-          : Vector3.addScaled(
-              shoulder,
-              Vector3.subtract(hold, shoulder),
-              (reach - m.hand) / reach,
-            );
       if (
-        HumanColliders.distanceToSegment(
-          partner.body,
-          partner.bones(start + t, HumanArmObstacleBones.TRUNK),
-          shoulder,
-          wrist,
-          [m.upperArmRadius, m.forearmRadius],
-        ).distance < 0
+        !HumanUnseatPose.placed(
+          body,
+          hand.side,
+          holding(t, hand.side, point),
+          point,
+        )
       )
-        lets = t;
+        lets = (flight * (k - 1)) / 16;
     }
     if (lets === undefined) return undefined;
 
     // The other hand takes the rider on its own side before that.
+    const at = (t: number): IAutoMovieVector3 =>
+      waist(partner, taken, start + t);
     const takes: number | undefined = HumanUnseatPose.placeable(
       body,
       side,
       0,
       lets,
-      boarding,
-      (t: number): IAutoMovieVector3 => waist(partner, taken, start + t),
+      (t: number): IAutoMovieMotionHumanPosture => holding(t, side, at(t)),
+      at,
     );
-    return takes === undefined
-      ? undefined
-      : { side, region: taken, takes, lets };
+    if (takes === undefined) return undefined;
+
+    // While both hold, the plan fits both arms at once, each clear of the
+    // other: the first lets go at the last instant from the taking at which
+    // that fit still places both hands, never after it alone would.
+    const first = (t: number): IAutoMovieVector3 =>
+      HumanMountedFrame.partnerHold(partner, hand.bone!, start + t);
+    let shared: number = takes;
+    for (let k: number = Math.ceil((takes * 16) / flight); k <= 16; ++k) {
+      const t: number = (flight * k) / 16;
+      if (t > lets + 1e-9) break;
+      const one: IAutoMovieMotionHumanPosture = holding(t, hand.side, first(t));
+      const other: IAutoMovieMotionHumanPosture = holding(t, side, at(t));
+      const both: IAutoMovieMotionHumanPosture = {
+        ...other,
+        limbs: {
+          ...other.limbs,
+          [`${hand.side}Arm`]: one.limbs[`${hand.side}Arm`]!,
+        },
+      };
+      if (
+        !HumanUnseatPose.placed(body, hand.side, both, first(t)) ||
+        !HumanUnseatPose.placed(body, side, both, at(t))
+      )
+        break;
+      shared = t;
+    }
+    return { side, region: taken, takes, lets: shared };
   }
 
   /**

@@ -15,7 +15,6 @@ import type {
   IAutoMovieMotionHumanCarryHumanPosture,
   IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanLieTogether,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
@@ -24,7 +23,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
@@ -32,16 +31,14 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import { lieTogetherCurl } from "./lieTogetherCurl";
+import { lieTogetherDrape } from "./lieTogetherDrape";
+import { lieTogetherNeck } from "./lieTogetherNeck";
 
 /** How far off the partner's skin the resting region lies, metres (provisional: a skin contact). */
 const REST: number = 0.005;
-
-/** The miss under which the cheek rests on the chest, metres (provisional: a skin contact, as `headRest`'s). */
-const NEAR: number = 0.01;
 
 /** The two bones of a folding arm. */
 type ArmBone = "upper" | "lower";
@@ -64,23 +61,11 @@ const ALIGNED: number = 25;
 /** A posture's limb. */
 type Limb = keyof IAutoMovieMotionHumanPosture["limbs"];
 
-/** The neck's two bones a resting head bends over. */
-type NeckBone = "neck" | "head";
-
-/** The neck's added flexion and side bend, degrees. */
-interface INeck {
-  /** Flexion, degrees. */
-  flexion: number;
-
-  /** Side bend, degrees. */
-  tilt: number;
-}
-
 /**
  * Lie together with a partner (#4012). Both already lie on the support
  * (`lieDown`, `lieOnSurface`, `turnOver`), the performer within its arm's
  * reach (upper arm, forearm and hand) of where it settles; as it settles,
- * the arm on the side it lies on folds up before the face (`FOLD`), or, spooning, under its own head (`PILLOW`). Spooning, the performer lies on the same
+ * the arm on the side it lies on folds up before the face (`FOLD`), or, spooning, under its own head (`PILLOW`), the free arm draped over the partner (`lieTogetherDrape`). Spooning, the performer lies on the same
  * side as the partner, heading within `ALIGNED`, and slides across the
  * support until its chest's sternum region lies `REST` off the partner's
  * upper back; where its hips meet the partner's first, the lumbar spine
@@ -89,7 +74,7 @@ interface INeck {
  * partner on the back; it slides across the support until its lower cheek
  * is over the partner's nearer chest region, then the neck's side bend and
  * flexion lift the cheek onto it, on a coarse grid refined by degrees, a
- * miss over `NEAR` refused. The slide is horizontal, so the body stays on
+ * miss over a skin contact refused (`lieTogetherNeck`). The slide is horizontal, so the body stays on
  * the support; it takes the transport time of its distance on a
  * minimum-jerk share. From the start the settled posture is carried
  * rigidly by the bone under the partner's sternum (`carryHumanPosture`), so the
@@ -151,7 +136,7 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
 
       // The slide and, with the head on the chest, the neck's lift.
       let slide: IAutoMovieVector3;
-      let neck: INeck = { flexion: 0, tilt: 0 };
+      let neck: lieTogetherNeck.INeck = lieTogetherNeck.NONE;
       let own: AutoMovieHumanoidRegion;
       let theirs: AutoMovieHumanoidRegion;
       if (p.way === "spoon") {
@@ -251,7 +236,7 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
           Vector3.scale(chest.normal, REST),
         );
         slide = flat(Vector3.subtract(target, cheek));
-        neck = lift(body, shifted(entry, slide), own, target);
+        neck = lieTogetherNeck.lift(body, shifted(entry, slide), own, target);
       }
       // A body settles from within its arm's reach of where it settles.
       const apart: number =
@@ -329,7 +314,11 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
         };
       };
       const settled: IAutoMovieMotionHumanPosture = folded(
-        necked(lieTogetherCurl.apply(shifted(entry, travel), bent, 1), neck, 1),
+        lieTogetherNeck.apply(
+          lieTogetherCurl.apply(shifted(entry, travel), bent, 1),
+          neck,
+          1,
+        ),
         1,
       );
       const origin: IAutoMovieMotionHumanCarryHumanPosture.IFrame = frame(
@@ -338,11 +327,22 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
       );
       const share = (seconds: number): number =>
         minimumJerk.share(Math.min(1, Math.max(0, seconds / settle)));
+      // Spooning, the free arm drapes over the partner (`lieTogetherDrape`).
+      const drape: lieTogetherDrape.IDrape | undefined =
+        p.way === "spoon"
+          ? lieTogetherDrape.solve(
+              body,
+              settled,
+              lower === "left" ? "right" : "left",
+              partner.body,
+              bones,
+            )
+          : undefined;
       const support: IAutoMovieMotionHumanContactWindow["support"] =
         p.on === undefined
           ? { kind: "ground" }
           : { kind: "prop", subject: p.on.prop };
-      return {
+      const plan: IAutoMovieMotionHumanActionPlan = {
         duration,
         events: [{ name: "settled", share: settle / duration }],
         contacts: [
@@ -358,11 +358,11 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
         ],
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
           const k: number = share(seconds);
-          const posed: IAutoMovieMotionHumanPosture =
+          const lain: IAutoMovieMotionHumanPosture =
             k >= 1
               ? settled
               : folded(
-                  necked(
+                  lieTogetherNeck.apply(
                     lieTogetherCurl.apply(
                       shifted(entry, Vector3.scale(travel, k)),
                       bent,
@@ -373,8 +373,9 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
                   ),
                   k,
                 );
+          // The draping arm's goal throughout, which its course lays.
           return carryHumanPosture(
-            posed,
+            drape === undefined ? lain : lieTogetherDrape.write(lain, drape, k),
             origin,
             frame(
               partner,
@@ -383,6 +384,16 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
           );
         },
       };
+      return drape === undefined
+        ? plan
+        : lieTogetherDrape.course({
+            body,
+            plan,
+            drape,
+            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, drape.side),
+            settle,
+            partner: p.partner,
+          });
     },
   };
 
@@ -418,75 +429,4 @@ function shifted(
             };
   }
   return { ...posture, root: Vector3.add(posture.root, by), limbs };
-}
-
-/** The neck's side bend and flexion at a share, added over the posture's own. */
-function necked(
-  posture: IAutoMovieMotionHumanPosture,
-  n: INeck,
-  k: number,
-): IAutoMovieMotionHumanPosture {
-  const flexion: IAutoMovieMotionHumanJoints.Angles =
-    AutoMovieMotionHumanHead.share(0, n.flexion * k);
-  const bend: IAutoMovieMotionHumanJoints.Angles =
-    AutoMovieMotionHumanHead.share(1, n.tilt * k);
-  const added = (bone: NeckBone): readonly [number, number, number] => {
-    const held: readonly [number, number, number] = posture.joints[bone] ?? [
-      0, 0, 0,
-    ];
-    return [held[0] + flexion[bone]![0], held[1] + bend[bone]![1], held[2]];
-  };
-  return {
-    ...posture,
-    joints: { ...posture.joints, neck: added("neck"), head: added("head") },
-  };
-}
-
-/** The neck's side bend and flexion that bring a head region nearest a point, or the refusal. */
-function lift(
-  body: IAutoMovieMotionHumanBody,
-  posture: IAutoMovieMotionHumanPosture,
-  own: AutoMovieHumanoidRegion,
-  target: IAutoMovieVector3,
-): INeck {
-  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-    prepareHumanPoseResolution();
-  const point: ReturnType<typeof HumanTrunk.preparePoint> =
-    HumanTrunk.preparePoint(body, own);
-  const miss = (n: INeck): number =>
-    Vector3.distance(point(necked(posture, n, 1), resolution), target);
-  let best: INeck = { flexion: 0, tilt: 0 };
-  let least: number = miss(best);
-  const visit = (n: INeck): void => {
-    const m: number = miss(n);
-    if (m < least) {
-      least = m;
-      best = n;
-    }
-  };
-  for (let flexion: number = -30; flexion <= 45; flexion += 5)
-    for (let tilt: number = -40; tilt <= 40; tilt += 4)
-      visit({ flexion, tilt });
-  const coarse: INeck = best;
-  for (
-    let flexion: number = Math.max(-30, coarse.flexion - 4);
-    flexion <= Math.min(45, coarse.flexion + 4);
-    ++flexion
-  )
-    for (
-      let tilt: number = Math.max(-40, coarse.tilt - 3);
-      tilt <= Math.min(40, coarse.tilt + 3);
-      ++tilt
-    )
-      visit({ flexion, tilt });
-  if (least > NEAR)
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: "way",
-      value: "chest",
-      feasible: { kind: "range", minimum: null, maximum: NEAR, unit: "m" },
-      reason: `the ${own} stays ${(least * 1000).toFixed(0)} mm from the partner's chest with the neck flexed ${best.flexion} and bent ${best.tilt} degrees`,
-      fix: "lie nearer the partner's chest, or spoon instead",
-    });
-  return best;
 }

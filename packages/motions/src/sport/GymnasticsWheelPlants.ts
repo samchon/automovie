@@ -1,35 +1,29 @@
-import {
-  Quaternion,
-  Vector3,
-  hingedArmSwivel,
-  minimumJerk,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
-  IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanElbowPole } from "../compose/AutoMovieMotionHumanElbowPole";
+import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHandShape } from "../posture/HumanHandShape";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
-import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsPalmRise } from "./GymnasticsPalmRise";
+import { solveGymnasticsLaidArm } from "./solveGymnasticsLaidArm";
 
 /**
  * The bearing limbs of a wheel (`GymnasticsWheel`): a rigid turn carries the
@@ -113,6 +107,24 @@ export namespace GymnasticsWheelPlants {
 
     /** Its weight, in (0, 1]. */
     weight: number;
+  }
+
+  /** How many keys a lead holds: a window's laid limb is solved at keys this far apart and read between them. */
+  export const KEYS: number = 8;
+
+  /** One window's laid limb solved at one key second, from the carried posture there. */
+  interface IKeyed {
+    /** The carried end joint's place and turn. */
+    end: IAutoMovieResolvedBone;
+
+    /** A foot's laid goal; none for a hand. */
+    goal?: IAutoMovieHumanLimbGoal;
+
+    /** A foot's toes extension; zero for a hand. */
+    toes: number;
+
+    /** A hand's laid arm and fingers: the joints the laid solve changes. */
+    joints: Map<AutoMovieHumanoidBone, readonly [number, number, number]>;
   }
 
   /**
@@ -209,20 +221,50 @@ export namespace GymnasticsWheelPlants {
               },
             ];
           }
+          const heading: number = HumanFoot.heading(down.worldRotation);
           const place: IAutoMovieMotionHumanFoot.IPlacement = {
             ankle: down.worldPosition,
-            rotation: HumanFoot.rotation(
-              HumanFoot.heading(down.worldRotation),
-              0,
-            ),
+            rotation: HumanFoot.rotation(heading, 0),
           };
+          // The foot bears on its ball: it pivots there as the body turns
+          // over it (a round-off's quarter turn) and rolls onto the ball's
+          // edge, its heel lifting, where the shank leans past the ankle's
+          // range (`AutoMovieMotionHumanFootRelax`).
+          const ball: IAutoMovieVector3 = HumanFoot.point(
+            body,
+            side,
+            "ball",
+            place,
+          );
+          const yaw: number = carried(from).yaw;
           return [
             {
               ...window,
               goal: (
                 posture: IAutoMovieMotionHumanPosture,
               ): IAutoMovieHumanLimbGoal =>
-                AutoMovieMotionHumanLeg.goal(body, posture, side, place, true),
+                AutoMovieMotionHumanLeg.goal(
+                  body,
+                  posture,
+                  side,
+                  AutoMovieMotionHumanFootRelax.of(
+                    body,
+                    posture,
+                    side,
+                    HumanFoot.pivot(
+                      body,
+                      side,
+                      "ball",
+                      ball,
+                      heading + (posture.yaw - yaw),
+                      0,
+                    ),
+                    1,
+                    true,
+                    true,
+                  ),
+                  true,
+                ),
             },
           ];
         },
@@ -244,25 +286,29 @@ export namespace GymnasticsWheelPlants {
       if (seconds > l.to) return 1 - minimumJerk.share((seconds - l.to) / lead);
       return 1;
     };
-    return (
-      posture: IAutoMovieMotionHumanPosture,
-      seconds: number,
-    ): IAutoMovieMotionHumanPosture => {
-      // Each limb follows its heaviest window: two windows of one limb meet
-      // only where one eases out as the other eases in.
-      const heaviest: Map<AutoMovieHumanoidBone, IWeighted> = new Map();
-      for (const l of laid) {
-        const w: number = weight(l, seconds);
-        if (!(w > 0)) continue;
-        const kept: IWeighted | undefined = heaviest.get(l.bone);
-        if (kept === undefined || w > kept.weight)
-          heaviest.set(l.bone, { laid: l, weight: w });
+    // Each window's laid limb is solved at keys `lead / KEYS` apart over the
+    // span it is written in, each key once, on its first read, from the
+    // carried posture there, and read between keys: a fit is planned once
+    // per key and read many times, never run by a read.
+    const step: number = lead / KEYS;
+    const start = (l: ILaid): number =>
+      l.opens ? l.from : Math.max(0, l.from - lead);
+    const last = (l: ILaid): number =>
+      l.closes ? l.to : Math.min(duration, l.to + lead);
+    const keys: Map<ILaid, Map<number, IKeyed>> = new Map();
+    const keyAt = (l: ILaid, i: number): IKeyed => {
+      let kept: Map<number, IKeyed> | undefined = keys.get(l);
+      if (kept === undefined) keys.set(l, (kept = new Map()));
+      let found: IKeyed | undefined = kept.get(i);
+      if (found === undefined) {
+        found = solve(l, Math.min(last(l), start(l) + i * step));
+        kept.set(i, found);
       }
-      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-      const joints: IAutoMovieMotionHumanPosture["joints"] = {
-        ...posture.joints,
-      };
-      for (const { laid: l, weight: w } of heaviest.values()) {
+      return found;
+    };
+    const solve = (l: ILaid, at: number): IKeyed => {
+      const posture: IAutoMovieMotionHumanPosture = carried(at);
+      {
         const key: AutoMovieHumanLimb = l.hand
           ? l.side === "left"
             ? "leftArm"
@@ -333,106 +379,120 @@ export namespace GymnasticsWheelPlants {
             )
           : { goal: { ...l.goal(posture), bend }, joints: {} };
         // A laid foot stays the leg's goal, held by the planted leg's own fit
-        // (its contact re-aim and heel rocker), eased from the carried foot
-        // over the lead.
+        // (its contact re-aim and heel rocker). A heel raised about the ball
+        // pitches the toes down with the foot; they extend at their joint by
+        // as much, so they stay on the floor (`HumanFoot.heelOff`).
+        if (!l.hand)
+          return {
+            end: carriedEnd,
+            goal: risen.goal,
+            toes:
+              risen.goal.rotation === undefined
+                ? 0
+                : Math.max(0, -HumanFoot.pitch(risen.goal.rotation)),
+            joints: new Map(),
+          };
+        return {
+          end: carriedEnd,
+          toes: 0,
+          joints: solveGymnasticsLaidArm(body, posture, shown, key, risen.goal, {
+            ...flat[l.side],
+            ...risen.joints,
+          }),
+        };
+      }
+    };
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture => {
+      // Each limb follows its heaviest window: two windows of one limb meet
+      // only where one eases out as the other eases in.
+      const heaviest: Map<AutoMovieHumanoidBone, IWeighted> = new Map();
+      for (const l of laid) {
+        const w: number = weight(l, seconds);
+        if (!(w > 0)) continue;
+        const kept: IWeighted | undefined = heaviest.get(l.bone);
+        if (kept === undefined || w > kept.weight)
+          heaviest.set(l.bone, { laid: l, weight: w });
+      }
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {
+        ...posture.joints,
+      };
+      for (const { laid: l, weight: w } of heaviest.values()) {
+        // The two keys around the second and the share between them.
+        const x: number = Math.max(0, (seconds - start(l)) / step);
+        const i: number = Math.floor(x);
+        const u: number = x - i;
+        const a: IKeyed = keyAt(l, i);
+        const b: IKeyed = u > 1e-12 ? keyAt(l, i + 1) : a;
         if (!l.hand) {
-          limbs[key] =
-            w >= 1
-              ? risen.goal
+          // A laid foot eased from the carried foot over the lead.
+          const goal: IAutoMovieHumanLimbGoal = {
+            ...a.goal!,
+            point: Vector3.lerp(a.goal!.point, b.goal!.point, u),
+            ...(a.goal!.rotation === undefined ||
+            b.goal!.rotation === undefined
+              ? {}
               : {
-                  ...risen.goal,
-                  point: Vector3.lerp(
-                    carriedEnd.worldPosition,
-                    risen.goal.point,
-                    w,
+                  rotation: Quaternion.slerp(
+                    a.goal!.rotation,
+                    b.goal!.rotation,
+                    u,
                   ),
-                  ...(risen.goal.rotation === undefined
+                }),
+          };
+          const end: IAutoMovieVector3 = Vector3.lerp(
+            a.end.worldPosition,
+            b.end.worldPosition,
+            u,
+          );
+          limbs[l.side === "left" ? "leftLeg" : "rightLeg"] =
+            w >= 1
+              ? goal
+              : {
+                  ...goal,
+                  point: Vector3.lerp(end, goal.point, w),
+                  ...(goal.rotation === undefined
                     ? {}
                     : {
                         rotation: Quaternion.slerp(
-                          carriedEnd.worldRotation,
-                          risen.goal.rotation,
+                          Quaternion.slerp(
+                            a.end.worldRotation,
+                            b.end.worldRotation,
+                            u,
+                          ),
+                          goal.rotation,
                           w,
                         ),
                       }),
                 };
+          const toes: number = (a.toes + (b.toes - a.toes) * u) * w;
+          if (toes > 0) joints[`${l.side}Toes`] = [toes, 0, 0];
           continue;
         }
-        const digits: IAutoMovieMotionHumanPosture["joints"] = {
-          ...flat[l.side],
-          ...risen.joints,
-        };
-        // The laid limb solved at the carried limb's own swivel and branch
-        // (`HumanLimbFit.seed` of the shown pose, prescribed), so the solve
-        // keeps the elbow's or the knee's side and the forearm's turn the
-        // carried limb has and follows it continuously as the body turns.
-        const seed: IAutoMovieSwivelSeed | null = HumanLimbFit.seed(
-          body,
-          shown,
-          key,
-        );
-        const solved: IAutoMoviePose = resolveHumanPosture.seeded(
-          body,
-          {
-            ...posture,
-            joints: { ...posture.joints, ...digits },
-            limbs: { [key]: risen.goal },
-          },
-          undefined,
-          seed === null
-            ? {}
-            : {
-                [key]: {
-                  ...seed,
-                  tolerance: hingedArmSwivel.RESOLUTION,
-                  prescribed: true,
-                },
-              },
-        ).pose;
-        // The limb is written as joints, the solve's at full weight and, at
-        // the ends, each joint on its rotation from the shown angle toward
-        // the solve's: the law owns the laid limb, so no later fit of the
-        // goal chooses another turn of it.
-        const before: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> =
-          angles(shown);
-        for (const [bone, at] of angles(solved)) {
-          const was: IAutoMovieJointPose | undefined = before.get(bone);
-          const to: readonly [number, number, number] = [
-            at.flexion ?? 0,
-            at.abduction ?? 0,
-            at.twist ?? 0,
-          ];
-          const from: readonly [number, number, number] = [
-            was?.flexion ?? 0,
-            was?.abduction ?? 0,
-            was?.twist ?? 0,
-          ];
-          if (
-            Math.abs(to[0] - from[0]) +
-              Math.abs(to[1] - from[1]) +
-              Math.abs(to[2] - from[2]) <=
-            1e-9
-          )
-            continue;
-          joints[bone] = w >= 1 ? to : blendHumanJoint(body, bone, from, to, w);
+        // A laid arm is written as joints: the keyed solve's, each joint on
+        // its rotation between the two keys, and at the ends from the
+        // carried angle toward it, so no later fit of a goal chooses another
+        // turn of the arm.
+        for (const bone of new Set([...a.joints.keys(), ...b.joints.keys()])) {
+          const carriedAngle: readonly [number, number, number] =
+            posture.joints[bone] ?? [0, 0, 0];
+          const to: readonly [number, number, number] = blendHumanJoint(
+            body,
+            bone,
+            a.joints.get(bone) ?? carriedAngle,
+            b.joints.get(bone) ?? carriedAngle,
+            u,
+          );
+          joints[bone] =
+            w >= 1 ? to : blendHumanJoint(body, bone, carriedAngle, to, w);
         }
-        delete limbs[key];
+        delete limbs[l.side === "left" ? "leftArm" : "rightArm"];
       }
       return { ...posture, joints, limbs };
     };
   }
 }
 
-/** A pose's joints by bone. */
-function angles(
-  pose: IAutoMoviePose,
-): Map<AutoMovieHumanoidBone, IAutoMovieJointPose> {
-  return new Map(
-    pose.joints.map(
-      (j: IAutoMovieJointPose): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [
-        j.bone,
-        j,
-      ],
-    ),
-  );
-}

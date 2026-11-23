@@ -156,6 +156,22 @@ export namespace supportPlan {
       keys,
     );
 
+    // An arm hangs through an interval where neither of its keys lays its
+    // hand on anything, though the hand may take a hold later (a wall run's
+    // hands before the catch).
+    const free: AutoMovieHumanSide[][] = intervals.map(
+      (_: ReturnType<typeof prepareSupportInterval>, index: number): AutoMovieHumanSide[] =>
+        (["left", "right"] as const).filter((side: AutoMovieHumanSide): boolean =>
+          [keys[index]!, keys[Math.min(index + 1, keys.length - 1)]!].every(
+            (key: IKey): boolean =>
+              !key.contacts.some(
+                (contact: IAutoMovieMotionHumanSupport.IContact): boolean =>
+                  contact.part === `${side}Hand`,
+              ),
+          ),
+        ),
+    );
+
     /** Carry a support interval, its hanging arms let out of the legs and trunk the keys move under them (`HumanArmClearance.swung`). */
     const transfer = (
       index: number,
@@ -171,12 +187,13 @@ export namespace supportPlan {
         resolution,
         projection,
       );
-      return hanging.length === 0
+      const sides: AutoMovieHumanSide[] = free[index] ?? hanging;
+      return sides.length === 0
         ? carried
         : HumanArmClearance.swung(
             body,
             carried,
-            hanging,
+            sides,
             resolution,
             projection,
           );

@@ -341,7 +341,6 @@ export namespace support {
             index: i,
             keys,
             push,
-            yaw: entry.yaw,
             course,
             routes,
             moved,

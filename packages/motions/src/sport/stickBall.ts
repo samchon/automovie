@@ -50,8 +50,9 @@ const REST: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  * stick frame, from its displayed starting pose through the working cue
  * to a follow-through. A hand that does not already hold the stick first
  * reaches its grip from the entry arm, timed as a reach-to-grasp, while the
- * stick waits; its grip opens there. Both hands leave the stick held, so
- * the actions that follow carry it. The ball remains the same named prop.
+ * stick waits; its grip opens there. The follow-through turns the stick
+ * about the top hand's grip. Both hands leave the stick held, so the
+ * actions that follow carry it. The ball remains the same named prop.
  *
  * The field push uses the FIH playing face and the ice push reads the puck's
  * radial dimension as well as the blade. The lacrosse scoop seats the
@@ -304,6 +305,21 @@ export namespace stickBall {
       AutoMovieMotionClock.prepare(clock, "gripped", "stroke");
     const follow: ReturnType<typeof AutoMovieMotionClock.prepare> =
       AutoMovieMotionClock.prepare(clock, "stroke", "strokeEnd");
+    // The follow-through turns the stick about the top hand's grip, the
+    // lever a shot is played with (the bottom hand pushes, the top hand
+    // holds the pivot: Lomond, Turcotte and Pearsall 2007, Sports Biomech
+    // 6:225), so the working point runs on along the travel while the top
+    // hand stays where the stroke left it. Translated whole instead, the
+    // stick would carry the top hand across the body, through the other arm.
+    const pivot: IAutoMovieVector3 = world(impact, gripOf(rear));
+    const outward: IAutoMovieVector3 = Vector3.subtract(
+      world(impact, workingPoint),
+      pivot,
+    );
+    const along: IAutoMovieVector3 = Vector3.normalize(travel);
+    const hinge: IAutoMovieVector3 = Vector3.cross(outward, along);
+    const lever: number = Vector3.length(outward);
+    const levered: boolean = Vector3.length(hinge) > 1e-6 * lever && lever > 0;
     /** The shared rigid frame sampled by both hands. */
     const tool = (
       posture: IAutoMovieMotionHumanPosture,
@@ -319,15 +335,36 @@ export namespace stickBall {
             approach.progress(at),
           ),
         };
+      const carried: IAutoMovieVector3 = Vector3.scale(
+        Vector3.subtract(posture.root, cue.root),
+        follow.progress(at),
+      );
+      const moved: IAutoMovieVector3 = Vector3.subtract(
+        followPath(follow.linear(at)),
+        impact.position,
+      );
+      if (!levered)
+        return {
+          position: Vector3.add(Vector3.add(impact.position, moved), carried),
+          rotation: impact.rotation,
+        };
+      // The working point's advance along the travel is an arc of the lever.
+      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        Vector3.normalize(hinge),
+        (Vector3.dot(moved, along) / lever) * (180 / Math.PI),
+      );
       return {
         position: Vector3.add(
-          followPath(follow.linear(at)),
-          Vector3.scale(
-            Vector3.subtract(posture.root, cue.root),
-            follow.progress(at),
+          Vector3.add(
+            pivot,
+            Quaternion.rotateVector(
+              turn,
+              Vector3.subtract(impact.position, pivot),
+            ),
           ),
+          carried,
         ),
-        rotation: impact.rotation,
+        rotation: Quaternion.multiply(turn, impact.rotation),
       };
     };
 

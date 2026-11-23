@@ -23,8 +23,17 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { HumanHand } from "../posture/HumanHand";
 import { pickUp } from "./pickUp";
+
+/**
+ * A hand's breadth across the knuckles as a share of its length: 0.45,
+ * the adult ratio of hand breadth to hand length, men and women alike
+ * (https://pmc.ncbi.nlm.nih.gov/articles/PMC9225906/, the ratio the
+ * dining specs' `everydayTake.BREADTH` reads).
+ */
+const HAND_BREADTH: number = 0.45;
 
 /**
  * The parts a held tool's work shares between `write` and `workHeld`: a
@@ -134,26 +143,15 @@ export namespace writeWith {
     origin: IAutoMovieVector3,
     facing: IAutoMovieQuaternion,
     clock: IAutoMovieMotionClock,
+    turn: IAutoMovieQuaternion = Quaternion.identity(),
   ): writeWith.ISteadied {
     const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
-      context,
-      other,
-      steady.tool,
-    );
-    const frame: IAutoMovieRigidTransform = context
-      .prop(steady.tool)
-      .frame(context.entry.seconds);
+    const aim: writeWith.IAim = steadyAim(context, steady, side, origin, facing);
+    const held: IAutoMovieMotionHumanHeld.IHeld = aim.held;
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
-        frame.rotation,
-        Quaternion.inverse(held.frame.rotation),
-      ),
+      Quaternion.multiply(turn, aim.rotation),
     );
-    const contact: IAutoMovieVector3 = Vector3.add(
-      HumanHand.offset(context.body, other, "grip").point,
-      AutoMovieMotionHumanHeld.point(held, steady.tip).point,
-    );
+    const contact: IAutoMovieVector3 = aim.contact;
     const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, contact);
     // The steadying tip presses over the radius it declares; none, a point.
     const radius: number =
@@ -161,14 +159,7 @@ export namespace writeWith {
         (affordance: IAutoMovieAffordance): boolean =>
           affordance.id === steady.tip,
       )?.radius ?? 0;
-    const target: IAutoMovieVector3 = Vector3.add(
-      origin,
-      Quaternion.rotateVector(facing, {
-        x: steady.at[0],
-        y: 0,
-        z: steady.at[1],
-      }),
-    );
+    const target: IAutoMovieVector3 = aim.target;
     reach(context, other, [target], lever);
     const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
       context.body,
@@ -208,6 +199,198 @@ export namespace writeWith {
       contact: AutoMovieMotionHumanHeld.grip(held),
       hold: kept,
     };
+  }
+
+  /**
+   * The steadying tool's aim: the tool as the other hand holds it, its
+   * attitude at the entry, its working point from the wrist and the
+   * surface point it presses.
+   *
+   * @param context The action's context.
+   * @param steady The steadying tool and its point.
+   * @param side The stroking hand; the other one steadies.
+   * @param origin The surface's origin, world metres.
+   * @param facing The surface's attitude, world.
+   * @returns The aim.
+   * @throws {HumanRefusal} When the other hand does not hold the tool or the tool has no such point.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the aim holds.
+   * @evidence contracts/development/implementation.md#principled-implementation The held lever `write` aims by, read once per plan.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the held tool, its attitude, its lever and its target.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The held owner refuses a hand that does not hold the tool.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by `steady` and `write`'s splay.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records.
+   */
+  export function steadyAim(
+    context: IAutoMovieMotionHumanActionContext<object>,
+    steady: IAutoMovieMotionHumanHeldWork.ISteady,
+    side: AutoMovieHumanSide,
+    origin: IAutoMovieVector3,
+    facing: IAutoMovieQuaternion,
+  ): writeWith.IAim {
+    const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+      context,
+      other,
+      steady.tool,
+    );
+    const frame: IAutoMovieRigidTransform = context
+      .prop(steady.tool)
+      .frame(context.entry.seconds);
+    return {
+      held,
+      rotation: Quaternion.normalize(
+        Quaternion.multiply(
+          frame.rotation,
+          Quaternion.inverse(held.frame.rotation),
+        ),
+      ),
+      contact: Vector3.add(
+        HumanHand.offset(context.body, other, "grip").point,
+        AutoMovieMotionHumanHeld.point(held, steady.tip).point,
+      ),
+      target: Vector3.add(
+        origin,
+        Quaternion.rotateVector(facing, {
+          x: steady.at[0],
+          y: 0,
+          z: steady.at[1],
+        }),
+      ),
+    };
+  }
+
+  /**
+   * The turns about the surface's normal that set two held tools' grips a
+   * hand apart: the stroking tool's and the steadying one's, each through
+   * its working point, its handle swung toward its own hand's side.
+   *
+   * Two tools taken up as they lay (a knife and a fork side by side) point
+   * the same way, so with their working points a short way apart on the
+   * food the two hands holding them meet. Held as diners hold them, each
+   * handle leaves the plate toward its own hand. The grips are the working
+   * points less the levers, so turning each lever about the normal through
+   * its point moves its grip on a circle; the least equal turn of both that
+   * puts the grips' centres a hand's breadth (`HAND_BREADTH` of the hand's
+   * length) and the arm planner's clearance (`HumanArmTrajectoryTerms.DEPTH`
+   * for each hand) apart is found by bisection on that separation, which
+   * grows with the turn up to a right angle. Grips already that far apart
+   * are left as held.
+   *
+   * @param body The body.
+   * @param facing The surface's attitude, world.
+   * @param stroke The stroking tool's working point and lever, world metres.
+   * @param steady The steadying tool's working point and lever, world metres.
+   * @returns The stroking tool's turn and the steadying tool's, world.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the premise, the rule, the bound and when nothing turns.
+   * @evidence contracts/development/implementation.md#principled-implementation A grip is its working point less its lever, so a turn of the lever about the normal through the point moves the grip on a circle of the lever's flat length; the separation is monotone in an equal outward turn on [0, 90] degrees, so bisection finds its least sufficient turn.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Flatten, choose each outward sense, bisect one angle.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bound is the hand's own breadth and the planner's own clearance; a separation the right angle cannot reach turns to the right angle.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of bisection steps, once per plan.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No equivalent owner exists.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns two fresh turns.
+   */
+  export function splay(
+    body: IAutoMovieMotionHumanActionContext<object>["body"],
+    facing: IAutoMovieQuaternion,
+    stroke: writeWith.ILever,
+    steady: writeWith.ILever,
+  ): writeWith.ISplay {
+    const up: IAutoMovieVector3 = Quaternion.rotateVector(facing, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
+    const flat = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+      Vector3.subtract(v, Vector3.scale(up, Vector3.dot(v, up)));
+    const need: number =
+      HAND_BREADTH * body.measure.hand + 2 * HumanArmTrajectoryTerms.DEPTH;
+    const grip = (l: writeWith.ILever, q: IAutoMovieQuaternion): IAutoMovieVector3 =>
+      Vector3.subtract(l.point, Quaternion.rotateVector(q, l.lever));
+    const apart = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number =>
+      Vector3.length(flat(Vector3.subtract(grip(stroke, a), grip(steady, b))));
+    const none: IAutoMovieQuaternion = Quaternion.identity();
+    if (apart(none, none) >= need) return { stroke: none, steady: none };
+    // Each grip swings toward its own side of the other's: the sense whose
+    // first motion of the grip, -(up x lever), points away from the other.
+    const away: IAutoMovieVector3 = flat(
+      Vector3.subtract(grip(stroke, none), grip(steady, none)),
+    );
+    const sense = (l: writeWith.ILever, outward: IAutoMovieVector3): number =>
+      Vector3.dot(Vector3.scale(Vector3.cross(up, l.lever), -1), outward) >= 0
+        ? 1
+        : -1;
+    const s: number = sense(stroke, away);
+    const f: number = sense(steady, Vector3.scale(away, -1));
+    const turns = (degrees: number): writeWith.ISplay => ({
+      stroke: Quaternion.fromAxisAngle(up, s * degrees),
+      steady: Quaternion.fromAxisAngle(up, f * degrees),
+    });
+    let lo: number = 0;
+    let hi: number = 90;
+    for (let i: number = 0; i < 24; ++i) {
+      const mid: number = (lo + hi) / 2;
+      const t: writeWith.ISplay = turns(mid);
+      if (apart(t.stroke, t.steady) >= need) hi = mid;
+      else lo = mid;
+    }
+    return turns(hi);
+  }
+
+  /**
+   * A held tool's working point and its lever from the wrist.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
+   * @evidence contracts/development/design.md#principled-representation World metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What the splay reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ILever {
+    /** The working point's target, world metres. */
+    point: IAutoMovieVector3;
+
+    /** The working point from the wrist, world-turned, metres. */
+    lever: IAutoMovieVector3;
+  }
+
+  /**
+   * The two tools' turns about the surface's normal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names both turns.
+   * @evidence contracts/development/design.md#principled-representation World rotations applied before each held attitude.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What `write` and `steady` read.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ISplay {
+    /** The stroking tool's turn. */
+    stroke: IAutoMovieQuaternion;
+
+    /** The steadying tool's turn. */
+    steady: IAutoMovieQuaternion;
+  }
+
+  /**
+   * The steadying tool's aim.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and frame.
+   * @evidence contracts/development/design.md#principled-representation The held record, a world rotation, a wrist-frame contact and a world point.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What `steady` and `write` read.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IAim {
+    /** The held tool. */
+    held: IAutoMovieMotionHumanHeld.IHeld;
+
+    /** The hand's world rotation holding it as at the entry. */
+    rotation: IAutoMovieQuaternion;
+
+    /** The working point from the wrist, in the hand's frame, metres. */
+    contact: IAutoMovieVector3;
+
+    /** The surface point it presses, world metres. */
+    target: IAutoMovieVector3;
   }
 
   /**

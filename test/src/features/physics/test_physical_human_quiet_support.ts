@@ -8,6 +8,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
   IAutoMovieRigidTransform,
@@ -34,7 +35,7 @@ const WINDOW: number = 0.15;
 /** How far the measured floor load may stand from the body's weight, as a share of it. */
 const LOAD: number = 0.02;
 
-/** How far a foot's measured share of the load may stand from its lever share. */
+/** How far the shifted stance's lever share must stand from an even split for the stance to count as a weight transfer. */
 const SHARE: number = 0.03;
 
 /** How far the mass center may move in the late window, metres. */
@@ -51,14 +52,19 @@ const SHIFT: number = 0.02;
  * 1. The average and the tall man stand quietly from the fitted Stand: no
  *    recovery step, the floor carries the body's weight, and the mass
  *    center holds still.
- * 2. Each foot carries the share of the weight the lever rule gives it
- *    from the mass center's place between the two feet.
+ * 2. Each foot carries a share of the weight that moment balance allows.
+ *    A foot bears its load anywhere across its support, so two feet are
+ *    statically indeterminate: moment balance about the line between them
+ *    fixes the left share only within the band the mass center's place
+ *    gives with each foot's load at either end of its footprint, the same
+ *    band the four-support primitive is held to.
  * 3. After a planted 20 mm weight shift, the load follows the shifted mass
- *    center: the foot it moved toward carries the larger, lever share.
+ *    center: the foot it moved toward carries the larger share, as the
+ *    lever share about the contact centroids does.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three stances and what each must show.
  * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalSimulation.compute` on the public Stand and weight shift handed over through `fitHumanPhysicalStandingPose`, and reads the solver's floor receipts, cache frames and recovery record.
- * @evidence contracts/development/testing.md#independent-expectations The weight is the profile's mass times the declared gravity; each foot's share follows from moment balance about the line between the feet's contact centroids, computed from the cache's own segment masses and frames.
+ * @evidence contracts/development/testing.md#independent-expectations The weight is the profile's mass times the declared gravity; the band follows from moment balance with the mass center computed from the cache's own segment masses and frames and each footprint from the feet's own colliders on the floor; a centre of pressure is not read from the receipts' single manifold points.
  * @evidence contracts/development/testing.md#distinguishing-cases Two body sizes, a symmetric and a shifted stance, and a share check that tells a balanced split from one foot bearing the body.
  * @evidence contracts/development/testing.md#execution-ownership Builds the performances in memory and runs three short native simulations with no viewer or file host.
  */
@@ -103,7 +109,7 @@ export async function test_physical_human_quiet_support(): Promise<void> {
         hold: 0.6,
       }).node,
   });
-  const shares: { left: number; lever: number } | undefined = await stance(
+  const shares: IShares | undefined = await stance(
     body,
     shifted,
     shifted.segments("a")[1]!.start + 1.1,
@@ -130,7 +136,7 @@ async function stance(
   seconds: number,
   label: string,
   failures: string[],
-): Promise<{ left: number; lever: number } | undefined> {
+): Promise<IShares | undefined> {
   const profile: IAutoMovieMotionHumanBody["profile"] = body.profile;
   const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
     performance.bones("a", seconds);
@@ -184,52 +190,107 @@ async function stance(
         : bone.startsWith("right")
           ? "right"
           : undefined,
-    (poses, side: PhysicalSupportLoads.Side): IAutoMovieVector3 => {
-      // A foot's contact centroid: its hull vertices on the floor.
-      const points: IAutoMovieVector3[] = profile.segments
-        .filter(
-          (segment: IAutoMoviePhysicalSegment): boolean =>
-            segment.bone === `${side}Foot` || segment.bone === `${side}Toes`,
-        )
-        .flatMap((segment: IAutoMoviePhysicalSegment): IAutoMovieVector3[] =>
-          segment.shapes.flatMap((shape): IAutoMovieVector3[] =>
-            shape.kind === "hull"
-              ? shape.points
-                  .map(
-                    (point: IAutoMovieVector3): IAutoMovieVector3 =>
-                      physicalSupportPoint(
-                        poses[segment.bone]!,
-                        physicalSupportPoint(shape.transform, point),
-                      ),
-                  )
-                  .filter(
-                    (point: IAutoMovieVector3): boolean => point.y < 0.001,
-                  )
-              : [],
-          ),
-        );
-      return Vector3.scale(
-        points.reduce(
-          (
-            sum: IAutoMovieVector3,
-            point: IAutoMovieVector3,
-          ): IAutoMovieVector3 => Vector3.add(sum, point),
-          { x: 0, y: 0, z: 0 },
-        ),
-        1 / points.length,
-      );
-    },
+    // A foot's contact centroid: the mean of its footprint.
+    (poses, side: PhysicalSupportLoads.Side): IAutoMovieVector3 =>
+      mean(footprint(profile, poses, side)),
   );
   if (Math.abs(read.total - weight) > weight * LOAD)
     failures.push(`${label}: floor load ${read.total} N against ${weight} N`);
   if (read.drift > DRIFT)
     failures.push(`${label}: mass center drifted ${read.drift} m`);
 
-  // Moment balance about the line between the feet: each foot carries the
-  // share of the weight the mass center's place between them gives it.
-  if (Math.abs(read.left - read.lever) > SHARE)
+  // Moment balance about the line between the feet, with each foot bearing
+  // its load anywhere across its own support: the left share is (c - r) /
+  // (l - r) for some centre of pressure l on the left footprint and r on the
+  // right, so it lies in the band those footprints' ends give.
+  const last: Readonly<Record<string, IAutoMovieRigidTransform>> =
+    run.cache.frames.at(-1)!.bodies[subject.id]!;
+  const left: IAutoMovieVector3[] = footprint(profile, last, "left");
+  const right: IAutoMovieVector3[] = footprint(profile, last, "right");
+  const origin: IAutoMovieVector3 = mean(right);
+  const across: IAutoMovieVector3 = Vector3.subtract(mean(left), origin);
+  across.y = 0;
+  const along = (point: IAutoMovieVector3): number =>
+    Vector3.dot(Vector3.subtract(point, origin), across) /
+    Vector3.dot(across, across);
+  const center: number = along(PhysicalSupportLoads.center(profile, last));
+  const ends = (points: IAutoMovieVector3[]): number[] => [
+    Math.min(...points.map(along)),
+    Math.max(...points.map(along)),
+  ];
+  const shares: number[] = ends(left).flatMap((l: number): number[] =>
+    ends(right).map((r: number): number => (center - r) / (l - r)),
+  );
+  const band: [number, number] = [Math.min(...shares), Math.max(...shares)];
+  if (!(read.left >= band[0] && read.left <= band[1]))
     failures.push(
-      `${label}: left foot carries ${read.left} of the load, its lever share is ${read.lever}`,
+      `${label}: left foot carries ${read.left} of the load, outside its moment-balance band ${JSON.stringify(band)}`,
     );
-  return { left: read.left, lever: read.lever };
+  return { left: read.left, lever: read.lever, band };
+}
+
+/** A stance's measured left share, its lever share about the feet's contact centroids, and the band moment balance allows it. */
+interface IShares {
+  /** The left foot's measured share of the floor load. */
+  left: number;
+  /** The left share with each foot's load at its contact centroid. */
+  lever: number;
+  /** The least and greatest left share moment balance allows with each foot's load anywhere on its footprint. */
+  band: [number, number];
+}
+
+/** A foot's contact footprint: the vertices of its and its toes' colliders within the floor's touching depth. */
+function footprint(
+  profile: IAutoMovieMotionHumanBody["profile"],
+  poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
+  side: PhysicalSupportLoads.Side,
+): IAutoMovieVector3[] {
+  return profile.segments
+    .filter(
+      (segment: IAutoMoviePhysicalSegment): boolean =>
+        segment.bone === `${side}Foot` || segment.bone === `${side}Toes`,
+    )
+    .flatMap((segment: IAutoMoviePhysicalSegment): IAutoMovieVector3[] =>
+      [...segment.shapes, ...(segment.contactShapes ?? [])].flatMap(
+        (shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] =>
+          vertices(shape).map(
+            (point: IAutoMovieVector3): IAutoMovieVector3 =>
+              physicalSupportPoint(
+                poses[segment.bone]!,
+                physicalSupportPoint(shape.transform, point),
+              ),
+          ),
+      ),
+    )
+    .filter((point: IAutoMovieVector3): boolean => point.y < 0.001);
+}
+
+/** A polytope collider's vertices in its own frame: a hull's points or a box's corners. */
+function vertices(shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] {
+  if (shape.kind === "hull") return shape.points;
+  if (shape.kind !== "box") return [];
+  const half: IAutoMovieVector3 = shape.halfExtents;
+  return [-1, 1].flatMap((x: number): IAutoMovieVector3[] =>
+    [-1, 1].flatMap((y: number): IAutoMovieVector3[] =>
+      [-1, 1].map(
+        (z: number): IAutoMovieVector3 => ({
+          x: x * half.x,
+          y: y * half.y,
+          z: z * half.z,
+        }),
+      ),
+    ),
+  );
+}
+
+/** The mean of points. */
+function mean(points: readonly IAutoMovieVector3[]): IAutoMovieVector3 {
+  return Vector3.scale(
+    points.reduce(
+      (sum: IAutoMovieVector3, point: IAutoMovieVector3): IAutoMovieVector3 =>
+        Vector3.add(sum, point),
+      { x: 0, y: 0, z: 0 },
+    ),
+    1 / points.length,
+  );
 }

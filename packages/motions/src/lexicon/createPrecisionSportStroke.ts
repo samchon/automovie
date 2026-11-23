@@ -22,7 +22,6 @@ import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanAr
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -32,7 +31,6 @@ import { PrecisionStrokeForms } from "./PrecisionStrokeForms";
 import { PrecisionStrokeKeys } from "./PrecisionStrokeKeys";
 import { addressPrecisionStroke } from "./addressPrecisionStroke";
 import { coursePrecisionStroke } from "./coursePrecisionStroke";
-import { holdPrecisionSwing } from "./holdPrecisionSwing";
 import { precisionStrokeTool } from "./precisionStrokeTool";
 
 /** The shared authorship contract. Cue strokes also name a supporting surface. */
@@ -134,11 +132,6 @@ export function createPrecisionSportStroke<P extends Stroke>(
         precisionStrokeTool(body, side, form, held, context.entry.pose);
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
       const sign: number = side === "right" ? 1 : -1;
-      const axis: IAutoMovieVector3 = PrecisionStrokeForms.axis(
-        form,
-        side,
-        direction,
-      );
       // A swinging miss passes one ball's diameter under the ball.
       const contact: IAutoMovieVector3 = Vector3.subtract(
         ball.centre,
@@ -147,78 +140,22 @@ export function createPrecisionSportStroke<P extends Stroke>(
           Vector3.scale(up, params.miss === true ? 2 * ball.radius : 0),
         ),
       );
-      const arc: IAutoMovieVector3 = Vector3.cross(axis, direction);
-      const radius: number = tool.length + body.measure.forearm * 0.25;
-      const pivot: IAutoMovieVector3 = Vector3.subtract(
-        contact,
-        Vector3.scale(axis, radius),
-      );
-      const path = (
-        progress: number,
-      ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
-        if (form.sweep === 0)
-          return StrikingHeld.hand(
-            tool,
-            0,
-            Vector3.add(
-              contact,
-              Vector3.scale(
-                direction,
-                (progress - 1) * form.draw * body.measure.forearm,
-              ),
-            ),
-            axis,
-            cue ? up : direction,
-          );
-        const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-          arc,
-          (progress - 1) * form.sweep,
-        );
-        const along: IAutoMovieVector3 = Quaternion.rotateVector(
-          rotation,
-          axis,
-        );
-        const edge: IAutoMovieVector3 = Quaternion.rotateVector(
-          rotation,
-          direction,
-        );
-        return StrikingHeld.hand(
-          tool,
-          0,
-          Vector3.add(pivot, Vector3.scale(along, radius)),
-          along,
-          edge,
-        );
-      };
-
-      // The backswing and the follow-through sweep the whole arm in front of
-      // the trunk and within reach: the swing goes back and on only while the
-      // arm's line from its shoulder to the hand stays ahead of the trunk's front
-      // (the shoulder lies on the root's frontal plane, so the line's middle
-      // is half the chest's depth ahead when the hand is a whole depth ahead)
-      // and the hand within the arm's reach of the striking shoulder as it
-      // stood, and holds where the arm would pass into the trunk or out of
-      // reach.
-      const forward: IAutoMovieVector3 = HumanFrame.point(
-        { origin: { x: 0, y: 0, z: 0 }, yaw: context.entry.posture.yaw },
-        { x: 0, y: 0, z: 1 },
-      );
-      const shoulder: IAutoMovieVector3 = entryBones.get(
-        `${side}UpperArm`,
-      )!.worldPosition;
-      const front = (progress: number): number =>
-        Math.min(
-          Vector3.dot(
-            Vector3.subtract(path(progress).point, context.entry.posture.root),
-            forward,
-          ) - body.measure.chestDepth,
-          PrecisionStrokeForms.reach(body) -
-            Vector3.length(Vector3.subtract(path(progress).point, shoulder)),
-        );
+      // The swing as the address judged it (`PrecisionStrokeForms.swing`):
+      // the backswing and the follow-through held in front of the trunk and
+      // within reach, linear rows as much as swinging ones.
       const swept: (
         progress: number,
       ) => IAutoMovieMotionHumanStrikingHeld.IHandFrame =
-        form.sweep === 0 ? path : holdPrecisionSwing(path, front);
+        PrecisionStrokeForms.swing({
+          body,
+          form,
+          side,
+          tool,
+          contact,
+          direction,
+          entry: context.entry.posture,
+          shoulder: entryBones.get(`${side}UpperArm`)!.worldPosition,
+        });
 
       const plan: IAutoMovieMotionHumanActionPlan = StrikingBlade.plan(
         context,
@@ -267,7 +204,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
           context.entry.posture,
           context.entry.feet,
           side,
-          path(1).point,
+          swept(1).point,
           bridge,
           bridge === undefined ? 0 : BRIDGE_INCLINE,
           bridge === undefined ? Infinity : 0,

@@ -75,15 +75,22 @@ const END_JOINT = constraint(range(-20, 90), null, null);
  * 19 subjects. The rig reads the thumb on the hand's basis
  * (`HUMANOID_JOINT_AXES`, "as an approximation"), so its flexion, about the
  * axis across the hand, moves the thumb out of the palm's plane toward the
- * palm: anatomical palmar abduction, the 42-degree arc, from the rest's
- * adducted thumb in the palm's plane (0) to 42. Its abduction, about the
+ * palm: anatomical palmar abduction, the 42-degree arc, from the rest (0) to
+ * 42. The rig's rest thumb does not lie in the palm's plane: its neutral
+ * stops where its skin clears the hand's (`AutoMovieHumanNeutralThumbCmc`),
+ * which leaves its tip about 20 degrees palmar of the knuckles' plane, so a
+ * palm laid flat on a floor would sink the thumb. The joint's retroposition,
+ * the thumb carried back behind the palm's plane (25 to 38 degrees,
+ * 31 ± 4, in 100 asymptomatic adults: Barakat, Field and Taylor 2013, Hand
+ * 8(2):179-182), is admitted to -25, the low end of that normal range,
+ * which brings the thumb into the palm's plane and some way past it. Its abduction, about the
  * palm's normal, swings the thumb within the palm's plane: anatomical
  * flexion-extension, the 53-degree arc, split evenly about the rest
  * (provisional: the rest's place in Cooney's arc is not stated). The axial
  * rotation's 17 degrees are split evenly likewise (provisional).
  */
 const THUMB_BASE: IAutoMovieJointConstraint = {
-  flexion: range(0, 42),
+  flexion: range(-25, 42),
   abduction: range(-26.5, 26.5),
   twist: range(-8.5, 8.5),
   swingTwist: { twist: range(-8.5, 8.5) },

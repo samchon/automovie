@@ -347,6 +347,11 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
     // instant the first step's foot leaves its place: a support step lifts at
     // a third of its move (`supportStep`), the move being half a step.
     const lifted: number = climb.ready;
+    // Each crutch's staged frame, which its flight carries from.
+    const tips: readonly IAutoMovieRigidTransform[] = [params.left, params.right].map(
+      (subject: string): IAutoMovieRigidTransform =>
+        context.prop(subject).frame(context.start),
+    );
     const hold: ReturnType<typeof crutchHeldLeg> = crutchHeldLeg({
       body,
       side: injured,
@@ -356,6 +361,17 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
       knee: HELD.knee,
       read: (seconds: number): IAutoMovieMotionHumanPosture =>
         plan.posture(seconds),
+      // The held foot hangs over the lower of the treads the sound foot and
+      // the crutch tips stand on: going down, the crutches lead it there.
+      floor: (seconds: number): number =>
+        Math.min(
+          ground +
+            climb.sign * climb.riser * crutchStairsFlight.arrived(climb, seconds),
+          ...tips.map(
+            (start: IAutoMovieRigidTransform): number =>
+              crutchStairsFlight.frameAt(climb, start, seconds).position.y,
+          ),
+        ),
     });
     const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
       seconds,

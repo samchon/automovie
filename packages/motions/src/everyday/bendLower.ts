@@ -13,6 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import { createHumanBody } from "../body/createHumanBody";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -21,6 +22,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { hipJoints } from "../posture/hipJoints";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
@@ -430,6 +432,101 @@ export namespace bendLower {
       else hi = mid;
     }
     return hi;
+  }
+
+  /**
+   * How deep a solved key folds the trunk into the thighs, metres beyond the
+   * rest pose as the tangle audit reads it: the trunk's segments above the
+   * pelvis against the thighs, on the key at its full depth. A lowering whose
+   * key is also its display (the pick-up's) refuses a fold past the audit's
+   * skin and lowers into a squat instead, the knees and hips lowering the
+   * trunk rather than the lumbar spine folding it on (Kingma et al. 2010,
+   * J Biomech 43:1440).
+   *
+   * @param body The body.
+   * @param upright The standing posture lowered.
+   * @param lateral The frontal inclination the key takes, degrees.
+   * @param solved The solved lowering.
+   * @returns Metres, 0 when the trunk clears the thighs.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read, on which pose and its unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The key lowered as `lower` lowers it, resolved once, read by the audit's own pose reader for the trunk-thigh pairs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key, one resolve, one pose reading.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The audit's model and references are the measure; no depth is authored.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Read once per solved key at plan time, never per instant.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `lower` and `AutoMovieMotionHumanAuditTangle.pose`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function fold(
+    body: IAutoMovieMotionHumanBody,
+    upright: IAutoMovieMotionHumanPosture,
+    lateral: number,
+    solved: IAutoMovieMotionHumanBendLower.ISolved,
+  ): number {
+    if (!(solved.pitch > 0)) return 0;
+    const key: IAutoMovieMotionHumanPosture = lower(
+      body,
+      upright,
+      solved.strategy,
+      solved.pitch,
+      1,
+      solved.lean * Math.sin((solved.pitch * Math.PI) / 180),
+      undefined,
+      lateral,
+    );
+    let deepest: number = 0;
+    for (const pair of AutoMovieMotionHumanAuditTangle.pose(
+      body,
+      poseBones(body, resolveHumanPosture(body, key)),
+    ))
+      if (
+        (TRUNK.has(pair.a) && THIGHS.has(pair.b)) ||
+        (TRUNK.has(pair.b) && THIGHS.has(pair.a))
+      )
+        deepest = Math.max(deepest, pair.depth);
+    return deepest;
+  }
+
+  /** The trunk's segments a lowering folds onto the thighs: those above the pelvis, which shares the hip joints with the thighs and so overlaps them by its build. */
+  const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>(["spine", "chest", "upperChest"]);
+
+  /** The thighs a lowering folds the trunk onto. */
+  const THIGHS: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>(["leftUpperLeg", "rightUpperLeg"]);
+
+  /**
+   * The frontal inclination that directs the upper trunk toward a target
+   * beside the body: the target's lateral displacement from the hips over the
+   * pelvis-to-shoulder lever, as the lowering's `lateral` takes it.
+   *
+   * @param body The body.
+   * @param upright The standing posture the target is read from.
+   * @param target The target, world metres.
+   * @param side The reaching hand.
+   * @returns Degrees, toward the target's side.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the angle, its lever and its unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The arc tangent of the target's lateral offset from the rest hips over the rest height of the shoulder above them, in the standing frame.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame transform and one arc tangent.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lever is the body's own rest geometry; no angle is authored.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The bend law's alignment and the pick-up's side lean share it.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function lateralTilt(
+    body: IAutoMovieMotionHumanBody,
+    upright: IAutoMovieMotionHumanPosture,
+    target: IAutoMovieVector3,
+    side: AutoMovieHumanSide,
+  ): number {
+    const hips: IAutoMovieVector3 = body.rest.get("hips")!;
+    const shoulder: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
+    const local: IAutoMovieVector3 = HumanFrame.local(
+      { origin: upright.root, yaw: upright.yaw },
+      target,
+    );
+    return (Math.atan2(hips.x - local.x, shoulder.y - hips.y) * 180) / Math.PI;
   }
 
   /** The share of the arm (upper arm and forearm) a lowered or leaned body brings the shoulder within of its target, so the arm reaches near, not at, full extension: where people reaching as they like stop reaching with the arm alone and lean the trunk in, the preferred critical boundary, 0.89 of full-arm extension, the centre of the measured 0.83 to 0.95 (Petrovic 2012, Miami University dissertation, Experiment 1, Table 1 and Fig. 3, 10 seated adults: 0.92, 0.88 and 0.83 holding 300, 650 and 1000 g, SD 0.06 to 0.07; Mark et al. 1997, J Exp Psychol Hum Percept Perform 23:1365, and Stasik and Mark 2005: 0.95, as Petrovic reports them). The studies reach seated; no standing measure was found. `pitch` reads it, and a pick up's lift closes on it too. */

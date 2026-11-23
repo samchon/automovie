@@ -187,7 +187,8 @@ export namespace equineFordRider {
       prop: HumanObject.prop("horse", at(0).archetype, place(0), place, part),
       place,
       part,
-      seat: HumanObject.seat(at(0).archetype, place(0)),
+      // The saddle is the horse's, so a sit that is still settling as the horse sets off is carried with it.
+      seat: HumanObject.seat(at(0).archetype, place(0), undefined, "horse"),
       floor,
       halt: WAIT + duration,
     };

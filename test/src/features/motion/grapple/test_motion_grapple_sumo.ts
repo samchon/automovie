@@ -35,9 +35,15 @@ interface IBout {
   finish: "out" | "thrown";
 }
 
-/** The three sumo bouts. */
+/**
+ * The three sumo bouts. The push's hands meet the sides of the chest: an
+ * oshi push is the hazu grip, the thumb and index spread in a V that pushes
+ * up under the armpit (hazu-oshi, the sport's glossary), not two palms
+ * beside the sternum, whose chest regions lie a palm's breadth apart (74 mm
+ * on the small body) so that the two hands meet.
+ */
 const BOUTS: readonly IBout[] = [
-  { kind: "oshiDashi", grip: ["chestRight", "chestLeft"], finish: "out" },
+  { kind: "oshiDashi", grip: ["ribsRight", "ribsLeft"], finish: "out" },
   { kind: "yoriKiri", grip: ["hipRight", "hipLeft"], finish: "out" },
   { kind: "uwateNage", grip: ["hipRight", "hipLeft"], finish: "thrown" },
 ];
@@ -60,7 +66,7 @@ const SHIKO: number = 0.4;
 /**
  * Sumo on two bodies: the shiko foot rises above its authored height and
  * stamps down flat; at each bout's tachiai the initiator's hands meet the
- * receiver's chest or belt, and the bout ends with the receiver's foot
+ * sides of the receiver's chest or the belt, and the bout ends with the receiver's foot
  * outside the ring or the receiver thrown onto the clay. Every take passes
  * the shipped verdicts.
  *

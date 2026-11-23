@@ -25,6 +25,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFoot } from "../posture/HumanFoot";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -159,7 +160,7 @@ export namespace lieDown {
    * @evidence contracts/development/implementation.md#principled-implementation Follows the existing position's ordered joint-space route, keeps the mean of the feet's bearing sole sockets in place through a standing entry's first phase and the pelvis's horizontal place after it, and rests each actual changing body on its exact collider bounds, then applies the existing folded-leg/side-hand goals when required.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed route keys and joint pairs feed one time-only posture reader; canonical floor and folded-seat owners retain their separate geometric responsibilities.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored routes, phase durations, clinical interpolation, floor minimum, folded targets and endpoint hold remain unchanged; no samples, contact tolerance or joint/goal admission is relaxed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(KJ) preparation removes per-query route joint unions and fixed progress-name lookup; native clock guards retain custom-callback behavior. First actual floor/fold demand prepares native collider selection or folded-seat target/name metadata once. Every changing query retains actual bounds/fold solve and synchronous FK/ROM; the fully arrived hold performs no new observations. A standing entry's first phase adds one demanded feet FK per query, and the first phase's two ends are read once each.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(KJ) preparation removes per-query route joint unions and fixed progress-name lookup; native clock guards retain custom-callback behavior. First actual floor/fold demand prepares native collider selection or folded-seat target/name metadata once. Every changing query retains actual bounds/fold solve and synchronous FK/ROM; the fully arrived hold performs no new observations. A standing entry's first phase adds one demanded feet FK per query, and the first phase's two ends are read once each. Each blend's arm-room scan (`floorArmRoom`) runs once when placement is final, through the prepared-playback setup hook, not on the first displayed second of the blend.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed route pairs and unchanged body/profile/sitting metadata prepare once. The primitive reads no earlier channel and lends one synchronous parent FK/ROM source through actual floor/folded-seat observations; only the original fully arrived posture is held, with no current map or query history.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns finite route/clock/joint readers, at most one body-fixed floor reader, one folded-seat reader and one arrived posture until release. Current FK/ROM and actual maps/placements end on return or throw and never enter those readers, the endpoint or the plan.
    */
@@ -593,9 +594,25 @@ export namespace lieDown {
       });
     // Down on the floor the body lies; a lie that stops sitting up is seated
     // (#3363: a base transition declares the base it ends in).
-    return {
+    const lain: IAutoMovieMotionHumanActionPlan = {
       ...planned,
       base: sitting ? { kind: "seated" } : { kind: "lying" },
     };
+    // Each key-to-key blend's arm room (`floorArmRoom`) is read once when
+    // placement is final, at one interior second of the blend, so the first
+    // displayed second of a blend reads a kept scan instead of making it.
+    // The playback has no phase of its own: only its setup is used.
+    HumanPreparedPlayback.attach(lain, body, {
+      mode: "posture",
+      phases: [],
+      prepare: (): void => {
+        for (let i: number = 0; i < route.length; i++) {
+          const from: number = clock.at(phases[i]!.name);
+          const to: number = clock.at(phases[i + 1]!.name);
+          if (to > from) at((from + to) / 2);
+        }
+      },
+    });
+    return lain;
   }
 }

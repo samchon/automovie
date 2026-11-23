@@ -17,6 +17,7 @@ import { assertPhysicalFiniteMotion } from "./assertPhysicalFiniteMotion";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { physicalSupportPoint } from "./physicalSupportPoint";
+import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { stabilizePhysicalJointReturn } from "./stabilizePhysicalJointReturn";
 
 /**
@@ -279,8 +280,32 @@ export function advancePhysicalOwnership(input: {
         Vector3.scale(transition.angularVelocity, velocity),
       );
       const offset: IAutoMovieRigidTransform["rotation"] = Rotation.exp(vector);
-      const rotation: IAutoMovieRigidTransform["rotation"] =
+      // The Hermite blend runs in rotation-vector space and carries the
+      // entry's angular velocity, so between two in-box ends it may leave
+      // the joint's limit box; the return is projected back onto the box,
+      // the same projection that post-stabilizes its entry (Cline and Pai
+      // 2003), since the joint's limits bind the body the whole time.
+      const blended: IAutoMovieRigidTransform["rotation"] =
         Quaternion.multiply(offset, goal.pose.rotation);
+      const rotation: IAutoMovieRigidTransform["rotation"] =
+        joint === undefined
+          ? blended
+          : Quaternion.multiply(
+              Quaternion.multiply(
+                joint.parentFrame.rotation,
+                projectPhysicalJointRotation(
+                  joint,
+                  Quaternion.multiply(
+                    Quaternion.multiply(
+                      Quaternion.inverse(joint.parentFrame.rotation),
+                      blended,
+                    ),
+                    joint.childFrame.rotation,
+                  ),
+                ),
+              ),
+              Quaternion.inverse(joint.childFrame.rotation),
+            );
       const first: number =
         (6 * fraction ** 2 - 6 * fraction) / transition.duration;
       const second: number = 3 * fraction ** 2 - 4 * fraction + 1;

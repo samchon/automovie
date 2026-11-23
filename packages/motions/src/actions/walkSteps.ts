@@ -279,8 +279,8 @@ export namespace walkSteps {
     const turnStep: number = (walkReach.TWIST - stand.TOE_OUT) * (input.gait?.turn ?? 1);
     // An arrival turned about takes step turns at the arrival (`walkHeading.closing`).
     const closing: number = walkHeading.closing(inPlace || facing !== undefined ? 0 : ending - along$(D), turnStep);
-    // A turned-about arrival turns only on footfalls taken in place at it, each a step turn round the standing foot; the walking ones keep their way. A walk facing off its entry turns each footfall at most two step turns past the one before, the most that keeps both feet within a step turn of the pelvis midway between them (`WalkTurn`), with footfalls added in place where its own are too few.
-    const extra: number = facing !== undefined ? Math.max(0, Math.ceil(Math.abs(ending - yaw0) / (2 * turnStep)) - pace.steps - turning) : closing > walkHeading.CLOSING ? closing : 0;
+    // A turned-about arrival turns only on footfalls taken in place at it, each a step turn round the standing foot; the walking ones keep their way. A walk facing off its entry turns a step turn a footfall, so its outside foot never swings across the stance leg, with footfalls added in place where its own are too few.
+    const extra: number = facing !== undefined ? Math.max(0, Math.ceil(Math.abs(ending - yaw0) / turnStep) - pace.steps - turning) : closing > walkHeading.CLOSING ? closing : 0;
     const n: number = inPlace ? Math.max(1, Math.ceil(Math.abs(ending - yaw0) / turnStep)) : pace.steps + turning + extra;
     const lag: number = turning * T;
     const last: number = inPlace ? first + swing + n * T : pace.last + lag + extra * T;
@@ -321,7 +321,7 @@ export namespace walkSteps {
         const d: number = place(i + 1);
         if (inPlace) return yaw0 + (ending - yaw0) * Math.min(1, (i + 1) / n);
         if (facing !== undefined)
-          return walkHeading.capped(yaw0, i >= n - 1 ? ending : faced$(path.at(d)), 2 * turnStep * (i + 1));
+          return walkHeading.capped(yaw0, i >= n - 1 ? ending : faced$(path.at(d)), turnStep * (i + 1));
         if (i >= n - 1) return ending;
         const along: number = along$(d);
         return i >= n - closing ? along + ((ending - along) * (i - n + closing + 1)) / closing : along;
@@ -445,23 +445,13 @@ export namespace walkSteps {
       left: steps.filter((s: IStep): boolean => s.side === "left"),
       right: steps.filter((s: IStep): boolean => s.side === "right"),
     };
-    const flying = (side: AutoMovieHumanSide): walkStepFoot.IAirborne | undefined => walkStride.flying(input.entry, side);
+    // A gait entered in stride swings the foot in the air from where it is (`walkStride`).
+    const scheduled = (side: AutoMovieHumanSide): (t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled =>
+      walkStepFoot.schedule(body, side, start[side], own[side], typical, raised, inPlace, walkStride.flying(input.entry, side));
     const schedules: Record<
       "left" | "right",
       (t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled
-    > = {
-      left: walkStepFoot.schedule(body, "left", start.left, own.left, typical, raised, inPlace, flying("left")),
-      right: walkStepFoot.schedule(
-        body,
-        "right",
-        start.right,
-        own.right,
-        typical,
-        raised,
-        inPlace,
-        flying("right"),
-      ),
-    };
+    > = { left: scheduled("left"), right: scheduled("right") };
     const foot: (side: "left" | "right", t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled = (side: "left" | "right", t: number): IAutoMovieMotionHumanWalkFoot.IScheduled =>
       schedules[side](t);
     const { root, amount }: Pick<IAutoMovieMotionHumanWalkSteps.IPlan, "root" | "amount"> = inPlace ? {

@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanBody,
@@ -221,16 +222,25 @@ export namespace AutoMovieMotionHumanArmCarryCourse {
         key: number,
       ): IAutoMovieMotionHumanArmClearance.IArm => {
         ends ??= [reading(held, 0, held.fingers), reading(aimed, 1)];
+        // Beside the arrival a key may keep at least the arrival's own room,
+        // so the place's contact is never read as room to clear.
+        const beside = (from: number, to: number): number =>
+          key > HumanArmClearing.BESIDE
+            ? Math.max(from * (1 - key) + to * key, to)
+            : from * (1 - key) + to * key;
+        // The fingers as the carry shows them at the key, on their way from
+        // the held shape to the place's, so the room read is the room of
+        // the hand that is drawn.
         return HumanArmClearance.cleared(
           body,
-          pose(key),
+          fingersAt(pose(key), side, held.fingers, aimed.fingers, key),
           side,
           of,
           0,
           others,
           {
-            forearm: ends[0].forearm * (1 - key) + ends[1].forearm * key,
-            segments: ends[0].segments * (1 - key) + ends[1].segments * key,
+            forearm: beside(ends[0].forearm, ends[1].forearm),
+            segments: beside(ends[0].segments, ends[1].segments),
           },
           resolution,
         );
@@ -260,3 +270,36 @@ export namespace AutoMovieMotionHumanArmCarryCourse {
     return courses;
   }
 }
+
+/** A hand's finger angles at a share of the carry, read on a pose. */
+type Fingers = IAutoMovieMotionHumanArmAngles.IAngles["fingers"];
+
+/**
+ * A pose with one hand's fingers at a share of their way from the held
+ * shape to the arrival's, each angle blended by the share as the carry
+ * shapes them; the pose unchanged where either shape is not known.
+ */
+function fingersAt(
+  pose: IAutoMoviePose,
+  side: AutoMovieHumanSide,
+  from: Fingers,
+  to: Fingers,
+  share: number,
+): IAutoMoviePose {
+  if (from === undefined || to === undefined) return pose;
+  const blended: Partial<Record<AutoMovieHumanoidBone, Triple>> = {};
+  for (const bone of Object.keys(to) as AutoMovieHumanoidBone[]) {
+    const a: Triple | undefined = from[bone];
+    const b: Triple | undefined = to[bone];
+    if (a === undefined || b === undefined) continue;
+    blended[bone] = [
+      a[0] + (b[0] - a[0]) * share,
+      a[1] + (b[1] - a[1]) * share,
+      a[2] + (b[2] - a[2]) * share,
+    ];
+  }
+  return HumanArmClearance.fingered(pose, side, blended);
+}
+
+/** One joint's clinical angles, degrees. */
+type Triple = readonly [number, number, number];

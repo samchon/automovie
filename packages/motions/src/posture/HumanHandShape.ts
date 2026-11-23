@@ -94,7 +94,13 @@ export namespace HumanHandShape {
       }
     }
     const folded: boolean = form === "fist" || form === "point";
-    set("ThumbMetacarpal", 0);
+    // A flat hand lays the thumb in the palm's plane beside the forefinger:
+    // the rig's rest thumb stands palmar of the knuckles' plane (its neutral
+    // stops where its skin clears the hand's), and carrying it back by
+    // `FLAT_THUMB` degrees of retroposition brings its tip to within 3 mm of
+    // that plane on the small woman and the average man, so a palm laid flat
+    // on a floor or a face does not sink its thumb.
+    set("ThumbMetacarpal", form === "flat" ? FLAT_THUMB : 0);
     set("ThumbProximal", folded ? 40 : form === "relaxed" ? 25 : 0);
     set("ThumbDistal", folded ? 50 : form === "relaxed" ? 25 : 0);
     if (key !== undefined) rememberShape(key, out);
@@ -406,6 +412,9 @@ export namespace HumanHandShape {
     return out;
   }
 }
+
+/** The flat hand's thumb carpometacarpal flexion, degrees: the retroposition that lays the rest thumb in the palm's plane (measured on the rig: the thumb tip 22-26 mm palmar of the knuckles' plane at 0, 3 mm at this angle), inside the joint's admitted -25 (`DEFAULT_HUMANOID_ROM`). */
+const FLAT_THUMB: number = -20;
 
 /** Digit tip and pad frames by body, keyed by side, surface, shape and curl. */
 const TIPS: WeakMap<

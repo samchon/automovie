@@ -201,6 +201,7 @@ export namespace sit {
         context,
         seat,
         HumanMountOn.plan(context, seat, sitPlace.BACKS[back], turn),
+        true,
       );
     // The feet stand on that floor.
     const entered: Record<AutoMovieHumanSide, IAutoMovieVector3> = stand.feet(

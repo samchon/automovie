@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -17,6 +17,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
+import { handOver } from "../handling/handOver";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { touch } from "../touch/touch";
@@ -67,6 +69,9 @@ export namespace disarm {
 
   /** How long the defender holds the weapon in the action after taking it, seconds: authored. */
   export const AFTER: number = 0.4;
+
+  /** How long the taking hand takes to close into its fist, seconds: the time a hand-over's fingers take to open at the release (`handOver.OPEN`, provisional). */
+  export const CLOSE: number = handOver.OPEN;
 
   /**
    * Plan a disarm.
@@ -128,6 +133,9 @@ export namespace disarm {
     const taken: number = Math.min(duration, closed + lever);
     const share: number = taken / duration;
     const part: IAutoMovieMotionHumanContactWindow["part"] = `${side}Hand`;
+    const closing: ReturnType<
+      typeof AutoMovieMotionHumanHand.prepareFingerWriter
+    > = AutoMovieMotionHumanHand.prepareFingerWriter(side, "fist");
     return {
       ...grabbed,
       events: [
@@ -174,13 +182,19 @@ export namespace disarm {
           resolution,
           projection,
         );
-        // The taking hand closes into a fist round the weapon's grip.
-        return seconds < taken
-          ? shown
-          : {
-              ...shown,
-              joints: { ...shown.joints, ...HumanHand.shape(side, "fist") },
-            };
+        // The taking hand closes into a fist round the weapon's grip, from the
+        // fingers the grab shows over `CLOSE` on a minimum-jerk share: a fist
+        // written whole at `taken` snapped the fingers in one frame.
+        if (seconds < taken) return shown;
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
+          ...shown.joints,
+        };
+        closing(
+          joints,
+          0,
+          minimumJerk.share(Math.min(1, (seconds - taken) / CLOSE)),
+        );
+        return { ...shown, joints };
       },
     };
   }

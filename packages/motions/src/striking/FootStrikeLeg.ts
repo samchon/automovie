@@ -14,6 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -180,6 +181,11 @@ export function FootStrikeLeg(
       let point: IAutoMovieVector3;
       let bend: IAutoMovieVector3;
       let key: IKey;
+      // Whether the foot is still rising off the floor or already setting
+      // down on it: the first `lead` share of the rise, the last of the
+      // recoil, where it rises before it travels and travels before it sets
+      // down.
+      let floorward: boolean = false;
       if (seconds <= release) {
         point = start;
         bend = startBend;
@@ -195,6 +201,7 @@ export function FootStrikeLeg(
         );
         bend = Vector3.lerp(startBend, knee, s);
         key = between(rest, cocked, s);
+        floorward = raw < lead;
       } else if (seconds <= shown) {
         const s: number = minimumJerk.share((seconds - chamber) / extend);
         point = Vector3.lerp(folded, through, s);
@@ -206,6 +213,7 @@ export function FootStrikeLeg(
         point = raised(ankle, start, minimumJerk.share(raw / (1 - lead)), s);
         bend = Vector3.lerp(knee, startBend, s);
         key = between(struck, rest, s);
+        floorward = raw > 1 - lead;
       }
       // Planted, the foot keeps its world attitude. Off the floor its ankle
       // carries the keys' own angles, blended as the hip and the knee are,
@@ -213,7 +221,11 @@ export function FootStrikeLeg(
       // made the fit turn the whole leg wherever the ankle met its range
       // (the foot flipping 95 degrees in a frame), and the keys' angles are
       // the fit's own, inside the range.
-      if (seconds <= release)
+      // Near the floor, rising or setting down, the foot keeps its world
+      // attitude level with it, turned toes down only as the passive dorsal
+      // range asks (`AutoMovieMotionHumanFootRelax`), so the toes leave and
+      // meet the floor flat instead of pitching with the shank across it.
+      if (seconds <= release || floorward)
         return {
           ...posture,
           limbs: {
@@ -221,9 +233,19 @@ export function FootStrikeLeg(
             [limb]: {
               point,
               bend,
-              rotation: key.attitude,
+              rotation:
+                seconds <= release
+                  ? key.attitude
+                  : AutoMovieMotionHumanFootRelax.of(
+                      body,
+                      posture,
+                      side,
+                      { ankle: point, rotation: key.attitude },
+                      0,
+                      false,
+                    ).rotation,
               reference: key.reference,
-              planted: true,
+              planted: seconds <= release,
             },
           },
         };
