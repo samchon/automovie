@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States where the clock and raster come from, when the plan is admitted, how a sound list becomes the soundtrack, how a subject's cut is mapped onto the drawn frames, how each frame is drawn with its control passes in one call, named and written, how control frames are written and digested, what the host supplies and what a failure leaves.
+States where the clock and raster come from, when the plan is admitted, how a sound list becomes the soundtrack, how a subject's cut is mapped onto the drawn frames, how each frame is drawn with its control passes in one call, named and written, how control frames are written and digested, how a transparent render writes RGBA frames and hands the encoder the alpha wrap with no soundtrack, what the host supplies and what a failure leaves.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

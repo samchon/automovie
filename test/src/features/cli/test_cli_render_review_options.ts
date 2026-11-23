@@ -9,15 +9,26 @@ import {
 import { throwsError } from "../internal/predicates";
 
 /**
- * `automovie render` and `automovie review` take exactly the options they list and refuse every other, so a command line means one thing and the README's table, which a test keeps equal to the lists, documents every option.
+ * `automovie render` and `automovie review` take exactly the options they list
+ * and refuse every other, so a command line means one thing and the README's
+ * table, which a test keeps equal to the lists, documents every option.
  *
  * Scenarios:
  *
- * 1. Render with only `--module` takes the module, no props, the default folder and the software backend and leaves an empty request; with every listed option it takes each as given and leaves `subject` to the request.
- * 2. Render refuses an empty value of its own option, a missing `--module`, and a backend other than software or gpu; a request key such as `--at` is left to the request, which the command refuses for every key but `subject`.
- * 3. Review takes a loopback address with its query, a number of seconds and an optional folder.
- * 4. Review refuses a missing `--url` or `--seconds`, an address on another machine or over HTTPS, seconds that are zero, negative, above a day or not a number, and an option outside its list.
- * 5. Every listed option is admitted by its reader, so the lists and the readers agree.
+ * 1. Render with only `--module` takes the module, no props, the default folder
+ *    and the software backend and leaves an empty request; with every listed
+ *    option it takes each as given and leaves `subject` to the request.
+ * 2. Render refuses an empty value of its own option, a missing `--module`, a
+ *    backend other than software or gpu, and a background other than scene or
+ *    transparent; a request key such as `--at` is left to the request, which
+ *    the command refuses for every key but `subject`.
+ * 3. Review takes a loopback address with its query, a number of seconds and an
+ *    optional folder.
+ * 4. Review refuses a missing `--url` or `--seconds`, an address on another
+ *    machine or over HTTPS, seconds that are zero, negative, above a day or not
+ *    a number, and an option outside its list.
+ * 5. Every listed option is admitted by its reader, so the lists and the readers
+ *    agree.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls both readers with literal option maps and reads the records or the refusals; a reader that ignored an unknown option, guessed a module, admitted a remote page or an unbounded duration fails.
  * @evidence contracts/development/testing.md#independent-expectations The accepted options are the commands' documented usage; the loopback rule keeps a review from driving a page elsewhere, as the delivery host's capture address rule did; a day is the documented upper bound.
@@ -44,6 +55,7 @@ export function test_cli_render_review_options(): void {
       backend: "software",
       timeout: 120000,
       request: [],
+      background: "scene",
     },
   );
   TestValidator.equals(
@@ -55,6 +67,7 @@ export function test_cli_render_review_options(): void {
       ["out", "media/out"],
       ["backend", "gpu"],
       ["timeout-ms", "600000"],
+      ["background", "transparent"],
     ]),
     {
       module: "src/subjects.ts",
@@ -63,6 +76,7 @@ export function test_cli_render_review_options(): void {
       backend: "gpu",
       timeout: 600000,
       request: [["subject", "starter"]],
+      background: "transparent",
     },
   );
 
@@ -94,6 +108,13 @@ export function test_cli_render_review_options(): void {
         ["backend", "vulkan"],
       ],
       "vulkan",
+    ],
+    [
+      [
+        ["module", "m.ts"],
+        ["background", "green"],
+      ],
+      "not scene or transparent",
     ],
   ] as [string[][], string][])
     TestValidator.predicate(
@@ -207,7 +228,9 @@ export function test_cli_render_review_options(): void {
                 ? "m.ts"
                 : option === "timeout-ms"
                   ? "600000"
-                  : "value",
+                  : option === "background"
+                    ? "transparent"
+                    : "value",
           ],
         ]),
       );

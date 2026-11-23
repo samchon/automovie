@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the format, the dropped alpha, the row filter, where compression comes from and why the call is asynchronous, who can read the result, and both refusals.
+States the format, the dropped alpha by default and the RGBA colour type 6 with straight alpha on request, the row filter, where compression comes from and why the call is asynchronous, who can read the result, and both refusals.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -36,6 +36,7 @@ The pipeline keeps one film's files in these folders of `media/automovie/<film>/
 | --- | --- |
 | `frames/accepted/<revision>/` | The sheets of an accepted delivery, moved from its capture |
 | `videos/` | Renders and their reports |
+| `transparent/` | The straight-alpha layer `pnpm run render --background transparent` writes as `film.mov`, with its report |
 | `videos/controls/` | The control channels `pnpm run render --passes` draws, with their `record.json` |
 | `audios/` | Audio made for the user to hear |
 

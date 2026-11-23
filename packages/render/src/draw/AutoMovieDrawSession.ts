@@ -217,12 +217,15 @@ export class AutoMovieDrawSession {
 
   /**
    * Draw one delivered frame in every given pass through the subject's own
-   * camera, at its raster, one draw call per pass in the order given.
+   * camera, at its raster, one draw call per pass in the order given. With
+   * `background` `transparent` the page draws over a transparent background and
+   * returns straight alpha.
    */
   public async frame(
     seconds: number,
     passes: readonly AutoMovieInspectionShade[],
     inspectionDiagnostics?: IAutoMovieDrawCall["inspectionDiagnostics"],
+    background?: IAutoMovieDrawCall["background"],
   ): Promise<IAutoMovieDrawnPass[]> {
     const plain: IAutoMovieInspectionRequest = parseAutoMovieInspectionRequest(
       (): undefined => undefined,
@@ -241,6 +244,7 @@ export class AutoMovieDrawSession {
           ...(inspectionDiagnostics === undefined
             ? {}
             : { inspectionDiagnostics }),
+          ...(background === undefined ? {} : { background }),
         },
         `Frame at ${seconds} s in pass ${pass}`,
       );

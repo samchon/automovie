@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the input and output layouts, the reduction and its rounding, and both refusals.
+States the input and output layouts, the reduction in associated alpha with its division back to straight colour, why a straight average would fringe edges, the opaque identity and its rounding, and both refusals.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

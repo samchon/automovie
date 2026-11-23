@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Tabulates the command's options with their meaning and absent value, says where the rest go and which of them a render admits, and states every refusal.
+Tabulates the command's options with their meaning and absent value, says where the rest go and which of them a render admits, and states every refusal, including a background other than `scene` or `transparent`.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -13,4 +13,5 @@ export const AUTOMOVIE_RENDER_OPTIONS: readonly string[] = [
   "out",
   "backend",
   "timeout-ms",
+  "background",
 ];

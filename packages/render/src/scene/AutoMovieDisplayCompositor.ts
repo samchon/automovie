@@ -11,8 +11,8 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * its scene-owned display transform and each material's toneMapped policy.
  * FramebufferTexture copies those resolved bytes without a CPU readback. The
  * raw quad then applies the delivered byte operator without another tone or
- * encoding transform. Source renders retain the renderer's own antialiasing.
- * A caller-owned destination receives this display product, not scene radiance;
+ * encoding transform. Source renders retain the renderer's own antialiasing. A
+ * caller-owned destination receives this display product, not scene radiance;
  * its canvas backing is saved and restored while that destination is active.
  * Scalar interpolation uses highp Float32: opaque rounding thresholds can
  * differ by one byte from Float64 delivery. Endpoints and identical sources
@@ -21,6 +21,13 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * use a straight target for that product. Native sRGB destinations receive the
  * canonical inverse transfer before their automatic encoding, preserving the
  * display-byte domain rather than applying another view transform.
+ *
+ * The two sources mix as associated colour, colour times alpha, with alpha at
+ * the same weight, and return to straight colour, as
+ * `mixAutoMovieStraightAlpha` does on bytes: a transparent source's black then
+ * darkens no half-covered edge, and two opaque sources mix exactly as straight
+ * colour. A fade mixes toward opaque black, or with `transparent` toward a
+ * fully transparent pixel, so only alpha falls.
  */
 export class AutoMovieDisplayCompositor {
   private readonly sources: THREE.FramebufferTexture[];
@@ -35,7 +42,10 @@ export class AutoMovieDisplayCompositor {
     new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   private disposed: boolean = false;
   private disposalFailure: { error: unknown } | undefined;
-  /** Disposal callbacks cannot allocate a replacement while old-copy retirement runs. */
+  /**
+   * Disposal callbacks cannot allocate a replacement while old-copy retirement
+   * runs.
+   */
   private resizing: Error | undefined;
 
   public constructor(
@@ -54,6 +64,7 @@ export class AutoMovieDisplayCompositor {
         incoming: { value: this.sources[1] },
         alpha: { value: 0 },
         fade: { value: false },
+        fadeTransparent: { value: false },
         copyBacking: { value: false },
         sourcePremultiplied: { value: false },
         outputPremultiplied: { value: false },
@@ -65,7 +76,8 @@ export class AutoMovieDisplayCompositor {
         void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
       fragmentShader: `precision highp float;
         uniform highp sampler2D outgoing; uniform highp sampler2D incoming;
-        uniform float alpha; uniform bool fade; uniform bool copyBacking;
+        uniform float alpha; uniform bool fade; uniform bool fadeTransparent;
+        uniform bool copyBacking;
         uniform bool sourcePremultiplied; uniform bool outputPremultiplied;
         uniform bool outputSRGB;
         varying vec2 vUv;
@@ -78,8 +90,12 @@ export class AutoMovieDisplayCompositor {
           vec4 first = texture2D(outgoing, vUv);
           if (copyBacking) { gl_FragColor = first; return; }
           first = straight(first);
-          vec4 second = fade ? vec4(0.0, 0.0, 0.0, 255.0) : straight(texture2D(incoming, vUv));
-          vec4 result = floor(clamp(mix(first, second, alpha), 0.0, 255.0) + 0.5) / 255.0;
+          vec4 second = fade ? vec4(0.0, 0.0, 0.0, fadeTransparent ? 0.0 : 255.0) : straight(texture2D(incoming, vUv));
+          // Mix associated colour and alpha at one weight, then return to
+          // straight colour; for two opaque bytes this is the straight mix.
+          vec4 mixed = mix(vec4(first.rgb * first.a / 255.0, first.a), vec4(second.rgb * second.a / 255.0, second.a), alpha);
+          vec4 unassociated = mixed.a > 0.0 ? vec4(mixed.rgb * 255.0 / mixed.a, mixed.a) : vec4(0.0);
+          vec4 result = floor(clamp(unassociated, 0.0, 255.0) + 0.5) / 255.0;
           if (outputPremultiplied) result.rgb *= result.a;
           if (outputSRGB) result = sRGBTransferEOTF(result);
           gl_FragColor = result;
@@ -93,8 +109,8 @@ export class AutoMovieDisplayCompositor {
   }
 
   /**
-   * Resize owned copies only; drawing-buffer pixels remain the source unit.
-   * New extents publish only after every old-copy retirement succeeds. A failed
+   * Resize owned copies only; drawing-buffer pixels remain the source unit. New
+   * extents publish only after every old-copy retirement succeeds. A failed
    * retirement closes this owner, retains its old potential extent and cause,
    * and independently retires the remaining quad resources without retries.
    */
@@ -143,15 +159,22 @@ export class AutoMovieDisplayCompositor {
   }
 
   /**
-   * Draw one fade or two complementary sources, independently attempting host-state restoration after source, copy or composite failure. An aggregate retains the original failure first. The previous canvas picture is saved before source drawing and its restoration is attempted after failed composition; a failed restoration cannot guarantee the previous display survives.
+   * Draw one fade or two complementary sources, independently attempting
+   * host-state restoration after source, copy or composite failure. An
+   * aggregate retains the original failure first. The previous canvas picture
+   * is saved before source drawing and its restoration is attempted after
+   * failed composition; a failed restoration cannot guarantee the previous
+   * display survives.
    *
-   * Caller callbacks keep this owner and borrowed renderer alive through the call; a previously closed owner refuses before native observation.
+   * Caller callbacks keep this owner and borrowed renderer alive through the
+   * call; a previously closed owner refuses before native observation.
    */
   public render(
     renderer: THREE.WebGLRenderer,
     outgoing: () => void,
     incoming: (() => void) | null,
     alpha: number,
+    transparent: boolean = false,
   ): void {
     this.assertOpen();
     const target: ReturnType<THREE.WebGLRenderer["getRenderTarget"]> =
@@ -199,6 +222,7 @@ export class AutoMovieDisplayCompositor {
       uniforms.incoming!.value = this.sources[1];
       uniforms.alpha!.value = alpha;
       uniforms.fade!.value = incoming === null;
+      uniforms.fadeTransparent!.value = transparent;
       uniforms.copyBacking!.value = false;
       uniforms.sourcePremultiplied!.value = premultiplied;
       uniforms.outputPremultiplied!.value = target === null && premultiplied;
@@ -270,9 +294,9 @@ export class AutoMovieDisplayCompositor {
   }
 
   /**
-   * Release only compositor-owned textures, geometry and material once.
-   * Closed instances refuse resize/render; repeated disposal preserves its
-   * original success or failure and never retries physical resource release.
+   * Release only compositor-owned textures, geometry and material once. Closed
+   * instances refuse resize/render; repeated disposal preserves its original
+   * success or failure and never retries physical resource release.
    */
   public dispose(): void {
     if (this.resizing !== undefined) throw this.resizing;

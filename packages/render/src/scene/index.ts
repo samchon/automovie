@@ -84,6 +84,7 @@ export * from "./IAutoMovieSpringAxisSettlement.js";
 export * from "./releaseViewerRenderer.js";
 export * from "./IAutoMovieRenderModeHandle.js";
 export * from "./applyRenderMode.js";
+export * from "./mixAutoMovieStraightAlpha.js";
 export * from "./maskColor.js";
 export * from "./DEPTH_NORMALIZATION_RANGE.js";
 export * from "./EDGE_WIDTH.js";

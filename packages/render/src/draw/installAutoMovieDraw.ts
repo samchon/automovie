@@ -124,7 +124,9 @@ export function installAutoMovieDraw(
       const scene: IAutoMovieDrawScene = await offered[name]!.create();
       const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
         antialias: false,
-        alpha: false,
+        // A transparent draw needs a drawing buffer with alpha; an opaque
+        // draw clears to alpha 1 and stays opaque.
+        alpha: true,
         preserveDrawingBuffer: false,
       });
       renderer.setPixelRatio(1);
@@ -346,6 +348,20 @@ export function installAutoMovieDraw(
 
       // 4. Draw through the resolved camera at the drawn raster.
       const resolved: ReturnType<typeof resolveAt> = resolveAt(call.seconds);
+      // A transparent draw clears to alpha 0 and leaves the scene's backdrop
+      // undrawn; an opaque draw clears opaque, as the page always did.
+      const transparent: boolean = call.background === "transparent";
+      if (transparent && call.request.shade !== "beauty")
+        throw new Error(
+          `A transparent background is drawn only in the beauty pass, not ${call.request.shade}`,
+        );
+      if (transparent && scene.optics !== undefined)
+        throw new Error(
+          `Subject "${loaded.name}" declares optics, whose film response stage writes opaque pixels; a transparent render needs a subject without optics`,
+        );
+      const backdrop: THREE.Scene["background"] = scene.scene.background;
+      if (transparent) scene.scene.background = null;
+      renderer.setClearAlpha(transparent ? 0 : 1);
       renderer.setSize(width, height, false);
       handle.resize(width, height);
       const diagnosticLegend: readonly IAutoMovieInspectionLegendEntry[] =
@@ -389,6 +405,7 @@ export function installAutoMovieDraw(
         context.UNSIGNED_BYTE,
         bytes,
       );
+      if (transparent) scene.scene.background = backdrop;
       const labels: IAutoMovieInspectionLabel[] = handle.labels(
         resolved.camera,
         call.width,

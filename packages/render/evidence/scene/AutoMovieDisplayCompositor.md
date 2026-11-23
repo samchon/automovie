@@ -14,7 +14,7 @@ Uses public renderer reset and framebuffer-copy APIs to synchronize context stat
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Describes display-byte rather than radiance composition, alpha association, destination encoding, precision limits, and caller ownership of the destination.
+Describes display-byte rather than radiance composition, alpha association, the associated-alpha mix that `mixAutoMovieStraightAlpha` states on bytes, the fade toward black or transparency, destination encoding, precision limits, and caller ownership of the destination.
 
 # src/scene/AutoMovieDisplayCompositor.ts#AutoMovieDisplayCompositor.prototype.resize
 

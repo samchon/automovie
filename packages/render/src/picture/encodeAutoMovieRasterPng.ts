@@ -8,18 +8,38 @@ const SIGNATURE: readonly number[] = [
 ];
 
 /**
- * Encode a picture, such as a drawn still, a contact sheet or a difference image, as a lossless 8-bit RGB PNG.
+ * Encode a picture, such as a drawn still, a contact sheet or a difference
+ * image, as a lossless 8-bit RGB PNG, or with `alpha` as an 8-bit RGBA PNG.
  *
- * The picture is opaque, so alpha is dropped. Rows use filter type 0 and one zlib stream made by `CompressionStream("deflate")`, which Node 22 and every current browser provide as a global, so this module imports no Node built-in and runs in a page as in a Node host. Encoding is therefore asynchronous. `decodeAutoMovieRasterPng` and every PNG reader decode the result.
+ * By default the picture is opaque, so alpha is dropped. With `alpha` the
+ * raster's straight alpha is kept as the fourth channel, the PNG colour type 6
+ * whose colour is not premultiplied (PNG specification, section 3.3), so a
+ * transparent render's frame files carry its coverage. Rows use filter type 0
+ * and one zlib stream made by `CompressionStream("deflate")`, which Node 22 and
+ * every current browser provide as a global, so this module imports no Node
+ * built-in and runs in a page as in a Node host. Encoding is therefore
+ * asynchronous. `decodeAutoMovieRasterPng` and every PNG reader decode the
+ * result.
  *
- * It rejects a size that is not a positive whole number of pixels and a pixel buffer whose length disagrees with the size.
+ * It rejects a size that is not a positive whole number of pixels and a pixel
+ * buffer whose length disagrees with the size.
  *
  * ```ts
- * await storage.writeFile(`${root}/still.png`, await encodeAutoMovieRasterPng(picture));
+ * await storage.writeFile(
+ *   `${root}/still.png`,
+ *   await encodeAutoMovieRasterPng(picture),
+ * );
  * ```
  */
 export async function encodeAutoMovieRasterPng(
   raster: IAutoMovieRasterImage,
+  options?: {
+    /**
+     * Keep the raster's straight alpha as an RGBA PNG; absent or false writes
+     * RGB.
+     */
+    alpha?: boolean;
+  },
 ): Promise<Uint8Array> {
   const { width, height, pixels } = raster;
   if (
@@ -30,16 +50,18 @@ export async function encodeAutoMovieRasterPng(
   if (pixels.length !== width * height * 4)
     throw new Error("Raster pixels do not match its size");
 
-  // Each row is a filter byte 0 and its RGB triples.
-  const stride: number = width * 3 + 1;
+  // Each row is a filter byte 0 and its RGB triples, or RGBA quadruples.
+  const channels: number = options?.alpha === true ? 4 : 3;
+  const stride: number = width * channels + 1;
   const rows: Uint8Array<ArrayBuffer> = new Uint8Array(stride * height);
   for (let y: number = 0; y < height; y++)
     for (let x: number = 0; x < width; x++) {
       const from: number = (y * width + x) * 4;
-      const to: number = y * stride + 1 + x * 3;
+      const to: number = y * stride + 1 + x * channels;
       rows[to] = pixels[from]!;
       rows[to + 1] = pixels[from + 1]!;
       rows[to + 2] = pixels[from + 2]!;
+      if (channels === 4) rows[to + 3] = pixels[from + 3]!;
     }
   const compressed: Uint8Array = new Uint8Array(
     await new Response(
@@ -47,12 +69,12 @@ export async function encodeAutoMovieRasterPng(
     ).arrayBuffer(),
   );
 
-  // IHDR: size, bit depth 8, colour type 2 (RGB), deflate, filter method 0, no interlace.
+  // IHDR: size, bit depth 8, colour type 2 (RGB) or 6 (RGBA), deflate, filter method 0, no interlace.
   const header: Uint8Array = new Uint8Array(13);
   const view: DataView = new DataView(header.buffer);
   view.setUint32(0, width);
   view.setUint32(4, height);
-  header.set([8, 2, 0, 0, 0], 8);
+  header.set([8, channels === 4 ? 6 : 2, 0, 0, 0], 8);
   const parts: Uint8Array[] = [
     Uint8Array.from(SIGNATURE),
     chunk("IHDR", header),
