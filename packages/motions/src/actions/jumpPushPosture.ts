@@ -20,7 +20,7 @@ import type { jumpPush } from "./jumpPush";
  * @returns The raw posture after the ordinary planted-leg lowering.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the raw phase, local clock, entry arm rates and lowering stage.
- * @evidence contracts/development/implementation.md#principled-implementation The existing minimum-jerk arm swing and carried entry flexion rates accompany the same push writer and root Hermite; ordinary lowering retains the declared planted knee extension.
+ * @evidence contracts/development/implementation.md#principled-implementation The existing minimum-jerk arm swing and carried entry flexion rates, with the entered elbow's fading gap from the jump's elbow rule, accompany the same push writer and root Hermite; ordinary lowering retains the declared planted knee extension.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Clamp local time, apply the two prepared entry-arm tracks to this same phase sample, assemble joints, write both legs and lower once.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the push's own root path, never a future flight root or surrogate pose; original goals, entry velocity and acceleration remain intact.
  * @evidence contracts/development/implementation.md#efficient-algorithms One explicit phase sample shares root/progress/carry/yaw/pelvis across arm and leg assembly. Optional fixed-body writers prepare the joint prefix and cosine-law reach once; every current heel rule, plant collection, hip FK and lowering square root/comparison remains. Speedup is unmeasured.
@@ -37,6 +37,13 @@ export function jumpPushPosture(props: jumpPush.IProps, paths: jumpPush.IPush, s
   const joints: IAutoMovieMotionHumanPosture["joints"] = prepared === undefined
     ? jumpJoints(props.body, props.upright.joints, left, right)
     : prepared.joints(left, right);
+  // The entered elbow's gap from the rule fades with the push (`IPush.elbow`).
+  for (const side of ["left", "right"] as const) {
+    const gap: number = paths.elbow(phase, side);
+    const lower: readonly [number, number, number] | undefined = joints[`${side}LowerArm`];
+    if (gap !== 0 && lower !== undefined)
+      joints[`${side}LowerArm`] = [lower[0] + gap, lower[1], lower[2]];
+  }
   const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
   paths.write(phase, joints, limbs, read);
   const posture: IAutoMovieMotionHumanPosture = {

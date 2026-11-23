@@ -359,19 +359,21 @@ export function prepareWalkReachSwing(
     // where the reach equals the stance it leaves: a stance left inside the
     // reach (a sprint's trailing foot at its thigh's extension) is never
     // left behind it while the hip runs on; the ankle's range then turns the
-    // foot where the ankle stands.
+    // foot where the ankle stands. The range is read at that ankle whether or
+    // not the reach moved it: near the leg's full extension the shank's lean
+    // turns steeply with the ankle, so a range read at the ankle before the
+    // anchor's shift differs from the one at the ankle the leg is given (a
+    // sprint's trailing foot read 5.8 degrees apart there), and choosing
+    // between the two by whether the reach moved the ankle at all flipped
+    // the foot on a rounding.
     if (leaving !== undefined && share < 0.5) {
-      const reached: IAutoMovieVector3 = Vector3.subtract(
+      joined = Vector3.subtract(
         reachOf(joined),
         Vector3.scale(leaving, 1 - held),
       );
-      if (Vector3.distance(reached, joined) > 0) {
-        joined = reached;
-        turned = ankleRange(h, joined, asked);
-        const under: number = lowest({ ankle: joined, rotation: turned });
-        if (under < target)
-          joined = { ...joined, y: joined.y + target - under };
-      }
+      turned = ankleRange(h, joined, asked);
+      const under: number = lowest({ ankle: joined, rotation: turned });
+      if (under < target) joined = { ...joined, y: joined.y + target - under };
     }
     return { ankle: joined, rotation: turned, toes: foot.toes };
   };

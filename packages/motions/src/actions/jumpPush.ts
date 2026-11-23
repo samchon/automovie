@@ -19,11 +19,13 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { jumpJoints } from "./jumpJoints";
 import { jumpPath } from "./jumpPath";
 import { jumpPushEnd } from "./jumpPushEnd";
+import { stand } from "./stand";
 import { walkLeg } from "./walkLeg";
 
 /** The slowest descent of a reaching-foot sole point that counts as falling, metres per second: slower, the foot is turning about that point (provisional). */
@@ -55,6 +57,41 @@ const PASS_GAP: number = 1e-9;
 export namespace jumpPush {
   /** The heel rise the push asks of the take-off foot about its ball, degrees (provisional); the ankle's reach rule may steepen it. */
   export const HEEL: number = 40;
+
+  /**
+   * The hip a planted leg stands from at an asked pitch: the push's own hip,
+   * lowered along gravity as the posture's lowering lowers it to reach that
+   * pitch's ankle (`lowerHumanPosture`, the planted leg's least knee bend
+   * `resolveHumanPosture.KNEE`). The heel rule is a stance's, and read at an
+   * unlowered hip beyond the leg's reach it has no lean to read: a gate that
+   * kept the asked pitch there and the rule's pitch within reach switched
+   * between the two where the hip crossed the reach, a 5 degree step of the
+   * long jump's take-off foot 0.09 s into its push. Read at the hip the leg
+   * stands from, the asked ankle is always within reach and the rule is
+   * continuous through the push.
+   *
+   * @param hip The push's unlowered take-off hip joint, world metres.
+   * @param ankle The take-off ankle at the asked pitch, world metres.
+   * @param short The lowering one leg asks of the root at the least knee bend (`lowerHumanPosture.prepareShort`).
+   * @returns The hip the leg stands from, world metres, or undefined for an ankle horizontally beyond the leg's reach, which no lowering helps.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, the lowering it mirrors, the defect it removes and the unreachable result.
+   * @evidence contracts/development/implementation.md#principled-implementation The posture's own gravity-axis lowering at the planted leg's least knee bend, applied to the hip the heel rule reads.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lowering read and one vertical offset.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No reach gate, blend or threshold: the hip is the one the posture's lowering gives the asked ankle.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One constant-time reach read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the lowering's own prepared reach.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh vector or the input and retains nothing.
+   */
+  export function standing(
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    short: ReturnType<typeof lowerHumanPosture.prepareShort>,
+  ): IAutoMovieVector3 | undefined {
+    const drop: number = short(hip, ankle);
+    if (drop === -Infinity) return undefined;
+    return drop > 0 ? { ...hip, y: hip.y - drop } : hip;
+  }
 
   /**
    * What the push-off is built from.
@@ -182,6 +219,22 @@ export namespace jumpPush {
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The supplying push owns two three-scalar tracks; this method returns only a number and retains no phase, root, result or reader.
      */
     arm: (phase: IPhase, side: "left" | "right") => number;
+
+    /**
+     * How far an elbow stands from the jump's own elbow rule at one push
+     * sample, clinical degrees: the run's bent elbow is carried out like
+     * its shoulder, fading from its entered gap and gap rate to none at the
+     * take-off, so the elbow is not straightened ahead of the arm swing.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Names the phase sample, side and the clinical-degree gap added to the jump's elbow rule.
+     * @evidence contracts/development/implementation.md#principled-implementation The entered gap fades on the push's minimum-jerk progress and its rate on the engine's carriedRate, the arm track's own laws, so the elbow keeps its entered angle and rate and meets the rule at the take-off.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The same arm track holds the elbow's gap and gap rate beside the shoulder's.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The entered elbow is read, never assumed straight; nothing is clamped or rescaled.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Two multiplications on the prepared gap and rate per sample.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the sample's progress and carry with the shoulder's track.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a number and retains nothing.
+     */
+    elbow: (phase: IPhase, side: "left" | "right") => number;
 
     /**
      * Write the pelvis, both legs and toes at a local push second.
@@ -365,10 +418,25 @@ export namespace jumpPush {
       side: "left" | "right",
     ): IArmTrack => {
       const from: number = entry.posture.joints[`${side}UpperArm`]?.[0] ?? 0;
+      const rate: number =
+        entry.velocity.joints.get(`${side}UpperArm`)?.[0] ?? 0;
+      // The jump's elbow rule is the relaxed elbow plus a third of the
+      // shoulder's flexion (`jumpJoints.SHOULDER_PER_ELBOW`); the entered
+      // elbow's gap from it, and that gap's rate, are what the push fades.
+      const ruled: number =
+        stand.ELBOW + from / jumpJoints.SHOULDER_PER_ELBOW;
+      const elbow: number | undefined =
+        entry.posture.joints[`${side}LowerArm`]?.[0];
       return {
         from,
         delta: jumpJoints.TAKEOFF - from,
-        rate: entry.velocity.joints.get(`${side}UpperArm`)?.[0] ?? 0,
+        rate,
+        bend: elbow === undefined ? 0 : elbow - ruled,
+        bending:
+          elbow === undefined
+            ? 0
+            : (entry.velocity.joints.get(`${side}LowerArm`)?.[0] ?? 0) -
+              rate / jumpJoints.SHOULDER_PER_ELBOW,
       };
     };
     const arms: Record<"left" | "right", IArmTrack> = {
@@ -385,6 +453,15 @@ export namespace jumpPush {
       const track: IArmTrack = arms[side];
       return (
         track.from + track.delta * phase.progress + track.rate * phase.carry
+      );
+    };
+    const elbowAt: IPush["elbow"] = (
+      phase: IPhase,
+      side: "left" | "right",
+    ): number => {
+      const track: IArmTrack = arms[side];
+      return (
+        track.bend * (1 - phase.progress) + track.bending * phase.carry
       );
     };
 
@@ -544,6 +621,7 @@ export namespace jumpPush {
       sample,
       swinging,
       arm: armAt,
+      elbow: elbowAt,
       write: (
         phase: IPhase,
         joints: IAutoMovieMotionHumanPosture["joints"],
@@ -615,7 +693,7 @@ export namespace jumpPush {
   }
 }
 
-/** The original entered shoulder angle, its authored target difference and carried flexion rate. */
+/** The original entered shoulder angle, its authored target difference and carried flexion rate, with the entered elbow's gap from the jump's elbow rule. */
 interface IArmTrack {
   /** Entered shoulder flexion, clinical degrees. */
   from: number;
@@ -625,4 +703,10 @@ interface IArmTrack {
 
   /** Entered flexion rate, degrees per second; zero when absent. */
   rate: number;
+
+  /** The entered elbow flexion less the jump's elbow rule at the entered shoulder, clinical degrees; zero when the entry has no elbow. */
+  bend: number;
+
+  /** That gap's entered rate, degrees per second: the elbow's rate less the rule's share of the shoulder's; zero when the entry has no elbow. */
+  bending: number;
 }
