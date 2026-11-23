@@ -26,6 +26,8 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
   /**
    * Reaching for a prop's grip, grasping it and lifting it clear.
    *
+   * Overlay law: it rides a carrier that yields the channels it claims. It claims only the reaching arm and its hand over a carrier; it can be cut into `stand` and `walk` before its `gripClosed` instant and from its `lifted` instant.
+   *
    * @param params The `prop`, `handle`, `hand`, `lift` and `use` of
    *   `IAutoMovieMotionHumanPickUp.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
@@ -35,6 +37,8 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
 
   /**
    * Setting a held prop down at a place and letting go.
+   *
+   * Overlay law: it rides a carrier that yields the channels it claims. It claims only the working arm and its hand over a carrier; it can be cut into `stand` and `walk` from its `release` instant.
    *
    * @param params The `prop`, `to`, `on`, `onto`, `yaw`, `rotation` and `hand`
    *   of `IAutoMovieMotionHumanPutDown.IParams`.
@@ -64,6 +68,8 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
    * (`HumanChain.over`): a farmer's walk.
    *
    * Registered law: `registered("carryHang", params)`; not a chain method.
+   *
+   * Overlay law: it rides a carrier that yields the channels it claims. It carries the arms over a walk and can be cut into any action at any share.
    *
    * @param params The `left`, `right` and `duration` of
    *   `IAutoMovieMotionHumanCarryHang.IParams`.
@@ -99,6 +105,8 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
    *
    * Registered law: `registered("putDownAperture", params)`; not a chain
    * method.
+   *
+   * Overlay law: it rides a carrier that yields the channels it claims. It claims the hand's work alone over a carrier; it is cut as `putDown` is.
    *
    * @param params The `prop`, `hand` and `onto` of
    *   `IAutoMovieMotionHumanPutDownAperture`.

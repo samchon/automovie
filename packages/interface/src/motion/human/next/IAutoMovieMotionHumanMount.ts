@@ -42,6 +42,8 @@ export interface IAutoMovieMotionHumanMount<Chain> {
    *
    * Registered law: `registered("leadHorse", params)`; not a chain method.
    *
+   * Overlay law: it rides a carrier that yields the channels it claims. It claims the named arm and its hand.
+   *
    * @param params The parameters of the law, `IAutoMovieMotionHumanLeadHorse`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.

@@ -77,6 +77,9 @@ export interface IAutoMovieMotionHumanGaitAided<Chain> {
    *
    * Registered law: `registered("caneSweep", params)`; not a chain method.
    *
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims the cane hand's arm and hand.
+   *
    * @param params The cane prop, the cane hand, the technique and the sweep's
    *   seconds.
    * @param anchor The action's id for `sync` and `until`; none when absent.

@@ -25,6 +25,10 @@ export interface IAutoMovieMotionHumanDress<Chain> {
    * Putting on a hat or a pair of glasses held in one hand, with both hands,
    * while standing.
    *
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims only the parts it moves, seated or while another action carries the
+   * body; it can be cut into `stand` and `walk` from its `relax` instant.
+   *
    * @param params The `item`, `prop`, `hand` and `manner` of
    *   `IAutoMovieMotionHumanDress.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
@@ -68,6 +72,9 @@ export interface IAutoMovieMotionHumanDress<Chain> {
    * Registered law: `registered("drawFromCarrier", params)`; not a chain
    * method.
    *
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims the drawing arm and its hand only, a seated rider's draw.
+   *
    * @param params The `sheath`, `hand` and `pull` of
    *   `IAutoMovieMotionHumanDress.IDrawFromCarrier`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
@@ -88,6 +95,9 @@ export interface IAutoMovieMotionHumanDress<Chain> {
    *
    * Registered law: `registered("putDownAperture", params)`; not a chain
    * method.
+   *
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims the hand's work alone over a carrier; it is cut as `putDown` is.
    *
    * @param params The `sheath` and `hand` of
    *   `IAutoMovieMotionHumanDress.IPutDownAperture`.

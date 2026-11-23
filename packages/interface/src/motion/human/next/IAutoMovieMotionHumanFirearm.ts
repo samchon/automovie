@@ -55,6 +55,10 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
    *
    * Registered law: `registered("presentFirearm", params)`; not a chain method.
    *
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims the trunk's turn and the holding arms and hands, over a carrier, a
+   * stand, a ride or a stance on a moving floor.
+   *
    * @param params The members of `IAutoMovieMotionHumanWeaponPresent.IPresent`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
@@ -69,6 +73,10 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
    * returned onto the line.
    *
    * Registered law: `registered("fireFirearm", params)`; not a chain method.
+   *
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims what `presentFirearm` claims: the trunk's turn and the holding arms
+   * and hands.
    *
    * @param params The members of `IAutoMovieMotionHumanWeaponPresent.IWield`.
    * @param anchor The action's id for `sync` and `until`; none when absent.

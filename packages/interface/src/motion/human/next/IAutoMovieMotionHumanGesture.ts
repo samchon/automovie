@@ -45,11 +45,12 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
    * preparation from rest to the stroke's start, the stroke that carries the
    * meaning, an optional post-stroke hold, and retraction to rest.
    *
-   * A gesture is an overlay law: it rides a stand, a walk or a run, which yield
-   * the arms. It keeps its own hand and arm and yields nothing, so a second
-   * gesture on the same hand cannot overlap it; it is cut into another gesture
-   * only inside its `retract` window, which is how a count of one number a
-   * second is made: cut each gesture `until({ event: "retract" })`.
+   * Overlay law: it rides a stand, a walk or a run, which yield the arms. It
+   * claims the moving arms with their hands, and the head or the trunk when its
+   * kind moves them, and yields nothing itself, so a second gesture on the same
+   * hand cannot overlap it. It can be cut into `stand`, `walk`, `look` and
+   * `gesture`, a gesture only from its `retract` instant, which is how a count
+   * of one number a second is made: cut each gesture `until({ event: "retract" })`.
    *
    * @param params The `balance`, `kind`, `hand`, `target`, `region`, `count`,
    *   `hold`, `depth`, `effort`, `turn`, `shape`, `aim` and `manner` of
@@ -64,6 +65,8 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
    * back.
    *
    * Registered law: `registered("armPhrase", params)`; not a chain method.
+   *
+   * Overlay law: it rides a carrier that yields the channels it claims. It rides a carrier that yields its arm and hand; it can be cut into any action from its `relax` instant.
    *
    * @param params The `phrase`, `target`, `offset`, `from`, `swing`, `cycles`,
    *   `mirror`, `side`, `surface`, `shape`, `facing`, `hold`, `manner`, `held`

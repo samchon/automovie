@@ -58,6 +58,8 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
    * of the performer's own body and moved on it by a kind of social touch; the
    * kinds and their source are on `IAutoMovieMotionHumanTouch`.
    *
+   * Overlay law: it rides a carrier that yields the channels it claims. It claims the touching arms and hands, and the trunk when it must lean.
+   *
    * @param params The `balance`, `target`, `kind`, `effector`, `side`, `site`,
    *   `prop`, `point`, `grasp`, `clear`, `elbow`, `arms`, `other`, `rests`,
    *   `count`, `hold`, `tangent` and `manner` of

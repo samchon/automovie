@@ -40,6 +40,8 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * distance and the angle by the range equation, so a farther target is a
    * faster throw.
    *
+   * Overlay law: it rides a carrier that yields the channels it claims. It claims only the parts it moves; it can be cut into `catchObject` from its `release` instant, and `stand` and `walk` from its `followThrough` instant.
+   *
    * @param params The `target`, `style`, `hand`, `prop`, `angle`, `attitude`,
    *   `implement` and `manner` of `IAutoMovieMotionHumanThrowObjectParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
@@ -54,6 +56,8 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * Catching an object thrown by another action: the hands meet it where its
    * path enters the reach, give with it, and bring it to the chest.
    *
+   * Overlay law: it rides a carrier that yields the channels it claims. It claims only the parts it moves; it can be cut into `ballSport`, `throwObject`, `stand` and `walk` from its `secured` instant.
+   *
    * @param params The `partner`, `hands`, `hand`, `ball` and `glove` of
    *   `IAutoMovieMotionHumanCatchObject.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
@@ -66,6 +70,8 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
 
   /**
    * Letting go: a hand opens on what it holds, and the held prop leaves it.
+   *
+   * Overlay law: it rides a carrier that yields the channels it claims. It claims only the opening hand's arm; it can be cut into any action from its `open` instant.
    *
    * @param params The `hand`, `prop` and `launch` of
    *   `IAutoMovieMotionHumanRelease.IParams`.
@@ -124,6 +130,8 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * support.
    *
    * Registered law: `registered("stickBall", params)`; not a chain method.
+   *
+   * Overlay law: it rides a carrier that yields the channels it claims. It owns both arms and hands in the stroke while the carrier keeps its support.
    *
    * @param params The `kind`, `stick`, `ball`, `target`, `hand`, `duration` and
    *   `speed` of `IAutoMovieMotionHumanStickBall.IParams`.
