@@ -1,0 +1,21 @@
+/**
+ * Refuse a fractal noise octave count or roughness outside its range.
+ *
+ * @param octaves Number of octaves; a positive safe integer.
+ * @param roughness Amplitude ratio between successive octaves; in (0, 1), so
+ *   every finer octave is weaker than the one before it.
+ * @throws {Error} Naming `octaves` or `roughness`, whichever is out of range.
+ */
+export function admitAutoMovieNoiseOctaves(
+  octaves: number,
+  roughness: number,
+): void {
+  if (!(Number.isSafeInteger(octaves) && octaves >= 1))
+    throw new Error(
+      `Fractal noise octaves must be a positive integer: ${octaves}`,
+    );
+  if (!(roughness > 0 && roughness < 1))
+    throw new Error(
+      `Fractal noise roughness must lie strictly between 0 and 1: ${roughness}`,
+    );
+}
