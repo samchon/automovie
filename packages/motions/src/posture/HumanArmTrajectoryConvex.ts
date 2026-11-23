@@ -361,7 +361,7 @@ export namespace HumanArmTrajectoryConvex {
         // of its ends by the sweep's gradient (`HumanArmTrajectoryHalfStep`,
         // TrajOpt's continuous-time term).
         for (const pair of (
-          at.pairs[a]?.[k]?.deepest ?? P.deepest(c, a, k, placedK)
+          at.pairs[a]?.[k]?.deepest ?? P.deepest(c, a, k, placedK, P.CUT)
         ).values()) {
           const sweep: HumanArmTrajectoryHalfStep.ISwept | undefined =
             pair.swept;
@@ -426,7 +426,7 @@ export namespace HumanArmTrajectoryConvex {
         // so the corner's distance falls by the shape's motion along its
         // outward normal there.
         for (const pair of (
-          at.pairs[a]?.[k]?.embedded ?? P.embedded(c, a, k, placedK)
+          at.pairs[a]?.[k]?.embedded ?? P.embedded(c, a, k, placedK, P.CUT)
         ).values()) {
           if (-pair.short > Math.min(T.CHECK, reach(a, k) + 2)) continue;
           const p: IAutoMovieVector3 =

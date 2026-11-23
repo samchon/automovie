@@ -64,14 +64,7 @@ export namespace HumanArmTrajectoryHalfStep {
     length: number;
   }
 
-  /**
-   * The probe's swept segment that comes nearest the shape, read exactly.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member, its frame and its unit.
-   * @evidence contracts/development/design.md#principled-representation A signed distance and two gradient directions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the pair reading and its convex rows read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
+  /** The probe's swept segment that comes nearest the shape, read exactly. */
   export interface ISwept {
     /**
      * The segment's signed distance to the shape less the played cubic's stray
@@ -89,20 +82,102 @@ export namespace HumanArmTrajectoryHalfStep {
     there: IGradient[];
   }
 
-  /**
-   * A reading's gradient in the probe's place at one neighbouring waypoint.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member and its frame.
-   * @evidence contracts/development/design.md#principled-representation A waypoint index and a world direction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the convex rows read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
+  /** A reading's gradient in the probe's place at one neighbouring waypoint. */
   export interface IGradient {
     /** The neighbouring waypoint. */
     other: number;
 
     /** The gradient, in that waypoint's world frame. */
     direction: IAutoMovieVector3;
+  }
+
+  /**
+   * How far each probe and each shape travels to the neighbouring waypoints, in
+   * world, at most: a probe's longer step to a placed neighbour, and a shape's
+   * centre's step plus its bounding radius times the chord of its turn, which
+   * bounds how far any point of it moves. A pair's swept segment, carried into
+   * the shape's frame, is no longer than the two summed, so a pair the shape's
+   * sphere shows clear by that much needs no neighbour read at all.
+   */
+  export interface ITravel {
+    /** Each probe's longer step to a placed neighbour, metres; zero without one. */
+    probes: Float64Array;
+
+    /** Each shape's farthest point's step to the same neighbours, metres. */
+    shapes: Float64Array;
+  }
+
+  /**
+   * How far nearer than at its waypoint a pair can come over the intervals to
+   * its neighbours, per metre of its travel `L` (the probe's and the shape's
+   * summed, `ITravel`): its swept chord comes at most `L` nearer, and the
+   * played cubic's stray toward the shape is at most an eighth of the second
+   * difference `|p(k-1) - 2 p(k) + p(k+1)|`, which the triangle inequality
+   * bounds by `2 L`; so `L + 2 L / 8`. A screen widened by this times the
+   * travel leaves out no pair the swept reading (`swept`) could find within its
+   * allowance.
+   */
+  export const SWEPT: number = 1 + 2 / 8;
+
+  /**
+   * The travel bounds of a waypoint's probes and shapes (`ITravel`).
+   *
+   * @param c The context.
+   * @param a The arm.
+   * @param k The waypoint.
+   * @param placed The arm placed at `k`.
+   * @param around The arm at the neighbouring waypoints.
+   * @returns The bounds.
+   */
+  export function travel(
+    c: M.IContext,
+    a: number,
+    k: number,
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
+    around: IAround,
+  ): ITravel {
+    const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
+    const probes: Float64Array = new Float64Array(placed.probes.length);
+    const shapes: Float64Array = new Float64Array(frame.shapes.length);
+    const read = (
+      other: number,
+      at: IAutoMovieMotionHumanArmGeometry.IPlaced | undefined,
+    ): void => {
+      if (at === undefined || other < 0 || other >= c.n) return;
+      for (let i: number = 0; i < placed.probes.length; ++i) {
+        const there: IAutoMovieVector3 | undefined = at.probes[i]?.[0];
+        if (there !== undefined)
+          probes[i] = Math.max(
+            probes[i]!,
+            Vector3.distance(placed.probes[i]![0], there),
+          );
+      }
+      const shifted: IAutoMovieMotionHumanArmGeometry.IFrame =
+        c.frames[a]![other]!;
+      frame.shapes.forEach(
+        (now: IAutoMovieMotionHumanArmGeometry.IShape, s: number): void => {
+          const then: IAutoMovieMotionHumanArmGeometry.IShape | undefined =
+            shifted.shapes[s];
+          // A shape that is not the same segment there is read as still,
+          // as `neighbours` carries it.
+          const moved: number =
+            then === undefined ||
+            then.bone !== now.bone ||
+            then.part !== now.part
+              ? 0
+              : Vector3.distance(now.centre, then.centre) +
+                now.radius *
+                  2 *
+                  Math.sin(
+                    Quaternion.angle(now.pose.rotation, then.pose.rotation) / 2,
+                  );
+          shapes[s] = Math.max(shapes[s]!, moved);
+        },
+      );
+    };
+    read(k - 1, around.before);
+    read(k + 1, around.after);
+    return { probes, shapes };
   }
 
   /**

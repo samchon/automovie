@@ -171,10 +171,27 @@ export namespace HumanArmTrajectoryPairs {
   ): Map<number, IPair> {
     const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
     const out: Map<number, IPair> = new Map();
+
+    // How far each probe and each shape travels to the neighbouring
+    // waypoints (`HumanArmTrajectoryHalfStep.travel`): the screens reach
+    // that much farther, so a fast probe meets every shape its swept
+    // segment can, and a pair is read over its neighbours only where the
+    // shape's sphere, less both travels, cannot show it clear.
+    const moving: HumanArmTrajectoryHalfStep.ITravel | undefined =
+      beside === undefined
+        ? undefined
+        : HumanArmTrajectoryHalfStep.travel(c, a, k, placed, beside);
+    let widest: number = 0;
+    if (moving !== undefined) {
+      for (const v of moving.probes) widest = Math.max(widest, v);
+      let shapeMost: number = 0;
+      for (const v of moving.shapes) shapeMost = Math.max(shapeMost, v);
+      widest = HumanArmTrajectoryHalfStep.SWEPT * (widest + shapeMost);
+    }
     const screened: S.IScreen = S.screen(
       frame,
       placed,
-      T.REACH,
+      T.REACH + widest,
       c.reachable[a]![k]!,
     );
     // Each audit part reads only the shapes its own probes' sphere can
@@ -182,7 +199,7 @@ export namespace HumanArmTrajectoryPairs {
     const parts: Map<number, S.IScreen> = HumanArmPartScreen(
       frame,
       placed,
-      T.REACH,
+      T.REACH + widest,
       screened,
     );
     const gaps: number[] = [];
@@ -198,7 +215,7 @@ export namespace HumanArmTrajectoryPairs {
           frame,
           placed,
           probe,
-          T.REACH,
+          T.REACH + widest,
           parts.get(part)!,
           gaps,
         )) {
@@ -210,27 +227,16 @@ export namespace HumanArmTrajectoryPairs {
           const known: IPair | undefined = out.get(key);
           const allowance: number = c.allowed(a, k, probe, shape);
 
-          // The probe's swept segments to its neighbouring waypoints
-          // (`HumanArmTrajectoryHalfStep`): the pair is read over them as at
-          // the waypoint, so every bound below holds for the longer of them.
-          const around: HumanArmTrajectoryHalfStep.INeighbour[] =
-            beside === undefined
-              ? []
-              : HumanArmTrajectoryHalfStep.neighbours(
-                  c,
-                  a,
-                  k,
-                  shape,
-                  probe,
-                  placed,
-                  beside,
-                );
-          const travel: number = Math.max(
-            0,
-            ...around.map(
-              (n: HumanArmTrajectoryHalfStep.INeighbour): number => n.length,
-            ),
-          );
+          // The pair's swept segments are no longer than the probe's and
+          // the shape's travels summed, L, so they come no nearer than L,
+          // and the played cubic's stray toward the shape adds at most an
+          // eighth of the second difference, itself at most 2 L: every bound
+          // below holds over the interval with SWEPT L taken off.
+          const travel: number =
+            moving === undefined
+              ? 0
+              : HumanArmTrajectoryHalfStep.SWEPT *
+                (moving.probes[probe]! + moving.shapes[shape]!);
 
           // The shape's bounding sphere bounds its distance from below, so a
           // probe it shows no deeper than the pair's deepest so far is not
@@ -265,6 +271,22 @@ export namespace HumanArmTrajectoryPairs {
             queries[shape] = query;
           }
           const gap: number = query(p, p) - r;
+
+          // Only a pair the cheap bounds could not clear reads its
+          // neighbours (`HumanArmTrajectoryHalfStep`), carried into the
+          // shape's frame, and its swept segments exactly.
+          const around: HumanArmTrajectoryHalfStep.INeighbour[] =
+            beside === undefined || gap - allowance >= travel
+              ? []
+              : HumanArmTrajectoryHalfStep.neighbours(
+                  c,
+                  a,
+                  k,
+                  shape,
+                  probe,
+                  placed,
+                  beside,
+                );
           const sweep: HumanArmTrajectoryHalfStep.ISwept | undefined =
             HumanArmTrajectoryHalfStep.swept(
               frame.shapes[shape]!,
