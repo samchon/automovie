@@ -29,12 +29,17 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * A seated rider inherits rigid support motion. A rising rider moves relative to the saddle, in time with its stride.
+ * A seated rider inherits rigid support motion. A rising rider moves relative
+ * to the saddle, in time with its stride.
  *
  * Scenarios:
- * - A turning seat carries a sitter with a free hand at constant seat offset and heading; boarding from standing is refused.
- * - At two consecutive forefoot landings the rider returns to the saddle. Between them the pelvis lifts and both feet remain on their stirrups.
+ *
+ * - A turning seat carries a sitter with a free hand at constant seat offset and
+ *   heading; boarding from standing is refused.
+ * - At two consecutive forefoot landings the rider returns to the saddle. Between
+ *   them the pelvis lifts and both feet remain on their stirrups.
  * - Removing the stirrups refuses the rising action.
+ *
  * @evidence contracts/development/testing.md#behavioral-verification Reads public prop transforms, the displayed seat region and foot balls, plus typed admission results.
  * @evidence contracts/development/testing.md#independent-expectations Compares pose against independently sampled prop frames. Campaign bounds are 10 mm support drift, one degree heading, 15 mm return and a tenth of the thigh for a visible rise.
  * @evidence contracts/development/testing.md#distinguishing-cases A rigid rotating seat and a periodic moving saddle distinguish a carried offset from a stride-locked relative movement.
@@ -54,7 +59,9 @@ export function test_motion_mount_rider_attachment(): void {
       rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90 * phase),
     };
   };
-  const seat = HumanObject.seat(car, placed(0), "driverSeat");
+  // The seat is the car's, which starts moving while the driver still sits
+  // down: the sit follows it (`HumanObject.seat`'s carrier).
+  const seat = HumanObject.seat(car, placed(0), "driverSeat", "car");
   const drive = (chain: IAutoMovieMotionHumanChain) =>
     new HumanPerformance({
       seed: "attached",
