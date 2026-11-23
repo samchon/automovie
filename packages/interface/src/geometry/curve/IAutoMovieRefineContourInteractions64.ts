@@ -1,7 +1,7 @@
 /**
  * Qualification and measured work of contour interaction refinement.
  *
- * refineAutoMovieContourInteractions64 projects a common planar section onto
+ * RefineAutoMovieContourInteractions64 projects a common planar section onto
  * its dominant coordinate plane and classifies represented binary64 chords by
  * exact dyadic orientation signs. Contacted curved source restrictions may be
  * split while preserving endpoint identity and the supplied physical tolerance.
@@ -12,14 +12,15 @@
  */
 export namespace IAutoMovieRefineContourInteractions64 {
   /**
-   * Newly owned trace and scalar observations after one refinement call.
-   * Fewer than two selected rings returns qualified:true, empty diagnostics and
-   * zero counters; requested timing can still report that invocation's duration.
+   * Newly owned trace and scalar observations after one refinement call. Fewer
+   * than two selected rings returns qualified:true, empty diagnostics and zero
+   * counters; requested timing can still report that invocation's duration.
    */
   export type IResult = {
     /**
      * No unresolved represented chord contact remained when refinement ended.
-     * Successful separation after earlier contact can still leave trace messages.
+     * Successful separation after earlier contact can still leave trace
+     * messages.
      */
     qualified: boolean;
     /**
@@ -29,7 +30,10 @@ export namespace IAutoMovieRefineContourInteractions64 {
     diagnostics: string[];
     /** Actual retained source-restriction splits, a nonnegative integer count. */
     refinements: number;
-    /** Candidate chord pairs visited, including revisits after source refinement. */
+    /**
+     * Candidate chord pairs visited, including revisits after source
+     * refinement.
+     */
     chordPairs: number;
     /** Exact dyadic orientation predicate calls made by this invocation. */
     exactOrientationTests: number;

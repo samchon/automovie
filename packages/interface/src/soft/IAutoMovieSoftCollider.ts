@@ -4,20 +4,19 @@ import type { IAutoMovieCapsuleProxy } from "../validation/IAutoMovieCapsuleProx
 /**
  * One volume the panel is kept out of.
  *
- * Static colliders are stated in world space beside the rest mesh rather than pulled from the building graph. The body-capsule arm instead names actor-local bone endpoints that the wearable resolver places from supplied world poses.
+ * Static colliders are stated in world space beside the rest mesh rather than
+ * pulled from the building graph. The body-capsule arm instead names
+ * actor-local bone endpoints that the wearable resolver places from supplied
+ * world poses.
  */
 export type IAutoMovieSoftCollider =
   | IAutoMovieSoftCollider.IPlane
   | IAutoMovieSoftCollider.ISphere
   | IAutoMovieSoftCollider.IBox
   | IAutoMovieSoftCollider.IBodyCapsule;
-/**
- * Static world exclusions and actor-following capsule references.
- */
+/** Static world exclusions and actor-following capsule references. */
 export namespace IAutoMovieSoftCollider {
-  /**
-   * Half-space with an allowed outward side.
-   */
+  /** Half-space with an allowed outward side. */
   export interface IPlane {
     /** Discriminator. */
     kind: "plane";
@@ -32,9 +31,7 @@ export namespace IAutoMovieSoftCollider {
     offset: number;
   }
 
-  /**
-   * Static spherical exclusion volume.
-   */
+  /** Static spherical exclusion volume. */
   export interface ISphere {
     /** Discriminator. */
     kind: "sphere";
@@ -49,9 +46,7 @@ export namespace IAutoMovieSoftCollider {
     radius: number;
   }
 
-  /**
-   * Static axis-aligned world exclusion box.
-   */
+  /** Static axis-aligned world exclusion box. */
   export interface IBox {
     /** Discriminator. */
     kind: "box";
@@ -66,9 +61,7 @@ export namespace IAutoMovieSoftCollider {
     max: IAutoMovieVector3;
   }
 
-  /**
-   * Shared capsule following one actor's evaluated humanoid pose.
-   */
+  /** Shared capsule following one actor's evaluated humanoid pose. */
   export interface IBodyCapsule {
     /** Body-following capsule discriminator. */
     kind: "body-capsule";

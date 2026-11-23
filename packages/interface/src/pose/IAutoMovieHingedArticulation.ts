@@ -37,16 +37,22 @@ export interface IAutoMovieHingedArticulation extends IAutoMovieSwivelSeed {
   overshoot: number;
 
   /**
-   * Metres the effector rests short of (or past) the target along the line
-   * from the chain root, because the target distance lies outside the chain's
-   * span or the mid joint stopped at a limit of its own range; `0` when a
-   * legal hinge angle reaches the distance.
+   * Metres the effector rests short of (or past) the target along the line from
+   * the chain root, because the target distance lies outside the chain's span
+   * or the mid joint stopped at a limit of its own range; `0` when a legal
+   * hinge angle reaches the distance.
    */
   shortfall: number;
 
-  /** The chosen candidate's exact deviation, the scorer's tie-break after the overshoot. */
+  /**
+   * The chosen candidate's exact deviation, the scorer's tie-break after the
+   * overshoot.
+   */
   deviation: number;
 
-  /** The chosen candidate's second key (the scorer's `tiebreak`), when the sweep has a `tie`. */
+  /**
+   * The chosen candidate's second key (the scorer's `tiebreak`), when the sweep
+   * has a `tie`.
+   */
   second?: number;
 }

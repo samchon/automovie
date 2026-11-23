@@ -1,7 +1,8 @@
 import type { IAutoMovieShotPredicate } from "./IAutoMovieShotPredicate";
 
 /**
- * A semantic event the shot source must realize once inside an inclusive shot-local window.
+ * A semantic event the shot source must realize once inside an inclusive
+ * shot-local window.
  */
 export interface IAutoMovieShotEventContract {
   /** Stable event id. */

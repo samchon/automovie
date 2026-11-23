@@ -3,8 +3,7 @@ import type {
   IAutoMovieRecoveryObservationTransported,
 } from "../../index";
 
-/** Closed admitted or refused outcomes of geometric observation-chart transport.
- */
+/** Closed admitted or refused outcomes of geometric observation-chart transport. */
 export type IAutoMovieRecoveryObservationTransport =
   | IAutoMovieRecoveryObservationTransportRefused
   | IAutoMovieRecoveryObservationTransported;

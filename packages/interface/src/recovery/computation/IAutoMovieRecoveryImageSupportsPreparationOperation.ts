@@ -1,12 +1,20 @@
 import type { IAutoMovieRecoveryImageObservation } from "../../index";
 
 /**
- * Admit measured image supports and prepare their common physical row chart. Retain every original row inside the shared interval; interpolate other views linearly only within their measured domains. This changes neither image bytes nor the meaning of a recorded row. Cameras and rigidity remain supplied inputs.
+ * Admit measured image supports and prepare their common physical row chart.
+ * Retain every original row inside the shared interval; interpolate other views
+ * linearly only within their measured domains. This changes neither image bytes
+ * nor the meaning of a recorded row. Cameras and rigidity remain supplied
+ * inputs.
  */
 
 export namespace IAutoMovieRecoveryImageSupportsPreparationOperation {
   /**
-   * Admit measured image supports and prepare their common physical row chart. Retain every original row inside the shared interval; interpolate other views linearly only within their measured domains. This changes neither image bytes nor the meaning of a recorded row. Cameras and rigidity remain supplied inputs.
+   * Admit measured image supports and prepare their common physical row chart.
+   * Retain every original row inside the shared interval; interpolate other
+   * views linearly only within their measured domains. This changes neither
+   * image bytes nor the meaning of a recorded row. Cameras and rigidity remain
+   * supplied inputs.
    */
 
   export type Operation = (
@@ -24,22 +32,40 @@ export namespace IAutoMovieRecoveryImageSupportsPreparationOperation {
     /** Maximum common admitted vertical support coordinate in millimetres. */
     upper: number;
 
-    /** Declared physical projection or tangent directions in the owning observation chart. */
+    /**
+     * Declared physical projection or tangent directions in the owning
+     * observation chart.
+     */
     directions: {
-      /** Cosine of the view's declared azimuth; dimensionless horizontal direction coefficient. */
+      /**
+       * Cosine of the view's declared azimuth; dimensionless horizontal
+       * direction coefficient.
+       */
       c: number;
-      /** Sine of the view's declared azimuth; dimensionless horizontal direction coefficient. */
+      /**
+       * Sine of the view's declared azimuth; dimensionless horizontal direction
+       * coefficient.
+       */
       s: number;
     }[];
 
     /** Sorted common vertical image-observation stations in millimetres. */
     stations: number[];
 
-    /** Original source-incidence support assigned to the corresponding boundary observations. */
+    /**
+     * Original source-incidence support assigned to the corresponding boundary
+     * observations.
+     */
     supports: {
-      /** Lower physical support or componentwise enclosure bound, in the declared registered millimetre frame. */
+      /**
+       * Lower physical support or componentwise enclosure bound, in the
+       * declared registered millimetre frame.
+       */
       lowerMm: number;
-      /** Upper physical support or componentwise enclosure bound, in the declared registered millimetre frame. */
+      /**
+       * Upper physical support or componentwise enclosure bound, in the
+       * declared registered millimetre frame.
+       */
       upperMm: number;
     }[][];
   };

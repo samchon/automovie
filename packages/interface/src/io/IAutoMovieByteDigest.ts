@@ -1,9 +1,10 @@
 /**
- * Identity of an immutable sequence of stored bytes, independent of its encoding.
- * The publisher computes SHA-256 over exactly `bytes` bytes: an archive receipt
- * identifies compressed bytes, while a JSON receipt identifies UTF-8 JSON bytes.
- * Readers verify both fields against acquired bytes before reuse. The mutable
- * receipt record neither freezes storage nor performs verification itself.
+ * Identity of an immutable sequence of stored bytes, independent of its
+ * encoding. The publisher computes SHA-256 over exactly `bytes` bytes: an
+ * archive receipt identifies compressed bytes, while a JSON receipt identifies
+ * UTF-8 JSON bytes. Readers verify both fields against acquired bytes before
+ * reuse. The mutable receipt record neither freezes storage nor performs
+ * verification itself.
  */
 
 export interface IAutoMovieByteDigest {

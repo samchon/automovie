@@ -4,8 +4,8 @@ import type { IAutoMoviePlanarPoint } from "../architecture/IAutoMoviePlanarPoin
  * The circle one bulged opening edge runs on, in the profile's planar frame.
  *
  * Produced by `autoMovieOpeningArc`. The arc starts at the edge's `from` point,
- * at angle `start` about `center`, and turns by the signed `sweep` to reach
- * the edge's `to` point; a negative sweep runs clockwise.
+ * at angle `start` about `center`, and turns by the signed `sweep` to reach the
+ * edge's `to` point; a negative sweep runs clockwise.
  */
 export interface IAutoMovieOpeningArc {
   /** Centre of the arc's circle, in profile-frame metres. */

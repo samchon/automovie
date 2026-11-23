@@ -1,6 +1,8 @@
 import type { IAutoMovieRecoveryEventCurvePiece } from "../../index";
 
-/** Ordered cubic occurrences with an optional retained normalized phase partition.
+/**
+ * Ordered cubic occurrences with an optional retained normalized phase
+ * partition.
  */
 export interface IAutoMovieRecoveryEventCurveArc {
   /** Stable named path. */

@@ -2,11 +2,12 @@ import type { IAutoMovieHumanBreastFootprint } from "./IAutoMovieHumanBreastFoot
 import type { IAutoMovieHumanTrunkFeatureFrame } from "./IAutoMovieHumanTrunkFeatureFrame";
 
 /**
- * Breast frame and footprint inputs and sampled body-point grids in millimetres. Runtime construction and admission remain with AutoMovieHumanBreastDome in Human.
+ * Breast frame and footprint inputs and sampled body-point grids in
+ * millimetres. Runtime construction and admission remain with
+ * AutoMovieHumanBreastDome in Human.
  */
 export namespace IAutoMovieHumanBreastDome {
-  /** What the dome reads.
-   */
+  /** What the dome reads. */
   export interface IInput {
     /** The breast's frame. */
     frame: IAutoMovieHumanTrunkFeatureFrame.IFrame;
@@ -19,7 +20,9 @@ export namespace IAutoMovieHumanBreastDome {
   }
 
   /**
-   * Sample grid of body-frame [x, y, z] points in millimetres. Rows advance along the breast frame's up axis and columns along its lateral axis; this is the isolated dome display surface.
+   * Sample grid of body-frame [x, y, z] points in millimetres. Rows advance
+   * along the breast frame's up axis and columns along its lateral axis; this
+   * is the isolated dome display surface.
    */
   export type SurfaceResult = [number, number, number][][];
 }

@@ -1,7 +1,6 @@
 import type { IAutoMovieRecoveryMapObservation } from "../../index";
 
-/** Nonconflicting appearance component before geometric point qualification.
- */
+/** Nonconflicting appearance component before geometric point qualification. */
 export interface IAutoMovieRecoveryLinkedTrack {
   /** Deterministic minimum global feature-node index in the linked component. */
   id: number;

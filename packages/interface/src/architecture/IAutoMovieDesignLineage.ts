@@ -7,11 +7,19 @@ import type { IAutoMovieDesignSubject } from "./IAutoMovieDesignSubject";
 import type { IAutoMovieDesignVariant } from "./IAutoMovieDesignVariant";
 
 /**
- * Phases, alternatives, and derivation for one work, over identities other graphs own.
+ * Phases, alternatives, and derivation for one work, over identities other
+ * graphs own.
  *
- * Nothing here is a building. The record annotates ids that already exist elsewhere, which is what keeps a renovation from being modelled as a second building and an alternative from being modelled as a third. A production that declares no lineage at all is unaffected: this fold is additive, and its absence means only that no phase or alternative claim is being made.
+ * Nothing here is a building. The record annotates ids that already exist
+ * elsewhere, which is what keeps a renovation from being modelled as a second
+ * building and an alternative from being modelled as a third. A production that
+ * declares no lineage at all is unaffected: this fold is additive, and its
+ * absence means only that no phase or alternative claim is being made.
  *
- * Explicit Engine lineage validators check coherence and supplied host identities. Production shot/build integration is retired; callers must invoke those checks and supply current graph identities rather than treating this record as automatic admission.
+ * Explicit Engine lineage validators check coherence and supplied host
+ * identities. Production shot/build integration is retired; callers must invoke
+ * those checks and supply current graph identities rather than treating this
+ * record as automatic admission.
  */
 export interface IAutoMovieDesignLineage {
   /** Schema version; validation accepts only `1`. */
@@ -20,7 +28,8 @@ export interface IAutoMovieDesignLineage {
   /**
    * Stable, non-blank lineage identity within the production.
    *
-   * Shared lineages should be canonically equal under one id; cross-shot consistency requires an explicit host after production merger retirement.
+   * Shared lineages should be canonically equal under one id; cross-shot
+   * consistency requires an explicit host after production merger retirement.
    */
   id: string;
 

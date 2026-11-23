@@ -1,9 +1,9 @@
 /**
- * Type contracts exchanged by AutoMovieHumanTrunkNeckSeat; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanTrunkNeckSeat; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanTrunkNeckSeat {
-  /** The neck's bottom ring.
-   */
+  /** The neck's bottom ring. */
   export interface ISeat {
     /** Mean height, mm. */
     y: number;
@@ -20,14 +20,19 @@ export namespace IAutoMovieHumanTrunkNeckSeat {
     /** The ring's point on the back midline. */
     back: [number, number, number];
 
-    /** Internal overlap ring's left lateral support; not a recovered public side-neck landmark. */
+    /**
+     * Internal overlap ring's left lateral support; not a recovered public
+     * side-neck landmark.
+     */
     side: [number, number, number];
 
     /** The lateral outline's jet at the ring's bottom. */
     lateral: ILateral;
   }
 
-  /** The ring's lateral outline: the left extreme as a function of height at the ring's bottom.
+  /**
+   * The ring's lateral outline: the left extreme as a function of height at the
+   * ring's bottom.
    */
   export interface ILateral {
     /** Height of the ring, mm. */
@@ -39,7 +44,10 @@ export namespace IAutoMovieHumanTrunkNeckSeat {
     /** First derivative of the extreme with respect to height, mm per mm. */
     slope: number;
 
-    /** Second derivative of the extreme with respect to height, mm per mm squared. */
+    /**
+     * Second derivative of the extreme with respect to height, mm per mm
+     * squared.
+     */
     curvature: number;
   }
 }

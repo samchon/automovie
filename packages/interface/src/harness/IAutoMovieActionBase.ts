@@ -50,12 +50,12 @@ export interface IAutoMovieActionBase {
    * knees, and contralateral arms; `gesture` and `reach` are `upperBody`;
    * `lookAt` and the `nod` and `shake` gestures are `head`; `emote` is `face`;
    * the `bow`, `crouch`, `kick`, `stagger`, `jump`, and `draw` gestures and
-   * every other verb are `fullBody`. Overlap is judged on the content
-   * surviving those masks (root, bones, expression), so a `fullBody` gait
-   * still layers with a disjoint head-only `lookAt`. The engine masks the
-   * synthesized clip to the chosen region and `performShot` reports content
-   * the mask drops, so override only when the natural region is wrong for the
-   * staging. Camera (`frame`) and `attachTo` actions ignore it.
+   * every other verb are `fullBody`. Overlap is judged on the content surviving
+   * those masks (root, bones, expression), so a `fullBody` gait still layers
+   * with a disjoint head-only `lookAt`. The engine masks the synthesized clip
+   * to the chosen region and `performShot` reports content the mask drops, so
+   * override only when the natural region is wrong for the staging. Camera
+   * (`frame`) and `attachTo` actions ignore it.
    */
   region?: AutoMovieBodyRegion;
 

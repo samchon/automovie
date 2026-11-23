@@ -5,12 +5,11 @@ import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieFootContactWindow } from "./IAutoMovieFootContactWindow";
 
-/**
- * Data and callback contracts shared by the ValidateFootSkate operations.
- */
+/** Data and callback contracts shared by the ValidateFootSkate operations. */
 export namespace IAutoMovieValidateFootSkate {
   /**
-   * Sample admitted contact windows, resolve FK and warn when adjacent foot XZ displacement divided by elapsed seconds exceeds the declared speed.
+   * Sample admitted contact windows, resolve FK and warn when adjacent foot XZ
+   * displacement divided by elapsed seconds exceeds the declared speed.
    */
   export type IProps = {
     /** Motion clip to sample. */
@@ -35,10 +34,11 @@ export namespace IAutoMovieValidateFootSkate {
     restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
 
     /**
-     * Marker that opts the clip out of the foot-plant expectation. Foot skate is
-     * a physical-plausibility warning, not a gate: a deliberate slide (a
-     * moonwalk, a skate, a comedic scoot) sets this and the matching warnings are
-     * suppressed. Malformed annotations (bad bone, window, rate) stay errors.
+     * Marker that opts the clip out of the foot-plant expectation. Foot skate
+     * is a physical-plausibility warning, not a gate: a deliberate slide (a
+     * moonwalk, a skate, a comedic scoot) sets this and the matching warnings
+     * are suppressed. Malformed annotations (bad bone, window, rate) stay
+     * errors.
      */
     physicsIntent?: string;
   };

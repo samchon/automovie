@@ -4,14 +4,14 @@ import type { IAutoMovieMotionHumanSimulationWindow } from "./IAutoMovieMotionHu
 
 /**
  * One window of a performance baked through the engine's solver
- * (`HumanPerformance.simulate`): the window and mode it was asked for and
- * the engine's completed simulation of it.
+ * (`HumanPerformance.simulate`): the window and mode it was asked for and the
+ * engine's completed simulation of it.
  *
- * The simulation's clock is local: its second zero is the window's `from`,
- * and its bodies are the window's subjects under their subject ids. Its
+ * The simulation's clock is local: its second zero is the window's `from`, and
+ * its bodies are the window's subjects under their subject ids. Its
  * `cache.identity` is the digest of every sampled input, so two bakes of the
- * same window agree on it, and its frames are the solved states read for
- * the displayed poses inside the window.
+ * same window agree on it, and its frames are the solved states read for the
+ * displayed poses inside the window.
  */
 export interface IAutoMovieMotionHumanSimulation {
   /** The window as asked. */

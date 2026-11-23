@@ -1,6 +1,7 @@
-/** Isolated numerical source-cubic critical candidates on normalized (0,1).
- * D=0 includes inflections and stationary points; categories may overlap.
- * No endpoint or unresolved continuum is fabricated as an isolated root.
+/**
+ * Isolated numerical source-cubic critical candidates on normalized (0,1). D=0
+ * includes inflections and stationary points; categories may overlap. No
+ * endpoint or unresolved continuum is fabricated as an isolated root.
  */
 export interface IAutoMovieCubicCriticalParameters {
   /** Sorted exact-value union of the three numerical candidate arrays. */

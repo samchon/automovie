@@ -1,5 +1,6 @@
 /**
- * One supplied Kokoro phoneme chunk on its model-native PCM clock; this repository has no synthesis writer for the enclosing receipt.
+ * One supplied Kokoro phoneme chunk on its model-native PCM clock; this
+ * repository has no synthesis writer for the enclosing receipt.
  */
 export interface IAutoMovieProductionPhonemeChunk {
   /** Chunk phonemes in synthesis order. */

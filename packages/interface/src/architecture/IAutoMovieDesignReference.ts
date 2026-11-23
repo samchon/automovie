@@ -6,11 +6,17 @@ import type { IAutoMovieObservedCandidate } from "./IAutoMovieObservedCandidate"
 import type { IAutoMovieObservedPrimitive } from "./IAutoMovieObservedPrimitive";
 
 /**
- * One observed design reference: the bytes, how they are read, what was seen, what was proposed, and what remains undecided.
+ * One observed design reference: the bytes, how they are read, what was seen,
+ * what was proposed, and what remains undecided.
  *
- * This record is evidence and only evidence. The design source of truth stays the TypeScript building source; a reference is cited by it through {@link IAutoMovieDesignEvidence} and never merged into it. A plan image therefore cannot quietly become a wall, because nothing here is a wall.
+ * This record is evidence and only evidence. The design source of truth stays
+ * the TypeScript building source; a reference is cited by it through
+ * {@link IAutoMovieDesignEvidence} and never merged into it. A plan image
+ * therefore cannot quietly become a wall, because nothing here is a wall.
  *
- * Current asset bytes, their digest, container family and provenance use require explicit host verification; the production byte/ledger gate is retired.
+ * Current asset bytes, their digest, container family and provenance use
+ * require explicit host verification; the production byte/ledger gate is
+ * retired.
  */
 export interface IAutoMovieDesignReference {
   /** Schema version; validation accepts only `1`. */
@@ -19,7 +25,9 @@ export interface IAutoMovieDesignReference {
   /**
    * Stable, non-blank document identity within the production.
    *
-   * Shared documents should be canonically equal under one id. The retired production merger no longer enforces that cross-shot requirement automatically.
+   * Shared documents should be canonically equal under one id. The retired
+   * production merger no longer enforces that cross-shot requirement
+   * automatically.
    */
   id: string;
 

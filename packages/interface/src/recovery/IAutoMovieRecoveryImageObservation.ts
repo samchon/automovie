@@ -1,11 +1,11 @@
 import type { IAutoMovieRecoveryImageObservationView } from "./IAutoMovieRecoveryImageObservationView";
 
 /**
- * Recorded foreground support intervals in supplied camera charts.
- * Row support is a silhouette envelope, never a persistent material-edge track.
- * The initial family requires one opaque interval per occupied row and one
- * eight-connected component; holes, disconnected support, clipped foreground
- * and missing interior rows refuse.
+ * Recorded foreground support intervals in supplied camera charts. Row support
+ * is a silhouette envelope, never a persistent material-edge track. The initial
+ * family requires one opaque interval per occupied row and one eight-connected
+ * component; holes, disconnected support, clipped foreground and missing
+ * interior rows refuse.
  */
 export interface IAutoMovieRecoveryImageObservation {
   /** Same fixed-object capture identity. */

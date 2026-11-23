@@ -1,7 +1,7 @@
 /**
- * One drill regulation's marching times and pace (`HUMAN_DRILL_CADENCES`):
- * the steps a minute of each named time and the length of the step, so the
- * era of a film's drill is a row a march names, not a law.
+ * One drill regulation's marching times and pace (`HUMAN_DRILL_CADENCES`): the
+ * steps a minute of each named time and the length of the step, so the era of a
+ * film's drill is a row a march names, not a law.
  */
 export interface IAutoMovieMotionHumanDrillRegulation {
   /** Steps a minute, by the regulation's name of each time. */
@@ -11,13 +11,8 @@ export interface IAutoMovieMotionHumanDrillRegulation {
   pace: number;
 }
 
-/**
- * Contracts used by regulated, HUMAN_DRILL_CADENCES.
- *
- */
+/** Contracts used by regulated, HUMAN_DRILL_CADENCES. */
 export namespace IAutoMovieMotionHumanDrillRegulation {
-  /**
-   * The regulations.
-   */
+  /** The regulations. */
   export type Name = "british1792" | "french1791" | "us2021";
 }

@@ -11,22 +11,24 @@ export interface IAutoMovieHumanWebCrests {
   webs: Map<string, IAutoMovieHumanWeb>;
 
   /**
-   * Read the retained web for an unordered pair of pinch vertex indices; callers must supply a pair present in webs.
+   * Read the retained web for an unordered pair of pinch vertex indices;
+   * callers must supply a pair present in webs.
    */
   webOf: (a: number, b: number) => IAutoMovieHumanWeb;
 
-  /**
-   * The mesh's point of a vertex, mm.
-   */
+  /** The mesh's point of a vertex, mm. */
   position: (v: number) => AutoMovieVector3Tuple;
 
   /**
-   * Outward unit direction estimated between the end ring and its inward station sample at phase t in radians.
+   * Outward unit direction estimated between the end ring and its inward
+   * station sample at phase t in radians.
    */
   outward: (t: number) => AutoMovieVector3Tuple;
 
   /**
-   * Parent's outward station jet at end-ring phase t in radians, estimated by the producer's one-sided three-point samples; it is not an exact source derivative.
+   * Parent's outward station jet at end-ring phase t in radians, estimated by
+   * the producer's one-sided three-point samples; it is not an exact source
+   * derivative.
    */
   parentJet: (t: number) => IAutoMovieArcLengthJet;
 }

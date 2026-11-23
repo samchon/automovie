@@ -1,4 +1,6 @@
-/** Counts of observations and emitted coefficient populations in a section publication.
+/**
+ * Counts of observations and emitted coefficient populations in a section
+ * publication.
  */
 export interface IAutoMovieRecoverySectionSummary {
   /** Number of physical observations supplied to curve fitting. */

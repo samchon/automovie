@@ -1,13 +1,29 @@
 /**
- * A linear-RGB color with optional alpha, the canonical color value for materials, lights, fog, backgrounds and decorative tints.
+ * A linear-RGB color with optional alpha, the canonical color value for
+ * materials, lights, fog, backgrounds and decorative tints.
  *
- * Components are linear (not sRGB-gamma-encoded) numbers in `[0, 1]`, matching how PBR shaders and glTF `baseColorFactor` consume color. `hex` is an optional sRGB label for human and LLM readability and viewer swatches; the engine renders the linear triple and never decodes `hex`.
+ * Components are linear (not sRGB-gamma-encoded) numbers in `[0, 1]`, matching
+ * how PBR shaders and glTF `baseColorFactor` consume color. `hex` is an
+ * optional sRGB label for human and LLM readability and viewer swatches; the
+ * engine renders the linear triple and never decodes `hex`.
  *
- * Derive the label, do not type it. `linearColorToSrgbHex` writes `hex` from the triple, `srgbHexToLinearColor` writes the triple from a swatch, and the two round-trip exactly for every eight-bit channel value. Bare `#RRGGBB` fields elsewhere carry the color rather than label one, so they are sRGB inputs: the builder and instance viewer share `srgbHexToLinearColor` for recipe and instance palettes, while the effect viewer applies three.js's equivalent decode to particle colors. A swatch pasted into `r`, `g`, `b` unconverted lands about 2.3 times too bright at midtones: `#808080` becomes linear `0.502` where the swatch means `0.216`.
+ * Derive the label, do not type it. `linearColorToSrgbHex` writes `hex` from
+ * the triple, `srgbHexToLinearColor` writes the triple from a swatch, and the
+ * two round-trip exactly for every eight-bit channel value. Bare `#RRGGBB`
+ * fields elsewhere carry the color rather than label one, so they are sRGB
+ * inputs: the builder and instance viewer share `srgbHexToLinearColor` for
+ * recipe and instance palettes, while the effect viewer applies three.js's
+ * equivalent decode to particle colors. A swatch pasted into `r`, `g`, `b`
+ * unconverted lands about 2.3 times too bright at midtones: `#808080` becomes
+ * linear `0.502` where the swatch means `0.216`.
  *
- * The shared validateColor gate requires a present hex label to match the eight-bit sRGB encoding of the linear RGB triple, ignoring letter case. Alpha does not enter that swatch. A malformed or contradictory label is refused; validation never changes the authoritative numeric channels.
+ * The shared validateColor gate requires a present hex label to match the
+ * eight-bit sRGB encoding of the linear RGB triple, ignoring letter case. Alpha
+ * does not enter that swatch. A malformed or contradictory label is refused;
+ * validation never changes the authoritative numeric channels.
  *
- * Reference: glTF 2.0 `pbrMetallicRoughness.baseColorFactor` (linear), CSS Color Module Level 4.
+ * Reference: glTF 2.0 `pbrMetallicRoughness.baseColorFactor` (linear), CSS
+ * Color Module Level 4.
  */
 export interface IAutoMovieColor {
   /** Linear red, `[0, 1]`. */
@@ -20,12 +36,17 @@ export interface IAutoMovieColor {
   b: number;
 
   /**
-   * Linear alpha, `[0, 1]`, where `1` is fully opaque. Null when the color is used in an opacity-irrelevant slot such as a light or emissive color, distinct from `0` (fully transparent).
+   * Linear alpha, `[0, 1]`, where `1` is fully opaque. Null when the color is
+   * used in an opacity-irrelevant slot such as a light or emissive color,
+   * distinct from `0` (fully transparent).
    */
   a: number | null;
 
   /**
-   * Optional sRGB `#RRGGBB` label for human and LLM readability and viewer swatches, or `null`. Write it with `linearColorToSrgbHex` rather than by hand; validation refuses a label that disagrees with the quantized sRGB encoding of the linear components, ignoring letter case.
+   * Optional sRGB `#RRGGBB` label for human and LLM readability and viewer
+   * swatches, or `null`. Write it with `linearColorToSrgbHex` rather than by
+   * hand; validation refuses a label that disagrees with the quantized sRGB
+   * encoding of the linear components, ignoring letter case.
    */
   hex: string | null;
 }

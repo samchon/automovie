@@ -7,11 +7,17 @@ import type { IAutoMovieMotion } from "./IAutoMovieMotion";
 import type { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
 
 /**
- * Data and callback contracts shared by the PreserveRetargetContacts operations.
+ * Data and callback contracts shared by the PreserveRetargetContacts
+ * operations.
  */
 export namespace IAutoMoviePreserveRetargetContacts {
   /**
-   * Correct a root-scaled retarget clip at its existing authored key times using each source frame's foot/declared hand contact mapped by rootScale. Source slides persist; ROM-limited residuals above tolerance*rootScale are collector warnings, while dynamic nonfinite ground or callback exceptions throw. Inputs have passed retarget admission and parallel source/target key times agree.
+   * Correct a root-scaled retarget clip at its existing authored key times
+   * using each source frame's foot/declared hand contact mapped by rootScale.
+   * Source slides persist; ROM-limited residuals above tolerance*rootScale are
+   * collector warnings, while dynamic nonfinite ground or callback exceptions
+   * throw. Inputs have passed retarget admission and parallel source/target key
+   * times agree.
    */
   export type IProps = {
     /** Rig the clip was authored on. */

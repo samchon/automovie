@@ -1,7 +1,9 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
 /**
- * Independent regional across extrema, including the exact source point owning each support. Runtime construction and admission remain with AutoMovieHumanFootBreadth in Human.
+ * Independent regional across extrema, including the exact source point owning
+ * each support. Runtime construction and admission remain with
+ * AutoMovieHumanFootBreadth in Human.
  */
 export namespace IAutoMovieHumanFootBreadth {
   /**

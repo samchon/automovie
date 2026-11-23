@@ -3,7 +3,10 @@ import type { IAutoMovieShot } from "../cinematics/IAutoMovieShot.js";
 import type { IAutoMovieScript } from "../harness/IAutoMovieScript.js";
 
 /**
- * Screenplay caption source and output clock for one sequence. planCaptionSidecar resolves the sequence timeline and groups consecutive output frames by live beat; null captions/scene slugs remain absent content rather than synthesized text.
+ * Screenplay caption source and output clock for one sequence.
+ * planCaptionSidecar resolves the sequence timeline and groups consecutive
+ * output frames by live beat; null captions/scene slugs remain absent content
+ * rather than synthesized text.
  */
 export interface IAutoMoviePlanCaptionSidecarProps {
   /** The script whose screenplay tree carries captions and scene slugs. */
@@ -16,7 +19,8 @@ export interface IAutoMoviePlanCaptionSidecarProps {
   shots: IAutoMovieShot[];
 
   /**
-   * Output frames per second: the render clock, which may differ from `sequence.fps`.
+   * Output frames per second: the render clock, which may differ from
+   * `sequence.fps`.
    */
   fps: number;
 }

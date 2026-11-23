@@ -1,6 +1,6 @@
 /**
- * What the solve of the trunk moves: the landmarks the courses own and the
- * half widths the tapes own. Saved, it replays a solved trunk without solving
+ * What the solve of the trunk moves: the landmarks the courses own and the half
+ * widths the tapes own. Saved, it replays a solved trunk without solving
  * again.
  */
 export interface IAutoMovieHumanTrunkState {
@@ -19,9 +19,15 @@ export interface IAutoMovieHumanTrunkState {
   /** The crotch key's half width, mm. */
   groin: number;
 
-  /** The tapes' half widths: hip at the buttock point, high hip, waist, underbust at the fold and the chest wall at the bust point. */
+  /**
+   * The tapes' half widths: hip at the buttock point, high hip, waist,
+   * underbust at the fold and the chest wall at the bust point.
+   */
   widths: Record<"buttock" | "highHip" | "waist" | "fold" | "bust", number>;
 
-  /** The breasts' projection over the chest wall at the bust point, mm: what the chest tape closes over the wall. */
+  /**
+   * The breasts' projection over the chest wall at the bust point, mm: what the
+   * chest tape closes over the wall.
+   */
   projection: number;
 }

@@ -1,5 +1,4 @@
-/** Optional original-design working-space and arc limits.
- */
+/** Optional original-design working-space and arc limits. */
 export interface IAutoMovieRecoverySqpOptions {
   /** Existing Jacobi sweep ceiling for the optional thin working transpose. */
   maxSweeps: number;
@@ -7,10 +6,16 @@ export interface IAutoMovieRecoverySqpOptions {
   /** Required independent original working-row singular ratio, without floors. */
   minimumSingularRatio: number;
 
-  /** Input plus simultaneous numerical scalar slots, excluding JS object overhead and fixed refusal metadata. */
+  /**
+   * Input plus simultaneous numerical scalar slots, excluding JS object
+   * overhead and fixed refusal metadata.
+   */
   maxEntries: number;
 
-  /** Total owner ceiling, including its current metric, rows and detached states. */
+  /**
+   * Total owner ceiling, including its current metric, rows and detached
+   * states.
+   */
   maxResidentEntries: number;
 
   /** Owner's already admitted simultaneous population, before optional arrays. */

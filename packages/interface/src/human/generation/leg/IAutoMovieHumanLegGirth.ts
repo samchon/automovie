@@ -2,11 +2,12 @@ import type { IAutoMovieHumanLegProfile } from "./IAutoMovieHumanLegProfile";
 import type { IAutoMovieHumanLegStations } from "./IAutoMovieHumanLegStations";
 
 /**
- * Leg tapes, endpoint conditions, ordered normalized rows and millimetre-station girth readers. Runtime construction and admission remain with AutoMovieHumanLegGirth in Human.
+ * Leg tapes, endpoint conditions, ordered normalized rows and
+ * millimetre-station girth readers. Runtime construction and admission remain
+ * with AutoMovieHumanLegGirth in Human.
  */
 export namespace IAutoMovieHumanLegGirth {
-  /** The tapes the law reads, mm.
-   */
+  /** The tapes the law reads, mm. */
   export interface ITapes {
     /** Thigh girth. */
     thigh: number;
@@ -18,8 +19,7 @@ export namespace IAutoMovieHumanLegGirth {
     calf: number;
   }
 
-  /** What the law is placed from.
-   */
+  /** What the law is placed from. */
   export interface IInput {
     /** The tapes. */
     tapes: ITapes;
@@ -30,7 +30,10 @@ export namespace IAutoMovieHumanLegGirth {
     /** Calibration millimetres per world millimetre. */
     scale: number;
 
-    /** The neighbours' rings, each a knot at its own station with its taut girth, `[girth]`. */
+    /**
+     * The neighbours' rings, each a knot at its own station with its taut
+     * girth, `[girth]`.
+     */
     ends?: IAutoMovieHumanLegProfile.IEnds;
 
     /**
@@ -43,12 +46,16 @@ export namespace IAutoMovieHumanLegGirth {
   }
 
   /**
-   * Readonly [station share, ratio] rows in increasing share order; both components are dimensionless. The reader interpolates linearly between rows and holds the endpoint ratios outside them.
+   * Readonly [station share, ratio] rows in increasing share order; both
+   * components are dimensionless. The reader interpolates linearly between rows
+   * and holds the endpoint ratios outside them.
    */
   export type RatioAtTable = readonly (readonly [number, number])[];
 
   /**
-   * Requested section girth in millimetres at physical station s in millimetres. The produced law holds its endpoint values beyond the first and last knots.
+   * Requested section girth in millimetres at physical station s in
+   * millimetres. The produced law holds its endpoint values beyond the first
+   * and last knots.
    */
   export type OfResult = (s: number) => number;
 }

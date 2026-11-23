@@ -1,6 +1,4 @@
-/**
- * Limits and acceptance thresholds for supplied-camera aligned-ellipse fitting.
- */
+/** Limits and acceptance thresholds for supplied-camera aligned-ellipse fitting. */
 
 export interface IAutoMovieRecoveryImageFitPolicy {
   /** Declared section family; this hypothesis does not identify hidden surfaces. */
@@ -18,7 +16,10 @@ export interface IAutoMovieRecoveryImageFitPolicy {
   /** Positive maximum absolute support residual in each original pixel chart. */
   maximumResidualPx: number;
 
-  /** Minimum two-column camera-design singular-value ratio, strictly between zero and one. */
+  /**
+   * Minimum two-column camera-design singular-value ratio, strictly between
+   * zero and one.
+   */
   minimumDirectionRatio: number;
 
   /** Minimum spline QR diagonal ratio, strictly between zero and one. */

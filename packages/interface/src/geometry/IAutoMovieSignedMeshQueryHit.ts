@@ -43,8 +43,8 @@ export interface IAutoMovieSignedMeshQueryHit {
 
   /**
    * True when the nearest support is an open sheet's rim edge or rim vertex,
-   * whose reported side is not a side of the sheet's interior; always false
-   * for a closed surface.
+   * whose reported side is not a side of the sheet's interior; always false for
+   * a closed surface.
    */
   boundary: boolean;
 }

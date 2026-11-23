@@ -31,10 +31,10 @@ export interface IAutoMovieDrawingFeatureResolution {
    * Populated even when the target is stale because the count changed or its
    * index fell outside the features, since that number is exactly what the
    * author has to write to re-pin the note. Zero when the element, part or
-   * model could not be reached at all, and also when an axis or centroid
-   * target names an invalid index, an axis collapses under its element's
-   * scale, or the element has no geometry for a centroid; zero alone therefore
-   * does not mean the element was unreachable.
+   * model could not be reached at all, and also when an axis or centroid target
+   * names an invalid index, an axis collapses under its element's scale, or the
+   * element has no geometry for a centroid; zero alone therefore does not mean
+   * the element was unreachable.
    */
   count: number;
 

@@ -5,9 +5,9 @@ import type { IAutoMovieReactAction } from "../harness/IAutoMovieReactAction";
 
 /**
  * What `compileLaunch` yields for one `launch` action: the projectile's baked
- * flight, the solved impact, and the reaction and events that impact
- * schedules. `compileLaunch` returns null instead when no flight reaches the
- * target at the action's speed.
+ * flight, the solved impact, and the reaction and events that impact schedules.
+ * `compileLaunch` returns null instead when no flight reaches the target at the
+ * action's speed.
  *
  * `performShot` shifts the clip onto the shot clock, refuses a launch landing
  * after the shot ends, and folds `react` into the action list so the recoil
@@ -24,18 +24,18 @@ export interface IAutoMovieLaunchResult {
 
   /**
    * The target's recoil, scheduled at the computed contact: a synthetic
-   * {@link IAutoMovieReactAction} to fold into the action list, or null when
-   * the launch carries no `onHit` or aims at a point or group with no single
-   * node to recoil. Its `start` is the shot-local instant the projectile lands,
-   * and its `from` point sits one metre upstream of the impact along the
-   * incoming velocity, so the reference synthesizer recoils the body along the
+   * {@link IAutoMovieReactAction} to fold into the action list, or null when the
+   * launch carries no `onHit` or aims at a point or group with no single node
+   * to recoil. Its `start` is the shot-local instant the projectile lands, and
+   * its `from` point sits one metre upstream of the impact along the incoming
+   * velocity, so the reference synthesizer recoils the body along the
    * projectile's travel, for a lobbed or a flat flight alike.
    */
   react: IAutoMovieReactAction | null;
 
   /**
-   * Seconds from the launch to impact; the shot-local hit is
-   * `action.start + hitTime`.
+   * Seconds from the launch to impact; the shot-local hit is `action.start +
+   * hitTime`.
    */
   hitTime: number;
 
@@ -46,9 +46,7 @@ export interface IAutoMovieLaunchResult {
    */
   hitPoint: IAutoMovieVector3;
 
-  /**
-   * Solved launch velocity in metres per second, of magnitude `action.speed`.
-   */
+  /** Solved launch velocity in metres per second, of magnitude `action.speed`. */
   velocity: IAutoMovieVector3;
 
   /**

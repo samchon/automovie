@@ -7,9 +7,11 @@ import type { IAutoMovieImportedNodeBoneMapping } from "./IAutoMovieImportedNode
 
 /**
  * Complete deterministic lowering input for one imported node-track clip.
- * Conversion keeps authored source key times and admits only one common
- * step or linear interpolation law. Linear quaternion slerp generally differs from clinical-axis interpolation between retained keys; step retains interval values. Each mapped node needs a rotation track;
- * only hips translation is representable beside those rotations.
+ * Conversion keeps authored source key times and admits only one common step or
+ * linear interpolation law. Linear quaternion slerp generally differs from
+ * clinical-axis interpolation between retained keys; step retains interval
+ * values. Each mapped node needs a rotation track; only hips translation is
+ * representable beside those rotations.
  */
 export interface IAutoMovieImportedNodeMotionProps {
   /** Selected imported node-track take. */

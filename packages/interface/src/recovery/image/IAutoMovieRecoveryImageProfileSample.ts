@@ -1,5 +1,4 @@
-/** Co-charted scalar observations at one physical row.
- */
+/** Co-charted scalar observations at one physical row. */
 export interface IAutoMovieRecoveryImageProfileSample<
   T extends number[] = number[],
 > {

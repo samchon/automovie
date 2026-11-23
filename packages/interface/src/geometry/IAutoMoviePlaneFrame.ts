@@ -1,7 +1,6 @@
 import type { AutoMovieVector3Tuple } from "../index";
 
-/** Right-handed physical cutting frame: u cross v = n, all axes unit.
- */
+/** Right-handed physical cutting frame: u cross v = n, all axes unit. */
 export interface IAutoMoviePlaneFrame {
   /** Physical point on the plane in the source Cartesian frame. */
   origin: AutoMovieVector3Tuple;

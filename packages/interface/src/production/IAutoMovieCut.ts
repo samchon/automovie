@@ -12,9 +12,9 @@ export namespace IAutoMovieCut {
   /**
    * Every gate held: each entry names a built shot, each trim is a positive
    * span inside its shot, each transition fits inside both neighbours' played
-   * spans without overlapping the previous entry's own incoming transition,
-   * ids are non-blank, and the frame rate is finite and positive. Each edit
-   * event requirement matches exactly one event in its addressed playback entry.
+   * spans without overlapping the previous entry's own incoming transition, ids
+   * are non-blank, and the frame rate is finite and positive. Each edit event
+   * requirement matches exactly one event in its addressed playback entry.
    * Every declared prop channel matches within tolerance across its hard cut.
    */
   export interface ISuccess {
@@ -32,16 +32,16 @@ export namespace IAutoMovieCut {
     runtime: number;
   }
 
-  /**
-   * At least one gate failed; no sequence was emitted.
-   */
+  /** At least one gate failed; no sequence was emitted. */
   export interface IFailure {
     /** Discriminator. */
     success: false;
 
     /**
      * Every violation found, each with a path into the edit plan
-     * (`$input.entries[i]...`, `$input.requiredEvents[i]...` or `$input.requiredPropContinuity[i]...`) or the shot list (`$shots[i]...`).
+     * (`$input.entries[i]...`, `$input.requiredEvents[i]...` or
+     * `$input.requiredPropContinuity[i]...`) or the shot list
+     * (`$shots[i]...`).
      */
     violations: IAutoMovieConstraintViolation[];
   }

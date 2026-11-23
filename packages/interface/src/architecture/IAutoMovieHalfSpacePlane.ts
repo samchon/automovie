@@ -5,9 +5,9 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * and by an analysis context's occluders.
  *
  * A point is inside when `dot(normal, point) <= offset`. Because the normal is
- * not normalized, space containment's fixed `1e-9` slack on that dot product
- * is a distance of `1e-9 / |normal|` metres. A convex cell or occluder needs
- * at least four planes; whether they enclose a bounded, non-empty region is not
+ * not normalized, space containment's fixed `1e-9` slack on that dot product is
+ * a distance of `1e-9 / |normal|` metres. A convex cell or occluder needs at
+ * least four planes; whether they enclose a bounded, non-empty region is not
  * checked.
  */
 export interface IAutoMovieHalfSpacePlane {

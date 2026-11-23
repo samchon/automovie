@@ -1,7 +1,6 @@
 import type { IAutoMovieRecoveryOpenArcIncidence } from "./IAutoMovieRecoveryOpenArcIncidence";
 
-/** Transient source support for one saved open-section row.
- */
+/** Transient source support for one saved open-section row. */
 export interface IAutoMovieRecoveryOpenContinuationRow {
   /** Observed open arcs with private source support. */
   arcs: IAutoMovieRecoveryOpenArcIncidence[];

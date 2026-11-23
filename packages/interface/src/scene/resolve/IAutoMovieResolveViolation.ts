@@ -1,8 +1,6 @@
 import type { IAutoMovieClampViolation } from "./IAutoMovieClampViolation";
 
-/**
- * A clamp that fired this frame, tagged with the channel it constrained.
- */
+/** A clamp that fired this frame, tagged with the channel it constrained. */
 export interface IAutoMovieResolveViolation extends IAutoMovieClampViolation {
   /** The {@link channelKey} of the channel that was clamped. */
   channel: string;

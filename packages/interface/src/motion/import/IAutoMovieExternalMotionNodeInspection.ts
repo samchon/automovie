@@ -1,8 +1,6 @@
 import type { IAutoMovieTransform } from "../../geometry/IAutoMovieTransform";
 
-/**
- * One node of a motion source with the local rest basis read from its bytes.
- */
+/** One node of a motion source with the local rest basis read from its bytes. */
 export interface IAutoMovieExternalMotionNodeInspection {
   /** `node_{index}`, the id tracks and source-rig mappings cite. */
   id: string;
@@ -16,6 +14,12 @@ export interface IAutoMovieExternalMotionNodeInspection {
   /** Id of the node listing this one as a child, or `null` for a root. */
   parent: string | null;
 
-  /** Caller-owned parent-local rest TRS in metres, right-handed Y-up. Ingest uses zero translation, identity quaternion and unit scale for absent fields; present components must be finite, scale positive, and quaternion magnitude within 1e-4 of one before normalization. Matrix-authored nodes are refused. */
+  /**
+   * Caller-owned parent-local rest TRS in metres, right-handed Y-up. Ingest
+   * uses zero translation, identity quaternion and unit scale for absent
+   * fields; present components must be finite, scale positive, and quaternion
+   * magnitude within 1e-4 of one before normalization. Matrix-authored nodes
+   * are refused.
+   */
   transform: IAutoMovieTransform;
 }

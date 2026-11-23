@@ -9,17 +9,17 @@ import type { AutoMovieNodeKind } from "./AutoMovieNodeKind";
  * A node is a parent-local TRS transform plus optional payload ids, mirroring
  * glTF's `node.mesh` and `node.camera` so it round-trips. The hierarchy is the
  * `parent` reference: a node has at most one parent, so the graph is a forest,
- * and a group is simply a node with children ({@link AutoMovieNodeKind}
- * `group`) whose TRS moves the subtree and whose local frame is the rotation
- * pivot. A relationship between nodes in different branches, such as a sword
- * following a hand, is an `IAutoMovieDriver` rather than a second parent.
+ * and a group is simply a node with children ({@link AutoMovieNodeKind} `group`)
+ * whose TRS moves the subtree and whose local frame is the rotation pivot. A
+ * relationship between nodes in different branches, such as a sword following a
+ * hand, is an `IAutoMovieDriver` rather than a second parent.
  *
  * `composeScene` resolves parents on demand, so the node list may be in any
  * order, and it throws on a duplicate id, a missing parent or a parent cycle.
- * It does not check that the transform is finite or that the rotation is a
- * unit quaternion. The resolve pipeline reads only `id`, `parent` and
- * `transform`; `name`, `kind` and the payload ids are carried for renderers
- * and round-tripping.
+ * It does not check that the transform is finite or that the rotation is a unit
+ * quaternion. The resolve pipeline reads only `id`, `parent` and `transform`;
+ * `name`, `kind` and the payload ids are carried for renderers and
+ * round-tripping.
  */
 export interface IAutoMovieNode {
   /**

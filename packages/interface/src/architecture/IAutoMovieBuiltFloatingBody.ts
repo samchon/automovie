@@ -39,8 +39,8 @@ export interface IAutoMovieBuiltFloatingBody {
 
     /**
      * Vertical distance in metres from that part's top to this body's
-     * underside; always greater than the tolerance, because a body within it
-     * is counted as borne instead.
+     * underside; always greater than the tolerance, because a body within it is
+     * counted as borne instead.
      */
     clearance: number;
   } | null;

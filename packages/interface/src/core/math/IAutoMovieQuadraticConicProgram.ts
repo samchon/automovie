@@ -1,7 +1,7 @@
 /**
  * Call-owned standard form min x'Px/2+q'x, Ax+s=b, with zero slacks before
  * `equalities` and nonnegative slacks afterwards. P is diagonal. Scaling means
- * original x=D*xhat and original z=E*zhat/c; authored data remains separate.
+ * original x=D_xhat and original z=E_zhat/c; authored data remains separate.
  */
 export interface IAutoMovieQuadraticConicProgram {
   /** Number of primal variables. */

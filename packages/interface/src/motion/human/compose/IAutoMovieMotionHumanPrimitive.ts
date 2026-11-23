@@ -10,22 +10,22 @@ import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel"
  *
  * A primitive is built against the action's clock and takes its target as a
  * frame evaluated on the posture it is given (a region of the performer's own
- * body, another performer, a prop, the world), never as a constant of one
- * body. The composition gives it the posture the base and the channels
- * written before it produced, and keeps only the claimed channels of what it
- * returns ({@link AutoMovieMotionHumanChannel.merge}).
+ * body, another performer, a prop, the world), never as a constant of one body.
+ * The composition gives it the posture the base and the channels written before
+ * it produced, and keeps only the claimed channels of what it returns
+ * ({@link AutoMovieMotionHumanChannel.merge}).
  */
 export interface IAutoMovieMotionHumanPrimitive {
   /** The channels it writes. */
   channels: readonly AutoMovieMotionHumanChannel[];
 
   /**
-   * Channels whose values determine the claimed output at the written second, including a claimed
-   * channel when its previous values are added or preserved. Omission means
-   * every channel. A pure time-local callback may narrow a writer whose
-   * branches have different dependencies. Fields merely copied outside the claim are not reads.
-   * This is a dependency declaration, so callbacks that can inspect an
-   * arbitrary posture must leave it absent.
+   * Channels whose values determine the claimed output at the written second,
+   * including a claimed channel when its previous values are added or
+   * preserved. Omission means every channel. A pure time-local callback may
+   * narrow a writer whose branches have different dependencies. Fields merely
+   * copied outside the claim are not reads. This is a dependency declaration,
+   * so callbacks that can inspect an arbitrary posture must leave it absent.
    */
   reads?:
     | readonly AutoMovieMotionHumanChannel[]
@@ -33,9 +33,9 @@ export interface IAutoMovieMotionHumanPrimitive {
 
   /**
    * Whether its writer follows another performer live (an arm that tracks a
-   * partner's region a feedback delay earlier), so the composed plan names
-   * its channels (`IAutoMovieMotionHumanActionPlan.follows`). Absent, it
-   * follows no one.
+   * partner's region a feedback delay earlier), so the composed plan names its
+   * channels (`IAutoMovieMotionHumanActionPlan.follows`). Absent, it follows no
+   * one.
    */
   follows?: boolean;
 
@@ -56,9 +56,15 @@ export interface IAutoMovieMotionHumanPrimitive {
    *
    * @param posture The posture so far at this second.
    * @param seconds Seconds since the action's start, in [`from`, `to`].
-   * @param before The posture so far at any second of the action: the base and earlier primitives, optionally restricted to explicitly requested channels. A movement planned once over its span reads it, so its plan is a constant of the action; absent where no action composes the primitive.
-   * @param resolution Optional exact FK source borrowed only during this same-body synchronous write; never retain it in a plan, output or callback.
-   * @param projection Optional genuine same-body direct ROM projector, used only for actual current solves during this write.
+   * @param before The posture so far at any second of the action: the base and
+   *   earlier primitives, optionally restricted to explicitly requested
+   *   channels. A movement planned once over its span reads it, so its plan is
+   *   a constant of the action; absent where no action composes the primitive.
+   * @param resolution Optional exact FK source borrowed only during this
+   *   same-body synchronous write; never retain it in a plan, output or
+   *   callback.
+   * @param projection Optional genuine same-body direct ROM projector, used
+   *   only for actual current solves during this write.
    * @returns The posture; fields outside the claimed channels are ignored.
    */
   write(
@@ -76,7 +82,8 @@ export interface IAutoMovieMotionHumanPrimitive {
    * refuses the action, not a frame of it. None for a primitive that plans
    * nothing.
    *
-   * @param before The posture so far at any second of the action, as `write` is given it.
+   * @param before The posture so far at any second of the action, as `write` is
+   *   given it.
    */
   prepare?(before: IAutoMovieMotionHumanPrimitive.Reader): void;
 }
@@ -84,16 +91,16 @@ export interface IAutoMovieMotionHumanPrimitive {
 /**
  * Dependency-aware readers of the posture preceding a primitive.
  *
- * A Reader's action-local second and optional channel set identify the
- * prefix values its consumer may inspect. Omission requests the whole
- * posture; preparation and writing share this same borrowed-result rule.
+ * A Reader's action-local second and optional channel set identify the prefix
+ * values its consumer may inspect. Omission requests the whole posture;
+ * preparation and writing share this same borrowed-result rule.
  */
 export namespace IAutoMovieMotionHumanPrimitive {
   /**
-   * Read a prefix at action-local seconds. With `channels`, only those
-   * channels are valid; omitted channels request them all. Optional FK/ROM
-   * arguments borrow genuine same-body metadata only for this synchronous query.
-   * The returned posture is borrowed and must not be mutated.
+   * Read a prefix at action-local seconds. With `channels`, only those channels
+   * are valid; omitted channels request them all. Optional FK/ROM arguments
+   * borrow genuine same-body metadata only for this synchronous query. The
+   * returned posture is borrowed and must not be mutated.
    */
   export type Reader = IAutoMovieMotionHumanActionPlan["posture"];
 }

@@ -1,7 +1,6 @@
 import type { IAutoMovieRecoverySqpTightening } from "../../index";
 
-/** Latest optional working-space and curvature attempt, without a trajectory.
- */
+/** Latest optional working-space and curvature attempt, without a trajectory. */
 export interface IAutoMovieRecoverySqpReport {
   /** Whether the complete untilted affine QP received a numerical certificate. */
   qualified: boolean;
@@ -48,16 +47,25 @@ export interface IAutoMovieRecoverySqpReport {
   /** Tilted coefficient actually tried: nominal or original-row-supported. */
   mixWeight: number | null;
 
-  /** Whether one failed full trial requested selected-constraint correction support. */
+  /**
+   * Whether one failed full trial requested selected-constraint correction
+   * support.
+   */
   correctionAttempted: boolean;
 
   /** Whether that single minimum-metric correction met its support conditions. */
   correctionSupported: boolean;
 
-  /** Prepared current-model scalar target; null without an independent correction factor. */
+  /**
+   * Prepared current-model scalar target; null without an independent
+   * correction factor.
+   */
   correctionTightening: IAutoMovieRecoverySqpTightening | null;
 
-  /** Latest one-use correction refusal, separate from the qualified mixed direction. */
+  /**
+   * Latest one-use correction refusal, separate from the qualified mixed
+   * direction.
+   */
   correctionFailure:
     | "trial-values-unresolved"
     | "target-unresolved"

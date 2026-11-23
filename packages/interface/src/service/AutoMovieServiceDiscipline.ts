@@ -1,5 +1,6 @@
 /**
- * Engineering discipline selecting the supported medium rules for one service system.
+ * Engineering discipline selecting the supported medium rules for one service
+ * system.
  */
 export type AutoMovieServiceDiscipline =
   | "plumbing"

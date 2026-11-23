@@ -1,8 +1,6 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/**
- * Seed-derived per-instance visual and semantic variation.
- */
+/** Seed-derived per-instance visual and semantic variation. */
 export interface IAutoMovieInstanceVariation {
   /** Inclusive uniform scale range, both strictly above zero. */
   scale: {
@@ -52,11 +50,17 @@ export interface IAutoMovieInstanceVariation {
     };
   };
 
-  /** Seeded visibility probability in [0, 1]; omission keeps every procedural slot visible. */
+  /**
+   * Seeded visibility probability in [0, 1]; omission keeps every procedural
+   * slot visible.
+   */
   visibleProbability?: number;
 
   /**
-   * Non-empty exact `#RRGGBB` sRGB swatches applied per instance; the viewer decodes them with `srgbHexToLinearColor`, as it does model palettes. `IAutoMovieColor` instead stores linear components and a derived hex label, so use the same conversion when moving a swatch into that contract.
+   * Non-empty exact `#RRGGBB` sRGB swatches applied per instance; the viewer
+   * decodes them with `srgbHexToLinearColor`, as it does model palettes.
+   * `IAutoMovieColor` instead stores linear components and a derived hex label,
+   * so use the same conversion when moving a swatch into that contract.
    */
   palette: string[];
 

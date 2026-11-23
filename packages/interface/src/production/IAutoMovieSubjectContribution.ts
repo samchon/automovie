@@ -52,9 +52,7 @@ export interface IAutoMovieSubjectContribution {
   /** Static visible placements this subject adds to the staged set. */
   set?: readonly IAutoMovieStageSetPiece[];
 
-  /**
-   * Locomotion spaces this subject contributes for later deterministic merge.
-   */
+  /** Locomotion spaces this subject contributes for later deterministic merge. */
   spaces?: readonly IAutoMovieSpace[];
 
   /** Structured buildings retained for spatial queries and evidence. */
@@ -72,9 +70,7 @@ export interface IAutoMovieSubjectContribution {
   /** Citations from authored design members back to those observations. */
   designEvidence?: readonly IAutoMovieDesignEvidence[];
 
-  /**
-   * Phase, alternative and change-impact lineage over those same identities.
-   */
+  /** Phase, alternative and change-impact lineage over those same identities. */
   designLineages?: readonly IAutoMovieDesignLineage[];
 
   /** Independent deterministic fluid domains this subject declares. */

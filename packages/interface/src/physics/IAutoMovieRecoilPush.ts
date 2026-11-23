@@ -1,5 +1,4 @@
-/** Clinical axis targets in degrees used to construct a recoil pose.
- */
+/** Clinical axis targets in degrees used to construct a recoil pose. */
 export interface IAutoMovieRecoilPush {
   /** Flexion target in degrees; absent or zero authors no flexion response. */
   flexion?: number;

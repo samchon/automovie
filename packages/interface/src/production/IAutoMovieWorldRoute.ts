@@ -1,5 +1,6 @@
 /**
- * Named world-XZ polyline whose declared width constrains formations and guides compact route placement.
+ * Named world-XZ polyline whose declared width constrains formations and guides
+ * compact route placement.
  */
 export interface IAutoMovieWorldRoute {
   /** Stable route id. */

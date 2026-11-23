@@ -12,9 +12,9 @@ import type { IAutoMovieMotionHumanClimbStairs } from "../terrain/IAutoMovieMoti
 import type { IAutoMovieMotionHumanChainCore } from "./IAutoMovieMotionHumanChainCore";
 
 /**
- * The chain methods of standing and travelling: quiet standing, the gaits
- * over the floor, and travel over stairs, a ladder, an obstacle and the
- * floor itself.
+ * The chain methods of standing and travelling: quiet standing, the gaits over
+ * the floor, and travel over stairs, a ladder, an obstacle and the floor
+ * itself.
  */
 export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanChainCore {
   /**
@@ -66,8 +66,8 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
   ): this;
 
   /**
-   * Walk while carrying a load in one hand, a box in both, a child on the
-   * hip, or pushing a cart.
+   * Walk while carrying a load in one hand, a box in both, a child on the hip,
+   * or pushing a cart.
    *
    * @param params Destination, how the load is carried and its mass.
    * @param anchor An optional anchor id.
@@ -79,7 +79,8 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
    * Move a heavy load by its two handles: push it ahead, pull it walking
    * backward or drag it behind, or press it and not move it.
    *
-   * @param params The load, its handles, the way, where to and the load's level.
+   * @param params The load, its handles, the way, where to and the load's
+   *   level.
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
@@ -91,7 +92,8 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
   /**
    * Climb a flight of stairs up or down, step over step or step by step.
    *
-   * @param params The flight (treads, riser, tread depth, direction), the stepping pattern and the leading foot.
+   * @param params The flight (treads, riser, tread depth, direction), the
+   *   stepping pattern and the leading foot.
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
@@ -114,8 +116,8 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
 
   /**
    * Get down onto hands and knees and crawl in the diagonal pattern, crawl on
-   * the hands and feet with the knees off the floor (`bear`), or walk the
-   * hands out to a plank and the feet in to them (`inchworm`).
+   * the hands and feet with the knees off the floor (`bear`), or walk the hands
+   * out to a plank and the feet in to them (`inchworm`).
    *
    * @param params How many cycles.
    * @param anchor An optional anchor id.
@@ -126,7 +128,8 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
   /**
    * Climb a fixed ladder in the four-beat pattern, three limbs always on it.
    *
-   * @param params The ladder, a fixture prop of the scene, and the rungs climbed.
+   * @param params The ladder, a fixture prop of the scene, and the rungs
+   *   climbed.
    * @param anchor An optional anchor id.
    * @returns The chain.
    */

@@ -1,7 +1,11 @@
 /**
  * One layer placed on the host's own measuring line.
  *
- * Coordinates are signed metres along the assembly axis. `start` is reached first, beginning at its offset. Under negative sense, positive thickness ideally gives `start > end`; rounding can collapse the endpoints. A zero-thickness membrane has equal endpoints. Take minimum and maximum for an interval.
+ * Coordinates are signed metres along the assembly axis. `start` is reached
+ * first, beginning at its offset. Under negative sense, positive thickness
+ * ideally gives `start > end`; rounding can collapse the endpoints. A
+ * zero-thickness membrane has equal endpoints. Take minimum and maximum for an
+ * interval.
  */
 export interface IAutoMovieResolvedLayer {
   /** The contributing {@link IAutoMovieMaterialLayer.id}. */

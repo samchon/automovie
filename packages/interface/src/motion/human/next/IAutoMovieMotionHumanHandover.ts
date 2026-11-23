@@ -60,7 +60,9 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    *
    * Registered law: `registered("relayPass", params)`; not a chain method.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It claims one arm and its hand when performed over a run; it can be cut into any action from its `relax` instant.
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims one arm and its hand when performed over a run; it can be cut into
+   * any action from its `relax` instant.
    *
    * @param params The `role`, `partner`, `at`, `baton`, `end`, `hand` and
    *   `zone` of `IAutoMovieMotionHumanRelayPass.IParams`.

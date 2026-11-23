@@ -5,9 +5,7 @@ import type { IAutoMovieProductionSoundEvidence } from "./IAutoMovieProductionSo
 import type { IAutoMovieProductionVideoProbe } from "./IAutoMovieProductionVideoProbe";
 import type { IAutoMovieProductionWebVttCue } from "./IAutoMovieProductionWebVttCue";
 
-/**
- * Parser-derived metadata for one renderer-owned output file.
- */
+/** Parser-derived metadata for one renderer-owned output file. */
 export type IAutoMovieProductionMediaProbe =
   | {
       /** Decoded PNG raster. */
@@ -57,7 +55,10 @@ export type IAutoMovieProductionMediaProbe =
       /** Parsed deterministic sound evidence JSON. */
       kind: "sound-evidence";
 
-      /** Complete evidence bound to the current plan, PCM analysis, and audio bytes. */
+      /**
+       * Complete evidence bound to the current plan, PCM analysis, and audio
+       * bytes.
+       */
       evidence: IAutoMovieProductionSoundEvidence;
     }
   | {

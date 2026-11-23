@@ -1,9 +1,14 @@
 import type { IAutoMoviePoseKeypointFrame } from "./IAutoMoviePoseKeypointFrame.js";
 
 /**
- * The per-frame pose-keypoint sidecar of one sequence render: the machine-readable, OpenPose-style companion to the rendered `pose` guide pass, as the caption sidecar accompanies the beauty frames.
+ * The per-frame pose-keypoint sidecar of one sequence render: the
+ * machine-readable, OpenPose-style companion to the rendered `pose` guide pass,
+ * as the caption sidecar accompanies the beauty frames.
  *
- * A diffusion host can read it frame for frame to drive pose-conditioned (ControlNet) generation. `planPoseKeypointSidecar` builds it and `renderPoseKeypointSidecar` serializes it for the host to write; this declaration does not implement that external host.
+ * A diffusion host can read it frame for frame to drive pose-conditioned
+ * (ControlNet) generation. `planPoseKeypointSidecar` builds it and
+ * `renderPoseKeypointSidecar` serializes it for the host to write; this
+ * declaration does not implement that external host.
  */
 export interface IAutoMoviePoseKeypointSidecar {
   /** Id of the sequence the sidecar tracks. */

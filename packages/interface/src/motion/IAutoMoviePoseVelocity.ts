@@ -1,9 +1,7 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
-/**
- * A pose's velocity.
- */
+/** A pose's velocity. */
 export interface IAutoMoviePoseVelocity {
   /** Flexion, abduction and twist rates per bone, degrees per second. */
   joints: Map<AutoMovieHumanoidBone, [number, number, number]>;

@@ -1,7 +1,6 @@
 import type { IAutoMovieRecoveryRegularizationUpdate } from "../../index";
 
-/** Fit-local accepted-step metric reactions without a trajectory or rate claim.
- */
+/** Fit-local accepted-step metric reactions without a trajectory or rate claim. */
 export interface IAutoMovieRecoveryRegularizationReport {
   /** Each joint fit, including a new closure population, starts at 1e-3. */
   initialDamping: number;
@@ -12,9 +11,15 @@ export interface IAutoMovieRecoveryRegularizationReport {
   /** Supported rule applications after selections; a factor of one still counts. */
   supportedUpdates: number;
 
-  /** Selected increments whose computed decrease, ratio or next coefficient was unsupported. */
+  /**
+   * Selected increments whose computed decrease, ratio or next coefficient was
+   * unsupported.
+   */
   unsupportedUpdates: number;
 
-  /** Latest selected-increment reaction, or null when no local update was selected. */
+  /**
+   * Latest selected-increment reaction, or null when no local update was
+   * selected.
+   */
   lastUpdate: IAutoMovieRecoveryRegularizationUpdate | null;
 }

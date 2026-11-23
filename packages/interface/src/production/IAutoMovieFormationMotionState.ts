@@ -1,8 +1,6 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/**
- * One compact formation-level transform state relative to its designed base.
- */
+/** One compact formation-level transform state relative to its designed base. */
 export interface IAutoMovieFormationMotionState {
   /** World-space translation in meters added to the designed formation anchor. */
   translation: IAutoMovieVector3;

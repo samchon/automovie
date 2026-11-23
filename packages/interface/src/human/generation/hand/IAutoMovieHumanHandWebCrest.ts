@@ -1,11 +1,11 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
 /**
- * Type contracts exchanged by AutoMovieHumanHandWebCrest; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanHandWebCrest; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanHandWebCrest {
-  /** A web's fixed inputs.
-   */
+  /** A web's fixed inputs. */
   export interface IInput {
     /** The dorsal crest, left frame, mm. */
     dorsal: AutoMovieVector3Tuple;
@@ -20,8 +20,7 @@ export namespace IAutoMovieHumanHandWebCrest {
     phalanx: number;
   }
 
-  /** The two crests.
-   */
+  /** The two crests. */
   export interface IPair {
     /** The dorsal crest, mm. */
     dorsal: AutoMovieVector3Tuple;

@@ -1,12 +1,13 @@
-/**
- * Finite continuous-planning and tessellation limits for a convex-support loft.
- */
+/** Finite continuous-planning and tessellation limits for a convex-support loft. */
 
 export interface IAutoMovieRecoverySupportLoftBudget {
   /** Positive model-space chord tolerance, metres. */
   tolerance: number;
 
-  /** Maximum support-plane count; at least three surrounding directions are required. */
+  /**
+   * Maximum support-plane count; at least three surrounding directions are
+   * required.
+   */
   maxPlanes: number;
 
   /** Nonnegative integer maximum retained boundary events. */

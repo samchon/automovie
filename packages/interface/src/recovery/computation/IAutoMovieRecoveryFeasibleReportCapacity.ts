@@ -1,4 +1,5 @@
-/** One admitted reporting scope, shared by scene, checkpoint and camera owners.
+/**
+ * One admitted reporting scope, shared by scene, checkpoint and camera owners.
  * This internal record is an ownership token, never an input/debug option.
  */
 export interface IAutoMovieRecoveryFeasibleReportCapacity {

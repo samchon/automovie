@@ -1,16 +1,16 @@
 /**
- * The anthropometric measures of one humanoid body that motion laws scale
- * from: joint-centre heights and spacings, segment lengths, girths and the
- * foot and head extents, all in metres, and the mass in kilograms.
+ * The anthropometric measures of one humanoid body that motion laws scale from:
+ * joint-centre heights and spacings, segment lengths, girths and the foot and
+ * head extents, all in metres, and the mass in kilograms.
  *
  * Measures are read on the body's canonical rest (the VRM 1.0 T-pose, +Y up,
- * facing +Z, left toward +X, the floor at Y = 0), so a height is a rest
- * height above the floor and a length is a joint-centre-to-joint-centre
- * distance, which does not change with pose. Lengths follow the segment
- * definitions of biomechanics texts (Winter, Biomechanics and Motor Control of
- * Human Movement, 4th ed., ch. 4): the thigh runs from the hip joint centre to
- * the knee, the shank from the knee to the ankle, the upper arm from the
- * glenohumeral centre to the elbow, the forearm from the elbow to the wrist.
+ * facing +Z, left toward +X, the floor at Y = 0), so a height is a rest height
+ * above the floor and a length is a joint-centre-to-joint-centre distance,
+ * which does not change with pose. Lengths follow the segment definitions of
+ * biomechanics texts (Winter, Biomechanics and Motor Control of Human Movement,
+ * 4th ed., ch. 4): the thigh runs from the hip joint centre to the knee, the
+ * shank from the knee to the ankle, the upper arm from the glenohumeral centre
+ * to the elbow, the forearm from the elbow to the wrist.
  *
  * Every field is a finite positive number; the type cannot enforce that, so a
  * producer validates it. The record carries no pose, no identity and no

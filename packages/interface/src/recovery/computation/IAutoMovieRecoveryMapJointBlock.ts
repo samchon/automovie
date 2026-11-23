@@ -1,5 +1,4 @@
-/** Weighted original rows for one landmark and the common camera tangent.
- */
+/** Weighted original rows for one landmark and the common camera tangent. */
 export interface IAutoMovieRecoveryMapJointBlock {
   /** Three weighted world-point derivative columns per pixel coordinate. */
   pointRows: number[][];

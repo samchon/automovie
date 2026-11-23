@@ -28,11 +28,11 @@ export interface IAutoMovieGrammarSubjectObservation {
    * Half the subject's horizontal diagonal in metres, or 0 when nothing
    * horizontal could be measured.
    *
-   * The same number {@link IAutoMovieFramedBox.radius} states, read here for
-   * the reason the framing solve reads it: a subject wider than the frame can
-   * hold at its height is placed by its width, so a shot size measured from
-   * the height alone would report a looser framing than the camera delivered.
-   * In a landscape raster a standing figure's radius decides nothing; a 60 m
+   * The same number {@link IAutoMovieFramedBox.radius} states, read here for the
+   * reason the framing solve reads it: a subject wider than the frame can hold
+   * at its height is placed by its width, so a shot size measured from the
+   * height alone would report a looser framing than the camera delivered. In a
+   * landscape raster a standing figure's radius decides nothing; a 60 m
    * facade's decides the size.
    */
   radius: number;

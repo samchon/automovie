@@ -4,11 +4,12 @@ import type { IAutoMovieHumanMassSource } from "../limb/IAutoMovieHumanMassSourc
 import type { IAutoMovieHumanGlutealParent } from "./IAutoMovieHumanGlutealParent";
 
 /**
- * Original trunk and breast dimensions with the admitted parent source and numerical root-support metadata. Runtime construction and admission remain with AutoMovieHumanBreastConnection in Human.
+ * Original trunk and breast dimensions with the admitted parent source and
+ * numerical root-support metadata. Runtime construction and admission remain
+ * with AutoMovieHumanBreastConnection in Human.
  */
 export namespace IAutoMovieHumanBreastConnection {
-  /** Same generating trunk and the mass's independent sourced dimensions.
-   */
+  /** Same generating trunk and the mass's independent sourced dimensions. */
   export interface IInput {
     /** Actual current tape-pass original trunk. */
     trunk: IAutoMovieViewPart;
@@ -22,7 +23,9 @@ export namespace IAutoMovieHumanBreastConnection {
     lateral: 1 | -1;
   }
 
-  /** Parent source and numerical root support remain inspectable; this is not a continuous containment certificate.
+  /**
+   * Parent source and numerical root support remain inspectable; this is not a
+   * continuous containment certificate.
    */
   export interface IConnection extends IAutoMovieHumanMassSource.IConnection {
     /** Identical actual source and its whole local chord reader. */

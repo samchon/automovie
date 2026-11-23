@@ -1,6 +1,7 @@
 /**
- * Admission and moving-boundary population facts returned by the wearable resolver.
- * These counts do not measure elapsed time, allocated bytes or solver iterations.
+ * Admission and moving-boundary population facts returned by the wearable
+ * resolver. These counts do not measure elapsed time, allocated bytes or solver
+ * iterations.
  */
 export interface IAutoMovieWearableSoftBudget {
   /** Zero-based admitted subject slot. */

@@ -1,6 +1,6 @@
 /**
- * Corrections the secant passes put on the keys, each owned by the measure
- * it closes: millimetres, except the tip's lead, a factor.
+ * Corrections the secant passes put on the keys, each owned by the measure it
+ * closes: millimetres, except the tip's lead, a factor.
  */
 export interface IAutoMovieHumanHeadCorrections {
   /** Nasion's height, for n-gn. */

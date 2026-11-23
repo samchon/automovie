@@ -11,9 +11,9 @@ export interface IAutoMoviePracticalSurfaceTrack {
   part: string;
 
   /**
-   * Nonempty list of keys in strictly increasing order. The first is at zero.
-   * A following shot authors its own opening key, including when it continues
-   * the last material from this shot.
+   * Nonempty list of keys in strictly increasing order. The first is at zero. A
+   * following shot authors its own opening key, including when it continues the
+   * last material from this shot.
    */
   keys: readonly {
     /** Finite shot-local seconds in the half-open interval [0, duration). */

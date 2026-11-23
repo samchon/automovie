@@ -1,5 +1,4 @@
-/** Borrowed original-row dual of this model's qualified untilted affine QP.
- */
+/** Borrowed original-row dual of this model's qualified untilted affine QP. */
 export interface IAutoMovieRecoveryUntiltedEstimate {
   /** Current original physical tangent width. */
   readonly width: number;

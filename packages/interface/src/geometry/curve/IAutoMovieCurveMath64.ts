@@ -1,11 +1,15 @@
 import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
 
 /**
- * Cubic coefficient and physical-chart endpoint records used by curve arithmetic.
+ * Cubic coefficient and physical-chart endpoint records used by curve
+ * arithmetic.
  */
 export namespace IAutoMovieCurveMath64 {
   /**
-   * One mutable cubic Bernstein record in P0, P1, P2, P3 order; the inner coefficients are handles, not interpolated supports. All four triples use a common caller-defined frame and coefficient unit; the tuple shape enforces degree but not finiteness.
+   * One mutable cubic Bernstein record in P0, P1, P2, P3 order; the inner
+   * coefficients are handles, not interpolated supports. All four triples use a
+   * common caller-defined frame and coefficient unit; the tuple shape enforces
+   * degree but not finiteness.
    */
   export type Span = [
     AutoMovieVector3Tuple,
@@ -32,10 +36,17 @@ export namespace IAutoMovieCurveMath64 {
     /** Fresh copy of P3 in the input coefficient frame and units. */
     end: AutoMovieVector3Tuple;
 
-    /** Fresh dP/ds triple, algebraically 3*(P1-P0)/dy for supplied positive chart width dy; not the derivative with respect to normalized span fraction unless dy=1. */
+    /**
+     * Fresh dP/ds triple, algebraically 3*(P1-P0)/dy for supplied positive
+     * chart width dy; not the derivative with respect to normalized span
+     * fraction unless dy=1.
+     */
     startDerivative: AutoMovieVector3Tuple;
 
-    /** Fresh dP/ds triple, algebraically 3*(P3-P2)/dy, with the same length-per-chart-unit scaling as startDerivative. */
+    /**
+     * Fresh dP/ds triple, algebraically 3*(P3-P2)/dy, with the same
+     * length-per-chart-unit scaling as startDerivative.
+     */
     endDerivative: AutoMovieVector3Tuple;
   };
 }

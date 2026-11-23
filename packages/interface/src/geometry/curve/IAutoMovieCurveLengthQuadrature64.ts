@@ -1,13 +1,11 @@
-/**
- * Data and callback contracts shared by the CurveLengthQuadrature64 operations.
- */
+/** Data and callback contracts shared by the CurveLengthQuadrature64 operations. */
 export namespace IAutoMovieCurveLengthQuadrature64 {
   /**
    * Observe two bounded composite rules without choosing the public policy.
    * Callers admit nonempty pieces, finite increasing representable domains and
-   * integer K in [1,1024]. Derivatives use mm per domain-parameter unit.
-   * Zero speed is valid. Endpoint reads are requested only by the strict owner;
-   * the legacy cubic owner keeps its original interior-only finite-final test.
+   * integer K in [1,1024]. Derivatives use mm per domain-parameter unit. Zero
+   * speed is valid. Endpoint reads are requested only by the strict owner; the
+   * legacy cubic owner keeps its original interior-only finite-final test.
    * Callback exceptions propagate, while arithmetic observations accompany the
    * actual computed coarse/fine sums. Their difference is not an error bound.
    */

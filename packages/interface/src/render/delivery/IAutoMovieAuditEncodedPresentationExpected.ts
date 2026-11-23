@@ -1,5 +1,9 @@
 /**
- * Commissioned video raster/clock and optional audio format for auditAutoMovieEncodedPresentation. The audit requires exact presentation coverage and the declared audio profile; absent audio fields mean 48000 samples/second and two channels. These are required delivery facts, not probe observations.
+ * Commissioned video raster/clock and optional audio format for
+ * auditAutoMovieEncodedPresentation. The audit requires exact presentation
+ * coverage and the declared audio profile; absent audio fields mean 48000
+ * samples/second and two channels. These are required delivery facts, not probe
+ * observations.
  */
 export interface IAutoMovieAuditEncodedPresentationExpected {
   /** Whole seconds, positive. */ durationSeconds: number;

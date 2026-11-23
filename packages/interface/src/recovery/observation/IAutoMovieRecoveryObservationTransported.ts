@@ -4,7 +4,9 @@ import type {
   IAutoMovieRecoveryTransportedObservationRow,
 } from "../../index";
 
-/** Admitted identity-ordered geometric transport, with interpolation kept explicit.
+/**
+ * Admitted identity-ordered geometric transport, with interpolation kept
+ * explicit.
  */
 export interface IAutoMovieRecoveryObservationTransported {
   /** An ordered and representable geometric chart was admitted. */
@@ -16,7 +18,10 @@ export interface IAutoMovieRecoveryObservationTransported {
   /** Unique identities anchoring incoming phase to current point ordinals. */
   persistentAnchors: IAutoMovieRecoveryObservationAnchor[];
 
-  /** Current input traversal relative to output order: forward +1 or reversed -1. */
+  /**
+   * Current input traversal relative to output order: forward +1 or reversed
+   * -1.
+   */
   direction: 1 | -1;
 
   /** True when one interpolated PL-edge point supplies the canonical seam. */

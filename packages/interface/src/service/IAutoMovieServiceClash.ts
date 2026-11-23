@@ -1,6 +1,4 @@
-/**
- * One serviceSegmentClashes pair in network declaration order.
- */
+/** One serviceSegmentClashes pair in network declaration order. */
 export interface IAutoMovieServiceClash {
   /** Id of the earlier-declared segment. */
   left: string;

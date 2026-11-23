@@ -8,7 +8,8 @@ import type { IAutoMovieSubjectContribution } from "../production/IAutoMovieSubj
 import type { IAutoMovieSpace } from "../scene/IAutoMovieSpace";
 
 /**
- * A placed module's portable stage and world records, with named attachment frames.
+ * A placed module's portable stage and world records, with named attachment
+ * frames.
  */
 export interface IAutoMovieEnvironmentContribution extends Pick<
   IAutoMovieSubjectContribution,

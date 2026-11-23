@@ -4,12 +4,14 @@ import type { IAutoMovieRecoveryEventRegionSource } from "./IAutoMovieRecoveryEv
 import type { IAutoMovieRecoveryEventRegionTopology } from "./IAutoMovieRecoveryEventRegionTopology";
 
 /**
- * Attach contact and port ownership evidence after component topology is complete.
+ * Attach contact and port ownership evidence after component topology is
+ * complete.
  */
 
 export namespace IAutoMovieRecoveryEventRegionPorts {
   /**
-   * Attach contact and port ownership evidence after component topology is complete.
+   * Attach contact and port ownership evidence after component topology is
+   * complete.
    */
 
   export type Operation = (

@@ -1,11 +1,11 @@
 import type { IAutoMovieHumanShoulderOutline } from "./IAutoMovieHumanShoulderOutline";
 
 /**
- * Type contracts exchanged by AutoMovieHumanArmRootOval; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanArmRootOval; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanArmRootOval {
-  /** What the oval reads.
-   */
+  /** What the oval reads. */
   export interface IInput {
     /** The glenohumeral centre `[x, y, z]`, mm. */
     glenohumeral: readonly [number, number, number];

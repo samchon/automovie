@@ -1,9 +1,10 @@
 /**
- * Calibration lengths, tapes and the calibration-to-world scale consumed by the arm law. Runtime construction and admission remain with AutoMovieHumanArmLaw in Human.
+ * Calibration lengths, tapes and the calibration-to-world scale consumed by the
+ * arm law. Runtime construction and admission remain with AutoMovieHumanArmLaw
+ * in Human.
  */
 export namespace IAutoMovieHumanArmLawInputs {
-  /** The lengths and tapes the law reads, calibration mm.
-   */
+  /** The lengths and tapes the law reads, calibration mm. */
   export interface IInputs {
     /** Acromion-radiale length. */
     upper: number;

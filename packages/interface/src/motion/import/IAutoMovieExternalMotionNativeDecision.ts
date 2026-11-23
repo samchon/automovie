@@ -2,7 +2,8 @@ import type { IAutoMovieSkeleton } from "../../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieImportedNodeBoneMapping } from "../IAutoMovieImportedNodeBoneMapping";
 
 /**
- * Native use replays the inspected node tracks on the source rig the author declares; ingest infers no rig and matches no names.
+ * Native use replays the inspected node tracks on the source rig the author
+ * declares; ingest infers no rig and matches no names.
  * `adoptAutoMovieExternalMotion` borrows this record, validates mapped parents
  * and rests by its fixed TRS composition, and returns copies. Constraints and
  * unmapped rests remain unchecked; noncommuting helper scale/rotation loses
@@ -15,9 +16,16 @@ export interface IAutoMovieExternalMotionNativeDecision {
   /** Inspected take id such as `clip_0`. */
   take: string;
 
-  /** Source skeleton with a non-blank id, unique bones including `hips`, and, for every mapped bone, the parent and rest the inspected hierarchy implies with exact number equality. */
+  /**
+   * Source skeleton with a non-blank id, unique bones including `hips`, and,
+   * for every mapped bone, the parent and rest the inspected hierarchy implies
+   * with exact number equality.
+   */
   sourceRig: IAutoMovieSkeleton;
 
-  /** Non-empty node-to-bone mapping that covers every node the take animates; ingest never derives it from names. */
+  /**
+   * Non-empty node-to-bone mapping that covers every node the take animates;
+   * ingest never derives it from names.
+   */
   mapping: IAutoMovieImportedNodeBoneMapping[];
 }

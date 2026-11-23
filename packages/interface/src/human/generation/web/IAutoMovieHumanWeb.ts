@@ -3,8 +3,8 @@ import type { IAutoMovieHumanWebChild } from "./IAutoMovieHumanWebChild";
 
 /**
  * A web between two children: the saddle at the crest where two neighbouring
- * digits (or toes) part from each other and from their parent's ring, with
- * the margin's lips and each child's own column down to its section.
+ * digits (or toes) part from each other and from their parent's ring, with the
+ * margin's lips and each child's own column down to its section.
  */
 export interface IAutoMovieHumanWeb {
   /** Its two pinches, the lower vertex first: the first of them. */

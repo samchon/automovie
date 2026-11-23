@@ -1,5 +1,7 @@
-/** Retain one source-free ordinary open run's actual generation and qualification.
- * Counts describe emitted geometry independently of source fit and completion.
+/**
+ * Retain one source-free ordinary open run's actual generation and
+ * qualification. Counts describe emitted geometry independently of source fit
+ * and completion.
  */
 export interface IAutoMovieRecoveryLocalRunReport {
   /** Stable generated run identity. */
@@ -41,6 +43,9 @@ export interface IAutoMovieRecoveryLocalRunReport {
   /** Courses whose saved fit flag or finite nonnegative estimate is unavailable. */
   unqualifiedFitMetadata: number;
 
-  /** Maximum saved curve-to-observed-polyline upper estimate in millimetres, or null when any estimate is unavailable. */
+  /**
+   * Maximum saved curve-to-observed-polyline upper estimate in millimetres, or
+   * null when any estimate is unavailable.
+   */
   fitPolylineUpperEstimateMaximumMm: number | null;
 }

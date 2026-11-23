@@ -3,7 +3,8 @@ import type { IAutoMovieSubjectDescription } from "./IAutoMovieSubjectDescriptio
 import type { IAutoMovieSubjectDiffFanout } from "./IAutoMovieSubjectDiffFanout";
 
 /**
- * One stable subject entry in a structural diff category with aggregate affected usage.
+ * One stable subject entry in a structural diff category with aggregate
+ * affected usage.
  */
 export interface IAutoMovieSubjectChange {
   /** Stable subject id shared with the non-null description. */

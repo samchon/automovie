@@ -1,9 +1,7 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
-/**
- * Moving subject-local point driving one soft anchor.
- */
+/** Moving subject-local point driving one soft anchor. */
 export type IAutoMovieSoftAnchorBinding =
   | {
       /** Bind to a production scene node. */

@@ -13,8 +13,8 @@ export interface IAutoMovieShotPerformance {
   motion: string | null;
 
   /**
-   * Seconds into the shot at which this performance begins, within
-   * `[0, duration]`.
+   * Seconds into the shot at which this performance begins, within `[0,
+   * duration]`.
    */
   startOffset: number;
 }

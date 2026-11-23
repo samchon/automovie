@@ -1,8 +1,6 @@
 import type { IAutoMoviePrimitiveShape } from "./IAutoMoviePrimitiveShape";
 
-/**
- * Geometry generated from one compact primitive shape recipe.
- */
+/** Geometry generated from one compact primitive shape recipe. */
 export interface IAutoMoviePrimitiveGeometry {
   /** Discriminator. */
   type: "primitive";

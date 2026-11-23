@@ -14,9 +14,7 @@ import type { IAutoMovieMotionHumanProp } from "../perform/IAutoMovieMotionHuman
  * stages the pair and composes the draw and the return.
  */
 export namespace IAutoMovieMotionHumanSheath {
-  /**
-   * What the author names to seat a blade in a carrier.
-   */
+  /** What the author names to seat a blade in a carrier. */
   export interface IParams {
     /** The carrier's mouth socket id, its `+Y` out of the opening. */
     mouth: string;
@@ -27,13 +25,14 @@ export namespace IAutoMovieMotionHumanSheath {
     /** The blade's handle affordance id the drawing hand grips. */
     handle: string;
 
-    /** How far the tip clears the mouth when the blade is drawn, metres; positive. */
+    /**
+     * How far the tip clears the mouth when the blade is drawn, metres;
+     * positive.
+     */
     clearance: number;
   }
 
-  /**
-   * The staged pair the draw and the return compose against.
-   */
+  /** The staged pair the draw and the return compose against. */
   export interface IStaged {
     /** The blade's scene subject id. */
     blade: string;
@@ -57,9 +56,7 @@ export namespace IAutoMovieMotionHumanSheath {
     slide: string;
   }
 
-  /**
-   * The two props as the performance takes them, with the staged identities.
-   */
+  /** The two props as the performance takes them, with the staged identities. */
   export interface IStaging {
     /** The carrier, with the seat and entry sockets added. */
     carrier: IAutoMovieMotionHumanProp;

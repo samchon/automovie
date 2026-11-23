@@ -1,9 +1,7 @@
 import type { IAutoMovieCaptionReadabilityMeasurement } from "./IAutoMovieCaptionReadabilityMeasurement";
 import type { IAutoMovieCaptionReadabilityOutcome } from "./IAutoMovieCaptionReadabilityOutcome";
 
-/**
- * Readability report kept outside the byte-stable compiled edit.
- */
+/** Readability report kept outside the byte-stable compiled edit. */
 export interface IAutoMovieCaptionReadabilityReport {
   /** Caption-readability report schema. */
   version: 2;

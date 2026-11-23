@@ -1,9 +1,7 @@
 import type { IAutoMovieSubjectReviewDescription } from "./IAutoMovieSubjectReviewDescription";
 import type { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTarget";
 
-/**
- * Resolved review unit for one compiled subject.
- */
+/** Resolved review unit for one compiled subject. */
 export interface IAutoMovieSubjectReviewUnit {
   /** Subject-review protocol version. */
   version: 1;

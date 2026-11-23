@@ -1,9 +1,7 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMoviePhysicalBalance } from "./IAutoMoviePhysicalBalance";
 
-/**
- * Capture-point root-target feedback with a bounded horizontal travel envelope.
- */
+/** Capture-point root-target feedback with a bounded horizontal travel envelope. */
 export namespace IAutoMoviePhysicalBalanceBracing {
   /**
    * Capture-point feedback toward the actual support hull under an explicit
@@ -29,11 +27,15 @@ export namespace IAutoMoviePhysicalBalanceBracing {
    * COM-height recovery limit. The provider owns that limit and its meaning.
    */
   export type IResult = {
-    /** Zero only when exhausted and actual COM height is below the recovery limit; otherwise one. */
+    /**
+     * Zero only when exhausted and actual COM height is below the recovery
+     * limit; otherwise one.
+     */
     rootStrength: number;
     /**
      * New world-axis root-target displacement in metres, y zero. Points toward
-     * the closest hull boundary and is capped; zero when no outside-hull correction exists.
+     * the closest hull boundary and is capped; zero when no outside-hull
+     * correction exists.
      */
     shift: IAutoMovieVector3;
   };

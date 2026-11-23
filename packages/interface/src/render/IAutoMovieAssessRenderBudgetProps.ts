@@ -9,23 +9,39 @@ import type { IAutoMovieRenderTargetRenderer } from "./IAutoMovieRenderTargetRen
 import type { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSettings.js";
 
 /**
- * Compiled-shot cost inputs and caller-observed graphics/texture facts. assessAutoMovieRenderBudget returns not-run without renderer identity; otherwise it measures and seals a target under the supplied settings and budget. Absent textures/residency remain unmeasured rather than fabricated zero costs.
+ * Compiled-shot cost inputs and caller-observed graphics/texture facts.
+ * assessAutoMovieRenderBudget returns not-run without renderer identity;
+ * otherwise it measures and seals a target under the supplied settings and
+ * budget. Absent textures/residency remain unmeasured rather than fabricated
+ * zero costs.
  */
 export interface IAutoMovieAssessRenderBudgetProps {
   /** Fully builder-owned shot artifact. */
   compiled: IAutoMovieCompiledShotSource;
   /** Shot id the artifact belongs to. */
   shot: string;
-  /** Explicit limits selected by the caller, or null to evaluate without a declared budget. */
+  /**
+   * Explicit limits selected by the caller, or null to evaluate without a
+   * declared budget.
+   */
   budget: IAutoMovieRenderBudget | null;
-  /** Caller-supplied graphics identity, or null when no such observation is supplied. */
+  /**
+   * Caller-supplied graphics identity, or null when no such observation is
+   * supplied.
+   */
   renderer: IAutoMovieRenderTargetRenderer | null;
   /** Intended target settings supplied for measurement and sealing. */
   settings: IAutoMovieRenderTargetSettings;
   /** Caller-supplied asset identity records for the intended target. */
   assets: readonly IAutoMovieRenderTargetAsset[];
-  /** Supplied decoded upload and sharing observations; the caller owns their acquisition and truth. */
+  /**
+   * Supplied decoded upload and sharing observations; the caller owns their
+   * acquisition and truth.
+   */
   textures?: readonly IAutoMovieRenderTextureSource[];
-  /** Supplied context/other-shot residency observations; this helper acquires no capture host. */
+  /**
+   * Supplied context/other-shot residency observations; this helper acquires no
+   * capture host.
+   */
   textureResidency?: IAutoMovieRenderTextureResidency;
 }

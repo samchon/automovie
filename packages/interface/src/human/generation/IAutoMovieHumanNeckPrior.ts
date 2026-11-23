@@ -1,11 +1,12 @@
 /**
- * Layered neck-ring harmonics and size/place regressions in their declared calibration scales.
+ * Layered neck-ring harmonics and size/place regressions in their declared
+ * calibration scales.
  *
- * The interface package owns these declarations; AutoMovieHumanNeckPrior in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanNeckPrior in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanNeckPrior {
-  /** One layer's ring as harmonics of its phase.
-   */
+  /** One layer's ring as harmonics of its phase. */
   export interface IRing {
     /** Forward place over the depth: cosines from the constant term. */
     x: readonly number[];
@@ -17,8 +18,7 @@ export namespace IAutoMovieHumanNeckPrior {
     y: readonly number[];
   }
 
-  /** A size per layer.
-   */
+  /** A size per layer. */
   export interface ISize {
     /** Log of the size over the tape read there. */
     level: readonly number[];
@@ -30,8 +30,7 @@ export namespace IAutoMovieHumanNeckPrior {
     gain: readonly number[];
   }
 
-  /** A place per layer.
-   */
+  /** A place per layer. */
   export interface IPlace {
     /** Forward place, mm. */
     level: readonly number[];
@@ -40,8 +39,7 @@ export namespace IAutoMovieHumanNeckPrior {
     sex: readonly number[];
   }
 
-  /** The prior.
-   */
+  /** The prior. */
   export interface IPrior {
     /** Control points of a section. */
     order: number;

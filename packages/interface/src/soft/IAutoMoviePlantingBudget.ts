@@ -1,19 +1,28 @@
 /**
  * The bounded cost a planting recipe and its cluster add to a shot.
  *
- * Every field is derived from the records alone, so a production can be refused for an unaffordable green wall before a single branch is grown.
+ * Every field is derived from the records alone, so a production can be refused
+ * for an unaffordable green wall before a single branch is grown.
  */
 export interface IAutoMoviePlantingBudget {
   /** Identity of the measured recipe. */
   domain: string;
 
-  /** Full-tree branch-count upper bound before growth-stage or pruning omissions. */
+  /**
+   * Full-tree branch-count upper bound before growth-stage or pruning
+   * omissions.
+   */
   worstCaseBranches: number;
 
   /**
-   * Leaf-count upper bound from the full unpruned tree and maximum length jitter, or `0` for a recipe with no foliage rule; this is not the exact count for one seed.
+   * Leaf-count upper bound from the full unpruned tree and maximum length
+   * jitter, or `0` for a recipe with no foliage rule; this is not the exact
+   * count for one seed.
    *
-   * Derived from the density rule and the branching law rather than read off {@link maxLeaves}: a cap is what the recipe promises not to exceed, not what it costs, and a bare winter branch that reported its cap would hand a render budget a bill for foliage nobody grows.
+   * Derived from the density rule and the branching law rather than read off
+   * {@link maxLeaves}: a cap is what the recipe promises not to exceed, not what
+   * it costs, and a bare winter branch that reported its cap would hand a
+   * render budget a bill for foliage nobody grows.
    */
   worstCaseLeaves: number;
 

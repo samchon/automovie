@@ -1,5 +1,4 @@
-/** Identity of one fixed image used by a fit.
- */
+/** Identity of one fixed image used by a fit. */
 export interface IAutoMovieRecoveryImageSource {
   /** Fixed capture identity from the observation artifact. */
   id: string;

@@ -6,7 +6,11 @@ import type { IAutoMoviePhysicalShape } from "./IAutoMoviePhysicalShape";
 /**
  * One massive rigid segment and its attached collision geometry.
  *
- * The neutral transform places its bone origin in the body frame. Principal moments about the bone-local centre of mass use kg m²; inertiaRotation places their axes in the bone frame. validatePhysicalProfile requires positive mass and moments, triangle inequalities and at least one admitted shape. Equipment is already included in all segment totals.
+ * The neutral transform places its bone origin in the body frame. Principal
+ * moments about the bone-local centre of mass use kg m²; inertiaRotation places
+ * their axes in the bone frame. validatePhysicalProfile requires positive mass
+ * and moments, triangle inequalities and at least one admitted shape. Equipment
+ * is already included in all segment totals.
  */
 export interface IAutoMoviePhysicalSegment {
   /** Arbitrary skeleton bone id, not a humanoid vocabulary. */

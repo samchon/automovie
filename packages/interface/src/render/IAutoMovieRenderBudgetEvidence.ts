@@ -1,22 +1,18 @@
 import type { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment.js";
 
 /**
- * One caller-supplied tier's budget evidence over its supplied shot assessments. The record itself proves neither complete shot coverage nor actual rendering or publication.
+ * One caller-supplied tier's budget evidence over its supplied shot
+ * assessments. The record itself proves neither complete shot coverage nor
+ * actual rendering or publication.
  */
 export interface IAutoMovieRenderBudgetEvidence {
-  /**
-   * Evidence format.
-   */
+  /** Evidence format. */
   version: 1;
 
-  /**
-   * Versioned evidence protocol.
-   */
+  /** Versioned evidence protocol. */
   protocol: "automovie.render-budget-evidence.v1";
 
-  /**
-   * Quality tier the job targeted.
-   */
+  /** Quality tier the job targeted. */
   tier: string;
 
   /**
@@ -28,15 +24,16 @@ export interface IAutoMovieRenderBudgetEvidence {
    */
   declaredTiers: string[];
 
-  /**
-   * Whether a budget was found for {@link tier}.
-   */
+  /** Whether a budget was found for {@link tier}. */
   budgeted: boolean;
 
   /**
    * The worst outcome any shot produced.
    *
-   * `over` beats `not-run`, which beats `incomplete`, which beats `within`. This aggregate states the supplied outcomes; autoMovieRenderBudgetRefusal returns text for over-limit and required-texture gaps, but no current job consumer automatically enforces it.
+   * `over` beats `not-run`, which beats `incomplete`, which beats `within`.
+   * This aggregate states the supplied outcomes; autoMovieRenderBudgetRefusal
+   * returns text for over-limit and required-texture gaps, but no current job
+   * consumer automatically enforces it.
    *
    * A document over no shots at all is `not-run`, never `within`: nothing was
    * measured, and a verdict over an empty set is the cheapest way a report ends
@@ -44,13 +41,13 @@ export interface IAutoMovieRenderBudgetEvidence {
    */
   status: IAutoMovieRenderBudgetAssessment["status"];
 
-  /**
-   * One assessment per shot, ascending by shot id.
-   */
+  /** One assessment per shot, ascending by shot id. */
   shots: IAutoMovieRenderBudgetAssessment[];
 
   /**
-   * Digest over protocol, tier, declared tiers, aggregate status and ordered shot id/status/report-digest/target-digest tuples; full report and target values are represented only by their supplied digests.
+   * Digest over protocol, tier, declared tiers, aggregate status and ordered
+   * shot id/status/report-digest/target-digest tuples; full report and target
+   * values are represented only by their supplied digests.
    */
   digest: string;
 }

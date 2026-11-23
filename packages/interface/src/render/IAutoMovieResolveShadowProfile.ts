@@ -12,17 +12,25 @@ export namespace IAutoMovieResolveShadowProfile {
    * One light owns one shadow map; a point light rasterizes six cube faces.
    * Directional and spot VSM add two fullscreen filtering triangles after their
    * one depth face. Area lights allocate no shadow map. Disabled and noncasting
-   * lights therefore cost no shadow work. No camera culling reduces this bound.
+   * lights therefore cost no shadow work. No camera culling reduces this
+   * bound.
    *
-   * Enabled point VSM is refused with the original light path before any resource
-   * or fictitious work is priced. Scalar and light-shape admission belong to
-   * their existing validators. An omitted policy retains enabled legacy PCF;
-   * callers with a renderer target supply that target's effective fallback.
+   * Enabled point VSM is refused with the original light path before any
+   * resource or fictitious work is priced. Scalar and light-shape admission
+   * belong to their existing validators. An omitted policy retains enabled
+   * legacy PCF; callers with a renderer target supply that target's effective
+   * fallback.
    */
   export type IProps = {
-    /** Borrowed lights in source order; only explicitly true castShadow participates. */
+    /**
+     * Borrowed lights in source order; only explicitly true castShadow
+     * participates.
+     */
     lights: readonly Pick<IAutoMovieLight, "id" | "type" | "castShadow">[];
-    /** Null/omitted means enabled PCF. pcfSoft normalizes to pcf; vsm is retained. */
+    /**
+     * Null/omitted means enabled PCF. pcfSoft normalizes to pcf; vsm is
+     * retained.
+     */
     shadows?: IAutoMovieSceneEnvironment["shadows"] | null;
   };
 
@@ -31,18 +39,23 @@ export namespace IAutoMovieResolveShadowProfile {
    * One light owns one shadow map; a point light rasterizes six cube faces.
    * Directional and spot VSM add two fullscreen filtering triangles after their
    * one depth face. Area lights allocate no shadow map. Disabled and noncasting
-   * lights therefore cost no shadow work. No camera culling reduces this bound.
+   * lights therefore cost no shadow work. No camera culling reduces this
+   * bound.
    *
-   * Enabled point VSM is refused with the original light path before any resource
-   * or fictitious work is priced. Scalar and light-shape admission belong to
-   * their existing validators. An omitted policy retains enabled legacy PCF;
-   * callers with a renderer target supply that target's effective fallback.
+   * Enabled point VSM is refused with the original light path before any
+   * resource or fictitious work is priced. Scalar and light-shape admission
+   * belong to their existing validators. An omitted policy retains enabled
+   * legacy PCF; callers with a renderer target supply that target's effective
+   * fallback.
    */
   export type IResult =
     | {
         /** Enabled point-light VSM was refused; inspect source-path violations. */
         success: false;
-        /** New violations in input order, pointing to each unsupported light's castShadow. */
+        /**
+         * New violations in input order, pointing to each unsupported light's
+         * castShadow.
+         */
         violations: IAutoMovieConstraintViolation[];
         /** No supported enabled-state result is emitted on refusal. */
         enabled?: undefined;
@@ -52,17 +65,29 @@ export namespace IAutoMovieResolveShadowProfile {
         casters?: undefined;
       }
     | {
-        /** Policy is supported; does not independently validate all light scalar fields. */
+        /**
+         * Policy is supported; does not independently validate all light scalar
+         * fields.
+         */
         success: true;
-        /** Effective global shadow enablement, including the legacy true default. */
+        /**
+         * Effective global shadow enablement, including the legacy true
+         * default.
+         */
         enabled: boolean;
         /** Effective filtering mode after the pcfSoft-to-pcf fallback. */
         type: "pcf" | "vsm";
-        /** New list in light order; empty when disabled, excluding area/noncasting lights. */
+        /**
+         * New list in light order; empty when disabled, excluding
+         * area/noncasting lights.
+         */
         casters: {
           /** Authored light id, scoped by the caller's scene or resident. */
           light: string;
-          /** Depth raster faces: six for a point light, one for directional or spot. */
+          /**
+           * Depth raster faces: six for a point light, one for directional or
+           * spot.
+           */
           depthFaces: number;
           /** Fullscreen filtering submissions: two for VSM and zero for PCF. */
           filterDraws: number;

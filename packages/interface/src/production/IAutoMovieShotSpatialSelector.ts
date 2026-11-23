@@ -1,7 +1,8 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * A world-space spatial operand resolved from one current compiled shot or its production world.
+ * A world-space spatial operand resolved from one current compiled shot or its
+ * production world.
  */
 export type IAutoMovieShotSpatialSelector =
   | {
@@ -12,7 +13,10 @@ export type IAutoMovieShotSpatialSelector =
       id: string;
     }
   | {
-      /** Stored formation position centroid under whole-unit motion, without recomputing reform layouts or member exceptions. */
+      /**
+       * Stored formation position centroid under whole-unit motion, without
+       * recomputing reform layouts or member exceptions.
+       */
       kind: "formation";
 
       /** Exact formation design id. */

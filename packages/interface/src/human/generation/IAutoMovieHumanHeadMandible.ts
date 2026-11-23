@@ -1,5 +1,4 @@
-/** The person's mandible, calibration millimetres.
- */
+/** The person's mandible, calibration millimetres. */
 export interface IAutoMovieHumanHeadMandible {
   /** Arch's front apex on the midline. */
   front: number;
@@ -19,7 +18,10 @@ export interface IAutoMovieHumanHeadMandible {
   /** Radius of the chin's turn in plan. */
   radius: number;
 
-  /** Point on the midline behind the gonions the arch is read from, along the forward axis. */
+  /**
+   * Point on the midline behind the gonions the arch is read from, along the
+   * forward axis.
+   */
   origin: number;
 
   /** Outward unit normal of the arch's left side in plan, `[x, z]`. */
@@ -61,7 +63,10 @@ export interface IAutoMovieHumanHeadMandible {
   /** Soft tissue's rounding of the turn under the border. */
   round: number;
 
-  /** Share of that rounding at the jaw's side; its inverse square at the underside. */
+  /**
+   * Share of that rounding at the jaw's side; its inverse square at the
+   * underside.
+   */
   taper: number;
 
   /** Width of the blend with the face and neck. */

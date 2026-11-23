@@ -1,5 +1,4 @@
-/** A light property a shot's `lightMotions` may animate.
- */
+/** A light property a shot's `lightMotions` may animate. */
 export type AutoMovieLightProperty =
   | "intensity"
   | "color"

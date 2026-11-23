@@ -1,6 +1,4 @@
-/**
- * One skin opening in world millimetres; see {@link AutoMovieHumanLoftAperture}.
- */
+/** One skin opening in world millimetres; see {@link AutoMovieHumanLoftAperture}. */
 export interface IAutoMovieHumanLoftAperture {
   /** Name, e.g. `eye.left`. */
   name: string;
@@ -8,9 +6,7 @@ export interface IAutoMovieHumanLoftAperture {
   /** Highest harmonic of each coordinate series. */
   order: number;
 
-  /**
-   * Coefficients of x, y and z in turn, each `[a0, a1, b1, ..., aK, bK]`, mm.
-   */
+  /** Coefficients of x, y and z in turn, each `[a0, a1, b1, ..., aK, bK]`, mm. */
   coefficients: number[];
 
   /** Unit direction the opening faces, e.g. the eye's line of sight. */
@@ -21,26 +17,26 @@ export interface IAutoMovieHumanLoftAperture {
 
   /**
    * Depth of the closed pocket behind an opening with no globe, such as a
-   * nostril, mm: the margin is pushed this far back along `forward` and
-   * closed. Absent or zero leaves the opening as an open hole; an opening
-   * with a globe behind it takes its depth from the globe instead.
+   * nostril, mm: the margin is pushed this far back along `forward` and closed.
+   * Absent or zero leaves the opening as an open hole; an opening with a globe
+   * behind it takes its depth from the globe instead.
    */
   pocket?: number;
 
   /**
-   * Chain whose skin the opening lies on. Given, the opening is a trim
-   * loop in that chain's chart (the outline projected onto its surface
-   * along `forward`): the chain leaves the cells inside unlofted and the
-   * closure starts from the loop with the surface's own derivatives.
-   * Absent, the opening is cut from the finished mesh by position.
+   * Chain whose skin the opening lies on. Given, the opening is a trim loop in
+   * that chain's chart (the outline projected onto its surface along
+   * `forward`): the chain leaves the cells inside unlofted and the closure
+   * starts from the loop with the surface's own derivatives. Absent, the
+   * opening is cut from the finished mesh by position.
    */
   base?: string;
 
   /**
-   * The line a slit opening closes on at rest. After the cut every vertex
-   * of its rim moves onto that line, kept `closed` off it on its own side,
-   * so the opening is a seam whose two lips meet and stay apart by place.
-   * Absent leaves the rim where the cut put it.
+   * The line a slit opening closes on at rest. After the cut every vertex of
+   * its rim moves onto that line, kept `closed` off it on its own side, so the
+   * opening is a seam whose two lips meet and stay apart by place. Absent
+   * leaves the rim where the cut put it.
    */
   seam?: {
     /** Height of the line at shares 0, 1/n .. 1 of `width` from the midline, mm. */

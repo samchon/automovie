@@ -14,7 +14,10 @@ export interface IAutoMovieSurfacePatternZone {
   id: string;
 
   /**
-   * Convex-position face-local point set with at least three non-collinear points and no interior/duplicate points. The run canonicalizes hull order rather than preserving the authored ring and refuses overlap above its area tolerance.
+   * Convex-position face-local point set with at least three non-collinear
+   * points and no interior/duplicate points. The run canonicalizes hull order
+   * rather than preserving the authored ring and refuses overlap above its area
+   * tolerance.
    */
   region: IAutoMoviePatternPoint[];
 
@@ -50,8 +53,8 @@ export interface IAutoMovieSurfacePatternZone {
   };
 
   /**
-   * {@link IAutoMovieMaterial} id this zone's modules carry, or `null` when
-   * its placements name no material.
+   * {@link IAutoMovieMaterial} id this zone's modules carry, or `null` when its
+   * placements name no material.
    */
   material: string | null;
 

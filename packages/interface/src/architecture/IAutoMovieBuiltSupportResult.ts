@@ -25,7 +25,11 @@ export interface IAutoMovieBuiltSupportResult {
     | "unresolved";
 
   /**
-   * Signed underside gap in metres for bearing, or null with no retained probe, suspension or an unresolved side. For usable finite arithmetic, positive means above the sampled face and negative means below it; the deepest retained probe answers. A nonfinite computed value is not converted to null or unresolved by this classifier.
+   * Signed underside gap in metres for bearing, or null with no retained probe,
+   * suspension or an unresolved side. For usable finite arithmetic, positive
+   * means above the sampled face and negative means below it; the deepest
+   * retained probe answers. A nonfinite computed value is not converted to null
+   * or unresolved by this classifier.
    */
   gap: number | null;
 

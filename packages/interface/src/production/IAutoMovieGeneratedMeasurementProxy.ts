@@ -1,9 +1,13 @@
 /**
- * Explicit external-model dimensions used to estimate a root-centred population projection radius.
+ * Explicit external-model dimensions used to estimate a root-centred population
+ * projection radius.
  */
 export type IAutoMovieGeneratedMeasurementProxy =
   | {
-      /** Box envelope whose half diagonal supplies the population projection radius. */
+      /**
+       * Box envelope whose half diagonal supplies the population projection
+       * radius.
+       */
       recipe: "box-v1";
 
       /** Positive full extents in production meters. */
@@ -19,7 +23,10 @@ export type IAutoMovieGeneratedMeasurementProxy =
       };
     }
   | {
-      /** Height/width envelope whose half diagonal supplies the population projection radius. */
+      /**
+       * Height/width envelope whose half diagonal supplies the population
+       * projection radius.
+       */
       recipe: "humanoid-landmarks-v1";
 
       /** Positive stature, shoulder width and hip width in production meters. */
@@ -30,7 +37,10 @@ export type IAutoMovieGeneratedMeasurementProxy =
         /** Positive full shoulder width in meters. */
         shoulderWidth: number;
 
-        /** Positive full hip width in meters; the larger declared width enters the radius estimate. */
+        /**
+         * Positive full hip width in meters; the larger declared width enters
+         * the radius estimate.
+         */
         hipWidth: number;
       };
     };

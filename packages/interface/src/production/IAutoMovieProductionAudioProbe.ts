@@ -1,8 +1,6 @@
 import type { IAutoMovieProductionOpusDescription } from "./IAutoMovieProductionOpusDescription";
 
-/**
- * Parser-observed MP4 audio track and presentation facts.
- */
+/** Parser-observed MP4 audio track and presentation facts. */
 export interface IAutoMovieProductionAudioProbe {
   /** Parsed media class. */
   kind: "audio";

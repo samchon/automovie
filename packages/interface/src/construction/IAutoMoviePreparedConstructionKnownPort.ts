@@ -2,9 +2,7 @@ import type { IAutoMovieConstructionKnownPort } from "./IAutoMovieConstructionKn
 import type { IAutoMovieConstructionKnownPortSide } from "./IAutoMovieConstructionKnownPortSide";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
-/**
- * Prepared original-field port surface and the neighboring owners it retains.
- */
+/** Prepared original-field port surface and the neighboring owners it retains. */
 export namespace IAutoMoviePreparedConstructionKnownPort {
   /**
    * Surface with u in [0,1] from parent to child and v in the original clock
@@ -14,14 +12,20 @@ export namespace IAutoMoviePreparedConstructionKnownPort {
    *
    * The descriptor is detached, but field/map owners remain borrowed and must
    * stay immutable. Point queries work independently of map total2. Jet queries
-   * reject null/nonfinite map derivatives and degenerate tangent planes; callback
-   * exceptions propagate. Returned vectors are freshly computed.
+   * reject null/nonfinite map derivatives and degenerate tangent planes;
+   * callback exceptions propagate. Returned vectors are freshly computed.
    */
   export interface IPrepared extends IAutoMovieSolidSurface {
-    /** Detached descriptor retains original clock bounds and authored outward convention. */
+    /**
+     * Detached descriptor retains original clock bounds and authored outward
+     * convention.
+     */
     definition: IAutoMovieConstructionKnownPort;
 
-    /** Actual immutable field/map owners of both rails; labels alone certify no weights. */
+    /**
+     * Actual immutable field/map owners of both rails; labels alone certify no
+     * weights.
+     */
     rails: {
       /** Original field and map that own the transverse-zero boundary. */
       parent: IAutoMovieConstructionKnownPortSide;

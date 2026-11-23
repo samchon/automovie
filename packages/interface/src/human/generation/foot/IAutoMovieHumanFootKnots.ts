@@ -1,11 +1,12 @@
 /**
- * Closed anatomical region names for forefoot, heel, ankle and plantar-contact guide knots.
+ * Closed anatomical region names for forefoot, heel, ankle and plantar-contact
+ * guide knots.
  *
- * The interface package owns these declarations; AutoMovieHumanFootKnots in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanFootKnots in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanFootKnots {
-  /** A guide region.
-   */
+  /** A guide region. */
   export type Region =
     | "crestForefoot"
     | "crestAnkle"

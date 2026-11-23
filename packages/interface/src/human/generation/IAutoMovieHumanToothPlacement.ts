@@ -1,8 +1,9 @@
 import type { IAutoMovieHumanMouthPrior } from "./IAutoMovieHumanMouthPrior";
 
-/** One placed tooth in the registered figure frame. `neck` is a millimetre
- * position; `axis`, `along` and `out` are dimensionless unit directions in
- * that same frame. The producer establishes their geometric validity.
+/**
+ * One placed tooth in the registered figure frame. `neck` is a millimetre
+ * position; `axis`, `along` and `out` are dimensionless unit directions in that
+ * same frame. The producer establishes their geometric validity.
  */
 export interface IAutoMovieHumanToothPlacement {
   /** Part name: `upper|lower.left|right.<tooth>`. */

@@ -13,7 +13,10 @@ import type { AutoMovieSkeletonParentKey } from "./AutoMovieSkeletonParentKey";
  * `skeleton.bones` must rebuild it too.
  */
 export interface IAutoMovieSkeletonTopology {
-  /** The skeleton's bones grouped by parent name, `"__root__"` for null-parent roots, in declaration order. */
+  /**
+   * The skeleton's bones grouped by parent name, `"__root__"` for null-parent
+   * roots, in declaration order.
+   */
   readonly childrenByParent: ReadonlyMap<
     AutoMovieSkeletonParentKey,
     readonly IAutoMovieBone[]

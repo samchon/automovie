@@ -1,5 +1,6 @@
 /**
- * A named point or range on a shot's source clock for editorial or conditioning metadata.
+ * A named point or range on a shot's source clock for editorial or conditioning
+ * metadata.
  */
 export interface IAutoMovieEditorialMarker {
   /** Nonblank id, unique within the owning shot. */
@@ -11,6 +12,9 @@ export interface IAutoMovieEditorialMarker {
   /** Start in shot-local seconds, in `[0, duration)`. */
   startSeconds: number;
 
-  /** End in shot-local seconds, in `[startSeconds, duration]`. Equal to start for a point. */
+  /**
+   * End in shot-local seconds, in `[startSeconds, duration]`. Equal to start
+   * for a point.
+   */
   endSeconds: number;
 }

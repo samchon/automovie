@@ -1,40 +1,48 @@
 /**
  * A composition the vocabulary refuses to perform, as a value its author can
- * act on: who was to act, which action, which axis of it is at fault, the
- * value given, what would have been accepted, and what to change.
+ * act on: who was to act, which action, which axis of it is at fault, the value
+ * given, what would have been accepted, and what to change.
  *
  * The author of a composition is a coding agent that never sees the film it
- * asks for until it is built, so a refusal is its only feedback. Each
- * refusal therefore names one axis and one repair, and the same facts are
- * fields, so a program reads them without parsing the message:
+ * asks for until it is built, so a refusal is its only feedback. Each refusal
+ * therefore names one axis and one repair, and the same facts are fields, so a
+ * program reads them without parsing the message:
  *
  * ```ts
- * try { new HumanPerformance(input); }
- * catch (error) {
- *   if (error instanceof HumanRefusal) console.log(error.axis, error.feasible, error.fix);
+ * try {
+ *   new HumanPerformance(input);
+ * } catch (error) {
+ *   if (error instanceof HumanRefusal)
+ *     console.log(error.axis, error.feasible, error.fix);
  * }
  * ```
  *
- * A refusal is deterministic: it depends on the composition, the bodies and
- * the places, never on the seed. Repair it at the axis it names (move the
- * target, change the value, release the hand, declare the cut); catching it
- * and carrying on performs nothing.
+ * A refusal is deterministic: it depends on the composition, the bodies and the
+ * places, never on the seed. Repair it at the axis it names (move the target,
+ * change the value, release the hand, declare the cut); catching it and
+ * carrying on performs nothing.
  *
- * A law that refuses knows the axis but not always its place in the film, so
- * it may raise a refusal with no performer; the performance locates it
+ * A law that refuses knows the axis but not always its place in the film, so it
+ * may raise a refusal with no performer; the performance locates it
  * ({@link HumanRefusal.locate}) before it reaches the author.
  */
 export interface IAutoMovieMotionHumanRefusal extends Error {
   /** The class of refusal. */
   readonly kind: IAutoMovieMotionHumanRefusal.Kind;
 
-  /** The performer who was to act; empty until the performance locates the refusal. */
+  /**
+   * The performer who was to act; empty until the performance locates the
+   * refusal.
+   */
   readonly performer: string;
 
   /** The action refused; empty until located, unless the law named it. */
   readonly act: string;
 
-  /** Which occurrence of that action in the performer's chain, from 1; 0 until located. */
+  /**
+   * Which occurrence of that action in the performer's chain, from 1; 0 until
+   * located.
+   */
   readonly instance: number;
 
   /** The axis at fault: a parameter's name, or `cut`, `channel`, `base`. */
@@ -43,7 +51,10 @@ export interface IAutoMovieMotionHumanRefusal extends Error {
   /** The value given on that axis, as the author wrote it or as it was measured. */
   readonly value: unknown;
 
-  /** What the axis accepts here: a range, the alternatives, or null when neither applies. */
+  /**
+   * What the axis accepts here: a range, the alternatives, or null when neither
+   * applies.
+   */
   readonly feasible: IAutoMovieMotionHumanRefusal.Feasible | null;
 
   /** Why it is refused, with the measured numbers. */
@@ -64,14 +75,9 @@ export interface IAutoMovieMotionHumanRefusal extends Error {
   ): IAutoMovieMotionHumanRefusal;
 }
 
-/**
- * Companion types of {@link HumanRefusal}.
- *
- */
+/** Companion types of {@link HumanRefusal}. */
 export namespace IAutoMovieMotionHumanRefusal {
-  /**
-   * A numeric range; an open end is null.
-   */
+  /** A numeric range; an open end is null. */
   export interface IRange {
     /** The discriminator. */
     kind: "range";
@@ -92,9 +98,7 @@ export namespace IAutoMovieMotionHumanRefusal {
     open?: "minimum" | "maximum" | "both";
   }
 
-  /**
-   * The callable constructor and static factories.
-   */
+  /** The callable constructor and static factories. */
   export interface IConstructor {
     /**
      * A refusal.
@@ -106,8 +110,8 @@ export namespace IAutoMovieMotionHumanRefusal {
     ): IAutoMovieMotionHumanRefusal;
 
     /**
-     * The message of a refusal: `performer.act#instance axis: reason;
-     * feasible: ...; fix: ...`, the place left out until it is known.
+     * The message of a refusal: `performer.act#instance axis: reason; feasible:
+     * ...; fix: ...`, the place left out until it is known.
      *
      * @param props The refusal's facts.
      * @returns The message.
@@ -128,18 +132,18 @@ export namespace IAutoMovieMotionHumanRefusal {
    * The classes of refusal, each repaired at a different place:
    *
    * - `parameter`: a value outside what the action accepts; change the value.
-   * - `reach`: a target, site or support the body cannot reach from where it
-   *   is; move the target, come nearer, or let the body lean or step.
-   * - `affordance`: a prop, a point or a grip that is missing or already
-   *   held; name one that exists or release the hand.
-   * - `channel`: two movements claim one body part at one time; give one of
-   *   them another part or another time.
+   * - `reach`: a target, site or support the body cannot reach from where it is;
+   *   move the target, come nearer, or let the body lean or step.
+   * - `affordance`: a prop, a point or a grip that is missing or already held;
+   *   name one that exists or release the hand.
+   * - `channel`: two movements claim one body part at one time; give one of them
+   *   another part or another time.
    * - `cut`: an action is cut where its law declares no window; cut inside a
    *   declared window.
    * - `participant`: a performer, a partner's action or an anchor the action
    *   reads is absent; add it or place it earlier.
-   * - `base`: the state the action is entered from does not allow it (the
-   *   feet, the seat, the heading); change what precedes it.
+   * - `base`: the state the action is entered from does not allow it (the feet,
+   *   the seat, the heading); change what precedes it.
    * - `rule`: the placed performance breaks a production rule it was given.
    */
   export type Kind = (readonly [
@@ -153,16 +157,12 @@ export namespace IAutoMovieMotionHumanRefusal {
     "rule",
   ])[number];
 
-  /**
-   * What an axis accepts: a numeric range or a list of alternatives.
-   */
+  /** What an axis accepts: a numeric range or a list of alternatives. */
   export type Feasible =
     | IAutoMovieMotionHumanRefusal.IRange
     | IAutoMovieMotionHumanRefusal.IAlternatives;
 
-  /**
-   * The values that would have been accepted, as the author writes them.
-   */
+  /** The values that would have been accepted, as the author writes them. */
   export interface IAlternatives {
     /** The discriminator. */
     kind: "alternatives";
@@ -172,7 +172,9 @@ export namespace IAutoMovieMotionHumanRefusal {
   }
 
   /**
-   * The message of a refusal: `performer.act#instance axis: reason; feasible: ...; fix: ...`, the place left out until it is known. The facts of a refusal.
+   * The message of a refusal: `performer.act#instance axis: reason; feasible:
+   * ...; fix: ...`, the place left out until it is known. The facts of a
+   * refusal.
    */
   export interface IProps extends Partial<IAutoMovieMotionHumanRefusal.IWhere> {
     /** The class. */
@@ -184,7 +186,10 @@ export namespace IAutoMovieMotionHumanRefusal {
     /** The value given or measured. */
     value: unknown;
 
-    /** What the axis accepts; null or absent when neither a range nor alternatives apply. */
+    /**
+     * What the axis accepts; null or absent when neither a range nor
+     * alternatives apply.
+     */
     feasible?: IAutoMovieMotionHumanRefusal.Feasible | null;
 
     /** Why it is refused, with the measured numbers. */
@@ -195,7 +200,9 @@ export namespace IAutoMovieMotionHumanRefusal {
   }
 
   /**
-   * This refusal with its place in the film, keeping any place it already names: a law that named its own performer or action is not overwritten. A place in the film.
+   * This refusal with its place in the film, keeping any place it already
+   * names: a law that named its own performer or action is not overwritten. A
+   * place in the film.
    */
   export interface IWhere {
     /** The performer. */

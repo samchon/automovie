@@ -1,19 +1,18 @@
+import type { IAutoMovieMotionHumanWallClimb } from "../climbing/IAutoMovieMotionHumanWallClimb";
 import type { IAutoMovieMotionHumanBend } from "../everyday/IAutoMovieMotionHumanBend";
 import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHumanCrouch";
 import type { IAutoMovieMotionHumanKneel } from "../everyday/IAutoMovieMotionHumanKneel";
 import type { IAutoMovieMotionHumanRise } from "../everyday/IAutoMovieMotionHumanRise";
 import type { IAutoMovieMotionHumanShift } from "../everyday/IAutoMovieMotionHumanShift";
 import type { IAutoMovieMotionHumanSit } from "../everyday/IAutoMovieMotionHumanSit";
-import type { IAutoMovieMotionHumanWallClimb } from "../climbing/IAutoMovieMotionHumanWallClimb";
 import type { IAutoMovieMotionHumanGetUp } from "../floor/IAutoMovieMotionHumanGetUp";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanSupport } from "../next/IAutoMovieMotionHumanSupport";
 import type { IAutoMovieMotionHumanChainTravel } from "./IAutoMovieMotionHumanChainTravel";
 
 /**
- * The chain methods that change what the body rests on or how low it is:
- * onto a seat and off it, down to a low point, a crouch, a kneel and the
- * floor.
+ * The chain methods that change what the body rests on or how low it is: onto a
+ * seat and off it, down to a low point, a crouch, a kneel and the floor.
  */
 export interface IAutoMovieMotionHumanChainPosture extends IAutoMovieMotionHumanChainTravel {
   /**
@@ -80,8 +79,8 @@ export interface IAutoMovieMotionHumanChainPosture extends IAutoMovieMotionHuman
   lieDown(params?: IAutoMovieMotionHumanLieDown.IParams, anchor?: string): this;
 
   /**
-   * Get up from the floor to standing: from the back, the front, or the
-   * hands and knees.
+   * Get up from the floor to standing: from the back, the front, or the hands
+   * and knees.
    *
    * @param params The pattern, the leading foot and the manner.
    * @param anchor An optional anchor id.
@@ -108,8 +107,5 @@ export interface IAutoMovieMotionHumanChainPosture extends IAutoMovieMotionHuman
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  wallClimb(
-    params: IAutoMovieMotionHumanWallClimb,
-    anchor?: string,
-  ): this;
+  wallClimb(params: IAutoMovieMotionHumanWallClimb, anchor?: string): this;
 }

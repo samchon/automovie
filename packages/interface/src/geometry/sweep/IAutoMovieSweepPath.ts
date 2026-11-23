@@ -9,7 +9,10 @@ import type { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
  * clamped to the ends.
  */
 export interface IAutoMovieSweepPath {
-  /** Length of the spine's point polygon in metres, the chord-length scale of `u`. */
+  /**
+   * Length of the spine's point polygon in metres, the chord-length scale of
+   * `u`.
+   */
   length: number;
 
   /**
@@ -29,7 +32,8 @@ export interface IAutoMovieSweepPath {
   tangent(u: number): IAutoMovieVector3;
 
   /**
-   * Rotation-minimizing frame: the normal is the tangent and `x` is the spine's starting direction transported without twist.
+   * Rotation-minimizing frame: the normal is the tangent and `x` is the spine's
+   * starting direction transported without twist.
    *
    * @param u Chord-length parameter, clamped to `[0, 1]`
    * @returns The frame at the curve point

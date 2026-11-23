@@ -3,20 +3,18 @@ import type { IAutoMovieRenderInventory } from "./IAutoMovieRenderInventory";
 import type { IAutoMovieRenderTarget } from "./IAutoMovieRenderTarget";
 import type { IAutoMovieSemanticMask } from "./IAutoMovieSemanticMask";
 
-/**
- * Data and callback contracts shared by the EvaluateRenderBudget operations.
- */
+/** Data and callback contracts shared by the EvaluateRenderBudget operations. */
 export namespace IAutoMovieEvaluateRenderBudget {
   /**
    * Check one inventory against one declared budget and produce the bounded
    * report.
    *
-   * The report answers for every metric, always, with one of five outcomes. Four
-   * of them are not "pass":
+   * The report answers for every metric, always, with one of five outcomes.
+   * Four of them are not "pass":
    *
    * - `within`: measured, budgeted, at or below the limit;
-   * - `over`: measured, budgeted, above the limit, with the dominant owners and the
-   *   exact way back;
+   * - `over`: measured, budgeted, above the limit, with the dominant owners and
+   *   the exact way back;
    * - `unbudgeted`: measured, but the production declared no limit, so nobody
    *   agreed what large means;
    * - `unsupported`: no analysis exists for what the design declares;
@@ -35,8 +33,8 @@ export namespace IAutoMovieEvaluateRenderBudget {
    * dominant-owner ranking is over the owners that hold their own cost; the
    * passes are counted among the owners the report does not name and stated in
    * the recovery as passes. A ranking that let them compete would put the same
-   * name first in every production that lights nothing, and that name is a guide
-   * pass no production declares.
+   * name first in every production that lights nothing, and that name is a
+   * guide pass no production declares.
    */
   export type IProps = {
     /** Measured cost of the artifact. */

@@ -1,6 +1,4 @@
-/**
- * Numerical populations and error bound returned by the atlas realizer.
- */
+/** Numerical populations and error bound returned by the atlas realizer. */
 
 export interface IAutoMovieRecoveryAtlasCounts {
   /** Cells retained when the requested approximation was not reached. */

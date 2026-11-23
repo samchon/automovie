@@ -3,7 +3,8 @@ import type { IAutoMovieMaterialAssembly } from "./IAutoMovieMaterialAssembly";
 import type { IAutoMovieMaterialSubstance } from "./IAutoMovieMaterialSubstance";
 
 /**
- * Data and callback contracts shared by the ValidateMaterialAssembly operations.
+ * Data and callback contracts shared by the ValidateMaterialAssembly
+ * operations.
  */
 export namespace IAutoMovieValidateMaterialAssembly {
   /**
@@ -15,8 +16,8 @@ export namespace IAutoMovieValidateMaterialAssembly {
    * nothing. Finish defects are contradictions between the stack and the faces
    * it presents: an exposed face with nothing finishing it, a finish laid over
    * another finish, a finish buried where it will never be seen, a finish spent
-   * on a concealed face. Dimension conflicts are contradictions with the host: a
-   * build-up whose layers do not sum to the thickness the host was drawn at.
+   * on a concealed face. Dimension conflicts are contradictions with the host:
+   * a build-up whose layers do not sum to the thickness the host was drawn at.
    *
    * A single-layer stack presents both faces with the same layer, so its finish
    * answers for whichever of them is exposed rather than being demanded twice.
@@ -27,7 +28,8 @@ export namespace IAutoMovieValidateMaterialAssembly {
    * be known words, the offset finite, and at least one layer present. Every
    * finding is reported at once with a `$input` path, and none throws. With
    * `host`, the summed thickness must equal the host's within 1e-9 m; with
-   * `substances`, every non-cavity layer's material must name one of them by id.
+   * `substances`, every non-cavity layer's material must name one of them by
+   * id.
    */
   export type IProps = {
     /** Layered build-up to judge. */

@@ -1,6 +1,4 @@
-/**
- * What a fault is measured on: one clinical axis, or the combined swing.
- */
+/** What a fault is measured on: one clinical axis, or the combined swing. */
 export namespace IAutoMovieScanJointRom {
   /**
    * What a fault is measured on: one clinical axis, or the combined swing.

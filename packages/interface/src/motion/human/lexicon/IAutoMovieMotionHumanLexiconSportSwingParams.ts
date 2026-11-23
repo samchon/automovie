@@ -3,7 +3,8 @@ import type { IAutoMovieMotionHumanSword } from "./IAutoMovieMotionHumanSword";
 import type { IAutoMovieMotionHumanSwordGuard } from "./IAutoMovieMotionHumanSwordGuard";
 
 /**
- * Open parameters of the sportSwing lexicon family, keyed by each runtime export name.
+ * Open parameters of the sportSwing lexicon family, keyed by each runtime
+ * export name.
  */
 export interface IAutoMovieMotionHumanLexiconSportSwingParams extends IAutoMovieMotionHumanLexiconPrecisionSportParams {
   /** A baseball swing: both hands, level from the bat hand's side. */
@@ -27,7 +28,10 @@ export interface IAutoMovieMotionHumanLexiconSportSwingParams extends IAutoMovie
   /** A topspin stroke: the racket brushed up from below the ball. */
   topspin: Omit<IAutoMovieMotionHumanSword.ICut, "from">;
 
-  /** A serve, a smash or a badminton clear: the racket brought down from overhead. */
+  /**
+   * A serve, a smash or a badminton clear: the racket brought down from
+   * overhead.
+   */
   overheadSmash: Omit<IAutoMovieMotionHumanSword.ICut, "from">;
 
   /** A volley: a short punch of the racket from high on its own side. */

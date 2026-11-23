@@ -1,6 +1,8 @@
 /**
- * Original source-face and endpoint incidence of one saved open contour.
- * The two endpoint edge pairs use idempotent canonical source-vertex labels; faces is a borrowed readonly set of original supporting triangle ordinals. The open-slab observer admits their correspondence.
+ * Original source-face and endpoint incidence of one saved open contour. The
+ * two endpoint edge pairs use idempotent canonical source-vertex labels; faces
+ * is a borrowed readonly set of original supporting triangle ordinals. The
+ * open-slab observer admits their correspondence.
  */
 export interface IAutoMovieRecoveryOpenArcIncidence {
   /** Supporting original source faces, discarded before publication. */

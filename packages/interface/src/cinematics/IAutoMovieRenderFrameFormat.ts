@@ -11,8 +11,8 @@ import type { IAutoMovieDeliveryCrop } from "./IAutoMovieDeliveryCrop";
  */
 export interface IAutoMovieRenderFrameFormat {
   /**
-   * Finite positive output frame rate; sets the frame count
-   * `round(duration * fps)` and the sample times `t = i / fps`.
+   * Finite positive output frame rate; sets the frame count `round(duration *
+   * fps)` and the sample times `t = i / fps`.
    */
   fps: number;
 

@@ -10,13 +10,14 @@ import type {
 } from "../../index";
 
 /**
- * Generated geometry, its exact coefficient binding and current run observations
- * borrowed by createAutoMovieRecoveryArtifact for one publication snapshot.
- * Counts and memory probes run synchronously; memory updates peaks before the
- * peak record is read. The assembler retains geometry/report references in its
- * result, so publication must observe the same run state and spool identities.
- * Pair counts describe processing and retained coverage separately; none proves
- * source fidelity. started uses the host's monotonic millisecond clock.
+ * Generated geometry, its exact coefficient binding and current run
+ * observations borrowed by createAutoMovieRecoveryArtifact for one publication
+ * snapshot. Counts and memory probes run synchronously; memory updates peaks
+ * before the peak record is read. The assembler retains geometry/report
+ * references in its result, so publication must observe the same run state and
+ * spool identities. Pair counts describe processing and retained coverage
+ * separately; none proves source fidelity. started uses the host's monotonic
+ * millisecond clock.
  */
 
 export interface IAutoMovieRecoveryArtifactInput {
@@ -68,15 +69,12 @@ export interface IAutoMovieRecoveryArtifactInput {
   /** Owning output directory. */
   output: string;
 
-  /** Sample current generated vertex and triangle populations.
-   */
+  /** Sample current generated vertex and triangle populations. */
   counts: () => IAutoMovieRecoveryModelCounts;
 
-  /** Sample host memory byte populations and update observed peaks.
-   */
+  /** Sample host memory byte populations and update observed peaks. */
   memory: () => IAutoMovieMemoryUsage;
 
-  /** Read the run observed heap and resident byte peaks.
-   */
+  /** Read the run observed heap and resident byte peaks. */
   peaks: () => IAutoMovieMemoryPeaks;
 }

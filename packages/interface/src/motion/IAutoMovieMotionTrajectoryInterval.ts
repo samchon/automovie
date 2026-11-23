@@ -1,6 +1,4 @@
-/**
- * One fixed Hermite interval's exact stored endpoint data.
- */
+/** One fixed Hermite interval's exact stored endpoint data. */
 export interface IAutoMovieMotionTrajectoryInterval {
   /** First knot time, seconds. */
   from: number;

@@ -1,9 +1,10 @@
 /**
  * Caller-declared registration of already evaluated indexed source triangles.
  * Container inspection cannot establish these facts. A host loader applies node
- * transforms, evaluated deformation and unit conversion before this handoff. The
- * recovery package checks structure and finite values, not the truth of an unknown
- * pose or visibility mask. Unknown facts belong in uncertainty rather than guesses.
+ * transforms, evaluated deformation and unit conversion before this handoff.
+ * The recovery package checks structure and finite values, not the truth of an
+ * unknown pose or visibility mask. Unknown facts belong in uncertainty rather
+ * than guesses.
  */
 export interface IAutoMovieRecoveryRegistration {
   /** Positions reaching recovery are already millimetres. */
@@ -41,6 +42,9 @@ export interface IAutoMovieRecoveryRegistration {
   /** Every component supplied by the evaluated host population is retained. */
   componentPolicy: "all-evaluated";
 
-  /** Unknown source visibility, material, transform or pose facts remain explicit. */
+  /**
+   * Unknown source visibility, material, transform or pose facts remain
+   * explicit.
+   */
   uncertainty: string[];
 }

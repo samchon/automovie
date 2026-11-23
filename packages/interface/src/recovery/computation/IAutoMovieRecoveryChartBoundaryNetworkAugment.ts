@@ -2,12 +2,14 @@ import type { IAutoMovieRecoveryChartBoundaryNetwork } from "./IAutoMovieRecover
 import type { IAutoMovieRecoveryChartBoundaryNetworkRegistry } from "./IAutoMovieRecoveryChartBoundaryNetworkRegistry";
 
 /**
- * Augment copied chart banks with their registered physical cuts in original triangle order.
+ * Augment copied chart banks with their registered physical cuts in original
+ * triangle order.
  */
 
 export namespace IAutoMovieRecoveryChartBoundaryNetworkAugment {
   /**
-   * Augment copied chart banks with their registered physical cuts in original triangle order.
+   * Augment copied chart banks with their registered physical cuts in original
+   * triangle order.
    */
 
   export type Operation = (

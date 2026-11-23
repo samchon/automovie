@@ -12,10 +12,14 @@ import type { IAutoMovieHumanHandBones } from "./hand/IAutoMovieHumanHandBones";
 import type { IAutoMovieHumanHeadLane } from "./head/IAutoMovieHumanHeadLane";
 
 /**
- * Calibration limb inputs and shared body source assembly before final solid realization. Runtime construction and admission remain with AutoMovieHumanBodyLaw in Human.
+ * Calibration limb inputs and shared body source assembly before final solid
+ * realization. Runtime construction and admission remain with
+ * AutoMovieHumanBodyLaw in Human.
  */
 export namespace IAutoMovieHumanBodyLaw {
-  /** Public limb definitions shared by construction and source-curve inspection, before any skin.
+  /**
+   * Public limb definitions shared by construction and source-curve inspection,
+   * before any skin.
    */
   export interface ILimbInputs {
     /** Stature in calibration mm. */
@@ -26,7 +30,10 @@ export namespace IAutoMovieHumanBodyLaw {
 
     /** Arm tapes and each hand's own dimensions, calibration mm. */
     arms: IAutoMovieHumanArmConstruction.IInputs & {
-      /** Requested full shoulder breadth across both deltoids, calibration millimetres. */
+      /**
+       * Requested full shoulder breadth across both deltoids, calibration
+       * millimetres.
+       */
       bideltoid: number;
     };
 
@@ -37,8 +44,7 @@ export namespace IAutoMovieHumanBodyLaw {
     crotch: number;
   }
 
-  /** Calibrations for one parameter set.
-   */
+  /** Calibrations for one parameter set. */
   export interface IOutput {
     /** Body chains, events, poles, apertures and globes in calibration mm. */
     body: IAutoMovieHumanBodyCalibration;
@@ -47,10 +53,15 @@ export namespace IAutoMovieHumanBodyLaw {
     vermilion: IAutoMovieHumanHermiteCurve;
   }
 
-  /** The shared production source assembly, explicitly before final solid realization.
+  /**
+   * The shared production source assembly, explicitly before final solid
+   * realization.
    */
   export interface IDefinition {
-    /** Identical invocation context for explicit original/raw requests and legacy receiver observations. */
+    /**
+     * Identical invocation context for explicit original/raw requests and
+     * legacy receiver observations.
+     */
     prepared: IAutoMovieHumanBodyPreparation.IOutput;
 
     /** The exact body tree and source premises consumed by calibration. */
@@ -65,14 +76,18 @@ export namespace IAutoMovieHumanBodyLaw {
     /** Anatomically placed bind joints used by these same source parts. */
     skeleton: IAutoMovieHumanCalibrationBone[];
 
-    /** Identical hand definitions shared by bind joints and original digit curves. */
+    /**
+     * Identical hand definitions shared by bind joints and original digit
+     * curves.
+     */
     hands: Record<"left" | "right", IAutoMovieHumanHandBones.IOutput>;
 
     /** Stature in the calibration's millimetres. */
     stature: number;
 
     /**
-     * Explicit engine-evaluated legacy neck interval; ordinary source/metadata reads do not request raw geometry.
+     * Explicit engine-evaluated legacy neck interval; ordinary source/metadata
+     * reads do not request raw geometry.
      */
     neckRaw(): IAutoMovieLoftChain;
 

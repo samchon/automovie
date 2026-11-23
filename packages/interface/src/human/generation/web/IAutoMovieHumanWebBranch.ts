@@ -1,8 +1,7 @@
 import type { IAutoMovieLoftChain } from "../../../construction/IAutoMovieLoftChain";
 import type { IAutoMovieHumanWebColumn } from "./IAutoMovieHumanWebColumn";
 
-/** A child (a digit or toe) and its columns down from the parent's ring.
- */
+/** A child (a digit or toe) and its columns down from the parent's ring. */
 export interface IAutoMovieHumanWebBranch {
   /** Chain name. */
   name: string;

@@ -15,8 +15,8 @@ export interface IAutoMovieHoldAction extends IAutoMovieActionBase {
   verb: "hold";
 
   /**
-   * Shot-local length of the hold in seconds, finite and `> 0` with
-   * `start + duration` inside the shot; `"auto"` is not accepted.
+   * Shot-local length of the hold in seconds, finite and `> 0` with `start +
+   * duration` inside the shot; `"auto"` is not accepted.
    */
   duration: number;
 }

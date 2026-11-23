@@ -1,6 +1,4 @@
-/**
- * One carried-bound contact over an ordered camera sample interval.
- */
+/** One carried-bound contact over an ordered camera sample interval. */
 export interface IAutoMovieCameraClearanceFinding {
   /** Camera or parent-rig envelope that contacted scene geometry. */
   part: "body" | "parent-rig";

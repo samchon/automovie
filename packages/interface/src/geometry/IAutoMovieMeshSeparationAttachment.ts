@@ -10,8 +10,8 @@
  * recomputed in the query's representation or when a listed support does not
  * contain every active corner. Each admitted support then needs a bounded
  * contact cap instead of strict separation. An incident triangle missing from
- * `supports` is held to strict separation, which the touching root fails, so
- * an incomplete list makes the feature uncertified rather than accepted.
+ * `supports` is held to strict separation, which the touching root fails, so an
+ * incomplete list makes the feature uncertified rather than accepted.
  */
 export interface IAutoMovieMeshSeparationAttachment {
   /** Original resident triangle ordinal carrying the canonical root seat. */

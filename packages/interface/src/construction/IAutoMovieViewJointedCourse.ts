@@ -1,11 +1,10 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 
-/**
- * Data and callback contracts shared by the ViewJointedCourse operations.
- */
+/** Data and callback contracts shared by the ViewJointedCourse operations. */
 export namespace IAutoMovieViewJointedCourse {
   /**
-   * A prepared turn shared by admission, straight-run placement and frame evaluation.
+   * A prepared turn shared by admission, straight-run placement and frame
+   * evaluation.
    */
   export interface ITurn {
     /** Index of the interior source centre. */
@@ -27,9 +26,7 @@ export namespace IAutoMovieViewJointedCourse {
     start: number;
   }
 
-  /**
-   * Admitted finite segments and nonoverlapping quintic-angle turns.
-   */
+  /** Admitted finite segments and nonoverlapping quintic-angle turns. */
   export interface ICourse {
     /** Unit segment directions in source order. */
     directions: AutoMovieVector3Tuple[];

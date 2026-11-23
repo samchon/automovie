@@ -1,10 +1,6 @@
-/**
- * The paired chart addresses and outline controls of a digit nail.
- */
+/** The paired chart addresses and outline controls of a digit nail. */
 export namespace IAutoMovieHumanNailLoop {
-  /**
-   * A nail's chart loop and its paired starting addresses on digit and plate.
-   */
+  /** A nail's chart loop and its paired starting addresses on digit and plate. */
   export interface ILoop {
     /** The chart ellipse's centre `[station, phase]` on the digit. */
     centre: [number, number];

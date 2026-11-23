@@ -7,7 +7,9 @@ import type { IAutoMovieShotContract } from "./IAutoMovieShotContract";
 import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
- * Borrow current design, compiled shot and optional canonical timeline records for one geometry measurement; the caller establishes that these snapshots agree.
+ * Borrow current design, compiled shot and optional canonical timeline records
+ * for one geometry measurement; the caller establishes that these snapshots
+ * agree.
  */
 export interface IAutoMovieGeometryMeasurementInput {
   /** One compact geometry question. */

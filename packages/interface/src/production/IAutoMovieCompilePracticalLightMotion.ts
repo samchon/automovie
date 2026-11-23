@@ -4,9 +4,7 @@ import type { IAutoMoviePointLight } from "../scene/IAutoMoviePointLight";
 import type { IAutoMovieSceneNode } from "../scene/IAutoMovieSceneNode";
 import type { IAutoMovieSpotLight } from "../scene/IAutoMovieSpotLight";
 
-/**
- * Bake a staged point or spot source at a prop's model-local emitter.
- */
+/** Bake a staged point or spot source at a prop's model-local emitter. */
 export interface IAutoMovieCompilePracticalLightMotion {
   /** Unique id for the returned clip within the shot's lightMotions. */
   id: string;
@@ -22,24 +20,25 @@ export interface IAutoMovieCompilePracticalLightMotion {
 
   /**
    * The shot's admitted object-motion clips in playback order. Each started
-   * prop TRS channel follows the engine's own per-channel clip authority.
-   * Omit for a placed prop at rest.
+   * prop TRS channel follows the engine's own per-channel clip authority. Omit
+   * for a placed prop at rest.
    */
   objectMotions?: readonly IAutoMovieClip[];
 
   /**
    * The prop's fixed model-local emitter, such as the torch's lens or the
-   * lamp's light affordance. A spot shines along the emitter's local +Y.
-   * Supply the frame from the model as staged, including any fixed articulation.
+   * lamp's light affordance. A spot shines along the emitter's local +Y. Supply
+   * the frame from the model as staged, including any fixed articulation.
    */
   emitter: Pick<IAutoMovieAffordance, "frame">;
 
   /**
    * Shot-local sample times in seconds within [0, duration]. Include every
-   * output frame that needs exact alignment. A prop with TRS tracks requires
-   * at least one explicit sample time. Position and aim interpolate between
-   * samples, including around held or delayed source keys. The bake samples both shot
-   * endpoints and switch boundaries, and canonicalizes order and duplicates.
+   * output frame that needs exact alignment. A prop with TRS tracks requires at
+   * least one explicit sample time. Position and aim interpolate between
+   * samples, including around held or delayed source keys. The bake samples
+   * both shot endpoints and switch boundaries, and canonicalizes order and
+   * duplicates.
    */
   sampleTimes?: readonly number[];
 

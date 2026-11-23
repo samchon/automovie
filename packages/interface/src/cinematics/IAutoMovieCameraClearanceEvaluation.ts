@@ -1,9 +1,7 @@
 import type { IAutoMovieCameraClearanceEnvelope } from "../scene/IAutoMovieCameraClearanceEnvelope";
 import type { IAutoMovieCameraClearanceSample } from "./IAutoMovieCameraClearanceSample";
 
-/**
- * Complete deterministic input for one camera take.
- */
+/** Complete deterministic input for one camera take. */
 export interface IAutoMovieCameraClearanceEvaluation {
   /** Resolved camera identity. */
   camera: string;

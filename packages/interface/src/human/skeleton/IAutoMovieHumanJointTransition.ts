@@ -1,11 +1,12 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 
 /**
- * Angular transition half-width fields and sample-selection inputs in metres and radians. Runtime construction and admission remain with AutoMovieHumanJointTransition in Human.
+ * Angular transition half-width fields and sample-selection inputs in metres
+ * and radians. Runtime construction and admission remain with
+ * AutoMovieHumanJointTransition in Human.
  */
 export namespace IAutoMovieHumanJointTransition {
-  /** A half width by the angle about a plane's normal.
-   */
+  /** A half width by the angle about a plane's normal. */
   export interface ISectors {
     /** First axis square to the normal, where the angle is zero. */
     u: AutoMovieVector3Tuple;
@@ -23,15 +24,12 @@ export namespace IAutoMovieHumanJointTransition {
     most: number;
   }
 
-  /** What one transition is measured from.
-   */
+  /** What one transition is measured from. */
   export interface IMeasure {
     /** Skin samples, metres, three numbers each. */
     points: Float64Array;
 
-    /**
-     * Whether a sample belongs to the joint's two bones and side.
-     */
+    /** Whether a sample belongs to the joint's two bones and side. */
     held: (index: number) => boolean;
 
     /** The plane's point, metres. */

@@ -3,13 +3,17 @@ import type { IAutoMovieSubdivisionSurface } from "./IAutoMovieSubdivisionSurfac
 /**
  * Per-vertex normal heights applied to an evaluated subdivision surface.
  *
- * Heights are metres in the surface frame, positive outward; crease vertices move along the normalized sum of their distinct limit normals. The producer checks height count and finiteness and local aggregate normal orientation; the caller supplies an admitted surface and verifies individual faces and global intersections.
+ * Heights are metres in the surface frame, positive outward; crease vertices
+ * move along the normalized sum of their distinct limit normals. The producer
+ * checks height count and finiteness and local aggregate normal orientation;
+ * the caller supplies an admitted surface and verifies individual faces and
+ * global intersections.
  */
 export namespace IAutoMovieDisplaceSurface {
   /**
-   * A subdivided surface and one normal-displacement height per vertex,
-   * the relief that is finer than a cage can carry, such as an engraved groove
-   * or a tendon's ridge.
+   * A subdivided surface and one normal-displacement height per vertex, the
+   * relief that is finer than a cage can carry, such as an engraved groove or a
+   * tendon's ridge.
    *
    * Each vertex moves by its height, metres, outward when positive, along its
    * limit normal, or the normalized mean of its distinct normals where a crease
@@ -24,18 +28,22 @@ export namespace IAutoMovieDisplaceSurface {
    * so relief narrower than about two faces of the subdivided mesh aliases and
    * belongs at a finer level. The orientation check is local to each normal
    * group's aggregate area; it does not certify every face orientation or
-   * global absence of self-intersections. The heights usually come from a field evaluated
-   * at each vertex's `locateAutoMovieSurfaceVertices` location, which depends
-   * on no pose, so a posed surface takes the same heights.
+   * global absence of self-intersections. The heights usually come from a field
+   * evaluated at each vertex's `locateAutoMovieSurfaceVertices` location, which
+   * depends on no pose, so a posed surface takes the same heights.
    */
   export type IProps = {
     /**
-     * Admitted evaluated surface borrowed synchronously; the result shares its faces, normalFaces, UVs and parameters, but copies positions, limitPositions and normals.
+     * Admitted evaluated surface borrowed synchronously; the result shares its
+     * faces, normalFaces, UVs and parameters, but copies positions,
+     * limitPositions and normals.
      */
     surface: IAutoMovieSubdivisionSurface;
 
     /**
-     * One finite signed metre height per physical vertex in limitPositions order; positive moves outward, zero preserves that vertex. Count and finiteness are checked before displacement.
+     * One finite signed metre height per physical vertex in limitPositions
+     * order; positive moves outward, zero preserves that vertex. Count and
+     * finiteness are checked before displacement.
      */
     heights: ArrayLike<number>;
   };

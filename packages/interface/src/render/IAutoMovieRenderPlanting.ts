@@ -2,8 +2,7 @@ import type { IAutoMoviePlantingCluster } from "../soft/IAutoMoviePlantingCluste
 import type { IAutoMoviePlantingDomain } from "../soft/IAutoMoviePlantingDomain";
 import type { IAutoMovieRenderPrototypeCost } from "./IAutoMovieRenderPrototypeCost";
 
-/** One planting cluster drawn as instanced branch and leaf batches.
- */
+/** One planting cluster drawn as instanced branch and leaf batches. */
 export interface IAutoMovieRenderPlanting {
   /** The recipe every member of the cluster instances. */
   domain: IAutoMoviePlantingDomain;

@@ -7,12 +7,15 @@ import type { IAutoMovieFootPlant } from "./IAutoMovieFootPlant";
 import type { IAutoMovieMotion } from "./IAutoMovieMotion";
 import type { IAutoMovieTimedGround } from "./IAutoMovieTimedGround";
 
-/**
- * Data and callback contracts shared by the PlantStanceFeet operations.
- */
+/** Data and callback contracts shared by the PlantStanceFeet operations. */
 export namespace IAutoMoviePlantStanceFeet {
   /**
-   * Sample admitted motion on a fixed clock, detect finite model-frame stance contacts, pin each run and fit targeted leg chains under the same clinical mappings and rig ROM. Unreachable/constrained pins retain the best allowed pose and may leave residual; the result does not guarantee exact no-skate contact. Opening plants resume authoritative targets only for opening stance.
+   * Sample admitted motion on a fixed clock, detect finite model-frame stance
+   * contacts, pin each run and fit targeted leg chains under the same clinical
+   * mappings and rig ROM. Unreachable/constrained pins retain the best allowed
+   * pose and may leave residual; the result does not guarantee exact no-skate
+   * contact. Opening plants resume authoritative targets only for opening
+   * stance.
    */
   export type IProps = {
     /** Rig for forward kinematics. */
@@ -21,10 +24,16 @@ export namespace IAutoMoviePlantStanceFeet {
     /** The humanoid gait/motion to correct. */
     motion: IAutoMovieMotion;
 
-    /** Ground height: plane scalar or `(x, z) → y` source. Defaults to `0` when support is omitted. */
+    /**
+     * Ground height: plane scalar or `(x, z) → y` source. Defaults to `0` when
+     * support is omitted.
+     */
     groundY?: number | ((x: number, z: number) => number);
 
-    /** Explicit time-dependent ground. Takes precedence over the scalar or positional query. */
+    /**
+     * Explicit time-dependent ground. Takes precedence over the scalar or
+     * positional query.
+     */
     support?: IAutoMovieTimedGround;
 
     /** Contact tolerance above the plane counted as stance. Defaults to `0.02`. */
@@ -45,8 +54,9 @@ export namespace IAutoMoviePlantStanceFeet {
     /**
      * Prior beat plants expressed in this motion's model frame.
      *
-     * When a detected stance begins at the opening sample, its first pin resumes
-     * this authoritative position instead of deriving a nearby replacement.
+     * When a detected stance begins at the opening sample, its first pin
+     * resumes this authoritative position instead of deriving a nearby
+     * replacement.
      */
     openingPlants?: ReadonlyArray<
       Pick<IAutoMovieFootPlant, "foot" | "position">

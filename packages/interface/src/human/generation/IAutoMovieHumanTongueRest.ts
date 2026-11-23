@@ -1,4 +1,5 @@
-/** The tongue at rest. All values are millimetres in the registered figure
+/**
+ * The tongue at rest. All values are millimetres in the registered figure
  * frame: forward positions use +X, heights use +Y, and width is a lateral
  * half-extent rather than a coordinate or angle.
  */

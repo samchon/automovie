@@ -14,7 +14,10 @@ export interface IAutoMovieRecoveryCameraSceneInput extends Omit<
   /** Versioned variable-view calibrated sparse-scene request. */
   schema: "automovie-recovery-camera-scene-input-v1";
 
-  /** At least three unique fixed images; keep borrowed RGB bytes unchanged until return. */
+  /**
+   * At least three unique fixed images; keep borrowed RGB bytes unchanged until
+   * return.
+   */
   views: IAutoMovieRecoveryCameraMapInput["views"];
 
   /** Explicit per-fit, aggregate and retained scalar-slot limits. */

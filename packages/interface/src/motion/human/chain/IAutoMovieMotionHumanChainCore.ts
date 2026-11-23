@@ -77,14 +77,12 @@ export interface IAutoMovieMotionHumanChainCore extends IAutoMovieChain {
    * (`over`) before syncing it.
    *
    * ```ts
-   * a.stand()
-   *   .gesture({ kind: "beat" })
-   *   .sync({
-   *     of: "dialogue",
-   *     event: "accent",
-   *     index: 2,
-   *     align: "strokeEnd",
-   *   });
+   * a.stand().gesture({ kind: "beat" }).sync({
+   *   of: "dialogue",
+   *   event: "accent",
+   *   index: 2,
+   *   align: "strokeEnd",
+   * });
    * b.stand().flinch().sync({ of: "strike" });
    * ```
    *

@@ -3,11 +3,11 @@ import type { IAutoMovieHumanShoulderOutline } from "./IAutoMovieHumanShoulderOu
 import type { IAutoMovieHumanTrunkColumn } from "./IAutoMovieHumanTrunkColumn";
 
 /**
- * Type contracts exchanged by AutoMovieHumanShoulderRing; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanShoulderRing; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanShoulderRing {
-  /** What a shoulder ring reads.
-   */
+  /** What a shoulder ring reads. */
   export interface IInput {
     /** The torso's column through the shoulders. */
     column: IAutoMovieHumanTrunkColumn.IColumn;

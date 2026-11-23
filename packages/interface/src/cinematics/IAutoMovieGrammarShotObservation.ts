@@ -9,10 +9,9 @@ import type { IAutoMovieGrammarSubjectObservation } from "./IAutoMovieGrammarSub
  *
  * The production film-grammar pass builds one per placed shot, sampling the
  * camera and subjects at the placement's first and last shown frame.
- * `readFilmGrammar` throws when the id is blank, the duration is not finite
- * and positive, `primarySubject` or an `actionAxis` endpoint is not an
- * observed subject, the axis names one subject twice, or `styleIntent` repeats
- * a value.
+ * `readFilmGrammar` throws when the id is blank, the duration is not finite and
+ * positive, `primarySubject` or an `actionAxis` endpoint is not an observed
+ * subject, the axis names one subject twice, or `styleIntent` repeats a value.
  */
 export interface IAutoMovieGrammarShotObservation {
   /** Shot id, non-blank and unique in the input. */
@@ -56,9 +55,9 @@ export interface IAutoMovieGrammarShotObservation {
 
   /**
    * Deliberate exceptions declared by the shot contract, each at most once.
-   * Each excepts the finding family `GRAMMAR_STYLE_SUPPRESSION` maps it to
-   * when that finding is filed on this shot; `rhythmic-pacing` excepts the
-   * film-wide pacing finding from any shot. Absent means none.
+   * Each excepts the finding family `GRAMMAR_STYLE_SUPPRESSION` maps it to when
+   * that finding is filed on this shot; `rhythmic-pacing` excepts the film-wide
+   * pacing finding from any shot. Absent means none.
    */
   styleIntent?: AutoMovieGrammarStyleIntent[];
 }

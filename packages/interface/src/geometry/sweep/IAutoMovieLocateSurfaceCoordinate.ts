@@ -1,9 +1,7 @@
 import type { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
 import type { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
 
-/**
- * A network chart address and the sampled tier in which to locate it.
- */
+/** A network chart address and the sampled tier in which to locate it. */
 export namespace IAutoMovieLocateSurfaceCoordinate {
   /**
    * Find the cage face and local coordinates of a surface coordinate on one
@@ -21,10 +19,18 @@ export namespace IAutoMovieLocateSurfaceCoordinate {
    * output of this cage directly.
    */
   export type IProps = {
-    /** Borrowed sampled tier whose patch grids and face-corner charts define the lookup. Cage geometry is not projected or read; callers must preserve the chart topology. */
+    /**
+     * Borrowed sampled tier whose patch grids and face-corner charts define the
+     * lookup. Cage geometry is not projected or read; callers must preserve the
+     * chart topology.
+     */
     cage: IAutoMovieSurfaceCage;
 
-    /** Patch index plus dimensionless s/t in [0,1]. The locator rejects a missing patch or out-of-range coordinates; a non-grid patch throws if no face accepts the inverted bilinear coordinates. */
+    /**
+     * Patch index plus dimensionless s/t in [0,1]. The locator rejects a
+     * missing patch or out-of-range coordinates; a non-grid patch throws if no
+     * face accepts the inverted bilinear coordinates.
+     */
     coordinate: IAutoMovieSurfaceCoordinate;
   };
 }

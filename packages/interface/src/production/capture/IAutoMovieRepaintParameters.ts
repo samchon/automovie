@@ -1,5 +1,6 @@
 /**
- * Exact serializable generation controls retained by the immutable repaint request and receipt.
+ * Exact serializable generation controls retained by the immutable repaint
+ * request and receipt.
  */
 export interface IAutoMovieRepaintParameters {
   /** Non-blank positive prompt. */
@@ -8,7 +9,10 @@ export interface IAutoMovieRepaintParameters {
   /** Optional negative prompt. */
   negativePrompt?: string;
 
-  /** Explicit safe-integer request seed; identical output across provider calls is not guaranteed. */
+  /**
+   * Explicit safe-integer request seed; identical output across provider calls
+   * is not guaranteed.
+   */
   seed: number;
 
   /** Finite structural-preservation strength in [0, 1]. */

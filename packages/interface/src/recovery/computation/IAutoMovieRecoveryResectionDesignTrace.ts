@@ -1,8 +1,9 @@
 import type { IAutoMovieRecoveryMapPose } from "../../index";
 
-/** Optional caller-owned evidence from one attempted DLT initialization.
- * A fresh record starts at admission; absent fields mean their stage was not
- * reached. These unfinished coefficients never qualify a camera for use.
+/**
+ * Optional caller-owned evidence from one attempted DLT initialization. A fresh
+ * record starts at admission; absent fields mean their stage was not reached.
+ * These unfinished coefficients never qualify a camera for use.
  */
 export interface IAutoMovieRecoveryResectionDesignTrace {
   /** Operation about to run, or complete after every existing gate passes. */
@@ -29,7 +30,10 @@ export interface IAutoMovieRecoveryResectionDesignTrace {
   /** Twelfth to eleventh singular value of the original projective design. */
   nullRatio?: number;
 
-  /** Row-major 3-by-4 calibrated projective matrix after undoing both normalizations; homogeneous sign and scale remain arbitrary. */
+  /**
+   * Row-major 3-by-4 calibrated projective matrix after undoing both
+   * normalizations; homogeneous sign and scale remain arbitrary.
+   */
   projective?: number[];
 
   /** Sign aligning the projective rotation-block determinant to positive. */
@@ -38,6 +42,9 @@ export interface IAutoMovieRecoveryResectionDesignTrace {
   /** Relative Frobenius discrepancy from the scaled proper rotation. */
   projectionError?: number;
 
-  /** Finite rigid projection before the discrepancy gate; diagnostic even when the attempt refuses. Translation retains the map gauge. */
+  /**
+   * Finite rigid projection before the discrepancy gate; diagnostic even when
+   * the attempt refuses. Translation retains the map gauge.
+   */
   projectedPose?: IAutoMovieRecoveryMapPose;
 }

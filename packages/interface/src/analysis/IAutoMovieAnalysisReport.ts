@@ -4,9 +4,16 @@ import type { IAutoMovieAnalysisGap } from "./IAutoMovieAnalysisGap";
 /**
  * A bounded verdict over every analysis run of one design revision.
  *
- * The report has one row per domain and at most the caller-selected positive gap bound, defaulting to the engine's `AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS` of 16. Fixed bounds limit retained rows independently of run count; retained revision, gap reasons and remedies still determine byte size. {@link omittedGaps} counts every gap beyond the bound.
+ * The report has one row per domain and at most the caller-selected positive
+ * gap bound, defaulting to the engine's `AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS` of
+ * 16. Fixed bounds limit retained rows independently of run count; retained
+ * revision, gap reasons and remedies still determine byte size.
+ * {@link omittedGaps} counts every gap beyond the bound.
  *
- * A required unanswered domain, superseded revision or unavailable metric prevents `meets`. A current measured miss takes precedence over those gaps; otherwise they produce `incomplete`. The summarizer refuses a report requiring no domain.
+ * A required unanswered domain, superseded revision or unavailable metric
+ * prevents `meets`. A current measured miss takes precedence over those gaps;
+ * otherwise they produce `incomplete`. The summarizer refuses a report
+ * requiring no domain.
  */
 export interface IAutoMovieAnalysisReport {
   /** Schema version. */
@@ -16,9 +23,15 @@ export interface IAutoMovieAnalysisReport {
   protocol: "automovie.analysis-report.v1";
 
   /**
-   * Worst outcome: `misses` when any metric of a current-revision run violates its declared target, otherwise `incomplete` when anything is missing or stale, otherwise `meets`.
+   * Worst outcome: `misses` when any metric of a current-revision run violates
+   * its declared target, otherwise `incomplete` when anything is missing or
+   * stale, otherwise `meets`.
    *
-   * Meets means every submitted run solved against this revision, every required domain has a run, every metric produced a value and every compared target was satisfied. Unknown-key or wrong-unit targets produce warnings outside this rollup and can therefore coexist with meets; it does not certify every originally requested target.
+   * Meets means every submitted run solved against this revision, every
+   * required domain has a run, every metric produced a value and every compared
+   * target was satisfied. Unknown-key or wrong-unit targets produce warnings
+   * outside this rollup and can therefore coexist with meets; it does not
+   * certify every originally requested target.
    */
   status: "meets" | "misses" | "incomplete";
 
@@ -29,7 +42,8 @@ export interface IAutoMovieAnalysisReport {
   domains: IAutoMovieAnalysisDomainRollup[];
 
   /**
-   * Missing answers in run order (metric order within a run), followed by unanswered required domains in domain order, cut at the bound.
+   * Missing answers in run order (metric order within a run), followed by
+   * unanswered required domains in domain order, cut at the bound.
    */
   gaps: IAutoMovieAnalysisGap[];
 
@@ -37,7 +51,8 @@ export interface IAutoMovieAnalysisReport {
   omittedGaps: number;
 
   /**
-   * Digest over protocol, version, status, revision, every rollup field, the listed gaps and {@link omittedGaps}; gaps past the bound are not covered.
+   * Digest over protocol, version, status, revision, every rollup field, the
+   * listed gaps and {@link omittedGaps}; gaps past the bound are not covered.
    */
   digest: string;
 }

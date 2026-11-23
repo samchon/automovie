@@ -1,7 +1,6 @@
 import type { IAutoMovieRecoveryEventCurveSource } from "../../index";
 
-/** One restricted cubic with a positive width in its enclosing chart.
- */
+/** One restricted cubic with a positive width in its enclosing chart. */
 export interface IAutoMovieRecoveryEventCurvePiece {
   /** Positive phase interval width. */
   width: number;

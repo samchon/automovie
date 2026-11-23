@@ -5,8 +5,8 @@
  * The values are the kernel's own report, copied, in the caller's unscaled
  * units; polishing never calls the kernel again. The kernel's residuals are its
  * internal normalized measures, separate from the refinement's own full-row
- * measurement. When the solve did not succeed its primal and dual are kept
- * here for diagnosis only and must not be used as geometry.
+ * measurement. When the solve did not succeed its primal and dual are kept here
+ * for diagnosis only and must not be used as geometry.
  */
 export interface IAutoMovieQuadraticRefinementNativeCall {
   /** Native status: 1 is Solved; any other value is unsuccessful. */

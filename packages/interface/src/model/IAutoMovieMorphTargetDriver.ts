@@ -7,12 +7,12 @@ import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * pose is applied rather than only where its author posed the model.
  *
  * The engine reads the pose's angle for `bone` on `axis` in degrees, the value
- * an `IAutoMovieJointPose` carries; a bone the pose does not list, or a
- * null axis, reads zero, and a bone listed twice reads its last entry. The
- * weight is `curve` at that angle: piecewise linear between points, holding the
- * first and last outputs outside them, unclamped, so an output outside [0, 1]
- * under- or over-drives the target. The viewer writes the weight beside the
- * bone rotations whenever it applies a pose.
+ * an `IAutoMovieJointPose` carries; a bone the pose does not list, or a null
+ * axis, reads zero, and a bone listed twice reads its last entry. The weight is
+ * `curve` at that angle: piecewise linear between points, holding the first and
+ * last outputs outside them, unclamped, so an output outside [0, 1] under- or
+ * over-drives the target. The viewer writes the weight beside the bone
+ * rotations whenever it applies a pose.
  */
 export interface IAutoMovieMorphTargetDriver {
   /** Skeleton bone whose joint angle drives the weight. */

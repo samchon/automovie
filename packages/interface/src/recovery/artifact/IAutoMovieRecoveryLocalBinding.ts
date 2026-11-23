@@ -1,6 +1,4 @@
-/**
- * Exact input identities and chosen ordinary open reconstruction operation.
- */
+/** Exact input identities and chosen ordinary open reconstruction operation. */
 
 export interface IAutoMovieRecoveryLocalBinding {
   /** Frozen generating source identity. */

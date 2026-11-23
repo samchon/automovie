@@ -6,7 +6,8 @@ import type {
 } from "../../index";
 
 /**
- * Final local reconstruction and independently useful partial publication receipts.
+ * Final local reconstruction and independently useful partial publication
+ * receipts.
  */
 
 export interface IAutoMovieRecoveryLocalResult extends IAutoMovieByteDigest {

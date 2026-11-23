@@ -21,12 +21,12 @@ import type { IAutoMoviePracticalLightBinding } from "./IAutoMoviePracticalLight
 import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**
- * The inputs of {@link performShot}: the script, the staged world and the
- * beat's performance, the synthesizer and rig lookups that realize it, and the
+ * The inputs of {@link performShot}: the script, the staged world and the beat's
+ * performance, the synthesizer and rig lookups that realize it, and the
  * optional context that sharpens framing, gating and coupling.
  *
- * Every optional field states what omitting it does; none changes the shot of
- * a caller that omits it beyond what that field documents.
+ * Every optional field states what omitting it does; none changes the shot of a
+ * caller that omits it beyond what that field documents.
  */
 export interface IAutoMoviePerformShotProps {
   /** The script whose beats the performance may realize. */
@@ -39,7 +39,10 @@ export interface IAutoMoviePerformShotProps {
   performance: IAutoMoviePerformance;
 
   /**
-   * Synchronous action/actor synthesizer. performShot memoizes each action object and actor pair, including null, and passes previous through; null contributes no motion. Exceptions propagate and input actions must remain stable.
+   * Synchronous action/actor synthesizer. performShot memoizes each action
+   * object and actor pair, including null, and passes previous through; null
+   * contributes no motion. Exceptions propagate and input actions must remain
+   * stable.
    */
   synthesize: IAutoMovieActionSynthesizer;
 
@@ -77,16 +80,19 @@ export interface IAutoMoviePerformShotProps {
 
   /**
    * Delivery raster for the horizontal half of the framing fit. Omitted, or
-   * with a non-positive side, a wide subject is fitted to a square frame,
-   * which stands back far enough for any raster of that height.
+   * with a non-positive side, a wide subject is fitted to a square frame, which
+   * stands back far enough for any raster of that height.
    */
   frameFormat?: {
     /**
-     * Delivery width in pixels used only through width/height. A side that is not greater than zero selects the square-frame fallback; finite positive dimensions are the caller's premise.
+     * Delivery width in pixels used only through width/height. A side that is
+     * not greater than zero selects the square-frame fallback; finite positive
+     * dimensions are the caller's premise.
      */
     width: number;
     /**
-     * Delivery height in pixels used as the aspect-ratio denominator; the same non-positive-side fallback applies.
+     * Delivery height in pixels used as the aspect-ratio denominator; the same
+     * non-positive-side fallback applies.
      */
     height: number;
   };
@@ -130,22 +136,22 @@ export interface IAutoMoviePerformShotProps {
   gaits?: (node: string) => readonly string[] | undefined;
 
   /**
-   * The beat's validated blocking. Supplying it arms the coherence gate and
-   * the coverage takes.
+   * The beat's validated blocking. Supplying it arms the coherence gate and the
+   * coverage takes.
    */
   blocking?: IAutoMovieBlocking;
 
   /**
    * Clips moving the staged lights over this shot's clock, carried onto
-   * `shot.lightMotions` after each track is checked to address a staged
-   * light. Omitted, the shot carries no such field.
+   * `shot.lightMotions` after each track is checked to address a staged light.
+   * Omitted, the shot carries no such field.
    */
   lightMotions?: readonly IAutoMovieClip[];
 
   /**
    * Practical lights bound to staged prop emitters. Compiled from the final
-   * object clips, using the corresponding prop model in models, and appended
-   * to lightMotions. Omit when no practical source follows a prop.
+   * object clips, using the corresponding prop model in models, and appended to
+   * lightMotions. Omit when no practical source follows a prop.
    */
   practicalLights?: readonly IAutoMoviePracticalLightBinding[];
 
@@ -156,13 +162,16 @@ export interface IAutoMoviePerformShotProps {
    */
   practicalSurfaces?: readonly IAutoMoviePracticalSurfaceTrack[];
 
-  /** Polygon body changes keyed by staged node and rig bone, timed in source-shot seconds. */
+  /**
+   * Polygon body changes keyed by staged node and rig bone, timed in
+   * source-shot seconds.
+   */
   polygonBodyCues?: readonly IAutoMoviePolygonBodyCue[];
 
   /**
-   * Clips the source authored over non-performing scene nodes, such as a
-   * door's panel or a prop's hinge, carried onto `shot.objectMotions` after the
-   * baked ones once {@link gateAuthoredObjectMotions} admits them.
+   * Clips the source authored over non-performing scene nodes, such as a door's
+   * panel or a prop's hinge, carried onto `shot.objectMotions` after the baked
+   * ones once {@link gateAuthoredObjectMotions} admits them.
    */
   objectMotions?: readonly IAutoMovieClip[];
 

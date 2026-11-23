@@ -16,7 +16,9 @@ export interface IAutoMovieMotionHumanGaze<Chain> {
    * or, when cued by something seen or heard, after a seeded reaction time: the
    * orienting response of a bystander.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It claims the head, and the trunk when the shift recruits it; it can be cut into `stand`, `walk` and `look` at any share.
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims the head, and the trunk when the shift recruits it; it can be cut
+   * into `stand`, `walk` and `look` at any share.
    *
    * @param params The `target`, `recruit`, `cue` and `duration` of
    *   `IAutoMovieMotionHumanLook.IParams`.

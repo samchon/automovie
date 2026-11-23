@@ -3,15 +3,17 @@ import type { IAutoMoviePhysicalSimulationInput } from "./IAutoMoviePhysicalSimu
 import type { IAutoMoviePhysicalTargetInterval } from "./IAutoMoviePhysicalTargetInterval";
 
 /**
- * The completed fitted balance reference at a replan boundary and the authored placements at that same boundary. The completed fitted balance reference at a replan boundary and the authored placements at that same boundary.
+ * The completed fitted balance reference at a replan boundary and the authored
+ * placements at that same boundary. The completed fitted balance reference at a
+ * replan boundary and the authored placements at that same boundary.
  */
 export namespace IAutoMoviePhysicalBalanceReference {
   /**
-   * The completed fitted balance reference at a replan boundary and the authored
-   * placements at that same boundary. A replan in the next interval starts from
-   * the previous plan's endpoint; a revision inside the interval starts at the
-   * preceding native tick of the previous plan. Without a contiguous previous
-   * plan there is no completed reference.
+   * The completed fitted balance reference at a replan boundary and the
+   * authored placements at that same boundary. A replan in the next interval
+   * starts from the previous plan's endpoint; a revision inside the interval
+   * starts at the preceding native tick of the previous plan. Without a
+   * contiguous previous plan there is no completed reference.
    */
   export type IInput = {
     /** Body whose authored targets bound the interval. */ body: IAutoMoviePhysicalSimulationInput.IBody;
@@ -25,11 +27,11 @@ export namespace IAutoMoviePhysicalBalanceReference {
   };
 
   /**
-   * The completed fitted balance reference at a replan boundary and the authored
-   * placements at that same boundary. A replan in the next interval starts from
-   * the previous plan's endpoint; a revision inside the interval starts at the
-   * preceding native tick of the previous plan. Without a contiguous previous
-   * plan there is no completed reference.
+   * The completed fitted balance reference at a replan boundary and the
+   * authored placements at that same boundary. A replan in the next interval
+   * starts from the previous plan's endpoint; a revision inside the interval
+   * starts at the preceding native tick of the previous plan. Without a
+   * contiguous previous plan there is no completed reference.
    */
   export type IResult =
     | {

@@ -1,5 +1,6 @@
 /**
- * A spline prepared for evaluation; knot arrays are borrowed and must remain unchanged.
+ * A spline prepared for evaluation; knot arrays are borrowed and must remain
+ * unchanged.
  */
 export interface IAutoMovieNaturalCubicSpline {
   /** Strictly increasing knot abscissae. */

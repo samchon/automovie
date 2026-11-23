@@ -6,6 +6,7 @@
  * standing in for a void nobody authored, with a size but no outline. `none`
  * means there is neither a void nor a filling element with environment-owned
  * geometry, and the mark carries no outline and no size. A drawing reports its
- * `fill` and `none` marks as the `opening-profile` and `opening-geometry` gaps.
+ * `fill` and `none` marks as the `opening-profile` and `opening-geometry`
+ * gaps.
  */
 export type AutoMovieDrawingOpeningBasis = "profile" | "fill" | "none";

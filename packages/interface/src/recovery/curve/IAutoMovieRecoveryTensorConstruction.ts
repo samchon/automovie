@@ -1,8 +1,6 @@
 import type { IAutoMovieConstructionPolyline } from "../../render/IAutoMovieConstructionPolyline";
 
-/**
- * Tensor control-net construction generated from the retained recipe.
- */
+/** Tensor control-net construction generated from the retained recipe. */
 
 export interface IAutoMovieRecoveryTensorConstruction
   extends IAutoMovieConstructionPolyline.IMutable {

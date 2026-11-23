@@ -4,8 +4,8 @@
  *
  * No engine path resolves an edge yet, since it depends on the camera that
  * frames the shot: a `locomote` toward one steps in place, every other verb
- * refuses it because it names no place, and `resolveTargetPoint` answers
- * `null` for it.
+ * refuses it because it names no place, and `resolveTargetPoint` answers `null`
+ * for it.
  */
 export interface IAutoMovieOffscreenTarget {
   /** Selects a frame edge as the target representation. */

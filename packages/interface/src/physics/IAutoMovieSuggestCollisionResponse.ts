@@ -4,7 +4,10 @@ import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieImpactBodyState } from "./IAutoMovieImpactBodyState";
 
 /**
- * Suggest how a collision resolves: run {@link resolveImpact} for the impulse, bridge it to a recoil push, and (when a struck `chain` + `skeleton` are given) bound that push by joint ROM into a flinch pose via {@link impactRecoil}.
+ * Suggest how a collision resolves: run {@link resolveImpact} for the impulse,
+ * bridge it to a recoil push, and (when a struck `chain` + `skeleton` are
+ * given) bound that push by joint ROM into a flinch pose via
+ * {@link impactRecoil}.
  */
 export namespace IAutoMovieSuggestCollisionResponse {
   /**
@@ -12,8 +15,8 @@ export namespace IAutoMovieSuggestCollisionResponse {
    * bridge it to a recoil push, and (when a struck `chain` + `skeleton` are
    * given) bound that push by joint ROM into a flinch pose via
    * {@link impactRecoil}. This is the reusable core the pipeline (and
-   * {@link detectBodyCollision}) attaches to a contact warning; it wires together
-   * resolveImpact and impactRecoil.
+   * {@link detectBodyCollision}) attaches to a contact warning; it wires
+   * together resolveImpact and impactRecoil.
    */
   export type IProps = {
     /** The struck actor's colliding body (mass, velocity, material). */

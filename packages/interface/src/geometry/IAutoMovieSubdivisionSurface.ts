@@ -5,17 +5,17 @@ import type { IAutoMovieSubdivisionParameter } from "./IAutoMovieSubdivisionPara
  * and normals.
  *
  * Every face is a quad wound like its cage face. Vertex order is deterministic:
- * first one vertex per cage vertex in cage order, so cage vertex `i` keeps index
- * `i` at every level, then one per edge, then one per face, applied level by
- * level. Edges are numbered by first appearance walking faces in order and
+ * first one vertex per cage vertex in cage order, so cage vertex `i` keeps
+ * index `i` at every level, then one per edge, then one per face, applied level
+ * by level. Edges are numbered by first appearance walking faces in order and
  * corners in order. Faces descend from their parent face in order, one per
  * parent corner, starting at that corner.
  *
  * Normals and UVs are face-varying: `normalFaces` and `uvFaces` give, per face
  * corner, an index into `normals` and `uvs`. A smooth vertex has one normal; a
  * vertex on an infinitely sharp crease, boundary corner or sharp corner has one
- * per sector of faces between its sharp edges. To render, split vertices where a
- * corner's position, normal and UV indices differ, and write `limitPositions`
+ * per sector of faces between its sharp edges. To render, split vertices where
+ * a corner's position, normal and UV indices differ, and write `limitPositions`
  * and `normals` instead of recomputing normals from triangles, which would
  * split shading at UV seams.
  */

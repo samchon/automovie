@@ -5,7 +5,11 @@ import type { IAutoMovieStageSupportWindow } from "./IAutoMovieStageSupportWindo
 /**
  * One scripted actor's initial world placement and persistent coupling.
  *
- * `stageScene` lowers it to a unit-scale scene node whose model is the cast member's `modelRef`, or `node` itself when the member has none. After checking the authored stage and blocking, `compileDefinedShot` restages actors named in the supplied prior beat state with its translation, facing and mount; actors without carried state retain their authored placement.
+ * `stageScene` lowers it to a unit-scale scene node whose model is the cast
+ * member's `modelRef`, or `node` itself when the member has none. After
+ * checking the authored stage and blocking, `compileDefinedShot` restages
+ * actors named in the supplied prior beat state with its translation, facing
+ * and mount; actors without carried state retain their authored placement.
  */
 export interface IAutoMovieStageActor {
   /** Script cast id; this is also the scene-node identity. */
@@ -25,7 +29,8 @@ export interface IAutoMovieStageActor {
   support?: readonly IAutoMovieStageSupportWindow[];
 
   /**
-   * Film-persistent mount carried through beat-end continuity, when present. The parent must be another placed actor whose rig has the named bone.
+   * Film-persistent mount carried through beat-end continuity, when present.
+   * The parent must be another placed actor whose rig has the named bone.
    */
   attach?: IAutoMovieMountBinding;
 }

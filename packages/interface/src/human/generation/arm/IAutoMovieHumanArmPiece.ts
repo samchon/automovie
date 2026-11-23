@@ -35,14 +35,19 @@ export interface IAutoMovieHumanArmPiece {
   /** Section rows from the proximal end, the piece's shape channel. */
   rows: IAutoMovieHumanArmPiece.IRow[];
 
-  /** Girth knots `[walk length, girth]` from the proximal end, mm, the piece's girth channel. */
+  /**
+   * Girth knots `[walk length, girth]` from the proximal end, mm, the piece's
+   * girth channel.
+   */
   knots: [number, number][];
 }
 
-/** Type contracts exchanged by IAutoMovieHumanArmPiece; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by IAutoMovieHumanArmPiece; runtime evaluation
+ * remains in Human.
+ */
 export namespace IAutoMovieHumanArmPiece {
-  /** A landmark station of the shape channel.
-   */
+  /** A landmark station of the shape channel. */
   export interface IRow {
     /** Walk length of the landmark, mm. */
     s: number;
@@ -56,8 +61,7 @@ export namespace IAutoMovieHumanArmPiece {
     channels: readonly number[];
   }
 
-  /** The four tapes the spans read, mm, each at its published site.
-   */
+  /** The four tapes the spans read, mm, each at its published site. */
   export interface ITapes {
     /** Upper arm girth midway between acromion and olecranon. */
     bicep: number;
@@ -72,8 +76,7 @@ export namespace IAutoMovieHumanArmPiece {
     wrist: number;
   }
 
-  /** What a piece is built from.
-   */
+  /** What a piece is built from. */
   export interface IInputs {
     /** The bones, left frame. */
     bones: IAutoMovieHumanArmBones.IBones;

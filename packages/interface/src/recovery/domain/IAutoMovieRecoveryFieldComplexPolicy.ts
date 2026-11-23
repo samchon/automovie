@@ -1,8 +1,6 @@
 import type { IAutoMovieRecoveryEventCompilationPolicy } from "../../index";
 
-/**
- * Local chart budgets and aggregate field-complex admission limits.
- */
+/** Local chart budgets and aggregate field-complex admission limits. */
 
 export interface IAutoMovieRecoveryFieldComplexPolicy extends IAutoMovieRecoveryEventCompilationPolicy {
   /** Positive safe-integer limit on admitted chart declarations. */

@@ -4,9 +4,7 @@ import type {
   IAutoMovieRecoveryDomainAddress,
 } from "../../index";
 
-/**
- * Actual tensor-family ownership and engine realization diagnostics.
- */
+/** Actual tensor-family ownership and engine realization diagnostics. */
 
 export interface IAutoMovieRecoveryTensorReport {
   /** Unique saved family identity. */

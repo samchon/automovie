@@ -3,12 +3,15 @@ import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
 /**
  * A timed assignment of floor marks to anonymous members of one formation.
  *
- * All positions are absolute in the fixed formation's local frame. An
- * omitted slot holds its previous mark, or its generated slot before the
- * first assignment. Whole-unit motion keeps ownership of the unit frame.
+ * All positions are absolute in the fixed formation's local frame. An omitted
+ * slot holds its previous mark, or its generated slot before the first
+ * assignment. Whole-unit motion keeps ownership of the unit frame.
  */
 export interface IAutoMovieFormationStageMarkSet {
-  /** Nonblank set id; reserve its generated `<id>.slot.<index>` cue ids in the shot. */
+  /**
+   * Nonblank set id; reserve its generated `<id>.slot.<index>` cue ids in the
+   * shot.
+   */
   id: string;
 
   /** Inclusive shot-local start in seconds. */
@@ -31,7 +34,10 @@ export interface IAutoMovieFormationStageMarkSet {
     /** Local Z coordinate in metres from the unit anchor. */
     depth: number;
 
-    /** Facing offset from the member's designed heading, in degrees. Omission holds the prior offset. */
+    /**
+     * Facing offset from the member's designed heading, in degrees. Omission
+     * holds the prior offset.
+     */
     facingOffsetDeg?: number;
   }[];
 }

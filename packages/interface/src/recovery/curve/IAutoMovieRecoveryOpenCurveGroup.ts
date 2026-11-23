@@ -1,5 +1,4 @@
-/** Unsupported open-curve component across two adjacent saved sections.
- */
+/** Unsupported open-curve component across two adjacent saved sections. */
 export interface IAutoMovieRecoveryOpenCurveGroup {
   /** Involved open-curve ordinals in the preceding section; may be empty. */
   before: number[];

@@ -3,11 +3,11 @@ import type { IAutoMovieHumanFootFrame } from "./IAutoMovieHumanFootFrame";
 import type { IAutoMovieHumanFootToeLines } from "./IAutoMovieHumanFootToeLines";
 
 /**
- * Type contracts exchanged by AutoMovieHumanFootToeSpan; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanFootToeSpan; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanFootToeSpan {
-  /** A toe on its line, left frame.
-   */
+  /** A toe on its line, left frame. */
   export interface IToe {
     /** Chain name; `{side}` stands for the side. */
     name: string;
@@ -25,7 +25,9 @@ export namespace IAutoMovieHumanFootToeSpan {
     tangent: AutoMovieVector3Tuple;
 
     /**
-     * Half breadth, dorsal half depth and plantar half depth in millimetres at line distance s in millimetres; values past cap retain the cap's section.
+     * Half breadth, dorsal half depth and plantar half depth in millimetres at
+     * line distance s in millimetres; values past cap retain the cap's
+     * section.
      */
     size: (s: number) => [number, number, number];
 
@@ -45,15 +47,17 @@ export namespace IAutoMovieHumanFootToeSpan {
     nail: {
       /** Proximal nail-plate station along the digit's centre line, millimetres. */
       root: number;
-      /** Free nail edge at the distal cap's start, millimetres along the digit's centre line. */
+      /**
+       * Free nail edge at the distal cap's start, millimetres along the digit's
+       * centre line.
+       */
       edge: number;
       /** Nail plate's full transverse width, millimetres. */
       width: number;
     };
   }
 
-  /** What a toe's span reads.
-   */
+  /** What a toe's span reads. */
   export interface IInput {
     /** The foot's frame. */
     frame: IAutoMovieHumanFootFrame.IFrame;

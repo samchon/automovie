@@ -12,9 +12,7 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 export type IAutoMovieTravelMotion =
   | IAutoMovieTravelMotion.IRevolute
   | IAutoMovieTravelMotion.IPrismatic;
-/**
- * Revolute and prismatic travel alternatives of one moving member.
- */
+/** Revolute and prismatic travel alternatives of one moving member. */
 export namespace IAutoMovieTravelMotion {
   /**
    * A hinge: the member turns about an axis through a pivot.
@@ -39,14 +37,14 @@ export namespace IAutoMovieTravelMotion {
     min: number;
 
     /**
-     * Highest travel in radians; finite, at least zero, greater than `min`, and at most `2 * Math.PI + 1e-6` above it under the shared full-turn admission slack.
+     * Highest travel in radians; finite, at least zero, greater than `min`, and
+     * at most `2 * Math.PI + 1e-6` above it under the shared full-turn
+     * admission slack.
      */
     max: number;
   }
 
-  /**
-   * A slide: the member travels along an axis without turning.
-   */
+  /** A slide: the member travels along an axis without turning. */
   export interface IPrismatic {
     /** Selects the slide joint. */
     kind: "prismatic";

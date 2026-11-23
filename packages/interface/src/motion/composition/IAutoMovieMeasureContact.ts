@@ -3,13 +3,9 @@ import type { IAutoMoviePhysicalProfile } from "../../physics/IAutoMoviePhysical
 import type { IAutoMoviePreparePhysicalGeometry } from "../../physics/IAutoMoviePreparePhysicalGeometry";
 import type { IAutoMovieAuditOutcome } from "./IAutoMovieAuditOutcome";
 
-/**
- * Data and callback contracts shared by the MeasureContact operations.
- */
+/** Data and callback contracts shared by the MeasureContact operations. */
 export namespace IAutoMovieMeasureContact {
-  /**
-   * One measured side.
-   */
+  /** One measured side. */
   export interface ISide {
     /** Subject id. */
     subject: string;
@@ -27,11 +23,12 @@ export namespace IAutoMovieMeasureContact {
     bones: readonly string[];
   }
 
-  /**
-   * A measurement.
-   */
+  /** A measurement. */
   export interface IResult {
-    /** Least signed separation, metres; Infinity when no pair is within the prediction. */
+    /**
+     * Least signed separation, metres; Infinity when no pair is within the
+     * prediction.
+     */
     separation: number;
 
     /** The acting segment of the closest pair. */
@@ -51,7 +48,8 @@ export namespace IAutoMovieMeasureContact {
    * other's (a region), at their displayed world poses, by the native geometric
    * contact query. Negative is compression. A pair beyond the prediction
    * distance reads as no contact. The measurement is of the displayed bodies,
-   * never of two landmarks, so a refused contact means the bodies did not meet.
+   * never of two landmarks, so a refused contact means the bodies did not
+   * meet.
    */
   export type IInput = {
     /** The acting side. */ a: IAutoMovieMeasureContact.ISide;

@@ -6,12 +6,14 @@ import type {
 import type { IAutoMovieRecoveryChartFit as IAutoMovieRecoveryChartFit_2 } from "./IAutoMovieRecoveryChartFit";
 
 /**
- * Measure residuals, the first strict worst witness and optimality from the solved chart.
+ * Measure residuals, the first strict worst witness and optimality from the
+ * solved chart.
  */
 
 export namespace IAutoMovieRecoveryChartFitReport {
   /**
-   * Measure residuals, the first strict worst witness and optimality from the solved chart.
+   * Measure residuals, the first strict worst witness and optimality from the
+   * solved chart.
    */
 
   export type Operation = (

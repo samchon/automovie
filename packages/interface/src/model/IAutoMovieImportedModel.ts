@@ -3,9 +3,7 @@ import type { IAutoMovieImportedHumanoidBone } from "./IAutoMovieImportedHumanoi
 import type { IAutoMovieImportedModelAsset } from "./IAutoMovieImportedModelAsset";
 import type { IAutoMovieImportedModelLod } from "./IAutoMovieImportedModelLod";
 
-/**
- * Compiler-sealed imported appearance facts consumed by the viewer.
- */
+/** Compiler-sealed imported appearance facts consumed by the viewer. */
 export interface IAutoMovieImportedModel {
   /** Normalization profile proved from resident model bytes. */
   profile: AutoMovieImportedModelProfile;

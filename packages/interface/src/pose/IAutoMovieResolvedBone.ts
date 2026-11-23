@@ -14,7 +14,10 @@ export interface IAutoMovieResolvedBone {
   /** The bone this transform belongs to. */
   bone: AutoMovieHumanoidBone;
 
-  /** Local rotation to set on the bone: its rest rotation times the pose's articulation. */
+  /**
+   * Local rotation to set on the bone: its rest rotation times the pose's
+   * articulation.
+   */
   localRotation: IAutoMovieQuaternion;
 
   /** Bone origin in model space, metres, after walking the hierarchy. */

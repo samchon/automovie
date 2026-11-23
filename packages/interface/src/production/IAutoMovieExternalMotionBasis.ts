@@ -1,8 +1,6 @@
 import type { IAutoMovieExternalMotionBasisNode } from "./IAutoMovieExternalMotionBasisNode";
 
-/**
- * Canonical byte-grounded coordinate and hierarchy basis for external motion.
- */
+/** Canonical byte-grounded coordinate and hierarchy basis for external motion. */
 export interface IAutoMovieExternalMotionBasis {
   /** Versioned canonical basis profile. */
   profile: "gltf-motion-basis-v1";

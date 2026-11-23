@@ -31,7 +31,10 @@ export interface IAutoMovieSpaceObservationStation {
    * could be placed for it or the eye would coincide with its target.
    */
   pose: {
-    /** World eye position in metres, accepted by the space's numerical containment predicate. */
+    /**
+     * World eye position in metres, accepted by the space's numerical
+     * containment predicate.
+     */
     position: IAutoMovieVector3;
 
     /** Unit world direction from `position` toward `target`. */

@@ -1,5 +1,6 @@
 /**
- * One stable machine-readable identity in the closed production diagnostic vocabulary.
+ * One stable machine-readable identity in the closed production diagnostic
+ * vocabulary.
  */
 export type AutoMovieDiagnosticCode =
   | "acceptance-story-sync-failed"

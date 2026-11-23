@@ -3,7 +3,11 @@ import type { IAutoMovieCaptureCellRecord } from "./IAutoMovieCaptureCellRecord"
 import type { IAutoMovieCaptureFolder } from "./IAutoMovieCaptureFolder.js";
 
 /**
- * Current rows and an already opened reference round for pixel comparison. compareAutoMovieCaptureRounds requires earlier/reference on the folder, pairs according to match, and writes comparison sheets through claimed names. Different or absent backend identities produce side-by-side records instead of numerical pixel differences.
+ * Current rows and an already opened reference round for pixel comparison.
+ * compareAutoMovieCaptureRounds requires earlier/reference on the folder, pairs
+ * according to match, and writes comparison sheets through claimed names.
+ * Different or absent backend identities produce side-by-side records instead
+ * of numerical pixel differences.
  */
 export interface IAutoMovieCaptureComparisonProps {
   /** The capture's folder, opened with the earlier round to compare against. */

@@ -5,13 +5,17 @@ import type { IAutoMovieMotionHumanSwordGuard } from "./IAutoMovieMotionHumanSwo
 import type { IAutoMovieMotionHumanSwordParry } from "./IAutoMovieMotionHumanSwordParry";
 
 /**
- * Open parameters of the blade lexicon family, keyed by each runtime export name.
+ * Open parameters of the blade lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconBladeParams {
   /** Move to a stage mark in the chosen blade sport's stance. */
   stageBladeFootwork: IAutoMovieMotionHumanStageBladeFootwork.IParams;
 
-  /** The guard a fencer waits in: the hilt low in front, the point at the opponent. */
+  /**
+   * The guard a fencer waits in: the hilt low in front, the point at the
+   * opponent.
+   */
   enGarde: Omit<IAutoMovieMotionHumanSwordGuard.IParams, "guard">;
 
   /** Vom Tag: the hilt at the shoulder, the blade upright. */
@@ -41,7 +45,10 @@ export interface IAutoMovieMotionHumanLexiconBladeParams {
   /** A lunge: a thrust carried by the leading foot's long step, then recovered. */
   lunge: Omit<IAutoMovieMotionHumanSword.IAttack, "advance">;
 
-  /** A stab with a knife or a dagger: a thrust, with the least advance that reaches. */
+  /**
+   * A stab with a knife or a dagger: a thrust, with the least advance that
+   * reaches.
+   */
   stab: IAutoMovieMotionHumanSword.IAttack;
 
   /** A backhand slash, the return of a forehand one. */
@@ -59,16 +66,29 @@ export interface IAutoMovieMotionHumanLexiconBladeParams {
   /** A parry of the attack named by `against`, or of a line as a drill. */
   parry: IAutoMovieMotionHumanSwordParry.IParry;
 
-  /** A beat: the blade struck against the attacker's and taken off it at once (`against`). */
+  /**
+   * A beat: the blade struck against the attacker's and taken off it at once
+   * (`against`).
+   */
   beat: Omit<IAutoMovieMotionHumanSwordParry.IParry, "hold">;
 
-  /** A bind: the parry kept on the attacker's blade for a second (provisional), from which a wind or a disengage follows. */
+  /**
+   * A bind: the parry kept on the attacker's blade for a second (provisional),
+   * from which a wind or a disengage follows.
+   */
   bind: Omit<IAutoMovieMotionHumanSwordParry.IParry, "hold">;
 
-  /** A wind: out of a bind, the point turned in and thrust at the target without leaving the blade's side. First pass: the thrust alone. */
+  /**
+   * A wind: out of a bind, the point turned in and thrust at the target without
+   * leaving the blade's side. First pass: the thrust alone.
+   */
   wind: IAutoMovieMotionHumanSword.IAttack;
 
-  /** A disengage: out of a bind or past a parry, the thrust renewed at another target. First pass: the thrust alone, the point's dip under the blade not drawn. */
+  /**
+   * A disengage: out of a bind or past a parry, the thrust renewed at another
+   * target. First pass: the thrust alone, the point's dip under the blade not
+   * drawn.
+   */
   disengage: IAutoMovieMotionHumanSword.IAttack;
 
   /** A feint: a cut shown to half its path and withdrawn (provisional share). */
@@ -80,6 +100,9 @@ export interface IAutoMovieMotionHumanLexiconBladeParams {
   /** A riposte: the thrust that answers out of a parry. */
   riposte: IAutoMovieMotionHumanSword.IAttack;
 
-  /** A taken blade: the attacker's blade kept on the parry that took it while it is carried aside, then held there (`against`, `until`). */
+  /**
+   * A taken blade: the attacker's blade kept on the parry that took it while it
+   * is carried aside, then held there (`against`, `until`).
+   */
   taken: IAutoMovieMotionHumanSwordParry.ITaken;
 }

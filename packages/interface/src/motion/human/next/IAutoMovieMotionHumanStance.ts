@@ -95,7 +95,9 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * arms crossed, clasped in front or behind, behind the head, or the chin on a
    * fist, each hand moved there and held.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It claims the arms it places, with their hands; it can be cut into `stand`, `walk`, `look`, `gesture` and `rest` at any share.
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims the arms it places, with their hands; it can be cut into `stand`,
+   * `walk`, `look`, `gesture` and `rest` at any share.
    *
    * @param params The `left`, `right` and `hold` of
    *   `IAutoMovieMotionHumanRest.IParams`.

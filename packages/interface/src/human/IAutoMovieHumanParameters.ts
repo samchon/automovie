@@ -6,7 +6,9 @@ import type { IAutoMovieHumanExpression } from "./expression/IAutoMovieHumanExpr
 import type { IAutoMovieHumanHeadIdentity } from "./head/IAutoMovieHumanHeadIdentity";
 import type { IAutoMovieHumanPose } from "./pose/IAutoMovieHumanPose";
 
-/** Complete Human input. Lengths, angles and unknown values retain each field's documented units and meaning.
+/**
+ * Complete Human input. Lengths, angles and unknown values retain each field's
+ * documented units and meaning.
  */
 export interface IAutoMovieHumanParameters {
   /** Body tapes, lengths, skeletal breadths, landmark heights and composition. */
@@ -24,7 +26,10 @@ export interface IAutoMovieHumanParameters {
   /** Constitutive skin and iris pigmentation. */
   pigmentation?: IAutoMovieHumanPigmentation;
 
-  /** Clinical pose channels in degrees, except jaw distances in millimetres; omitted channels use the evaluator's neutral defaults. */
+  /**
+   * Clinical pose channels in degrees, except jaw distances in millimetres;
+   * omitted channels use the evaluator's neutral defaults.
+   */
   pose?: IAutoMovieHumanPose;
 
   /** Facial action-unit intensities. */

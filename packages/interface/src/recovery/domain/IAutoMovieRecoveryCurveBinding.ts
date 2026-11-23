@@ -1,6 +1,4 @@
-/**
- * Exact saved-curve span supplying one canonical atlas authority.
- */
+/** Exact saved-curve span supplying one canonical atlas authority. */
 
 export interface IAutoMovieRecoveryCurveBinding {
   /** Saved coefficient curve identity. */

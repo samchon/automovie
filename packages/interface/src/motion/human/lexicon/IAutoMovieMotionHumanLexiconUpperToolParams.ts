@@ -1,7 +1,8 @@
 import type { IAutoMovieMotionHumanUseTool } from "../tasks/IAutoMovieMotionHumanUseTool";
 
 /**
- * Open parameters of the upperTool lexicon family, keyed by each runtime export name.
+ * Open parameters of the upperTool lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconUpperToolParams {
   /** `useTool` working with a `hammer`. */

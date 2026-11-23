@@ -4,11 +4,14 @@ import type { IAutoMovieFootfallPattern } from "./IAutoMovieFootfallPattern";
 import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 
 /**
- * Compute the unchanged reach-sphere root-lowering request without running endpoint IK whose poses would be discarded.
+ * Compute the unchanged reach-sphere root-lowering request without running
+ * endpoint IK whose poses would be discarded.
  */
 export namespace IAutoMoviePhysicalSupportRootDrop {
   /**
-   * Compute the unchanged reach-sphere root-lowering request without running endpoint IK whose poses would be discarded. This is a bounded motor intent, never a correction to an actual root.
+   * Compute the unchanged reach-sphere root-lowering request without running
+   * endpoint IK whose poses would be discarded. This is a bounded motor intent,
+   * never a correction to an actual root.
    */
   export type IInput = {
     /** Actual provider joint frames. */ profile: IAutoMoviePhysicalProfile;

@@ -1,7 +1,8 @@
 import type { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
 
 /**
- * Parser-observed constant-duration H.264 MP4 track, clock and picture facts; delivery-profile acceptance is separate.
+ * Parser-observed constant-duration H.264 MP4 track, clock and picture facts;
+ * delivery-profile acceptance is separate.
  */
 export interface IAutoMovieProductionVideoProbe {
   /** Parsed media class. */
@@ -19,7 +20,10 @@ export interface IAutoMovieProductionVideoProbe {
   /** Compatibility height projected from coded facts. */
   height: number;
 
-  /** Encoded media duration divided by media timescale, in seconds; raw presentation edits remain below. */
+  /**
+   * Encoded media duration divided by media timescale, in seconds; raw
+   * presentation edits remain below.
+   */
   runtimeSeconds: number;
 
   /** Parsed resident picture-sample count. */

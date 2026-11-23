@@ -2,9 +2,7 @@ import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 
-/**
- * A hinged chain toward a target.
- */
+/** A hinged chain toward a target. */
 export interface IAutoMovieHingedChainGeometry {
   /** Chain-root bone (the shoulder or the hip) resolved under the rig's rest FK. */
   upper: IAutoMovieChainBone;
@@ -24,11 +22,17 @@ export interface IAutoMovieHingedChainGeometry {
   /** World target the effector should land on. */
   target: IAutoMovieVector3;
 
-  /** The mid joint's legal rotation about `hinge`, radians, `min <= max` and no wider than a full turn; every hinge angle is legal when absent. */
+  /**
+   * The mid joint's legal rotation about `hinge`, radians, `min <= max` and no
+   * wider than a full turn; every hinge angle is legal when absent.
+   */
   range?: {
     /** Lower rig rotation about hinge, radians. */
     min: number;
-    /** Upper rig rotation about hinge, radians; caller ensures min <= max <= min + 2*pi. */
+    /**
+     * Upper rig rotation about hinge, radians; caller ensures min <= max <= min
+     * + 2*pi.
+     */
     max: number;
   };
 }

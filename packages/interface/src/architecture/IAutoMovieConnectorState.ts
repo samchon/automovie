@@ -1,8 +1,6 @@
 import type { IAutoMovieCarriageValue } from "./IAutoMovieCarriageValue";
 
-/**
- * One named operating state of a run and the travel it gives each carriage.
- */
+/** One named operating state of a run and the travel it gives each carriage. */
 export interface IAutoMovieConnectorState {
   /**
    * Stable state name such as `level-3`, `ascending`, or a production term,

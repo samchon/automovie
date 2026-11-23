@@ -1,14 +1,13 @@
 /**
- * Identity of the installed H.264 encoder and every setting that can change
- * its output bytes.
+ * Identity of the installed H.264 encoder and every setting that can change its
+ * output bytes.
  *
  * It sits inside `IAutoMovieProductionRenderRuntimeIdentity`, which every chunk
  * id digests, so a different encoder version, closure or setting gives every
  * chunk a new id and an old encode reads as stale. Publication checks that the
- * package and version are non-blank and the closure digest is a SHA-256
- * content digest. No code in the repository builds this record yet; it is
- * supplied with the runtime identity by the caller of
- * `planProductionRenderJob`.
+ * package and version are non-blank and the closure digest is a SHA-256 content
+ * digest. No code in the repository builds this record yet; it is supplied with
+ * the runtime identity by the caller of `planProductionRenderJob`.
  */
 export interface IAutoMovieProductionEncoderIdentity {
   /** Installed encoder package name, such as `h264-mp4-encoder`. */

@@ -28,22 +28,29 @@ export interface IAutoMoviePropClearanceBounds extends IAutoMoviePropBox {
   max: IAutoMovieVector3;
 }
 
-/**
- * Source placement inputs for a prop's declared world keep-out boxes.
- */
+/** Source placement inputs for a prop's declared world keep-out boxes. */
 export namespace IAutoMoviePropClearanceBounds {
   /**
-   * The world-axis-aligned keep-out volumes one staged prop declares, one per `placement.clearance` entry in declaration order, each keeping its id.
+   * The world-axis-aligned keep-out volumes one staged prop declares, one per
+   * `placement.clearance` entry in declaration order, each keeping its id.
    *
-   * Each model-local box goes through the piece's full staged transform, so a rotated prop's keep-out widens rather than being re-fitted. Every declared box is transformed, including one whose bounds the validator rejects: filtering here would hide a malformed volume from a source-side search instead of letting `validatePropPlacements` name it. A prop with no placement or no clearance answers an empty list.
+   * Each model-local box goes through the piece's full staged transform, so a
+   * rotated prop's keep-out widens rather than being re-fitted. Every declared
+   * box is transformed, including one whose bounds the validator rejects:
+   * filtering here would hide a malformed volume from a source-side search
+   * instead of letting `validatePropPlacements` name it. A prop with no
+   * placement or no clearance answers an empty list.
    */
   export type IProps = {
     /**
-     * Borrowed registry entry containing model-local placement.clearance boxes. Missing placement or clearance yields no boxes.
+     * Borrowed registry entry containing model-local placement.clearance boxes.
+     * Missing placement or clearance yields no boxes.
      */
     prop: IAutoMoviePropSpec;
     /**
-     * Borrowed staged placement for this prop. Its position, explicit rotation or facingDeg, and scale transform every clearance; matching the prop node is the caller's obligation.
+     * Borrowed staged placement for this prop. Its position, explicit rotation
+     * or facingDeg, and scale transform every clearance; matching the prop node
+     * is the caller's obligation.
      */
     piece: IAutoMovieStageSetPiece;
   };

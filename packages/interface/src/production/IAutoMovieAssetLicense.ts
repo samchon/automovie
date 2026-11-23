@@ -1,5 +1,6 @@
 /**
- * Descriptive licence metadata supplied with an asset. Recording it preserves provenance; compilation does not verify legal rights.
+ * Descriptive licence metadata supplied with an asset. Recording it preserves
+ * provenance; compilation does not verify legal rights.
  */
 export interface IAutoMovieAssetLicense {
   /** Descriptive license identifier. */

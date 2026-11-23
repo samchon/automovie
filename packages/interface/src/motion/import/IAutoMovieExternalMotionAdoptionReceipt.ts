@@ -6,7 +6,9 @@ import type { IAutoMovieExternalMotionRetargetHandoff } from "./IAutoMovieExtern
 import type { IAutoMovieExternalMotionSource } from "./IAutoMovieExternalMotionSource";
 
 /**
- * Receipt connecting one byte-pinned take to native playback or a later engine retarget pass. It copies everything it holds, so mutating it never changes the inspection or the decision it came from.
+ * Receipt connecting one byte-pinned take to native playback or a later engine
+ * retarget pass. It copies everything it holds, so mutating it never changes
+ * the inspection or the decision it came from.
  */
 export type IAutoMovieExternalMotionAdoptionReceipt = {
   /** Copy of the source identity that was checked against the inspection. */
@@ -19,7 +21,10 @@ export type IAutoMovieExternalMotionAdoptionReceipt = {
       /** The selected take remains on the declared source rig. */
       mode: "native";
 
-      /** Copied native binding; conversion to executable motion remains a later operation. */
+      /**
+       * Copied native binding; conversion to executable motion remains a later
+       * operation.
+       */
       handoff: IAutoMovieExternalMotionNativeHandoff;
     }
   | {
@@ -37,17 +42,27 @@ export namespace IAutoMovieExternalMotionAdoptionReceipt {
    * One explicit decision against an unmodified resident-byte inspection.
    *
    * Adoption throws at the first failed source-identity, take, mapping, mapped
-   * rest-basis or mode-field check. It verifies digest spelling, not byte hashing,
-   * and it does not convert the clip or resolve a retarget destination.
+   * rest-basis or mode-field check. It verifies digest spelling, not byte
+   * hashing, and it does not convert the clip or resolve a retarget
+   * destination.
    */
   export interface IProps {
-    /** Unmodified gltf-motion-v1 result for the exact source bytes, borrowed for this synchronous call. */
+    /**
+     * Unmodified gltf-motion-v1 result for the exact source bytes, borrowed for
+     * this synchronous call.
+     */
     inspection: IAutoMovieExternalModelInspection;
 
-    /** Manifest identity; the caller must establish the digest-to-byte binding before inspection. */
+    /**
+     * Manifest identity; the caller must establish the digest-to-byte binding
+     * before inspection.
+     */
     source: IAutoMovieExternalMotionSource;
 
-    /** Explicit take, source rig and mapping; no fields receive defaults. Borrowed unchanged until adoption completes. */
+    /**
+     * Explicit take, source rig and mapping; no fields receive defaults.
+     * Borrowed unchanged until adoption completes.
+     */
     decision: IAutoMovieExternalMotionAdoptionDecision;
   }
 }

@@ -31,8 +31,8 @@ export interface IAutoMovieBuiltElement {
   transform: IAutoMovieTransform;
 
   /**
-   * Visible model id, naming an environment-owned model or a
-   * `modelReferences` entry, or null for a transform-only group.
+   * Visible model id, naming an environment-owned model or a `modelReferences`
+   * entry, or null for a transform-only group.
    */
   model: string | null;
 

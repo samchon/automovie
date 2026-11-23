@@ -3,7 +3,8 @@ import type { IAutoMovieScalarPredicate } from "./IAutoMovieScalarPredicate";
 import type { IAutoMovieShotSpatialSelector } from "./IAutoMovieShotSpatialSelector";
 
 /**
- * One scalar state or event fact measured from compiled pose or world placement.
+ * One scalar state or event fact measured from compiled pose or world
+ * placement.
  */
 export type IAutoMovieShotPredicate =
   | (IAutoMovieScalarPredicate & {
@@ -30,7 +31,10 @@ export type IAutoMovieShotPredicate =
       axis: "x" | "y" | "z";
     })
   | (IAutoMovieScalarPredicate & {
-      /** Measure Euclidean distance in meters between two compiled spatial operands. */
+      /**
+       * Measure Euclidean distance in meters between two compiled spatial
+       * operands.
+       */
       kind: "distance";
 
       /** First spatial operand. */

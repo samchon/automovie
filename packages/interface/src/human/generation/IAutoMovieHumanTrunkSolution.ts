@@ -9,10 +9,10 @@ import type { IAutoMovieHumanTrunkLandmarks } from "./IAutoMovieHumanTrunkLandma
 import type { IAutoMovieHumanTrunkNeckSeat } from "./IAutoMovieHumanTrunkNeckSeat";
 
 /**
- * The trunk after its tapes and courses are closed on its own surface: what
- * the chains are built from and what the skeleton and the arm read. The solver
- * produces it from the person's inputs, the crotch height and the neck's
- * chain alone.
+ * The trunk after its tapes and courses are closed on its own surface: what the
+ * chains are built from and what the skeleton and the arm read. The solver
+ * produces it from the person's inputs, the crotch height and the neck's chain
+ * alone.
  */
 export interface IAutoMovieHumanTrunkSolution {
   /** The column through its landmark keys. */
@@ -21,13 +21,22 @@ export interface IAutoMovieHumanTrunkSolution {
   /** The landmarks, left side. */
   landmarks: IAutoMovieHumanTrunkLandmarks;
 
-  /** The breasts, blades, buttocks, sternal notch, umbilicus and spinal furrow as relief windows on the trunk's chart. */
+  /**
+   * The breasts, blades, buttocks, sternal notch, umbilicus and spinal furrow
+   * as relief windows on the trunk's chart.
+   */
   reliefs: IAutoMovieLoftRelief[];
 
-  /** The features that broke their contract and were left out, one diagnostic each. */
+  /**
+   * The features that broke their contract and were left out, one diagnostic
+   * each.
+   */
   diagnostics: IAutoMovieLoftContract.IDiagnostic[];
 
-  /** The landmark heights and tapes the features stand on, which a feature piece reads alone. */
+  /**
+   * The landmark heights and tapes the features stand on, which a feature piece
+   * reads alone.
+   */
   sites: IAutoMovieHumanTrunkFeatures.ISites;
 
   /** The neck's bottom ring as the shoulders read it. */
@@ -37,7 +46,8 @@ export interface IAutoMovieHumanTrunkSolution {
   neck: IAutoMovieLoftChain | null;
 
   /**
-   * Explicit raw demand used only by the legacy chain builder; ordinary property/JSON reads do not execute it.
+   * Explicit raw demand used only by the legacy chain builder; ordinary
+   * property/JSON reads do not execute it.
    */
   rawNeck?: () => IAutoMovieLoftChain;
 

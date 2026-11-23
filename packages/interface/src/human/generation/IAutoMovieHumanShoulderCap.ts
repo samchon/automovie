@@ -1,11 +1,12 @@
 /**
- * The outer upper-arm edge at glenohumeral height, with its girth-derived radius.
+ * The outer upper-arm edge at glenohumeral height, with its girth-derived
+ * radius.
  *
- * The interface package owns these declarations; AutoMovieHumanShoulderCap in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanShoulderCap in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanShoulderCap {
-  /** The arm's outer edge at the glenohumeral centre's height.
-   */
+  /** The arm's outer edge at the glenohumeral centre's height. */
   export interface IEdge {
     /** Height of the glenohumeral centre, mm. */
     y: number;

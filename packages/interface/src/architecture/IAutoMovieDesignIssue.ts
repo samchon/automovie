@@ -3,8 +3,8 @@
  *
  * An open issue blocks a candidate's promotion only when that candidate lists
  * the issue's id in its own `issues`. Naming a primitive or candidate in
- * {@link subjects} blocks nothing by itself, and validation does not require
- * the two directions to agree.
+ * {@link subjects} blocks nothing by itself, and validation does not require the
+ * two directions to agree.
  */
 export interface IAutoMovieDesignIssue {
   /** Stable, non-blank issue identity, unique within the document. */

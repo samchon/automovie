@@ -2,11 +2,11 @@ import type { IAutoMovieHumanFootBody } from "./IAutoMovieHumanFootBody";
 import type { IAutoMovieHumanFootFrame } from "./IAutoMovieHumanFootFrame";
 
 /**
- * Type contracts exchanged by AutoMovieHumanFootMalleolusWindow; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanFootMalleolusWindow; runtime
+ * evaluation remains in Human.
  */
 export namespace IAutoMovieHumanFootMalleolusWindow {
-  /** What a window's place reads.
-   */
+  /** What a window's place reads. */
   export interface IInput {
     /** The foot's frame. */
     frame: IAutoMovieHumanFootFrame.IFrame;
@@ -27,8 +27,7 @@ export namespace IAutoMovieHumanFootMalleolusWindow {
     sign: 1 | -1;
   }
 
-  /** A window's place.
-   */
+  /** A window's place. */
   export interface IPlace {
     /** The stations the window covers, lowest first. */
     stations: [number, number];

@@ -1,10 +1,13 @@
 /**
- * Supplied horizontal orthographic camera in a metric XZ frame.
- * Positive image U projects cos(azimuth) X + sin(azimuth) Z;
- * positive image V projects negative Y. Pixel centres have half-integer coordinates.
+ * Supplied horizontal orthographic camera in a metric XZ frame. Positive image
+ * U projects cos(azimuth) X + sin(azimuth) Z; positive image V projects
+ * negative Y. Pixel centres have half-integer coordinates.
  */
 export interface IAutoMovieRecoveryImageCamera {
-  /** Horizontal orthographic projection; perspective and distortion are unsupported. */
+  /**
+   * Horizontal orthographic projection; perspective and distortion are
+   * unsupported.
+   */
   type: "horizontal-orthographic";
 
   /** Calibration is supplied by the caller, not estimated from the image. */

@@ -2,9 +2,16 @@ import type { AutoMovieGuidePass } from "../../cinematics/AutoMovieGuidePass.js"
 import type { IAutoMovieProductionRenderFrame } from "../../index.js";
 
 /**
- * One content-addressed planned range of tier output frames for a moving-image deliverable.
+ * One content-addressed planned range of tier output frames for a moving-image
+ * deliverable.
  *
- * `planProductionRenderJob` emits `chunkFrames`-sized ranges for feature and guide-pass deliverables. A slot is an operational address while the id derives from supplied content inputs; the type itself neither acquires a lock nor checks a resident output's currentness. `IAutoMovieRenderChunk` instead describes numbered sequence-reassembly ranges without content identity. Retained planner consumers are tests rather than a maintained production scheduler.
+ * `planProductionRenderJob` emits `chunkFrames`-sized ranges for feature and
+ * guide-pass deliverables. A slot is an operational address while the id
+ * derives from supplied content inputs; the type itself neither acquires a lock
+ * nor checks a resident output's currentness. `IAutoMovieRenderChunk` instead
+ * describes numbered sequence-reassembly ranges without content identity.
+ * Retained planner consumers are tests rather than a maintained production
+ * scheduler.
  */
 export interface IAutoMovieProductionRenderChunk {
   /**

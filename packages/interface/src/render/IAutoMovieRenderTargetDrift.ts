@@ -1,5 +1,4 @@
-/** Why a report no longer describes the target in front of a consumer.
- */
+/** Why a report no longer describes the target in front of a consumer. */
 export interface IAutoMovieRenderTargetDrift {
   /** What changed: the renderer, one setting, or one asset's bytes. */
   field: string;

@@ -1,8 +1,6 @@
 import type { IAutoMovieRecoveryAtlasCounts } from "../../index";
 
-/**
- * Atlas domain completion and numerical approximation diagnostics.
- */
+/** Atlas domain completion and numerical approximation diagnostics. */
 
 export interface IAutoMovieRecoveryAtlasRealization {
   /** Whether the requested patch domain was retained. */

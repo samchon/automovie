@@ -7,8 +7,8 @@
  * - `collisionSolver`: a projectile contact solved by `compileLaunch`.
  * - `impactOutput`: a hit or knock-down fall derived from that solved contact.
  * - `scriptedCue`: an `attachTo` handoff placed at the authored action times.
- * - `sampledProximity`: a contact or fall found by sampling body geometry in
- *   the collision, free-fall and toppling detectors.
+ * - `sampledProximity`: a contact or fall found by sampling body geometry in the
+ *   collision, free-fall and toppling detectors.
  */
 export type AutoMovieInteractionEventSource =
   | "collisionSolver"

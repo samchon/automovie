@@ -14,12 +14,24 @@ import type {
 } from "../../index";
 
 /**
- * Complete a detached scene transaction through growth and full joint geometry. After each fit, newly admissible points/measurements cause another fit. Only strict finite population growth repeats; every fit and linear action is charged. Failure leaves committing or retaining the old checkpoint to caller. An optional observer receives owned complete compact states before and after each joint fit. Observer errors propagate, and ordinary calls retain no trace.
+ * Complete a detached scene transaction through growth and full joint geometry.
+ * After each fit, newly admissible points/measurements cause another fit. Only
+ * strict finite population growth repeats; every fit and linear action is
+ * charged. Failure leaves committing or retaining the old checkpoint to caller.
+ * An optional observer receives owned complete compact states before and after
+ * each joint fit. Observer errors propagate, and ordinary calls retain no
+ * trace.
  */
 
 export namespace IAutoMovieRecoverySceneCheckpointCompletionOperation {
   /**
-   * Complete a detached scene transaction through growth and full joint geometry. After each fit, newly admissible points/measurements cause another fit. Only strict finite population growth repeats; every fit and linear action is charged. Failure leaves committing or retaining the old checkpoint to caller. An optional observer receives owned complete compact states before and after each joint fit. Observer errors propagate, and ordinary calls retain no trace.
+   * Complete a detached scene transaction through growth and full joint
+   * geometry. After each fit, newly admissible points/measurements cause
+   * another fit. Only strict finite population growth repeats; every fit and
+   * linear action is charged. Failure leaves committing or retaining the old
+   * checkpoint to caller. An optional observer receives owned complete compact
+   * states before and after each joint fit. Observer errors propagate, and
+   * ordinary calls retain no trace.
    */
 
   export type Operation = (

@@ -1,5 +1,7 @@
 /**
- * Versioned identity of the installed capture runtime and observed graphics path. System browser channels remain explicitly unsealed; package or configured executables carry content identity.
+ * Versioned identity of the installed capture runtime and observed graphics
+ * path. System browser channels remain explicitly unsealed; package or
+ * configured executables carry content identity.
  */
 export interface IAutoMovieCaptureRuntimeIdentity {
   /** Capture identity schema and semantics. */
@@ -15,7 +17,8 @@ export interface IAutoMovieCaptureRuntimeIdentity {
   };
 
   /**
-   * Content identity of every installed package and browser support byte that can participate in the captured frame.
+   * Content identity of every installed package and browser support byte that
+   * can participate in the captured frame.
    */
   runtimeClosure: {
     /** Capture-closure schema and semantics. */
@@ -42,7 +45,10 @@ export interface IAutoMovieCaptureRuntimeIdentity {
       bytes: number;
     }>;
 
-    /** Browser support closure, or the explicit unsealed system-channel boundary. */
+    /**
+     * Browser support closure, or the explicit unsealed system-channel
+     * boundary.
+     */
     browserSupport:
       | {
           /** A physical support tree was sealed. */

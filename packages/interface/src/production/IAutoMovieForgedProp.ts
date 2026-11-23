@@ -22,7 +22,10 @@ export namespace IAutoMovieForgedProp {
     /** Discriminator. */
     success: true;
 
-    /** The accepted spec, the same object the caller passed, for the staging join. */
+    /**
+     * The accepted spec, the same object the caller passed, for the staging
+     * join.
+     */
     prop: IAutoMoviePropSpec;
   }
 

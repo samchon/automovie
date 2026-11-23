@@ -7,11 +7,15 @@ import type { IAutoMovieFormationSlotMotion } from "./IAutoMovieFormationSlotMot
 import type { IAutoMovieShotSourceOutput } from "./IAutoMovieShotSourceOutput";
 
 /**
- * Host-composed shot artifact consumed by render and numerical oracle services. Resolved models and compact populations travel with source-authored scene and motion, so consumers read one supplied snapshot.
+ * Host-composed shot artifact consumed by render and numerical oracle services.
+ * Resolved models and compact populations travel with source-authored scene and
+ * motion, so consumers read one supplied snapshot.
  */
 export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput {
   /**
-   * Optional source export and authored-unit attribution supplied by the host. No surviving production graph or publication gate proves this metadata or requires its presence.
+   * Optional source export and authored-unit attribution supplied by the host.
+   * No surviving production graph or publication gate proves this metadata or
+   * requires its presence.
    */
   sourceOwner?: {
     /** Graph-selected source branch that owns this authored unit. */
@@ -31,7 +35,8 @@ export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput
   };
 
   /**
-   * Completed non-entry exports bound to the same unit, retained as acceptance attribution without executing them as shot builders.
+   * Completed non-entry exports bound to the same unit, retained as acceptance
+   * attribution without executing them as shot builders.
    */
   acceptanceSources?: Array<{
     /** Canonical module path of the completed acceptance source. */
@@ -56,10 +61,16 @@ export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput
   /** Compact general instance runtimes placed by the production world. */
   instanceSets: IAutoMovieCompiledInstanceSet[];
 
-  /** Compact formation-level cues; the composing host supplies an empty list for none and owns explicit validation. */
+  /**
+   * Compact formation-level cues; the composing host supplies an empty list for
+   * none and owns explicit validation.
+   */
   formationMotions: IAutoMovieFormationMotion[];
 
-  /** Sparse per-member exceptions; the composing host supplies an empty list for none and owns explicit validation. */
+  /**
+   * Sparse per-member exceptions; the composing host supplies an empty list for
+   * none and owns explicit validation.
+   */
   formationSlotMotions: IAutoMovieFormationSlotMotion[];
 
   /** Compiler-owned deterministic effect runtimes. */

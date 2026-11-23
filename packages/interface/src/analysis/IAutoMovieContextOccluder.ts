@@ -5,8 +5,8 @@ import type { IAutoMovieHalfSpacePlane } from "../architecture/IAutoMovieHalfSpa
  *
  * A convex mass is all a shading study needs and all this record allows. It is
  * a blocker, so it carries no material, no interior and no ownership: a
- * neighbour that could carry those would be a second building the work does
- * not own.
+ * neighbour that could carry those would be a second building the work does not
+ * own.
  *
  * Each plane keeps the points where `dot(normal, point) <= offset`, so normals
  * point out of the mass. Validation checks the plane count, non-zero finite
@@ -20,10 +20,7 @@ export interface IAutoMovieContextOccluder {
    */
   id: string;
 
-  /**
-   * Non-blank open semantic label such as `neighbour-tower` or
-   * `boundary-wall`.
-   */
+  /** Non-blank open semantic label such as `neighbour-tower` or `boundary-wall`. */
   kind: string;
 
   /**

@@ -3,8 +3,8 @@ import type { IAutoMovieHumanBindingLips } from "./IAutoMovieHumanBindingLips";
 import type { IAutoMovieHumanBindingPlane } from "./IAutoMovieHumanBindingPlane";
 
 /**
- * One bone's piece of the binding tree: its capsule, the cuts that hand it
- * skin from its parent, and the comparisons that tell it from its neighbours.
+ * One bone's piece of the binding tree: its capsule, the cuts that hand it skin
+ * from its parent, and the comparisons that tell it from its neighbours.
  */
 export interface IAutoMovieHumanBindingLimb {
   /** The Human joint the limb starts at. */

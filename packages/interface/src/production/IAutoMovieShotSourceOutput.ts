@@ -19,13 +19,9 @@ import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
 import type { IAutoMovieFormationSlotMotion } from "./IAutoMovieFormationSlotMotion";
 import type { IAutoMovieShotEffectCue } from "./IAutoMovieShotEffectCue";
 
-/**
- * Engine-compiled shot source with optional host-attached semantic carriers.
- */
+/** Engine-compiled shot source with optional host-attached semantic carriers. */
 export interface IAutoMovieShotSourceOutput {
-  /**
-   * Source-owned generated models retained for materialization and evidence.
-   */
+  /** Source-owned generated models retained for materialization and evidence. */
   authoredModels?: IAutoMovieModel[];
 
   /** Source-owned production props retained with their semantic contracts. */
@@ -83,12 +79,16 @@ export interface IAutoMovieShotSourceOutput {
   motions: IAutoMovieMotion[];
 
   /**
-   * Optional compact formation-level cues. Direct source output can omit them; composing hosts own empty-list normalization and explicit admission.
+   * Optional compact formation-level cues. Direct source output can omit them;
+   * composing hosts own empty-list normalization and explicit admission.
    */
   formationMotions?: IAutoMovieFormationMotion[];
 
   /**
-   * Optional sparse per-member exceptions inside compact formations. Omission remains undefined until host composition. Stored data scales with authored cues and slot references; this field does not bound sampling or full-population execution work.
+   * Optional sparse per-member exceptions inside compact formations. Omission
+   * remains undefined until host composition. Stored data scales with authored
+   * cues and slot references; this field does not bound sampling or
+   * full-population execution work.
    */
   formationSlotMotions?: IAutoMovieFormationSlotMotion[];
 

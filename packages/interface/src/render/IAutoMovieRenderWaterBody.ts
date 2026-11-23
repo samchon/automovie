@@ -1,7 +1,6 @@
 import type { IAutoMovieFluidDomain } from "../fluid/IAutoMovieFluidDomain";
 
-/** One declared water body and whatever a solver has proved about it.
- */
+/** One declared water body and whatever a solver has proved about it. */
 export interface IAutoMovieRenderWaterBody {
   /** Stable water-body id. */
   id: string;

@@ -1,7 +1,8 @@
 import type { IAutoMovieMotionHumanHandToFace } from "../daily/IAutoMovieMotionHumanHandToFace";
 
 /**
- * Open parameters of the upperFace lexicon family, keyed by each runtime export name.
+ * Open parameters of the upperFace lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconUpperFaceParams {
   /** `handToFace` doing `drink`. */

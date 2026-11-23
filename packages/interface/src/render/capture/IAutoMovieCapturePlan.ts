@@ -6,9 +6,13 @@ import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
 import type { IAutoMovieCaptureWindow } from "./IAutoMovieCaptureWindow.js";
 
 /**
- * A whole capture as data, built by `planAutoMovieCapture` before anything is drawn: every cell in drawing order, the times and windows they came from, and the sheet layout.
+ * A whole capture as data, built by `planAutoMovieCapture` before anything is
+ * drawn: every cell in drawing order, the times and windows they came from, and
+ * the sheet layout.
  *
- * Every refusal the request and the subject decide has already been made, so a plan only fails to draw where the host's draw function fails, and the record keeps that cell with its cause.
+ * Every refusal the request and the subject decide has already been made, so a
+ * plan only fails to draw where the host's draw function fails, and the record
+ * keeps that cell with its cause.
  */
 export interface IAutoMovieCapturePlan {
   /** The subject the plan was checked against. */
@@ -23,7 +27,10 @@ export interface IAutoMovieCapturePlan {
   /** The frames drawn around each event and cut, in the order named. */
   windows: IAutoMovieCaptureWindow[];
 
-  /** Every still, in drawing order: by selection, then time, then view, then pass. */
+  /**
+   * Every still, in drawing order: by selection, then time, then view, then
+   * pass.
+   */
   cells: IAutoMovieCaptureCell[];
 
   /** How the stills are laid on sheets. */

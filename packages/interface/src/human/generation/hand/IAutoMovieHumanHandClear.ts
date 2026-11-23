@@ -7,9 +7,15 @@ import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tu
  * web descends from the parent's ring to the digit.
  */
 export interface IAutoMovieHumanHandClear {
-  /** The point, in the hand form's axes (millimetres of the form) until mapped, then world mm. */
+  /**
+   * The point, in the hand form's axes (millimetres of the form) until mapped,
+   * then world mm.
+   */
   point: AutoMovieVector3Tuple;
 
-  /** Distance past it along the digit the section's plane must stand, mm of the form (mapped by the hand's largest scale). */
+  /**
+   * Distance past it along the digit the section's plane must stand, mm of the
+   * form (mapped by the hand's largest scale).
+   */
   margin: number;
 }

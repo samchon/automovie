@@ -5,6 +5,9 @@ import type { IAutoMovieHumanBodyAnatomy } from "./IAutoMovieHumanBodyAnatomy";
  * the published definition its own documentation states.
  */
 export interface IAutoMovieHumanBodyParameters {
-  /** Stature, tapes, segment lengths, skeletal breadths, landmark heights and fat percentage; each omitted measure takes its survey default. */
+  /**
+   * Stature, tapes, segment lengths, skeletal breadths, landmark heights and
+   * fat percentage; each omitted measure takes its survey default.
+   */
   anatomy: IAutoMovieHumanBodyAnatomy;
 }

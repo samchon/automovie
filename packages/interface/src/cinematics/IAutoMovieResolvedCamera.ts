@@ -2,8 +2,8 @@ import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * A camera's world placement at one instant: where the lens is and which way
- * it is turned.
+ * A camera's world placement at one instant: where the lens is and which way it
+ * is turned.
  *
  * `resolveCameraAt` produces it from the staged base transform, or from the
  * shot's camera clip sampled at that time, taking each missing track from the

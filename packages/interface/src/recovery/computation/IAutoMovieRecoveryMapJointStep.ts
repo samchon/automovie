@@ -1,7 +1,6 @@
 import type { IAutoMovieRecoveryMapMetric } from "../../index";
 
-/** Physical block step and independent original-design qualification.
- */
+/** Physical block step and independent original-design qualification. */
 export interface IAutoMovieRecoveryMapJointStep {
   /** C physical gauge-fixed camera increments. */
   cameraStep: number[];

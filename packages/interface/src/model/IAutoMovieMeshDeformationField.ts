@@ -1,7 +1,9 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * A compact ellipsoidal deformation of an existing surface. The field has zero influence outside its radii and fades with a continuous derivative at the boundary, so neighbouring anatomy remains part of one deformation function.
+ * A compact ellipsoidal deformation of an existing surface. The field has zero
+ * influence outside its radii and fades with a continuous derivative at the
+ * boundary, so neighbouring anatomy remains part of one deformation function.
  */
 export interface IAutoMovieMeshDeformationField {
   /** Centre in mesh-local metres. All coordinates must be finite. */

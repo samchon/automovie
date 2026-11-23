@@ -1,5 +1,6 @@
 /**
- * One compact instance set whose individual slot identities exceed the bounded palette allocation.
+ * One compact instance set whose individual slot identities exceed the bounded
+ * palette allocation.
  */
 export interface IAutoMovieSemanticMaskGap {
   /** Compiled instance-set id. */
@@ -11,6 +12,9 @@ export interface IAutoMovieSemanticMaskGap {
   /** Exactly why they were not allocated. */
   reason: string;
 
-  /** How to reduce palette demand or obtain per-slot identity from the compiled runtime instead. */
+  /**
+   * How to reduce palette demand or obtain per-slot identity from the compiled
+   * runtime instead.
+   */
   remedy: string;
 }

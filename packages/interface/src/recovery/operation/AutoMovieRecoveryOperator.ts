@@ -1,5 +1,4 @@
-/** Closed identity of the operation that produced a recovery outcome.
- */
+/** Closed identity of the operation that produced a recovery outcome. */
 export type AutoMovieRecoveryOperator =
   | "legacy-contour-v1"
   | "registered-triangles-v1"

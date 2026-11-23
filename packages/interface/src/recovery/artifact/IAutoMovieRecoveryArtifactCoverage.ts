@@ -4,7 +4,8 @@ import type {
 } from "../../index";
 
 /**
- * Published coverage observations and caller-owned additional qualification fields.
+ * Published coverage observations and caller-owned additional qualification
+ * fields.
  */
 
 export interface IAutoMovieRecoveryArtifactCoverage

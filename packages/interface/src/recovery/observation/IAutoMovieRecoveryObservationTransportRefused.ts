@@ -1,4 +1,6 @@
-/** A refused geometric chart transport that leaves its source course with the caller.
+/**
+ * A refused geometric chart transport that leaves its source course with the
+ * caller.
  */
 export interface IAutoMovieRecoveryObservationTransportRefused {
   /** No transported row was admitted. */

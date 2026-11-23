@@ -4,9 +4,7 @@ import type { IAutoMovieFilmOmission } from "./IAutoMovieFilmOmission";
 import type { IAutoMovieFilmTimelineSegment } from "./IAutoMovieFilmTimelineSegment";
 import type { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
 
-/**
- * Canonical frame-grid film edit consumed by review, oracle and render layers.
- */
+/** Canonical frame-grid film edit consumed by review, oracle and render layers. */
 export interface IAutoMovieFilmTimeline {
   /** Generated timeline format. */
   version: 1;
@@ -29,7 +27,8 @@ export interface IAutoMovieFilmTimeline {
   /**
    * Exact reduced production frame rate.
    *
-   * Integer legacy timelines may omit this field and are interpreted as `fps/1`; fractional timelines must preserve their explicit identity.
+   * Integer legacy timelines may omit this field and are interpreted as
+   * `fps/1`; fractional timelines must preserve their explicit identity.
    */
   frameRate?: IAutoMovieProductionFrameRate;
 
@@ -91,7 +90,10 @@ export interface IAutoMovieFilmTimeline {
       /** Optional authored speaker identity; absence leaves it unspecified. */
       speaker?: string;
 
-      /** Preferred edge for the horizontal WebVTT cue. Omit to use automatic line placement. */
+      /**
+       * Preferred edge for the horizontal WebVTT cue. Omit to use automatic
+       * line placement.
+       */
       placement?: "top" | "bottom";
 
       /** Inclusive film-global caption frame. */

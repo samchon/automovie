@@ -2,9 +2,7 @@ import type { IAutoMovieInteractionEvent } from "../cinematics/IAutoMovieInterac
 import type { IAutoMovieClip } from "../core/IAutoMovieClip";
 import type { IAutoMovieValidation } from "./IAutoMovieValidation";
 
-/**
- * Advice, fall events and an optional trajectory returned by detectFreeFall.
- */
+/** Advice, fall events and an optional trajectory returned by detectFreeFall. */
 export interface IAutoMovieFreeFallResult {
   /** Warning-severity feedback (or an error for bad input). */
   validation: IAutoMovieValidation;

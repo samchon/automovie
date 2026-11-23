@@ -1,7 +1,6 @@
 import type { IAutoMovieRecoveryMapObservation } from "../../index";
 
-/** Distinct existing landmark and one target-image measurement.
- */
+/** Distinct existing landmark and one target-image measurement. */
 export interface IAutoMovieRecoverySceneCandidate {
   /** Index in the accepted landmark array for this revision. */
   landmark: number;

@@ -5,9 +5,14 @@ import type { IAutoMovieInspectionLegendEntry } from "../inspection/IAutoMovieIn
 import type { IAutoMovieRasterLabel } from "../picture/IAutoMovieRasterLabel";
 
 /**
- * What a draw page returns for one `IAutoMovieDrawCall`: the picture as base64 RGBA rows from the top, the labels to stamp, the legend of the marks drawn, the camera the view resolved to, and the paths each pattern resolved to.
+ * What a draw page returns for one `IAutoMovieDrawCall`: the picture as base64
+ * RGBA rows from the top, the labels to stamp, the legend of the marks drawn,
+ * the camera the view resolved to, and the paths each pattern resolved to.
  *
- * It crosses out of the page as JSON, so the picture is text; `decodeAutoMovieDrawPixels` turns it back into a raster on the host. A production scene can attach its findings and coverage from the same evaluated sample.
+ * It crosses out of the page as JSON, so the picture is text;
+ * `decodeAutoMovieDrawPixels` turns it back into a raster on the host. A
+ * production scene can attach its findings and coverage from the same evaluated
+ * sample.
  */
 export interface IAutoMovieDrawResult {
   /** Base64 of `width * height * 4` RGBA bytes, rows from the top. */
@@ -19,18 +24,31 @@ export interface IAutoMovieDrawResult {
   /** Picture height in pixels. */
   height: number;
 
-  /** Labels the inspection placed, each with the pixel of its box's top-left corner. */
+  /**
+   * Labels the inspection placed, each with the pixel of its box's top-left
+   * corner.
+   */
   labels: IAutoMovieRasterLabel[];
 
-  /** One entry per colour of the marks in the picture with its count, then the surface colours of the faces shade, as the applied inspection lists them. */
+  /**
+   * One entry per colour of the marks in the picture with its count, then the
+   * surface colours of the faces shade, as the applied inspection lists them.
+   */
   legend: IAutoMovieInspectionLegendEntry[];
 
   /** The camera the view resolved to. */
   camera: IAutoMovieInspectionCamera;
 
-  /** What each pattern of the call's request and view resolved to among the scene's object paths and the paths of the marks it drew: topmost paths and counts, never geometry. */
+  /**
+   * What each pattern of the call's request and view resolved to among the
+   * scene's object paths and the paths of the marks it drew: topmost paths and
+   * counts, never geometry.
+   */
   resolved: IAutoMovieCaptureResolution[];
 
-  /** Findings and coverage from the evaluated sample, when supplied by the subject. */
+  /**
+   * Findings and coverage from the evaluated sample, when supplied by the
+   * subject.
+   */
   diagnostics?: IAutoMovieInspectionDiagnostics;
 }

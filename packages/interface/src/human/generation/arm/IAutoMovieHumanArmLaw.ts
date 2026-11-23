@@ -1,11 +1,11 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
 /**
- * The arm's sections for one side, in the left frame: a one-parameter family
- * of planes from the hand's branch (low parameter) through the heel, the
- * forearm and the upper arm to the level shoulder ring (high parameter). The
- * hand's solve reads its wrist, crease and girth; the chain reads its layers,
- * planes and points.
+ * The arm's sections for one side, in the left frame: a one-parameter family of
+ * planes from the hand's branch (low parameter) through the heel, the forearm
+ * and the upper arm to the level shoulder ring (high parameter). The hand's
+ * solve reads its wrist, crease and girth; the chain reads its layers, planes
+ * and points.
  */
 export interface IAutoMovieHumanArmLaw {
   /** Hand origin, mm. */
@@ -20,19 +20,13 @@ export interface IAutoMovieHumanArmLaw {
   /** Layer parameters from the bottom. */
   layers: number[];
 
-  /**
-   * Normal of the section plane at a parameter, toward the shoulder.
-   */
+  /** Normal of the section plane at a parameter, toward the shoulder. */
   normal(q: number): AutoMovieVector3Tuple;
 
-  /**
-   * A point the section plane passes through.
-   */
+  /** A point the section plane passes through. */
   anchor(q: number): AutoMovieVector3Tuple;
 
-  /**
-   * Point of the section at a parameter and phase.
-   */
+  /** Point of the section at a parameter and phase. */
   point(q: number, t: number): AutoMovieVector3Tuple;
 
   /**

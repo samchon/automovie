@@ -1,8 +1,9 @@
 import type { AutoMovieVector2Tuple } from "../index";
 
-/** One positive-weight rational quadratic over an original source interval.
- * Its parameter runs independently from zero to one; domain only registers
- * the source interval, since a fitted conic need not retain source speed.
+/**
+ * One positive-weight rational quadratic over an original source interval. Its
+ * parameter runs independently from zero to one; domain only registers the
+ * source interval, since a fitted conic need not retain source speed.
  */
 export interface IAutoMovieRegisteredConicArc {
   /** Source interval represented by this coefficient record. */

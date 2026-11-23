@@ -6,8 +6,9 @@ import type { IAutoMovieSubdivisionCrease } from "./IAutoMovieSubdivisionCrease"
  * A cage is quad-dominant but may carry any polygon of three or more corners.
  * It must be a manifold with consistent winding: every edge belongs to one face
  * (a boundary) or two faces that traverse it in opposite directions, every
- * vertex belongs to at least one face, and the faces around each vertex form one
- * fan. Faces wind counter-clockwise seen from the side the normals point to.
+ * vertex belongs to at least one face, and the faces around each vertex form
+ * one fan. Faces wind counter-clockwise seen from the side the normals point
+ * to.
  *
  * UVs are face-varying, as in OpenSubdiv: each face corner names a UV value, so
  * a seam is an edge whose two faces name different values at either end. Every

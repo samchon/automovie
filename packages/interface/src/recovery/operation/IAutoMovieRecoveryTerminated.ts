@@ -1,8 +1,10 @@
 import type { IAutoMovieRecoveryOutcome } from "../../index";
 
-/** Terminated operation without a usable value.
- */
+/** Terminated operation without a usable value. */
 export interface IAutoMovieRecoveryTerminated extends IAutoMovieRecoveryOutcome {
-  /** Refusal declines the requested operation; failure and cancellation return no usable value. */
+  /**
+   * Refusal declines the requested operation; failure and cancellation return
+   * no usable value.
+   */
   status: "refused" | "failed" | "cancelled";
 }

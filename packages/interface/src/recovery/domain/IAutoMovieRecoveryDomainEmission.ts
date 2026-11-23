@@ -1,5 +1,4 @@
-/** Actual triangle range emitted for one declared domain.
- */
+/** Actual triangle range emitted for one declared domain. */
 export interface IAutoMovieRecoveryDomainEmission {
   /** Identity of the output model part. */
   part: string;

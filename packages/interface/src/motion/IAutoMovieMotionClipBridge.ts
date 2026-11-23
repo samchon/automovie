@@ -4,8 +4,8 @@ import type { IAutoMovieNode } from "../core/IAutoMovieNode";
 /**
  * A humanoid motion lowered onto the general node/clip model: the skeleton as a
  * bone-node hierarchy plus the clip whose tracks reproduce the motion on it.
- * motionToClip emits full rest-plus-articulation local rotation tracks and
- * root translation/rotation tracks; expressions are omitted. Agreement with
+ * motionToClip emits full rest-plus-articulation local rotation tracks and root
+ * translation/rotation tracks; expressions are omitted. Agreement with
  * clinical-angle sampling is exact at bake times, with interpolation between.
  */
 export interface IAutoMovieMotionClipBridge {

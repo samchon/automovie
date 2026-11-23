@@ -1,6 +1,5 @@
 /**
- * The admission threshold and work budget of
- * `refineAutoMovieQuadraticProgram`.
+ * The admission threshold and work budget of `refineAutoMovieQuadraticProgram`.
  *
  * The threshold is compared, unchanged, with the largest original row
  * violation, the stationarity residual and the complementarity residual, each
@@ -12,8 +11,8 @@ export interface IAutoMovieQuadraticRefinementOptions {
   tolerance: number;
 
   /**
-   * Polishing steps allowed, dual sweeps or working solves; a non-negative
-   * safe integer, where 0 returns the native solution unpolished.
+   * Polishing steps allowed, dual sweeps or working solves; a non-negative safe
+   * integer, where 0 returns the native solution unpolished.
    */
   maximumRefinements: number;
 }

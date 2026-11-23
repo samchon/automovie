@@ -7,10 +7,16 @@ export interface IAutoMovieServiceSchematicEdge {
   /** Stable segment identity. */
   id: string;
 
-  /** Node owning the emitting port, or the authored port id when its owner is unresolved. */
+  /**
+   * Node owning the emitting port, or the authored port id when its owner is
+   * unresolved.
+   */
   from: string;
 
-  /** Node owning the receiving port, or the authored port id when its owner is unresolved. */
+  /**
+   * Node owning the receiving port, or the authored port id when its owner is
+   * unresolved.
+   */
   to: string;
 
   /** Projected centre line, in declaration order. */

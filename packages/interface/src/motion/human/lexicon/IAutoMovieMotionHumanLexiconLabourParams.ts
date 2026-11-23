@@ -6,7 +6,8 @@ import type { IAutoMovieMotionHumanWipe } from "../tasks/IAutoMovieMotionHumanWi
 import type { IAutoMovieMotionHumanThrowObjectParams } from "../throwing/IAutoMovieMotionHumanThrowObjectParams";
 
 /**
- * Open parameters of the labour lexicon family, keyed by each runtime export name.
+ * Open parameters of the labour lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconLabourParams {
   /** Carry a box in both hands. */
@@ -21,7 +22,10 @@ export interface IAutoMovieMotionHumanLexiconLabourParams {
   /** Push a cart, a pram or a trolley ahead. */
   pushCart: Omit<IAutoMovieMotionHumanCarry.IParams, "kind">;
 
-  /** Haul a heavy load slowly in both hands (the load is a quarter of the body's mass, the most a carry accepts). */
+  /**
+   * Haul a heavy load slowly in both hands (the load is a quarter of the body's
+   * mass, the most a carry accepts).
+   */
   haul: Omit<IAutoMovieMotionHumanCarry.IParams, "kind" | "pace" | "load">;
 
   /** Drive nails: a hammer swung four times. */

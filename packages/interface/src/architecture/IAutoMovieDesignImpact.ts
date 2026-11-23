@@ -21,8 +21,8 @@ export interface IAutoMovieDesignImpact {
 
   /**
    * Derived artifact ids no changed identity reaches through declared inputs,
-   * in ascending order; together with {@link invalidated} it lists every
-   * derived artifact exactly once.
+   * in ascending order; together with {@link invalidated} it lists every derived
+   * artifact exactly once.
    */
   unaffected: string[];
 }

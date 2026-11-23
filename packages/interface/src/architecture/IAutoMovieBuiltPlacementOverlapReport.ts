@@ -4,7 +4,12 @@ import type { IAutoMovieBuiltPlacementOverlapPair } from "./IAutoMovieBuiltPlace
 /**
  * What one whole-building overlap sweep measured, and what it cost.
  *
- * `compared` counts active union-box candidates after X pruning. It excludes shared batch staging/tessellation, body resolution, sorting, active-list prune/splice work, part-pair volume folds and result sorting; it is not total operation count or elapsed cost. Current sweeps share one element part table and world staging rather than restaging per body. Population lookup can still be quadratic and explicit populations add stored-transform work.
+ * `compared` counts active union-box candidates after X pruning. It excludes
+ * shared batch staging/tessellation, body resolution, sorting, active-list
+ * prune/splice work, part-pair volume folds and result sorting; it is not total
+ * operation count or elapsed cost. Current sweeps share one element part table
+ * and world staging rather than restaging per body. Population lookup can still
+ * be quadratic and explicit populations add stored-transform work.
  */
 export interface IAutoMovieBuiltPlacementOverlapReport {
   /** Bodies whose extent resolved and were therefore compared. */
@@ -14,7 +19,9 @@ export interface IAutoMovieBuiltPlacementOverlapReport {
   compared: number;
 
   /**
-   * Every emitted intersecting proxy pair, larger fraction first, then larger shared volume, otherwise sweep order under finite comparable grading metrics. NaN grading does not establish that numeric ordering.
+   * Every emitted intersecting proxy pair, larger fraction first, then larger
+   * shared volume, otherwise sweep order under finite comparable grading
+   * metrics. NaN grading does not establish that numeric ordering.
    */
   pairs: IAutoMovieBuiltPlacementOverlapPair[];
 

@@ -8,14 +8,19 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 import type { IAutoMovieSolidTrim } from "./IAutoMovieSolidTrim";
 
 /**
- * Mutable state and append-only checkpoints of one construction realization walk.
+ * Mutable state and append-only checkpoints of one construction realization
+ * walk.
  */
 export namespace IAutoMovieConstructionState {
   /**
-   * The realization walk's mutable indexes, output lists, diagnostics and pending continuation work.
+   * The realization walk's mutable indexes, output lists, diagnostics and
+   * pending continuation work.
    */
   export interface IState {
-    /** Each realized face's index in the body, by its view part's or join's name. */
+    /**
+     * Each realized face's index in the body, by its view part's or join's
+     * name.
+     */
     faces: Map<string, number>;
 
     /** Each realized view part's chain, by name. */
@@ -30,24 +35,38 @@ export namespace IAutoMovieConstructionState {
     /** The blends' surfaces, in walk order. */
     blendSurfaces: IAutoMovieSolidSurface[];
 
-    /** Actual retained profile families, in walk order; absent in legacy manually assembled states. */
+    /**
+     * Actual retained profile families, in walk order; absent in legacy
+     * manually assembled states.
+     */
     profiles?: IAutoMoviePreparedConstructionProfile.IPrepared[];
 
     /** Actual collapsed profile ends awaiting drawn-boundary admission. */
     profileEnds?: IAutoMovieConstructionProfileBody.IEnd[];
 
     /**
-     * The regions the drawn skin is faired over (`fairAutoMovieSolidMesh`), each about its sources, mesh vertices, or about every vertex a
-     * surface owns once the skin is drawn (a merge's blend), each radius mm; absent, none.
+     * The regions the drawn skin is faired over (`fairAutoMovieSolidMesh`),
+     * each about its sources, mesh vertices, or about every vertex a surface
+     * owns once the skin is drawn (a merge's blend), each radius mm; absent,
+     * none.
      */
     fairs?: {
-      /** Explicit body-mesh vertex IDs used when surface is absent; absent means no seeds and that empty region is dropped before fairing. */
+      /**
+       * Explicit body-mesh vertex IDs used when surface is absent; absent means
+       * no seeds and that empty region is dropped before fairing.
+       */
       vertices?: number[];
 
-      /** When present, overrides vertices with every drawn vertex whose registered owner is this same surface object. */
+      /**
+       * When present, overrides vertices with every drawn vertex whose
+       * registered owner is this same surface object.
+       */
       surface?: IAutoMovieSolidSurface;
 
-      /** Positive finite reach along mesh edges in millimetres, checked by fairAutoMovieSolidMesh for retained nonempty regions. */
+      /**
+       * Positive finite reach along mesh edges in millimetres, checked by
+       * fairAutoMovieSolidMesh for retained nonempty regions.
+       */
       radius: number;
     }[];
 
@@ -60,16 +79,21 @@ export namespace IAutoMovieConstructionState {
     /** Every broken premise. */
     diagnostics: IAutoMovieConstructionDiagnostic[];
 
-    /** Pending continuation transformations by leaf name; a nested owner composes the previous pending transformation before its own. */
+    /**
+     * Pending continuation transformations by leaf name; a nested owner
+     * composes the previous pending transformation before its own.
+     */
     overrides: Map<string, IAutoMovieConstructionState.IOverride>;
   }
 
   /**
-   * A scoped continuation replacement callback and the walk's application/failure state.
+   * A scoped continuation replacement callback and the walk's
+   * application/failure state.
    */
   export interface IOverride {
     /**
-     * Return the chain with the pending endpoint replacement, or a premise string.
+     * Return the chain with the pending endpoint replacement, or a premise
+     * string.
      */
     apply(chain: IAutoMovieLoftChain): IAutoMovieLoftChain | string;
 
@@ -81,13 +105,17 @@ export namespace IAutoMovieConstructionState {
   }
 
   /**
-   * A geometry/list checkpoint before building a part; diagnostics and pending overrides are excluded.
+   * A geometry/list checkpoint before building a part; diagnostics and pending
+   * overrides are excluded.
    */
   export interface ISnapshot {
     /** The body's face count. */
     faces: number;
 
-    /** Copied cycle arrays with copied vertex/chart/neighbor data and borrowed along callbacks; restore installs these arrays directly. */
+    /**
+     * Copied cycle arrays with copied vertex/chart/neighbor data and borrowed
+     * along callbacks; restore installs these arrays directly.
+     */
     cycles: IAutoMovieSolidCycle.ICycle[][];
 
     /** Every face's cutter flag. */

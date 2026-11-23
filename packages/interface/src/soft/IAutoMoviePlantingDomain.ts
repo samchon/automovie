@@ -5,13 +5,25 @@ import type { IAutoMoviePlantingStructure } from "./IAutoMoviePlantingStructure"
 import type { IAutoMoviePruningEnvelope } from "./IAutoMoviePruningEnvelope";
 
 /**
- * One deterministic planting recipe: a branching structure, a growth state, a pruning envelope and a foliage rule.
+ * One deterministic planting recipe: a branching structure, a growth state, a
+ * pruning envelope and a foliage rule.
  *
- * There is **no species catalogue** here, and there will not be one. A fern, a ficus, a wall of ivy and an aquatic reed differ by branching angles, ratios, growth direction and leaf density, not by a name the engine would have to recognise; shipping a `"monstera"` preset would be shipping content dressed as capability. What a customer models is theirs. What this record provides is the general parametric law and the deterministic derivation of it.
+ * There is **no species catalogue** here, and there will not be one. A fern, a
+ * ficus, a wall of ivy and an aquatic reed differ by branching angles, ratios,
+ * growth direction and leaf density, not by a name the engine would have to
+ * recognise; shipping a `"monstera"` preset would be shipping content dressed
+ * as capability. What a customer models is theirs. What this record provides is
+ * the general parametric law and the deterministic derivation of it.
  *
- * Growth is a state rather than an animation: stage lies in [0,1], and the complete recipe determines the derived structure. The kernel uses seeded path identities without ambient randomness; existing replay tests compare results on one host rather than establishing bit equality on every platform.
+ * Growth is a state rather than an animation: stage lies in [0,1], and the
+ * complete recipe determines the derived structure. The kernel uses seeded path
+ * identities without ambient randomness; existing replay tests compare results
+ * on one host rather than establishing bit equality on every platform.
  *
- * Authored vectors, rational-circle turns and normalization avoid trigonometric angle sampling. Binary64 rounding and extreme-input overflow or cancellation remain, including bounds and pruning arithmetic; no Windows/POSIX or GPU equality follows merely from this representation.
+ * Authored vectors, rational-circle turns and normalization avoid trigonometric
+ * angle sampling. Binary64 rounding and extreme-input overflow or cancellation
+ * remain, including bounds and pruning arithmetic; no Windows/POSIX or GPU
+ * equality follows merely from this representation.
  */
 export interface IAutoMoviePlantingDomain {
   /** Schema version. */
@@ -32,7 +44,10 @@ export interface IAutoMoviePlantingDomain {
   /** How far along that law this plant has actually grown. */
   growth: IAutoMoviePlantingGrowth;
 
-  /** Recipe-frame centreline pruning envelope; it does not clip stem thickness or leaf cards. */
+  /**
+   * Recipe-frame centreline pruning envelope; it does not clip stem thickness
+   * or leaf cards.
+   */
   pruning: IAutoMoviePruningEnvelope;
 
   /** The leaf rule, or `null` for a bare structure such as a winter branch. */

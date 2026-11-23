@@ -2,9 +2,9 @@ import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanLexiconParams } from "./IAutoMovieMotionHumanLexiconParams";
 
 /**
- * Runtime namespace collections grouped by the canonical lexicon families.
- * Each namespace contributes some family exports.
- * Lists are borrowed in declared order and never mutated by registry readers.
+ * Runtime namespace collections grouped by the canonical lexicon families. Each
+ * namespace contributes some family exports. Lists are borrowed in declared
+ * order and never mutated by registry readers.
  */
 export type IAutoMovieMotionHumanLexiconFamilies = {
   readonly [F in keyof IAutoMovieMotionHumanLexiconParams]: readonly Partial<{

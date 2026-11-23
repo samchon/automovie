@@ -2,13 +2,14 @@ import type { IAutoMovieHumanShoulderOutline } from "./IAutoMovieHumanShoulderOu
 import type { IAutoMovieHumanTrunkColumn } from "./IAutoMovieHumanTrunkColumn";
 
 /**
- * The torso column and trapezius outline consumed by shoulder-girdle construction.
+ * The torso column and trapezius outline consumed by shoulder-girdle
+ * construction.
  *
- * The interface package owns these declarations; AutoMovieHumanShoulderGirdle in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanShoulderGirdle
+ * in Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanShoulderGirdle {
-  /** What the girdle reads.
-   */
+  /** What the girdle reads. */
   export interface IInput {
     /** The torso's column through the shoulders. */
     column: IAutoMovieHumanTrunkColumn.IColumn;

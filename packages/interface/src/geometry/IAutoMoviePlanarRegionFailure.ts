@@ -3,7 +3,10 @@ import type { IAutoMoviePlanarPoint } from "../architecture/IAutoMoviePlanarPoin
 /**
  * Borrowed rings checked for one unambiguous bounded planar region.
  *
- * Coordinates use local x/y metres; either ring winding is accepted and holes are explicitly distinguished from the outer ring. The gate reports the first ring, crossing or containment defect instead of repairing geometry; the label changes diagnostics only.
+ * Coordinates use local x/y metres; either ring winding is accepted and holes
+ * are explicitly distinguished from the outer ring. The gate reports the first
+ * ring, crossing or containment defect instead of repairing geometry; the label
+ * changes diagnostics only.
  */
 export namespace IAutoMoviePlanarRegionFailure {
   /**
@@ -26,17 +29,20 @@ export namespace IAutoMoviePlanarRegionFailure {
    */
   export type IProps = {
     /**
-     * Borrowed finite x/y metre outer ring with at least three points and implicit closure; simple, nonzero-area and either winding.
+     * Borrowed finite x/y metre outer ring with at least three points and
+     * implicit closure; simple, nonzero-area and either winding.
      */
     outer: readonly IAutoMoviePlanarPoint[];
 
     /**
-     * Borrowed simple rings strictly inside outer and outside one another, with no touching or crossing; omitted or empty means no voids.
+     * Borrowed simple rings strictly inside outer and outside one another, with
+     * no touching or crossing; omitted or empty means no voids.
      */
     holes?: ReadonlyArray<readonly IAutoMoviePlanarPoint[]>;
 
     /**
-     * Diagnostic region name; omitted defaults to polygon and an explicitly empty string stays empty.
+     * Diagnostic region name; omitted defaults to polygon and an explicitly
+     * empty string stays empty.
      */
     label?: string;
   };

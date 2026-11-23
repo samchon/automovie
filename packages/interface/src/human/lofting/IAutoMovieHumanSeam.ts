@@ -2,21 +2,20 @@
  * A declared seam between two pieces of a divided part, as data.
  *
  * Divide and conquer builds every piece in its own frame by its own rule; the
- * pieces merge only at declared seams. Each seam has one owner, which
- * evaluates the shared curve and publishes its jet (see
- * `AutoMovieHumanSeam`), and one neighbour, which converts that jet to its
- * own parameter and copies it. The declaration is what a seam observer reads:
- * it measures gap, normal angle and normal-curvature jump on the emitted skin
- * across `curve`, in the plane normal to the seam's tangent, against
- * `continuity`.
+ * pieces merge only at declared seams. Each seam has one owner, which evaluates
+ * the shared curve and publishes its jet (see `AutoMovieHumanSeam`), and one
+ * neighbour, which converts that jet to its own parameter and copies it. The
+ * declaration is what a seam observer reads: it measures gap, normal angle and
+ * normal-curvature jump on the emitted skin across `curve`, in the plane normal
+ * to the seam's tangent, against `continuity`.
  *
  * - G0: both pieces pass through the same points.
  * - G1: they also share the tangent plane (for a curve, the tangent line).
- * - G2: they also share the normal curvature across the seam (for a curve,
- *   the curvature vector).
+ * - G2: they also share the normal curvature across the seam (for a curve, the
+ *   curvature vector).
  *
- * A relief window needs no declaration: its height, slope and curvature
- * vanish at the window's edge by construction (`IAutoMovieLoftRelief`).
+ * A relief window needs no declaration: its height, slope and curvature vanish
+ * at the window's edge by construction (`IAutoMovieLoftRelief`).
  */
 export interface IAutoMovieHumanSeam {
   /** Seam identity in findings, such as `hand.web-2` or `head.face/P`. */
@@ -38,7 +37,10 @@ export interface IAutoMovieHumanSeam {
   continuity: IAutoMovieHumanSeam.Continuity;
 }
 
-/** Type contracts exchanged by IAutoMovieHumanSeam; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by IAutoMovieHumanSeam; runtime evaluation remains
+ * in Human.
+ */
 export namespace IAutoMovieHumanSeam {
   /**
    * A surface's parametric 2-jet at one point of a seam (rules J4 and J5),
@@ -67,7 +69,6 @@ export namespace IAutoMovieHumanSeam {
     twist: number[];
   }
 
-  /** Order of geometric contact across a seam.
-   */
+  /** Order of geometric contact across a seam. */
   export type Continuity = "G0" | "G1" | "G2";
 }

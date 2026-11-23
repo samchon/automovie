@@ -3,7 +3,11 @@ import type { IAutoMovieDrawingScheduleBox } from "./IAutoMovieDrawingScheduleBo
 /**
  * Where a space is, and what the design already declares about it.
  *
- * Each field delegates to the current environment's graph, box or metadata query. Declared is a box of the space's own volume representation; content folds descendant content proxies. Their tolerances and static-geometry premises differ, so neither box independently proves actual visible occupancy or a suitable camera view.
+ * Each field delegates to the current environment's graph, box or metadata
+ * query. Declared is a box of the space's own volume representation; content
+ * folds descendant content proxies. Their tolerances and static-geometry
+ * premises differ, so neither box independently proves actual visible occupancy
+ * or a suitable camera view.
  */
 export interface IAutoMovieDrawingSpacePlace {
   /** Discriminant naming the subject this place describes. */
@@ -21,12 +25,19 @@ export interface IAutoMovieDrawingSpacePlace {
   parent: string | null;
 
   /**
-   * Rounded shell-vertex box or aggregate cell-axis-limit box for this space alone. Null means no stated volume or failure of the helper's 1e-9 axis-component/finite-limit checks; a non-null box does not prove a nonempty exact cell intersection.
+   * Rounded shell-vertex box or aggregate cell-axis-limit box for this space
+   * alone. Null means no stated volume or failure of the helper's 1e-9
+   * axis-component/finite-limit checks; a non-null box does not prove a
+   * nonempty exact cell intersection.
    */
   declared: IAutoMovieDrawingScheduleBox | null;
 
   /**
-   * Rounded box of static CPU element bounds and declared population placement proxies in the subtree, or null when none contributes. Missing external-model geometry and empty held geometry contribute an element origin; attached bones, skinning, animation and GPU evaluation are outside the measurement.
+   * Rounded box of static CPU element bounds and declared population placement
+   * proxies in the subtree, or null when none contributes. Missing
+   * external-model geometry and empty held geometry contribute an element
+   * origin; attached bones, skinning, animation and GPU evaluation are outside
+   * the measurement.
    */
   content: IAutoMovieDrawingScheduleBox | null;
 
@@ -42,8 +53,8 @@ export interface IAutoMovieDrawingSpacePlace {
    * engine's `AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS`.
    *
    * An element with a model appears as `<environment>/<element>`. A population
-   * contributes its one owner id, `instance-set:<set>`, rather than its members,
-   * so a field of thousands of slates is one entry.
+   * contributes its one owner id, `instance-set:<set>`, rather than its
+   * members, so a field of thousands of slates is one entry.
    */
   contents: string[];
 

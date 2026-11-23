@@ -4,9 +4,7 @@ import type {
   IAutoMovieRecoveryTensorReport,
 } from "../../index";
 
-/**
- * Generated ordinary tensor families and their saved ownership replacements.
- */
+/** Generated ordinary tensor families and their saved ownership replacements. */
 
 export interface IAutoMovieRecoveryTensorRealization {
   /** Generated model parts owning retained mesh arrays. */

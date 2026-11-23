@@ -1,5 +1,6 @@
 /**
- * Explicit visual source class for one occurrence in the current compiled film timeline.
+ * Explicit visual source class for one occurrence in the current compiled film
+ * timeline.
  */
 export interface IAutoMovieProductionVisualDeliveryLane {
   /** Exact occurrence identity derived from its current timeline position. */

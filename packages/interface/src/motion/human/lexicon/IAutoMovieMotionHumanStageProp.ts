@@ -2,9 +2,9 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
- * A kinematic beat for a performer carrying a digital stage prop. The law
- * reads the held prop's local marks and places a visible pose on a cue.
- * Performer reactions are independent authored actions.
+ * A kinematic beat for a performer carrying a digital stage prop. The law reads
+ * the held prop's local marks and places a visible pose on a cue. Performer
+ * reactions are independent authored actions.
  */
 export interface IAutoMovieMotionHumanStageProp {
   /** Look of the stage beat. */
@@ -30,11 +30,12 @@ export interface IAutoMovieMotionHumanStageProp {
   /** Grip site id for the other hand as a support on the same prop. */
   support?: string;
 
-  /** Optional point in the virtual set, in world metres, for the visible accent with the stance planted. */
+  /**
+   * Optional point in the virtual set, in world metres, for the visible accent
+   * with the stance planted.
+   */
   at?: IAutoMovieVector3;
 
-  /**
-   * Staged time, seconds, positive; the beat's authored time when absent.
-   */
+  /** Staged time, seconds, positive; the beat's authored time when absent. */
   duration?: number;
 }

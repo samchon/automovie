@@ -1,5 +1,4 @@
-/** Owned scaled arrowhead curvature storage for one optional factor attempt.
- */
+/** Owned scaled arrowhead curvature storage for one optional factor attempt. */
 export interface IAutoMovieRecoveryMapCurvatureBlocks {
   /** Upper camera Hessian, overwritten by its Schur upper factor. */
   camera: number[][];

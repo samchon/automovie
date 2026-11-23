@@ -1,5 +1,4 @@
-/** Provenance of an unchanged original current-cycle point.
- */
+/** Provenance of an unchanged original current-cycle point. */
 export interface IAutoMovieRecoveryObservedPoint {
   /** The output point is one original current-cycle observation. */
   kind: "observed-point";

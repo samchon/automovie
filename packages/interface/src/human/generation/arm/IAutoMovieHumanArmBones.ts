@@ -1,13 +1,14 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
 /**
- * Placed arm landmarks, segment lengths and directions in the left calibration frame.
+ * Placed arm landmarks, segment lengths and directions in the left calibration
+ * frame.
  *
- * The interface package owns these declarations; AutoMovieHumanArmBones in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanArmBones in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanArmBones {
-  /** One side's arm landmarks, left frame.
-   */
+  /** One side's arm landmarks, left frame. */
   export interface IBones {
     /** Glenohumeral centre. */
     shoulder: AutoMovieVector3Tuple;

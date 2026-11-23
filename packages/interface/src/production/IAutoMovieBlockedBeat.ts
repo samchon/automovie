@@ -13,9 +13,7 @@ export type IAutoMovieBlockedBeat =
 
 /** Data and callback contracts shared by the BlockedBeat operations. */
 export namespace IAutoMovieBlockedBeat {
-  /**
-   * The plan holds together; performance can align to it.
-   */
+  /** The plan holds together; performance can align to it. */
   export interface ISuccess {
     /** Discriminator. */
     success: true;
@@ -25,17 +23,15 @@ export namespace IAutoMovieBlockedBeat {
 
     /**
      * The validated initial condition from the prior beat, the same object the
-     * caller passed, or `null` when none was supplied, as for a first beat.
-     * The performance stage seeds each actor's start position, facing,
+     * caller passed, or `null` when none was supplied, as for a first beat. The
+     * performance stage seeds each actor's start position, facing,
      * articulation, gait phase, velocity, plants, and mount from it, so the
      * beat resumes where the previous one actually ended.
      */
     previous: IAutoMovieBeatEndState | null;
   }
 
-  /**
-   * The plan contradicted the script, the stage, or its own timeline.
-   */
+  /** The plan contradicted the script, the stage, or its own timeline. */
   export interface IFailure {
     /** Discriminator. */
     success: false;

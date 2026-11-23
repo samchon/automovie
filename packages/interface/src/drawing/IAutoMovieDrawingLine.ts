@@ -8,11 +8,11 @@ import type { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
  * that sorts first by `x` and then `y`, and a zero-length stroke is never
  * emitted. A drawing holds each stroke once: two edges of one owner that
  * project onto the same segment in the same role become one line. Lines are
- * sorted by role in {@link AutoMovieDrawingRole} order, then by layer, owner
- * and points.
+ * sorted by role in {@link AutoMovieDrawingRole} order, then by layer, owner and
+ * points.
  *
- * A boundary that carries a face and is realized by no element draws itself,
- * so {@link owner} and {@link layer} can name a boundary instead of an element.
+ * A boundary that carries a face and is realized by no element draws itself, so
+ * {@link owner} and {@link layer} can name a boundary instead of an element.
  */
 export interface IAutoMovieDrawingLine {
   /**

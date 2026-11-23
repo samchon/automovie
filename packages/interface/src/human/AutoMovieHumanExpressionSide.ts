@@ -1,5 +1,4 @@
-/** Closed expression side choices; serialized values are unchanged.
- */
+/** Closed expression side choices; serialized values are unchanged. */
 export type AutoMovieHumanExpressionSide =
   /** Apply this action unit to both anatomical sides. */
   | "both"

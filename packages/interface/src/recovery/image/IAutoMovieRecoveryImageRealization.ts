@@ -1,7 +1,9 @@
 import type { IAutoMovieModel } from "../../model/IAutoMovieModel";
 import type { IAutoMovieConstructionPolyline } from "../../render/IAutoMovieConstructionPolyline";
 
-/** Source-free model, coefficient-derived construction and circular-to-cubic approximation bound.
+/**
+ * Source-free model, coefficient-derived construction and circular-to-cubic
+ * approximation bound.
  */
 export interface IAutoMovieRecoveryImageRealization {
   /** Source-free generated model, in model metres. */

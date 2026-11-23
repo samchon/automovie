@@ -40,7 +40,9 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * button along its axis, turning a knob about its axis, pulling or pushing a
    * drawer along its slide, or swinging a hinged door by its handle.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It claims only the parts it moves, seated or while another action carries the body; it can be cut into `stand` and `walk` from its `relax` instant.
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims only the parts it moves, seated or while another action carries the
+   * body; it can be cut into `stand` and `walk` from its `relax` instant.
    *
    * @param params The `balance`, `kind`, `hand` and `manner` of
    *   `IAutoMovieMotionHumanOperate.IParams`.
@@ -104,7 +106,9 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * point while standing: hammering, sawing, stirring or turning a
    * screwdriver.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It claims only the parts it moves; it can be cut into `stand` and `putDown` from its `recover` instant.
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims only the parts it moves; it can be cut into `stand` and `putDown`
+   * from its `recover` instant.
    *
    * @param params The `tool`, `prop`, `on`, `hand`, `count` and `manner` of
    *   `IAutoMovieMotionHumanUseTool.IParams`.
@@ -151,7 +155,9 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * circles, standing before it: a household task that the composed laws
    * lacked, the palm's circling stroke on a work surface.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It claims only the parts it moves; it can be cut into `stand` and `walk` from its `relax` instant.
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims only the parts it moves; it can be cut into `stand` and `walk` from
+   * its `relax` instant.
    *
    * @param params The `balance`, `on`, `hand`, `count` and `manner` of
    *   `IAutoMovieMotionHumanWipe.IParams`.
@@ -288,7 +294,9 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    *
    * Registered law: `registered("holdHandles", params)`; not a chain method.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It claims both arms and hands and needs a carrier that owns the walker's steps.
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims both arms and hands and needs a carrier that owns the walker's
+   * steps.
    *
    * @param params The implement `on`, its `left` and `right` handles,
    *   `duration` and `transition` of `IAutoMovieMotionHumanHoldHandles`.

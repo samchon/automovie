@@ -4,8 +4,7 @@ import type {
   IAutoMovieRecoveryObservationTangents,
 } from "../../index";
 
-/** One working point entry before canonical ordering and output-row assembly.
- */
+/** One working point entry before canonical ordering and output-row assembly. */
 export interface IAutoMovieRecoveryObservationEntry {
   /** Canonical phase in [0, 1), before final increasing-order assembly. */
   phase: number;

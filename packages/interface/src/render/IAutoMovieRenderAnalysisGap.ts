@@ -2,7 +2,8 @@ import type { AutoMovieRenderAnalysisStatus } from "./AutoMovieRenderAnalysisSta
 import type { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
 
 /**
- * One render-cost analysis gap with its owning metric, cause and recovery requirement.
+ * One render-cost analysis gap with its owning metric, cause and recovery
+ * requirement.
  */
 export interface IAutoMovieRenderAnalysisGap {
   /** Metric left without a measurement. */

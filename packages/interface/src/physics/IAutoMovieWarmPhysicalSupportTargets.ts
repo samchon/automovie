@@ -4,11 +4,18 @@ import type { IAutoMoviePhysicalJoint } from "./IAutoMoviePhysicalJoint";
 import type { IAutoMoviePhysicalSegment } from "./IAutoMoviePhysicalSegment";
 
 /**
- * Carry the previous local support correction through an authored change instead of selecting a fresh straight-chain bend branch, then return its support-task null space to the authored posture so unconstrained swivel or patch yaw cannot accumulate across steps.
+ * Carry the previous local support correction through an authored change
+ * instead of selecting a fresh straight-chain bend branch, then return its
+ * support-task null space to the authored posture so unconstrained swivel or
+ * patch yaw cannot accumulate across steps.
  */
 export namespace IAutoMovieWarmPhysicalSupportTargets {
   /**
-   * Carry the previous local support correction through an authored change instead of selecting a fresh straight-chain bend branch, then return its support-task null space to the authored posture so unconstrained swivel or patch yaw cannot accumulate across steps. The original world endpoints, root intent and ROM remain the fitting constraints.
+   * Carry the previous local support correction through an authored change
+   * instead of selecting a fresh straight-chain bend branch, then return its
+   * support-task null space to the authored posture so unconstrained swivel or
+   * patch yaw cannot accumulate across steps. The original world endpoints,
+   * root intent and ROM remain the fitting constraints.
    */
   export type IInput = {
     /** Parent-first, run-owned tree order. */ order: readonly IAutoMoviePhysicalSegment[];
@@ -32,6 +39,9 @@ export namespace IAutoMovieWarmPhysicalSupportTargets {
     >;
     /** Support endpoints and witnesses defining the fit task. */ pattern: IAutoMovieFootfallPattern;
     /** Endpoints whose floor witnesses are planted in this fit. */ planted: ReadonlySet<string>;
-    /** The support fit's metre residual tolerance, bounding how far returning posture may move the task. */ tolerance: number;
+    /**
+     * The support fit's metre residual tolerance, bounding how far returning
+     * posture may move the task.
+     */ tolerance: number;
   };
 }

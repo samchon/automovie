@@ -5,8 +5,8 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  *
  * Only candidates built entirely from `line`, `polyline`, and `region` marks
  * reach this record; an `arc`, `text`, or `level-marker` mark is withheld
- * rather than sampled. It is a proposal the building source may accept,
- * reject, or contradict.
+ * rather than sampled. It is a proposal the building source may accept, reject,
+ * or contradict.
  */
 export interface IAutoMovieDesignPromotedReading {
   /** Candidate that produced it. */

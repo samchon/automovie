@@ -1,7 +1,8 @@
 import type { IAutoMovieFilmTime } from "./IAutoMovieFilmTime";
 
 /**
- * Bounded film-global activation of one registered deterministic world effect zone.
+ * Bounded film-global activation of one registered deterministic world effect
+ * zone.
  */
 export interface IAutoMovieEffectCue {
   /** Stable cue id. */

@@ -2,8 +2,8 @@ import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointConstraint } from "../skeleton/IAutoMovieJointConstraint";
 
 /**
- * Effective clinical domain `decomposeJointRotation` uses to choose between
- * the two equivalent angle charts of one quaternion.
+ * Effective clinical domain `decomposeJointRotation` uses to choose between the
+ * two equivalent angle charts of one quaternion.
  *
  * Every rotation has a second Euler-style reading, and full-turn aliases of
  * each. With a constraint, the inverse scores both readings with
@@ -13,7 +13,10 @@ import type { IAutoMovieJointConstraint } from "../skeleton/IAutoMovieJointConst
  * overshoot downstream. The chain plant passes one domain per joint.
  */
 export interface IAutoMovieJointRotationDomain {
-  /** Rig bone whose coordinates the inverse reports, used to name the scored joint. */
+  /**
+   * Rig bone whose coordinates the inverse reports, used to name the scored
+   * joint.
+   */
   bone: AutoMovieHumanoidBone;
 
   /**

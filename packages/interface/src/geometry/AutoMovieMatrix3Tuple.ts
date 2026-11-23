@@ -3,8 +3,8 @@ import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 /**
  * Dimensionless three-by-three linear mapping, stored as three mutable rows.
  * Multiplication acts on a column vector. Rotation consumers additionally
- * require orthonormal rows and determinant +1; the tuple does not enforce
- * these premises or finite entries. Admission belongs to each numerical operation.
+ * require orthonormal rows and determinant +1; the tuple does not enforce these
+ * premises or finite entries. Admission belongs to each numerical operation.
  */
 export type AutoMovieMatrix3Tuple = [
   AutoMovieVector3Tuple,

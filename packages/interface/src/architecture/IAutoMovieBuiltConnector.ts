@@ -89,8 +89,8 @@ export interface IAutoMovieBuiltConnector {
    * Constant usable width in metres.
    *
    * State the constant pair ({@link width} and {@link clearHeight}, both
-   * positive) or the varying {@link sections}, never both and never neither,
-   * as {@link IAutoMovieSurface} refuses a height rule stated twice.
+   * positive) or the varying {@link sections}, never both and never neither, as
+   * {@link IAutoMovieSurface} refuses a height rule stated twice.
    */
   width?: number;
 
@@ -116,8 +116,8 @@ export interface IAutoMovieBuiltConnector {
    * The route already implies it, so a stated slope is a claim the engine
    * checks: the implied value is `atan2(|last.y - first.y|, horizontal route
    * length)`, the net climb averaged over the whole route rather than its
-   * steepest segment, and a stated slope must lie within `[0, PI / 2]` and agree
-   * with it to `1e-6` radians. Absent, nothing is checked.
+   * steepest segment, and a stated slope must lie within `[0, PI / 2]` and
+   * agree with it to `1e-6` radians. Absent, nothing is checked.
    */
   slope?: number;
 
@@ -139,8 +139,8 @@ export interface IAutoMovieBuiltConnector {
   operation?: IAutoMovieConnectorOperation;
 
   /**
-   * Visible elements realizing the connector, such as steps or a lift car;
-   * each resolves and is listed once, and the list may not be empty when an
+   * Visible elements realizing the connector, such as steps or a lift car; each
+   * resolves and is listed once, and the list may not be empty when an
    * {@link operation} is stated.
    */
   elements: string[];

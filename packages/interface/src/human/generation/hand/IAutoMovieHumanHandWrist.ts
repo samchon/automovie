@@ -1,9 +1,9 @@
 /**
  * What the hand reads from the arm it grows out of, for one side in the left
- * frame: the forearm's wrist and the centre of its section at the wrist
- * crease, and the tape the forearm's tube measures there. The arm's own
- * piece publishes more; the hand takes only this, so the arm can change
- * without the hand's pieces following.
+ * frame: the forearm's wrist and the centre of its section at the wrist crease,
+ * and the tape the forearm's tube measures there. The arm's own piece publishes
+ * more; the hand takes only this, so the arm can change without the hand's
+ * pieces following.
  */
 export interface IAutoMovieHumanHandWrist {
   /** The hand form's origin, world millimetres. */

@@ -12,15 +12,13 @@ import type { IAutoMovieMotionHumanColliders } from "./IAutoMovieMotionHumanColl
 /**
  * An arm's joint-space coordinates and what they place: the shoulder's
  * swing-twist chart (`swingTwistRange.chart`, continuous and one to one over
- * the range, scaled so a unit is near a degree of swing), the elbow's and
- * the wrist's clinical angles; the arm's forward kinematics from its
- * shoulder in a posed frame (`HumanArmFrame`) and its probes; the shapes
- * in its way and the probes' distances to them are `HumanArmShapes`'.
+ * the range, scaled so a unit is near a degree of swing), the elbow's and the
+ * wrist's clinical angles; the arm's forward kinematics from its shoulder in a
+ * posed frame (`HumanArmFrame`) and its probes; the shapes in its way and the
+ * probes' distances to them are `HumanArmShapes`'.
  */
 export namespace IAutoMovieMotionHumanArmGeometry {
-  /**
-   * What an arm's coordinates are read with, built once per body and side.
-   */
+  /** What an arm's coordinates are read with, built once per body and side. */
   export interface ISetup {
     /** The borrowed body, unchanged for this setup's operation. */
     body: IAutoMovieMotionHumanBody;
@@ -55,12 +53,15 @@ export namespace IAutoMovieMotionHumanArmGeometry {
       /** The hand's rest transform. */
       hand: IAutoMovieBone["rest"];
     };
-    /** Whether each of nine coordinates is free: shoulder chart coordinates 0..2, elbow clinical angles 3..5, then wrist clinical angles 6..8. */
+    /**
+     * Whether each of nine coordinates is free: shoulder chart coordinates
+     * 0..2, elbow clinical angles 3..5, then wrist clinical angles 6..8.
+     */
     free: boolean[];
 
     /**
-     * Project an actual clinical-degree joint through this unchanged setup;
-     * an unconstrained input returns by identity.
+     * Project an actual clinical-degree joint through this unchanged setup; an
+     * unconstrained input returns by identity.
      */
     clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
 
@@ -72,11 +73,12 @@ export namespace IAutoMovieMotionHumanArmGeometry {
   }
 
   /**
-   * What the arm is read against at one instant (HumanArmFrame.of).
-   * The frame is memoised by base-object identity, upper-arm bone and alone flag.
-   * Mutating the base or body does not invalidate that cache: producers and consumers
-   * must keep the borrowed input geometry and returned arrays stable during reuse.
-   * surface, owners, segments and corners have equal lengths and correspond by index.
+   * What the arm is read against at one instant (HumanArmFrame.of). The frame
+   * is memoised by base-object identity, upper-arm bone and alone flag.
+   * Mutating the base or body does not invalidate that cache: producers and
+   * consumers must keep the borrowed input geometry and returned arrays stable
+   * during reuse. surface, owners, segments and corners have equal lengths and
+   * correspond by index.
    */
   export interface IFrame {
     /** The shoulder parent's unit world rotation and world position, metres. */
@@ -87,9 +89,16 @@ export namespace IAutoMovieMotionHumanArmGeometry {
       position: IAutoMovieVector3;
     };
 
-    /** Actual full-FK shoulder position for this same parent/rest frame, when already available; otherwise chain placement computes it. */
+    /**
+     * Actual full-FK shoulder position for this same parent/rest frame, when
+     * already available; otherwise chain placement computes it.
+     */
     shoulder?: IAutoMovieVector3;
-    /** Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip. */
+    /**
+     * Mapped MiddleDistal bone origin in hand-local metres; zero when that
+     * distal bone is absent. This is a bone origin, not a measured physical
+     * fingertip.
+     */
     tip: IAutoMovieVector3;
     /** Collider probes in the frame of their owning arm segment, metres. */
     surface: IAutoMovieVector3[];
@@ -99,9 +108,15 @@ export namespace IAutoMovieMotionHumanArmGeometry {
     bounds: Record<
       "upper" | "lower" | "hand",
       {
-        /** Mean of this owner's surface probes in owner-local metres; zero vector for an empty subset. */
+        /**
+         * Mean of this owner's surface probes in owner-local metres; zero
+         * vector for an empty subset.
+         */
         centre: IAutoMovieVector3;
-        /** Maximum distance of an owner-local surface probe from centre, metres; zero for an empty subset. */
+        /**
+         * Maximum distance of an owner-local surface probe from centre, metres;
+         * zero for an empty subset.
+         */
         radius: number;
       }
     >;
@@ -112,7 +127,11 @@ export namespace IAutoMovieMotionHumanArmGeometry {
     /** Own-body part pairs that share a joint or are the same part. */
     related: boolean[][];
 
-    /** The external parts the hand rests on in this frame (the base's `rests`, by frame part index): their pairs with the hand are its contact, not a collision. */
+    /**
+     * The external parts the hand rests on in this frame (the base's `rests`,
+     * by frame part index): their pairs with the hand are its contact, not a
+     * collision.
+     */
     resting: ReadonlySet<number>;
     /** Actual arm colliders in their carrying arm segment's local frame. */
     colliders: {
@@ -129,11 +148,17 @@ export namespace IAutoMovieMotionHumanArmGeometry {
     }[];
     /** Posed obstruction shapes in the world. */
     shapes: IAutoMovieMotionHumanArmGeometry.IShape[];
-    /** World collider corners outside the moving arms, including external bodies. */
+    /**
+     * World collider corners outside the moving arms, including external
+     * bodies.
+     */
     body: {
       /** Obstacle probe position in world metres. */
       point: IAutoMovieVector3;
-      /** Zero-based collider-part index in the combined own-body then external-body audit table. */
+      /**
+       * Zero-based collider-part index in the combined own-body then
+       * external-body audit table.
+       */
       part: number;
       /** Zero-based probe index within that collider part. */
       corner: number;
@@ -142,11 +167,12 @@ export namespace IAutoMovieMotionHumanArmGeometry {
     }[];
   }
 
-  /**
-   * A shape in an arm's way, placed, with its bounding sphere.
-   */
+  /** A shape in an arm's way, placed, with its bounding sphere. */
   export interface IShape {
-    /** The bone the shape's segment rides on, or the subject and part of a segment no human body carries. */
+    /**
+     * The bone the shape's segment rides on, or the subject and part of a
+     * segment no human body carries.
+     */
     bone: Segment;
     /** Own-body audit index, followed by external segments in base order. */
     part: number;
@@ -160,11 +186,14 @@ export namespace IAutoMovieMotionHumanArmGeometry {
     radius: number;
   }
 
-  /**
-   * The arm placed: its probes and its segments' world frames.
-   */
+  /** The arm placed: its probes and its segments' world frames. */
   export interface IPlaced {
-    /** Each probe's world point and radius: eight axis spheres (two on the upper arm, four on the forearm to the wrist, two on the hand), then optional collider probes with radius 0. With surface=false there are exactly eight probes. */
+    /**
+     * Each probe's world point and radius: eight axis spheres (two on the upper
+     * arm, four on the forearm to the wrist, two on the hand), then optional
+     * collider probes with radius 0. With surface=false there are exactly eight
+     * probes.
+     */
     probes: readonly (readonly [IAutoMovieVector3, number])[];
     /** The shoulder's world point. */
     shoulder: IAutoMovieVector3;
@@ -181,7 +210,9 @@ export namespace IAutoMovieMotionHumanArmGeometry {
   }
 
   /**
-   * What carries an obstacle shape: a rig bone, or a subject and part (`subject:part`) of a segment no human body carries (`IAutoMovieMotionHumanColliders.IExternal`).
+   * What carries an obstacle shape: a rig bone, or a subject and part
+   * (`subject:part`) of a segment no human body carries
+   * (`IAutoMovieMotionHumanColliders.IExternal`).
    */
   export type Segment = AutoMovieHumanoidBone | `${string}:${string}`;
 }

@@ -1,7 +1,6 @@
 import type { IAutoMovieHumanHeadMandible } from "./IAutoMovieHumanHeadMandible";
 
-/** One section's measures in its own plane.
- */
+/** One section's measures in its own plane. */
 export interface IAutoMovieHumanHeadSection {
   /** Normalized station. */
   t: number;
@@ -31,18 +30,17 @@ export interface IAutoMovieHumanHeadSection {
   taper: number;
 
   /**
-   * The cranium's share of the skin in front of the face's lateral boundary
-   * Z, in [0, 1]: 1 over the glabella (the forehead is the vault's), 0 under
-   * the nasion (the face alone), the quintic smoothstep between, the brow's
-   * span.
+   * The cranium's share of the skin in front of the face's lateral boundary Z,
+   * in [0, 1]: 1 over the glabella (the forehead is the vault's), 0 under the
+   * nasion (the face alone), the quintic smoothstep between, the brow's span.
    */
   brow: number;
 
   /**
-   * The neck tube's share of the cranium, in [0, 1]: 1 under the jaw, where
-   * the cranium is the neck's tube, falling to 0 as the skull's sizes take
-   * over by the nose's base (`AutoMovieHumanHeadSection`). The face merges
-   * onto the tube by adding volume in that share.
+   * The neck tube's share of the cranium, in [0, 1]: 1 under the jaw, where the
+   * cranium is the neck's tube, falling to 0 as the skull's sizes take over by
+   * the nose's base (`AutoMovieHumanHeadSection`). The face merges onto the
+   * tube by adding volume in that share.
    */
   tube: number;
 

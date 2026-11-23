@@ -2,7 +2,9 @@ import type { IAutoMovieMotionEvent } from "../../IAutoMovieMotionEvent";
 import type { IAutoMovieMotionClockInstant } from "./IAutoMovieMotionClockInstant";
 
 /**
- * An action clock resolving named instants and progress in seconds since that action starts. AutoMovieMotionClock constructs and admits the clock; action primitives share this capability.
+ * An action clock resolving named instants and progress in seconds since that
+ * action starts. AutoMovieMotionClock constructs and admits the clock; action
+ * primitives share this capability.
  */
 export interface IAutoMovieMotionClock {
   /** Duration, seconds; positive. */
@@ -26,7 +28,8 @@ export interface IAutoMovieMotionClock {
    * @param from The opening instant.
    * @param to The closing instant.
    * @param seconds Seconds since the action's start.
-   * @returns 0 until `from`, 1 from `to`, linear between; a window of no length steps at `to`.
+   * @returns 0 until `from`, 1 from `to`, linear between; a window of no length
+   *   steps at `to`.
    */
   linear(from: string, to: string, seconds: number): number;
 
@@ -42,8 +45,8 @@ export interface IAutoMovieMotionClock {
   progress(from: string, to: string, seconds: number): number;
 
   /**
-   * How present something is that rises over one window and falls over a
-   * later one: the rise's progress less the fall's.
+   * How present something is that rises over one window and falls over a later
+   * one: the rise's progress less the fall's.
    *
    * @param rise The window it rises over.
    * @param fall The window it falls over.

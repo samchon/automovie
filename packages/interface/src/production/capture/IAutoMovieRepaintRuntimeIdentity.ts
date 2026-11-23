@@ -1,5 +1,6 @@
 /**
- * Declared provider, model, version and execution boundary of an intended repaint implementation.
+ * Declared provider, model, version and execution boundary of an intended
+ * repaint implementation.
  */
 export interface IAutoMovieRepaintRuntimeIdentity {
   /** Identity protocol. */

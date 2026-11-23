@@ -1,6 +1,4 @@
-/**
- * Aligned elliptical section profiles over one physical Y interval.
- */
+/** Aligned elliptical section profiles over one physical Y interval. */
 export interface IAutoMovieEllipticLoftSpan {
   /** Lower and upper Y coordinates, in metres. */
   interval: [number, number];

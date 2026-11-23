@@ -1,8 +1,6 @@
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
-/**
- * Declare a foot that should remain planted over a sampled motion interval.
- */
+/** Declare a foot that should remain planted over a sampled motion interval. */
 export interface IAutoMovieFootContactWindow {
   /** Foot bone that should stay planted through the window. */
   bone: AutoMovieHumanoidBone;

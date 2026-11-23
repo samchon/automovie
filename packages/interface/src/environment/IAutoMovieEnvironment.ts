@@ -5,7 +5,8 @@ import type { IAutoMovieEngineShotRuntime } from "../production/IAutoMovieEngine
 import type { IAutoMovieWorldDesign } from "../production/IAutoMovieWorldDesign";
 
 /**
- * A prepared place's scene placements, compile runtime records and named frames.
+ * A prepared place's scene placements, compile runtime records and named
+ * frames.
  */
 export interface IAutoMovieEnvironment {
   /** The stage set and optional merged support space for the shot program. */
@@ -16,13 +17,22 @@ export interface IAutoMovieEnvironment {
   runtime: Required<
     Pick<IAutoMovieEngineShotRuntime, "models" | "props" | "objectMotions">
   > & {
-    /** Production world carrying queryable terrain, routes and compact populations. */
+    /**
+     * Production world carrying queryable terrain, routes and compact
+     * populations.
+     */
     world: IAutoMovieWorldDesign;
   };
 
-  /** Named rigid world frames, including item origins, keyed relative to this environment. */
+  /**
+   * Named rigid world frames, including item origins, keyed relative to this
+   * environment.
+   */
   anchors: Readonly<Record<string, IAutoMovieTransform>>;
 
-  /** Resolved built environments available for architectural queries and prop admission. */
+  /**
+   * Resolved built environments available for architectural queries and prop
+   * admission.
+   */
   builtEnvironments: readonly IAutoMovieBuiltEnvironment[];
 }

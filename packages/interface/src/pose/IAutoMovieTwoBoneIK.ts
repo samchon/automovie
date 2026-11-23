@@ -19,8 +19,8 @@ export interface IAutoMovieTwoBoneIK {
   lift: number;
 
   /**
-   * True when the goal was nearer than `|upper - lower|` or farther than
-   * `upper + lower`, and the angles describe the clamped distance instead.
+   * True when the goal was nearer than `|upper - lower|` or farther than `upper
+   * + lower`, and the angles describe the clamped distance instead.
    */
   clamped: boolean;
 }

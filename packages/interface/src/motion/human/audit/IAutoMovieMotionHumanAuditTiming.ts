@@ -2,22 +2,22 @@ import type { IAutoMovieMotionEvent } from "../../IAutoMovieMotionEvent";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 
 /**
- * Whether what an action declares about its own time is coherent, and
- * whether its named instants fall where its contract says: in a stated
- * order, and at the same film second as a partner's.
+ * Whether what an action declares about its own time is coherent, and whether
+ * its named instants fall where its contract says: in a stated order, and at
+ * the same film second as a partner's.
  *
  * Everything that reads a plan trusts its declarations: an author cuts at an
- * event, a reaction aligns to one, the foot audit reads the plant windows.
- * A plan whose event lies outside its action, whose two events share a name,
- * whose window ends before it starts or whose decisive instant lies after
- * its end misleads all of them without any pose looking wrong. `faults`
- * reads those declarations against what their owners document; `order` and
- * `shared` read the named instants a law's contract speaks of.
+ * event, a reaction aligns to one, the foot audit reads the plant windows. A
+ * plan whose event lies outside its action, whose two events share a name,
+ * whose window ends before it starts or whose decisive instant lies after its
+ * end misleads all of them without any pose looking wrong. `faults` reads those
+ * declarations against what their owners document; `order` and `shared` read
+ * the named instants a law's contract speaks of.
  */
 export namespace IAutoMovieMotionHumanAuditTiming {
   /**
-   * A placed action as this audit reads it. `HumanPerformance.segments`
-   * yields such spans.
+   * A placed action as this audit reads it. `HumanPerformance.segments` yields
+   * such spans.
    */
   export interface ISpan {
     /** The action's name, for findings. */

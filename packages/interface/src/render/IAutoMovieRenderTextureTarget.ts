@@ -1,18 +1,16 @@
 import type { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
 
 /**
- * One host-owned framebuffer's attachment storage and native factory bound. Target
- * objects allocate independently of decoded Source sharing. Requested samples
- * conservatively bound hardware-clamped multisampling; resolved color mips and
- * single-sample depth remain separate from multisample attachments.
+ * One host-owned framebuffer's attachment storage and native factory bound.
+ * Target objects allocate independently of decoded Source sharing. Requested
+ * samples conservatively bound hardware-clamped multisampling; resolved color
+ * mips and single-sample depth remain separate from multisample attachments.
  */
 export interface IAutoMovieRenderTextureTarget {
   /** Stable host target owner, unique among retained targets in one context. */
   owner: string;
 
-  /**
-   * Live shot owner whose transmission pass uses this target, when applicable.
-   */
+  /** Live shot owner whose transmission pass uses this target, when applicable. */
   transmissionScope?: string;
 
   /** Shadow attachment's stable scope, light and native map/filtering role. */
@@ -41,7 +39,8 @@ export interface IAutoMovieRenderTextureTarget {
   height: number;
 
   /**
-   * Upload representation of each resolved color attachment; unknown stays absent.
+   * Upload representation of each resolved color attachment; unknown stays
+   * absent.
    */
   formats: readonly IAutoMovieRenderTextureSource["format"][];
 
@@ -49,13 +48,12 @@ export interface IAutoMovieRenderTextureTarget {
   mipmapped: boolean;
 
   /**
-   * Requested multisample count; zero means no separate multisample attachments.
+   * Requested multisample count; zero means no separate multisample
+   * attachments.
    */
   samples: number;
 
-  /**
-   * Depth/stencil bytes per base pixel; zero means absent, null means unknown.
-   */
+  /** Depth/stencil bytes per base pixel; zero means absent, null means unknown. */
   depthBytesPerTexel: number | null;
 
   /**

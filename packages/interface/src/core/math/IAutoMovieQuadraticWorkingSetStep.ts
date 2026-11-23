@@ -24,24 +24,24 @@ export interface IAutoMovieQuadraticWorkingSetStep {
   primal: number[] | null;
 
   /**
-   * Orthogonal projection of the preceding point onto the working affine
-   * space, or null when the basis refused or the projection is not finite. It
-   * can be set even when the step later refuses or returns a flat direction.
+   * Orthogonal projection of the preceding point onto the working affine space,
+   * or null when the basis refused or the projection is not finite. It can be
+   * set even when the step later refuses or returns a flat direction.
    */
   origin: number[] | null;
 
   /**
    * Zero-curvature null-space direction along which the objective strictly
-   * decreases, or null. When set, `primal` and `dual` are null and the
-   * polisher must stop the ray at a blocking original row.
+   * decreases, or null. When set, `primal` and `dual` are null and the polisher
+   * must stop the ray at a blocking original row.
    */
   flatDirection: number[] | null;
 
   /**
-   * Least-squares working-row multipliers at `origin`, solving `gradient +
-   * A' y = 0` as closely as the range factor allows, or null when `origin` is
-   * null or the multipliers are not finite. It is a candidate for `origin`
-   * only, not the multipliers of an optimum.
+   * Least-squares working-row multipliers at `origin`, solving `gradient + A' y
+   * = 0` as closely as the range factor allows, or null when `origin` is null
+   * or the multipliers are not finite. It is a candidate for `origin` only, not
+   * the multipliers of an optimum.
    */
   normalDual: number[] | null;
 

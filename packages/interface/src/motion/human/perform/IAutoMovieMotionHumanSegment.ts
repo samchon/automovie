@@ -21,7 +21,9 @@ import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanS
 import type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerformer";
 
 /**
- * One scheduled and planned human action with its law, context, film placement and optional transition from another segment. Performance evaluation and motion audits share this identity.
+ * One scheduled and planned human action with its law, context, film placement
+ * and optional transition from another segment. Performance evaluation and
+ * motion audits share this identity.
  */
 export interface IAutoMovieMotionHumanSegment {
   /** Order within the person's actions. */
@@ -72,8 +74,8 @@ export interface IAutoMovieMotionHumanSegment {
   };
 
   /**
-   * Each limb's seed of the action's last displayed leaf resolve, held for
-   * the next one's swept fits as their bounded search's incumbent
+   * Each limb's seed of the action's last displayed leaf resolve, held for the
+   * next one's swept fits as their bounded search's incumbent
    * (`IAutoMovieFitChainToTargetProps.incumbent`), which cannot change their
    * answer; absent until a leaf resolve, and released when the person's memos
    * are forgotten.
@@ -83,24 +85,23 @@ export interface IAutoMovieMotionHumanSegment {
   >;
 
   /**
-   * The arms' fits of the action's displayed leaf at its anchor seconds,
-   * each read cold once, keyed by the person's overlay count and the anchor
-   * (the plan second over the anchor spacing, rounded), as `<overlays>:<anchor>`.
-   * A displayed second with no fits of its own places its arms at the swivels
-   * interpolated between the anchors around it, so a verdict, a sub-frame
-   * and playback read one closed-form placement instead of sweeping every
-   * swivel. Absent until a read needs one, and
-   * released when anything is placed or the person's memos are forgotten.
+   * The arms' fits of the action's displayed leaf at its anchor seconds, each
+   * read cold once, keyed by the person's overlay count and the anchor (the
+   * plan second over the anchor spacing, rounded), as `<overlays>:<anchor>`. A
+   * displayed second with no fits of its own places its arms at the swivels
+   * interpolated between the anchors around it, so a verdict, a sub-frame and
+   * playback read one closed-form placement instead of sweeping every swivel.
+   * Absent until a read needs one, and released when anything is placed or the
+   * person's memos are forgotten.
    */
   anchors?: Map<string, IAutoMovieMotionHumanSegment.IAnchorFits>;
 
   /**
    * The legs' fit of a leaf resolve inside the plan's legs-still window
-   * (`IAutoMovieMotionHumanActionPlan.legsStill`): the plan second it was
-   * read at, the legs' joint records it gave and their seeds, which every
-   * later leaf resolve in that window keeps in place of fitting the legs
-   * again; absent until then, and released when the person's memos are
-   * forgotten.
+   * (`IAutoMovieMotionHumanActionPlan.legsStill`): the plan second it was read
+   * at, the legs' joint records it gave and their seeds, which every later leaf
+   * resolve in that window keeps in place of fitting the legs again; absent
+   * until then, and released when the person's memos are forgotten.
    */
   legs?: {
     /** The plan second, clamped to the plan, the legs were fitted at. */
@@ -125,17 +126,13 @@ export namespace IAutoMovieMotionHumanSegment {
    */
   export type IAnchorFits = ReadonlyMap<string, IAutoMovieSwivelSeed | null>;
 
-  /**
-   * One action placed over a carrier.
-   */
+  /** One action placed over a carrier. */
   export interface IOverlay extends IAutoMovieMotionHumanSegment {
     /** The channels, or single digits, it takes from the carrier. */
     channels: readonly AutoMovieMotionHumanChannelClaim[];
   }
 
-  /**
-   * One person's state in a performance.
-   */
+  /** One person's state in a performance. */
   export interface IPerson {
     /** The performer. */
     performer: IAutoMovieMotionHumanPerformer;
@@ -146,16 +143,25 @@ export namespace IAutoMovieMotionHumanSegment {
     /** Placed actions, in film order. */
     segments: IAutoMovieMotionHumanSegment[];
 
-    /** Actions placed over those, in placement order: each takes its claimed channels from the carrier while it runs. */
+    /**
+     * Actions placed over those, in placement order: each takes its claimed
+     * channels from the carrier while it runs.
+     */
     overlays: IAutoMovieMotionHumanSegment.IOverlay[];
 
     /** The standing posture before the first action. */
     initial: IAutoMovieMotionHumanPosture;
 
-    /** Displayed poses already evaluated, by film second; bounded to 4096 entries. */
+    /**
+     * Displayed poses already evaluated, by film second; bounded to 4096
+     * entries.
+     */
     cache: Map<number, IAutoMovieMotionHumanSegment.IShown>;
 
-    /** Whether the schedule is still being resolved: nothing is cached meanwhile, because another person's actions may not be placed yet. */
+    /**
+     * Whether the schedule is still being resolved: nothing is cached
+     * meanwhile, because another person's actions may not be placed yet.
+     */
     resolving: boolean;
 
     /**
@@ -165,7 +171,10 @@ export namespace IAutoMovieMotionHumanSegment {
      */
     planning?: Map<number, IAutoMovieMotionHumanSegment.IShown>;
 
-    /** Additive layers over the person's actions, in order, each inside its window. */
+    /**
+     * Additive layers over the person's actions, in order, each inside its
+     * window.
+     */
     layers: IAutoMovieMotionHumanSegment.ILayered[];
 
     /** What a layer can read. */
@@ -174,13 +183,14 @@ export namespace IAutoMovieMotionHumanSegment {
     /** Props this person's actions left held, in placement order. */
     holds: IAutoMovieMotionHumanSegment.IHeld[];
 
-    /** Resolved stops of this person's weapons, film seconds, keyed by `weapon(segment, id)`. */
+    /**
+     * Resolved stops of this person's weapons, film seconds, keyed by
+     * `weapon(segment, id)`.
+     */
     stops: Map<string, number>;
   }
 
-  /**
-   * A layer and the film seconds it runs in.
-   */
+  /** A layer and the film seconds it runs in. */
   export interface ILayered {
     /** The layer. */
     layer: IAutoMovieMotionHumanLayer;
@@ -195,9 +205,7 @@ export namespace IAutoMovieMotionHumanSegment {
     fade: number;
   }
 
-  /**
-   * A prop held across actions.
-   */
+  /** A prop held across actions. */
   export interface IHeld {
     /** The holding hand. */
     side: "left" | "right";
@@ -213,7 +221,10 @@ export namespace IAutoMovieMotionHumanSegment {
     /** The action that took hold. */
     source: IAutoMovieMotionHumanSegment;
 
-    /** The use the grip was chosen for (`IAutoMovieMotionPropHold.use`); absent when it was chosen for its reach alone. */
+    /**
+     * The use the grip was chosen for (`IAutoMovieMotionPropHold.use`); absent
+     * when it was chosen for its reach alone.
+     */
     use?: IAutoMovieMotionHumanGraspUse.IUse;
 
     /** Film second the hold starts. */
@@ -226,10 +237,10 @@ export namespace IAutoMovieMotionHumanSegment {
     until: number;
 
     /**
-     * Whether the action that took the hand over rides a carrier. The
-     * carrier is still running then, so the hold ends for it at `until`
-     * too, where a hold taken over by the next action still rides every
-     * action entered before the takeover.
+     * Whether the action that took the hand over rides a carrier. The carrier
+     * is still running then, so the hold ends for it at `until` too, where a
+     * hold taken over by the next action still rides every action entered
+     * before the takeover.
      */
     riding?: boolean;
 
@@ -258,13 +269,18 @@ export namespace IAutoMovieMotionHumanSegment {
   }
 
   /**
-   * One displayed pose as its evaluation produced it, kept with what its readers take from it.
+   * One displayed pose as its evaluation produced it, kept with what its
+   * readers take from it.
    */
   export interface IShown {
     /** The complete pose. */
     pose: IAutoMoviePose;
 
-    /** The pose's bones as the body's rig admitted them (`poseBones.read`): made when the pose's bones are first read and taken by every later reader of them, so the pose is admitted once; absent until then. */
+    /**
+     * The pose's bones as the body's rig admitted them (`poseBones.read`): made
+     * when the pose's bones are first read and taken by every later reader of
+     * them, so the pose is admitted once; absent until then.
+     */
     reading?: IAutoMovieSkeletonPoseResolution.IReading;
   }
 }

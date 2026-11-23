@@ -7,34 +7,34 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
 /**
- * Bending down to bring a hand to a low point (the floor, a low shelf, a
- * note on the ground) with the feet planted, by a stoop, a squat or a
- * semi-squat, then straightening up.
+ * Bending down to bring a hand to a low point (the floor, a low shelf, a note
+ * on the ground) with the feet planted, by a stoop, a squat or a semi-squat,
+ * then straightening up.
  *
- * The goal is the palm on the target, facing it from above. The body is
- * found from that goal: the strategy sets how far the hips drop (a stoop
- * keeps the knees nearly straight, a squat lowers the hips to 0.45 of their
- * height, a semi-squat to 0.75; provisional shares, the postures the lifting
- * literature compares), and the trunk then inclines forward just enough to
- * bring the shoulder within the arm's reach of the target (`bendLower.REACH`,
- * where freely reaching people lean in, of the arm's length plus the palm's
- * offset), found by bisection, while the hips
- * move back to keep the body balanced over the feet ({@link HumanBalance}).
- * The inclination is shared by the lumbopelvic rhythm of forward bending:
- * about 40 degrees of lumbar flexion against 70 of hip flexion at full
- * bending (Esola et al. 1996, Spine 21:71), so the pelvis pitches 0.64 of
- * it, the lumbar spine flexes 0.28 and the thorax 0.08 (`HumanTrunk.incline`).
- * The legs are solved onto the planted feet, lowering the pelvis where a
- * leg could not reach (`resolveHumanPosture.lower`); a squat, which outruns
- * the ankles' 20 degree dorsiflexion range, lets the heels rise up to 30
- * degrees, the feet rolling on their balls (provisional). The arm goes onto the palm's goal and
- * the gaze onto the target, and the free hand braces on its own thigh just
- * above the knee (Kingma, Faber and van Dieen 2016, J Biomech 49:881, on
- * supporting the trunk with a hand on the thigh while lifting). No lifting technique is shown to be better than
- * another (van Dieen, Hoozemans and Toussaint 1999, Clin Biomech 14:685), so
- * `auto` takes the semi-squat for targets below mid-shank and the stoop above,
- * the rule the campaign sets, and squats where the semi-squat cannot reach
- * (a short-armed body cannot reach the floor from a semi-squat).
+ * The goal is the palm on the target, facing it from above. The body is found
+ * from that goal: the strategy sets how far the hips drop (a stoop keeps the
+ * knees nearly straight, a squat lowers the hips to 0.45 of their height, a
+ * semi-squat to 0.75; provisional shares, the postures the lifting literature
+ * compares), and the trunk then inclines forward just enough to bring the
+ * shoulder within the arm's reach of the target (`bendLower.REACH`, where
+ * freely reaching people lean in, of the arm's length plus the palm's offset),
+ * found by bisection, while the hips move back to keep the body balanced over
+ * the feet ({@link HumanBalance}). The inclination is shared by the lumbopelvic
+ * rhythm of forward bending: about 40 degrees of lumbar flexion against 70 of
+ * hip flexion at full bending (Esola et al. 1996, Spine 21:71), so the pelvis
+ * pitches 0.64 of it, the lumbar spine flexes 0.28 and the thorax 0.08
+ * (`HumanTrunk.incline`). The legs are solved onto the planted feet, lowering
+ * the pelvis where a leg could not reach (`resolveHumanPosture.lower`); a
+ * squat, which outruns the ankles' 20 degree dorsiflexion range, lets the heels
+ * rise up to 30 degrees, the feet rolling on their balls (provisional). The arm
+ * goes onto the palm's goal and the gaze onto the target, and the free hand
+ * braces on its own thigh just above the knee (Kingma, Faber and van Dieen
+ * 2016, J Biomech 49:881, on supporting the trunk with a hand on the thigh
+ * while lifting). No lifting technique is shown to be better than another (van
+ * Dieen, Hoozemans and Toussaint 1999, Clin Biomech 14:685), so `auto` takes
+ * the semi-squat for targets below mid-shank and the stoop above, the rule the
+ * campaign sets, and squats where the semi-squat cannot reach (a short-armed
+ * body cannot reach the floor from a semi-squat).
  *
  * The descent takes Fitts's time for the hand's travel, `a + b log2(2 D / W)`
  * with `a` 0.3 s, `b` 0.15 s and a 3 cm target width (Fitts 1954, J Exp Psychol
@@ -45,8 +45,8 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  */
 export namespace IAutoMovieMotionHumanBend {
   /**
-   * Parameters of a bend: the point the hand goes to, which hand, the
-   * strategy and how long the hand stays there.
+   * Parameters of a bend: the point the hand goes to, which hand, the strategy
+   * and how long the hand stays there.
    */
   export interface IParams {
     /**
@@ -78,9 +78,7 @@ export namespace IAutoMovieMotionHumanBend {
    */
   export type Strategy = "stoop" | "semiSquat" | "squat" | "auto";
 
-  /**
-   * An elbow hint in upper-arm lengths from the shoulder's rest place.
-   */
+  /** An elbow hint in upper-arm lengths from the shoulder's rest place. */
   export interface IShares {
     /** Away from the midline. */
     out: number;
@@ -92,9 +90,7 @@ export namespace IAutoMovieMotionHumanBend {
     forward: number;
   }
 
-  /**
-   * A named elbow hint; `ARM` states each one.
-   */
+  /** A named elbow hint; `ARM` states each one. */
   export type Arm = (readonly [
     "hang",
     "tucked",
@@ -106,14 +102,15 @@ export namespace IAutoMovieMotionHumanBend {
     "raised",
   ])[number];
 
-  /**
-   * A request for the elbow place of a hand goal.
-   */
+  /** A request for the elbow place of a hand goal. */
   export interface ISolve {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
 
-    /** The root and the heading that carry the trunk; a pitch and a roll left out count as 0. */
+    /**
+     * The root and the heading that carry the trunk; a pitch and a roll left
+     * out count as 0.
+     */
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> &
       Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll">>;
 
@@ -123,10 +120,16 @@ export namespace IAutoMovieMotionHumanBend {
     /** The wrist's place, world metres. */
     point: IAutoMovieVector3;
 
-    /** The hand's world rotation from its rest; absent, the hand's turn adds no strain. */
+    /**
+     * The hand's world rotation from its rest; absent, the hand's turn adds no
+     * strain.
+     */
     rotation?: IAutoMovieQuaternion;
 
-    /** The preset or shares `solve` returns when no elbow place is allowed; absent, it throws. */
+    /**
+     * The preset or shares `solve` returns when no elbow place is allowed;
+     * absent, it throws.
+     */
     fallback?:
       | IAutoMovieMotionHumanBend.Arm
       | IAutoMovieMotionHumanBend.IShares;

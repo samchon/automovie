@@ -1,12 +1,11 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * Data and callback contracts shared by the ResolveHydrodynamicForce operations.
+ * Data and callback contracts shared by the ResolveHydrodynamicForce
+ * operations.
  */
 export namespace IAutoMovieResolveHydrodynamicForce {
-  /**
-   * One segment in the water.
-   */
+  /** One segment in the water. */
   export interface IProps {
     /** The segment's volume, m³ (`volume`). */
     volume: number;
@@ -27,9 +26,7 @@ export namespace IAutoMovieResolveHydrodynamicForce {
     gravity?: number;
   }
 
-  /**
-   * The water's forces on a segment.
-   */
+  /** The water's forces on a segment. */
   export interface IForce {
     /** The volume under the plane, m³. */
     submerged: number;

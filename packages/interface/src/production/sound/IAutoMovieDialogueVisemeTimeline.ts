@@ -1,8 +1,6 @@
 import type { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
 
-/**
- * One actor's joined line intervals, including explicit rest gaps.
- */
+/** One actor's joined line intervals, including explicit rest gaps. */
 export interface IAutoMovieDialogueVisemeTimeline {
   /** Joined dialogue line identity. */
   line: string;

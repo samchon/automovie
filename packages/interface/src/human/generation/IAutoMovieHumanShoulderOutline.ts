@@ -18,7 +18,8 @@ export interface IAutoMovieHumanShoulderOutline {
    * The outline at a height inside the interval.
    *
    * @param y Height, mm.
-   * @returns The lateral extreme in `value` (mm), its slope in mm per mm and its curvature in mm per mm squared.
+   * @returns The lateral extreme in `value` (mm), its slope in mm per mm and
+   *   its curvature in mm per mm squared.
    */
   at: (y: number) => IAutoMovieHumanTrunkSolve.IJet;
 }

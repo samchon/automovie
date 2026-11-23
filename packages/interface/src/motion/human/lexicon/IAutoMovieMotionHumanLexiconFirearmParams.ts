@@ -3,7 +3,8 @@ import type { IAutoMovieMotionHumanTouch } from "../next/IAutoMovieMotionHumanTo
 import type { IAutoMovieMotionHumanWeaponPresent } from "./IAutoMovieMotionHumanWeaponPresent";
 
 /**
- * Open parameters of the firearm lexicon family, keyed by each runtime export name.
+ * Open parameters of the firearm lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconFirearmParams {
   /** Reach for a holster at the right hip. */

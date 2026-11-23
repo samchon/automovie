@@ -1,6 +1,4 @@
-/**
- * An explicitly required performing actor or compact formation in a shot.
- */
+/** An explicitly required performing actor or compact formation in a shot. */
 export type IAutoMovieShotParticipant =
   | {
       /** Named actor participant. */

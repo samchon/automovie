@@ -13,15 +13,18 @@ export interface IAutoMovieRenderTextureResident {
    * shadow storage unreported and cannot certify a reused context.
    */
   shadowCasters?: readonly {
-    /** Light id within this live scope, matching the target's shadow association. */
+    /**
+     * Light id within this live scope, matching the target's shadow
+     * association.
+     */
     light: string;
     /** Shared policy's filtering draw count: two for VSM, zero for PCF. */
     filterDraws: number;
   }[];
 
   /**
-   * Whether this live scope declares rectangular lights. Missing lighting
-   * facts cannot certify the lookup closure of its physically based surfaces.
+   * Whether this live scope declares rectangular lights. Missing lighting facts
+   * cannot certify the lookup closure of its physically based surfaces.
    */
   areaLights?: boolean;
 

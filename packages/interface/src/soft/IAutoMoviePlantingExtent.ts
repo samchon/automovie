@@ -1,5 +1,6 @@
 /**
- * Non-negative half-extents of a planting cluster's world-XZ placement rectangle.
+ * Non-negative half-extents of a planting cluster's world-XZ placement
+ * rectangle.
  */
 export interface IAutoMoviePlantingExtent {
   /** Half-extent along world `x` in metres; `>= 0`. */

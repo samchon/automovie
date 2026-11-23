@@ -1,7 +1,6 @@
 import type { IAutoMovieSoftBodyDomain } from "../soft/IAutoMovieSoftBodyDomain";
 
-/** One cloth panel drawn from a soft-body domain.
- */
+/** One cloth panel drawn from a soft-body domain. */
 export interface IAutoMovieRenderSoftPanel {
   /** The domain whose lattice is drawn as one panel. */
   domain: IAutoMovieSoftBodyDomain;

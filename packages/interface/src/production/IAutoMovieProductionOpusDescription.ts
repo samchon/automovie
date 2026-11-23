@@ -1,13 +1,12 @@
 /**
- * Observed Opus dOps sample-entry facts from final delivery bytes; delivery-profile acceptance is checked separately.
+ * Observed Opus dOps sample-entry facts from final delivery bytes;
+ * delivery-profile acceptance is checked separately.
  */
 export interface IAutoMovieProductionOpusDescription {
   /** Closed parsed sample-entry family. */
   kind: "opus";
 
-  /**
-   * Parsed dOps version.
-   */
+  /** Parsed dOps version. */
   version: number;
 
   /** Parsed output channel count. */
@@ -16,7 +15,10 @@ export interface IAutoMovieProductionOpusDescription {
   /** Parsed decoder pre-skip in samples. */
   preSkip: number;
 
-  /** Informational original-input sample rate in hertz, independent of decoder output rate. */
+  /**
+   * Informational original-input sample rate in hertz, independent of decoder
+   * output rate.
+   */
   inputSampleRate: number;
 
   /** Parsed signed Q7.8 output gain. */
@@ -33,10 +35,16 @@ export interface IAutoMovieProductionOpusDescription {
     /** Coupled-stream count, or null for family zero. */
     coupledCount: number | null;
 
-    /** Ordered decoded-channel indices, with 255 meaning silence; empty for family zero. */
+    /**
+     * Ordered decoded-channel indices, with 255 meaning silence; empty for
+     * family zero.
+     */
     mapping: number[];
 
-    /** Implied mono/stereo order for family zero; null when the parser does not expand speaker meaning. */
+    /**
+     * Implied mono/stereo order for family zero; null when the parser does not
+     * expand speaker meaning.
+     */
     channelOrder: string[] | null;
   };
 }

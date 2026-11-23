@@ -1,7 +1,8 @@
 import type { IAutoMovieMotionHumanRest } from "../everyday/IAutoMovieMotionHumanRest";
 
 /**
- * Open parameters of the upperRest lexicon family, keyed by each runtime export name.
+ * Open parameters of the upperRest lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconUpperRestParams {
   /** `rest` with both hands at `side`. */

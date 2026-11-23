@@ -1,6 +1,4 @@
-/**
- * Exact compact instance-set slot addressed by one palette entry.
- */
+/** Exact compact instance-set slot addressed by one palette entry. */
 export interface IAutoMovieSemanticMaskSlot {
   /** Compiled instance-set id. */
   instanceSet: string;

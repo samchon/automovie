@@ -1,5 +1,8 @@
 /**
- * Capture host readiness and the full advertised presentation clock. assertAutoMovieCaptureClock requires ready, exact expected duration/rate equality and a safe-integer frameCount equal to their product. This observation is not a proof that all frames have been drawn.
+ * Capture host readiness and the full advertised presentation clock.
+ * assertAutoMovieCaptureClock requires ready, exact expected duration/rate
+ * equality and a safe-integer frameCount equal to their product. This
+ * observation is not a proof that all frames have been drawn.
  */
 export interface IAutoMovieAssertCaptureClockHost {
   /** Whether the host reports the complete clock ready for capture. */

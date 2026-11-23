@@ -1,6 +1,4 @@
-/**
- * Actual emitted model populations, independent of shape qualification.
- */
+/** Actual emitted model populations, independent of shape qualification. */
 
 export interface IAutoMovieRecoveryModelCounts {
   /** Emitted render vertex population. */

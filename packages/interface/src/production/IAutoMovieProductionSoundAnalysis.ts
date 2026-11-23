@@ -1,5 +1,6 @@
 /**
- * Measurements calculated from the final limited, pre-encode mixed PCM; event windows observe combined energy rather than isolating individual emitters.
+ * Measurements calculated from the final limited, pre-encode mixed PCM; event
+ * windows observe combined energy rather than isolating individual emitters.
  */
 export interface IAutoMovieProductionSoundAnalysis {
   /** Analysis schema. */
@@ -26,7 +27,10 @@ export interface IAutoMovieProductionSoundAnalysis {
   /** Longest contiguous near-silent span. */
   longestSilenceSeconds: number;
 
-  /** Combined-mix energy measurements within one frame of each expected emission or arrival; unrelated sound can contribute. */
+  /**
+   * Combined-mix energy measurements within one frame of each expected emission
+   * or arrival; unrelated sound can contribute.
+   */
   eventAlignment: Array<{
     /** Stable sound occurrence id. */
     id: string;
@@ -40,7 +44,10 @@ export interface IAutoMovieProductionSoundAnalysis {
     /** Absolute frame-clock error. */
     errorFrames: number;
 
-    /** Whether the searched mixed-signal window has observable energy and its selected peak is within one frame; not an isolated-event proof. */
+    /**
+     * Whether the searched mixed-signal window has observable energy and its
+     * selected peak is within one frame; not an isolated-event proof.
+     */
     passed: boolean;
   }>;
 }

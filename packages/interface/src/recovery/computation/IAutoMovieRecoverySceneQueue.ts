@@ -1,7 +1,6 @@
 import type { IAutoMovieRecoverySceneCandidate } from "../../index";
 
-/** One support-ranked camera candidate at an accepted component revision.
- */
+/** One support-ranked camera candidate at an accepted component revision. */
 export interface IAutoMovieRecoverySceneQueue {
   /** Fixed input source index. */
   view: number;

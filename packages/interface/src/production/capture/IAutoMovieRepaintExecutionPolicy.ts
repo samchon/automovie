@@ -1,7 +1,8 @@
 import type { AutoMovieRepaintRetryableFailureClass } from "./AutoMovieRepaintRetryableFailureClass";
 
 /**
- * Explicit attempt, elapsed-time, cancellation and metered-cost envelope for one immutable repaint request.
+ * Explicit attempt, elapsed-time, cancellation and metered-cost envelope for
+ * one immutable repaint request.
  */
 export interface IAutoMovieRepaintExecutionPolicy {
   /** Positive safe-integer maximum provider calls belonging to one request. */
@@ -16,7 +17,10 @@ export interface IAutoMovieRepaintExecutionPolicy {
   /** Maximum metered cost in the adapter's declared cost unit. */
   maximumCostUnits: number;
 
-  /** Exactly maximumAttempts minus one non-negative host-safe millisecond delays, one per possible retry. */
+  /**
+   * Exactly maximumAttempts minus one non-negative host-safe millisecond
+   * delays, one per possible retry.
+   */
   backoffMs: number[];
 
   /** Exact failure classes allowed to consume another attempt. */

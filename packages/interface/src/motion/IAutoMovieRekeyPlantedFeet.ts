@@ -7,12 +7,14 @@ import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
 import type { IAutoMovieMotionSample } from "./IAutoMovieMotionSample";
 
-/**
- * Data and callback contracts shared by the RekeyPlantedFeet operations.
- */
+/** Data and callback contracts shared by the RekeyPlantedFeet operations. */
 export namespace IAutoMovieRekeyPlantedFeet {
   /**
-   * Emit one corrected keyframe per admitted parallel time/pose/target sample using the same unchanged skeleton topology as stance detection. Only targeted leg chains are fitted; roots, expressions and other joints persist, while the prior corrected pose ranks equally accurate bend choices.
+   * Emit one corrected keyframe per admitted parallel time/pose/target sample
+   * using the same unchanged skeleton topology as stance detection. Only
+   * targeted leg chains are fitted; roots, expressions and other joints
+   * persist, while the prior corrected pose ranks equally accurate bend
+   * choices.
    */
   export type IProps = {
     /** Rig whose unchanged topology and ROM constrain correction. */

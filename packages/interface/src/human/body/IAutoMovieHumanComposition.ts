@@ -3,16 +3,30 @@ import type { IAutoMovieHumanSubcutaneousFat } from "./IAutoMovieHumanSubcutaneo
 /**
  * Fat and lean mass as two quantities.
  *
- * Body mass index mixes fat and lean, so a muscular person and a fat person of equal index must not be built alike; fat decides where volume sits and how soft the surface reads, lean mass decides muscle relief. Both are dual-energy X-ray absorptiometry quantities, as in the NHANES reference values (Kelly et al. 2009, PLoS ONE 4(9):e7038).
+ * Body mass index mixes fat and lean, so a muscular person and a fat person of
+ * equal index must not be built alike; fat decides where volume sits and how
+ * soft the surface reads, lean mass decides muscle relief. Both are dual-energy
+ * X-ray absorptiometry quantities, as in the NHANES reference values (Kelly et
+ * al. 2009, PLoS ONE 4(9):e7038).
  */
 export interface IAutoMovieHumanComposition {
-  /** Whole-body fat mass over body mass, percent. Schema constraints: Minimum: 2; Maximum: 75; retained by Human's schema refinement. */
+  /**
+   * Whole-body fat mass over body mass, percent. Schema constraints: Minimum:
+   * 2; Maximum: 75; retained by Human's schema refinement.
+   */
   bodyFatPercentage: number;
 
   /**
-   * Appendicular lean mass index: lean mass of the arms and legs over stature squared, kilograms per square metre. NHANES means are 6.81 for women and 8.87 for men at age 20 (Kelly et al. 2009). Schema constraints: Minimum: 2; Maximum: 16; retained by Human's schema refinement. */
+   * Appendicular lean mass index: lean mass of the arms and legs over stature
+   * squared, kilograms per square metre. NHANES means are 6.81 for women and
+   * 8.87 for men at age 20 (Kelly et al. 2009). Schema constraints: Minimum: 2;
+   * Maximum: 16; retained by Human's schema refinement.
+   */
   appendicularLeanMassIndex: number;
 
-  /** Subcutaneous fat thickness over each region, the fat that decides how sharply muscle shows. */
+  /**
+   * Subcutaneous fat thickness over each region, the fat that decides how
+   * sharply muscle shows.
+   */
   subcutaneousFat: IAutoMovieHumanSubcutaneousFat;
 }

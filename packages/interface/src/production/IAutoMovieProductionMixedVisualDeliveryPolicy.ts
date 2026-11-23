@@ -1,5 +1,6 @@
 /**
- * Authored policy naming every adjacent crossing between unlike visual lanes and the current aggregate sequence observation.
+ * Authored policy naming every adjacent crossing between unlike visual lanes
+ * and the current aggregate sequence observation.
  */
 export interface IAutoMovieProductionMixedVisualDeliveryPolicy {
   /** Protocol version. */
@@ -16,7 +17,10 @@ export interface IAutoMovieProductionMixedVisualDeliveryPolicy {
     /** Occurrence immediately after the crossing. */
     toOccurrence: string;
 
-    /** Authored review digest; this declaration neither validates syntax nor resolves a crossing-review receipt. */
+    /**
+     * Authored review digest; this declaration neither validates syntax nor
+     * resolves a crossing-review receipt.
+     */
     reviewDigest: string;
   }>;
 }

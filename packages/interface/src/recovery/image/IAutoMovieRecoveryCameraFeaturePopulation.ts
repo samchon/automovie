@@ -1,5 +1,4 @@
-/** Actual candidate and descriptor populations of one automatic image scan.
- */
+/** Actual candidate and descriptor populations of one automatic image scan. */
 export interface IAutoMovieRecoveryCameraFeaturePopulation {
   /** Source identity for the detector counters. */
   viewId: string;
@@ -19,6 +18,9 @@ export interface IAutoMovieRecoveryCameraFeaturePopulation {
   /** Selected points omitted for an unresolved descriptor norm. */
   zeroDescriptors: number;
 
-  /** Selected points omitted when floating sample coordinates cross their image support. */
+  /**
+   * Selected points omitted when floating sample coordinates cross their image
+   * support.
+   */
   invalidSupportDescriptors: number;
 }

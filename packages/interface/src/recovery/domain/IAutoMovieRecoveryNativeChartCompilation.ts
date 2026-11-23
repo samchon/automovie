@@ -3,7 +3,9 @@ import type {
   IAutoMovieRecoveryEventDomainCompilation,
 } from "../../index";
 
-/** Successful chart compilation retaining complete native parents and endpoint owners.
+/**
+ * Successful chart compilation retaining complete native parents and endpoint
+ * owners.
  */
 export interface IAutoMovieRecoveryNativeChartCompilation extends IAutoMovieRecoveryEventDomainCompilation {
   /** Declared endpoint names bound to compacted recipe control indices. */

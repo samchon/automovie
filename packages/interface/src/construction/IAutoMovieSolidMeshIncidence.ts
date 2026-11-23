@@ -1,10 +1,6 @@
-/**
- * Data and callback contracts shared by the SolidMeshIncidence operations.
- */
+/** Data and callback contracts shared by the SolidMeshIncidence operations. */
 export namespace IAutoMovieSolidMeshIncidence {
-  /**
-   * One directed left boundary component in the native parameter cover.
-   */
+  /** One directed left boundary component in the native parameter cover. */
   export interface IWalk {
     /** Original vertex IDs, without repeating the closing vertex. */
     vertices: number[];

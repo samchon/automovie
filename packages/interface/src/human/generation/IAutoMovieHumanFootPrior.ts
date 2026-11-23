@@ -1,9 +1,9 @@
 /**
- * Type contracts exchanged by AutoMovieHumanFootPrior; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanFootPrior; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanFootPrior {
-  /** One toe.
-   */
+  /** One toe. */
   export interface IToe {
     /** Chain name; `{side}` stands for the side. */
     name: string;
@@ -11,7 +11,10 @@ export namespace IAutoMovieHumanFootPrior {
     /** Tip `[a, u]`. Reference median, awaiting a published value. */
     tip: readonly [number, number];
 
-    /** Across place of the toe's line at its metatarsal head, `u`. Reference median. */
+    /**
+     * Across place of the toe's line at its metatarsal head, `u`. Reference
+     * median.
+     */
     head: number;
 
     /** Height of its metatarsal head's centre, foot lengths. Reference median. */
@@ -26,25 +29,30 @@ export namespace IAutoMovieHumanFootPrior {
     /** The distal pulp's breadth over the shaft's. Reference median. */
     pulp: number;
 
-    /** Phalanx joints along the line from the head to the tip, shares of its length. Convention. */
+    /**
+     * Phalanx joints along the line from the head to the tip, shares of its
+     * length. Convention.
+     */
     joints: readonly number[];
 
     /** Control points of a section. */
     order: number;
 
     /**
-     * Sections of the toe's chain: the reference's bone-normal sections of
-     * this digit, 2 mm apart over its whole length (f1: 29, 29, 25, 21 and 19
-     * for the hallux to the fifth toe). A toe keeps at least that many whatever
-     * its length; a shorter toe has them closer.
+     * Sections of the toe's chain: the reference's bone-normal sections of this
+     * digit, 2 mm apart over its whole length (f1: 29, 29, 25, 21 and 19 for
+     * the hallux to the fifth toe). A toe keeps at least that many whatever its
+     * length; a shorter toe has them closer.
      */
     sections: number;
   }
 
-  /** The prior.
-   */
+  /** The prior. */
   export interface IPrior {
-    /** The foot axis turned out from forward, radians. Reference median (8.2 to 11.1 deg). */
+    /**
+     * The foot axis turned out from forward, radians. Reference median (8.2 to
+     * 11.1 deg).
+     */
     yaw: number;
 
     /**
@@ -74,7 +82,10 @@ export namespace IAutoMovieHumanFootPrior {
      */
     ring: number;
 
-    /** The ankle centre, `[a, u]`: the column's centre at the ankle ring. Reference median. */
+    /**
+     * The ankle centre, `[a, u]`: the column's centre at the ankle ring.
+     * Reference median.
+     */
     ankle: readonly [number, number];
 
     /** First metatarsal head, `a`: ANSUR II ball-of-foot length (0.739, 0.741). */
@@ -87,7 +98,10 @@ export namespace IAutoMovieHumanFootPrior {
      */
     cascade: readonly number[];
 
-    /** Clefts between neighbouring toes, `[a, u]`, hallux side first. Reference median. */
+    /**
+     * Clefts between neighbouring toes, `[a, u]`, hallux side first. Reference
+     * median.
+     */
     clefts: readonly (readonly [number, number])[];
 
     /** The toes, hallux first. */
@@ -96,25 +110,40 @@ export namespace IAutoMovieHumanFootPrior {
     /**
      * The malleoli as relief windows on the ankle's column: centre height in
      * lateral malleolus heights (the lateral one is the input's site, 1 by
-     * definition; the medial one stands higher, Gray), prominence and radius
-     * in mm. Convention, awaiting a relief fit on the references: the cuts read
-     * no isolated prominence on the borders' extremes beyond 1 to 4 mm.
+     * definition; the medial one stands higher, Gray), prominence and radius in
+     * mm. Convention, awaiting a relief fit on the references: the cuts read no
+     * isolated prominence on the borders' extremes beyond 1 to 4 mm.
      */
     malleoli: {
-      /** Lateral-malleolus relief window; its height defines the reference malleolus datum. */
+      /**
+       * Lateral-malleolus relief window; its height defines the reference
+       * malleolus datum.
+       */
       lateral: {
-        /** Malleolus centre height divided by the lateral-malleolus height; the lateral centre is 1 by definition. */
+        /**
+         * Malleolus centre height divided by the lateral-malleolus height; the
+         * lateral centre is 1 by definition.
+         */
         height: number;
-        /** Malleolus outward relief prominence, millimetres; the retained prior treats this as a construction convention. */
+        /**
+         * Malleolus outward relief prominence, millimetres; the retained prior
+         * treats this as a construction convention.
+         */
         prominence: number;
         /** Malleolus relief-window radius, millimetres. */
         radius: number;
       };
       /** Medial-malleolus relief window, positioned above the lateral datum. */
       medial: {
-        /** Malleolus centre height divided by the lateral-malleolus height; the lateral centre is 1 by definition. */
+        /**
+         * Malleolus centre height divided by the lateral-malleolus height; the
+         * lateral centre is 1 by definition.
+         */
         height: number;
-        /** Malleolus outward relief prominence, millimetres; the retained prior treats this as a construction convention. */
+        /**
+         * Malleolus outward relief prominence, millimetres; the retained prior
+         * treats this as a construction convention.
+         */
         prominence: number;
         /** Malleolus relief-window radius, millimetres. */
         radius: number;

@@ -16,8 +16,8 @@ export interface IAutoMovieFormationCadenceSegment {
   /**
    * Gait the cue owning this interval calls for, or null before the first cue.
    *
-   * This is the cue's own request (`IAutoMovieFormationMotion.gait`, or
-   * its `action` label when the cue named no gait), not a resolved figure gait.
+   * This is the cue's own request (`IAutoMovieFormationMotion.gait`, or its
+   * `action` label when the cue named no gait), not a resolved figure gait.
    * Which figure can perform it is a question about a runtime model, and a unit
    * can hold several of them at once across its LOD tiers. A gap after a cue
    * keeps that cue's gait.

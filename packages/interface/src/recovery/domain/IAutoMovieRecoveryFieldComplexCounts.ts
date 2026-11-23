@@ -1,6 +1,4 @@
-/**
- * Actual admission and coefficient populations in an assembled field complex.
- */
+/** Actual admission and coefficient populations in an assembled field complex. */
 
 export interface IAutoMovieRecoveryFieldComplexCounts {
   /** Number of supplied chart declarations. */

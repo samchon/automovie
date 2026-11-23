@@ -11,18 +11,18 @@ import type { IAutoMovieHumanHandBones } from "./hand/IAutoMovieHumanHandBones";
 import type { IAutoMovieHumanLegBones } from "./leg/IAutoMovieHumanLegBones";
 
 /**
- * Independent sided limb-rest requests and numerical shoulder/lower-body attachment inputs before skin. Runtime construction and admission remain with AutoMovieHumanLimbRest in Human.
+ * Independent sided limb-rest requests and numerical shoulder/lower-body
+ * attachment inputs before skin. Runtime construction and admission remain with
+ * AutoMovieHumanLimbRest in Human.
  */
 export namespace IAutoMovieHumanLimbRest {
-  /** Leg rest and the foot's own local centres, before skin.
-   */
+  /** Leg rest and the foot's own local centres, before skin. */
   export interface ILeg extends Leg {
     /** Original foot centres before the same stance translation. */
     foot: IAutoMovieHumanFootBones.IBones;
   }
 
-  /** Original leg placement and stance translation; no skin is read.
-   */
+  /** Original leg placement and stance translation; no skin is read. */
   export type Leg = Pick<
     IAutoMovieHumanLegBones.IBones,
     "hip" | "knee" | "ankle"
@@ -31,22 +31,19 @@ export namespace IAutoMovieHumanLimbRest {
     shift: [number, number];
   };
 
-  /** Explicit independent requests; construction and metadata prepare no sibling.
+  /**
+   * Explicit independent requests; construction and metadata prepare no
+   * sibling.
    */
   export interface IOutput {
-    /**
-     * Resolve only this arm and hand from their direct attachment definition.
-     */
+    /** Resolve only this arm and hand from their direct attachment definition. */
     arm(side: AutoMovieHumanSide): IArm;
 
-    /**
-     * Resolve only this leg and foot from the shared lower-body datum.
-     */
+    /** Resolve only this leg and foot from the shared lower-body datum. */
     leg(side: AutoMovieHumanSide): ILeg;
   }
 
-  /** Actual side-qualified arm and hand, before any source curve.
-   */
+  /** Actual side-qualified arm and hand, before any source curve. */
   export interface IArm {
     /** Rest joint centres, calibration mm. */
     bones: Pick<IAutoMovieHumanArmBones.IBones, "shoulder" | "elbow" | "wrist">;
@@ -58,8 +55,7 @@ export namespace IAutoMovieHumanLimbRest {
     projection: number;
   }
 
-  /** Only the attachment point/frame needed by the arm law; no parent part.
-   */
+  /** Only the attachment point/frame needed by the arm law; no parent part. */
   export interface IShoulder {
     /** Canonical-left glenohumeral centre in calibration mm. */
     glenohumeral: AutoMovieVector3Tuple;
@@ -68,8 +64,7 @@ export namespace IAutoMovieHumanLimbRest {
     shoulder: AutoMovieVector3Tuple;
   }
 
-  /** Required public inputs and explicit numerical attachment suppliers.
-   */
+  /** Required public inputs and explicit numerical attachment suppliers. */
   export interface IInput {
     /** Calibration stature, mm. */
     stature: number;
@@ -89,9 +84,7 @@ export namespace IAutoMovieHumanLimbRest {
     /** Same call-owned diagnostics sink used by hand placement. */
     diagnostics: IAutoMovieLoftContract.IDiagnostic[];
 
-    /**
-     * Explicit common shoulder definition, requested only by an arm.
-     */
+    /** Explicit common shoulder definition, requested only by an arm. */
     shoulder(): IShoulder;
 
     /** Common lower-body axis datum, calibration mm; no trunk solve. */

@@ -7,13 +7,13 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  * Leg primitives: a foot kept on the floor, and a foot lifted and set down
  * somewhere else.
  *
- * A foot is a placement of its ankle and its rotation ({@link HumanFoot}),
- * and the leg is an effector goal solved by inverse kinematics. A planted
- * foot declares its toes' joint as the goal's contact, so where the ankle
- * cannot hold the foot flat the heel rises about the ball and the foot does
- * not slide (`HumanFoot.heelOff`). The knee bends over the foot: its hint is
- * ahead of the knee's rest place along the foot's own heading (Perry and
- * Burnfield, Gait Analysis, 2nd ed.).
+ * A foot is a placement of its ankle and its rotation ({@link HumanFoot}), and
+ * the leg is an effector goal solved by inverse kinematics. A planted foot
+ * declares its toes' joint as the goal's contact, so where the ankle cannot
+ * hold the foot flat the heel rises about the ball and the foot does not slide
+ * (`HumanFoot.heelOff`). The knee bends over the foot: its hint is ahead of the
+ * knee's rest place along the foot's own heading (Perry and Burnfield, Gait
+ * Analysis, 2nd ed.).
  */
 export namespace IAutoMovieMotionHumanLeg {
   /**
@@ -28,9 +28,7 @@ export namespace IAutoMovieMotionHumanLeg {
     seconds: number,
   ) => IAutoMovieMotionHumanFoot.IPlacement;
 
-  /**
-   * One leg's movement.
-   */
+  /** One leg's movement. */
   export interface IPlace {
     /** The body. */
     body: IAutoMovieMotionHumanBody;

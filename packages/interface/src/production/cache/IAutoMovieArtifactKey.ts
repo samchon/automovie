@@ -11,13 +11,16 @@
  * reads. Everything else, such as wall-clock time or an undeclared environment
  * variable, must not influence the computation.
  *
- * Feed an upstream stage's output digest into `inputs` rather than that
- * stage's own inputs: when the upstream recomputes to the same bytes its
- * digest is unchanged, so this key is unchanged and the stage is not rerun
- * (early cutoff, Mokhov et al. 2018 "Build Systems a la Carte").
+ * Feed an upstream stage's output digest into `inputs` rather than that stage's
+ * own inputs: when the upstream recomputes to the same bytes its digest is
+ * unchanged, so this key is unchanged and the stage is not rerun (early cutoff,
+ * Mokhov et al. 2018 "Build Systems a la Carte").
  */
 export interface IAutoMovieArtifactKey {
-  /** Stable stage name, such as `render.viewer-frame`; two stages never share keys. */
+  /**
+   * Stable stage name, such as `render.viewer-frame`; two stages never share
+   * keys.
+   */
   stage: string;
 
   /**

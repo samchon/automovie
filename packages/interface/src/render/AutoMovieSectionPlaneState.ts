@@ -6,8 +6,8 @@
  *   kept.
  * - `cut`: some single plane removed the whole body.
  * - `crossed`: at least one plane passes through the body and no one plane
- *   removed it whole. It does not promise a surviving point, because two
- *   planes can between them remove a body that neither removes alone, so do
- *   not read it as partly visible.
+ *   removed it whole. It does not promise a surviving point, because two planes
+ *   can between them remove a body that neither removes alone, so do not read
+ *   it as partly visible.
  */
 export type AutoMovieSectionPlaneState = "kept" | "cut" | "crossed";

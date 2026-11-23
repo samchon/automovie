@@ -1,26 +1,34 @@
 /**
  * Authored acquisition identity of bytes returned by a generator.
  *
- * This record names provider, model, instruction, conditioned references and returned-byte digest rather than a source URL. It does not establish whether a provider served those bytes externally. Reproducibility is an authored assertion; metadata admission checks seed consistency without executing the provider or proving replay.
+ * This record names provider, model, instruction, conditioned references and
+ * returned-byte digest rather than a source URL. It does not establish whether
+ * a provider served those bytes externally. Reproducibility is an authored
+ * assertion; metadata admission checks seed consistency without executing the
+ * provider or proving replay.
  *
- * Asset admission runs validateGeneratedAcquisition and hashes a published prompt as exact UTF-8 against promptDigest. Without processing steps, outputDigest must equal the current asset digest. A transformed asset retains the acquisition record, but its current bytes cannot prove the original output.
+ * Asset admission runs validateGeneratedAcquisition and hashes a published
+ * prompt as exact UTF-8 against promptDigest. Without processing steps,
+ * outputDigest must equal the current asset digest. A transformed asset retains
+ * the acquisition record, but its current bytes cannot prove the original
+ * output.
  */
 export interface IAutoMovieGeneratedAcquisition {
   /** Non-blank service or tool identity that produced the bytes. */
   provider: string;
 
-  /**
-   * Non-blank exact model identity, including a version when it changes output.
-   */
+  /** Non-blank exact model identity, including a version when it changes output. */
   model: string;
 
   /**
-   * Non-blank provider-side request identity, or null when the provider issues none.
+   * Non-blank provider-side request identity, or null when the provider issues
+   * none.
    */
   request: string | null;
 
   /**
-   * Non-blank verbatim instruction, or null when only its digest may be published.
+   * Non-blank verbatim instruction, or null when only its digest may be
+   * published.
    */
   prompt: string | null;
 
@@ -28,7 +36,9 @@ export interface IAutoMovieGeneratedAcquisition {
   promptDigest: string;
 
   /**
-   * Manifest asset paths this request was conditioned on, in request order. Empty for a text-only request. Each must be non-blank; none is resolved against the manifest.
+   * Manifest asset paths this request was conditioned on, in request order.
+   * Empty for a text-only request. Each must be non-blank; none is resolved
+   * against the manifest.
    */
   inputs: string[];
 
@@ -36,16 +46,23 @@ export interface IAutoMovieGeneratedAcquisition {
   outputDigest: string;
 
   /**
-   * Authored assertion that replaying the declared generation basis reproduces {@link outputDigest}; the validator performs no replay and does not independently verify this assertion.
+   * Authored assertion that replaying the declared generation basis reproduces
+   * {@link outputDigest}; the validator performs no replay and does not
+   * independently verify this assertion.
    *
-   * `true` requires a recorded {@link seed}; `false` with a seed produces a consistency warning. Seed presence alone establishes no repeat-output guarantee.
+   * `true` requires a recorded {@link seed}; `false` with a seed produces a
+   * consistency warning. Seed presence alone establishes no repeat-output
+   * guarantee.
    */
   reproducible: boolean;
 
   /**
    * Provider-reported seed, or null when the provider exposes none.
    *
-   * Number.isSafeInteger admits integer values from -(2^53 - 1) through 2^53 - 1. Fractional, non-finite and out-of-range values refuse; admission establishes numeric representability rather than provider origin or repeat-output proof.
+   * Number.isSafeInteger admits integer values from -(2^53 - 1) through 2^53 -
+   * 1. Fractional, non-finite and out-of-range values refuse; admission
+   * establishes numeric representability rather than provider origin or
+   * repeat-output proof.
    */
   seed: number | null;
 }

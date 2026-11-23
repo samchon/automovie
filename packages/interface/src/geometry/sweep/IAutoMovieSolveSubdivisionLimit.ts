@@ -1,40 +1,78 @@
 import type { IAutoMovieSubdivisionStencil } from "./IAutoMovieSubdivisionStencil";
 
 /**
- * Borrowed stencils, targets and writable buffers for an in-place inverse subdivision solve.
+ * Borrowed stencils, targets and writable buffers for an in-place inverse
+ * subdivision solve.
  */
 export namespace IAutoMovieSolveSubdivisionLimit {
   /**
-   * Solve, in place, the control positions whose Catmull-Clark limit points
-   * are the targets.
+   * Solve, in place, the control positions whose Catmull-Clark limit points are
+   * the targets.
    *
    * The free vertices satisfy `L P = T` for the limit stencils `L`, solved by
-   * Jacobi iteration `P <- P + (T - L P)` from `P = T`; held vertices keep their
-   * target as their control position. The iteration converges when every
+   * Jacobi iteration `P <- P + (T - L P)` from `P = T`; held vertices keep
+   * their target as their control position. The iteration converges when every
    * eigenvalue of `L` lies between 0 and 2; on a regular grid they lie between
    * 1/9 and 1. It stops when the largest residual of a free vertex falls below
    * 1e-10 of the targets' extent or after 2,000 sweeps, and returns that
-   * residual, so a caller can refuse a fit that did not converge. At the iteration cap, one final residual evaluation measures the returned controls after the last update. Empty or entirely held systems return zero. No input validation or buffer allocation occurs in this kernel.
+   * residual, so a caller can refuse a fit that did not converge. At the
+   * iteration cap, one final residual evaluation measures the returned controls
+   * after the last update. Empty or entirely held systems return zero. No input
+   * validation or buffer allocation occurs in this kernel.
    */
   export type IProps = {
-    /** Borrowed Catmull-Clark limit stencil defining the vertex count and weighted control neighbours. The caller supplies valid in-range stencil indices. */
+    /**
+     * Borrowed Catmull-Clark limit stencil defining the vertex count and
+     * weighted control neighbours. The caller supplies valid in-range stencil
+     * indices.
+     */
     stencil: IAutoMovieSubdivisionStencil;
-    /** Read-only packed XYZ target coordinates, at least 3*stencil.count entries, in one consistent spatial unit. Surface rigs use metres; the algebra itself performs no unit conversion. */
+    /**
+     * Read-only packed XYZ target coordinates, at least 3*stencil.count
+     * entries, in one consistent spatial unit. Surface rigs use metres; the
+     * algebra itself performs no unit conversion.
+     */
     targets: ArrayLike<number>;
-    /** Per-vertex mask: zero holds a control at its target, nonzero allows Jacobi updates. Caller provides one entry per stencil vertex; the conventional values are 0 and 1. */
+    /**
+     * Per-vertex mask: zero holds a control at its target, nonzero allows
+     * Jacobi updates. Caller provides one entry per stencil vertex; the
+     * conventional values are 0 and 1.
+     */
     free: Uint8Array;
-    /** Writable packed control output, initialized from targets. Must have room for 3*stencil.count scalars and be distinct from scratch and borrowed target storage. */
+    /**
+     * Writable packed control output, initialized from targets. Must have room
+     * for 3*stencil.count scalars and be distinct from scratch and borrowed
+     * target storage.
+     */
     positions: {
-      /** Mutable scalar slots in packed XYZ order; writes are synchronous and the solver retains no buffer after return. */
+      /**
+       * Mutable scalar slots in packed XYZ order; writes are synchronous and
+       * the solver retains no buffer after return.
+       */
       [index: number]: number;
-      /** Available scalar capacity, at least three times the stencil vertex count; this is a caller precondition rather than a runtime length guard. */
+      /**
+       * Available scalar capacity, at least three times the stencil vertex
+       * count; this is a caller precondition rather than a runtime length
+       * guard.
+       */
       length: number;
     };
-    /** Separate writable ping-pong buffer with the same capacity as positions. Initialized and overwritten by the solve; its final contents are unspecified. */
+    /**
+     * Separate writable ping-pong buffer with the same capacity as positions.
+     * Initialized and overwritten by the solve; its final contents are
+     * unspecified.
+     */
     scratch: {
-      /** Writable packed XYZ scratch slots, distinct from target and position storage. Buffer overlap is not detected by the solver. */
+      /**
+       * Writable packed XYZ scratch slots, distinct from target and position
+       * storage. Buffer overlap is not detected by the solver.
+       */
       [index: number]: number;
-      /** Available scalar capacity, at least three times the stencil vertex count. The solver assumes valid indexed writes and does not allocate replacement storage. */
+      /**
+       * Available scalar capacity, at least three times the stencil vertex
+       * count. The solver assumes valid indexed writes and does not allocate
+       * replacement storage.
+       */
       length: number;
     };
   };

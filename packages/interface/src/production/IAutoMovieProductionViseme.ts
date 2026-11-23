@@ -1,6 +1,4 @@
-/**
- * One phoneme-derived mouth target over a half-open production-frame interval.
- */
+/** One phoneme-derived mouth target over a half-open production-frame interval. */
 export interface IAutoMovieProductionViseme {
   /** Source phoneme or grapheme token. */
   phoneme: string;

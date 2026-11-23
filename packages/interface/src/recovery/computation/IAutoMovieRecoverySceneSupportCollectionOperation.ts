@@ -5,12 +5,14 @@ import type {
 } from "../../index";
 
 /**
- * Collect each target's distinct existing-map support once per accepted revision.
+ * Collect each target's distinct existing-map support once per accepted
+ * revision.
  */
 
 export namespace IAutoMovieRecoverySceneSupportCollectionOperation {
   /**
-   * Collect each target's distinct existing-map support once per accepted revision.
+   * Collect each target's distinct existing-map support once per accepted
+   * revision.
    */
 
   export type Operation = (

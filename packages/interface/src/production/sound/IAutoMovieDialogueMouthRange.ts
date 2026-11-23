@@ -1,8 +1,6 @@
 import type { IAutoMovieProductionViseme } from "../IAutoMovieProductionViseme";
 
-/**
- * One half-open mouth interval on the film-global emission clock.
- */
+/** One half-open mouth interval on the film-global emission clock. */
 export interface IAutoMovieDialogueMouthRange {
   /** Inclusive film-global emission frame. */
   startFrame: number;

@@ -3,8 +3,7 @@ import type {
   IAutoMovieRecoveryFeasibleReportCapacity,
 } from "../../index";
 
-/** One direct checkpoint's owned method and matching reporting capacity.
- */
+/** One direct checkpoint's owned method and matching reporting capacity. */
 export interface IAutoMovieRecoveryCheckpointReporting {
   /** Fixed owned method, including the independent nested direction budget. */
   feasible: IAutoMovieRecoveryFeasibleJointOptions;

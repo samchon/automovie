@@ -4,9 +4,10 @@
  *
  * `validateJointAxesBasis` returns these in order: per axis, each non-finite
  * component or else a zero length; then each non-orthogonal pair; then an
- * unknown twist placement or rotation order, or a proximal placement that conflicts
- * with the explicit order. Motion retargeting forwards each as a range violation, and
- * `normalizeJointAxes` throws the first as `<path> <expected>`.
+ * unknown twist placement or rotation order, or a proximal placement that
+ * conflicts with the explicit order. Motion retargeting forwards each as a
+ * range violation, and `normalizeJointAxes` throws the first as `<path>
+ * <expected>`.
  */
 export interface IAutoMovieJointAxesIssue {
   /**

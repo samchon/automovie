@@ -1,6 +1,4 @@
-/**
- * One half-open frame-normalized video segment in the canonical film timeline.
- */
+/** One half-open frame-normalized video segment in the canonical film timeline. */
 export interface IAutoMovieFilmTimelineSegment {
   /** Current compiled shot id. */
   shot: string;

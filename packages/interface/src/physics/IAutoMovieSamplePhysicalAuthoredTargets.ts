@@ -1,13 +1,9 @@
 import type { IAutoMovieRigidTransform } from "../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieSamplePhysicalTarget } from "./IAutoMovieSamplePhysicalTarget";
 
-/**
- * One authored cached interval, independent of fitted controller plans.
- */
+/** One authored cached interval, independent of fitted controller plans. */
 export namespace IAutoMovieSamplePhysicalAuthoredTargets {
-  /**
-   * One authored cached interval, independent of fitted controller plans.
-   */
+  /** One authored cached interval, independent of fitted controller plans. */
   export interface IPlan {
     /** Enclosing cache interval. */ step: number;
     /** Original cache frequency, hertz. */ rate: number;

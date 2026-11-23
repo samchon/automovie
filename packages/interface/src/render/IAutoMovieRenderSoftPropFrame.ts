@@ -6,7 +6,10 @@ import type { IAutoMovieSoftBodySurface } from "../soft/IAutoMovieSoftBodySurfac
  * The surface holds world-metre coordinates and carries its solver step.
  */
 export interface IAutoMovieRenderSoftPropFrame {
-  /** Stable identity of the performance subject, distinct from the reusable domain id. */
+  /**
+   * Stable identity of the performance subject, distinct from the reusable
+   * domain id.
+   */
   subject: string;
 
   /** The engine's projection at the supplied instant. */

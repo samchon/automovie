@@ -1,10 +1,12 @@
 /**
- * Sparse normalized observations, provenance and footprint means/SDs without synthesized missing cells. Runtime construction and admission remain with AutoMovieHumanReferenceOutlineTypes in Human.
+ * Sparse normalized observations, provenance and footprint means/SDs without
+ * synthesized missing cells. Runtime construction and admission remain with
+ * AutoMovieHumanReferenceOutlineTypes in Human.
  */
 export namespace IAutoMovieHumanReferenceOutlineTypes {
   /**
-   * One observed station, with only the columns its reading retained.
-   * Units belong to the containing table's normalization, not this record.
+   * One observed station, with only the columns its reading retained. Units
+   * belong to the containing table's normalization, not this record.
    */
   export interface IRow {
     /** The station's share between the table's landmarks. */
@@ -18,9 +20,9 @@ export namespace IAutoMovieHumanReferenceOutlineTypes {
   }
 
   /**
-   * A normalized station table and the metadata needed to interpret it.
-   * The reader expects finite values and strictly increasing station shares;
-   * this structural type does not enforce those numeric premises.
+   * A normalized station table and the metadata needed to interpret it. The
+   * reader expects finite values and strictly increasing station shares; this
+   * structural type does not enforce those numeric premises.
    */
   export interface ITable {
     /** The reading test that printed the source estimates. */
@@ -40,9 +42,9 @@ export namespace IAutoMovieHumanReferenceOutlineTypes {
   }
 
   /**
-   * One mass's measured footprint summary on its declared trunk-wall datum.
-   * The six dimensions are normalized means and SDs, not generated geometry
-   * or a law deriving amplitude from independent chest/waist inputs.
+   * One mass's measured footprint summary on its declared trunk-wall datum. The
+   * six dimensions are normalized means and SDs, not generated geometry or a
+   * law deriving amplitude from independent chest/waist inputs.
    */
   export interface IFootprint {
     /** The reading test that printed the summary. */

@@ -3,7 +3,8 @@ import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidB
 import type { AutoMovieHumanoidRegion } from "../../../skeleton/AutoMovieHumanoidRegion";
 
 /**
- * A force application site on a person: a humanoid surface region or a point in a named bone's local frame, measured in metres.
+ * A force application site on a person: a humanoid surface region or a point in
+ * a named bone's local frame, measured in metres.
  */
 export type AutoMovieHumanForceSite =
   | AutoMovieHumanoidRegion

@@ -1,9 +1,7 @@
 import type { AutoMovieExpressionPreset } from "../../expression/AutoMovieExpressionPreset";
 import type { IAutoMovieExpression } from "../../expression/IAutoMovieExpression";
 
-/**
- * Separate authored emotion from a sampled emission-clock mouth target.
- */
+/** Separate authored emotion from a sampled emission-clock mouth target. */
 export interface IAutoMovieDialogueExpressionLayers {
   /** Unchanged authored expression layer. */
   authored: IAutoMovieExpression | null;

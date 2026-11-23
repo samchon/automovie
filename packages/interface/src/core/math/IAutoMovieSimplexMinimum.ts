@@ -1,6 +1,4 @@
-/**
- * Owned convex simplex iterate with a complete Frank-Wolfe gap certificate.
- */
+/** Owned convex simplex iterate with a complete Frank-Wolfe gap certificate. */
 export interface IAutoMovieSimplexMinimum {
   /** Nonnegative weights summing to one to floating arithmetic accuracy. */
   weights: number[];
@@ -14,19 +12,31 @@ export interface IAutoMovieSimplexMinimum {
   /** Minimum a_i dot aggregate + offset_i over every atom. */
   minimumPrice: number;
 
-  /** Computed nonnegative pricing-slack sum plus gapMassAllowance; not an interval bound on dot-product roundoff. */
+  /**
+   * Computed nonnegative pricing-slack sum plus gapMassAllowance; not an
+   * interval bound on dot-product roundoff.
+   */
   gap: number;
 
-  /** Absolute measured (sum(weights)-1)*minimumPrice correction in objective units. */
+  /**
+   * Absolute measured (sum(weights)-1)*minimumPrice correction in objective
+   * units.
+   */
   gapMassAllowance: number;
 
   /** Absolute measured sum(weights)-1 after normalization and complete pricing. */
   simplexResidual: number;
 
-  /** Computed complete pricing gap passed the target and simplex sum passed its explicit Float64 summation allowance. */
+  /**
+   * Computed complete pricing gap passed the target and simplex sum passed its
+   * explicit Float64 summation allowance.
+   */
   converged: boolean;
 
-  /** Gap termination, explicit work/iteration exhaustion or unrepresentable progress. */
+  /**
+   * Gap termination, explicit work/iteration exhaustion or unrepresentable
+   * progress.
+   */
   termination: "gap" | "iteration-budget" | "work-budget" | "stalled";
 
   /** Actual pairwise weight transfers performed. */

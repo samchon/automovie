@@ -1,10 +1,38 @@
 /**
- * Eliminate acyclic affine control relations without changing their coefficients. Original control IDs remain the independent term addresses; they are never replaced by compact solver slots. Fixed positions and returned constants are millimetres. Relations may have signed weights or sums other than one. Equal terms combine, exact zero sums disappear, and fixed terms fold into the constant. No epsilon deletion, weight normalization or convexity repair occurs. maxTerms bounds each intermediate flattened provenance map, including fixed sources, and every final independent expression. maxDepth counts relation edges; fixed and independent controls have depth zero. Cycles are rejected even when a declared dependency has zero weight or later cancels. Weight diagnostics describe flattened fixed and independent source weights before fixed-position folding. They do not certify a dependent enclosure. Invalid identities, conflicts, budget exhaustion or nonfinite arithmetic throw without mutating input or returning a partial relation system.
+ * Eliminate acyclic affine control relations without changing their
+ * coefficients. Original control IDs remain the independent term addresses;
+ * they are never replaced by compact solver slots. Fixed positions and returned
+ * constants are millimetres. Relations may have signed weights or sums other
+ * than one. Equal terms combine, exact zero sums disappear, and fixed terms
+ * fold into the constant. No epsilon deletion, weight normalization or
+ * convexity repair occurs. maxTerms bounds each intermediate flattened
+ * provenance map, including fixed sources, and every final independent
+ * expression. maxDepth counts relation edges; fixed and independent controls
+ * have depth zero. Cycles are rejected even when a declared dependency has zero
+ * weight or later cancels. Weight diagnostics describe flattened fixed and
+ * independent source weights before fixed-position folding. They do not certify
+ * a dependent enclosure. Invalid identities, conflicts, budget exhaustion or
+ * nonfinite arithmetic throw without mutating input or returning a partial
+ * relation system.
  */
 
 export namespace IAutoMovieRecoveryChartControlRelations {
   /**
-   * Eliminate acyclic affine control relations without changing their coefficients. Original control IDs remain the independent term addresses; they are never replaced by compact solver slots. Fixed positions and returned constants are millimetres. Relations may have signed weights or sums other than one. Equal terms combine, exact zero sums disappear, and fixed terms fold into the constant. No epsilon deletion, weight normalization or convexity repair occurs. maxTerms bounds each intermediate flattened provenance map, including fixed sources, and every final independent expression. maxDepth counts relation edges; fixed and independent controls have depth zero. Cycles are rejected even when a declared dependency has zero weight or later cancels. Weight diagnostics describe flattened fixed and independent source weights before fixed-position folding. They do not certify a dependent enclosure. Invalid identities, conflicts, budget exhaustion or nonfinite arithmetic throw without mutating input or returning a partial relation system.
+   * Eliminate acyclic affine control relations without changing their
+   * coefficients. Original control IDs remain the independent term addresses;
+   * they are never replaced by compact solver slots. Fixed positions and
+   * returned constants are millimetres. Relations may have signed weights or
+   * sums other than one. Equal terms combine, exact zero sums disappear, and
+   * fixed terms fold into the constant. No epsilon deletion, weight
+   * normalization or convexity repair occurs. maxTerms bounds each intermediate
+   * flattened provenance map, including fixed sources, and every final
+   * independent expression. maxDepth counts relation edges; fixed and
+   * independent controls have depth zero. Cycles are rejected even when a
+   * declared dependency has zero weight or later cancels. Weight diagnostics
+   * describe flattened fixed and independent source weights before
+   * fixed-position folding. They do not certify a dependent enclosure. Invalid
+   * identities, conflicts, budget exhaustion or nonfinite arithmetic throw
+   * without mutating input or returning a partial relation system.
    */
 
   export type Operation = (input: {
@@ -13,22 +41,41 @@ export namespace IAutoMovieRecoveryChartControlRelations {
 
     /** Each listed control has exactly this finite millimetre position. */
     fixed: readonly {
-      /** Zero-based ordinal in this record's owning cell, component or control registry; it is not a source coordinate. */
+      /**
+       * Zero-based ordinal in this record's owning cell, component or control
+       * registry; it is not a source coordinate.
+       */
       id: number;
-      /** Physical position in the registered millimetre frame; no coordinate matching or source repair is implied. */
+      /**
+       * Physical position in the registered millimetre frame; no coordinate
+       * matching or source repair is implied.
+       */
       pointMm: readonly [number, number, number];
     }[];
 
     /** Dependent controls and their finite weighted original-ID expressions. */
     relations: readonly {
-      /** Zero-based ordinal in this record's owning cell, component or control registry; it is not a source coordinate. */
+      /**
+       * Zero-based ordinal in this record's owning cell, component or control
+       * registry; it is not a source coordinate.
+       */
       id: number;
 
-      /** Sparse affine contributions in original control IDs; duplicate IDs and signed weights retain the owning operation's declared combination rule. */
+      /**
+       * Sparse affine contributions in original control IDs; duplicate IDs and
+       * signed weights retain the owning operation's declared combination
+       * rule.
+       */
       terms: readonly {
-        /** Zero-based ordinal in this record's owning cell, component or control registry; it is not a source coordinate. */
+        /**
+         * Zero-based ordinal in this record's owning cell, component or control
+         * registry; it is not a source coordinate.
+         */
         id: number;
-        /** Dimensionless signed affine coefficient; neither positivity nor convexity is inferred. */
+        /**
+         * Dimensionless signed affine coefficient; neither positivity nor
+         * convexity is inferred.
+         */
         weight: number;
       }[];
     }[];
@@ -44,14 +91,27 @@ export namespace IAutoMovieRecoveryChartControlRelations {
 
     /** One sparse millimetre expression per original control, in input ID order. */
     expressions: {
-      /** Fixed affine control contribution in the same physical millimetre chart as the dependent coefficient. */
+      /**
+       * Fixed affine control contribution in the same physical millimetre chart
+       * as the dependent coefficient.
+       */
       constant: [number, number, number];
 
-      /** Sparse affine contributions in original control IDs; duplicate IDs and signed weights retain the owning operation's declared combination rule. */
+      /**
+       * Sparse affine contributions in original control IDs; duplicate IDs and
+       * signed weights retain the owning operation's declared combination
+       * rule.
+       */
       terms: {
-        /** Zero-based ordinal in this record's owning cell, component or control registry; it is not a source coordinate. */
+        /**
+         * Zero-based ordinal in this record's owning cell, component or control
+         * registry; it is not a source coordinate.
+         */
         id: number;
-        /** Dimensionless signed affine coefficient; neither positivity nor convexity is inferred. */
+        /**
+         * Dimensionless signed affine coefficient; neither positivity nor
+         * convexity is inferred.
+         */
         weight: number;
       }[];
     }[];

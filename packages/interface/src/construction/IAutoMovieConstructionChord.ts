@@ -1,6 +1,4 @@
-/**
- * A constant chord from a join's curve to one rail.
- */
+/** A constant chord from a join's curve to one rail. */
 export interface IAutoMovieConstructionChord {
   /** Discriminator. */
   type: "chord";

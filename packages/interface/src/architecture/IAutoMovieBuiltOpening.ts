@@ -20,16 +20,20 @@ export interface IAutoMovieBuiltOpening {
   boundary: string;
 
   /**
-   * Door, sash, gate, or other filling element, which must resolve; null for
-   * an open cut. A stated {@link operation} requires a fill, because its
-   * panels must be that element or descend from it.
+   * Door, sash, gate, or other filling element, which must resolve; null for an
+   * open cut. A stated {@link operation} requires a fill, because its panels
+   * must be that element or descend from it.
    */
   fill: string | null;
 
   /**
    * The void this opening cuts in its host boundary's face.
    *
-   * Omitting it leaves no authored void for face fit or separation measurement; other consumers can still locate a measurable fill from its element geometry. Stating it requires a host {@link IAutoMovieBuiltBoundary.face} and an admitted straight arc-envelope hull inside that face and disjoint from other opening hulls on the same boundary, with edge contact refused.
+   * Omitting it leaves no authored void for face fit or separation measurement;
+   * other consumers can still locate a measurable fill from its element
+   * geometry. Stating it requires a host {@link IAutoMovieBuiltBoundary.face}
+   * and an admitted straight arc-envelope hull inside that face and disjoint
+   * from other opening hulls on the same boundary, with edge contact refused.
    */
   profile?: IAutoMovieOpeningProfile;
 

@@ -2,10 +2,10 @@
  * Where an opening is: the boundary hosting it and the spaces that boundary
  * separates.
  *
- * Every field is read from the design's own records: the opening names its
- * host `boundary`, and that boundary names the one space it encloses or the
- * two it separates. An opening schedule row carries the place of its first
- * occurrence only, so other members of the row may stand elsewhere.
+ * Every field is read from the design's own records: the opening names its host
+ * `boundary`, and that boundary names the one space it encloses or the two it
+ * separates. An opening schedule row carries the place of its first occurrence
+ * only, so other members of the row may stand elsewhere.
  */
 export interface IAutoMovieDrawingOpeningPlace {
   /** Discriminant naming the subject this place describes. */

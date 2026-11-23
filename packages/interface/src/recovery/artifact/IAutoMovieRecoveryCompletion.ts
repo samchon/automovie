@@ -1,6 +1,4 @@
-/**
- * Independent generating-attempt, processing and retained-domain observations.
- */
+/** Independent generating-attempt, processing and retained-domain observations. */
 
 export interface IAutoMovieRecoveryCompletion {
   /** Whether the generating attempt reached its terminal point. */

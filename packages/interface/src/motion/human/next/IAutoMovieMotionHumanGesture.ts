@@ -50,7 +50,8 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
    * kind moves them, and yields nothing itself, so a second gesture on the same
    * hand cannot overlap it. It can be cut into `stand`, `walk`, `look` and
    * `gesture`, a gesture only from its `retract` instant, which is how a count
-   * of one number a second is made: cut each gesture `until({ event: "retract" })`.
+   * of one number a second is made: cut each gesture `until({ event: "retract"
+   * })`.
    *
    * @param params The `balance`, `kind`, `hand`, `target`, `region`, `count`,
    *   `hold`, `depth`, `effort`, `turn`, `shape`, `aim` and `manner` of
@@ -66,7 +67,9 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
    *
    * Registered law: `registered("armPhrase", params)`; not a chain method.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It rides a carrier that yields its arm and hand; it can be cut into any action from its `relax` instant.
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * rides a carrier that yields its arm and hand; it can be cut into any action
+   * from its `relax` instant.
    *
    * @param params The `phrase`, `target`, `offset`, `from`, `swing`, `cycles`,
    *   `mirror`, `side`, `surface`, `shape`, `facing`, `hold`, `manner`, `held`

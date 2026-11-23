@@ -1,9 +1,7 @@
 import type { IAutoMoviePropBox } from "../harness/IAutoMoviePropBox";
 import type { IAutoMovieServiceNetwork } from "./IAutoMovieServiceNetwork";
 
-/**
- * World box queried against translated service maintenance envelopes.
- */
+/** World box queried against translated service maintenance envelopes. */
 export namespace IAutoMovieServiceEnvelopeObstructions {
   /**
    * World box queried against translated service maintenance envelopes.
@@ -18,10 +16,16 @@ export namespace IAutoMovieServiceEnvelopeObstructions {
    * product caller and is exercised only by service geometry tests.
    */
   export type IProps = {
-    /** Borrowed nodes; null maintenance boxes are skipped and matched node ids retain declaration order. */
+    /**
+     * Borrowed nodes; null maintenance boxes are skipped and matched node ids
+     * retain declaration order.
+     */
     network: IAutoMovieServiceNetwork;
 
-    /** Borrowed admitted world-metre axis-aligned box to compare against translated maintenance envelopes; exterior contact is excluded. */
+    /**
+     * Borrowed admitted world-metre axis-aligned box to compare against
+     * translated maintenance envelopes; exterior contact is excluded.
+     */
     bounds: IAutoMoviePropBox;
   };
 }

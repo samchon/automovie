@@ -10,7 +10,11 @@ import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
  *
  * `performShot` refuses an actor attaching to itself, a parent that is not a
  * staged node or has no rig, and a bone missing from the parent's skeleton.
- * `compileAttach` bakes the child's translation and rotation from the parent's posed bone and the optional bone-local offset. The authored offset determines the child's pose at the first key, including when switching parents. Playback writes nothing before the first key and holds the last key afterward. An auto duration keeps coupling to the shot end.
+ * `compileAttach` bakes the child's translation and rotation from the parent's
+ * posed bone and the optional bone-local offset. The authored offset determines
+ * the child's pose at the first key, including when switching parents. Playback
+ * writes nothing before the first key and holds the last key afterward. An auto
+ * duration keeps coupling to the shot end.
  */
 export interface IAutoMovieAttachAction extends IAutoMovieActionBase {
   /** Selects an attachment as the action family. */
@@ -22,6 +26,9 @@ export interface IAutoMovieAttachAction extends IAutoMovieActionBase {
   /** Semantic bone on the parent's skeleton to which the actor is attached. */
   bone: AutoMovieHumanoidBone;
 
-  /** Child frame in the posed bone, in metres with a unit rotation. The child uses the bone frame when omitted. */
+  /**
+   * Child frame in the posed bone, in metres with a unit rotation. The child
+   * uses the bone frame when omitted.
+   */
   offset?: IAutoMovieRigidTransform;
 }

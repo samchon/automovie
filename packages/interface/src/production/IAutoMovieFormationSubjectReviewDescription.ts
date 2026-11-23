@@ -4,7 +4,9 @@ import type { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSu
 /**
  * One compact compiled formation projected into subject-review identity.
  *
- * Subject review carries the compiled formation directly so slot, hero, formation-motion and LOD semantics survive the projection into a shared subject identity.
+ * Subject review carries the compiled formation directly so slot, hero,
+ * formation-motion and LOD semantics survive the projection into a shared
+ * subject identity.
  */
 export interface IAutoMovieFormationSubjectReviewDescription {
   /** Revision of the compiled shot artifact that owns the formation. */

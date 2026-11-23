@@ -3,9 +3,7 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieFootfallPattern } from "./IAutoMovieFootfallPattern";
 import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 
-/**
- * Bounded support-chain fitting with a reach-derived root lowering request.
- */
+/** Bounded support-chain fitting with a reach-derived root lowering request. */
 export namespace IAutoMoviePlanPhysicalSupportTargets {
   /**
    * Feed a changed support placement back to bounded joint goals. Root lowering
@@ -32,11 +30,20 @@ export namespace IAutoMoviePlanPhysicalSupportTargets {
    * never teleports a body or moves the requested support to hide a residual.
    */
   export type IResult = {
-    /** New fitted world motor poses; no native body or original pose record is moved. */
+    /**
+     * New fitted world motor poses; no native body or original pose record is
+     * moved.
+     */
     targets: Record<string, IAutoMovieRigidTransform>;
-    /** Nonnegative reach-derived root lowering request in metres, within the supplied budget. */
+    /**
+     * Nonnegative reach-derived root lowering request in metres, within the
+     * supplied budget.
+     */
     rootDrop: number;
-    /** Endpoint-bone metre residuals from bounded chain fitting; nonzero may remain at budget exhaustion. */
+    /**
+     * Endpoint-bone metre residuals from bounded chain fitting; nonzero may
+     * remain at budget exhaustion.
+     */
     residuals: Record<string, number>;
   };
 }

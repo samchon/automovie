@@ -30,7 +30,8 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
    * sheet, brushing the teeth, combing the hair, washing the face and wiping
    * the mouth.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It claims the acting arms, their hands and the head.
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims the acting arms, their hands and the head.
    *
    * @param params The `task`, `hand`, `count`, `hold`, `prop`, `point`,
    *   `grasp`, `other` and `manner` of
@@ -48,7 +49,8 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
    * arms overhead, both arms raised in victory, a fist pump, a neck roll and a
    * shoulder roll.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It claims only the parts it moves.
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims only the parts it moves.
    *
    * @param params The `kind`, `hand`, `count` and `manner` of
    *   `IAutoMovieMotionHumanSelfAction.IParams`.
@@ -67,7 +69,8 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
    *
    * Registered law: `registered("headTilt", params)`; not a chain method.
    *
-   * Overlay law: it rides a carrier that yields the channels it claims. It claims the head only; it can be cut into any action at any time.
+   * Overlay law: it rides a carrier that yields the channels it claims. It
+   * claims the head only; it can be cut into any action at any time.
    *
    * @param params The `degrees` and `duration` of
    *   `IAutoMovieMotionHumanHeadTilt`.

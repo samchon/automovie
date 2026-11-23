@@ -2,14 +2,12 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionMeeting } from "../compose/IAutoMovieMotionMeeting";
 
 /**
- * Things two people do together or to each other in company, as rows of
- * shipped actions and as mutual records over them (`HumanChain.mutual`).
- * Register the rows a film uses.
+ * Things two people do together or to each other in company, as rows of shipped
+ * actions and as mutual records over them (`HumanChain.mutual`). Register the
+ * rows a film uses.
  */
 export namespace IAutoMovieMotionHumanSocial {
-  /**
-   * The shared parameters of `toast`.
-   */
+  /** The shared parameters of `toast`. */
   export interface IToast {
     /** Each role's held glass, by its prop id; mimed with fists when absent. */
     glasses?: Record<"host" | "guest", string>;
@@ -18,9 +16,7 @@ export namespace IAutoMovieMotionHumanSocial {
     window?: IAutoMovieMotionMeeting.IWindow;
   }
 
-  /**
-   * The shared parameters of `armWrestle`.
-   */
+  /** The shared parameters of `armWrestle`. */
   export interface IArmWrestle {
     /** The table's point the hands meet over, world metres. */
     table: IAutoMovieVector3;
@@ -31,13 +27,14 @@ export namespace IAutoMovieMotionHumanSocial {
     /** Seconds of struggle; 3 when absent. */
     seconds?: number;
 
-    /** The forearms' angle from upright at the pin, degrees; the law's own when absent. */
+    /**
+     * The forearms' angle from upright at the pin, degrees; the law's own when
+     * absent.
+     */
     pin?: number;
   }
 
-  /**
-   * The shared parameters of `toastOfFour`.
-   */
+  /** The shared parameters of `toastOfFour`. */
   export interface IToastOfFour {
     /** Each role's held glass, by its prop id; mimed with fists when absent. */
     glasses?: Record<"host" | "guest" | "third" | "fourth", string>;

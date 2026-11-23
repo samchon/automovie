@@ -2,11 +2,13 @@ import type { IAutoMovieRigidTransform } from "../geometry/IAutoMovieRigidTransf
 import type { IAutoMoviePhysicalSimulationInput } from "./IAutoMoviePhysicalSimulationInput";
 
 /**
- * Support correction for actual-root tracking error, preserving original endpoints.
+ * Support correction for actual-root tracking error, preserving original
+ * endpoints.
  */
 export namespace IAutoMoviePlanPhysicalRootSupportTargets {
   /**
-   * Correct support joint goals for the root's actual placement, so root tracking error does not become foot sliding.
+   * Correct support joint goals for the root's actual placement, so root
+   * tracking error does not become foot sliding.
    */
   export type IInput = {
     /** Provider and finite support-feedback budget. */ body: IAutoMoviePhysicalSimulationInput.IBody;
@@ -20,6 +22,9 @@ export namespace IAutoMoviePlanPhysicalRootSupportTargets {
       /** Measured root world position in metres and rotation. */
       pose: IAutoMovieRigidTransform;
     };
-    /** Joint coordinates already owned by a simultaneous balance posture task. Only disjoint endpoint chains are fitted here. */ excluded?: ReadonlySet<string>;
+    /**
+     * Joint coordinates already owned by a simultaneous balance posture task.
+     * Only disjoint endpoint chains are fitted here.
+     */ excluded?: ReadonlySet<string>;
   };
 }

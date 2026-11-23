@@ -1,15 +1,11 @@
 import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 
-/**
- * One node basis inspected directly from external motion source bytes.
- */
+/** One node basis inspected directly from external motion source bytes. */
 export interface IAutoMovieExternalMotionBasisNode {
   /** Zero-based node index in the inspected glTF scene. */
   nodeIndex: number;
 
-  /**
-   * Stable normalized node identity used by motion channels and parent links.
-   */
+  /** Stable normalized node identity used by motion channels and parent links. */
   id: string;
 
   /** Source-authored node name, or null when the node is unnamed. */

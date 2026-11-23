@@ -4,7 +4,11 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * A finite solid collider placed in its segment's bone frame.
  *
- * A kind discriminator chooses sphere, local-Y capsule, oriented box or convex hull dimensions. The hull is the convex hull of its supplied shape-local points; interior points are refused by physical admission. Every shape references a profile material and has an identity unique within its segment. Dimensions are metres; soft-layer depth must leave a positive solid core.
+ * A kind discriminator chooses sphere, local-Y capsule, oriented box or convex
+ * hull dimensions. The hull is the convex hull of its supplied shape-local
+ * points; interior points are refused by physical admission. Every shape
+ * references a profile material and has an identity unique within its segment.
+ * Dimensions are metres; soft-layer depth must leave a positive solid core.
  */
 export type IAutoMoviePhysicalShape = {
   /** Unique within its segment. */
@@ -36,6 +40,9 @@ export type IAutoMoviePhysicalShape = {
   | {
       /** Solid convex polytope: the convex hull of its points. */ kind: "hull";
 
-      /** At least four shape-local vertices, metres, not all in one plane; every point is a vertex or lies on the hull's surface, never inside it. */ points: IAutoMovieVector3[];
+      /**
+       * At least four shape-local vertices, metres, not all in one plane; every
+       * point is a vertex or lies on the hull's surface, never inside it.
+       */ points: IAutoMovieVector3[];
     }
 );

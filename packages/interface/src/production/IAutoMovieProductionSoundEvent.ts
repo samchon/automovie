@@ -2,9 +2,7 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieProductionAcousticResponse } from "./IAutoMovieProductionAcousticResponse";
 import type { IAutoMovieShotEventContract } from "./IAutoMovieShotEventContract";
 
-/**
- * One semantic event lowered from the compiled film edit into audible space.
- */
+/** One semantic event lowered from the compiled film edit into audible space. */
 export interface IAutoMovieProductionSoundEvent {
   /** Stable occurrence id, including the owning film segment. */
   id: string;
@@ -34,42 +32,64 @@ export interface IAutoMovieProductionSoundEvent {
   distanceMeters: number;
 
   /**
-   * How many individual sources the event's subjects contain: one for a scene node, the member count for a formation or an instance set, summed over every subject the event names.
+   * How many individual sources the event's subjects contain: one for a scene
+   * node, the member count for a formation or an instance set, summed over
+   * every subject the event names.
    *
-   * This is what makes a mass sound like a mass. A group used to contribute exactly one emitter no matter how many stood in it, so three people and a hundred thousand were acoustically identical.
+   * This is what makes a mass sound like a mass. A group used to contribute
+   * exactly one emitter no matter how many stood in it, so three people and a
+   * hundred thousand were acoustically identical.
    */
   memberCount: number;
 
   /**
-   * Square root of the modeled source variance in metres about emitter. Formations and instance sets use a uniform-box approximation from compiled position bounds, rather than measuring every member.
+   * Square root of the modeled source variance in metres about emitter.
+   * Formations and instance sets use a uniform-box approximation from compiled
+   * position bounds, rather than measuring every member.
    *
-   * Zero for a single node. A crowd has a radius, and a source with a radius is not a point: it cannot be all in one place in the stereo field, and the listener is not the same distance from all of it.
+   * Zero for a single node. A crowd has a radius, and a source with a radius is
+   * not a point: it cannot be all in one place in the stereo field, and the
+   * listener is not the same distance from all of it.
    */
   spreadRadiusMeters: number;
 
   /**
-   * Level factor for `memberCount` mutually uncorrelated sources, `sqrt(memberCount)`.
+   * Level factor for `memberCount` mutually uncorrelated sources,
+   * `sqrt(memberCount)`.
    *
-   * The model assumes equal-level uncorrelated sources, whose powers add: `p_total^2 = N * p_single^2`, giving amplitude gain `sqrt(N)` and a `10*log10(N)` dB increase. It does not measure actual source correlation; coherent sources would require a different law.
+   * The model assumes equal-level uncorrelated sources, whose powers add:
+   * `p_total^2 = N * p_single^2`, giving amplitude gain `sqrt(N)` and a
+   * `10*log10(N)` dB increase. It does not measure actual source correlation;
+   * coherent sources would require a different law.
    */
   densityGain: number;
 
   /**
-   * Camera-relative stereo position from -1 (left) through 1 (right), narrowed by the source's own angular width: `local.x / hypot(distanceMeters, spreadRadiusMeters)`.
+   * Camera-relative stereo position from -1 (left) through 1 (right), narrowed
+   * by the source's own angular width: `local.x / hypot(distanceMeters,
+   * spreadRadiusMeters)`.
    *
-   * Modeled spread reduces the centroid's pan magnitude. As spread becomes small relative to distance, this formula approaches the point-source result; it does not measure each member's stereo contribution.
+   * Modeled spread reduces the centroid's pan magnitude. As spread becomes
+   * small relative to distance, this formula approaches the point-source
+   * result; it does not measure each member's stereo contribution.
    */
   pan: number;
 
   /**
-   * Distance-derived dry gain from zero through one, taken at the root-mean-square source/listener distance `hypot(distanceMeters, spreadRadiusMeters)` rather than at the centroid alone.
+   * Distance-derived dry gain from zero through one, taken at the
+   * root-mean-square source/listener distance `hypot(distanceMeters,
+   * spreadRadiusMeters)` rather than at the centroid alone.
    *
-   * The declared dry gain law is evaluated at the modeled RMS distance. Population variance comes from uniform-box approximations of compiled position bounds, so this calculation does not measure individual member distances or their combined physical attenuation.
+   * The declared dry gain law is evaluated at the modeled RMS distance.
+   * Population variance comes from uniform-box approximations of compiled
+   * position bounds, so this calculation does not measure individual member
+   * distances or their combined physical attenuation.
    */
   attenuation: number;
 
   /**
-   * Direct-path propagation result when the production selected a profile. Omitted only on the legacy dry path.
+   * Direct-path propagation result when the production selected a profile.
+   * Omitted only on the legacy dry path.
    */
   propagation?: {
     /** Selected production propagation profile id. */
@@ -92,7 +112,9 @@ export interface IAutoMovieProductionSoundEvent {
   };
 
   /**
-   * Consumer-supplied room-path result. The planner does not derive it, and the mixer uses the dry event when it is absent; acousticProfile alone does not establish a response or enforce a complete response population.
+   * Consumer-supplied room-path result. The planner does not derive it, and the
+   * mixer uses the dry event when it is absent; acousticProfile alone does not
+   * establish a response or enforce a complete response population.
    */
   acousticResponse?: IAutoMovieProductionAcousticResponse;
 

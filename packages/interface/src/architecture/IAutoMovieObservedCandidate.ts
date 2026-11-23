@@ -11,8 +11,8 @@
  * issue that names this candidate without being listed here, does not block
  * it.
  *
- * At most one `observed` analysis may claim a candidate, and that analysis
- * must have read the frame every one of the candidate's primitives lies on.
+ * At most one `observed` analysis may claim a candidate, and that analysis must
+ * have read the frame every one of the candidate's primitives lies on.
  */
 export interface IAutoMovieObservedCandidate {
   /** Stable, non-blank candidate identity, unique within the document. */

@@ -1,7 +1,8 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * Nearest support-hull pivot and horizontal fall direction suggested for an overhang.
+ * Nearest support-hull pivot and horizontal fall direction suggested for an
+ * overhang.
  */
 export interface IAutoMovieToppling {
   /** One end of the pivot edge (the nearest support hull edge). */

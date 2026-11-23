@@ -1,9 +1,13 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
- * What a motion case draws over its figures, as the case measured it: paths a point travelled, points it aimed at, and contact samples with how far each slid against a limit. Points are world metres of the canonical frame (+Y up), colours sRGB hex.
+ * What a motion case draws over its figures, as the case measured it: paths a
+ * point travelled, points it aimed at, and contact samples with how far each
+ * slid against a limit. Points are world metres of the canonical frame (+Y up),
+ * colours sRGB hex.
  *
- * `markMotionCaptureCase` turns them into inspection marks; the capture harness's cases fill them.
+ * `markMotionCaptureCase` turns them into inspection marks; the capture
+ * harness's cases fill them.
  */
 export interface IAutoMovieMotionHumanMotionCaptureOverlays {
   /** Polylines in world metres, each in its colour. */
@@ -14,7 +18,10 @@ export interface IAutoMovieMotionHumanMotionCaptureOverlays {
     points: IAutoMovieVector3[];
   }[];
 
-  /** Marked world points, each with the radius in metres it was aimed within and its colour. */
+  /**
+   * Marked world points, each with the radius in metres it was aimed within and
+   * its colour.
+   */
   targets: {
     /** World-space sample or marker centre, metres. */
     at: IAutoMovieVector3;

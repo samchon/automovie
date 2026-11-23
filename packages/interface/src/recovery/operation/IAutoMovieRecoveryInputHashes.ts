@@ -1,5 +1,6 @@
 /**
- * Exact original curve and continuation byte identities for coefficient admission.
+ * Exact original curve and continuation byte identities for coefficient
+ * admission.
  */
 
 export interface IAutoMovieRecoveryInputHashes {

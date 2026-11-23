@@ -12,8 +12,8 @@ import type { IAutoMovieAnalysisWarning } from "./IAutoMovieAnalysisWarning";
  * clean one.
  *
  * The shape matches `IAutoMovieDesignAnalysisOutcome` with `observed` renamed
- * to `solved`, because a solver computes rather than observes; the two
- * negative arms keep the same spelling in both contracts.
+ * to `solved`, because a solver computes rather than observes; the two negative
+ * arms keep the same spelling in both contracts.
  */
 export type IAutoMovieAnalysisOutcome =
   | {
@@ -28,8 +28,8 @@ export type IAutoMovieAnalysisOutcome =
 
       /**
        * Spatial field, possibly empty and at most the engine's
-       * `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` (4096); every key must name a
-       * measured metric.
+       * `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` (4096); every key must name a measured
+       * metric.
        */
       samples: IAutoMovieAnalysisSample[];
 

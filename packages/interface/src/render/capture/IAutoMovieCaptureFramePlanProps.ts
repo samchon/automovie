@@ -1,7 +1,12 @@
 import type { IAutoMovieCaptureSampling } from "./IAutoMovieCaptureSampling";
 
 /**
- * Subject-local sampling and event windows. planAutoMovieCaptureFrames validates finite positive fps/duration, a nonnegative safe-integer window, and in-range explicit/event/cut seconds. Sampling is already admitted by parseAutoMovieCapturePlanRequest; range rates and ordering are its responsibility. Ordinary range samples stop before to, while explicit instants can include the duration boundary.
+ * Subject-local sampling and event windows. planAutoMovieCaptureFrames
+ * validates finite positive fps/duration, a nonnegative safe-integer window,
+ * and in-range explicit/event/cut seconds. Sampling is already admitted by
+ * parseAutoMovieCapturePlanRequest; range rates and ordering are its
+ * responsibility. Ordinary range samples stop before to, while explicit
+ * instants can include the duration boundary.
  */
 export interface IAutoMovieCaptureFramePlanProps {
   /** Running time of the subject in seconds. */

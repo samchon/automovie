@@ -1,5 +1,4 @@
-/** Bounded actual-trial attribution, independent of direction certification.
- */
+/** Bounded actual-trial attribution, independent of direction certification. */
 export interface IAutoMovieRecoveryFeasibleTrials {
   /** Original tilted full trials and subsequent baseline halving evaluations. */
   baseline: number;
@@ -13,10 +12,16 @@ export interface IAutoMovieRecoveryFeasibleTrials {
   /** Full comparisons using a same-base correction arc. */
   corrected: number;
 
-  /** Actual half comparisons on qualified accelerated paths with fixed correction. */
+  /**
+   * Actual half comparisons on qualified accelerated paths with fixed
+   * correction.
+   */
   half: number;
 
-  /** Complete actual qualification passed but a lower-cost or earlier equal candidate was selected. */
+  /**
+   * Complete actual qualification passed but a lower-cost or earlier equal
+   * candidate was selected.
+   */
   qualifiedUnselected: number;
 
   /** First rejection cause was null or nonfinite actual cost/qualification. */

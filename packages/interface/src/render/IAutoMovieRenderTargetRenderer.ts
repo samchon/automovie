@@ -1,5 +1,6 @@
 /**
- * Host-reported graphics API and device identity used by render target fingerprinting.
+ * Host-reported graphics API and device identity used by render target
+ * fingerprinting.
  */
 export interface IAutoMovieRenderTargetRenderer {
   /** Graphics API family, such as `webgl2`. */

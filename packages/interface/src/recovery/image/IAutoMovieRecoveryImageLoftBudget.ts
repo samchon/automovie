@@ -1,4 +1,6 @@
-/** Requested tessellation tolerance and finite output budgets for an elliptic loft.
+/**
+ * Requested tessellation tolerance and finite output budgets for an elliptic
+ * loft.
  */
 export interface IAutoMovieRecoveryImageLoftBudget {
   /** Requested tessellation tolerance, metres. */

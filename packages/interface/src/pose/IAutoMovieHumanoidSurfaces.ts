@@ -4,12 +4,13 @@ import type { AutoMovieHumanoidRegion } from "../skeleton/AutoMovieHumanoidRegio
 import type { AutoMovieHumanoidSocket } from "../skeleton/AutoMovieHumanoidSocket";
 
 /**
- * Body contact frames produced from skeleton and physical-profile geometry and placed by resolveAutoMovieHumanoidSurfaces. Frames are mutable records; callers preserve unit directions and matching bone identity when reusing them.
+ * Body contact frames produced from skeleton and physical-profile geometry and
+ * placed by resolveAutoMovieHumanoidSurfaces. Frames are mutable records;
+ * callers preserve unit directions and matching bone identity when reusing
+ * them.
  */
 export namespace IAutoMovieHumanoidSurfaces {
-  /**
-   * A bone-local surface frame.
-   */
+  /** A bone-local surface frame. */
   export interface IFrame {
     /** The bone it rides. */
     bone: AutoMovieHumanoidBone;
@@ -23,13 +24,15 @@ export namespace IAutoMovieHumanoidSurfaces {
     /** A socket's forward unit direction in the bone's rest frame. */
     forward?: IAutoMovieVector3;
 
-    /** A region's extent, metres: the radius about its point that is still the region (`AutoMovieHumanoidSurfaceExtents`); absent for a socket and for a point beside a region (`offset`). */
+    /**
+     * A region's extent, metres: the radius about its point that is still the
+     * region (`AutoMovieHumanoidSurfaceExtents`); absent for a socket and for a
+     * point beside a region (`offset`).
+     */
     radius?: number;
   }
 
-  /**
-   * Every region and socket of one body.
-   */
+  /** Every region and socket of one body. */
   export interface ISurfaces {
     /** Regions by name. */
     regions: Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces.IFrame>;
@@ -38,26 +41,38 @@ export namespace IAutoMovieHumanoidSurfaces {
     sockets: Record<AutoMovieHumanoidSocket, IAutoMovieHumanoidSurfaces.IFrame>;
   }
 
-  /**
-   * A point of a region's tangent plane, measured from the region's own point.
-   */
+  /** A point of a region's tangent plane, measured from the region's own point. */
   export interface ITangent {
-    /** Toward the head, metres: the rest frame's +Y made perpendicular to the region's direction, or +Z when that direction is within 26 degrees of vertical. */
+    /**
+     * Toward the head, metres: the rest frame's +Y made perpendicular to the
+     * region's direction, or +Z when that direction is within 26 degrees of
+     * vertical.
+     */
     up: number;
 
-    /** Across `up` and the region's direction, metres: toward the body's left for a region that faces forward. */
+    /**
+     * Across `up` and the region's direction, metres: toward the body's left
+     * for a region that faces forward.
+     */
     out: number;
   }
 
-  /**
-   * A surface frame's world point and normal under a posed bone.
-   */
+  /** A surface frame's world point and normal under a posed bone. */
   export type IPlaceResult = {
-    /** Fresh world position in metres after applying the posed bone's translation and rotation. */
+    /**
+     * Fresh world position in metres after applying the posed bone's
+     * translation and rotation.
+     */
     point: IAutoMovieVector3;
-    /** Outward world direction; unit when the local normal and posed bone quaternion satisfy their input contracts. */
+    /**
+     * Outward world direction; unit when the local normal and posed bone
+     * quaternion satisfy their input contracts.
+     */
     normal: IAutoMovieVector3;
-    /** Rotated world forward direction, present exactly when the source frame supplied forward. */
+    /**
+     * Rotated world forward direction, present exactly when the source frame
+     * supplied forward.
+     */
     forward?: IAutoMovieVector3;
   };
 }

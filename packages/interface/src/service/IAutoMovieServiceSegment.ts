@@ -3,7 +3,11 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * One run joining exactly two ports: a pipe, a duct, a conduit, a cable tray.
  *
- * The centre line is authored in world metres because that is what a clash is measured in, and the radius is what turns that line into the volume the run actually occupies. A run that leaves the space it started in is expected to name the sleeve it went through, which is the only way a wall can be shown to have been drilled on purpose.
+ * The centre line is authored in world metres because that is what a clash is
+ * measured in, and the radius is what turns that line into the volume the run
+ * actually occupies. A run that leaves the space it started in is expected to
+ * name the sleeve it went through, which is the only way a wall can be shown to
+ * have been drilled on purpose.
  */
 export interface IAutoMovieServiceSegment {
   /** Stable segment identity within the network. */
@@ -12,18 +16,17 @@ export interface IAutoMovieServiceSegment {
   /** Id of the system this run belongs to. */
   system: string;
 
-  /**
-   * Id of the port the medium leaves from; it must be `out` or `bidirectional`.
-   */
+  /** Id of the port the medium leaves from; it must be `out` or `bidirectional`. */
   from: string;
 
-  /**
-   * Id of the port the medium arrives at; it must be `in` or `bidirectional`.
-   */
+  /** Id of the port the medium arrives at; it must be `in` or `bidirectional`. */
   to: string;
 
   /**
-   * World centre line in metres with at least two finite points. Its endpoints must lie within 1e-6 metres of their ports; consecutive points must be farther apart than 1e-9 metres. Vertex-based crossing checks do not prove continuous containment along every leg.
+   * World centre line in metres with at least two finite points. Its endpoints
+   * must lie within 1e-6 metres of their ports; consecutive points must be
+   * farther apart than 1e-9 metres. Vertex-based crossing checks do not prove
+   * continuous containment along every leg.
    */
   route: IAutoMovieVector3[];
 
@@ -33,8 +36,6 @@ export interface IAutoMovieServiceSegment {
   /** Internal cross-section in square metres; greater than `0`. */
   section: number;
 
-  /**
-   * Ids of the penetrations this run passes through, in no particular order.
-   */
+  /** Ids of the penetrations this run passes through, in no particular order. */
   penetrations: string[];
 }

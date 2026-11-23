@@ -3,12 +3,12 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 
 /**
- * A whole-body fit and its residual report. Fit a whole articulated body to one endpoint goal while a support segment stays held, turning only about its contact.
+ * A whole-body fit and its residual report. Fit a whole articulated body to one
+ * endpoint goal while a support segment stays held, turning only about its
+ * contact.
  */
 export namespace IAutoMovieFitPhysicalWholeBodyTarget {
-  /**
-   * A whole-body fit and its residual report.
-   */
+  /** A whole-body fit and its residual report. */
   export interface IResult {
     /** World pose of every original segment. */
     targets: Record<string, IAutoMovieRigidTransform>;
@@ -30,13 +30,13 @@ export namespace IAutoMovieFitPhysicalWholeBodyTarget {
    * The tree is held from the support ({@link rerootPhysicalProfile}), and a
    * virtual base hinges onto it at the contact point about the contact normal
    * within the declared turn, so the old root (a pelvis) rotates, tilts and
-   * translates through the support chain's own joints while the reaching
-   * chain reaches. Every coordinate stays inside its own declared ROM, the
-   * contact point never moves, and the bounded articulation solver
-   * ({@link solvePhysicalArticulationTargets}) accepts only residual
-   * decreases. The residual is the goal point's world error in metres and,
-   * when an approach is declared, the weighted difference between the
-   * endpoint's local direction carried to world and the approach direction.
+   * translates through the support chain's own joints while the reaching chain
+   * reaches. Every coordinate stays inside its own declared ROM, the contact
+   * point never moves, and the bounded articulation solver
+   * ({@link solvePhysicalArticulationTargets}) accepts only residual decreases.
+   * The residual is the goal point's world error in metres and, when an
+   * approach is declared, the weighted difference between the endpoint's local
+   * direction carried to world and the approach direction.
    */
   export type IInput = {
     /** Admitted fixed-pivot tree. */ profile: IAutoMoviePhysicalProfile;
@@ -50,12 +50,18 @@ export namespace IAutoMovieFitPhysicalWholeBodyTarget {
       /** Lower turn, radians. */ minimum: number;
       /** Upper turn, radians. */ maximum: number;
     };
-    /** Segments whose joint toward the old root may move: the support chain, the trunk and the reaching chain. */ bones: readonly string[];
+    /**
+     * Segments whose joint toward the old root may move: the support chain, the
+     * trunk and the reaching chain.
+     */ bones: readonly string[];
     /** The endpoint goal. */ goal: {
       /** Segment carrying the endpoint. */ bone: string;
       /** Endpoint in that segment's frame, metres. */ localPoint: IAutoMovieVector3;
       /** World goal point, metres. */ point: IAutoMovieVector3;
-      /** Optional arrival direction: the segment's local direction should point along it. */ approach?: {
+      /**
+       * Optional arrival direction: the segment's local direction should point
+       * along it.
+       */ approach?: {
         /** Unit direction in the segment's frame. */ localDirection: IAutoMovieVector3;
         /** Unit world direction. */ direction: IAutoMovieVector3;
         /** Metres of residual per unit of direction difference; positive. */ weight: number;

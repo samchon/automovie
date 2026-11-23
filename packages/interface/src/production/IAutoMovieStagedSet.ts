@@ -20,9 +20,7 @@ export type IAutoMovieStagedSet =
 
 /** Data and callback contracts shared by the StagedSet operations. */
 export namespace IAutoMovieStagedSet {
-  /**
-   * Staging was coherent; the set is ready for blocking and performance.
-   */
+  /** Staging was coherent; the set is ready for blocking and performance. */
   export interface ISuccess {
     /** Discriminator. */
     success: true;
@@ -46,9 +44,7 @@ export namespace IAutoMovieStagedSet {
     }[];
   }
 
-  /**
-   * Staging contradicted the script or itself; nothing was composed.
-   */
+  /** Staging contradicted the script or itself; nothing was composed. */
   export interface IFailure {
     /** Discriminator. */
     success: false;

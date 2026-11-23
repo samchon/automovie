@@ -5,8 +5,7 @@ import type { IAutoMovieHumanShoulderGirdlePose } from "./IAutoMovieHumanShoulde
 import type { IAutoMovieHumanShoulderPose } from "./IAutoMovieHumanShoulderPose";
 import type { IAutoMovieHumanWristPose } from "./IAutoMovieHumanWristPose";
 
-/** Shoulder girdle, arm, wrist and hand of one side, proximal to distal.
- */
+/** Shoulder girdle, arm, wrist and hand of one side, proximal to distal. */
 export interface IAutoMovieHumanArmPose {
   /** Clavicle and scapula. */
   shoulderGirdle?: IAutoMovieHumanShoulderGirdlePose;

@@ -1,5 +1,4 @@
-/** One declared native endpoint position and its current control owner.
- */
+/** One declared native endpoint position and its current control owner. */
 export interface IAutoMovieRecoveryNativeEndpoint {
   /** Original endpoint coordinates, millimetres. */
   position: readonly [number, number, number];

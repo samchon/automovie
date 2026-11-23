@@ -4,9 +4,9 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
 import type { IAutoMovieMotionHumanResolveHumanPosture } from "../posture/IAutoMovieMotionHumanResolveHumanPosture";
 
 /**
- * Native human playback phases and the scope in which they can supply the
- * same action authoring or leaf fit. Placement, physical checks, composition
- * and the public action posture reader keep their own contracts.
+ * Native human playback phases and the scope in which they can supply the same
+ * action authoring or leaf fit. Placement, physical checks, composition and the
+ * public action posture reader keep their own contracts.
  */
 export interface IAutoMovieMotionHumanPlayback {
   /**
@@ -16,20 +16,19 @@ export interface IAutoMovieMotionHumanPlayback {
    */
   readonly mode: "posture" | "bare-posture" | "fitted";
 
-  /** Closed intervals in the declared order. The first covering phase owns a shared second. */
+  /**
+   * Closed intervals in the declared order. The first covering phase owns a
+   * shared second.
+   */
   readonly phases: readonly IAutoMovieMotionHumanPlayback.IPhase[];
 
-  /**
-   * Optional owned setup after placement, contacts and flight are final.
-   */
+  /** Optional owned setup after placement, contacts and flight are final. */
   readonly prepare?: () => void;
 }
 
 /** Phase ranges and samples consumed by a human display leaf. */
 export namespace IAutoMovieMotionHumanPlayback {
-  /**
-   * One closed event interval on the human action's own clock.
-   */
+  /** One closed event interval on the human action's own clock. */
   export interface IPhase extends IAutoMovieMotionPlayback<
     ISample | undefined,
     Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
@@ -41,16 +40,17 @@ export namespace IAutoMovieMotionHumanPlayback {
     readonly to: number;
   }
 
-  /**
-   * Current authored channels and goals and an optional single-use fit.
-   */
+  /** Current authored channels and goals and an optional single-use fit. */
   export interface ISample {
     /** Authored posture consumed by the ordinary composition and contact stages. */
     readonly posture: IAutoMovieMotionHumanPosture;
 
     /**
-     * Transfer the genuine fit to the same unchanged, complete bare leaf at most once.
+     * Transfer the genuine fit to the same unchanged, complete bare leaf at
+     * most once.
      */
-    readonly takeFit?: () => IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined;
+    readonly takeFit?: () =>
+      | IAutoMovieMotionHumanResolveHumanPosture.ISeeded
+      | undefined;
   }
 }

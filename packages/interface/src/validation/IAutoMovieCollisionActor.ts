@@ -7,7 +7,8 @@ import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieCapsuleProxy } from "./IAutoMovieCapsuleProxy";
 
 /**
- * Supply a rig, motion and capsule proxies for sampled inter-body collision inspection.
+ * Supply a rig, motion and capsule proxies for sampled inter-body collision
+ * inspection.
  */
 export interface IAutoMovieCollisionActor {
   /** Scene node id, used to label emitted interaction events. */
@@ -22,7 +23,11 @@ export interface IAutoMovieCollisionActor {
   /** Capsule proxies over this actor's bones. */
   capsules: readonly IAutoMovieCapsuleProxy[];
 
-  /** Authored physical body; null permits contact observations but a requested response requires an explicit finite positive mass and finite restitution in [0,1]. */
+  /**
+   * Authored physical body; null permits contact observations but a requested
+   * response requires an explicit finite positive mass and finite restitution
+   * in [0,1].
+   */
   body: IAutoMovieBody | null;
 
   /** Optional clinical-axis remap. */

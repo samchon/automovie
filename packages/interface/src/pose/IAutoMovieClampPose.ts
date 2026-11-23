@@ -3,14 +3,12 @@ import type { IAutoMovieJointPose } from "./IAutoMovieJointPose";
 import type { IAutoMoviePose } from "./IAutoMoviePose";
 
 /**
- * Contracts of `clampPose.prepare` and `clampJointToSkeleton.prepare`: a
- * rig's range-of-motion projection of a whole pose, carrying the one-joint
- * clamp it maps and that clamp's angle-taking form.
+ * Contracts of `clampPose.prepare` and `clampJointToSkeleton.prepare`: a rig's
+ * range-of-motion projection of a whole pose, carrying the one-joint clamp it
+ * maps and that clamp's angle-taking form.
  */
 export namespace IAutoMovieClampPose {
-  /**
-   * A one-joint clamp under a skeleton, with its angle-taking form.
-   */
+  /** A one-joint clamp under a skeleton, with its angle-taking form. */
   export interface IJoints {
     /**
      * Clamp one joint into its bone's range.
@@ -37,9 +35,7 @@ export namespace IAutoMovieClampPose {
     ): IAutoMovieJointPose;
   }
 
-  /**
-   * A whole-pose projection with the one-joint clamp it maps.
-   */
+  /** A whole-pose projection with the one-joint clamp it maps. */
   export interface IPrepared {
     /**
      * Clamp every joint of a pose in order into a new pose.

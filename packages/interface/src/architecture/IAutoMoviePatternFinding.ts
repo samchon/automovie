@@ -3,16 +3,16 @@
  *
  * The unit of `measured` and the meaning of `limit` follow `kind`:
  *
- * - `sliver`: one occurrence; surviving coverage fraction against the
- *   pattern's `minimumPiece`.
- * - `unsupported-piece`: one occurrence; square metres an exclusion punched
- *   out, against zero.
+ * - `sliver`: one occurrence; surviving coverage fraction against the pattern's
+ *   `minimumPiece`.
+ * - `unsupported-piece`: one occurrence; square metres an exclusion punched out,
+ *   against zero.
  * - `module-overlap`: two occurrences; their negative separation in metres,
  *   against zero.
- * - `joint-deviation`: two occurrences; their gap in metres against the
- *   nominal joint, reported when the difference exceeds `jointTolerance`.
- * - `grain-break`: two occurrences; grain deviation in degrees, read modulo
- *   180, against `grainToleranceDeg`.
+ * - `joint-deviation`: two occurrences; their gap in metres against the nominal
+ *   joint, reported when the difference exceeds `jointTolerance`.
+ * - `grain-break`: two occurrences; grain deviation in degrees, read modulo 180,
+ *   against `grainToleranceDeg`.
  *
  * Per-occurrence findings come first in placement order, then pair findings
  * ordered by their first occurrence and then their partner.

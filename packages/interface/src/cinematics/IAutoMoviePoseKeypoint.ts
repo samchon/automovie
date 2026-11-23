@@ -1,9 +1,17 @@
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
- * One named humanoid joint numerically projected into the delivered frame, with a top-left origin after any crop. Inside the frame, `x` and `y` lie in `[0, 1]`; a host scales them to its raster. These values use the engine's default joint axes and rest frames, so correspondence with a renderer requires matching conventions and is not observed pixel evidence.
+ * One named humanoid joint numerically projected into the delivered frame, with
+ * a top-left origin after any crop. Inside the frame, `x` and `y` lie in `[0,
+ * 1]`; a host scales them to its raster. These values use the engine's default
+ * joint axes and rest frames, so correspondence with a renderer requires
+ * matching conventions and is not observed pixel evidence.
  *
- * Projection never clamps coordinates. Behind-camera and off-frame joints remain with `inFrame: false` under valid camera premises, and zero view depth can yield Infinity or NaN coordinates. Requested bones absent from resolved FK are omitted. The flag tests clip-depth and rectangle membership, not occlusion by other geometry.
+ * Projection never clamps coordinates. Behind-camera and off-frame joints
+ * remain with `inFrame: false` under valid camera premises, and zero view depth
+ * can yield Infinity or NaN coordinates. Requested bones absent from resolved
+ * FK are omitted. The flag tests clip-depth and rectangle membership, not
+ * occlusion by other geometry.
  */
 export interface IAutoMoviePoseKeypoint {
   /** The named humanoid bone this keypoint locates. */

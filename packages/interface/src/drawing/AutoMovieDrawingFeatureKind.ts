@@ -6,8 +6,8 @@
  * - `edge`: the midpoint of one welded undirected edge, carrying its direction.
  * - `face`: the centroid of one triangle.
  * - `axis`: the element's origin, carrying its local X, Y or Z direction.
- * - `centroid`: the mean of the element's welded vertices, which is not its
- *   area or volume centroid.
+ * - `centroid`: the mean of the element's welded vertices, which is not its area
+ *   or volume centroid.
  */
 export type AutoMovieDrawingFeatureKind =
   | "vertex"

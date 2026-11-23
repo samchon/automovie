@@ -1,7 +1,10 @@
 /**
  * Addressed deterministic depth-precision result for one realized camera time.
  *
- * Nullable numeric operands make even malformed non-finite input serializable: a finite invalid value is retained, while `NaN` and infinities become null. Measurement fields remain null until the clip, required range, capability, and threshold are all valid and the required range is inside the clip range.
+ * Nullable numeric operands make even malformed non-finite input serializable:
+ * a finite invalid value is retained, while `NaN` and infinities become null.
+ * Measurement fields remain null until the clip, required range, capability,
+ * and threshold are all valid and the required range is inside the clip range.
  */
 export interface IAutoMovieCameraDepthPrecisionReport {
   /** Scene camera identity evaluated. */
@@ -22,10 +25,16 @@ export interface IAutoMovieCameraDepthPrecisionReport {
   /** Ordered far clip distance, or the finite invalid value/null observed. */
   far: number | null;
 
-  /** Nearest required camera-space depth; finite invalid values are echoed and nonfinite values become null. */
+  /**
+   * Nearest required camera-space depth; finite invalid values are echoed and
+   * nonfinite values become null.
+   */
   requiredNear: number | null;
 
-  /** Farthest required camera-space depth; finite invalid values are echoed and nonfinite values become null. */
+  /**
+   * Farthest required camera-space depth; finite invalid values are echoed and
+   * nonfinite values become null.
+   */
   requiredFar: number | null;
 
   /** Authored minimum depth bits, or null when non-finite. */

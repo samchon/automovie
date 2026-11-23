@@ -10,7 +10,10 @@ import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
  * planted legs, applies it to hips and knees.
  */
 export interface IAutoMovieTwoBoneArticulation {
-  /** Bone-local articulation delta for the chain-root joint, such as a hip or shoulder. */
+  /**
+   * Bone-local articulation delta for the chain-root joint, such as a hip or
+   * shoulder.
+   */
   upper: IAutoMovieQuaternion;
 
   /** Bone-local articulation delta for the mid joint, such as a knee or elbow. */

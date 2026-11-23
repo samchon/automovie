@@ -12,7 +12,10 @@ import type { IAutoMovieMeshCrossingOptions } from "./IAutoMovieMeshCrossingOpti
  * supplies penetration depth, containment or swept proof.
  */
 export interface IAutoMovieMeshCrossingQuery {
-  /** Report all crossed first triangles, or all crossing pairs when explicitly requested. */
+  /**
+   * Report all crossed first triangles, or all crossing pairs when explicitly
+   * requested.
+   */
   (
     first: IAutoMovieMesh,
     options?: IAutoMovieMeshCrossingOptions,
@@ -32,16 +35,18 @@ export interface IAutoMovieMeshCrossingQuery {
    * Snapshot all current XYZ coordinates in the queries' shared metre frame
    * using the original copied index run and exactly its original scalar count.
    * Every source triangle remains present, including zero-area triangles that
-   * become valid or degenerate at another pose. Coordinates may come from rigid,
-   * affine or independently articulated placement; the same world-space strict
-   * predicates and numeric cutoffs apply to their actual supplied values.
+   * become valid or degenerate at another pose. Coordinates may come from
+   * rigid, affine or independently articulated placement; the same world-space
+   * strict predicates and numeric cutoffs apply to their actual supplied
+   * values.
    *
    * Copies all used corners and validates every scalar, including unused
    * vertices. Wrong cardinality, holes and nonfinite values throw without
    * changing this query. Source indices are immutable; changing index layout or
    * vertex count requires createAutoMovieMeshCrossingQuery. Later input/output
    * edits cannot change this or another snapshot. A refit may retain a less
-   * efficient partition than a fresh build, but never uses old geometric bounds.
+   * efficient partition than a fresh build, but never uses old geometric
+   * bounds.
    */
   withPositions(positions: readonly number[]): IAutoMovieMeshCrossingQuery;
 }

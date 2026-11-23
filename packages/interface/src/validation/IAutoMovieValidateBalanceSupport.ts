@@ -5,12 +5,12 @@ import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieBalanceSupportWindow } from "./IAutoMovieBalanceSupportWindow";
 
-/**
- * Data and callback contracts shared by the ValidateBalanceSupport operations.
- */
+/** Data and callback contracts shared by the ValidateBalanceSupport operations. */
 export namespace IAutoMovieValidateBalanceSupport {
   /**
-   * Sample FK within valid support windows, project a single-bone or weighted joint-position center onto XZ, and warn beyond the support hull plus margin.
+   * Sample FK within valid support windows, project a single-bone or weighted
+   * joint-position center onto XZ, and warn beyond the support hull plus
+   * margin.
    */
   export type IProps = {
     /** Motion clip to sample. */

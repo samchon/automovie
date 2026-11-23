@@ -1,12 +1,11 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * One deterministically derived tapered branch segment after growth and pruning.
+ * One deterministically derived tapered branch segment after growth and
+ * pruning.
  */
 export interface IAutoMoviePlantingBranch {
-  /**
-   * Stable branch identity, derived from the path of child ids that made it.
-   */
+  /** Stable branch identity, derived from the path of child ids that made it. */
   id: string;
 
   /** Id of the branch this one emerges from, or `null` for the trunk. */

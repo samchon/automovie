@@ -1,14 +1,23 @@
 /**
- * A facial action unit of the Facial Action Coding System (FACS; Ekman and Friesen 1978), named by its action.
+ * A facial action unit of the Facial Action Coding System (FACS; Ekman and
+ * Friesen 1978), named by its action.
  *
- * Each unit describes the visible effect of one muscle or muscle group. The FACS number follows each name. Units for gross behaviour (tongue show, jaw thrust, cheek puff and the like), head position and gaze are not facial deformation and are not listed. Head position belongs to pose, while gaze describes eye orientation. Blink (45) and wink (46) are timed or one-sided forms of eye closure, authored as `eyesClosed` with a side.
+ * Each unit describes the visible effect of one muscle or muscle group. The
+ * FACS number follows each name. Units for gross behaviour (tongue show, jaw
+ * thrust, cheek puff and the like), head position and gaze are not facial
+ * deformation and are not listed. Head position belongs to pose, while gaze
+ * describes eye orientation. Blink (45) and wink (46) are timed or one-sided
+ * forms of eye closure, authored as `eyesClosed` with a side.
  */
 export type AutoMovieHumanActionUnit =
   /** AU1, frontalis medial part: the inner brow rises. */
   | "innerBrowRaiser"
   /** AU2, frontalis lateral part: the outer brow rises. */
   | "outerBrowRaiser"
-  /** AU4, corrugator, depressor supercilii and procerus: brows down and together. */
+  /**
+   * AU4, corrugator, depressor supercilii and procerus: brows down and
+   * together.
+   */
   | "browLowerer"
   /** AU5, levator palpebrae superioris: the upper lid rises. */
   | "upperLidRaiser"

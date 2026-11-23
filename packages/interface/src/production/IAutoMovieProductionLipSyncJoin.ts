@@ -1,11 +1,17 @@
 /**
  * Binding and emission-timing metadata for supplied dialogue visemes.
  *
- * Composition names the intended mouth layer over authored expression at emission time. The join helper returns metadata and ranges; it neither verifies actor existence nor applies expression, and currently has only test callers. Audio propagation delay is separate from this emission clock.
+ * Composition names the intended mouth layer over authored expression at
+ * emission time. The join helper returns metadata and ranges; it neither
+ * verifies actor existence nor applies expression, and currently has only test
+ * callers. Audio propagation delay is separate from this emission clock.
  */
 export type IAutoMovieProductionLipSyncJoin =
   | {
-      /** Binding and timing are available; this status does not prove actor application. */
+      /**
+       * Binding and timing are available; this status does not prove actor
+       * application.
+       */
       status: "available";
 
       /** Actor id resolved from the authored speaker. */

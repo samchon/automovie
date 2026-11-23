@@ -5,9 +5,7 @@ import type {
   IAutoMovieRecoveryAtlasRealization,
 } from "../../index";
 
-/**
- * Retained atlas mesh and optional same-field construction data.
- */
+/** Retained atlas mesh and optional same-field construction data. */
 
 export interface IAutoMovieRecoveryAtlasGeneration extends IAutoMovieRecoveryAtlasRealization {
   /** Generated model-space mesh in metres. */

@@ -23,7 +23,9 @@ export interface IAutoMovieDesignSourceFrame {
   id: string;
 
   /**
-   * One-based whole page or image index inside the asset. PNG, JPEG and SVG are intended to use page one; the Engine frame check alone does not enforce container-specific page population.
+   * One-based whole page or image index inside the asset. PNG, JPEG and SVG are
+   * intended to use page one; the Engine frame check alone does not enforce
+   * container-specific page population.
    */
   page: number;
 
@@ -36,7 +38,9 @@ export interface IAutoMovieDesignSourceFrame {
   /**
    * Source-space extent: pixels for raster, user units for vector.
    *
-   * The host must compare these dimensions with the actual sheet where measurement is available; this record and the Engine frame check do not inspect its bytes.
+   * The host must compare these dimensions with the actual sheet where
+   * measurement is available; this record and the Engine frame check do not
+   * inspect its bytes.
    */
   bounds: {
     /** Finite, strictly positive width in source units. */

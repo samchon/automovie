@@ -16,9 +16,7 @@ export interface IAutoMovieDeliveryCrop {
   /** Top edge in `[0, 1)`, measured from the uncropped gate's top edge. */
   top: number;
 
-  /**
-   * Right edge in `(left, 1]`, measured from the uncropped gate's left edge.
-   */
+  /** Right edge in `(left, 1]`, measured from the uncropped gate's left edge. */
   right: number;
 
   /** Bottom edge in `(top, 1]`, measured from the uncropped gate's top edge. */

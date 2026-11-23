@@ -5,9 +5,9 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * One oriented station of a connector's route.
  *
  * Produced by `builtConnectorGeometry`, one per authored route point in route
- * order. `at` is the cumulative 3D length to this point over the route's
- * total, so the first station is `0` and the last `1`. `position` and
- * `rotation` are the connector record's own objects, not copies.
+ * order. `at` is the cumulative 3D length to this point over the route's total,
+ * so the first station is `0` and the last `1`. `position` and `rotation` are
+ * the connector record's own objects, not copies.
  */
 export interface IAutoMovieConnectorStation {
   /** World position of the station, the authored route point itself. */

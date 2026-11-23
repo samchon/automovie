@@ -13,7 +13,8 @@ import type { IAutoMovieSemanticMaskEntry } from "./IAutoMovieSemanticMaskEntry"
  */
 export namespace IAutoMovieMeasureRenderPopulation {
   /**
-   * Account for staged and compact populations before simulation and frame passes.
+   * Account for staged and compact populations before simulation and frame
+   * passes.
    */
   export type IProps = {
     /** Borrowed scene and compact populations; this phase does not mutate them. */
@@ -21,20 +22,27 @@ export namespace IAutoMovieMeasureRenderPopulation {
     /** Borrowed node-id lookup used to attribute lowered building elements. */
     nodeIndex: Map<string, IAutoMovieSemanticMaskEntry>;
     /**
-     * Resolve a model id synchronously; cited is diagnostic owner text. Errors propagate.
-     * measureAutoMovieRenderInventory supplies model resolution; measureRenderPopulation calls it synchronously with model identity and diagnostic citation, and propagates failures.
+     * Resolve a model id synchronously; cited is diagnostic owner text. Errors
+     * propagate. measureAutoMovieRenderInventory supplies model resolution;
+     * measureRenderPopulation calls it synchronously with model identity and
+     * diagnostic citation, and propagates failures.
      */
     model: (id: string, cited: string) => IAutoMovieModel;
     /** Mutable request-local model-cost cache populated by the shared measurer. */
     costs: Map<string, IAutoMovieRenderModelCost>;
     /** Mutable set receiving every drawn model, including every cited LOD tier. */
     drawnModels: Set<string>;
-    /** Mutable set receiving compact-population models whose geometry is flattened. */
+    /**
+     * Mutable set receiving compact-population models whose geometry is
+     * flattened.
+     */
     flattenedModels: Set<string>;
     /**
-     * Append an owner/source metric row synchronously. Cost uses the named metric's
-     * unit; this phase omits kind. Exceptions propagate and prior mutations remain.
-     * The inventory caller owns owner/source metric accumulation; measureRenderPopulation invokes this synchronous sink and does not roll back prior sink effects on failure.
+     * Append an owner/source metric row synchronously. Cost uses the named
+     * metric's unit; this phase omits kind. Exceptions propagate and prior
+     * mutations remain. The inventory caller owns owner/source metric
+     * accumulation; measureRenderPopulation invokes this synchronous sink and
+     * does not roll back prior sink effects on failure.
      */
     add: (
       owner: string,
@@ -46,22 +54,41 @@ export namespace IAutoMovieMeasureRenderPopulation {
   };
 
   /**
-   * Account for staged and compact populations before simulation and frame passes.
+   * Account for staged and compact populations before simulation and frame
+   * passes.
    */
   export type IResult = {
-    /** Scene/ground triangles plus independent worst-tier compact-population bounds. */
+    /**
+     * Scene/ground triangles plus independent worst-tier compact-population
+     * bounds.
+     */
     triangles: number;
-    /** Submitted vertex bound for the same population, independent of triangle maxima. */
+    /**
+     * Submitted vertex bound for the same population, independent of triangle
+     * maxima.
+     */
     vertices: number;
-    /** Draw-submission bound: mesh parts, drawable ground surfaces and compact chunks. */
+    /**
+     * Draw-submission bound: mesh parts, drawable ground surfaces and compact
+     * chunks.
+     */
     drawCalls: number;
     /** Borrowed scene ground record, or null when the scene has no space. */
     space: IAutoMovieSpace | null;
-    /** Ground position, normal and index buffer bytes; excludes other model storage. */
+    /**
+     * Ground position, normal and index buffer bytes; excludes other model
+     * storage.
+     */
     groundBytes: number;
-    /** Instance-set count plus anonymous formation members; excludes promoted nodes. */
+    /**
+     * Instance-set count plus anonymous formation members; excludes promoted
+     * nodes.
+     */
     instanceSlots: number;
-    /** Sum of instance-set and formation chunk counts, irrespective of visibility. */
+    /**
+     * Sum of instance-set and formation chunk counts, irrespective of
+     * visibility.
+     */
     instanceChunks: number;
     /** Formation count contributed to the later simulated-node accumulator. */
     simulatedNodes: number;

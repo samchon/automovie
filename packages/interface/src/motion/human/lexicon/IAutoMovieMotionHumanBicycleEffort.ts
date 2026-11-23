@@ -1,6 +1,6 @@
 /**
- * A seated cyclist rises against the pedals and returns to the saddle while
- * the same bicycle continues along its authored course.
+ * A seated cyclist rises against the pedals and returns to the saddle while the
+ * same bicycle continues along its authored course.
  */
 export interface IAutoMovieMotionHumanBicycleEffort {
   /** Subject id of the moving bicycle. */
@@ -15,7 +15,11 @@ export interface IAutoMovieMotionHumanBicycleEffort {
   /** Left and right bar grip point ids on the bicycle. */
   hands: { left: string; right: string };
 
-  /** Total action length in seconds; it holds `seatOff`, `up`, `lower` and `seatOn` in order. No natural value is defined: choose it for the beat (provisional, missing). */
+  /**
+   * Total action length in seconds; it holds `seatOff`, `up`, `lower` and
+   * `seatOn` in order. No natural value is defined: choose it for the beat
+   * (provisional, missing).
+   */
   duration: number;
 
   /** Second the pelvis begins to leave the saddle, after grip acquisition. */

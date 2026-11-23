@@ -1,6 +1,7 @@
 /**
- * Physical coverage limits of a finite-view convex-support reconstruction.
- * The generated convex sections neither prove physical convexity nor certify enclosure.
+ * Physical coverage limits of a finite-view convex-support reconstruction. The
+ * generated convex sections neither prove physical convexity nor certify
+ * enclosure.
  */
 export interface IAutoMovieRecoverySupportLoftCoverage {
   /** Lateral shape is inferred from finite-view convex supports. */

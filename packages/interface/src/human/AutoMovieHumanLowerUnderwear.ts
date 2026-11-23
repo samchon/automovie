@@ -1,5 +1,4 @@
-/** Closed lower underwear choices; serialized values are unchanged.
- */
+/** Closed lower underwear choices; serialized values are unchanged. */
 export type AutoMovieHumanLowerUnderwear =
   /** No lower undergarment requested. */
   | "none"

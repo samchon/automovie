@@ -4,18 +4,28 @@ import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tu
 import type { IAutoMovieHumanSourceDefinition } from "../limb/IAutoMovieHumanSourceDefinition";
 
 /**
- * The shared original hand-region field and restricted chart frames used by digit attachments.
+ * The shared original hand-region field and restricted chart frames used by
+ * digit attachments.
  *
- * The interface package owns these declarations; AutoMovieHumanHandParent in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanHandParent in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanHandParent {
-  /** One prepared original hand-region field shared by all five digits before whole-arm demand.
+  /**
+   * One prepared original hand-region field shared by all five digits before
+   * whole-arm demand.
    */
   export interface IOutput {
-    /** Only the legacy explicit-part adapter retains a completed original; production controls leave this absent. */
+    /**
+     * Only the legacy explicit-part adapter retains a completed original;
+     * production controls leave this absent.
+     */
     definition?: IAutoMovieHumanSourceDefinition;
 
-    /** Shared identity/frame/pole metadata; no neighbouring scalar curves or completed part is acquired. */
+    /**
+     * Shared identity/frame/pole metadata; no neighbouring scalar curves or
+     * completed part is acquired.
+     */
     part: Pick<IAutoMovieViewPart, "name" | "axis" | "pole">;
 
     /** Complete original signed scalar/fullness owner, not emitted layers. */
@@ -39,10 +49,16 @@ export namespace IAutoMovieHumanHandParent {
     /** This original ViewPart producer has no relief or layer-lift input. */
     relief: "absent from original view definition";
 
-    /** Actual requested chart interval, calibration mm; the native scalar coefficients keep their original global parameter. */
+    /**
+     * Actual requested chart interval, calibration mm; the native scalar
+     * coefficients keep their original global parameter.
+     */
     domain: readonly [number, number];
 
-    /** Actual original frames only in this chart, reused to bracket its normal-plane roots. */
+    /**
+     * Actual original frames only in this chart, reused to bracket its
+     * normal-plane roots.
+     */
     stations: {
       /** Original physical station, calibration mm. */
       station: number;
@@ -55,7 +71,6 @@ export namespace IAutoMovieHumanHandParent {
     }[];
   }
 
-  /** Original normal-plane frame, before any skin or mesh.
-   */
+  /** Original normal-plane frame, before any skin or mesh. */
   export type Frame = ReturnType<IAutoMovieViewPart["axis"]["at"]>;
 }

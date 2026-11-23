@@ -1,7 +1,8 @@
 import type { IAutoMovieMotionHumanRegrasp } from "../handling/IAutoMovieMotionHumanRegrasp";
 
 /**
- * Open parameters of the regrasp lexicon family, keyed by each runtime export name.
+ * Open parameters of the regrasp lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconRegraspParams {
   /** A key or a cap turned about its own axis by the wrist, the grip held. */

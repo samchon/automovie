@@ -1,5 +1,4 @@
-/** Consumed scene work, including failed and rolled-back transactions.
- */
+/** Consumed scene work, including failed and rolled-back transactions. */
 export interface IAutoMovieRecoverySceneWork {
   /** Camera transactions begun, including failures. */
   cameraAttempts: number;
@@ -7,7 +6,10 @@ export interface IAutoMovieRecoverySceneWork {
   /** Six-point proposals actually started. */
   resectionTrials: number;
 
-  /** Original point designs actually attempted, including refused/retried tracks. */
+  /**
+   * Original point designs actually attempted, including refused/retried
+   * tracks.
+   */
   triangulations: number;
 
   /** Attempted point designs that returned no qualified point. */
@@ -19,6 +21,9 @@ export interface IAutoMovieRecoverySceneWork {
   /** Joint iteration attempts, including gradient-stop checks. */
   jointIterationAttempts: number;
 
-  /** Charged dimension-sweep units before point/joint work, not actual scalar-operation counts. */
+  /**
+   * Charged dimension-sweep units before point/joint work, not actual
+   * scalar-operation counts.
+   */
   linearWork: number;
 }

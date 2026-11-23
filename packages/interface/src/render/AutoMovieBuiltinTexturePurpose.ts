@@ -1,5 +1,4 @@
-/** Actual implicit material and rectangular-light texture consumer roles.
- */
+/** Actual implicit material and rectangular-light texture consumer roles. */
 export type AutoMovieBuiltinTexturePurpose =
   | "subsurface-lut"
   | "overlay-flat-normal"

@@ -1,11 +1,14 @@
 import type { IAutoMovieRetargetHandContact } from "./IAutoMovieRetargetHandContact";
 
 /**
- * Configure source-contact preservation during humanoid retargeting; omitted fields enable the pass with source-rest-floor stance detection and no declared hand contacts.
+ * Configure source-contact preservation during humanoid retargeting; omitted
+ * fields enable the pass with source-rest-floor stance detection and no
+ * declared hand contacts.
  */
 export interface IAutoMovieRetargetContactProps {
   /**
-   * Run contact correction. Defaults to true; false keeps copied clinical angles and scaled root motion.
+   * Run contact correction. Defaults to true; false keeps copied clinical
+   * angles and scaled root motion.
    */
   enabled?: boolean;
 

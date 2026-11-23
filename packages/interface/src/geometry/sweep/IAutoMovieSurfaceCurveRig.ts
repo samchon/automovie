@@ -2,13 +2,11 @@
  * A network curve of a surface rig, from `rigAutoMovieSurfaceCurve`,
  * re-evaluated per pose into its own buffers.
  *
- * `update` runs once per pose after the sweeps and bones it reads; the
- * queries then write into caller arrays without allocation.
+ * `update` runs once per pose after the sweeps and bones it reads; the queries
+ * then write into caller arrays without allocation.
  */
 export interface IAutoMovieSurfaceCurveRig {
-  /**
-   * Re-evaluate the curve for the current pose.
-   */
+  /** Re-evaluate the curve for the current pose. */
   update(): void;
 
   /**

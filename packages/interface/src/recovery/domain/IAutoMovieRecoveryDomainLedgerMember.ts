@@ -3,9 +3,11 @@ import type {
   IAutoMovieRecoveryDomainEmission,
 } from "../../index";
 
-/** One declared reconstruction occurrence and its observed processing state.
- * Null stage values mean unpublished observations, not a failed or skipped stage.
- * Delegation preserves this occurrence's identity without borrowing its owner's ranges.
+/**
+ * One declared reconstruction occurrence and its observed processing state.
+ * Null stage values mean unpublished observations, not a failed or skipped
+ * stage. Delegation preserves this occurrence's identity without borrowing its
+ * owner's ranges.
  */
 export interface IAutoMovieRecoveryDomainLedgerMember {
   /** Deterministic kind and original saved ordinal; never a source-mesh address. */
@@ -37,6 +39,9 @@ export interface IAutoMovieRecoveryDomainLedgerMember {
   /** Actual published ranges only; empty does not fabricate a zero-face success. */
   emitted: IAutoMovieRecoveryDomainEmission[];
 
-  /** Local reasons, retaining ambiguity rather than assigning another member's failure. */
+  /**
+   * Local reasons, retaining ambiguity rather than assigning another member's
+   * failure.
+   */
   diagnostics: string[];
 }

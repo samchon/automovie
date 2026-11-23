@@ -1,6 +1,4 @@
-/**
- * One component of a channel value that exceeded its bound and was clamped.
- */
+/** One component of a channel value that exceeded its bound and was clamped. */
 export interface IAutoMovieClampViolation {
   /** Index of the offending component within the channel value vector. */
   component: number;

@@ -1,7 +1,9 @@
 /**
- * The category of a deterministic constraint violation, aligned with the engine's validator tiers.
+ * The category of a deterministic constraint violation, aligned with the
+ * engine's validator tiers.
  *
- * Validators assign the category to explain the rule that failed. The label itself neither schedules checks nor chooses severity.
+ * Validators assign the category to explain the rule that failed. The label
+ * itself neither schedules checks nor chooses severity.
  */
 export type AutoMovieViolationKind =
   /** Tier 1: wrong type, bad enum value, missing required field. */
@@ -17,14 +19,13 @@ export type AutoMovieViolationKind =
   | "physics"
 
   /**
-   * Tier 4: temporal incoherence (non-monotonic time, excessive angular velocity).
+   * Tier 4: temporal incoherence (non-monotonic time, excessive angular
+   * velocity).
    */
   | "temporal"
 
   /** Tier 5: invalid generated mesh topology (non-manifold, etc.). */
   | "topology"
 
-  /**
-   * Procedural: required authored or reviewed coverage is missing.
-   */
+  /** Procedural: required authored or reviewed coverage is missing. */
   | "coverage";

@@ -7,24 +7,26 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  *
  * The root is the first channel written, so the trunk, the head and the limbs
  * of the same second are placed on the moved body. Planted legs keep their
- * world goals and are solved again on the moved pelvis, which is what bends
- * the knees when the root sinks.
+ * world goals and are solved again on the moved pelvis, which is what bends the
+ * knees when the root sinks.
  */
 export namespace IAutoMovieMotionHumanRoot {
-  /**
-   * A displacement of the body from where its posture has it.
-   */
+  /** A displacement of the body from where its posture has it. */
   export interface IOffset {
-    /** The root's move in its own floor frame; `x` left, `y` up, `z` forward, metres. */
+    /**
+     * The root's move in its own floor frame; `x` left, `y` up, `z` forward,
+     * metres.
+     */
     point: IAutoMovieVector3;
 
-    /** The heading's turn about +Y, degrees; positive toward the performer's left. */
+    /**
+     * The heading's turn about +Y, degrees; positive toward the performer's
+     * left.
+     */
     yaw: number;
   }
 
-  /**
-   * A displacement over a window.
-   */
+  /** A displacement over a window. */
   export interface ITravel {
     /** Seconds since the action's start from which the root is written. */
     from: number;

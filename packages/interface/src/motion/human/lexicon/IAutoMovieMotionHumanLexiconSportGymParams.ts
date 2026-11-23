@@ -2,13 +2,17 @@ import type { IAutoMovieMotionHumanCrawl } from "../floor/IAutoMovieMotionHumanC
 import type { IAutoMovieMotionHumanWorkout } from "../next/IAutoMovieMotionHumanWorkout";
 
 /**
- * Open parameters of the sportGym lexicon family, keyed by each runtime export name.
+ * Open parameters of the sportGym lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconSportGymParams {
   /** A bear crawl: on the hands and the feet, the knees held off the floor. */
   bearCrawl: Omit<IAutoMovieMotionHumanCrawl.IParams, "kind">;
 
-  /** Inchworms: folded, the hands walked out to a plank, the feet walked in to the hands, and up. */
+  /**
+   * Inchworms: folded, the hands walked out to a plank, the feet walked in to
+   * the hands, and up.
+   */
   inchworm: Omit<IAutoMovieMotionHumanCrawl.IParams, "kind">;
 
   /** Bent-over rows, without the bar. */
@@ -77,10 +81,16 @@ export interface IAutoMovieMotionHumanLexiconSportGymParams {
   /** Dead bugs. */
   deadBug: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
 
-  /** Step-ups onto the box the composition names (`on`); an imagined one when none is named. */
+  /**
+   * Step-ups onto the box the composition names (`on`); an imagined one when
+   * none is named.
+   */
   stepUp: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
 
-  /** Hip thrusts, the upper back on the bench's edge the composition names (`on`), the performer standing with the back to it. */
+  /**
+   * Hip thrusts, the upper back on the bench's edge the composition names
+   * (`on`), the performer standing with the back to it.
+   */
   hipThrust: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
 
   /** Incline push-ups, the hands on the bench the composition names (`on`). */

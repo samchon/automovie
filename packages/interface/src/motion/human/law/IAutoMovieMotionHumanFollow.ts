@@ -1,9 +1,9 @@
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 
 /**
- * A channel whose writer follows another performer live over a window of
- * its plan (an arm that tracks a partner's region a feedback delay
- * earlier): inside the window, reading the channel reads that partner.
+ * A channel whose writer follows another performer live over a window of its
+ * plan (an arm that tracks a partner's region a feedback delay earlier): inside
+ * the window, reading the channel reads that partner.
  */
 export interface IAutoMovieMotionHumanFollow {
   /** The channel. */

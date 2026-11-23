@@ -1,7 +1,8 @@
 import type { IAutoMovieSweep } from "./IAutoMovieSweep";
 
 /**
- * Rest sweep and resolved bone-buffer indices for compiling reusable sampling slots.
+ * Rest sweep and resolved bone-buffer indices for compiling reusable sampling
+ * slots.
  */
 export namespace IAutoMovieRigSweep {
   /**
@@ -21,26 +22,49 @@ export namespace IAutoMovieRigSweep {
    * `integrateAutoMovieSweepVolume`, equals the rest volume. Without either the
    * scale stays the rest profile. A girth factor set by `girth` then multiplies
    * every scale slot, at rest and after settling, so the settled volume is the
-   * rest volume before that correction. Shapes before scale come directly from the shared shape evaluator and are
-   * read once at registration; no scaled result is divided back into a shape.
-   * Parameter-correspondence cells average actual signed section coordinates; radial cells retain radius averaging about their authored direction. Valid Cartesian cancellation at the origin is allowed.
-   * Unrepresentable nonzero cell averages, scaled samples and girth products
-   * are refused. Girth admission stages every factor, product and probe before committing.
+   * rest volume before that correction. Shapes before scale come directly from
+   * the shared shape evaluator and are read once at registration; no scaled
+   * result is divided back into a shape. Parameter-correspondence cells average
+   * actual signed section coordinates; radial cells retain radius averaging
+   * about their authored direction. Valid Cartesian cancellation at the origin
+   * is allowed. Unrepresentable nonzero cell averages, scaled samples and girth
+   * products are refused. Girth admission stages every factor, product and
+   * probe before committing.
    */
   export type IProps = {
-    /** Rest sweep in model metres, validated by compileAutoMovieSweep and retained by the rig. Keep authored geometry stable while compiled slots are in use. */
+    /**
+     * Rest sweep in model metres, validated by compileAutoMovieSweep and
+     * retained by the rig. Keep authored geometry stable while compiled slots
+     * are in use.
+     */
     sweep: IAutoMovieSweep;
 
-    /** Optional compiled bone-buffer indices, distinct from the authored bone-identity binding. Omission keeps all frames at rest. Outer array lengths are checked against the sweep; index validity and one/two station cardinality are caller preconditions. */
+    /**
+     * Optional compiled bone-buffer indices, distinct from the authored
+     * bone-identity binding. Omission keeps all frames at rest. Outer array
+     * lengths are checked against the sweep; index validity and one/two station
+     * cardinality are caller preconditions.
+     */
     binding?: {
-      /** One nonnegative index in the later pose bone buffer per spine point, in spine order. The array is retained for pose updates. */
+      /**
+       * One nonnegative index in the later pose bone buffer per spine point, in
+       * spine order. The array is retained for pose updates.
+       */
       points: number[];
 
-      /** One array of one or two bone-buffer indices per station. Two indices mark a joint and blend its rotations at their spherical midpoint. The arrays are retained and must remain stable. */
+      /**
+       * One array of one or two bone-buffer indices per station. Two indices
+       * mark a joint and blend its rotations at their spherical midpoint. The
+       * arrays are retained and must remain stable.
+       */
       stations: number[][];
     };
 
-    /** Whether bound two-bone stations settle their radial scale to the authored rest volume before multiplying girth factors. Required explicitly; unbound sweeps or bindings without joints perform no settlement. */
+    /**
+     * Whether bound two-bone stations settle their radial scale to the authored
+     * rest volume before multiplying girth factors. Required explicitly;
+     * unbound sweeps or bindings without joints perform no settlement.
+     */
     preserveVolume: boolean;
   };
 }

@@ -8,7 +8,8 @@
  * machine epsilons scaled to the frame magnitude, and requires a safe-integer
  * result in [0, totalFrames). It throws for an absent timeline, an off-grid or
  * out-of-range time, or a frame not owned by any segment. Other hosts must
- * explicitly resolve this authoring representation against their own film clock.
+ * explicitly resolve this authoring representation against their own film
+ * clock.
  */
 export type IAutoMovieFilmTime =
   | {

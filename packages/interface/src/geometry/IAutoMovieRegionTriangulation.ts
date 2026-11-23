@@ -7,9 +7,9 @@ import type { IAutoMovieRegionRing } from "./IAutoMovieRegionRing";
  *
  * Canonical coordinates and topology are accompanied by their original input
  * identities, so callers can retain attached data without a coordinate lookup.
- * The triangulator returns newly owned arrays and copies every input point.
- * Ear clipping keeps every canonical point; a hole bridge repeats two indices
- * in `triangles` but adds no point.
+ * The triangulator returns newly owned arrays and copies every input point. Ear
+ * clipping keeps every canonical point; a hole bridge repeats two indices in
+ * `triangles` but adds no point.
  */
 export interface IAutoMovieRegionTriangulation {
   /**
@@ -33,8 +33,8 @@ export interface IAutoMovieRegionTriangulation {
   rings: IAutoMovieRegionRing[];
 
   /**
-   * Corner indices into {@link points}, three per counter-clockwise triangle,
-   * so the region faces +Z.
+   * Corner indices into {@link points}, three per counter-clockwise triangle, so
+   * the region faces +Z.
    */
   triangles: number[];
 

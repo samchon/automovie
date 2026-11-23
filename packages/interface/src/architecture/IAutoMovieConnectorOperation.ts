@@ -7,8 +7,8 @@ import type { IAutoMovieConnectorState } from "./IAutoMovieConnectorState";
  * This is the connector's counterpart to {@link IAutoMovieOpeningOperation},
  * with the same shape: members that travel on one degree of freedom, named
  * states that place every member at once, and the one state the design
- * currently stands in. A run adds where the travel leaves somebody, the space
- * a car stands at, and which way the run is driven.
+ * currently stands in. A run adds where the travel leaves somebody, the space a
+ * car stands at, and which way the run is driven.
  *
  * It carries no hardware: a run's landing doors, frames, handles, and call
  * plates are openings in their own right and carry theirs there. Nothing here
@@ -31,7 +31,12 @@ export interface IAutoMovieConnectorOperation {
   /**
    * The state the design currently stands in; names one of {@link states}.
    *
-   * Lowering and placement queries without an override use this state. A placement query's explicit state name applies to every opening/connector declaring that name; other members stay at rest, while a per-member world-matrix selector can choose independently. Every declared connector state still undergoes its own service and hierarchy checks under their stated scope.
+   * Lowering and placement queries without an override use this state. A
+   * placement query's explicit state name applies to every opening/connector
+   * declaring that name; other members stay at rest, while a per-member
+   * world-matrix selector can choose independently. Every declared connector
+   * state still undergoes its own service and hierarchy checks under their
+   * stated scope.
    */
   state: string;
 }

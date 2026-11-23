@@ -1,8 +1,6 @@
 import type { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
 
-/**
- * The actual fixed Hermite interval containing a projectile query.
- */
+/** The actual fixed Hermite interval containing a projectile query. */
 export interface IAutoMovieProjectileDragInterval {
   /** First actual knot second. */
   from: number;

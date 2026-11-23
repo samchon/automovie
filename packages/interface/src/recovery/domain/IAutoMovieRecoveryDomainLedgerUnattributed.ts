@@ -1,6 +1,8 @@
-/** An emitted contour triangle range without a unique declared group owner.
- * Saved physical interval endpoints and the original group ordinal remain available
- * for diagnosis; they do not fabricate a unique ledger-member address.
+/**
+ * An emitted contour triangle range without a unique declared group owner.
+ * Saved physical interval endpoints and the original group ordinal remain
+ * available for diagnosis; they do not fabricate a unique ledger-member
+ * address.
  */
 export interface IAutoMovieRecoveryDomainLedgerUnattributed {
   /** Identity of the output model part. */

@@ -7,7 +7,10 @@ import type { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
 import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
- * Compact generated formation runtime without a persisted row for every anonymous slot. Bounds and centroid describe placement points; projectionRadius is a separate supplied or fallback estimate used for view tests, not a guaranteed model enclosure.
+ * Compact generated formation runtime without a persisted row for every
+ * anonymous slot. Bounds and centroid describe placement points;
+ * projectionRadius is a separate supplied or fallback estimate used for view
+ * tests, not a guaranteed model enclosure.
  */
 export interface IAutoMovieCompiledFormation {
   /** Generated formation format. */
@@ -34,7 +37,14 @@ export interface IAutoMovieCompiledFormation {
   /**
    * World terrain under this formation, snapshotted at compile time.
    *
-   * A member's height is the ground under that member, so the ground has to travel with the formation: the viewer and the source oracle regenerate slot heights from this snapshot without consulting mutable world design, exactly as a compiled instance set carries the route it follows. Only the surfaces whose extent reaches the formation's own footprint are kept, and their declared order is preserved because the first surface containing a point is the one a member stands on. Empty when the world declared no terrain under the unit, which places every member at the anchor's height.
+   * A member's height is the ground under that member, so the ground has to
+   * travel with the formation: the viewer and the source oracle regenerate slot
+   * heights from this snapshot without consulting mutable world design, exactly
+   * as a compiled instance set carries the route it follows. Only the surfaces
+   * whose extent reaches the formation's own footprint are kept, and their
+   * declared order is preserved because the first surface containing a point is
+   * the one a member stands on. Empty when the world declared no terrain under
+   * the unit, which places every member at the anchor's height.
    */
   ground: IAutoMovieWorldDesign["surfaces"];
 
@@ -50,7 +60,11 @@ export interface IAutoMovieCompiledFormation {
   /** Binary64 running-mean centroid of all generated slot positions. */
   centroid: IAutoMovieVector3;
 
-  /** Unscaled member-radius estimate in metres for LOD projection: maximum applicable tier estimate, base then 0.5m fallback, with a 0.01m floor. Root centering and geometry coverage depend on the supplied producer. */
+  /**
+   * Unscaled member-radius estimate in metres for LOD projection: maximum
+   * applicable tier estimate, base then 0.5m fallback, with a 0.01m floor. Root
+   * centering and geometry coverage depend on the supplied producer.
+   */
   projectionRadius: number;
 
   /** Bounded independently regenerable slot ranges. */
@@ -65,7 +79,11 @@ export interface IAutoMovieCompiledFormation {
   /**
    * Deterministic per-slot phase generator contract.
    *
-   * Phase is where in its cycle one member stands, never how fast that cycle runs: cadence follows the ground a member's own unit covers under its cues, so a compiled cycle length would be a second answer to a question the cue already answers, and a seeded one would be unrelated to what the unit does.
+   * Phase is where in its cycle one member stands, never how fast that cycle
+   * runs: cadence follows the ground a member's own unit covers under its cues,
+   * so a compiled cycle length would be a second answer to a question the cue
+   * already answers, and a seeded one would be unrelated to what the unit
+   * does.
    */
   phase: {
     /** Domain-separated safe-integer seed. */

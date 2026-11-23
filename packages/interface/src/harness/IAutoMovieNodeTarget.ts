@@ -4,7 +4,13 @@
  * scene, because the engine reads the node's own placement instead of a copied
  * coordinate.
  *
- * performShot refuses a blank or unresolved id and can ask its host targetAt callback during admission. The reference actor synthesizer resolves node targets from staged or resumed placement tables; its live target callback is used only for bone targets, so the admission callback alone does not make a node-following gaze or reach. LookAt raises an actor node to its declared eye height. Camera framing follows compiled actor/object translation with an opening rest extent, while launch has its own locomotion-leading path.
+ * PerformShot refuses a blank or unresolved id and can ask its host targetAt
+ * callback during admission. The reference actor synthesizer resolves node
+ * targets from staged or resumed placement tables; its live target callback is
+ * used only for bone targets, so the admission callback alone does not make a
+ * node-following gaze or reach. LookAt raises an actor node to its declared eye
+ * height. Camera framing follows compiled actor/object translation with an
+ * opening rest extent, while launch has its own locomotion-leading path.
  */
 export interface IAutoMovieNodeTarget {
   /** Selects a staged scene node as the target representation. */

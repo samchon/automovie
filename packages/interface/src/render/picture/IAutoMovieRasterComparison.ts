@@ -6,9 +6,7 @@ import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
  * where.
  */
 export interface IAutoMovieRasterComparison {
-  /**
-   * The newer picture in dimmed grey with every changed pixel in magenta.
-   */
+  /** The newer picture in dimmed grey with every changed pixel in magenta. */
   image: IAutoMovieRasterImage;
 
   /** Number of pixels whose largest channel difference exceeds the tolerance. */

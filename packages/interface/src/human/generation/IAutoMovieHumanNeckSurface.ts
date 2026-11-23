@@ -1,12 +1,11 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 
 /**
- * Type contracts exchanged by AutoMovieHumanNeckSurface; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanNeckSurface; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanNeckSurface {
-  /**
-   * One actual source course, sampled at the common display phases.
-   */
+  /** One actual source course, sampled at the common display phases. */
   export interface ISection {
     /** Source chain owning this course. */
     chain: string;
@@ -32,7 +31,10 @@ export namespace IAutoMovieHumanNeckSurface {
       v: AutoMovieVector3Tuple;
     };
 
-    /** Actual source world points in metres, in this course's material-phase order. */
+    /**
+     * Actual source world points in metres, in this course's material-phase
+     * order.
+     */
     points: AutoMovieVector3Tuple[];
 
     /** Actual material phases in radians that evaluated these source points. */
@@ -55,20 +57,27 @@ export namespace IAutoMovieHumanNeckSurface {
     depth: number;
   }
 
-  /**
-   * Prepared neutral neck exterior; no full calibration is retained.
-   */
+  /** Prepared neutral neck exterior; no full calibration is retained. */
   export interface IOutput {
     /** Physical output units; only stationMm retains the source chart's mm. */
     units: "metres";
 
-    /** Public neck length defines a display band, not an anatomical jaw boundary. */
+    /**
+     * Public neck length defines a display band, not an anatomical jaw
+     * boundary.
+     */
     bandDefinition: "requested-length";
 
-    /** Source sample phases in radians; their numbers do not assert cross-chart material correspondence. */
+    /**
+     * Source sample phases in radians; their numbers do not assert cross-chart
+     * material correspondence.
+     */
     phases: number[];
 
-    /** Actual lower boundary, half-height, three-quarter-height and upper courses. */
+    /**
+     * Actual lower boundary, half-height, three-quarter-height and upper
+     * courses.
+     */
     sections: ISection[];
 
     /** Actual head courses at the existing one-third/two-thirds display heights. */
@@ -76,7 +85,8 @@ export namespace IAutoMovieHumanNeckSurface {
 
     /**
      * Canonical calibration pole used by the skeleton, distinct from a finite
-     * section. Generated chain.pole overrides are outside this display contract.
+     * section. Generated chain.pole overrides are outside this display
+     * contract.
      */
     crown: {
       /** Actual source chain whose top this pole closes. */
@@ -92,7 +102,10 @@ export namespace IAutoMovieHumanNeckSurface {
       critical: boolean;
     };
 
-    /** Actual upper-minus-lower centre height, metres; not a bone or axis length. */
+    /**
+     * Actual upper-minus-lower centre height, metres; not a bone or axis
+     * length.
+     */
     visibleLength: number;
 
     /** Public physical neck-length input used as this display band's height, m. */

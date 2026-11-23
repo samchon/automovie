@@ -2,9 +2,9 @@ import type { IAutoMovieMotion } from "./IAutoMovieMotion";
 import type { IAutoMoviePathFrame } from "./IAutoMoviePathFrame";
 
 /**
- * A gait baked along an authored XZ path, with its per-keyframe baseline frames.
- * Whole-cycle snapping determines duration and effective speed; ground Y and
- * gait bob do not contribute to the reported horizontal length.
+ * A gait baked along an authored XZ path, with its per-keyframe baseline
+ * frames. Whole-cycle snapping determines duration and effective speed; ground
+ * Y and gait bob do not contribute to the reported horizontal length.
  */
 export interface IAutoMoviePathLocomotion {
   /** The baked non-looping clip. */

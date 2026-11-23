@@ -1,5 +1,6 @@
 /**
- * Position selection within a named floor zone, consumed by resolveAutoMovieZone.
+ * Position selection within a named floor zone, consumed by
+ * resolveAutoMovieZone.
  */
 export namespace IAutoMovieResolveZone {
   /**
@@ -10,9 +11,16 @@ export namespace IAutoMovieResolveZone {
   export type IWhere =
     | string
     | {
-        /** Horizontal radians from world +Z toward +X; caller supplies a finite angle, with no runtime normalization or validation. */
+        /**
+         * Horizontal radians from world +Z toward +X; caller supplies a finite
+         * angle, with no runtime normalization or validation.
+         */
         bearing: number;
-        /** Radial fraction in [0, 1], checked by resolveAutoMovieZone; zero selects the centre and one the boundary. Height remains zone.center.y. */
+        /**
+         * Radial fraction in [0, 1], checked by resolveAutoMovieZone; zero
+         * selects the centre and one the boundary. Height remains
+         * zone.center.y.
+         */
         share: number;
       };
 }

@@ -1,7 +1,8 @@
 import type { AutoMovieTextureBinding } from "../material/AutoMovieTextureBinding";
 
 /**
- * Represent one borrowed image binding with its material-relative path and required decoding.
+ * Represent one borrowed image binding with its material-relative path and
+ * required decoding.
  *
  * One row joins slot enumeration to binding/asset/scale consumers.
  *
@@ -13,10 +14,14 @@ import type { AutoMovieTextureBinding } from "../material/AutoMovieTextureBindin
  *
  * All material texture consumers reuse this common row representation.
  *
- * The enumeration caller owns wrappers and the material owns referenced binding data.
+ * The enumeration caller owns wrappers and the material owns referenced binding
+ * data.
  */
 export interface IAutoMovieMaterialTextureSlotsMaterialTextureSlot {
-  /** Path under the material, such as `.normalTexture` or `.overlays[1].baseColorTexture`. */
+  /**
+   * Path under the material, such as `.normalTexture` or
+   * `.overlays[1].baseColorTexture`.
+   */
   path: string;
 
   /** The binding as the material states it. */

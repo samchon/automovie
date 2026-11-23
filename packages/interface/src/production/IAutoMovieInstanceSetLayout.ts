@@ -2,9 +2,7 @@ import type { IAutoMovieHeightRule } from "../geometry/IAutoMovieHeightRule";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieExplicitInstanceTransform } from "./IAutoMovieExplicitInstanceTransform";
 
-/**
- * Compact deterministic placement law for a general instance set.
- */
+/** Compact deterministic placement law for a general instance set. */
 export type IAutoMovieInstanceSetLayout =
   | {
       /** Rectangular grid. */
@@ -34,9 +32,9 @@ export type IAutoMovieInstanceSetLayout =
 
       /**
        * Optional world Y law for a terrain disk. Scatter reads this law at the
-       * resolved XZ, then adds the anchor Y as an offset. Omission preserves the
-       * level disk at the anchor height. World authors admit the complete disk
-       * against holes and exclusions before supplying this rule.
+       * resolved XZ, then adds the anchor Y as an offset. Omission preserves
+       * the level disk at the anchor height. World authors admit the complete
+       * disk against holes and exclusions before supplying this rule.
        */
       ground?: IAutoMovieHeightRule;
     }
@@ -47,7 +45,10 @@ export type IAutoMovieInstanceSetLayout =
       /** Existing route id. */
       route: string;
 
-      /** Finite non-negative maximum lateral offset from the route centerline in meters. */
+      /**
+       * Finite non-negative maximum lateral offset from the route centerline in
+       * meters.
+       */
       lateralJitter: number;
     }
   | {
@@ -67,7 +68,10 @@ export type IAutoMovieInstanceSetLayout =
       spacing: IAutoMovieVector3;
     }
   | {
-      /** Source-authored local transform block, placed under the set heading and anchor. */
+      /**
+       * Source-authored local transform block, placed under the set heading and
+       * anchor.
+       */
       kind: "explicit";
 
       /** One exact entry per declared slot, in stable slot order. */

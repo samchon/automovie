@@ -1,9 +1,7 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieSoftAnchorBinding } from "./IAutoMovieSoftAnchorBinding";
 
-/**
- * One particle held at a declared boundary position.
- */
+/** One particle held at a declared boundary position. */
 export interface IAutoMovieSoftAnchor {
   /** Stable anchor identity within the domain. */
   id: string;
@@ -12,12 +10,17 @@ export interface IAutoMovieSoftAnchor {
   particle: number;
 
   /**
-   * Where the anchor holds that particle in world space, or `null` to hold it exactly at its own rest position. `null` is the honest default: a seam that never moves should not have to restate a coordinate the rest mesh already carries, where a typo would silently pre-stretch the panel.
+   * Where the anchor holds that particle in world space, or `null` to hold it
+   * exactly at its own rest position. `null` is the honest default: a seam that
+   * never moves should not have to restate a coordinate the rest mesh already
+   * carries, where a typo would silently pre-stretch the panel.
    */
   position: IAutoMovieVector3 | null;
 
   /**
-   * Optional moving owner whose local point replaces the static position at each fixed-step boundary. When present, validation requires `position` to be null; the engine never silently combines the two frames.
+   * Optional moving owner whose local point replaces the static position at
+   * each fixed-step boundary. When present, validation requires `position` to
+   * be null; the engine never silently combines the two frames.
    */
   binding?: IAutoMovieSoftAnchorBinding;
 }

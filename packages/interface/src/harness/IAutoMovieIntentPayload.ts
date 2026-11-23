@@ -1,7 +1,10 @@
 /**
- * The screenplay refinement tree's intent root states the film's logline and theme, which every descendant refines.
+ * The screenplay refinement tree's intent root states the film's logline and
+ * theme, which every descendant refines.
  *
- * renderScreenplay prints these fields as the LOGLINE and THEME header. validateScriptTree requires both to be nonblank and to match the script's flat logline and theme exactly.
+ * RenderScreenplay prints these fields as the LOGLINE and THEME header.
+ * validateScriptTree requires both to be nonblank and to match the script's
+ * flat logline and theme exactly.
  */
 export interface IAutoMovieIntentPayload {
   /** One-sentence summary of the film. */

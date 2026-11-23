@@ -1,11 +1,11 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
 /**
- * Type contracts exchanged by AutoMovieHumanLegCrotchFillet; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanLegCrotchFillet; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanLegCrotchFillet {
-  /** The leg's start ring at the leg's phases.
-   */
+  /** The leg's start ring at the leg's phases. */
   export interface ILoop {
     /** Points of the loop at the leg's phases. */
     points: AutoMovieVector3Tuple[];

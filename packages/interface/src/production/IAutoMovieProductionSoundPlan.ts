@@ -6,7 +6,8 @@ import type { IAutoMovieProductionSoundEvent } from "./IAutoMovieProductionSound
 import type { IAutoMovieSoundPropagationProfile } from "./IAutoMovieSoundPropagationProfile";
 
 /**
- * Deterministic semantic sound input derived from one current compiled film edit.
+ * Deterministic semantic sound input derived from one current compiled film
+ * edit.
  */
 export interface IAutoMovieProductionSoundPlan {
   /** Sound-plan schema. */
@@ -19,7 +20,8 @@ export interface IAutoMovieProductionSoundPlan {
   fps: number;
 
   /**
-   * Exact frame rate when `fps` is fractional. Integer legacy rates use an equivalent denominator of one when this field is omitted.
+   * Exact frame rate when `fps` is fractional. Integer legacy rates use an
+   * equivalent denominator of one when this field is omitted.
    */
   frameRate?: IAutoMovieProductionFrameRate;
 
@@ -33,21 +35,20 @@ export interface IAutoMovieProductionSoundPlan {
   channels: 2;
 
   /**
-   * Selected direct-path propagation profile; omission preserves the byte-compatible legacy dry path.
+   * Selected direct-path propagation profile; omission preserves the
+   * byte-compatible legacy dry path.
    */
   propagationProfile?: IAutoMovieSoundPropagationProfile;
 
-  /**
-   * Selected room-response source, or absent for the byte-compatible dry path.
-   */
+  /** Selected room-response source, or absent for the byte-compatible dry path. */
   acousticProfile?: IAutoMovieAcousticResponseProfile;
 
   /**
    * Optional attenuation of music cues around dialogue placements with adopted
-   * PCM. Attack precedes each line and release follows it. Their absolute
-   * frame anchors are rounded to sample ticks before interpolation. Overlaps
-   * use the lowest gain. Only the part inside
-   * the film is applied. Omission preserves the existing mix.
+   * PCM. Attack precedes each line and release follows it. Their absolute frame
+   * anchors are rounded to sample ticks before interpolation. Overlaps use the
+   * lowest gain. Only the part inside the film is applied. Omission preserves
+   * the existing mix.
    */
   scoreDucking?:
     | {

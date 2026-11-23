@@ -4,7 +4,10 @@ import type { AutoMovieSoftAnalysisStatus } from "./AutoMovieSoftAnalysisStatus"
 /**
  * What a domain's analysis actually did, and what it declined to claim.
  *
- * An unsupported or unexecuted analysis is reported here, never dressed as a success: a panel drawn in its rest shape because the solver could not honour what it was asked for is a _reported_ rest shape, not a simulation that happened to look still.
+ * An unsupported or unexecuted analysis is reported here, never dressed as a
+ * success: a panel drawn in its rest shape because the solver could not honour
+ * what it was asked for is a _reported_ rest shape, not a simulation that
+ * happened to look still.
  */
 export interface IAutoMovieSoftAnalysis {
   /** Identity of the analysed domain. */

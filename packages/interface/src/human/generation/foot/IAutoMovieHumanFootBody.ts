@@ -7,13 +7,14 @@ import type { IAutoMovieHumanFootGuide } from "./IAutoMovieHumanFootGuide";
 import type { IAutoMovieHumanFootWebLine } from "./IAutoMovieHumanFootWebLine";
 
 /**
- * Foot guide inputs and station/phase readers for section rings and loft samples.
+ * Foot guide inputs and station/phase readers for section rings and loft
+ * samples.
  *
- * The interface package owns these declarations; AutoMovieHumanFootBody in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanFootBody in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanFootBody {
-  /** The five guides a section stands between.
-   */
+  /** The five guides a section stands between. */
   export interface IGuides {
     /** The instep's crest. */
     crest: IAutoMovieHumanFootGuide.IGuide;
@@ -31,8 +32,7 @@ export namespace IAutoMovieHumanFootBody {
     medial: IAutoMovieHumanFootGuide.IGuide;
   }
 
-  /** What the body reads: the frame, the fan's axes and the five guides.
-   */
+  /** What the body reads: the frame, the fan's axes and the five guides. */
   export interface IInput {
     /** The foot's frame. */
     frame: IAutoMovieHumanFootFrame.IFrame;
@@ -50,8 +50,7 @@ export namespace IAutoMovieHumanFootBody {
     producer?: string;
   }
 
-  /** The body: its stations and the section at any station.
-   */
+  /** The body: its stations and the section at any station. */
   export interface IBody {
     /** The chain's layer stations, from the web ring to the ankle ring. */
     stations: number[];
@@ -59,27 +58,20 @@ export namespace IAutoMovieHumanFootBody {
     /** The section planes. */
     fan: IAutoMovieHumanFootWebLine.IWebLine;
 
-    /**
-     * The section at a station as a loft sample.
-     */
+    /** The section at a station as a loft sample. */
     sample: (station: number) => IAutoMovieHumanLimbFrame.ISample;
 
-    /**
-     * The section at a station.
-     */
+    /** The section at a station. */
     section: (station: number) => ISection;
 
-    /**
-     * A guide's point at a station.
-     */
+    /** A guide's point at a station. */
     guide: (
       name: "crest" | "lateral" | "medial",
       station: number,
     ) => AutoMovieVector3Tuple;
   }
 
-  /** A section: its ring at its fixed phases and its places across.
-   */
+  /** A section: its ring at its fixed phases and its places across. */
   export interface ISection {
     /** World points at the section's fixed phases. */
     ring: AutoMovieVector3Tuple[];
@@ -88,12 +80,19 @@ export namespace IAutoMovieHumanFootBody {
     frame: IAutoMovieLoftSectionFrame;
 
     /**
-     * Phases on the upper and lower boundaries where the across coordinate is `v`.
+     * Phases on the upper and lower boundaries where the across coordinate is
+     * `v`.
      */
     pinches: (v: number) => {
-      /** Upper boundary phase at the requested across coordinate, radians in the section's fixed phase convention. */
+      /**
+       * Upper boundary phase at the requested across coordinate, radians in the
+       * section's fixed phase convention.
+       */
       dorsal: number;
-      /** Lower boundary phase at the requested across coordinate, radians in the section's fixed phase convention. */
+      /**
+       * Lower boundary phase at the requested across coordinate, radians in the
+       * section's fixed phase convention.
+       */
       plantar: number;
     };
 
@@ -103,9 +102,7 @@ export namespace IAutoMovieHumanFootBody {
     /** Phase of the medial border point. */
     medial: number;
 
-    /**
-     * A world point at a phase.
-     */
+    /** A world point at a phase. */
     at: (t: number) => AutoMovieVector3Tuple;
   }
 }

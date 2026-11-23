@@ -3,8 +3,7 @@ import type {
   IAutoMovieRecoveryOpenCurvePair,
 } from "../../index";
 
-/** Open-curve incidence between two adjacent published section reports.
- */
+/** Open-curve incidence between two adjacent published section reports. */
 export interface IAutoMovieRecoveryOpenContinuationInterval {
   /** Preceding section ordinal in the saved publication. */
   beforeSection: number;

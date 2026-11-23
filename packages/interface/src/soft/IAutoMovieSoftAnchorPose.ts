@@ -1,8 +1,6 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/**
- * Static world target a named state assigns to one declared anchor.
- */
+/** Static world target a named state assigns to one declared anchor. */
 export interface IAutoMovieSoftAnchorPose {
   /** Id of an anchor declared by the same domain. */
   anchor: string;

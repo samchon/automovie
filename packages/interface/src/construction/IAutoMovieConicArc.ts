@@ -1,12 +1,8 @@
 import type { IAutoMoviePolarSector } from "./IAutoMoviePolarSector";
 
-/**
- * Data and callback contracts shared by the ConicArc operations.
- */
+/** Data and callback contracts shared by the ConicArc operations. */
 export namespace IAutoMovieConicArc {
-  /**
-   * One numeric ray location shared with source derivative readers.
-   */
+  /** One numeric ray location shared with source derivative readers. */
   export interface IRay {
     /** Physical point in the original quarter chart. */
     point: readonly [number, number];
@@ -26,7 +22,10 @@ export namespace IAutoMovieConicArc {
     /** Selected cubic log odds, or null at an endpoint or quadratic. */
     clock: number | null;
 
-    /** Explicit endpoint identity; a null clock never implies an interior parameter. */
+    /**
+     * Explicit endpoint identity; a null clock never implies an interior
+     * parameter.
+     */
     position: "first" | "interior" | "last";
 
     /** Selected chart was reflected from the original quarter. */

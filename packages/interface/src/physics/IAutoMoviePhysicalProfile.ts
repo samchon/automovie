@@ -6,7 +6,14 @@ import type { IAutoMoviePhysicalSegment } from "./IAutoMoviePhysicalSegment";
 /**
  * A solver-neutral articulated body in SI units, with +Y up.
  *
- * Segment neutral transforms place bone origins in the body frame; inertia and colliders use bone-local frames. Equipment contributes shapes and mass to a segment. validatePhysicalProfile checks finite native-representable physical quantities, unit rotations, positive principal moments satisfying the triangle inequalities, total mass/centre consistency, known materials and a connected acyclic joint tree. It returns diagnostic paths without repairing the input. Providers own the mutable data and its provenance; simulation admission consumes the same description for every body.
+ * Segment neutral transforms place bone origins in the body frame; inertia and
+ * colliders use bone-local frames. Equipment contributes shapes and mass to a
+ * segment. validatePhysicalProfile checks finite native-representable physical
+ * quantities, unit rotations, positive principal moments satisfying the
+ * triangle inequalities, total mass/centre consistency, known materials and a
+ * connected acyclic joint tree. It returns diagnostic paths without repairing
+ * the input. Providers own the mutable data and its provenance; simulation
+ * admission consumes the same description for every body.
  */
 export interface IAutoMoviePhysicalProfile {
   /** Stable provider/content identity, never used to select physical behavior. */
@@ -24,7 +31,10 @@ export interface IAutoMoviePhysicalProfile {
   /** Exactly one parent for every nonroot segment. */
   joints: IAutoMoviePhysicalJoint[];
 
-  /** Explicit overlapping pivot neighbours; other self collisions remain enabled. */
+  /**
+   * Explicit overlapping pivot neighbours; other self collisions remain
+   * enabled.
+   */
   collisionExclusions?: {
     /** First segment. */ a: string;
 

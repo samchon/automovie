@@ -6,17 +6,19 @@ import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 import type { IAutoMoviePrepareChainRigConstants } from "./IAutoMoviePrepareChainRigConstants";
 
 /**
- * Contracts of `prepareChainConstants`: one limb chain's fixed rest geometry and rig readers.
+ * Contracts of `prepareChainConstants`: one limb chain's fixed rest geometry
+ * and rig readers.
  */
 export namespace IAutoMoviePrepareChainConstants {
-  /**
-   * A chain's rig constants.
-   */
+  /** A chain's rig constants. */
   export interface IConstants {
     /** The chain. */
     chain: IAutoMoviePlantChain;
 
-    /** The root bone's parent; null when the root bone hangs from the pose's root. */
+    /**
+     * The root bone's parent; null when the root bone hangs from the pose's
+     * root.
+     */
     parent: AutoMovieHumanoidBone | null;
 
     /** The root bone's rest translation in its parent's frame, metres. */
@@ -46,7 +48,12 @@ export namespace IAutoMoviePrepareChainConstants {
     /** The mid joint's range. */
     lowerDomain: IAutoMovieJointRotationDomain;
 
-    /** The fit's rig-only readers (`prepareChainRigConstants`) over this record's skeleton, clinical axes and rest frames, handed by `placeChainPlant` to each chain it places; a fit of such a chain must pass those same tables. */
+    /**
+     * The fit's rig-only readers (`prepareChainRigConstants`) over this
+     * record's skeleton, clinical axes and rest frames, handed by
+     * `placeChainPlant` to each chain it places; a fit of such a chain must
+     * pass those same tables.
+     */
     rig: IAutoMoviePrepareChainRigConstants.IRig;
   }
 }

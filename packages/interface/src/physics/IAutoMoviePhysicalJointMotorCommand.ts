@@ -2,13 +2,9 @@ import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMoviePhysicalJoint } from "./IAutoMoviePhysicalJoint";
 
-/**
- * One joint's motor command. One axis's native velocity-motor command.
- */
+/** One joint's motor command. One axis's native velocity-motor command. */
 export namespace IAutoMoviePhysicalJointMotorCommand {
-  /**
-   * One joint's motor command.
-   */
+  /** One joint's motor command. */
   export interface IOutput {
     /** One velocity-motor command per declared axis, in declaration order. */
     axes: IAutoMoviePhysicalJointMotorCommand.IAxis[];
@@ -20,9 +16,7 @@ export namespace IAutoMoviePhysicalJointMotorCommand {
     saturated: ("x" | "y" | "z")[];
   }
 
-  /**
-   * One axis's native velocity-motor command.
-   */
+  /** One axis's native velocity-motor command. */
   export interface IAxis {
     /** Joint-frame axis. */
     axis: "x" | "y" | "z";
@@ -42,14 +36,14 @@ export namespace IAutoMoviePhysicalJointMotorCommand {
    * velocity motors.
    *
    * A native positional motor measures 2 asin(qi) while using the plain joint
-   * axis as its Jacobian, which disagrees under compound rotations. The error is
-   * therefore the geodesic rotation vector of target times inverse current, on
-   * the short arc. Each axis drives an implicit velocity motor with damping
-   * d = (c + k dt) strength-scaled plus passive damping and target speed
-   * (k e + c_active w_target + f strength) / d_active+passive, the backward-Euler
-   * form of PD with stiffness k = stiffness strength. With positive strength the
-   * requested velocity is projected into the joint's twist-limit box for the next
-   * substep. The cap is the axis torque when any gain is active and zero
+   * axis as its Jacobian, which disagrees under compound rotations. The error
+   * is therefore the geodesic rotation vector of target times inverse current,
+   * on the short arc. Each axis drives an implicit velocity motor with damping
+   * d = (c + k dt) strength-scaled plus passive damping and target speed (k e +
+   * c_active w_target + f strength) / d_active+passive, the backward-Euler form
+   * of PD with stiffness k = stiffness strength. With positive strength the
+   * requested velocity is projected into the joint's twist-limit box for the
+   * next substep. The cap is the axis torque when any gain is active and zero
    * otherwise. Saturation is a demand forecast |d (speed - velocity)| > cap,
    * because the native SDK exposes no solved motor impulse.
    */

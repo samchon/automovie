@@ -20,9 +20,9 @@ export interface IAutoMovieDesignWithholding {
     | "unsupported-geometry";
 
   /**
-   * Engine-written sentence naming the blocking fact: the competing
-   * candidates, the open issues, the confidence against the floor, the
-   * primitive without an outline, or the frame without a settled scale.
+   * Engine-written sentence naming the blocking fact: the competing candidates,
+   * the open issues, the confidence against the floor, the primitive without an
+   * outline, or the frame without a settled scale.
    */
   detail: string;
 }

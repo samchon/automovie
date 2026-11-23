@@ -1,8 +1,6 @@
 import type { IAutoMovieRecoveryEventCurveSource } from "../../index";
 
-/**
- * Native boundary provenance for one generated tensor cell.
- */
+/** Native boundary provenance for one generated tensor cell. */
 
 export interface IAutoMovieRecoveryChartSourcePiece {
   /** Generated patch identity within the compiled chart. */
@@ -11,6 +9,9 @@ export interface IAutoMovieRecoveryChartSourcePiece {
   /** Native local interval [u0,u1,v0,v1]. */
   chart: [number, number, number, number];
 
-  /** Bottom, right, top and left native intervals with declared coefficient authority. */
+  /**
+   * Bottom, right, top and left native intervals with declared coefficient
+   * authority.
+   */
   boundaryCoefficientSources: IAutoMovieRecoveryEventCurveSource[];
 }

@@ -1,5 +1,6 @@
 /**
- * A rational scalar transition N/Q in the same local parameter as its numerator.
+ * A rational scalar transition N/Q in the same local parameter as its
+ * numerator.
  */
 export interface IAutoMovieRationalBernsteinScalar64 {
   /** Homogeneous scalar numerator coefficients. */

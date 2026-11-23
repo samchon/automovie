@@ -2,7 +2,10 @@ import type { AutoMovieBodyRegion } from "../../skeleton/AutoMovieBodyRegion";
 import type { AutoMovieHumanoidBone } from "../../skeleton/AutoMovieHumanoidBone";
 
 /**
- * One action/actor's authored channels removed by its selected body-region mask. Bones are unique in code-unit order; root and expression flags aggregate loss across all keyframes. A record exists only if any channel was removed.
+ * One action/actor's authored channels removed by its selected body-region
+ * mask. Bones are unique in code-unit order; root and expression flags
+ * aggregate loss across all keyframes. A record exists only if any channel was
+ * removed.
  */
 export interface IAutoMovieMaskedContent {
   /** Index into the action list {@link compilePerformance} was given. */

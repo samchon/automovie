@@ -1,6 +1,4 @@
-/**
- * Original saved longitudinal interval and ordinary open-pair occurrence.
- */
+/** Original saved longitudinal interval and ordinary open-pair occurrence. */
 
 export interface IAutoMovieRecoveryOpenPairAddress {
   /** Original saved interval ordinal. */

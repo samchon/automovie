@@ -1,8 +1,6 @@
 import type { IAutoMovieFileReceipt } from "../../index";
 
-/**
- * Explicit spool identity and finite immutable frontier read budgets.
- */
+/** Explicit spool identity and finite immutable frontier read budgets. */
 
 export interface IAutoMovieRecoveryMeshFrontierInput {
   /** Exact immutable receipt of the last closed journal. */

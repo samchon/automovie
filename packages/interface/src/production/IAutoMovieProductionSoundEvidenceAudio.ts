@@ -1,6 +1,4 @@
-/**
- * Final encoded audio identity retained by the sibling sound evidence record.
- */
+/** Final encoded audio identity retained by the sibling sound evidence record. */
 export interface IAutoMovieProductionSoundEvidenceAudio {
   /** Render-root-relative sibling audio path. */
   path: string;

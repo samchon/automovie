@@ -1,7 +1,9 @@
 import type { IAutoMovieCompiledFormationLod } from "./IAutoMovieCompiledFormationLod";
 
 /**
- * One engine-compiled reusable prototype in a general instance set. Weight participates in seeded per-slot selection; projectionRadius is an unscaled source-radius estimate rather than a certified geometry bound.
+ * One engine-compiled reusable prototype in a general instance set. Weight
+ * participates in seeded per-slot selection; projectionRadius is an unscaled
+ * source-radius estimate rather than a certified geometry bound.
  */
 export interface IAutoMovieCompiledInstancePrototype {
   /** Stable source prototype id. */
@@ -16,6 +18,10 @@ export interface IAutoMovieCompiledInstancePrototype {
   /** Ordered automatic LOD representations for this prototype. */
   lod: IAutoMovieCompiledFormationLod[];
 
-  /** Supplied or fallback source-radius estimate in metres before slot scaling; model root offset and complete geometry coverage are separate producer premises. */
+  /**
+   * Supplied or fallback source-radius estimate in metres before slot scaling;
+   * model root offset and complete geometry coverage are separate producer
+   * premises.
+   */
   projectionRadius: number;
 }

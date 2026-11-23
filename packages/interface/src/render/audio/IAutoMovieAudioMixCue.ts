@@ -1,5 +1,10 @@
 /**
- * One mono excerpt placed on the output sample clock. mixAutoMovieAudioPcm validates finite onset/gain/pan/rate/offset, rounds onset and explicit duration to output samples, linearly interpolates source samples, and refuses an empty or overlong excerpt. Content beyond the output end is dropped. Defaults are pan/offset zero, rate one, and duration through the last available source sample.
+ * One mono excerpt placed on the output sample clock. mixAutoMovieAudioPcm
+ * validates finite onset/gain/pan/rate/offset, rounds onset and explicit
+ * duration to output samples, linearly interpolates source samples, and refuses
+ * an empty or overlong excerpt. Content beyond the output end is dropped.
+ * Defaults are pan/offset zero, rate one, and duration through the last
+ * available source sample.
  */
 export interface IAutoMovieAudioMixCue {
   /** Source id. */

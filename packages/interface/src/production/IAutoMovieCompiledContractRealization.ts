@@ -4,7 +4,9 @@ import type { IAutoMovieCameraDepthPrecisionReport } from "../scene/IAutoMovieCa
 import type { IAutoMovieCompiledPredicateResult } from "./IAutoMovieCompiledPredicateResult";
 
 /**
- * Measurements that grade one shot contract against its compiled scene and motion. Failure records preserve missing measurements instead of treating contract prose as execution evidence.
+ * Measurements that grade one shot contract against its compiled scene and
+ * motion. Failure records preserve missing measurements instead of treating
+ * contract prose as execution evidence.
  */
 export interface IAutoMovieCompiledContractRealization {
   /** Realization format. */
@@ -58,9 +60,14 @@ export interface IAutoMovieCompiledContractRealization {
     time: number;
 
     /**
-     * World placement this sample measured, present only when the shot compiled a camera move.
+     * World placement this sample measured, present only when the shot compiled
+     * a camera move.
      *
-     * A `frame` action solves the live camera's placement from the framing and its subject, keeping the staged camera's bearing but replacing its distance, so the staged `scene.cameras[i].transform` beside this record is the solve's input rather than the placement that renders. Absent means the two are the same camera and the staged transform is exact.
+     * A `frame` action solves the live camera's placement from the framing and
+     * its subject, keeping the staged camera's bearing but replacing its
+     * distance, so the staged `scene.cameras[i].transform` beside this record
+     * is the solve's input rather than the placement that renders. Absent means
+     * the two are the same camera and the staged transform is exact.
      */
     placement?: {
       /** Sampled camera origin in world space. */
@@ -70,9 +77,7 @@ export interface IAutoMovieCompiledContractRealization {
       rotation: IAutoMovieQuaternion;
     };
 
-    /**
-     * Required-range depth precision measured for this exact camera time.
-     */
+    /** Required-range depth precision measured for this exact camera time. */
     depthPrecision: IAutoMovieCameraDepthPrecisionReport;
 
     /** Number of required subjects. */
@@ -102,7 +107,10 @@ export interface IAutoMovieCompiledContractRealization {
     /** World-space maximum bound. */
     max: IAutoMovieVector3;
 
-    /** Whether count and chunk coverage passed, plus promoted hero placement when the grading call supplied nonnull production. */
+    /**
+     * Whether count and chunk coverage passed, plus promoted hero placement
+     * when the grading call supplied nonnull production.
+     */
     passed: boolean;
   }>;
 }

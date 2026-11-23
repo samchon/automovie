@@ -1,7 +1,8 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * Visibility evidence for one explicitly required subject in one delivered frame.
+ * Visibility evidence for one explicitly required subject in one delivered
+ * frame.
  */
 export interface IAutoMovieCameraInspection {
   /** Conservative framing grade for the full placed, camera-visible extent. */
@@ -20,7 +21,8 @@ export interface IAutoMovieCameraInspection {
 /** Related observations and grades for a single subject and frame. */
 export namespace IAutoMovieCameraInspection {
   /**
-   * Bounds exclusion by a side or depth plane, possible overlap, or missing evidence.
+   * Bounds exclusion by a side or depth plane, possible overlap, or missing
+   * evidence.
    */
   export type Framing =
     | "outside"
@@ -29,9 +31,7 @@ export namespace IAutoMovieCameraInspection {
     | "possible"
     | "unavailable";
 
-  /**
-   * Evidence from rays through the actual delivery projection.
-   */
+  /** Evidence from rays through the actual delivery projection. */
   export interface IWitnesses {
     /** Rays that met an admitted opaque blocker before a subject surface. */
     blocked: number;
@@ -43,9 +43,7 @@ export namespace IAutoMovieCameraInspection {
     blocker?: IAutoMovieVector3;
   }
 
-  /**
-   * Pixel counts using the same pose, projection, clipping and output raster.
-   */
+  /** Pixel counts using the same pose, projection, clipping and output raster. */
   export interface IPixels {
     /** Required-subject pixels in isolation, before coverage by other geometry. */
     isolated: number;
@@ -54,9 +52,7 @@ export namespace IAutoMovieCameraInspection {
     visible: number;
   }
 
-  /**
-   * Occlusion grade and the evidence that supports its scope.
-   */
+  /** Occlusion grade and the evidence that supports its scope. */
   export type Occlusion =
     | { status: "not-applicable" | "unmeasured" | "no-target-pixels" }
     | { status: "witnesses"; samples: IWitnesses }
@@ -66,9 +62,7 @@ export namespace IAutoMovieCameraInspection {
         ratio: number;
       };
 
-  /**
-   * Independent framing and occlusion grades.
-   */
+  /** Independent framing and occlusion grades. */
   export interface IResult {
     /** Complete exclusion, possible overlap, or unavailable bounds. */
     framing: Framing;

@@ -4,7 +4,8 @@ import type { IAutoMovieProductionSoundPlan } from "./IAutoMovieProductionSoundP
 import type { IAutoMovieProductionTtsReceipt } from "./IAutoMovieProductionTtsReceipt";
 
 /**
- * Deterministic sound evidence tying the current semantic plan and pre-encode PCM measurements to final encoded audio bytes.
+ * Deterministic sound evidence tying the current semantic plan and pre-encode
+ * PCM measurements to final encoded audio bytes.
  */
 export interface IAutoMovieProductionSoundEvidence {
   /** Complete evidence schema epoch. */

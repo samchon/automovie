@@ -1,9 +1,7 @@
 import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/**
- * One exactly regenerated member of a non-formation instance set.
- */
+/** One exactly regenerated member of a non-formation instance set. */
 export interface IAutoMovieInstanceSlot {
   /** Zero-based deterministic slot index. */
   slot: number;
@@ -23,16 +21,28 @@ export interface IAutoMovieInstanceSlot {
   /** Compiler-derived world-space heading in degrees. */
   facingDeg: number;
 
-  /** Positive sampled uniform scale; scale3 supplies the full scale when present. */
+  /**
+   * Positive sampled uniform scale; scale3 supplies the full scale when
+   * present.
+   */
   scale: number;
 
-  /** Full world rotation for an enhanced set; absent means heading-only legacy placement. */
+  /**
+   * Full world rotation for an enhanced set; absent means heading-only legacy
+   * placement.
+   */
   rotation?: IAutoMovieQuaternion;
 
-  /** Full local-axis scale for an enhanced set, replacing the scalar scale for placement. */
+  /**
+   * Full local-axis scale for an enhanced set, replacing the scalar scale for
+   * placement.
+   */
   scale3?: IAutoMovieVector3;
 
-  /** Explicit or seeded visibility for an enhanced set; omitted legacy slots are visible. */
+  /**
+   * Explicit or seeded visibility for an enhanced set; omitted legacy slots are
+   * visible.
+   */
   visible?: boolean;
 
   /** Selected exact sRGB palette value. */

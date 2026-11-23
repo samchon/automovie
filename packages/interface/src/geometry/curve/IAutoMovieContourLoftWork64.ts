@@ -1,17 +1,19 @@
 import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
 import type { IAutoMoviePrepareContourDocument64Document } from "./IAutoMoviePrepareContourDocument64Document";
 
-/**
- * Data and callback contracts shared by the ContourLoftWork64 operations.
- */
+/** Data and callback contracts shared by the ContourLoftWork64 operations. */
 export namespace IAutoMovieContourLoftWork64 {
   /**
-   * One generated ring with explicit signed winding and inherited physical phase.
+   * One generated ring with explicit signed winding and inherited physical
+   * phase.
    */
   export interface Ring {
     /** Stable generated ring identity. */
     id: string;
-    /** Generated physical millimetre boundary points, not original source mesh vertices. */
+    /**
+     * Generated physical millimetre boundary points, not original source mesh
+     * vertices.
+     */
     points: AutoMovieVector3Tuple[];
     /** Declared signed material boundary orientation. */
     winding: number;
@@ -21,9 +23,7 @@ export namespace IAutoMovieContourLoftWork64 {
     unsupported?: string;
   }
 
-  /**
-   * Local incidence between two adjacent saved cuts.
-   */
+  /** Local incidence between two adjacent saved cuts. */
   export interface Group {
     /** Lower-section local ring ordinals. */
     a: number[];
@@ -35,9 +35,7 @@ export namespace IAutoMovieContourLoftWork64 {
     unsupported?: string;
   }
 
-  /**
-   * One adjacent-cut work address and its independent local groups.
-   */
+  /** One adjacent-cut work address and its independent local groups. */
   export interface Slab {
     /** Lower saved-section ordinal. */
     k: number;

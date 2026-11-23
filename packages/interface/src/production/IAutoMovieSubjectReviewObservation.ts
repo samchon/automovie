@@ -5,7 +5,8 @@ import type { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTar
 /**
  * Receipt for one subject observation made from an inspection-owned viewpoint.
  *
- * The distinct subject-view kind and deliveryEvidence false keep subject inspection separate from delivered film-frame evidence.
+ * The distinct subject-view kind and deliveryEvidence false keep subject
+ * inspection separate from delivered film-frame evidence.
  */
 export interface IAutoMovieSubjectReviewObservation {
   /** Evidence discriminator; a frame receipt has another kind. */

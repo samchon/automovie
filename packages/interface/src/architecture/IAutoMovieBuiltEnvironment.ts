@@ -16,7 +16,14 @@ import type { IAutoMovieBuiltSurface } from "./IAutoMovieBuiltSurface";
  * and a double-height void without inventing walls, while a stair, lift, ramp,
  * or skybridge explicitly connects those spaces.
  *
- * This record owns building geometry: facade ladders, rails, external stairs, balconies, roofs and helipads belong here; surrounding terrain, parks, sky and natural water belong to the production world. Sun, season, orientation, reference ground and neighbouring occluders are separate analysis context. Open model/element data does not enforce that semantic ownership by inspecting depicted content. An indoor water feature composes a separate engine fluid domain with a building space, and open element kinds reuse the same transform/model primitives across styles.
+ * This record owns building geometry: facade ladders, rails, external stairs,
+ * balconies, roofs and helipads belong here; surrounding terrain, parks, sky
+ * and natural water belong to the production world. Sun, season, orientation,
+ * reference ground and neighbouring occluders are separate analysis context.
+ * Open model/element data does not enforce that semantic ownership by
+ * inspecting depicted content. An indoor water feature composes a separate
+ * engine fluid domain with a building space, and open element kinds reuse the
+ * same transform/model primitives across styles.
  *
  * Ordinary TypeScript produces the record; a building class may use loops,
  * parameters, and reusable parts. Lowering turns it into scene models, set
@@ -89,8 +96,8 @@ export interface IAutoMovieBuiltEnvironment {
   surfaces: IAutoMovieBuiltSurface[];
 
   /**
-   * Surface ids on which locomotion is permitted; each names a
-   * {@link surfaces} entry and appears once.
+   * Surface ids on which locomotion is permitted; each names a {@link surfaces}
+   * entry and appears once.
    */
   walkable: string[];
 }

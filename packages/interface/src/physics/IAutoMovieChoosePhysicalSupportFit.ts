@@ -3,11 +3,13 @@ import type { IAutoMoviePhysicalJoint } from "./IAutoMoviePhysicalJoint";
 
 /**
  * Candidate ranking by metre residual admission, then joint-angle continuity.
- * The selected Fit is returned by identity, retaining any caller-specific fields.
+ * The selected Fit is returned by identity, retaining any caller-specific
+ * fields.
  */
 export namespace IAutoMovieChoosePhysicalSupportFit {
   /**
-   * Choose one bounded support fit among candidates fitted from different seeds.
+   * Choose one bounded support fit among candidates fitted from different
+   * seeds.
    *
    * A warm seed keeps temporal continuity but can trap the bounded fit in a
    * poor local solution that it then carries into every later replan; an
@@ -21,7 +23,10 @@ export namespace IAutoMovieChoosePhysicalSupportFit {
    */
   export type IInput<
     Fit extends {
-      /** Candidate world bone poses, borrowed and returned with the selected candidate. */
+      /**
+       * Candidate world bone poses, borrowed and returned with the selected
+       * candidate.
+       */
       targets: Readonly<Record<string, IAutoMovieRigidTransform>>;
       /** Per-goal nonnegative metre errors; empty means zero maximum error. */
       residuals: Readonly<Record<string, number>>;

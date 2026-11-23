@@ -1,5 +1,4 @@
-/** One complete positive-depth pixel score on a fixed resection population.
- */
+/** One complete positive-depth pixel score on a fixed resection population. */
 export interface IAutoMovieRecoveryResectionScore {
   /** Ascending indices in the unchanged 3D/pixel input arrays. */
   indices: number[];

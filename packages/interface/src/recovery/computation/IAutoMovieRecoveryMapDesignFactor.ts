@@ -1,7 +1,6 @@
 import type { IAutoMovieSingularDecomposition } from "../../index";
 
-/** Column-scaled original design factors, before any requested step synthesis.
- */
+/** Column-scaled original design factors, before any requested step synthesis. */
 export interface IAutoMovieRecoveryMapDesignFactor {
   /** Positive norms restoring the original design's column units. */
   scales: number[];

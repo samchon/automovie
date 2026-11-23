@@ -3,14 +3,14 @@
  * `polishAutoMovieQuadraticProgram` returns it inside a refinement result.
  *
  * Polishing takes one of two methods, chosen by whether the native primal
- * already satisfies feasibility and complementarity on every original row:
- * if so, it keeps that primal and sweeps the signed multipliers toward
+ * already satisfies feasibility and complementarity on every original row: if
+ * so, it keeps that primal and sweeps the signed multipliers toward
  * stationarity; otherwise it runs active-set steps on exact interval groups.
  * Every step counts against the caller's one `maximumRefinements` budget.
  * `primal` and `dual` are only a candidate: `refineAutoMovieQuadraticProgram`
  * remeasures every original row and alone sets `accepted`, and a rejected
- * candidate never replaces the native solution. Arrays are new and owned by
- * the caller.
+ * candidate never replaces the native solution. Arrays are new and owned by the
+ * caller.
  */
 export interface IAutoMovieQuadraticPolishingResult {
   /** Whether the refinement's full-row admission adopted the candidate. */

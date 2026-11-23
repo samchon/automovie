@@ -3,8 +3,9 @@ import type {
   IAutoMovieRecoveryCameraMapInput,
 } from "../../index";
 
-/** Three fixed-byte sRGB P6 images for the Node calibrated-map command.
- * Paths are relative to the manifest; decoding preserves the supplied chart.
+/**
+ * Three fixed-byte sRGB P6 images for the Node calibrated-map command. Paths
+ * are relative to the manifest; decoding preserves the supplied chart.
  */
 export interface IAutoMovieRecoveryCameraMapFiles {
   /** Versioned three-view map acquisition manifest. */

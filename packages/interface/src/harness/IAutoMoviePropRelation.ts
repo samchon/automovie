@@ -19,11 +19,30 @@ import type { IAutoMoviePropRelationTarget } from "./IAutoMoviePropRelationTarge
  * - `"suspended"`: it hangs from a building element or from another prop's `hook`
  *   affordance (`element` or `prop-affordance` target).
  *
- * Three kinds have geometry measurements when usable target geometry exists. `"on-support"` compares the world occupancy underside with finite probes of a support patch or `stack-top`, refusing a measured gap outside +/-1e-9 m or no overlapping probe. `"in-space"` checks eight box corners against the space subtree's union; a subtree without stated volume imposes no restriction, and non-convex gaps between corners can remain unseen. `"fill-opening"` checks occupancy inside the filling element's rest-pose world AABB with 1e-9 m slack; an absent fill/model or unresolved rest transform skips that measurement, so this is not a general reveal-fit proof.
+ * Three kinds have geometry measurements when usable target geometry exists.
+ * `"on-support"` compares the world occupancy underside with finite probes of a
+ * support patch or `stack-top`, refusing a measured gap outside +/-1e-9 m or no
+ * overlapping probe. `"in-space"` checks eight box corners against the space
+ * subtree's union; a subtree without stated volume imposes no restriction, and
+ * non-convex gaps between corners can remain unseen. `"fill-opening"` checks
+ * occupancy inside the filling element's rest-pose world AABB with 1e-9 m
+ * slack; an absent fill/model or unresolved rest transform skips that
+ * measurement, so this is not a general reveal-fit proof.
  *
- * `"against-boundary"`, `"attached"` and `"suspended"` currently check citations only. An optional boundary face does not change that path. Even measured support is a finite proxy test: thin edge intersections and relief between probes can remain unread, unresolved or edge-on faces are skipped, and extreme derived nonfinite gaps are not independently refused by the comparisons. These relations do not solve attachment dynamics or continuous collision.
+ * `"against-boundary"`, `"attached"` and `"suspended"` currently check
+ * citations only. An optional boundary face does not change that path. Even
+ * measured support is a finite proxy test: thin edge intersections and relief
+ * between probes can remain unread, unresolved or edge-on faces are skipped,
+ * and extreme derived nonfinite gaps are not independently refused by the
+ * comparisons. These relations do not solve attachment dynamics or continuous
+ * collision.
  *
- * `validatePropPlacements` refuses incompatible target kinds, missing targets, ambiguous environment or prop registry identities, self-prop affordances or wrong affordance kinds, building citations outside the occupied environment and prop-contact cycles. Nested building and affordance identity uniqueness depends on their owners' admission; building-list presence and affordance lookup here do not independently reject every duplicate nested id.
+ * `validatePropPlacements` refuses incompatible target kinds, missing targets,
+ * ambiguous environment or prop registry identities, self-prop affordances or
+ * wrong affordance kinds, building citations outside the occupied environment
+ * and prop-contact cycles. Nested building and affordance identity uniqueness
+ * depends on their owners' admission; building-list presence and affordance
+ * lookup here do not independently reject every duplicate nested id.
  */
 export interface IAutoMoviePropRelation {
   /** Which contact semantics this relation asserts. */

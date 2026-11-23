@@ -1,7 +1,9 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
 /**
- * Original trunk wall chart, world point, anatomical AP direction and apex distance. Runtime construction and admission remain with AutoMovieHumanTrunkMassPlacement in Human.
+ * Original trunk wall chart, world point, anatomical AP direction and apex
+ * distance. Runtime construction and admission remain with
+ * AutoMovieHumanTrunkMassPlacement in Human.
  */
 export namespace IAutoMovieHumanTrunkMassPlacement {
   /**

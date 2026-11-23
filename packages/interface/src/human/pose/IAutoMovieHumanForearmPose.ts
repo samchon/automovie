@@ -4,6 +4,9 @@
  * not palms forward; full supination turns the palms forward.
  */
 export interface IAutoMovieHumanForearmPose {
-  /** Pronation (palm turned down) 79.45, supination 87.8. Schema constraints: Minimum: -87.8; Maximum: 79.45; retained by Human's schema refinement. */
+  /**
+   * Pronation (palm turned down) 79.45, supination 87.8. Schema constraints:
+   * Minimum: -87.8; Maximum: 79.45; retained by Human's schema refinement.
+   */
   pronation?: number;
 }

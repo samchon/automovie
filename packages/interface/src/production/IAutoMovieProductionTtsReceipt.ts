@@ -3,7 +3,9 @@ import type { IAutoMovieProductionPhonemeChunk } from "./IAutoMovieProductionPho
 import type { IAutoMovieProductionViseme } from "./IAutoMovieProductionViseme";
 
 /**
- * Host-supplied content-addressed receipt for one locally synthesized Kokoro line; the schema retains generation claims without a repository synthesis writer or receipt-byte validator.
+ * Host-supplied content-addressed receipt for one locally synthesized Kokoro
+ * line; the schema retains generation claims without a repository synthesis
+ * writer or receipt-byte validator.
  */
 export interface IAutoMovieProductionTtsReceipt {
   /** Receipt schema. */
@@ -53,7 +55,8 @@ export interface IAutoMovieProductionTtsReceipt {
   };
 
   /**
-   * UTC instant captured immediately before the generator call that produced this receipt's immutable PCM.
+   * UTC instant captured immediately before the generator call that produced
+   * this receipt's immutable PCM.
    */
   generatedAt: string;
 
@@ -87,7 +90,10 @@ export interface IAutoMovieProductionTtsReceipt {
   /**
    * Join from final-byte viseme timing to the authored speaking actor.
    *
-   * The supported receipt contract requests an available or not-run outcome for new receipts; older receipts may omit it. No current execution reader enforces this field or applies mouth motion, and this repository has no synthesis writer.
+   * The supported receipt contract requests an available or not-run outcome for
+   * new receipts; older receipts may omit it. No current execution reader
+   * enforces this field or applies mouth motion, and this repository has no
+   * synthesis writer.
    */
   lipSync?: IAutoMovieProductionLipSyncJoin;
 }

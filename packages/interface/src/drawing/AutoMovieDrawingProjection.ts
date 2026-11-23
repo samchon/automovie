@@ -2,17 +2,21 @@
  * What a view does to the design before it draws it.
  *
  * A plan, a reflected ceiling plan, a section and an elevation are one
- * orthographic projection with two decisions: whether there is a cut plane,
- * and whether the page basis is mirrored. Naming them lets a view state the
+ * orthographic projection with two decisions: whether there is a cut plane, and
+ * whether the page basis is mirrored. Naming them lets a view state the
  * drafting convention it honours rather than leaving the reader to infer it
  * from a direction.
  *
- * - `plan` looks down. Material wholly above the cut is removed except within
- *   the view's `overhead` band, what the plane passes through is drawn `cut`,
- *   and what lies below is drawn `projected`.
- * - `reflected-ceiling-plan` conventionally looks up and cuts the same way; negating page right supplies the mirror. Matching floor/ceiling page positions additionally requires compatible origins, opposite vertical directions and matching up hints; the literal alone does not align independently authored views.
- * - `section` cuts on a plane across the view direction and keeps what is
- *   beyond it.
+ * - `plan` looks down. Material wholly above the cut is removed except within the
+ *   view's `overhead` band, what the plane passes through is drawn `cut`, and
+ *   what lies below is drawn `projected`.
+ * - `reflected-ceiling-plan` conventionally looks up and cuts the same way;
+ *   negating page right supplies the mirror. Matching floor/ceiling page
+ *   positions additionally requires compatible origins, opposite vertical
+ *   directions and matching up hints; the literal alone does not align
+ *   independently authored views.
+ * - `section` cuts on a plane across the view direction and keeps what is beyond
+ *   it.
  * - `elevation` has no cut. Nothing is removed and nothing is drawn `cut`; the
  *   origin fixes the page origin and the plane the view's `depth` is measured
  *   from.

@@ -6,7 +6,8 @@ import type { IAutoMovieMotionHumanKick } from "../striking/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanPunch } from "../striking/IAutoMovieMotionHumanPunch";
 
 /**
- * Open parameters of the drill lexicon family, keyed by each runtime export name.
+ * Open parameters of the drill lexicon family, keyed by each runtime export
+ * name.
  */
 export interface IAutoMovieMotionHumanLexiconDrillParams {
   /** A lead hook. */
@@ -21,7 +22,10 @@ export interface IAutoMovieMotionHumanLexiconDrillParams {
   /** A southpaw guard. */
   southpaw: Omit<IAutoMovieMotionHumanGuard.IParams, "stance">;
 
-  /** Level a held thing at a target, as a weapon or a torch is aimed: the pointing arm. */
+  /**
+   * Level a held thing at a target, as a weapon or a torch is aimed: the
+   * pointing arm.
+   */
   aim: Omit<IAutoMovieMotionHumanGesture.IParams, "kind" | "hold">;
 
   /** Squats. */

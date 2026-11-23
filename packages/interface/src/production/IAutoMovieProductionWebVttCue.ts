@@ -1,5 +1,6 @@
 /**
- * One canonical cue parsed from final strict-UTF8 WebVTT bytes in delivery order.
+ * One canonical cue parsed from final strict-UTF8 WebVTT bytes in delivery
+ * order.
  */
 export interface IAutoMovieProductionWebVttCue {
   /** Delivered cue identifier, if present. */

@@ -4,9 +4,9 @@ import type { IAutoMovieSubjectReviewObservation } from "./IAutoMovieSubjectRevi
 /**
  * Production-verified observation admitted at the engine boundary.
  *
- * The production verifier creates this projection only after checking the
- * exact persisted schema, pose, owned artifact bytes and terminal verdict. It is
- * the persisted observation plus the context it was verified against; the only
+ * The production verifier creates this projection only after checking the exact
+ * persisted schema, pose, owned artifact bytes and terminal verdict. It is the
+ * persisted observation plus the context it was verified against; the only
  * member the context adds is `captureRuntimeIdentity`, and the shared members
  * (`productionId`, `target`, `revision`, `compileFingerprint`, `planIdentity`)
  * carry one type in both.

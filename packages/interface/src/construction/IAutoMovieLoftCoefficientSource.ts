@@ -1,27 +1,27 @@
 import type { IAutoMovieConstructionOutlineParameter } from "./IAutoMovieConstructionOutlineParameter";
 import type { IAutoMovieStationHermite } from "./IAutoMovieStationHermite";
 
-/**
- * Data and callback contracts shared by the LoftCoefficientSource operations.
- */
+/** Data and callback contracts shared by the LoftCoefficientSource operations. */
 export namespace IAutoMovieLoftCoefficientSource {
   /**
-   * A finite virtual endpoint in the chosen coordinate, not a physical-station jet.
+   * A finite virtual endpoint in the chosen coordinate, not a physical-station
+   * jet.
    */
   export interface IEnd extends IAutoMovieStationHermite.IEnd {
     /** Actual pole station, kernel mm. */
     station: number;
 
-    /** Finite first derivatives in the chosen parameter, rather than per-mm station derivatives. */
+    /**
+     * Finite first derivatives in the chosen parameter, rather than per-mm
+     * station derivatives.
+     */
     slope: readonly number[];
 
     /** Finite second derivatives in the chosen coordinate. */
     curvature: readonly number[];
   }
 
-  /**
-   * Optional virtual coefficient endpoints for actual closing ends.
-   */
+  /** Optional virtual coefficient endpoints for actual closing ends. */
   export interface IEnds {
     /** Virtual zero section of a bottom cap; absent at an open bottom. */
     bottom?: IAutoMovieLoftCoefficientSource.IEnd;
@@ -30,9 +30,7 @@ export namespace IAutoMovieLoftCoefficientSource {
     top?: IAutoMovieLoftCoefficientSource.IEnd;
   }
 
-  /**
-   * Direct parameter-derivative data of one principal coefficient row.
-   */
+  /** Direct parameter-derivative data of one principal coefficient row. */
   export interface ISource {
     /** Admitted root/angle map with kernel-mm endpoints. */
     parameter: IAutoMovieConstructionOutlineParameter;
@@ -48,7 +46,8 @@ export namespace IAutoMovieLoftCoefficientSource {
   }
 
   /**
-   * One parameter span's direct endpoint arrays and three interpolation-weight rows.
+   * One parameter span's direct endpoint arrays and three interpolation-weight
+   * rows.
    */
   export interface IControls {
     /** Lower endpoint values and parameter derivatives. */
@@ -60,7 +59,10 @@ export namespace IAutoMovieLoftCoefficientSource {
     /** Value/first/second parameter-coordinate Hermite weights. */
     weights: number[][];
 
-    /** Forward parameter derivatives in physical station, or null at a singular/nonfinite 2-jet. */
+    /**
+     * Forward parameter derivatives in physical station, or null at a
+     * singular/nonfinite 2-jet.
+     */
     change: [number, number] | null;
   }
 }

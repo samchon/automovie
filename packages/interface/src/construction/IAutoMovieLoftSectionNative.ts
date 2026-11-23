@@ -4,12 +4,13 @@ import type { IAutoMovieLoftSectionPhase } from "./IAutoMovieLoftSectionPhase";
 /**
  * Cartesian readings of a prepared native section in its two-dimensional chart.
  *
- * AutoMovieLoftSectionNative prepares conic quarters or the declared G1 chain's readers
- * at a fixed station, then reads the requested orders at the same polar phase. Chart positions
- * use millimetres, phase uses radians, and the independent physical station uses
- * millimetres. These are surface partials, not arc-length derivatives. At a G1
- * chain join the starting arc supplies the second phase derivative; continuity
- * of that derivative is not promised. Every successful read owns fresh vectors.
+ * AutoMovieLoftSectionNative prepares conic quarters or the declared G1 chain's
+ * readers at a fixed station, then reads the requested orders at the same polar
+ * phase. Chart positions use millimetres, phase uses radians, and the
+ * independent physical station uses millimetres. These are surface partials,
+ * not arc-length derivatives. At a G1 chain join the starting arc supplies the
+ * second phase derivative; continuity of that derivative is not promised. Every
+ * successful read owns fresh vectors.
  *
  * Native preparation and the requested reader own numerical admission and throw
  * AutoMovieLoftAdmissionError for rejected geometry. Exceptions from supplied
@@ -17,20 +18,24 @@ import type { IAutoMovieLoftSectionPhase } from "./IAutoMovieLoftSectionPhase";
  */
 export namespace IAutoMovieLoftSectionNative {
   /**
-   * Reusable point and phase readers over one owned numeric station preparation.
+   * Reusable point and phase readers over one owned numeric station
+   * preparation.
    *
    * Keeping the capability alive retains its fixed conic or chain records.
-   * Releasing the capability releases that preparation; it owns no native handle.
-   * Neither method mutates a prior result or requests physical station partials.
+   * Releasing the capability releases that preparation; it owns no native
+   * handle. Neither method mutates a prior result or requests physical station
+   * partials.
    */
   export interface ICurve {
     /**
-     * Read the finite local point in millimetres at phi radians; numerical rejection throws from the native reader.
+     * Read the finite local point in millimetres at phi radians; numerical
+     * rejection throws from the native reader.
      */
     point(phi: number): AutoMovieVector2Tuple;
 
     /**
-     * Read that same point and its first two phase partials at phi radians; numerical rejection throws from the native reader.
+     * Read that same point and its first two phase partials at phi radians;
+     * numerical rejection throws from the native reader.
      */
     phase(phi: number): IAutoMovieLoftSectionPhase;
   }

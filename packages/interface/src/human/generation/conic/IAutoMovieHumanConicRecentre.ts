@@ -1,11 +1,13 @@
 import type { IAutoMovieHumanConicSection } from "./IAutoMovieHumanConicSection";
 
 /**
- * Conic section origins and fields used to relocate sections within their course planes.
+ * Conic section origins and fields used to relocate sections within their
+ * course planes.
  */
 export namespace IAutoMovieHumanConicRecentre {
   /**
-   * An origin line as its shift from the base course at each knot, in the section chart, mm.
+   * An origin line as its shift from the base course at each knot, in the
+   * section chart, mm.
    */
   export interface ILine {
     /** The new origin's `u` at each knot, mm from the base course point. */
@@ -15,9 +17,7 @@ export namespace IAutoMovieHumanConicRecentre {
     v: readonly number[];
   }
 
-  /**
-   * The section fields passed to an origin change.
-   */
+  /** The section fields passed to an origin change. */
   export interface IFields {
     /** Shared station knots, mm. */
     knots: readonly number[];

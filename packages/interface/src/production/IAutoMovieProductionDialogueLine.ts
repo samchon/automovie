@@ -1,5 +1,6 @@
 /**
- * One caption placement projected into the sound plan's intended dialogue emission interval.
+ * One caption placement projected into the sound plan's intended dialogue
+ * emission interval.
  */
 export interface IAutoMovieProductionDialogueLine {
   /** Exact builder-owned caption id. */

@@ -3,12 +3,14 @@ import type { IAutoMovieConstructionProfileLoop } from "./IAutoMovieConstruction
 import type { IAutoMovieConstructionProfileRegion } from "./IAutoMovieConstructionProfileRegion";
 
 /**
- * An original section family assembled from oriented curve pieces in one physical plane.
+ * An original section family assembled from oriented curve pieces in one
+ * physical plane.
  *
- * This declaration references actual functions in an invocation-owned engine source.
- * Loops are closed contours; their pieces can be open intervals and may be nonconvex.
- * Hole orientation and branch identities remain explicit. The record alone certifies
- * neither simple loops nor regularity, continuity or successful skin generation.
+ * This declaration references actual functions in an invocation-owned engine
+ * source. Loops are closed contours; their pieces can be open intervals and may
+ * be nonconvex. Hole orientation and branch identities remain explicit. The
+ * record alone certifies neither simple loops nor regularity, continuity or
+ * successful skin generation.
  */
 export interface IAutoMovieConstructionProfile {
   /** Stable generating-family identity, independent of logical anatomical names. */
@@ -20,7 +22,10 @@ export interface IAutoMovieConstructionProfile {
   /** Common physical plane/frame owner key in the runtime source. */
   plane: string;
 
-  /** Closed components or holes, each valid on its own physical station interval. */
+  /**
+   * Closed components or holes, each valid on its own physical station
+   * interval.
+   */
   loops: IAutoMovieConstructionProfileLoop[];
 
   /** Original guides at explicit curve clocks, never observed display polylines. */

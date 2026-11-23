@@ -1,9 +1,12 @@
 /**
- * Data and callback contracts shared by the ClassifyLocomoteGroundDisplacement operations.
+ * Data and callback contracts shared by the ClassifyLocomoteGroundDisplacement
+ * operations.
  */
 export namespace IAutoMovieClassifyLocomoteGroundDisplacement {
   /**
-   * Classify an admitted finite root displacement in metres into no travel, vertical-only travel or ground-plan travel using the shared locomotion epsilon.
+   * Classify an admitted finite root displacement in metres into no travel,
+   * vertical-only travel or ground-plan travel using the shared locomotion
+   * epsilon.
    */
   export type IResult = {
     /** Horizontal XZ displacement length, metres. */

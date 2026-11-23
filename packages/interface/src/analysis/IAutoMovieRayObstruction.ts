@@ -1,16 +1,14 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
 
-/**
- * Data and callback contracts shared by the RayObstruction operations.
- */
+/** Data and callback contracts shared by the RayObstruction operations. */
 export namespace IAutoMovieRayObstruction {
   /**
    * Whether any of the given convex solids stops a ray before `maxDistance`.
    *
    * Solids are tried in list order and the first one that blocks ends the test;
-   * an empty list never obstructs. A ray that starts inside a solid is obstructed
-   * at once, and one leaving a point exactly on a face is not (see
+   * an empty list never obstructs. A ray that starts inside a solid is
+   * obstructed at once, and one leaving a point exactly on a face is not (see
    * `autoMovieSolidBlocks`).
    */
   export type IProps = {

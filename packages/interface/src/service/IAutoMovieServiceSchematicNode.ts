@@ -1,8 +1,6 @@
 import type { AutoMovieServiceNodeKind } from "./AutoMovieServiceNodeKind";
 
-/**
- * One serviceNetworkSchematic node projected into horizontal metre coordinates.
- */
+/** One serviceNetworkSchematic node projected into horizontal metre coordinates. */
 export interface IAutoMovieServiceSchematicNode {
   /** Stable node identity. */
   id: string;

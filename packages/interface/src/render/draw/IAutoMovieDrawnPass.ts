@@ -3,7 +3,9 @@ import type { IAutoMovieInspectionDiagnostics } from "../inspection/IAutoMovieIn
 import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
 
 /**
- * One decoded pass of a sampled subject frame. AutoMovieDrawSession.frame emits records in requested pass order, using the same second, raster and film camera for each; picture storage belongs to the caller.
+ * One decoded pass of a sampled subject frame. AutoMovieDrawSession.frame emits
+ * records in requested pass order, using the same second, raster and film
+ * camera for each; picture storage belongs to the caller.
  */
 export interface IAutoMovieDrawnPass {
   /** Inspection shade or guide pass requested for this picture. */

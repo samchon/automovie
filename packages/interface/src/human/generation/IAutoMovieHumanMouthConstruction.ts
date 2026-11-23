@@ -4,11 +4,11 @@ import type { IAutoMovieHumanOralAnatomy } from "./IAutoMovieHumanOralAnatomy";
 /**
  * Mouth construction inputs and the combined oral-anatomy/aperture result.
  *
- * The interface package owns these declarations; AutoMovieHumanMouth in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanMouth in Human
+ * supplies their runtime values.
  */
 export namespace IAutoMovieHumanMouthConstruction {
-  /** What the head hands the mouth.
-   */
+  /** What the head hands the mouth. */
   export interface IInputs {
     /** Height of the stomion. */
     stomion: number;
@@ -38,18 +38,16 @@ export namespace IAutoMovieHumanMouthConstruction {
     gonion: number;
 
     /**
-     * Height of the lips' contact line at a share of the half width from the midline.
+     * Height of the lips' contact line at a share of the half width from the
+     * midline.
      */
     contact(u: number): number;
 
-    /**
-     * Forward coordinate of the skin at a height and a lateral place.
-     */
+    /** Forward coordinate of the skin at a height and a lateral place. */
     front(y: number, z: number): number;
   }
 
-  /** Mouth and the fissure cut into the skin.
-   */
+  /** Mouth and the fissure cut into the skin. */
   export interface IOutput {
     /** The mouth. */
     mouth: IAutoMovieHumanOralAnatomy;

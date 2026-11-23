@@ -1,9 +1,7 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
 
-/**
- * One independently regenerable contiguous range of a general instance set.
- */
+/** One independently regenerable contiguous range of a general instance set. */
 export interface IAutoMovieInstanceChunk {
   /** Zero-based stable chunk index. */
   index: number;

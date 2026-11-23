@@ -1,8 +1,8 @@
 /**
  * One shot-owned effect interval projected onto the film clock.
  *
- * `projectProductionShotEffectFilmIntervals` emits one per film occurrence of
- * a shot cue that overlaps its segment, trimmed to that segment. The builder
+ * `projectProductionShotEffectFilmIntervals` emits one per film occurrence of a
+ * shot cue that overlaps its segment, trimmed to that segment. The builder
  * supplies these intervals to `materializeProductionFilmEffects` only to prove
  * that one world zone has one effect owner at every realized film frame; they
  * are not substituted for film-owned runtime effects. Frames are half-open:

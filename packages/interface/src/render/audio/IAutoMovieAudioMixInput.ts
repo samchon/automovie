@@ -1,7 +1,11 @@
 import type { IAutoMovieAudioMixCue } from "./IAutoMovieAudioMixCue.js";
 
 /**
- * Mono source buffers and placements for a deterministic stereo mix. mixAutoMovieAudioPcm validates positive integral output rate/length, source availability and cue bounds, and rejects nonfinite audible samples or a summed peak above one. Source buffers are borrowed and never mutated; no cue yields silent output.
+ * Mono source buffers and placements for a deterministic stereo mix.
+ * mixAutoMovieAudioPcm validates positive integral output rate/length, source
+ * availability and cue bounds, and rejects nonfinite audible samples or a
+ * summed peak above one. Source buffers are borrowed and never mutated; no cue
+ * yields silent output.
  */
 export interface IAutoMovieAudioMixInput {
   /** Output samples per second; a positive safe integer. */ sampleRate: number;

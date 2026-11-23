@@ -7,7 +7,8 @@ import type { AutoMovieVector2Tuple } from "../geometry/AutoMovieVector2Tuple";
  * the caller's original or exactly re-expressed clock: radians for section
  * readers, a normalized piece coordinate for ConstructionProfileSurface.
  * AutoMovieLoftWorldJet borrows all six pairs without mutation and rejects
- * nonfinite computed world output; it does not reconstruct missing derivatives.
+ * nonfinite computed world output; it does not reconstruct missing
+ * derivatives.
  */
 export interface IAutoMovieLoftWorldJetLocal {
   /** Local [u,v] point in millimetres. */

@@ -3,11 +3,12 @@ import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tu
 import type { IAutoMovieHumanLegConstruction } from "../IAutoMovieHumanLegConstruction";
 
 /**
- * Fitted leg spline channels and bare canonical section samples before end residuals. Runtime construction and admission remain with AutoMovieHumanLegLaw in Human.
+ * Fitted leg spline channels and bare canonical section samples before end
+ * residuals. Runtime construction and admission remain with
+ * AutoMovieHumanLegLaw in Human.
  */
 export namespace IAutoMovieHumanLegLaw {
-  /** The fitted law's channels with one person's keys.
-   */
+  /** The fitted law's channels with one person's keys. */
   export interface IFamily {
     /** Station of the ankle ring. */
     bottom: number;
@@ -52,8 +53,7 @@ export namespace IAutoMovieHumanLegLaw {
     ankleResidual: number[];
   }
 
-  /** Section of the law before any end residual.
-   */
+  /** Section of the law before any end residual. */
   export interface IBare {
     /** Centre in the canonical plane, `[x, z]`. */
     centre: [number, number];

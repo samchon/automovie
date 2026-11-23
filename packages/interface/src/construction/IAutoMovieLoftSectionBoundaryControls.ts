@@ -1,6 +1,4 @@
-/**
- * Three complete rows in the transformed scalar coordinate.
- */
+/** Three complete rows in the transformed scalar coordinate. */
 export interface IAutoMovieLoftSectionBoundaryControls {
   /** Eight log-extents and logit-shoulders. */
   value: number[];

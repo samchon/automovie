@@ -1,11 +1,12 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 
 /**
- * The wall origin and orthogonal outward/up/lateral frame used by a trunk relief. Runtime construction and admission remain with AutoMovieHumanTrunkFeatureFrame in Human.
+ * The wall origin and orthogonal outward/up/lateral frame used by a trunk
+ * relief. Runtime construction and admission remain with
+ * AutoMovieHumanTrunkFeatureFrame in Human.
  */
 export namespace IAutoMovieHumanTrunkFeatureFrame {
-  /** A feature's frame.
-   */
+  /** A feature's frame. */
   export interface IFrame {
     /** The feature's centre on the wall, mm. */
     origin: AutoMovieVector3Tuple;

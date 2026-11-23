@@ -6,7 +6,11 @@ import type { IAutoMovieScene } from "../scene/IAutoMovieScene.js";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton.js";
 
 /**
- * Sequence clock and resolvable scene/motion/skeleton inputs for projected joint records. planPoseKeypointSidecar preserves one row per output frame, skips unresolved actors, and uses full-frame projection unless crop is supplied. Aspect defaults to 16/9 in resolvePoseKeypoints; this declaration performs no numerical admission.
+ * Sequence clock and resolvable scene/motion/skeleton inputs for projected
+ * joint records. planPoseKeypointSidecar preserves one row per output frame,
+ * skips unresolved actors, and uses full-frame projection unless crop is
+ * supplied. Aspect defaults to 16/9 in resolvePoseKeypoints; this declaration
+ * performs no numerical admission.
  */
 export interface IAutoMoviePlanPoseKeypointSidecarProps {
   /** The cut being rendered. */
@@ -27,9 +31,15 @@ export interface IAutoMoviePlanPoseKeypointSidecarProps {
   /** Output frames per second, the render clock, not necessarily `sequence.fps`. */
   fps: number;
 
-  /** Render aspect, width over height; `resolvePoseKeypoints` assumes 16/9 when omitted. */
+  /**
+   * Render aspect, width over height; `resolvePoseKeypoints` assumes 16/9 when
+   * omitted.
+   */
   aspect?: number;
 
-  /** Normalized delivery crop the keypoints are expressed in; the whole frame when omitted. */
+  /**
+   * Normalized delivery crop the keypoints are expressed in; the whole frame
+   * when omitted.
+   */
   crop?: IAutoMovieDeliveryCrop;
 }

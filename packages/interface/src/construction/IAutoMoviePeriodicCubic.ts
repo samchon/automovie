@@ -5,17 +5,14 @@
  * solution of the infinite-precision cyclic equations or tight extrema.
  */
 export namespace IAutoMoviePeriodicCubic {
-  /**
-   * One preparation shared by value reads and optional range admission.
-   */
+  /** One preparation shared by value reads and optional range admission. */
   export interface IPrepared {
-    /**
-     * Existing periodic value at a phase in radians; controls remain unchanged.
-     */
+    /** Existing periodic value at a phase in radians; controls remain unchanged. */
     at(psi: number): number;
 
     /**
-     * Finite outward bounds for every finite phase; throws when arithmetic cannot certify them.
+     * Finite outward bounds for every finite phase; throws when arithmetic
+     * cannot certify them.
      */
     range(): readonly [number, number];
   }

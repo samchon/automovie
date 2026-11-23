@@ -1,10 +1,6 @@
-/**
- * Status and signed witnesses for an explicitly coupled target interval.
- */
+/** Status and signed witnesses for an explicitly coupled target interval. */
 export namespace IAutoMoviePhysicalCoupledTargetFit {
-  /**
-   * Stable identity of one admitted output interval and its group.
-   */
+  /** Stable identity of one admitted output interval and its group. */
   export interface IInterval {
     /** Output interval index. Frame zero seeds the simulation. */
     readonly step: number;
@@ -14,9 +10,7 @@ export namespace IAutoMoviePhysicalCoupledTargetFit {
     readonly members: readonly string[];
   }
 
-  /**
-   * Signed residual of one admitted binding or point constraint.
-   */
+  /** Signed residual of one admitted binding or point constraint. */
   export interface IWitness {
     /** Member body whose target declares the relationship. */
     readonly body: string;
@@ -28,9 +22,7 @@ export namespace IAutoMoviePhysicalCoupledTargetFit {
     readonly components: readonly number[];
   }
 
-  /**
-   * Observed quantities from one bounded target fit.
-   */
+  /** Observed quantities from one bounded target fit. */
   export interface IReport {
     /** Attempted bounded updates. */
     readonly iterations: number;
@@ -42,23 +34,17 @@ export namespace IAutoMoviePhysicalCoupledTargetFit {
     readonly witnesses: readonly IWitness[];
   }
 
-  /**
-   * Report from a coupled interval target that converged.
-   */
+  /** Report from a coupled interval target that converged. */
   export type IConverged = IInterval & IReport & { readonly kind: "converged" };
 
-  /**
-   * Attempted solve that stopped before meeting the tolerance.
-   */
+  /** Attempted solve that stopped before meeting the tolerance. */
   export type IUnconverged = IInterval &
     IReport & {
       readonly kind: "unconverged";
       readonly reason: "iteration-budget" | "stalled";
     };
 
-  /**
-   * Admitted operation could not proceed with this declared group.
-   */
+  /** Admitted operation could not proceed with this declared group. */
   export type IRefused = IInterval & {
     readonly kind: "refused";
     readonly reason:
@@ -72,14 +58,10 @@ export namespace IAutoMoviePhysicalCoupledTargetFit {
     readonly detail: string;
   };
 
-  /**
-   * A group failure rejects the bake that requested it.
-   */
+  /** A group failure rejects the bake that requested it. */
   export type IFailure = IRefused | IUnconverged;
 
-  /**
-   * Successful target-fit reports indexed by authored step and group.
-   */
+  /** Successful target-fit reports indexed by authored step and group. */
   export type ISeries = Readonly<
     Partial<Record<number, Readonly<Partial<Record<string, IConverged>>>>>
   >;

@@ -28,9 +28,7 @@ export interface IAutoMoviePatternCandidate {
     v: number;
   };
 
-  /**
-   * In-plane module rotation in degrees, counter-clockwise about the normal.
-   */
+  /** In-plane module rotation in degrees, counter-clockwise about the normal. */
   rotationDeg: number;
 
   /** Material grain direction in degrees; read modulo 180. */

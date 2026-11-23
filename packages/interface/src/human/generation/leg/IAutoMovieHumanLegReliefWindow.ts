@@ -1,11 +1,12 @@
 import type { IAutoMovieHumanLegStations } from "./IAutoMovieHumanLegStations";
 
 /**
- * Anatomical relief-window locations with local-radius dimensions and optional crotch anchoring. Runtime construction and admission remain with AutoMovieHumanLegReliefWindow in Human.
+ * Anatomical relief-window locations with local-radius dimensions and optional
+ * crotch anchoring. Runtime construction and admission remain with
+ * AutoMovieHumanLegReliefWindow in Human.
  */
 export namespace IAutoMovieHumanLegReliefWindow {
-  /** A window's declaration.
-   */
+  /** A window's declaration. */
   export interface IWindow {
     /** Name, for diagnostics and part ids. */
     name: string;
@@ -16,7 +17,10 @@ export namespace IAutoMovieHumanLegReliefWindow {
     /** Share of that bone at the centre. */
     share: number;
 
-    /** Section angle of the centre, radians, 0 forward and increasing toward lateral. */
+    /**
+     * Section angle of the centre, radians, 0 forward and increasing toward
+     * lateral.
+     */
     angle: number;
 
     /** Half extent along the bone, in local radii. */
@@ -28,7 +32,10 @@ export namespace IAutoMovieHumanLegReliefWindow {
     /** Height at the centre, in local radii. */
     height: number;
 
-    /** Unit direction of a positive height in the section frame `[forward, along the bone, lateral]`. */
+    /**
+     * Unit direction of a positive height in the section frame `[forward, along
+     * the bone, lateral]`.
+     */
     axis: [number, number, number];
 
     /**
@@ -43,16 +50,21 @@ export namespace IAutoMovieHumanLegReliefWindow {
     anchor?: "crotch";
   }
 
-  /** What a window is placed from.
-   */
+  /** What a window is placed from. */
   export interface IInput {
     /** The joints' heights, mm. */
     bones: IAutoMovieHumanLegStations.IBones;
 
-    /** The local radius at the window's centre, mm: the section's girth over 2 pi. */
+    /**
+     * The local radius at the window's centre, mm: the section's girth over 2
+     * pi.
+     */
     radius: number;
 
-    /** The centre's station when the window is anchored (see {@link IWindow.anchor}), mm. */
+    /**
+     * The centre's station when the window is anchored (see
+     * {@link IWindow.anchor}), mm.
+     */
     at?: number;
   }
 }

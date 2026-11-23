@@ -2,11 +2,12 @@ import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature"
 import type { IAutoMovieHumanTrunkReliefNet } from "./IAutoMovieHumanTrunkReliefNet";
 
 /**
- * The gluteal mass, original trunk surface and lateral-to-material-phase lookup used by relief composition. Runtime construction and admission remain with AutoMovieHumanGlutealRelief in Human.
+ * The gluteal mass, original trunk surface and lateral-to-material-phase lookup
+ * used by relief composition. Runtime construction and admission remain with
+ * AutoMovieHumanGlutealRelief in Human.
  */
 export namespace IAutoMovieHumanGlutealRelief {
-  /** What the merge reads.
-   */
+  /** What the merge reads. */
   export interface IInput {
     /** The gluteal mass. */
     dome: IAutoMovieHumanTrunkFeature;
@@ -15,7 +16,8 @@ export namespace IAutoMovieHumanGlutealRelief {
     base: IAutoMovieHumanTrunkReliefNet.Base;
 
     /**
-     * The base's phase at a lateral place on the back at the buttock point's height.
+     * The base's phase at a lateral place on the back at the buttock point's
+     * height.
      */
     phaseOf: (z: number) => number;
   }

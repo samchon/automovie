@@ -1,5 +1,6 @@
 /**
- * Explicit shadow-map resolution, bias and clip controls for supported punctual sources.
+ * Explicit shadow-map resolution, bias and clip controls for supported punctual
+ * sources.
  */
 export interface IAutoMovieLightShadow {
   /** Square shadow-map resolution, a positive safe integer. */

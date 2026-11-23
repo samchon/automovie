@@ -1,12 +1,8 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/**
- * Data and callback contracts shared by the SuperposeMinimumJerk operations.
- */
+/** Data and callback contracts shared by the SuperposeMinimumJerk operations. */
 export namespace IAutoMovieSuperposeMinimumJerk {
-  /**
-   * One unit.
-   */
+  /** One unit. */
   export interface IUnit {
     /** Displacement the unit adds, metres. */
     displacement: IAutoMovieVector3;
@@ -18,9 +14,7 @@ export namespace IAutoMovieSuperposeMinimumJerk {
     duration: number;
   }
 
-  /**
-   * The moved point at an instant.
-   */
+  /** The moved point at an instant. */
   export interface IState {
     /** Position, metres. */
     position: IAutoMovieVector3;

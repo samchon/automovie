@@ -2,11 +2,12 @@ import type { AutoMovieVector2Tuple } from "../../../geometry/AutoMovieVector2Tu
 import type { IAutoMovieHumanFootArc } from "./IAutoMovieHumanFootArc";
 
 /**
- * Five section guide points and their shared contact jets in the across/up millimetre chart. Runtime construction and admission remain with AutoMovieHumanFootSectionJets in Human.
+ * Five section guide points and their shared contact jets in the across/up
+ * millimetre chart. Runtime construction and admission remain with
+ * AutoMovieHumanFootSectionJets in Human.
  */
 export namespace IAutoMovieHumanFootSectionJets {
-  /** A section's five guide points in its plane, `[across, up]`, mm.
-   */
+  /** A section's five guide points in its plane, `[across, up]`, mm. */
   export interface IPoints {
     /** The instep's crest. */
     crest: AutoMovieVector2Tuple;
@@ -24,8 +25,7 @@ export namespace IAutoMovieHumanFootSectionJets {
     medial: AutoMovieVector2Tuple;
   }
 
-  /** What the jets read.
-   */
+  /** What the jets read. */
   export interface IInput {
     /** The five points. */
     points: IPoints;
@@ -42,8 +42,7 @@ export namespace IAutoMovieHumanFootSectionJets {
     corner: number;
   }
 
-  /** The five jets.
-   */
+  /** The five jets. */
   export interface IJets {
     /** The crest's. */
     crest: IAutoMovieHumanFootArc.IJet;

@@ -16,14 +16,10 @@ export interface IAutoMovieAnalysisMetric {
    */
   key: string;
 
-  /**
-   * Unit symbol the value is stated in; non-blank even when there is no value.
-   */
+  /** Unit symbol the value is stated in; non-blank even when there is no value. */
   unit: string;
 
-  /**
-   * Finite measured value in {@link unit}, or `null` when none was produced.
-   */
+  /** Finite measured value in {@link unit}, or `null` when none was produced. */
   value: number | null;
 
   /**

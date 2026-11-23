@@ -16,30 +16,37 @@ export interface IAutoMovieConstructionProfileSource {
 
   /** Actual axis and its same-station derivatives, keyed by definition.plane. */
   plane: {
-    /** Must equal definition.plane; Profile.create rejects a different owner address. */
+    /**
+     * Must equal definition.plane; Profile.create rejects a different owner
+     * address.
+     */
     id: string;
 
-    /** Borrowed physical-station frame owner, queried in millimetres; point/phase need at, total2 additionally needs jet. */
+    /**
+     * Borrowed physical-station frame owner, queried in millimetres;
+     * point/phase need at, total2 additionally needs jet.
+     */
     axis: IAutoMovieViewAxis.IAxis;
   };
 
   /** Immutable actual local functions keyed by the declaration's source fields. */
   curves: ReadonlyMap<string, IAutoMovieConstructionProfileSource.ICurve>;
 
-  /** Actual original region membership owners, needed only for declared trim keys. */
+  /**
+   * Actual original region membership owners, needed only for declared trim
+   * keys.
+   */
   regions?: ReadonlyMap<string, IAutoMovieConstructionProfileSource.IRegion>;
 }
 
-/**
- * Original local curve and region capabilities used by profile preparation.
- *
- */
+/** Original local curve and region capabilities used by profile preparation. */
 export namespace IAutoMovieConstructionProfileSource {
   /**
-   * Actual nonrectangular logical/material selection without fitting its boundary.
+   * Actual nonrectangular logical/material selection without fitting its
+   * boundary.
    *
-   * The source map retains this owner for prepared contains queries. Its
-   * domain must cover the region's authored active domain after conversion to
+   * The source map retains this owner for prepared contains queries. Its domain
+   * must cover the region's authored active domain after conversion to
    * millimetres. Callback exceptions propagate; preparation checks coverage,
    * not the geometric truth of membership or interval boundaries.
    */
@@ -48,14 +55,15 @@ export namespace IAutoMovieConstructionProfileSource {
     domain: readonly [number, number];
 
     /**
-     * Membership of the same original field at its physical station and original curve clock.
+     * Membership of the same original field at its physical station and
+     * original curve clock.
      */
     contains(station: number, clock: number): boolean;
 
     /**
      * Exact retained intervals in the original curve-clock units at station
-     * millimetres. Absence or null leaves boundary extraction unavailable;
-     * an empty array means no retained interval. Consumers must treat returned
+     * millimetres. Absence or null leaves boundary extraction unavailable; an
+     * empty array means no retained interval. Consumers must treat returned
      * arrays as borrowed readonly data. Profile preparation does not call this
      * optional capability or validate its ordering.
      */
@@ -63,7 +71,8 @@ export namespace IAutoMovieConstructionProfileSource {
   }
 
   /**
-   * Same original value and qualified phase derivatives at a fixed physical station.
+   * Same original value and qualified phase derivatives at a fixed physical
+   * station.
    */
   export interface IPhase {
     /** Actual local point, kernel millimetres. */
@@ -72,13 +81,14 @@ export namespace IAutoMovieConstructionProfileSource {
     /** First derivative per original curve-clock unit. */
     t: AutoMovieVector2Tuple;
 
-    /** Second original-clock derivative; null explicitly leaves this order unavailable. */
+    /**
+     * Second original-clock derivative; null explicitly leaves this order
+     * unavailable.
+     */
     tt: AutoMovieVector2Tuple | null;
   }
 
-  /**
-   * Complete local physical-station/original-clock total-order-two reading.
-   */
+  /** Complete local physical-station/original-clock total-order-two reading. */
   export interface IJet {
     /** Local point, millimetres. */
     p: AutoMovieVector2Tuple;
@@ -114,7 +124,11 @@ export namespace IAutoMovieConstructionProfileSource {
     /** Actual supported original-clock interval, in the original units. */
     clock: readonly [number, number];
 
-    /** Actual original-clock period when the same function and available derivatives support periodic aliases; absent leaves a bounded open chart. */
+    /**
+     * Actual original-clock period when the same function and available
+     * derivatives support periodic aliases; absent leaves a bounded open
+     * chart.
+     */
     period?: number;
 
     /**
@@ -136,10 +150,10 @@ export namespace IAutoMovieConstructionProfileSource {
     ): IAutoMovieConstructionProfileSource.IPhase | null;
 
     /**
-     * Complete local total2 at station millimetres and original clock, or
-     * null where unavailable. A prepared surface jet request converts null
-     * into an admission exception and requires a complete plane jet too.
-     * Consumers read the returned arrays without mutation or long-term retention.
+     * Complete local total2 at station millimetres and original clock, or null
+     * where unavailable. A prepared surface jet request converts null into an
+     * admission exception and requires a complete plane jet too. Consumers read
+     * the returned arrays without mutation or long-term retention.
      */
     jet(
       station: number,

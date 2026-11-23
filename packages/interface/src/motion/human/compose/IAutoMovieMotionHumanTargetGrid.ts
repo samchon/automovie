@@ -2,9 +2,9 @@ import type { IAutoMovieMotionHumanTarget } from "./IAutoMovieMotionHumanTarget"
 
 /**
  * The places of the air around a performer by name: the heights, lateral
- * offsets and distances a law states a hand's place with, the three rungs of
- * a place (a name, a nudged or in-between name, an explicit share record),
- * the share record each resolves to on a body (`place`, the
+ * offsets and distances a law states a hand's place with, the three rungs of a
+ * place (a name, a nudged or in-between name, an explicit share record), the
+ * share record each resolves to on a body (`place`, the
  * `IAutoMovieMotionHumanTarget.IDefault` that `AutoMovieMotionHumanTarget`'s
  * `fallback` and `resolve` take), and the names a world point falls in
  * (`nearest`).
@@ -15,7 +15,10 @@ export namespace IAutoMovieMotionHumanTargetGrid {
    * component a share of the arm (upper arm and forearm) within `NUDGE`.
    */
   export interface INudge {
-    /** Toward the acting hand's side; negative is toward the midline and across it; 0 when absent. */
+    /**
+     * Toward the acting hand's side; negative is toward the midline and across
+     * it; 0 when absent.
+     */
     out?: number;
 
     /** Upward; 0 when absent. */
@@ -37,9 +40,7 @@ export namespace IAutoMovieMotionHumanTargetGrid {
     | IAutoMovieMotionHumanTargetGrid.IBetween
     | IAutoMovieMotionHumanTargetGrid.IExplicit;
 
-  /**
-   * A place of the air around the performer, by three names.
-   */
+  /** A place of the air around the performer, by three names. */
   export interface IGrid {
     /** How high. */
     height: IAutoMovieMotionHumanTargetGrid.Height;
@@ -71,9 +72,7 @@ export namespace IAutoMovieMotionHumanTargetGrid {
     "overhead",
   ])[number];
 
-  /**
-   * How far to the acting hand's side of the midline.
-   */
+  /** How far to the acting hand's side of the midline. */
   export type Lateral = (readonly [
     "centre",
     "inside",
@@ -81,14 +80,10 @@ export namespace IAutoMovieMotionHumanTargetGrid {
     "outside",
   ])[number];
 
-  /**
-   * How far ahead of the root's vertical axis.
-   */
+  /** How far ahead of the root's vertical axis. */
   export type Distance = (readonly ["close", "near", "mid", "far"])[number];
 
-  /**
-   * A named place with a nudge.
-   */
+  /** A named place with a nudge. */
   export interface INudged {
     /** The place nudged. */
     at:
@@ -99,9 +94,7 @@ export namespace IAutoMovieMotionHumanTargetGrid {
     nudge: IAutoMovieMotionHumanTargetGrid.INudge;
   }
 
-  /**
-   * A place a share of the way from one named place to another.
-   */
+  /** A place a share of the way from one named place to another. */
   export interface IBetween {
     /** The two places. */
     between: readonly [
@@ -116,9 +109,7 @@ export namespace IAutoMovieMotionHumanTargetGrid {
     nudge?: IAutoMovieMotionHumanTargetGrid.INudge;
   }
 
-  /**
-   * A place stated as its share record, with where the shares come from.
-   */
+  /** A place stated as its share record, with where the shares come from. */
   export interface IExplicit {
     /** The share record. */
     explicit: IAutoMovieMotionHumanTarget.IDefault;

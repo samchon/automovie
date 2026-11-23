@@ -1,5 +1,9 @@
 /**
- * Owned scalar copy of an acquired film beauty compositor's display-storage extent. readAutoMovieFilmDisplayTextureResidency reports three RGBA8 nonmipmapped copies per fade/dissolve owner. Failed terminal owners remain reported; successful disposal removes their rows, and these bounds are not proof of physical GPU allocation or retirement.
+ * Owned scalar copy of an acquired film beauty compositor's display-storage
+ * extent. readAutoMovieFilmDisplayTextureResidency reports three RGBA8
+ * nonmipmapped copies per fade/dissolve owner. Failed terminal owners remain
+ * reported; successful disposal removes their rows, and these bounds are not
+ * proof of physical GPU allocation or retirement.
  */
 export interface IAutoMovieFilmDisplayTextureResidency {
   /** Acquired fade or dissolve compositor identity. */

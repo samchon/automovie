@@ -1,5 +1,4 @@
-/** One tentative unique mutual appearance correspondence in original pixels.
- */
+/** One tentative unique mutual appearance correspondence in original pixels. */
 export interface IAutoMovieRecoveryCameraMatch {
   /** Selected first-view feature index. */
   firstFeatureIndex: number;
@@ -13,13 +12,19 @@ export interface IAutoMovieRecoveryCameraMatch {
   /** Second original pixel-centre coordinate [column,row]. */
   secondPx: [number, number];
 
-  /** Euclidean descriptor distance divided by its distinct second-neighbour distance. */
+  /**
+   * Euclidean descriptor distance divided by its distinct second-neighbour
+   * distance.
+   */
   descriptorDistanceRatio: number;
 
   /** Squared Euclidean distance between normalized appearance descriptors. */
   squaredDescriptorDistance: number;
 
-  /** Whether the fitted final consensus meets the Sampson threshold, before the separate essential-projection consistency check. */
+  /**
+   * Whether the fitted final consensus meets the Sampson threshold, before the
+   * separate essential-projection consistency check.
+   */
   epipolarInlier: boolean;
 
   /** Whether the best competing map supports this final epipolar inlier. */
