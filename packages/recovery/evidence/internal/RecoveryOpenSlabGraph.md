@@ -1,21 +1,3 @@
-# src/internal/RecoveryOpenSlabGraph.ts#RecoveryOpenSlabGraph
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Records private support premises, unsupported topology and source orientation qualification separately.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Original source incidence, exact scalar heights and two saved open-arc populations define one ordinary continuation query.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The prepared runtime owner reuses source-link and boundary incidence; interface owns Source, Query, Arc and Result records.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Source topology and material orientation remain independent; hidden components, critical-event defects and ambiguous endpoint transport cannot authorize a bridge.
-
 # src/internal/RecoveryOpenSlabGraph.ts#RecoveryOpenSlabGraph.prepare
 
 ## @evidence contracts/development/implementation.md#principled-implementation

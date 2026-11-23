@@ -1,21 +1,3 @@
-# src/internal/RecoveryChartMap.ts#RecoveryChartMap
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States private source lifetime, fixed-boundary responsibility and explicit numerical and orientation qualification.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An immutable physical triangle chart and fixed unit-boundary coordinates define harmonic interior parameterization.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The mapper owns numerical parameterization while source-chart topology and fitted boundary authority remain with their declared owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A numerical parameter map does not itself authorize topology repair, source coverage or a generated replacement surface.
-
 # src/internal/RecoveryChartMap.ts#RecoveryChartMap.parameterize
 
 ## @evidence contracts/development/implementation.md#principled-implementation

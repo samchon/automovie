@@ -1,21 +1,3 @@
-# src/internal/RecoveryChartFit.ts#RecoveryChartFit
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Records physical units, numerical termination and the distinction between observation residual and surface fidelity.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Shared millimetre coefficient IDs, explicit affine dependencies and a componentwise enclosure define one constrained Bernstein least-squares problem.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The runtime namespace coordinates preparation, sparse assembly, solve and reporting over IAutoMovieRecoveryChartFit's canonical records.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Numerical rank, gradient termination and finite observation residual are independent qualifications; none certifies embedding or continuous source fidelity.
-
 # src/internal/RecoveryChartFit.ts#RecoveryChartFit.fit
 
 ## @evidence contracts/development/implementation.md#principled-implementation

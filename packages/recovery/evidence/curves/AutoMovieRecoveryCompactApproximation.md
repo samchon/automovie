@@ -1,21 +1,3 @@
-# src/curves/AutoMovieRecoveryCompactApproximation.ts#AutoMovieRecoveryCompactApproximation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines physical units, source observation knots, coefficient charts and sampled evidence limits.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Discriminated polynomial and positive rational coefficients retain domains and millimetre coordinates.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Recovery owns the fitter contract used by the experiment and portable tests; the existing planar source contract is reused.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No specimen, baked observation, mesh fallback or global-minimum claim is represented.
-
 # src/curves/AutoMovieRecoveryCompactApproximation.ts#AutoMovieRecoveryCompactApproximation.evaluate
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/internal/RecoveryChartSurface.ts#RecoveryChartSurface
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States path direction, accepted-parameter authority, source-private lifetime and separate numerical, continuity and surface-fidelity qualifications.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Private millimetre triangle observations and four authoritative boundaries define a fitted C0 bicubic field with explicit numerical and refinement budgets.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Surface fitting coordinates the common boundary, harmonic map and constrained coefficient owners; interface owns the call's observation and result contracts.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Area quadrature, coefficient residual and boundary sharing remain separately qualified; unsupported refinement retains its preceding admitted field.
-
 # src/internal/RecoveryChartSurface.ts#RecoveryChartSurface.fit
 
 ## @evidence contracts/development/implementation.md#principled-implementation
