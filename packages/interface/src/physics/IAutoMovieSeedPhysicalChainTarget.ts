@@ -35,8 +35,6 @@ export namespace IAutoMovieSeedPhysicalChainTarget {
      * The caller's range-limited subtree update.
      *
      * Apply a requested incremental joint-coordinate rotation in radians through the caller's ROM-limited subtree update. The callback owns mutation of working targets, runs synchronously and is not retained; exceptions abort seeding.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Apply a requested incremental joint-coordinate rotation in radians through the caller's ROM-limited subtree update. The callback owns mutation of working targets, runs synchronously and is not retained; exceptions abort seeding.
      */ rotate: (
       joint: IAutoMoviePhysicalJoint,
       axis: IAutoMoviePhysicalJointAxis,

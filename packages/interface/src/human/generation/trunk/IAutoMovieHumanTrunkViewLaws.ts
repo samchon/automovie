@@ -21,8 +21,6 @@ export namespace IAutoMovieHumanTrunkViewLaws {
 
     /**
      * The back's forward place at a height, mm: the median section's back extreme, the gluteal apex at the buttock.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The back's forward place at a height, mm: the median section's back extreme, the gluteal apex at the buttock.
      */
     back(y: number): number;
 
@@ -36,15 +34,11 @@ export namespace IAutoMovieHumanTrunkViewLaws {
 
     /**
      * The navel section's box at a girth (top hip).
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The navel section's box at a girth (top hip).
      */
     lumbar(girth: number): IBox;
 
     /**
      * The thorax's box without the breasts at a girth (the underbust).
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The thorax's box without the breasts at a girth (the underbust).
      */
     chestWall(girth: number): IBox;
 

@@ -53,8 +53,6 @@ export namespace IAutoMovieMotionPropHold {
 
     /**
      * Check the displayed world frame at grip closure against the planned interception.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Takes the current displayed world frame and reports admission by the catch.
      */
     matches(frame: IAutoMovieRigidTransform): boolean;
   }

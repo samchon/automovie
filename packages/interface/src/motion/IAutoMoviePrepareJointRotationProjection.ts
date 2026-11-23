@@ -25,8 +25,6 @@ export namespace IAutoMoviePrepareJointRotationProjection {
 
     /**
      * Project once and return its joint with the exact unnormalized composition.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareJointRotationProjection.IProjector.withQuaternion: Project once and return its joint with the exact unnormalized composition.
      */
     withQuaternion(rotation: IAutoMovieQuaternion): IProjection;
 
@@ -36,8 +34,6 @@ export namespace IAutoMoviePrepareJointRotationProjection {
      * Angle ranges, actual clamp/FK, goals and continuity must still be checked.
      * Unknown/coupled/non-two-axis projectors decline; public callable scoring
      * and its callback order are unaffected. Foreign projectors may omit it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareJointRotationProjection.IProjector.swivelCandidates: Propose degree-valued swivels where the algebraic quaternion half-angle circle lies on this native two-axis box's unrestricted product surface.
      */
     swivelCandidates?(
       cosine: IAutoMovieQuaternion,

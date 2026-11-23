@@ -89,8 +89,6 @@ export namespace IAutoMovieConstructionKnownPortSource {
      * Target field-chart point at clock u and transverse v in [0,1], independent
      * of derivative availability. The consumer checks finite components and
      * the target field's declared u domain; it does not modify the returned tuple.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Gives clock/transverse arguments, target-chart units, finite/domain checks and nonmutating consumption.
      */
     point(u: number, v: number): AutoMovieVector2Tuple;
 
@@ -98,8 +96,6 @@ export namespace IAutoMovieConstructionKnownPortSource {
      * Complete derivatives of this map at clock u and transverse v, or null
      * where unavailable. KnownPort turns null into an admission exception for
      * a jet query; a point query remains independent. Foreign throws propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Distinguishes unavailable total2 from point capability and states conversion to admission failure versus propagated callback exceptions.
      */
     jet(
       u: number,

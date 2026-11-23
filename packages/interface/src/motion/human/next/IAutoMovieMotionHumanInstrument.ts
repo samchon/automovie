@@ -25,8 +25,6 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @param params The `prop`, `side`, `delay`, `prepare`, `seconds` and `retract` of `IAutoMovieMotionHumanPlayWindInstrument.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   playWindInstrument(
     params: IAutoMovieMotionHumanInstrument.IPlayWindInstrument,
@@ -39,8 +37,6 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @param params The `baton`, `meter`, `bars`, `bpm`, `lock` and `side` of `IAutoMovieMotionHumanConduct.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   conduct(params: IAutoMovieMotionHumanConduct.IParams, anchor?: string): Chain;
 
@@ -50,8 +46,6 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @param params The `bow`, `violin`, `string`, `direction` and `seconds` of `IAutoMovieMotionHumanBowViolinParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   bowViolin(
     params: IAutoMovieMotionHumanBowViolinParams,
@@ -64,8 +58,6 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @param params The `prop`, `fret`, `string`, `stopAt`, `pluckAt`, `releaseAt` and `duration` of `IAutoMovieMotionHumanGuitarNote`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   guitarNote(params: IAutoMovieMotionHumanGuitarNote, anchor?: string): Chain;
 
@@ -75,8 +67,6 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @param params The `prop`, `direction`, `stopAt`, `sweepStartAt`, `sweepEndAt`, `releaseAt` and `duration` of `IAutoMovieMotionHumanGuitarChord`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   guitarChord(params: IAutoMovieMotionHumanGuitarChord, anchor?: string): Chain;
 
@@ -86,8 +76,6 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @param params The `prop` and `notes` of `IAutoMovieMotionHumanPianoScore`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   pianoScore(params: IAutoMovieMotionHumanPianoScore, anchor?: string): Chain;
 
@@ -97,8 +85,6 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @param params The `prop`, `presses` and `duration` of `IAutoMovieMotionHumanPianoPedal`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   pianoPedal(params: IAutoMovieMotionHumanPianoPedal, anchor?: string): Chain;
 
@@ -108,8 +94,6 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @param params The `pedal` of `IAutoMovieMotionHumanPianoPerformance`, with those of `IAutoMovieMotionHumanPianoScore`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   pianoPerformance(
     params: IAutoMovieMotionHumanPianoPerformance,
@@ -122,8 +106,6 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @param params The `stick`, `drum` and `hand` of `IAutoMovieMotionHumanSideDrumStrike`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   sideDrumStrike(
     params: IAutoMovieMotionHumanSideDrumStrike,
@@ -136,8 +118,6 @@ export interface IAutoMovieMotionHumanInstrument<Chain> {
    * @param params The `stick`, `cymbal` and `hand` of `IAutoMovieMotionHumanCymbalStrike`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   cymbalStrike(
     params: IAutoMovieMotionHumanCymbalStrike,

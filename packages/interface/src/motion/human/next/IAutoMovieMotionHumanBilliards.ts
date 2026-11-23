@@ -15,8 +15,6 @@ export interface IAutoMovieMotionHumanBilliards {
    * @param params The `balls`, the `pockets` and the baked `result`.
    * @returns The pocketed balls in drop order; empty when none drops.
    * @throws {RangeError} When a ball has no sphere shape, there is no pocket, or a ball is missing from the cache.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the method does, its parameters and its return.
    */
   readPocketed(
     params: IAutoMovieMotionHumanBilliards.IReadPocketed,

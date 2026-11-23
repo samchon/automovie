@@ -20,15 +20,11 @@ export namespace IAutoMovieCreateQuadraticFactor {
   export type IResult = {
     /**
      * Borrow m diagonal values and refactor. Returns false for a nonfinite/zero pivot, invalidating solve; no explicit length or sign gate exists here. A successful update is required before solving. H is not retained or changed.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents borrowed diagonal lifetime, factor invalidation, refusal and unchecked dimension/sign premises.
      */
     update(h: Float64Array): boolean;
 
     /**
      * Read n+m RHS values in original variable/constraint order and return a fresh mutable solution in that order. Returns undefined before a successful update, on wrong RHS length or nonfinite substitution/refinement. Up to ten correction passes do not guarantee a residual tolerance; RHS is not changed or retained.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents RHS order/borrowing, owned output, unavailable-factor refusal and refinement limits.
      */
     solve(rhs: Float64Array): Float64Array | undefined;
 

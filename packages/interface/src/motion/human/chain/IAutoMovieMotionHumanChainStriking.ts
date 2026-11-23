@@ -29,8 +29,6 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
    * @param params Stance, facing and time held.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainStriking.guard: Take and hold the fighting stance with the gloves up.
    */
   guard(params?: IAutoMovieMotionHumanGuard.IParams, anchor?: string): this;
 
@@ -40,8 +38,6 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
    * @param params Direction, count and length.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainStriking.step: Step in the fighting stance, keeping the stance.
    */
   step(params: IAutoMovieMotionHumanStep.IParams, anchor?: string): this;
 
@@ -51,8 +47,6 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
    * @param params Hand, technique and target.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainStriking.punch: Bring a straight, hook or uppercut onto a target, or feint one.
    */
   punch(params: IAutoMovieMotionHumanPunch.IParams, anchor?: string): this;
 
@@ -63,8 +57,6 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
    * @param params Leg, technique and target.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainStriking.kick: Bring a round kick's shin or a push kick's foot onto a target, or feint one.
    */
   kick(params: IAutoMovieMotionHumanKick.IParams, anchor?: string): this;
 
@@ -74,8 +66,6 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
    * @param params The target and the leg.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainStriking.knee: Drive a knee onto a target, in the clinch or free.
    */
   knee(params: IAutoMovieMotionHumanKnee.IParams, anchor?: string): this;
 
@@ -86,8 +76,6 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
    * @param params The partner, the grip, the hand and the hold.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainStriking.clinch: Take and hold a clinch grip on a partner: the neck tie, or collar and sleeve.
    */
   clinch(params: IAutoMovieMotionHumanClinch.IParams, anchor?: string): this;
 
@@ -98,8 +86,6 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
    * @param params The attack answered and the defence.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainStriking.defend: Defend against one placed strike: a cover, parry, block, check or evasion.
    */
   defend(params: IAutoMovieMotionHumanDefend.IParams, anchor?: string): this;
 
@@ -109,8 +95,6 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
    * @param params Where the force comes from, what it is and how long.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainStriking.brace: Brace for an expected impact, push or falling body.
    */
   brace(params?: IAutoMovieMotionHumanBrace.IParams, anchor?: string): this;
 
@@ -120,8 +104,6 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
    * @param params The threat and its intensity.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainStriking.flinch: Startle away from a threat or a blow.
    */
   flinch(params?: IAutoMovieMotionHumanFlinch.IParams, anchor?: string): this;
 
@@ -131,8 +113,6 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
    * @param params The push.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainStriking.stagger: Take one unplanned capture step after a push.
    */
   stagger(params: IAutoMovieMotionHumanStagger.IParams, anchor?: string): this;
 
@@ -142,8 +122,6 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
    * @param params The cause and direction.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainStriking.knockdown: Let the legs give way and go down to lie supine.
    */
   knockdown(
     params?: IAutoMovieMotionHumanKnockdown.IParams,
@@ -157,8 +135,6 @@ export interface IAutoMovieMotionHumanChainStriking extends IAutoMovieMotionHuma
    * @param params The outcome; decided by the impulse when absent.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainStriking.perturb: Respond to the impulses on the body: absorb, step or fall as the impulse decides, or as the author fixes (#3430).
    */
   perturb(params?: IAutoMovieMotionHumanPerturb.IParams, anchor?: string): this;
 }

@@ -28,30 +28,22 @@ export interface IAutoMovieHumanArmLaw {
 
   /**
    * Normal of the section plane at a parameter, toward the shoulder.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Normal of the section plane at a parameter, toward the shoulder.
    */
   normal(q: number): AutoMovieVector3Tuple;
 
   /**
    * A point the section plane passes through.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A point the section plane passes through.
    */
   anchor(q: number): AutoMovieVector3Tuple;
 
   /**
    * Point of the section at a parameter and phase.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Point of the section at a parameter and phase.
    */
   point(q: number, t: number): AutoMovieVector3Tuple;
 
   /**
    * Hull perimeter of the forearm's tube cut by a plane through a point, mm;
    * the plane's normal faces the shoulder, as the tube's sections do.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Hull perimeter of the forearm's tube cut by a plane through a point, mm; the plane's normal faces the shoulder, as the tube's sections do.
    */
   girth(point: AutoMovieVector3Tuple, normal: AutoMovieVector3Tuple): number;
 }

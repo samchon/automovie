@@ -50,8 +50,6 @@ export namespace IAutoMovieMotionHumanLean {
      *
      * @param seconds Seconds since the action's start.
      * @returns A value in [0, 1].
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, and that the result is a share in [0, 1].
      */
     weight(seconds: number): number;
   }
@@ -92,8 +90,6 @@ export namespace IAutoMovieMotionHumanLean {
      *
      * @param seconds Seconds since the action's start.
      * @returns The pitch and the roll, degrees.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, the unit and that the pitch and the roll are added to the posture.
      */
     angles(seconds: number): IAutoMovieMotionHumanLean.IAngles;
   }
@@ -121,8 +117,6 @@ export namespace IAutoMovieMotionHumanLean {
      *
      * @param seconds Seconds since the action's start.
      * @returns The pitch and the roll, degrees.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, the unit and that the angles are added to the posture.
      */
     angles(seconds: number): IAutoMovieMotionHumanLean.IAngles;
 
@@ -132,8 +126,6 @@ export namespace IAutoMovieMotionHumanLean {
      *
      * @param seconds Seconds since the action's start.
      * @returns Metres in the performer's floor frame: `x` left, `z` forward; `y` is not read.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the frame, the unit and the component that is not read.
      */
     shift?(seconds: number): IAutoMovieVector3;
 
@@ -143,8 +135,6 @@ export namespace IAutoMovieMotionHumanLean {
      *
      * @param seconds Seconds since the action's start.
      * @returns The two leg goals at that second.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the result and what an absent member reads.
      */
     legs?(
       seconds: number,

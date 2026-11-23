@@ -76,8 +76,6 @@ export namespace IAutoMovieHumanHeadNeckBaseTrial {
 
     /**
      * False evaluates without retaining a trial-dependent quadrature parameter.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation False evaluates without retaining a trial-dependent quadrature parameter.
      */
     at(theta: number, fixedPartition: boolean): IPolarReading;
   }

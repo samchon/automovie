@@ -20,15 +20,11 @@ export interface IAutoMovieHumanWebInput {
 
   /**
    * Chain by name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Chain by name.
    */
   chain: (name: string) => IAutoMovieLoftChain;
 
   /**
    * Calibration index of a chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Calibration index of a chain.
    */
   index: (name: string) => number;
 

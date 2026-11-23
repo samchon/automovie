@@ -21,15 +21,11 @@ export namespace IAutoMoviePeriodicCubic {
   export interface IPrepared {
     /**
      * Existing periodic value at a phase in radians; controls remain unchanged.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the phase unit, the value's control units and that the controls are not changed.
      */
     at(psi: number): number;
 
     /**
      * Finite outward bounds for every finite phase; throws when arithmetic cannot certify them.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what the bounds enclose, their units as the controls' and the thrown failure.
      */
     range(): readonly [number, number];
   }

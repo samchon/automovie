@@ -133,15 +133,11 @@ export namespace IAutoMovieHumanF1NativeLaw {
 
     /**
      * Complete changed figure through the same native generating owner.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Supplies full native fields and the same invocation's skeletal assembly.
      */
     apply: (fields: IFields, bone: IAutoMovieHumanF1.IAssembly) => IAutoMovieHumanF1.IAssembly;
 
     /**
      * Only the source definitions used by candidate tape inversion.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Supplies wall and breast calipers for original-source tape inversion.
      */
     tapeFamilies: (fields: ITapeFields) => {
       trunk: IAutoMovieHumanConicLoft.IFamily;

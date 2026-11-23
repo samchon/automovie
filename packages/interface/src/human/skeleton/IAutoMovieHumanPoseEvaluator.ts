@@ -20,8 +20,6 @@ export interface IAutoMovieHumanPoseEvaluator {
 
   /**
    * Compile exact existing output bones and their dependencies once. Empty selections and absent bone names throw; custom evaluators may omit this capability.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Compile exact existing output bones and their dependencies once. Empty selections and absent bone names throw; custom evaluators may omit this capability.
    */
   project?: (bones: readonly string[]) => AutoMovieHumanPoseProjectionEvaluator;
 }

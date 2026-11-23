@@ -25,8 +25,6 @@ export interface IAutoMovieHumanTrunkFeature {
    * @param u Along the frame's lateral axis, mm.
    * @param v Along the frame's up axis, mm.
    * @returns The height along the axis, mm; negative for a pit or a furrow.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The height at a point of the frame's plane.
    */
   height: (u: number, v: number) => number;
 

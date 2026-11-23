@@ -36,8 +36,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `balance`, `mechanism`, `hand` and `manner` of `IAutoMovieMotionHumanOperate.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   operate(params: IAutoMovieMotionHumanOperate.IParams, anchor?: string): Chain;
 
@@ -47,8 +45,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `source`, `target`, `hand`, `tilt`, `gap`, `timing`, `sourceMl`, `targetMl`, `capacityMl` and `transferMl` of `IAutoMovieMotionHumanPour.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   pour(params: IAutoMovieMotionHumanPour.IParams, anchor?: string): Chain;
 
@@ -58,8 +54,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `prop`, `contacts`, `text`, `side` and `digit` of `IAutoMovieMotionHumanManipulate.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   manipulate(
     params: IAutoMovieMotionHumanManipulate.IParams,
@@ -72,8 +66,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `prop`, `side`, `drive`, `at`, `take`, `push` and `seconds` of `IAutoMovieMotionHumanHeldWork.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   workHeld(
     params: IAutoMovieMotionHumanHeldWork.IParams,
@@ -86,8 +78,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `tool`, `prop`, `on`, `hand`, `cycles` and `manner` of `IAutoMovieMotionHumanUseTool.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   useTool(params: IAutoMovieMotionHumanUseTool.IParams, anchor?: string): Chain;
 
@@ -97,8 +87,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `stroke`, `prop`, `at`, `to`, `hand` and `cycles` of `IAutoMovieMotionHumanLongTool.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   longTool(
     params: IAutoMovieMotionHumanLongTool.IParams,
@@ -111,8 +99,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `keyboard` and `text` of `IAutoMovieMotionHumanTypeText.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   typeText(
     params: IAutoMovieMotionHumanTypeText.IParams,
@@ -125,8 +111,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `balance`, `on`, `hand`, `cycles` and `manner` of `IAutoMovieMotionHumanWipe.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   wipe(params: IAutoMovieMotionHumanWipe.IParams, anchor?: string): Chain;
 
@@ -136,8 +120,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `prop`, `way`, `to`, `left`, `right`, `load`, `moves` and `seconds` of `IAutoMovieMotionHumanPushPull.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   pushPull(
     params: IAutoMovieMotionHumanPushPull.IParams,
@@ -150,8 +132,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `sled`, `to`, `left`, `right`, `lean`, `incline`, `facing`, `seconds` and `moves` of `IAutoMovieMotionHumanPushSled.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   pushSled(
     params: IAutoMovieMotionHumanPushSled.IParams,
@@ -164,8 +144,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `wheel`, `rise`, `rpm` and `seconds` of `IAutoMovieMotionHumanThrowPottery.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   throwPottery(
     params: IAutoMovieMotionHumanThrowPottery.IParams,
@@ -178,8 +156,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `prop`, `screen`, `from`, `to`, `hand` and `duration` of `IAutoMovieMotionHumanSwipeTouchscreen`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   swipeTouchscreen(
     params: IAutoMovieMotionHumanSwipeTouchscreen,
@@ -192,8 +168,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `tool`, `tip`, `on`, `surface`, `stroke`, `duration`, `hand`, `steady`, `drive`, `take`, `leave` and `release` of `IAutoMovieMotionHumanWrite`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   write(params: IAutoMovieMotionHumanWrite, anchor?: string): Chain;
 
@@ -203,8 +177,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `garment`, `opening`, `rim`, `button`, `contact`, `travel`, `radius`, `thickness`, `duration` and `hand` of `IAutoMovieMotionHumanButton`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   button(params: IAutoMovieMotionHumanButton, anchor?: string): Chain;
 
@@ -214,8 +186,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `pouch`, `thumb`, `index`, `brace`, `travel`, `duration` and `hand` of `IAutoMovieMotionHumanZip`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   zip(params: IAutoMovieMotionHumanZip, anchor?: string): Chain;
 
@@ -225,8 +195,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The `rod`, `angle`, `duration` and `hand` of `IAutoMovieMotionHumanHookSet`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   hookSet(params: IAutoMovieMotionHumanHookSet, anchor?: string): Chain;
 
@@ -236,8 +204,6 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @param params The implement `on`, its `left` and `right` handles, `duration` and `transition` of `IAutoMovieMotionHumanHoldHandles`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   holdHandles(params: IAutoMovieMotionHumanHoldHandles, anchor?: string): Chain;
 }

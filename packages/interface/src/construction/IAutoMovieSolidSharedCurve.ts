@@ -92,15 +92,11 @@ export namespace IAutoMovieSolidSharedCurve {
 
     /**
      * The rails' sides at a point of the curve, or null where a direction vanishes.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the reading and its null.
      */
     toward: (point: IAutoMovieSolidIntersection.IPoint) => IAutoMovieSolidRail.IToward | null;
 
     /**
      * The arc a point of the curve lies on: `smooth` where the tangent planes meet under the grazing angle, else `fold`.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the two values and the rule.
      */
     arc: (point: IAutoMovieSolidIntersection.IPoint) => "smooth" | "fold";
   }

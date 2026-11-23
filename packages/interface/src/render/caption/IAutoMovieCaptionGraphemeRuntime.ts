@@ -16,8 +16,6 @@ export interface IAutoMovieCaptionGraphemeRuntime {
    * Segment one canonical caption line into grapheme clusters; only the number
    * of yielded items is read.
    
- *
- * @evidence contracts/development/common.md#meaningful-documentation The segment contract states the input meaning, completion or iteration obligation and rejection behavior.
  */
   segment(value: string): Iterable<unknown>;
 }

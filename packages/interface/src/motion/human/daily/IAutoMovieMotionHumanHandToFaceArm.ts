@@ -76,8 +76,6 @@ export namespace IAutoMovieMotionHumanHandToFaceArm {
 
     /**
      * The hand's place at a posture and second.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanHandToFaceArm.IProps.place: The hand's place at a posture and second.
      */
     place: (
       posture: IAutoMovieMotionHumanPosture,

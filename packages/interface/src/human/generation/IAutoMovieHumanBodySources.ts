@@ -41,8 +41,6 @@ export namespace IAutoMovieHumanBodySources {
   export interface IOriginal extends IInput {
     /**
      * Explicit common neck scalar/section/frame request; no metadata read invokes its constraints.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit common neck scalar/section/frame request; no metadata read invokes its constraints.
      */
     common(): ICommon;
 
@@ -54,15 +52,11 @@ export namespace IAutoMovieHumanBodySources {
 
     /**
      * Independent numerical limb rest; no whole bind or trunk source is published.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Independent numerical limb rest; no whole bind or trunk source is published.
      */
     limbRest(): IAutoMovieHumanLimbRest.IOutput;
 
     /**
      * Same selected factories later consumed by full production.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Same selected factories later consumed by full production.
      */
     limbSources(): IAutoMovieHumanLimbSources.IOutput;
 
@@ -82,36 +76,26 @@ export namespace IAutoMovieHumanBodySources {
 
     /**
      * Explicit actual cut/seat request from the common scalar family; a head or S00 original never pays this unrelated legacy receiver implicitly.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit actual cut/seat request from the common scalar family; a head or S00 original never pays this unrelated legacy receiver implicitly.
      */
     neckBoundary(): IAutoMovieHumanNeckBoundary.IOutput;
 
     /**
      * Explicit head-original request, using the same preceding neck controls as production.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit head-original request, using the same preceding neck controls as production.
      */
     headSource(): IAutoMovieHumanHeadLane.IPrepared;
 
     /**
      * Explicit common legacy trunk constraints, without a raw neck or full head prerequisite.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit common legacy trunk constraints, without a raw neck or full head prerequisite.
      */
     trunkSolution(): IAutoMovieHumanTrunkSolution;
 
     /**
      * Body-owned bone/rest/hand descriptors from shared datum and public inputs, without head/eye construction.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Body-owned bone/rest/hand descriptors from shared datum and public inputs, without head/eye construction.
      */
     bodyAnatomy(): IAutoMovieHumanSkeletonLaw.IOutput;
 
     /**
      * Explicit actual legacy raw request; metadata and property reads never invoke it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit actual legacy raw request; metadata and property reads never invoke it.
      */
     neckRaw(): IAutoMovieLoftChain;
 
@@ -166,8 +150,6 @@ export namespace IAutoMovieHumanBodySources {
 
     /**
      * Explicit genuine coupled-parent request supplied by the production owner.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit genuine coupled-parent request supplied by the production owner.
      */
     completeLeg?: () => void;
   }

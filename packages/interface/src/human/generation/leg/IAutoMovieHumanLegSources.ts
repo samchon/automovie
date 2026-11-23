@@ -36,22 +36,16 @@ export namespace IAutoMovieHumanLegSources {
 
     /**
      * Explicit foot input request, using only its actual distal authority.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit foot input request, using only its actual distal authority.
      */
     foot(): IAutoMovieHumanBodyLane.ISide["foot"];
 
     /**
      * Same foot original consumed by its explicit loft.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Same foot original consumed by its explicit loft.
      */
     definition(): IAutoMovieHumanSourceDefinition;
 
     /**
      * Explicit toe originals from the same foot controls.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit toe originals from the same foot controls.
      */
     toes(): IAutoMovieHumanBodyLane.IToe[];
   }
@@ -88,8 +82,6 @@ export namespace IAutoMovieHumanLegSources {
 
     /**
      * Explicit full-parent demand; ordinary ankle/foot/original reads do not call it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit full-parent demand; ordinary ankle/foot/original reads do not call it.
      */
     completeLeg?: () => void;
   }

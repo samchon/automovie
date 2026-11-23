@@ -48,8 +48,6 @@ export namespace IAutoMovieCurveAssembly64 {
 
     /**
      * Construct this region from the resolved hierarchy and actual incoming values keyed by boundary ID; thrown failures abort assembly without returning a partial output.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States upstream ID keys, resolved hierarchy timing, concrete result preservation and the effect of a thrown construction failure.
      */
     construct(
       context: IAutoMovieCurveParentContext,

@@ -53,8 +53,6 @@ export namespace IAutoMovieProjectileFirstContact {
      * as nearest, before subtracting projectile radius. The sweep uses nearest
      * when this reader is absent and to construct the chosen surface witness.
      * Errors propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the world inputs, flight clock, signed scalar, fallback and failure behavior.
      */
     distance?(
       a: IAutoMovieVector3,
@@ -63,8 +61,6 @@ export namespace IAutoMovieProjectileFirstContact {
     ): number;
 
     /** Optional synchronous certificate for an explicitly resolved initial contact, on the supplied flight clock. Return undefined when the model cannot prove departure; shared resolver validation may throw. No callback is retained after the search.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Specifies the departure callback or sampling contract, including its clock and ownership obligations.
      */
     departure?(
       projectile: IAutoMovieProjectile,
@@ -73,8 +69,6 @@ export namespace IAutoMovieProjectileFirstContact {
     ): IAutoMovieResolveContactEvents.Departure | undefined;
 
     /** Synchronously measure the world centre segment from a to b at launch-relative seconds, using a point when endpoints coincide. Return signed separation in metres and a world surface point/outward unit normal. Errors propagate; hit vectors may borrow this result.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Specifies the nearest callback or sampling contract, including its clock and ownership obligations.
      */
     nearest(
       a: IAutoMovieVector3,
@@ -148,8 +142,6 @@ export namespace IAutoMovieProjectileFirstContact {
     /**
      * Read the actual parent pose at this launch-relative second. Both the
      * ordinary scalar/nearest queries and the clearance witness use this pose.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Gives the launch clock, world rigid frame and common consumers.
      */
     at(seconds: number): IAutoMovieRigidTransform;
 
@@ -158,8 +150,6 @@ export namespace IAutoMovieProjectileFirstContact {
      * Only the resolved initial pair can request this bound. Return undefined
      * when the continuous motion is unknown. A malformed bound raises
      * RangeError and callback errors propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the requested seconds, optional prefix, opt-in pair and refusal.
      */
     bound(from: number, to: number): IMotionBound | undefined;
   }

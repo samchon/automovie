@@ -31,16 +31,12 @@ export namespace IAutoMovieSolvePhysicalArticulationTargets {
     targets: Readonly<Record<string, IAutoMovieRigidTransform>>;
 
     /** Synchronous deterministic residual vector in metres for borrowed world poses, with 1..1024 finite entries and invariant length. Do not mutate poses or returned residuals during the solve; exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Specifies the measure callback or sampling contract, including its clock and ownership obligations.
      */
     measure: (
       poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
     ) => number[];
 
     /** Optional synchronous model factory refreshed at each accepted pose. Its probe callback receives borrowed trial poses and optionally the moved bone set, and must return finite residuals with the same dimension. Omission uses measure; actual acceptance always re-evaluates measure. Callbacks are not retained after return.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Specifies the linearize callback or sampling contract, including its clock and ownership obligations.
      */
     linearize?: (
       poses: Readonly<Record<string, IAutoMovieRigidTransform>>,

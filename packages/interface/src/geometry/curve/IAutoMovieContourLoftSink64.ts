@@ -13,23 +13,17 @@ import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
 export interface IAutoMovieContourLoftSink64 {
   /**
    * Consume one original indexed position in millimetres before any face uses it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States ordering, units and synchronous borrowed input; callback exceptions propagate unchanged.
    */
   vertex: (index: number, pointMm: Readonly<AutoMovieVector3Tuple>) => void;
 
   /**
    * Consume one face in original face and corner order; every index was delivered.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States index availability and original ordering; callback exceptions propagate unchanged.
    */
   triangle: (a: number, b: number, c: number) => void;
 
   /**
    * Consume one actual closed generating ring. Positions and phase lookup are
    * borrowed synchronously; position inputs remain in millimetres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States closed-ring meaning, units and borrowing; callback exceptions propagate unchanged.
    */
   construction: (
     id: string,

@@ -52,8 +52,6 @@ export namespace IAutoMovieMotionHumanSignature {
      * @param subject The person.
      * @param seconds Film seconds.
      * @returns Resolved bones by rig bone.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSignature.IMotion.bones: A person's displayed world bones at a film second.
      */
     bones(
       subject: string,

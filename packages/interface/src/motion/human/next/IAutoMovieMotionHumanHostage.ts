@@ -17,8 +17,6 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
    * @param params The `partner`, `prop`, `kind`, `hand` and `lever` of `IAutoMovieMotionHumanDisarm.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   disarm(params: IAutoMovieMotionHumanDisarm.IParams, anchor?: string): Chain;
 
@@ -28,8 +26,6 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
    * @param params The `partner`, `arm`, `prop`, `point`, `region`, `back` and `duration` of `IAutoMovieMotionHumanHostageHold.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   hostageHold(
     params: IAutoMovieMotionHumanHostageHold.IParams,
@@ -42,8 +38,6 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
    * @param params The `partner` of `IAutoMovieMotionHumanHostageHold.IHeld`, the holder.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   heldHostage(
     params: IAutoMovieMotionHumanHostageHold.IHeld,
@@ -56,8 +50,6 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
    * @param params The `partner` and `of` of `IAutoMovieMotionHumanDisarm.IYield`, the defender and the anchor of its disarm.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   disarmed(params: IAutoMovieMotionHumanDisarm.IYield, anchor?: string): Chain;
 }

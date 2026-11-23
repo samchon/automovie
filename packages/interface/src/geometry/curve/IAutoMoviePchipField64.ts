@@ -21,8 +21,6 @@ export interface IAutoMoviePchipField64 {
 
   /**
    * Evaluate every component or its first/second derivative, selecting the right interval at an interior knot. False/0 reads values, true/1 reads first derivatives, and 2 reads second derivatives, in component units per coordinate unit squared. Values outside the coordinate range extrapolate the nearest interval; the caller owns a narrower supported domain when needed. Nonfinite queries or generated results throw. Endpoint derivative queries keep the existing Horner arithmetic and may differ from an authored slope by rounding.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States backward-compatible boolean queries, explicit derivative orders, right-interval knot selection, extrapolation, units and endpoint rounding.
    */
   at(value: number, derivative?: boolean | 0 | 1 | 2): number[];
 }

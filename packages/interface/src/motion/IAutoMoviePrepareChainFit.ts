@@ -31,8 +31,6 @@ export namespace IAutoMoviePrepareChainFit {
   export interface IRig {
     /**
      * Exact gate overshoot scorer for this bone's fixed domain under the original canonical scoring frame; the optional rotation is the one the angles were read from on that frame (`scanJointRom.prepare`).
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.overshoot: Exact gate overshoot scorer for this bone's fixed domain under the original canonical scoring frame.
      */
     overshoot(
       bone: AutoMovieHumanoidBone,
@@ -40,8 +38,6 @@ export namespace IAutoMoviePrepareChainFit {
 
     /**
      * The same scorer of a bone gated by swing and twist, read from the rotation alone (`scanJointRom.prepareRotated`); null for a bone the gate does not hold.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.rotatedOvershoot: The same scorer of a bone gated by swing and twist, read from the rotation alone (`scanJointRom.prepareRotated`).
      */
     rotatedOvershoot(
       bone: AutoMovieHumanoidBone,
@@ -49,36 +45,26 @@ export namespace IAutoMoviePrepareChainFit {
 
     /**
      * Actual skeleton record; an absent bone is remembered too.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.bone: Actual skeleton record.
      */
     bone(bone: AutoMovieHumanoidBone): IAutoMovieBone | undefined;
 
     /**
      * Effective ROM, sharing the geometry's already prepared upper/lower domains.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.domain: Effective ROM, sharing the geometry's already prepared upper/lower domains.
      */
     domain(bone: AutoMovieHumanoidBone): IAutoMovieJointRotationDomain;
 
     /**
      * Existing basisOf/orientation nullish default at the original diagnostic path; failures are not cached.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.basis: Existing basisOf/orientation nullish default at the original diagnostic path.
      */
     basis(bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes;
 
     /**
      * Direct clinical conversion's undefined-only default; runtime null must still fail even after a lenient default read.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.jointBasis: Direct clinical conversion's undefined-only default.
      */
     jointBasis(bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes;
 
     /**
      * A bone's prepared record composer on its `jointBasis` and the given rest frame (`jointToQuaternionOnBasis.prepare`), kept while the frame record is the same: the chain's records of every read of a fit composed by one composer a bone.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.composer: A bone's prepared record composer on its `jointBasis` and the given rest frame (`jointToQuaternionOnBasis.prepare`), kept while the frame record is the same.
      */
     composer(
       bone: AutoMovieHumanoidBone,
@@ -89,8 +75,6 @@ export namespace IAutoMoviePrepareChainFit {
 
     /**
      * Resolve the actual rig clamp once, while every candidate is still clamped.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.clamp: Resolve the actual rig clamp once, while every candidate is still clamped.
      */
     clamp(
       bone: AutoMovieHumanoidBone,
@@ -98,64 +82,46 @@ export namespace IAutoMoviePrepareChainFit {
 
     /**
      * Fixed effector coefficients; every query retains its own Euler reference and returned joint.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.effectorProjection: Fixed effector coefficients.
      */
     effectorProjection(): IAutoMoviePrepareJointRotationProjection.IProjector;
 
     /**
      * Inverse of the unchanged fixed lower-to-effector frame.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.effectorRestInverse: Inverse of the unchanged fixed lower-to-effector frame.
      */
     effectorRestInverse(): IAutoMovieQuaternion;
 
     /**
      * Last original source end record, or null angles; this never forces authored FK.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.held: Last original source end record, or null angles.
      */
     held(): IAutoMovieJointPose;
 
     /**
      * Raw fixed effector frame times its last source articulation; borrowed and independent of targets.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.heldRotation: Raw fixed effector frame times its last source articulation.
      */
     heldRotation(): IAutoMovieQuaternion;
 
     /**
      * Inverse of that same raw source-held rotation, read lazily after its original articulation admission.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.heldRotationInverse: Inverse of that same raw source-held rotation, read lazily after its original articulation admission.
      */
     heldRotationInverse(): IAutoMovieQuaternion;
 
     /**
      * Lazy fixed effector-axis and clinical-zero preparation, independent of all twist targets and candidates.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.distalTwist: Lazy fixed effector-axis and clinical-zero preparation, independent of all twist targets and candidates.
      */
     distalTwist(): IAutoMovieSolveDistalTwist.IPrepared;
 
     /**
      * Hinged scoring's first reference record, distinct from free-bend/FK last-record semantics.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.reference: Hinged scoring's first reference record, distinct from free-bend/FK last-record semantics.
      */
     reference(bone: AutoMovieHumanoidBone): IAutoMovieQuaternion | null;
 
     /**
      * Admit the fixed non-negative weight at its original first-use point.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.referenceWeight: Admit the fixed non-negative weight at its original first-use point.
      */
     referenceWeight(): number;
 
     /**
      * Original target-independent pure hinge range, including a cached null result.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.hingeRange: Original target-independent pure hinge range, including a cached null result.
      */
     hingeRange(
       read: () => { min: number; max: number } | null,
@@ -163,15 +129,11 @@ export namespace IAutoMoviePrepareChainFit {
 
     /**
      * Original no-hint source-hinge displacement, read only at that branch's first use.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.posedSwing: Original no-hint source-hinge displacement, read only at that branch's first use.
      */
     posedSwing(read: () => IAutoMovieVector3): IAutoMovieVector3;
 
     /**
      * Lazy hinge-span/source-frame geometry; null only when chain preparation failed.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareChainFit.IRig.hingedGeometry: Lazy hinge-span/source-frame geometry.
      */
     hingedGeometry(): IAutoMovieHingedArmSwivel.IPrepared | null;
   }

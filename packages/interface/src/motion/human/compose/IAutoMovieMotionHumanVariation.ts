@@ -62,8 +62,6 @@ export namespace IAutoMovieMotionHumanVariation {
      *
      * @param key The slot key, a short stable string such as `reach.place`.
      * @returns The slot's stream and the repeat's index in it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what a key is and what the result holds.
      */
     series(key: string): IAutoMovieMotionHumanActionContext.ISeries;
   }

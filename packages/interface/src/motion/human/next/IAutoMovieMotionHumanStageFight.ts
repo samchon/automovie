@@ -35,8 +35,6 @@ export interface IAutoMovieMotionHumanStageFight<Chain> {
    * @param exchange Stable cue id, held-prop subjects, stage marks and block lead in film seconds.
    * @returns The composed performance chain.
    * @throws {Error} When the cast coincides, a cue or id is blank, or a time is invalid.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the composition does, its parameters, its return and its refusals.
    */
   bladeExchange(
     opening: IAutoMovieMotionHumanChainCore,
@@ -53,8 +51,6 @@ export interface IAutoMovieMotionHumanStageFight<Chain> {
    * @param response The optional responding performer and reaction timing.
    * @returns The composed performance chain.
    * @throws {Error} When the cast coincides, a cue or id is blank, or a time is invalid.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the composition does, its parameters, its return and its refusals.
    */
   stageProp(
     performer: IAutoMovieMotionHumanChainCore,
@@ -69,8 +65,6 @@ export interface IAutoMovieMotionHumanStageFight<Chain> {
    * @param params The `style`, `direction`, `lead`, `distance`, `duration` and `propCue` of `IAutoMovieMotionHumanStageBladeFootwork.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   stageBladeFootwork(
     params: IAutoMovieMotionHumanStageFight.IStageBladeFootwork,

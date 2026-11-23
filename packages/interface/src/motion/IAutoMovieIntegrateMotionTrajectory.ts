@@ -23,8 +23,6 @@ export namespace IAutoMovieIntegrateMotionTrajectory {
   export interface IProps {
     /**
      * The right-hand side: the state's rate at a time, and with an orientation the body-frame angular velocity, radians per second. Pure.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateMotionTrajectory.IProps.f: The right-hand side: the state's rate at a time, and with an orientation the body-frame angular velocity, radians per second. Pure.
      */
     f: (
       t: number,
@@ -65,8 +63,6 @@ export namespace IAutoMovieIntegrateMotionTrajectory {
      * Smoothness underlies the sampled estimator; arbitrary unsampled history
      * features and a downstream finite-difference observer are not certified.
      * Borrowed numeric records must not be mutated or retained for mutation.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateMotionTrajectory.IProps.rotationDefect: Optional continuous rotation-defect admission.
      */
     rotationDefect?: (
       seconds: number,
@@ -164,23 +160,17 @@ export namespace IAutoMovieIntegrateMotionTrajectory {
      *
      * @param time Finite query second; outside the interval selects the nearest end interval.
      * @returns Fresh copies of actual states and derivatives with their adjacent knot times.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateMotionTrajectory.ITrajectory.interval: Read adjacent actual fixed-step Hermite data; absent for adaptive continuous extensions.
      */
     interval?: (time: number) => IAutoMovieMotionTrajectoryInterval;
 
     /**
      * The state at a time, held at the ends outside `[t0, t1]`. Each call
      * owns its mutable vector and quaternion, including repeated reads.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateMotionTrajectory.ITrajectory.at: The state at a time, held at the ends outside `[t0, t1]`.
      */
     at: (time: number) => IAutoMovieIntegrateMotionTrajectory.IState;
 
     /**
      * Optional orientation-only projection of the same solved curve. Each read returns a fresh quaternion or null, without evaluating or copying the vector block.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateMotionTrajectory.ITrajectory.orientation: Optional orientation-only projection of the same solved curve.
      */
     orientation?: (time: number) => IAutoMovieQuaternion | null;
   }

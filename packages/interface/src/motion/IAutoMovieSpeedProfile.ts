@@ -204,8 +204,6 @@ export namespace IAutoMovieSpeedProfile {
 
     /**
      * The state at a film second: at rest at the path's start before `start`, at the start speed at `start`, and the end state after `end`.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSpeedProfile.IProfile.at: The state at a film second: at rest at the path's start before `start`, at the start speed at `start`, and the end state after `end`.
      */
     at: (seconds: number) => IAutoMovieSpeedProfile.IState;
 
@@ -213,8 +211,6 @@ export namespace IAutoMovieSpeedProfile {
      * The film second a distance is first reached, after clamping distance
      * to [0, length]. A held distance is reached at the beginning of the hold,
      * including a trailing hold at length; an empty profile returns start.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSpeedProfile.IProfile.when: The film second a distance is first reached, after clamping distance to [0, length]. A held distance is reached at the beginning of the hold, including a trailing hold at length; an empty profile returns start.
      */
     when: (distance: number) => number;
   }

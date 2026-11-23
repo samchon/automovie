@@ -22,8 +22,6 @@ export interface IAutoMovieMotionHumanDress<Chain> {
    * @param params The `item`, `prop`, `hand` and `manner` of `IAutoMovieMotionHumanDress.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   dress(params: IAutoMovieMotionHumanDress.IParams, anchor?: string): Chain;
 
@@ -33,8 +31,6 @@ export interface IAutoMovieMotionHumanDress<Chain> {
    * @param params The `kind`, `prop` and the mode's own `hand`, `side` or `held` of `IAutoMovieMotionHumanWardrobe`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   wardrobe(params: IAutoMovieMotionHumanWardrobe, anchor?: string): Chain;
 
@@ -44,8 +40,6 @@ export interface IAutoMovieMotionHumanDress<Chain> {
    * @param params The `prop` and `hand` of `IAutoMovieMotionHumanTipHat`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   tipHat(params: IAutoMovieMotionHumanTipHat, anchor?: string): Chain;
 
@@ -55,8 +49,6 @@ export interface IAutoMovieMotionHumanDress<Chain> {
    * @param params The `sheath`, `hand` and `pull` of `IAutoMovieMotionHumanDress.IDrawFromCarrier`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the grip and the draw appended; the grip's `gripClosed` marks closure, and the draw's `unseated` and `drawn` mark the start and the end of the withdrawal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   drawFromCarrier(
     params: IAutoMovieMotionHumanDress.IDrawFromCarrier,
@@ -69,8 +61,6 @@ export interface IAutoMovieMotionHumanDress<Chain> {
    * @param params The `sheath` and `hand` of `IAutoMovieMotionHumanDress.IPutDownAperture`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the return appended; its `aperture`, `placed` and `release` events mark the entry, the seat and the opened hand.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   putDownAperture(
     params: IAutoMovieMotionHumanDress.IPutDownAperture,

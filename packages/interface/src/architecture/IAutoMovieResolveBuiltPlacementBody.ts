@@ -34,8 +34,6 @@ export namespace IAutoMovieResolveBuiltPlacementBody {
      * Synchronous borrowed world-metre part-box lookup by element id. Null,
      * undefined or empty means unresolved; returned boxes are retained in the result,
      * while the callback itself is not retained. Lookup exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronous borrowed world-metre part-box lookup by element id. Null, undefined or empty means unresolved; returned boxes are retained in the result, while the callback itself is not retained. Lookup exceptions propagate. Member documentation states the supplied records, units and absence meanings used by resolveBuiltPlacementBody.
      */
     parts: (
       elementId: string,

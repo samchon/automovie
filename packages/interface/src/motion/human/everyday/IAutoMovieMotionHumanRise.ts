@@ -129,8 +129,6 @@ export namespace IAutoMovieMotionHumanRise {
     to: number;
     /**
      * Retained synchronous callback returning HEEL-raise pitch in degrees for foot placement and toe flexion. Receives the action-relative second unchanged, without subtracting from or clamping. Each leg write calls it independently, so both legs can call it at the same second. The returned primitives retain props, stance and callback; captured inputs must stay stable and exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanRise.ILegsProps.degrees: Retained synchronous callback returning HEEL-raise pitch in degrees for foot placement and toe flexion. Receives the action-relative second unchanged, without subtracting from or clamping. Each leg write calls it independently, so both legs can call it at the same second. The returned primitives retain props, stance and callback; captured inputs must stay stable and exceptions propagate.
      */
     degrees: (seconds: number) => number;
   };

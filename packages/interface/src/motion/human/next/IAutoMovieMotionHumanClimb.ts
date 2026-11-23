@@ -20,8 +20,6 @@ export interface IAutoMovieMotionHumanClimb<Chain> {
    * @param params The `ladder`, `rungs`, `landing` and `manner` of `IAutoMovieMotionHumanClimbLadder.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   climbLadder(
     params: IAutoMovieMotionHumanClimbLadder.IParams,
@@ -34,8 +32,6 @@ export interface IAutoMovieMotionHumanClimb<Chain> {
    * @param params The `pattern`, `lead`, `on`, `rail` and `manner` of `IAutoMovieMotionHumanClimbStairs.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   climbStairs(
     params: IAutoMovieMotionHumanClimbStairs.IParams,
@@ -48,8 +44,6 @@ export interface IAutoMovieMotionHumanClimb<Chain> {
    * @param params One of the variants of `IAutoMovieMotionHumanRope.IParams`: `IClimb`, `IDescend`, `ITraverseRope` or `ISwing`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   rope(params: IAutoMovieMotionHumanRope.IParams, anchor?: string): Chain;
 
@@ -59,8 +53,6 @@ export interface IAutoMovieMotionHumanClimb<Chain> {
    * @param params One of the variants of `IAutoMovieMotionHumanTreeClimb.IParams`: `IClimb`, `ISit` or `IDescend`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   treeClimb(
     params: IAutoMovieMotionHumanTreeClimb.IParams,
@@ -73,8 +65,6 @@ export interface IAutoMovieMotionHumanClimb<Chain> {
    * @param params The `start` holds and the `moves` of `IAutoMovieMotionHumanWallClimb`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   wallClimb(params: IAutoMovieMotionHumanWallClimb, anchor?: string): Chain;
 }

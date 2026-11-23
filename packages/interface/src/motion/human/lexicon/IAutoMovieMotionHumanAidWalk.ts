@@ -95,8 +95,6 @@ export namespace IAutoMovieMotionHumanAidWalk {
   export interface ILaw extends IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanAidWalk> {
     /**
      * From the aid's staged floor frame, the walk's parameters and the walk's first film second (zero when absent), the aid's world frame in metres at each film second.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the start's default, the reader's timebase and the result's frame and unit.
      */
     track: (
       start: IAutoMovieRigidTransform,

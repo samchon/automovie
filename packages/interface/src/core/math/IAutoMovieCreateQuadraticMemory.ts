@@ -23,8 +23,6 @@ export namespace IAutoMovieCreateQuadraticMemory {
      *
      * @param bytes Requested bytes before upward eight-byte alignment.
      * @param use Synchronous callback borrowing heap getters and views during this invocation.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines byte alignment, callback invocation/lifetime, propagated errors, return transfer and retained-view limitations.
      */
     withWorkspace<T>(
       bytes: number,

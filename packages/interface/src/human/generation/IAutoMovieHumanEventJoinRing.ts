@@ -29,8 +29,6 @@ export namespace IAutoMovieHumanEventJoinRing {
 
     /**
      * Weight of a phase on the child's arcs, 0 off them and fading to 0 before each pinch.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Weight of a phase on the child's arcs, 0 off them and fading to 0 before each pinch.
      */
     weight: (t: number) => number;
   }

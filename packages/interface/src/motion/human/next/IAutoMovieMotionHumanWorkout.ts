@@ -31,8 +31,6 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
    * @param params The `balance`, `kind`, `reps`, `depth`, `tempo`, `side` and `manner` of `IAutoMovieMotionHumanExercise.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   exercise(
     params: IAutoMovieMotionHumanExercise.IParams,
@@ -45,8 +43,6 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
    * @param params The `kind`, `side`, `seconds`, `intensity` and `manner` of `IAutoMovieMotionHumanStretch.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   stretch(params: IAutoMovieMotionHumanStretch.IParams, anchor?: string): Chain;
 
@@ -56,8 +52,6 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
    * @param params The `kind`, `reps`, `hold`, `on`, `stay`, `load` and `manner` of `IAutoMovieMotionHumanWorkout.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   workout(params: IAutoMovieMotionHumanWorkout.IParams, anchor?: string): Chain;
 
@@ -67,8 +61,6 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
    * @param params The `periodSeconds` and `flightSeconds` of `IAutoMovieMotionHumanRopeSkip.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   ropeSkip(
     params: IAutoMovieMotionHumanRopeSkip.IParams,
@@ -81,8 +73,6 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
    * @param params The `on`, `to`, `steps`, `pole` and `sag` of `IAutoMovieMotionHumanLineWalk.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   lineWalk(
     params: IAutoMovieMotionHumanLineWalk.IParams,
@@ -95,8 +85,6 @@ export interface IAutoMovieMotionHumanWorkout<Chain> {
    * @param params The `stilts`, `to` and `steps` of `IAutoMovieMotionHumanStiltWalk.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   stiltWalk(
     params: IAutoMovieMotionHumanStiltWalk.IParams,

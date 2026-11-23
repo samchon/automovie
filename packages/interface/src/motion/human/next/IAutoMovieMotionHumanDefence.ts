@@ -17,8 +17,6 @@ export interface IAutoMovieMotionHumanDefence<Chain> {
    * @param params The `kind`, `against` and `outcome` of `IAutoMovieMotionHumanDefend.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   defend(params: IAutoMovieMotionHumanDefend.IParams, anchor?: string): Chain;
 
@@ -28,8 +26,6 @@ export interface IAutoMovieMotionHumanDefence<Chain> {
    * @param params The `seconds`, `stance`, `style` and `facing` of `IAutoMovieMotionHumanGuard.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   guard(params: IAutoMovieMotionHumanGuard.IParams, anchor?: string): Chain;
 }

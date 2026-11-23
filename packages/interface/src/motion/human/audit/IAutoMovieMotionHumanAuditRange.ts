@@ -40,8 +40,6 @@ export namespace IAutoMovieMotionHumanAuditRange {
      * @param subject The person.
      * @param seconds Film seconds, within the motion.
      * @returns The pose, joints in clinical degrees.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAuditRange.IPosed.pose: A person's displayed pose.
      */
     pose(subject: string, seconds: number): IAutoMoviePose;
   }

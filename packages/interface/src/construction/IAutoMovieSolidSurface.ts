@@ -28,15 +28,11 @@ export interface IAutoMovieSolidSurface {
    * @param u First chart parameter, such as a chain's station in mm.
    * @param v Second chart parameter, such as a chain's phase in radians.
    * @returns The surface's 2-jet there.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives both parameter meanings and the result's derivative convention; vector aliasing and outside-domain behavior belong to the producer.
    */
   jet(u: number, v: number): IAutoMovieSolidSurface.IJet;
 
   /**
    * Actual Point0 where regular physical2 may be unavailable, such as a retained collapsed tip.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Inputs use the same chart/domain as jet and the producer owns returned vector freshness and explicit admission errors.
    */
   point?(u: number, v: number): AutoMovieVector3Tuple;
 

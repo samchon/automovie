@@ -82,14 +82,10 @@ export namespace IAutoMovieHumanHeadEarPlate {
     tragion: number;
     /**
      * Actual attachment/posterior original guide point.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Actual attachment/posterior original guide point.
      */
     point(station: number, posterior: boolean): [number, number, number];
     /**
      * Whole original source section and all available local derivatives.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Whole original source section and all available local derivatives.
      */
     section(station: number): ISection;
   }

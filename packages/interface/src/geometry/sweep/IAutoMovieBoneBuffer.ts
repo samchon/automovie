@@ -25,8 +25,6 @@ export interface IAutoMovieBoneBuffer {
    * @param bone Bone name
    * @returns Its index
    * @throws Error when the rest list lacks the bone
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the return and refusal.
    */
   index(bone: AutoMovieHumanoidBone): number;
 
@@ -35,15 +33,11 @@ export interface IAutoMovieBoneBuffer {
    *
    * @param posed The same bones as the rest list, in the same order
    * @throws Error when the lists differ in length or in a bone
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the expected order.
    */
   update(posed: readonly IAutoMovieResolvedBone[]): void;
 
   /**
    * Return every motion to the identity, the rest pose.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the effect.
    */
   reset(): void;
 
@@ -55,8 +49,6 @@ export interface IAutoMovieBoneBuffer {
    * @param pi Offset of the point
    * @param out Target array, which may be the source
    * @param oi Offset to write at
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the aliasing rule.
    */
   apply(
     bone: number,
@@ -74,8 +66,6 @@ export interface IAutoMovieBoneBuffer {
    * @param vi Offset of the direction
    * @param out Target array, which may be the source
    * @param oi Offset to write at
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the aliasing rule.
    */
   turn(
     bone: number,

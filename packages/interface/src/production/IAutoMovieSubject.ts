@@ -43,8 +43,6 @@ export interface IAutoMovieSubject<TDesign> {
    * same constructor inputs, because the compiled design is what the frames are
    * derived from. The base class neither checks this nor caches or freezes the
    * result.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that the result is the record the builder reads, that every call must be byte-identical for the same constructor inputs, and that the base neither checks, caches nor freezes it.
    */
   design(): TDesign;
 
@@ -56,8 +54,6 @@ export interface IAutoMovieSubject<TDesign> {
    * instance-set runtimes from there rather than restating them. The returned
    * arrays are read by `mergeAutoMovieSubjectContributions`, which copies their
    * elements into new arrays rather than keeping the subject's arrays.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which builder-owned facts the context supplies and that the merge copies the returned elements into new arrays rather than keeping the subject's arrays.
    */
   render(context: IAutoMovieShotBuildContext): IAutoMovieSubjectContribution;
 }

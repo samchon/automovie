@@ -41,36 +41,26 @@ export namespace IAutoMovieHumanArmTube {
 
     /**
      * Section axes [forward, lateral] in the axis's source frame at walk length s in millimetres; both vectors are dimensionless.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Section axes [forward, lateral] in the axis's source frame at walk length s in millimetres; both vectors are dimensionless.
      */
     frame(s: number): [AutoMovieVector3Tuple, AutoMovieVector3Tuple];
 
     /**
      * Radius and its first two polar-angle derivatives at walk length s in millimetres and theta in radians: [mm, mm/radian, mm/radian squared].
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Radius and its first two polar-angle derivatives at walk length s in millimetres and theta in radians: [mm, mm/radian, mm/radian squared].
      */
     radius(s: number, theta: number): [number, number, number];
 
     /**
      * Skin point in the axis's source frame, millimetres, at walk length s in millimetres and polar angle theta in radians.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Skin point in the axis's source frame, millimetres, at walk length s in millimetres and polar angle theta in radians.
      */
     surface(s: number, theta: number): AutoMovieVector3Tuple;
 
     /**
      * Millimetre scale of the normalized section at walk length s in millimetres; the scale is held at the build interval's endpoints outside that interval.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Millimetre scale of the normalized section at walk length s in millimetres; the scale is held at the build interval's endpoints outside that interval.
      */
     scale(s: number): number;
 
     /**
      * Convex-hull perimeter of the 256-phase section sample at walk length s in millimetres, returned in millimetres; this is a sampled hull measurement.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Convex-hull perimeter of the 256-phase section sample at walk length s in millimetres, returned in millimetres; this is a sampled hull measurement.
      */
     girth(s: number): number;
   }

@@ -39,15 +39,11 @@ export namespace IAutoMovieEvaluateStorySync {
 
     /**
      * Synchronous story-clock pin lookup, called once per address after realized even when the realization is unavailable. Null leaves the point unresolved; exceptions propagate and the pin is borrowed only during the call.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronous story-clock pin lookup, called once per address after realized even when the realization is unavailable. Null leaves the point unresolved; exceptions propagate and the pin is borrowed only during the call. Member documentation states the supplied records, units and absence meanings used by evaluateAutoMovieStorySync.
      */
     pin: (shot: string) => IAutoMovieShotStoryTime | null;
 
     /**
      * Synchronous event-time lookup in shot-local seconds, called once per listed address. Null or a nonfinite answer leaves the point unresolved; finite negative values are not rejected here. Exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronous event-time lookup in shot-local seconds, called once per listed address. Null or a nonfinite answer leaves the point unresolved; finite negative values are not rejected here. Exceptions propagate. Member documentation states the supplied records, units and absence meanings used by evaluateAutoMovieStorySync.
      */
     realized: (shot: string, event: string) => number | null;
   };

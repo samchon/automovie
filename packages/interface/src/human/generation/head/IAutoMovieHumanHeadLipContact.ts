@@ -76,14 +76,10 @@ export namespace IAutoMovieHumanHeadLipContact {
     frame: IAutoMovieLoftSectionFrame;
     /**
      * Forward resting point at world lateral mm.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Forward resting point at world lateral mm.
      */
     at(lateral: number): IReading;
     /**
      * Actual signed border at Euclidean height mm; heightJet uses physical lateral mm.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Actual signed border at Euclidean height mm; heightJet uses physical lateral mm.
      */
     section(
       lateral: number,

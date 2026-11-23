@@ -18,8 +18,6 @@ export interface IAutoMovieMotionHumanExpression {
    * @param params The `displays` of `IAutoMovieMotionHumanExpression.IAffect`.
    * @returns The layer that adds the displays.
    * @throws {HumanRefusal} For a display whose length is not above the display's floor (0 s, more for a sneeze or a gasp).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the layer adds, its parameters, its refusal and its return.
    */
   affect(
     params: IAutoMovieMotionHumanExpression.IAffect,
@@ -30,8 +28,6 @@ export interface IAutoMovieMotionHumanExpression {
    *
    * @param params The `rate` and `exertion` of `IAutoMovieMotionHumanBreath.IOptions`; the defaults when absent.
    * @returns The layer that breathes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the layer adds, its parameters and its return.
    */
   breath(
     params?: IAutoMovieMotionHumanBreath.IOptions,

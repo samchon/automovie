@@ -110,8 +110,6 @@ export namespace IAutoMovieHumanF1NativeRoot {
     childPhases: number[];
     /**
      * Original source-owned rail station at child phase, physical mm.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation World-space child rail station for an unwrapped phase, in physical millimetres.
      */
     childRail: (phase: number) => number;
   }
@@ -176,14 +174,10 @@ export namespace IAutoMovieHumanF1NativeRoot {
     qualification: string;
     /**
      * Re-read the actual final source; target jets are never substituted.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Reads actual source jets at addresses emitted by this root.
      */
     inspect: (part: IAutoMovieViewPart) => IInspection[];
     /**
      * Original physical search controls for unchanged bindings; changed roots issue a separate named chart prior.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Transports the original cutter search using the paired native source definitions.
      */
     seed: (
       original: IAutoMovieViewPart,
@@ -250,14 +244,10 @@ export namespace IAutoMovieHumanF1NativeRoot {
     axis: IAutoMovieViewAxis.IAxis;
     /**
      * Same explicit affine candidate policy for dependent cutter courses.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Applies the candidate's affine axis policy to the cutter axis.
      */
     cutterAxis: (axis: IAutoMovieViewAxis.IAxis) => IAutoMovieViewAxis.IAxis;
     /**
      * Generate actual radial/phase controls once from the supplied complete candidate source.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Resolves radial and phase controls from one admitted native candidate.
      */
     resolve: (candidate: IAutoMovieViewPart) => IRootSpec;
   }

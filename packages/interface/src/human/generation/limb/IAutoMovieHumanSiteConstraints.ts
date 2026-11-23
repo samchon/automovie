@@ -22,8 +22,6 @@ export namespace IAutoMovieHumanSiteConstraints {
   export interface IOwner {
     /**
      * Same tuple and diagnostic identity reuse the original result; changed inputs replace only that site's record.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Same tuple and diagnostic identity reuse the original result; changed inputs replace only that site's record.
      */
     solve(
       name: string,

@@ -48,8 +48,6 @@ export namespace IAutoMovieHumanSiteControls {
 
     /**
      * Explicit native scalar preparation, shared by contact consumers; its physical2 refusal stays observable.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit native scalar preparation, shared by contact consumers; its physical2 refusal stays observable.
      */
     field(): IAutoMovieLoftViewSource.ISource;
   }

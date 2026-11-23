@@ -29,8 +29,6 @@ export interface IAutoMovieMotionHumanKickGeometry {
    * @param resolution Optional exact FK supplier borrowed only by this synchronous course evaluation.
    * @param projection Optional genuine same-body ROM metadata borrowed only within this synchronous unchanged-table operation.
    * @returns The demanded posture, with guard and kicking leg included when demand is omitted.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines local seconds, supported observation demand and same-body unchanged-table loan lifetime.
    */
   posture(
     seconds: number,
@@ -55,8 +53,6 @@ export interface IAutoMovieMotionHumanKickGeometry {
    * @param resolution Optional exact reader borrowed only within this synchronous person's evaluation.
    * @param projection Optional genuine same-body ROM metadata borrowed only within this synchronous unchanged-table operation.
    * @returns The posture, both leg goals being the stance's.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.base: The body's posture without the kicking leg's goal, under a given carriage.
    */
   base(
     seconds: number,
@@ -72,8 +68,6 @@ export interface IAutoMovieMotionHumanKickGeometry {
    *
    * @param turning Seconds since the start at which the turn is read.
    * @returns The carriage.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.shown: The carriage this kick shows in full at a second: the launch plan's, moved by every correction of the aim that has started by then.
    */
   shown(turning: number): IAutoMovieMotionHumanKickGeometry.ICarriage;
 
@@ -86,8 +80,6 @@ export interface IAutoMovieMotionHumanKickGeometry {
    * @param shift How far the launch plant has moved, world metres: zero on the approach, the replant's share on a withdrawal.
    * @param hip Optional kicking hip already read from this exact body/base within the current synchronous evaluation.
    * @returns The leg's goal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.leg: The kicking leg's goal on its free path, as if the leg met nothing, under a given body.
    */
   leg(
     clock: number,
@@ -130,8 +122,6 @@ export namespace IAutoMovieMotionHumanKickGeometry {
      * Its geometry, built on demand.
      *
      * @returns The geometry.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.ISource.geometry: Its geometry, built on demand.
      */
     geometry(): IAutoMovieMotionHumanKickGeometry;
 

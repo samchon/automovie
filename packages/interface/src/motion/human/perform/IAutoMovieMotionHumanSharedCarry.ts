@@ -40,8 +40,6 @@ export namespace IAutoMovieMotionHumanSharedCarry {
 
     /**
      * Pure base posture track at film seconds, including an authored elbow direction at the start.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines the film clock, purity and initial posture used to plan the gripping arm.
      */
     posture: (seconds: number) => IAutoMovieMotionHumanPosture;
   }
@@ -70,8 +68,6 @@ export namespace IAutoMovieMotionHumanSharedCarry {
 
     /**
      * Pure prop world-frame track at film seconds in [from, to]. At from it starts at prop.frame.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines the world frame, closed film interval, initial transform and purity.
      */
     path: (seconds: number) => IAutoMovieRigidTransform;
   }

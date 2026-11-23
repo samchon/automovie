@@ -14,8 +14,6 @@ export interface IAutoMovieMotionPlayback<
 > {
   /**
    * Evaluate the requested local second using the producer's prepared motion.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The evaluator works on the producer's local clock and returns its declared sample, including any ordinary fallback its domain defines.
    */
   readonly sample: (...args: TArguments) => TSample;
 }

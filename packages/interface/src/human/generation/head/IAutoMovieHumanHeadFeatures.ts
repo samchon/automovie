@@ -86,8 +86,6 @@ export namespace IAutoMovieHumanHeadFeatures {
 
     /**
      * Request only these top-level originals; absence requests the complete top-level set.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Request only these top-level originals; absence requests the complete top-level set.
      */
     read(names?: readonly string[]): IFeature[];
   }

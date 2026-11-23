@@ -42,8 +42,6 @@ export namespace IAutoMoviePreparedConstructionProfile {
      * after checking actual adjacent piece endpoints. Throws for a nonfinite or
      * out-of-family station, no active loop, or an endpoint mismatch. Callback
      * exceptions propagate; an empty successful result is never returned.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Gives station millimetres, fresh ordered IDs and all refused query cases, including no active loop.
      */
     section(station: number): readonly string[];
 
@@ -52,8 +50,6 @@ export namespace IAutoMoviePreparedConstructionProfile {
      * normalized coordinate in [0,1]. Rejects an unknown piece, out-of-domain
      * query or missing first phase derivative. Second phase may be null
      * independently of complete physical2; original callback throws propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines piece/station/normalized-coordinate arguments, fresh world output and separate first/second derivative availability.
      */
     phase(
       piece: string,
@@ -67,8 +63,6 @@ export namespace IAutoMoviePreparedConstructionProfile {
      * retained chart or region domain returns false; without a trim owner it
      * returns true there. Otherwise it calls the original trim predicate with
      * the converted original clock and propagates its exceptions.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Distinguishes unknown-address throws, known out-of-domain false, untrimmed true and the original trim callback.
      */
     contains(
       region: string,

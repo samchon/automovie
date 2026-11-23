@@ -43,8 +43,6 @@ export namespace IAutoMovieViewSectionRange {
 
     /**
      * Same-shoulder actual source/admission; original preparation exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Same-shoulder actual source/admission; original preparation exceptions propagate.
      */
     at(shoulder: number): IAutoMovieViewSectionRange.ITrial;
   }

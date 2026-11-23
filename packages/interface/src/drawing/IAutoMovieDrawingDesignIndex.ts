@@ -48,8 +48,6 @@ export interface IAutoMovieDrawingDesignIndex {
    * times is tessellated once. Throws as `autoMovieDrawingPartTriangles` does
    * for a malformed mesh. The returned array is shared between calls and must
    * not be mutated.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The comment states the frame and unit, the memo's key and lifetime, the failure behaviour and that the shared array must not be mutated.
    */
   partTriangles: (
     model: IAutoMovieModel,

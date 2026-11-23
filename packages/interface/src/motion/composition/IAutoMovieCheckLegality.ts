@@ -24,8 +24,6 @@ export namespace IAutoMovieCheckLegality {
 
     /**
      * A violation text for this entry, or null when it holds.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieCheckLegality.IRule.check: A violation text for this entry, or null when it holds.
      */
     check(
       entry: IAutoMovieScheduleEntry,

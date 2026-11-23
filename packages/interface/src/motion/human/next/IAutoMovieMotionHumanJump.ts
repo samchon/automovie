@@ -22,8 +22,6 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @param params The `to`, `on`, `apex`, `rotation` and `manner` of `IAutoMovieMotionHumanJump.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   jump(params: IAutoMovieMotionHumanJump.IParams, anchor?: string): Chain;
 
@@ -33,8 +31,6 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @param params The `pit` and `distance` of `IAutoMovieMotionHumanHorizontalJump.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   horizontalJump(
     params: IAutoMovieMotionHumanHorizontalJump.IParams,
@@ -47,8 +43,6 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @param params The `to`, `on`, `bar`, `apexReserve` and `takeoffFoot` of `IAutoMovieMotionHumanHighJump.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   highJump(
     params: IAutoMovieMotionHumanHighJump.IParams,
@@ -61,8 +55,6 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @param params The `pole`, `end` and `on` of `IAutoMovieMotionHumanPoleVault.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   poleVault(
     params: IAutoMovieMotionHumanPoleVault.IParams,
@@ -75,8 +67,6 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @param params The `hurdle` of `IAutoMovieMotionHumanHurdleClear.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   hurdleClear(
     params: IAutoMovieMotionHumanHurdleClear.IParams,

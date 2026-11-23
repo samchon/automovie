@@ -39,8 +39,6 @@ export interface IAutoMovieSolidAtlas {
    * @returns True for retained skin, intended to include its boundary. Body's
    * parity classifier does not establish inclusive ownership for every segment.
    * A single-surface adapter always returns true; domain admission is separate.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States indexed chart input and the required inclusive true result without claiming a validated chart or index.
    */
   kept(face: number, u: number, v: number): boolean;
 
@@ -54,8 +52,6 @@ export interface IAutoMovieSolidAtlas {
    * @param v Second coordinate in the source face's chart units.
    * @returns The neighbour's index and chart point, or null where the
    *   nearest boundary is an open end of the face.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the foot correspondence, chart units and open-boundary null meaning.
    */
   across(
     face: number,

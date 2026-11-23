@@ -71,16 +71,12 @@ export namespace IAutoMovieMotionHumanArmGeometry {
     /**
      * Project an actual clinical-degree joint through this unchanged setup;
      * an unconstrained input returns by identity.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States clinical-degree projection, fixed-setup scope and unconstrained input identity.
      */
     clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
 
     /**
      * Read a bone's admitted unit basis at its first conversion's original
      * diagnostic path; failed admission throws and is not remembered.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States unit-basis output, the first conversion's diagnostic path and failed-admission behavior.
      */
     basis: (bone: AutoMovieHumanoidBone, path: string) => IAutoMovieJointAxes;
   }

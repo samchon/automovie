@@ -18,8 +18,6 @@ export interface IAutoMovieSoftBodyObserver {
    * @param positions Every particle's world position, metres, row-major `[x, y, z, ...]`; lent for the call.
    * @param velocities Every particle's velocity, metres per second, in the same layout; a held particle reads zero; lent for the call.
    * @param loads The force each held particle bears from the constraints that tie it to the rest of the body, newtons, world frame, by particle: the pull a hand holding it feels. Read from the compliant solver's multipliers (force = lambda times the constraint gradient over the step squared); empty when the domain declares no compliance, since the relaxation weights of the plain solver are not forces.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States completed-step timing, absolute indexing, world units, borrowed buffers, held-particle velocity and the force map's meaning and empty case.
    */
   step(
     step: number,

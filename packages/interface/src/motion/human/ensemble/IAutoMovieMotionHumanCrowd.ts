@@ -40,8 +40,6 @@ export namespace IAutoMovieMotionHumanCrowd {
   export interface IRequest {
     /**
      * Each member's goals: a point, or points in order.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCrowd.IRequest.goals: Each member's goals: a point, or points in order.
      */
     goals: (
       member: IAutoMovieMotionHumanEnsemble.IMember,

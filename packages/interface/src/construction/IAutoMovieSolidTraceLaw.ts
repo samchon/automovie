@@ -21,29 +21,21 @@ export namespace IAutoMovieSolidTraceLaw {
   export interface ILaw {
     /**
      * Scalar parameter constraint g(P,phi,t), with units determined by the selected law.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Names world point, part phase and trace parameter and explicitly leaves residual units with the law.
      */
     g(p: AutoMovieVector3Tuple, phi: number, t: number): number;
 
     /**
      * [dg/dP,dg/dphi], valid for the constructors' point/phase-affine constraints.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Gives derivative ordering and the affine-constraint premise.
      */
     grad(t: number): [AutoMovieVector3Tuple, number];
 
     /**
      * Partial derivative dg/dt with world point/part phase held fixed.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States held-fixed variables and the derivative's solver role.
      */
     gt(p: AutoMovieVector3Tuple, t: number): number;
 
     /**
      * Second total-derivative remainder after the solver's Jacobian-times-acceleration and grad(P).Q_A terms.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Names the excluded terms and the supplied world velocity dp used by the law's remainder.
      */
     extra(
       p: AutoMovieVector3Tuple,
@@ -53,8 +45,6 @@ export namespace IAutoMovieSolidTraceLaw {
 
     /**
      * Seed angle from a world point for angle mode; phase/arc constructors return unused zero placeholders.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States supported mode, world-point input and the other modes' placeholder behavior.
      */
     angle(p: AutoMovieVector3Tuple): number;
   }

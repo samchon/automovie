@@ -15,8 +15,6 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
    * @param params The `obstacle`, `lead`, `manner` and `onto` of `IAutoMovieMotionHumanStepOver.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   stepOver(
     params: IAutoMovieMotionHumanStepOver.IParams,
@@ -29,8 +27,6 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
    * @param params The `on` and `landOn` of `IAutoMovieMotionHumanVault.IParams`, with those of `IAutoMovieMotionHumanHandspring.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   vault(params: IAutoMovieMotionHumanVault.IParams, anchor?: string): Chain;
 
@@ -40,8 +36,6 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
    * @param params The `on` and `seconds` of `IAutoMovieMotionHumanSquatVault.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   squatVault(
     params: IAutoMovieMotionHumanSquatVault.IParams,
@@ -54,8 +48,6 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
    * @param params One of the four crossing paths of `IAutoMovieMotionHumanCrossing.IParams`, told apart by its `kind`: `step`, `vault`, `jump` or `gap`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   crossObstacle(
     params: IAutoMovieMotionHumanCrossing.IParams,

@@ -32,8 +32,6 @@ export namespace IAutoMovieContactMask {
 
     /**
      * Ground height at a plan position.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieContactMask.IProps.groundAt: Ground height at a plan position.
      */
     groundAt: (x: number, z: number) => number;
 

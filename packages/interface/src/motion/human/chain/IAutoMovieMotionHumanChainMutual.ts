@@ -30,8 +30,6 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
    * @param params The partner, the hand and the pump count.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.handshake: Shake hands with a partner standing within reach; `HumanChain.pair` appends both partners' handshakes together.
    */
   handshake(
     params: IAutoMovieMotionHumanHandshake.IParams,
@@ -44,8 +42,6 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
    * @param params The partner, the kind and the hand.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.highFive: Meet a partner's hand at one shared point and instant.
    */
   highFive(
     params: IAutoMovieMotionHumanHighFive.IParams,
@@ -59,8 +55,6 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
    * @param params The partner, the region, the side and the hold.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.kiss: Bring the lips to a partner's region by a lean and a neck flexion; the arms stay free for a layer.
    */
   kiss(params: IAutoMovieMotionHumanKiss.IParams, anchor?: string): this;
 
@@ -70,8 +64,6 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
    * @param params The prop, its grip, the hand and the lift.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.pickUp: Reach for a prop's grip affordance, grasp it and lift it.
    */
   pickUp(params: IAutoMovieMotionHumanPickUp.IParams, anchor?: string): this;
 
@@ -81,8 +73,6 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
    * @param params The prop, where it goes and the hand.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.putDown: Set a held prop down at a place and let go.
    */
   putDown(params: IAutoMovieMotionHumanPutDown.IParams, anchor?: string): this;
 
@@ -93,8 +83,6 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
    * @param params The prop, the receiver, the grip and the hands.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.handOver: Hand a held prop to a receiver, letting go only after the receiver's grip closes; `HumanChain.pair` appends both roles together.
    */
   handOver(
     params: IAutoMovieMotionHumanHandoverAction.IParams,
@@ -108,8 +96,6 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
    * @param params The prop, the giver, the grip and the hands.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.receive: Take a prop a giver holds out; `HumanChain.pair` appends both roles together.
    */
   receive(params: IAutoMovieMotionHumanReceive.IParams, anchor?: string): this;
 
@@ -120,8 +106,6 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
    * @param params The target, the style and the hand.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.throwObject: Throw a held object overarm, underarm or as a toss along a ballistic path to a target.
    */
   throwObject(
     params: IAutoMovieMotionHumanThrowObjectParams,
@@ -135,8 +119,6 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
    * @param params The throw answered, the hands and the object's radius.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.catchObject: Catch a thrown object where its path enters the reach, give with it and hold it.
    */
   catchObject(
     params: IAutoMovieMotionHumanCatchObject.IParams,
@@ -150,8 +132,6 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
    * @param params The hand, the prop and a launcher's launch.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.release: Open a hand on what it holds: the prop leaves with the hand's velocity, or a prop on a launcher leaves at the launcher's speed.
    */
   release(params?: IAutoMovieMotionHumanRelease.IParams, anchor?: string): this;
 
@@ -161,8 +141,6 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
    * @param params The ball, the foot and where it is sent.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.kickBall: Kick a ball beside the support foot with the instep.
    */
   kickBall(
     params: IAutoMovieMotionHumanKickBall.IParams,
@@ -176,8 +154,6 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
    * @param params The extinguisher, the fire, the sweeps and the carrying hand.
    * @param anchor An optional anchor id, set on the sweep.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.pass: Take an extinguisher by its handle, pull its pin, then aim, squeeze and sweep.
    */
   pass(
     params: IAutoMovieMotionHumanFirefighting.IPass,

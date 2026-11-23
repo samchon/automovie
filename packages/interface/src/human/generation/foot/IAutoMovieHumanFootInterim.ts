@@ -73,8 +73,6 @@ export namespace IAutoMovieHumanFootInterim {
 
     /**
      * Publish the actual foot only on explicit original/assembly demand, retaining one identical result.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Publish the actual foot only on explicit original/assembly demand, retaining one identical result.
      */
     definition(): IAutoMovieHumanSourceDefinition;
   }

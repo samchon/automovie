@@ -59,15 +59,11 @@ export namespace IAutoMovieHumanLimbRest {
   export interface IOutput {
     /**
      * Resolve only this arm and hand from their direct attachment definition.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Resolve only this arm and hand from their direct attachment definition.
      */
     arm(side: AutoMovieHumanSide): IArm;
 
     /**
      * Resolve only this leg and foot from the shared lower-body datum.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Resolve only this leg and foot from the shared lower-body datum.
      */
     leg(side: AutoMovieHumanSide): ILeg;
   }
@@ -136,8 +132,6 @@ export namespace IAutoMovieHumanLimbRest {
 
     /**
      * Explicit common shoulder definition, requested only by an arm.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit common shoulder definition, requested only by an arm.
      */
     shoulder(): IShoulder;
 

@@ -24,8 +24,6 @@ export interface IAutoMovieSweepRig {
    *
    * @param u Along the spine
    * @returns The slot: the plane is `frames[12 slot ...]`, origin, first axis, second axis, normal
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the slot layout.
    */
   frame(u: number): number;
 
@@ -34,8 +32,6 @@ export interface IAutoMovieSweepRig {
    *
    * @param u Along the spine
    * @returns The slot: the factor is `scales[slot]`
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the slot layout.
    */
   scale(u: number): number;
 
@@ -47,8 +43,6 @@ export interface IAutoMovieSweepRig {
    * @param cell Fixed below/above reaches along u and v, finite and nonnegative; omitted, all zero
    * @returns The slot: the unit normal is `probes[6 slot ...]` and the derivative along the spine the next three numbers
    * @throws Error if the rig is sealed or any cell reach is negative or nonfinite
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the slot layout.
    */
   probe(
     u: number,
@@ -65,8 +59,6 @@ export interface IAutoMovieSweepRig {
    * @param v Around it
    * @param cell Spacing to the neighbouring sample below and above along `u`, then below and above along `v`
    * @returns The writer, three numbers in metres at an offset
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the weights and the zero cell.
    */
   sample(
     u: number,
@@ -76,8 +68,6 @@ export interface IAutoMovieSweepRig {
 
   /**
    * Size the arrays and fill them at rest.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the effect.
    */
   seal(): void;
 
@@ -89,8 +79,6 @@ export interface IAutoMovieSweepRig {
    *
    * @param factor The factor at a spine parameter, positive and finite
    * @throws Error when called before `seal`, or the factor or its resulting scale is not positive and finite at a slot, or a probe is not representable
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when the factor applies and that a call replaces the last.
    */
   girth(factor: (u: number) => number): void;
 
@@ -107,8 +95,6 @@ export interface IAutoMovieSweepRig {
    * Refresh every slot.
    *
    * @param bones Current bone motions, or `null` for rest
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rest case.
    */
   pose(bones: IAutoMovieBoneBuffer | null): void;
 }

@@ -83,15 +83,11 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      *
      * @param radius The region's half-width, in the caller's units.
      * @returns The step.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSequentialConvex.IModel.solve: The model's step within a region.
      */
     solve(radius: number): IAutoMovieMotionHumanSequentialConvex.IStep<X>;
 
     /**
      * Told that the last step solved was taken, so the caller's next model can start from its solution (its multipliers, for one).
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSequentialConvex.IModel.taken: Told that the last step solved was taken, so the caller's next model can start from its solution (its multipliers, for one).
      */
     taken?(): void;
 
@@ -101,8 +97,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      *
      * @param penalty The new exact l1 penalty, at the same iterate/objective and row domain.
      * @returns A fresh model shell with the original cold/keyed-dual initialization; fixed numeric preparation may be shared sequentially.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States optional fallback, exact dependency premises, changed penalty, fresh warm-state shell and shared-data ownership.
      */
     reprice?(penalty: number): IAutoMovieMotionHumanSequentialConvex.IModel<X>;
 
@@ -113,8 +107,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      * Absent, the steering asks `IProblem.convexify` for it.
      *
      * @returns The model of the violation alone, with its own cold start.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what the model is, when it may be given and the fallback.
      */
     feasibility?(): IAutoMovieMotionHumanSequentialConvex.IModel<X>;
   }
@@ -136,8 +128,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      *
      * @param x The iterate.
      * @returns Its objective and violation, and whatever else the caller reads.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSequentialConvex.IProblem.evaluate: An iterate's reading.
      */
     evaluate(x: X): E;
 
@@ -151,8 +141,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      * @param radius The region the model is next solved within, the widest of the round.
      * @param objective Whether the model holds the objective; false for the steering's step of the violation alone (`IOptions.steer`).
      * @returns The model.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSequentialConvex.IProblem.convexify: The convex model about an iterate: the caller's own subproblem, solved by whatever inner solve it chooses.
      */
     convexify(
       x: X,
@@ -167,8 +155,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      *
      * @param evaluation The reading.
      * @returns Whether it is feasible.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSequentialConvex.IProblem.feasible: Whether a reading meets the constraints, to the caller's tolerance.
      */
     feasible(evaluation: E): boolean;
 
@@ -189,8 +175,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      * @param step The rejected step.
      * @param trial The reading at the step's trial.
      * @returns The corrected point `x + p + p^`, or null where the caller has none.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSequentialConvex.IProblem.correct: The second-order correction of a rejected step, against the Maratos effect (Nocedal and Wright 2006, section 15.6, pp. 443-444): the step `p` plus a correction `p^` that meets the constraints' linearisation at the trial, `A(x) p^ + c(x + p) = 0` on the rows the step meets, its minimum-norm solution being their (15.36). Asked only for a step whose ratio did not exceed `ISchedule.eta` and whose predicted decrease is positive, once per step and before the region shrinks; the corrected point is judged on the step's own predicted decrease, taken where its ratio exceeds `eta` and dropped otherwise, never searched along (their Algorithm 15.2, p. 443, in the trust region of their Algorithm 18.4, p. 549). Absent, no correction is tried.
      */
     correct?(
       x: X,
@@ -269,8 +253,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      *
      * @param merit The merit at the iterate.
      * @returns The decrease.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSequentialConvex.ISchedule.improved: The predicted decrease below which the solve has settled.
      */
     improved: (merit: number) => number;
   }

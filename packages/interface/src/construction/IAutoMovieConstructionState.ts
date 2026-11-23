@@ -85,8 +85,6 @@ export namespace IAutoMovieConstructionState {
   export interface IOverride {
     /**
      * Return the chain with the pending endpoint replacement, or a premise string.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States successful replacement versus premise-string return and the pending endpoint role.
      */
     apply(chain: IAutoMovieLoftChain): IAutoMovieLoftChain | string;
 

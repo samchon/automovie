@@ -23,8 +23,6 @@ export namespace IAutoMovieResolveOutcome {
 
     /**
      * Synchronous predicate over the caller's borrowed intent array. Called once if reached, stops evaluation when true, must not mutate inputs, and is not retained. Exceptions abort resolution unchanged.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieResolveOutcome.IRule.when: Synchronous predicate over the caller's borrowed intent array. Called once if reached, stops evaluation when true, must not mutate inputs, and is not retained. Exceptions abort resolution unchanged.
      */
     when(intents: readonly IAutoMovieIntent[]): boolean;
 

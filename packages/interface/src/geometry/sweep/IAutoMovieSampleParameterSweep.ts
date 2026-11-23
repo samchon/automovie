@@ -44,20 +44,14 @@ export namespace IAutoMovieSampleParameterSweep {
     frame: number;
     /**
      * Register a normalized u station and return its integer scale slot. Called during compilation; the slot is retained for every later pose write.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States normalized-u registration timing and integer slot identity retained across later pose writes.
      */
     scale: (u: number) => number;
     /**
      * Read the current dimensionless scale at a registered slot. Each write requires positive finite scale and representable products; invalid values throw before modifying output.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States live dimensionless slot values, positive finite admission and failure before publishing output.
      */
     readScale: (slot: number) => number;
     /**
      * Return the current borrowed frame buffer after its owning rig has updated. The writer reads the registered center frame and publishes three finite metre coordinates; it does not retain an earlier returned buffer.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States pose-update ordering, borrowed current frame storage and the writer's refusal to retain an obsolete buffer.
      */
     frames: () => Float64Array;
   };

@@ -85,8 +85,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @param target The target.
    * @param seconds Film seconds.
    * @returns The aim.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.aim: A target's world point and outward unit normal at a film second.
    */
   aim(
     target: IAutoMovieMotionTarget,
@@ -104,8 +102,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @param anchor The other intent's anchor id.
    * @returns Its subject, name, parameters, plan and film times.
    * @throws {Error} When no action with that anchor is placed earlier in walk order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.action: Another action already placed in the performance, by its anchor: a defence reads the attack it answers, a receiver the offer it takes.
    */
   action(anchor: string): IAutoMovieMotionHumanPlacedAction;
 
@@ -115,8 +111,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @param subject The other person.
    * @returns Their body and bone query.
    * @throws {Error} When no such performer exists.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.performer: Another person in the performance: their body and their displayed world bones at a film second, so a law can place any region or socket of theirs or sweep against their colliders. Call it only from a posture, for seconds at or before the one evaluated, as with `aim`.
    */
   performer(subject: string): IAutoMovieMotionHumanPerformerReader;
 
@@ -126,8 +120,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @param subject The prop.
    * @returns The prop and its frame query.
    * @throws {Error} When no such prop exists.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.prop: A prop of the performance with its displayed world frame at a film second, carried by whichever hand grips it then. Unlike `performer`, it may be read at plan time for seconds before the action's start: where an object lies, or the giver's hand it rests in.
    */
   prop(subject: string): IAutoMovieMotionHumanPropReader;
 
@@ -141,8 +133,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @returns The meeting.
    * @throws {Error} When no such performer exists, or the kind lacks a role.
    * @throws {HumanRefusal} When the window closes before the contact can be made.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.meeting: The meeting of an action this performer does with others: the one record every role reads, computed from where all stand at this action's start by whichever role is planned first, and the same whichever that is. With no partner it is this role's own meeting on its default places, which is not solid. It may be read at plan time, so the partners' earlier actions must be placed first, as `HumanChain.mutual` places them.
    */
   meeting(
     kind: IAutoMovieMotionMeetingKind,
@@ -159,8 +149,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @param track The track's name.
    * @returns The track's instants, each with its event name and film second.
    * @throws {HumanRefusal} A `participant` refusal when the performance has no such track.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.cue: One of the film's cue tracks (`IAutoMovieMotionHumanPerformance.IInput.cues`): its named instants in film seconds, in the track's order, so a law can place its own beats on a score's or its stresses on a line's (a dance's steps on the beats, a nod on an accent). It may be read at plan time. A law that only needs to start at a cue is synced by its composition instead.
    */
   cue(track: string): readonly IAutoMovieScheduleCue[];
 
@@ -169,8 +157,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * `HumanObstacle.blocking` about before it plans a stretch of its path.
    *
    * @returns The obstacles; none when the performance was given none.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.obstacles: What stands in the way in this performance (`IAutoMovieMotionHumanPerformance.IInput.obstacles`): the scene's solids with their openings, which a law that moves the body across the floor asks `HumanObstacle.blocking` about before it plans a stretch of its path.
    */
   obstacles(): readonly IAutoMovieMotionHumanObstacle[];
 
@@ -180,8 +166,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @param from Seconds since the action's start.
    * @param to Seconds since the action's start, at least `from`.
    * @returns The forces, in the order the performance was given them.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.forces: The forces on this performer in a span of this action (`IAutoMovieMotionHumanPerformance.IInput.forces`, #3429): impulses and sustained forces, known before the action plans because they are inputs. A reaction reads them to size its response; none acts by itself. Absent on a context built outside a performance.
    */
   forces?(from: number, to: number): readonly IAutoMovieMotionHumanForce[];
 
@@ -190,8 +174,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    *
    * @param grip The grip being weighed, with the posture this action leaves the body in with it.
    * @returns The poses demanded of it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.demands: What the performer's next action on a prop demands of a grip this action is choosing (`IAutoMovieMotionHumanActionLaw.demands`): the poses that action will hold the prop in, so a grasp is chosen for them as well as for its own reach. The action asked is the first later one of the performer that names the prop among its parameters; an action that asks nothing, or none, gives none. Absent on an overlay and on a context built outside a performance.
    */
   demands?(
     grip: IAutoMovieMotionHumanActionLaw.IGrip,
@@ -205,8 +187,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    *
    * @param channel The quantity drawn.
    * @returns The stream.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.random: This instance's draw stream for one channel.
    */
   random(channel: string): IAutoMovieRandom;
 
@@ -215,8 +195,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    *
    * @param channel The quantity drawn.
    * @returns The stream and this instance's index.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.series: The draws of one channel across this action's repeats: one stream for every instance of the action's id, keyed by the chain seed, the subject, the action's id and the channel, with this instance's ordinal as the index into it. A low-discrepancy sequence over the repeats reads it, so consecutive repeats land apart.
    */
   series(channel: string): IAutoMovieMotionHumanActionContext.ISeries;
 }
@@ -252,8 +230,6 @@ export namespace IAutoMovieMotionHumanActionContext {
      * @param channels Optional requested channels; omitted for a whole-posture read.
      * @param resolution Optional same-body exact FK source borrowed only by this synchronous posture call, never retained by the carrier or returned posture.
      * @returns The carrier's posture at that instant; its last posture once it has ended. Only requested channels are valid when supplied.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.ICarrier.posture: Its posture under the overlay.
      */
     posture(seconds: number,
       channels?: readonly AutoMovieMotionHumanChannel[],

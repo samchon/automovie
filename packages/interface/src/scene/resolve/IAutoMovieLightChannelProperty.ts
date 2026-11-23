@@ -31,22 +31,16 @@ export interface IAutoMovieLightChannelProperty {
 
   /**
    * Whether the admitted light kind carries this axis; the gate checks it before allowing a track to reach the writer.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The comment describes kind admission before writing and distinguishes this predicate from whole-light validation.
    */
   carries: (kind: unknown) => boolean;
 
   /**
    * Optional whole-vector fault text, or null when valid. Rotation uses this for unit norm; scalar/color axes need only component bounds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Docs distinguish optional callback absence from null success and identify rotation's whole-vector constraint.
    */
   valueFault?: (value: readonly unknown[]) => string | null;
 
   /**
    * Write an admitted, correctly sized numeric sample into the sparse override. Kind admission and track width are caller preconditions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Docs state admitted kind/width preconditions and sparse override effects, with absent fields preserving staged values later.
    */
   write: (override: IAutoMovieLightOverride, value: readonly number[]) => void;
 }

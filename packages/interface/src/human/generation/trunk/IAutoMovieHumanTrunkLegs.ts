@@ -28,8 +28,6 @@ export namespace IAutoMovieHumanTrunkLegs {
     legs?: Record<"left" | "right", IAutoMovieHumanSourceDefinition>;
     /**
      * Author and retain the regional leg against this identical parent and its named hip station.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Author and retain the regional leg against this identical parent and its named hip station.
      */
     bindLeg?(
       side: "left" | "right",

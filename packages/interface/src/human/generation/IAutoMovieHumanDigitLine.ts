@@ -54,15 +54,11 @@ export namespace IAutoMovieHumanDigitLine {
 
     /**
      * Point at an arc length, clamped to the line.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Point at an arc length, clamped to the line.
      */
     at: (s: number) => AutoMovieVector3Tuple;
 
     /**
      * Unit tangent at an arc length.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Unit tangent at an arc length.
      */
     tangent: (s: number) => AutoMovieVector3Tuple;
   }

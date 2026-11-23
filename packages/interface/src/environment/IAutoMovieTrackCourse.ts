@@ -51,8 +51,6 @@ export namespace IAutoMovieTrackCourse {
      * @param distance Metres along the course, inclusive of both ends.
      * @returns The posed frame at the distance.
      * @throws When distance is nonfinite or outside the prepared range.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Identifies the distance range and frame and the query refusal.
      */
     frame(distance: number): IAutoMovieTransform;
   }

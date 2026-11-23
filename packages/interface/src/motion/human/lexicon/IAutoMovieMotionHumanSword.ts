@@ -178,8 +178,6 @@ export namespace IAutoMovieMotionHumanSword {
 
     /**
      * A direction by its parts as a world vector, about a heading in degrees; the entry's heading when absent.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSword.ISetup.world: A direction by its parts as a world vector, about a heading in degrees; the entry's heading when absent.
      */
     world: (
       parts: IAutoMovieMotionHumanSword.IParts,
@@ -188,8 +186,6 @@ export namespace IAutoMovieMotionHumanSword {
 
     /**
      * A quantity between its novice and elite values at the performer's speed skill.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSword.ISetup.skill: A quantity between its novice and elite values at the performer's speed skill.
      */
     skill: (pair: readonly [number, number]) => number;
   }

@@ -115,14 +115,10 @@ export namespace IAutoMovieAuditPhysicalOutcomes {
     observedFalls: Record<string, number>;
 
     /** Synchronous surface-gap measurement in metres for a missing contact. Return a finite value; the action is borrowed, exceptions abort the audit, and the callback is not retained.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Specifies the missDistance callback or sampling contract, including its clock and ownership obligations.
      */
     missDistance: (action: IAutoMovieAuditPhysicalOutcomes.IAction) => number;
 
     /** Synchronous exemption for an unmatched borrowed receipt, such as floor support. True suppresses its unplanned-contact finding; exceptions propagate and the callback is not retained.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Specifies the allowUnplanned callback or sampling contract, including its clock and ownership obligations.
      */
     allowUnplanned: (receipt: IAutoMovieContactReceipt) => boolean;
   }

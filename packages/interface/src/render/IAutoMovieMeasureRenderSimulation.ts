@@ -42,8 +42,6 @@ export namespace IAutoMovieMeasureRenderSimulation {
      * Append metric-unit costs by stable owner and editable source synchronously.
      * This phase omits kind. Errors propagate; prior sink mutations are not undone.
      * The inventory caller owns owner/source metric accumulation; measureRenderSimulation invokes this synchronous sink and propagates failures with prior effects intact.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States metric units, omitted kind and nontransactional sink mutation.
      */
     add: (
       owner: string,
@@ -57,8 +55,6 @@ export namespace IAutoMovieMeasureRenderSimulation {
      * Owner/source attribute use, and cited is diagnostic text. Errors propagate;
      * the callback is not retained after this inventory call.
      * The inventory caller owns material resolution and attribution; measureRenderSimulation supplies borrowed material/owner/source identities synchronously and retains no callback after the call.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents null default material, diagnostic citation, exception propagation and call lifetime.
      */
     cite: (
       material: string | null,

@@ -17,8 +17,6 @@ export interface IAutoMovieMotionHumanSupport<Chain> {
    * @param params The `balance`, `stances`, `on` and `assist` of `IAutoMovieMotionHumanSupport.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   support(params: IAutoMovieMotionHumanSupport.IParams, anchor?: string): Chain;
 }

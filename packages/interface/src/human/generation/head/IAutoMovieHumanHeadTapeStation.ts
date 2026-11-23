@@ -47,15 +47,11 @@ export namespace IAutoMovieHumanHeadTapeStation {
 
     /**
      * Point0 inversion retains its exact prepared frame after a successful first read.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Point0 inversion retains its exact prepared frame after a successful first read.
      */
     point(phase: number): AutoMovieVector3Tuple;
 
     /**
      * Explicit phase demand reads its actual frame and shares only the numeric native source.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit phase demand reads its actual frame and shares only the numeric native source.
      */
     value(phase: number): IReading;
   }
@@ -90,15 +86,11 @@ export namespace IAutoMovieHumanHeadTapeStation {
   export interface IOutput {
     /**
      * Actual Point0 and the source that produced this bracket trial.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Actual Point0 and the source that produced this bracket trial.
      */
     point(station: number, phase: number): IValue;
 
     /**
      * Read phase data from the selected trial, or its actual endpoint station.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Read phase data from the selected trial, or its actual endpoint station.
      */
     value(station: number, phase: number, selected?: IPrepared): IReading;
   }

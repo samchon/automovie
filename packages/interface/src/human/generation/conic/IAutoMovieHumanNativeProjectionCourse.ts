@@ -60,8 +60,6 @@ export namespace IAutoMovieHumanNativeProjectionCourse {
      * @param origin Material station held fixed by the scale, mm; the rail when absent.
      * @param shift World translation of the whole scaled course, mm; none when absent. A part that rides a
      *   host whose skin moves takes the host's displacement here, so scale and carriage stay one rigid-affine map.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The original captured source and current axis produce a projected axis under a physical chord and optional translation.
      */
     project(
       originalSource: IAutoMovieViewPart,

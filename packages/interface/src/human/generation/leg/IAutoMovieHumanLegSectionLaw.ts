@@ -45,15 +45,11 @@ export namespace IAutoMovieHumanLegSectionLaw {
 
     /**
      * The girth law, mm.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The girth law, mm.
      */
     girth: (s: number) => number;
 
     /**
      * The tube.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The tube.
      */
     tube: (s: number) => IAutoMovieHumanLegTube.ISection;
 

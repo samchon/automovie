@@ -22,8 +22,6 @@ export namespace IAutoMovieHumanDigitProfile {
   export interface IInput {
     /**
      * The digit's own section at an arc length along the line: half width, palmar and dorsal depths.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The digit's own section at an arc length along the line: half width, palmar and dorsal depths.
      */
     base: (s: number) => [number, number, number];
 

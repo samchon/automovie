@@ -41,29 +41,21 @@ export namespace IAutoMovieScheduleWalk {
 
     /**
      * Places a subject's waiting parallel part on a law's read (`IAutoMovieScheduleContext.demand`); absent where the walk places in declaration order only.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what the member places, the contract it carries and when it is absent.
      */
     demand?: (subject: string) => IAutoMovieScheduleContext.Demand;
 
     /**
      * The start of the first waiting or placing part that holds a subject's next actions (`IAutoMovieScheduleContext.horizon`); absent where the walk places in declaration order only.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the instant the member returns, the contract it carries and when it is absent.
      */
     horizon?: (subject: string) => number | undefined;
 
     /**
      * The start of the parallel group a subject shares with the action being timed (`IAutoMovieScheduleContext.meeting`); absent where the walk places in declaration order only.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the instant the member returns, the contract it carries and when it is absent.
      */
     meeting?: (subject: string) => number | undefined;
 
     /**
      * Places the waiting part that holds an anchored intent (`IAutoMovieScheduleContext.demandAnchor`); absent where the walk places in declaration order only.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what the member places, the contract it carries and when it is absent.
      */
     demandAnchor?: (anchor: string) => IAutoMovieScheduleContext.Demand;
 

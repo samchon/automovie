@@ -16,8 +16,6 @@ export interface IAutoMovieSurfacePoint {
    * @param out Borrowed writable buffer receiving model-space XYZ in metres; provide room for three scalars, since writers do not check capacity
    * @param at Nonnegative integer scalar offset into out, not a vertex index
    * @throws Any failure from the bound point writer, including reading before registry finalization or an invalid generated sweep sample
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States output capacity and offset premises, units and propagation of initialization or sample failures.
    */
   write(out: Float64Array, at: number): void;
 

@@ -50,15 +50,11 @@ export namespace IAutoMovieCoupleObjects {
 
     /**
      * Synchronous borrowed rig lookup, stable for each node throughout the call. Null rejects a persistent mount; attachment jobs require a previously admitted nonnull answer. Exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronous borrowed rig lookup, stable for each node throughout the call. Null rejects a persistent mount; attachment jobs require a previously admitted nonnull answer. Exceptions propagate. Member documentation states the supplied records, units and absence meanings used by coupleObjects, performShot.
      */
     skeleton: (node: string) => IAutoMovieSkeleton | null;
 
     /**
      * Synchronous per-parent clinical axis lookup. Missing callback or undefined answer uses HUMANOID_JOINT_AXES; returned records are borrowed and exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronous per-parent clinical axis lookup. Missing callback or undefined answer uses HUMANOID_JOINT_AXES; returned records are borrowed and exceptions propagate. Member documentation states the supplied records, units and absence meanings used by coupleObjects, performShot.
      */
     jointAxes?: (
       node: string,
@@ -68,8 +64,6 @@ export namespace IAutoMovieCoupleObjects {
 
     /**
      * Synchronous per-parent rest-frame lookup matching the renderer. Missing callback or undefined answer uses the rig's own frames; records are borrowed only during baking and exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronous per-parent rest-frame lookup matching the renderer. Missing callback or undefined answer uses the rig's own frames; records are borrowed only during baking and exceptions propagate. Member documentation states the supplied records, units and absence meanings used by coupleObjects, performShot.
      */
     restFrames?: (
       node: string,

@@ -267,8 +267,6 @@ export namespace IAutoMovieMotionHumanPerformanceState {
      *
      * @param seconds Film seconds within `from` to `to`.
      * @returns The coordinate's travel, in the articulation's own unit.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the input's frame and the result.
      */
     travel(seconds: number): number;
 

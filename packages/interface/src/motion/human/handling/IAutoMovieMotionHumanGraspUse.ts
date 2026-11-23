@@ -97,8 +97,6 @@ export namespace IAutoMovieMotionHumanGraspUse {
     use: IAutoMovieMotionHumanGraspUse.IUse;
     /**
      * Optional synchronous clearance in METRES, negative inside another body part. Presentation reads the fitted/displayed wrist; its worn-tool branch reads the candidate wrist. Both subtract min(0, clear), penalising penetration without rewarding positive clearance, and cache each distinct roll/turn. Omitted adds no clearance penalty. Called during the search, not by the returned key's judge; returned closures may retain the containing props record. Exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGraspUse.IPresentedProps.clear: Optional synchronous clearance in METRES, negative inside another body part. Presentation reads the fitted/displayed wrist; its worn-tool branch reads the candidate wrist. Both subtract min(0, clear), penalising penetration without rewarding positive clearance, and cache each distinct roll/turn. Omitted adds no clearance penalty. Called during the search, not by the returned key's judge; returned closures may retain the containing props record. Exceptions propagate.
      */
     clear?: (wrist: IAutoMovieMotionHumanHand.IWrist) => number;
   };

@@ -94,8 +94,6 @@ export namespace IAutoMovieHumanHandConstruction {
 
     /**
      * The arm the hand grows out of, built for a set of scales.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The arm the hand grows out of, built for a set of scales.
      */
     makeArm: (measures: IAutoMovieHumanHandScales) => A;
 

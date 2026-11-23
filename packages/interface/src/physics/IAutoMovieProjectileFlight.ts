@@ -23,8 +23,6 @@ export interface IAutoMovieProjectileFlight {
    *
    * @param seconds Seconds since launch; negative times select the first interval.
    * @returns Actual adjacent knot times with fresh endpoint states.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Nonfinite seconds throw RangeError; finite negative values select the first interval. Sampling grows the reader's retained integration chunks through the requested time and returns fresh endpoint states. Keep the source projectile unchanged while this identity-cached reader is used.
    */
   interval(seconds: number): IAutoMovieProjectileDragInterval;
 
@@ -35,8 +33,6 @@ export interface IAutoMovieProjectileFlight {
    *
    * @param seconds Seconds since the launch; before it, the launch state.
    * @returns Position and velocity.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Nonfinite launch-relative seconds throw RangeError; finite negatives return launch state. The reader retains integrated chunks for later reads and returns fresh world-metre position and m/s velocity. Keep the source projectile unchanged; releasing it and this reader permits their cached data to be collected.
    */
   at(seconds: number): IAutoMovieProjectileState;
 }

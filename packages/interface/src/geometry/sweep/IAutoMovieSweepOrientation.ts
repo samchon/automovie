@@ -20,8 +20,6 @@ export interface IAutoMovieSweepOrientation {
 
   /**
    * Recompute every station's turn relative to the carried frame at its `at`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the call order.
    */
   update(): void;
 
@@ -31,8 +29,6 @@ export interface IAutoMovieSweepOrientation {
    * @param u Chord-length parameter, clamped to `[0, 1]`
    * @param out Receives twelve numbers
    * @param at Offset into `out`
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the layout.
    */
   frame(u: number, out: Float64Array, at: number): void;
 }

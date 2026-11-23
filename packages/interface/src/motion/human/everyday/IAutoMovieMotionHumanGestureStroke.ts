@@ -165,8 +165,6 @@ export namespace IAutoMovieMotionHumanGestureStroke {
      *
      * @param record The named place's share record.
      * @returns The varied share record.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGestureStroke.IInput.vary: This repeat's variation of a named place, for `wave` and `stopPalm`; absent, the place is as named.
      */
     vary?(
       record: IAutoMovieMotionHumanTarget.IDefault,

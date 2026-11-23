@@ -19,8 +19,6 @@ export interface IAutoMovieMotionHumanSwing<Chain> {
    * @param params The `kind`, `seconds` and `manner` of `IAutoMovieMotionHumanBaseball.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   baseball(
     params: IAutoMovieMotionHumanBaseball.IParams,
@@ -33,8 +31,6 @@ export interface IAutoMovieMotionHumanSwing<Chain> {
    * @param params The `kind`, `side`, `seconds`, `implement`, `contactAt` and `manner` of `IAutoMovieMotionHumanRacket.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   racket(params: IAutoMovieMotionHumanRacket.IParams, anchor?: string): Chain;
 }

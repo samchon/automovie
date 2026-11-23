@@ -47,8 +47,6 @@ export namespace IAutoMovieMotionHumanJoints {
      *
      * @param seconds Seconds since the action's start.
      * @returns Degrees by bone; every bone belongs to one of the channels.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, the unit and the bones the result may name.
      */
     delta(seconds: number): IAutoMovieMotionHumanJoints.Angles;
   }

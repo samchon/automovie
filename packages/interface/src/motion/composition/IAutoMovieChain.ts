@@ -23,8 +23,6 @@ export interface IAutoMovieChain {
    * An existing sequence head is flattened; following nested sequences are
    * preserved. With no parts, a sequence wrapper or copy is still returned.
    * Existing child nodes are shared, and constructor/derive errors propagate.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieChain.next: Returns a new same-class chain that places these parts after this node. An existing sequence head is flattened; following nested sequences are preserved. With no parts, a sequence wrapper or copy is still returned. Existing child nodes are shared, and constructor/derive errors propagate.
    */
   next(...parts: IAutoMovieComposition.Part[]): this;
 
@@ -33,8 +31,6 @@ export interface IAutoMovieChain {
    * An existing parallel head is flattened; following groups stay nested.
    * Empty arguments still return a parallel wrapper or copy sharing the
    * existing child nodes. Constructor/derive errors propagate.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieChain.with: Returns a new same-class chain whose parts begin at the same film instant. An existing parallel head is flattened; following groups stay nested. Empty arguments still return a parallel wrapper or copy sharing the existing child nodes. Constructor/derive errors propagate.
    */
   with(...parts: IAutoMovieComposition.Part[]): this;
 }

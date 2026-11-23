@@ -32,8 +32,6 @@ export interface IAutoMovieMotionHumanDanceFootKey {
    *
    * @param seconds Action seconds within the dwell.
    * @returns The placement.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when a key supplies it, the argument's timebase and range, and the default when absent.
    */
   hold?(seconds: number): IAutoMovieMotionHumanFoot.IPlacement;
 }

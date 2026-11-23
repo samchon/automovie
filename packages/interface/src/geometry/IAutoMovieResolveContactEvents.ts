@@ -61,8 +61,6 @@ export namespace IAutoMovieResolveContactEvents {
 
     /**
      * Actual pair gap at a second, before departure eligibility is applied.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the seconds argument and actual ungated pair gap in metres, independent of departure eligibility.
      */
     at(seconds: number): number;
   }
@@ -170,8 +168,6 @@ export namespace IAutoMovieResolveContactEvents {
      * @param grid The search's grid.
      * @param stops The stops of the search.
      * @returns The bound's reader.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the search grid and stops it is prepared for and the metre-a-second bound reader it returns.
      */
     speed?(
       grid: IAutoMovieResolveContactEvents.IGrid,
@@ -199,8 +195,6 @@ export namespace IAutoMovieResolveContactEvents {
      * @param seconds Seconds.
      * @param stops The stops so far.
      * @returns The centre.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the free-path centre in world metres, seconds clock and current weapon-stop context.
      */
     position(
       seconds: number,
@@ -215,8 +209,6 @@ export namespace IAutoMovieResolveContactEvents {
      * @param seconds Seconds.
      * @param stops The stops so far.
      * @returns The axis's other end.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the optional capsule axis endpoint in world metres and the shared seconds/stop context; absence selects a sphere.
      */
     tail?(
       seconds: number,
@@ -228,8 +220,6 @@ export namespace IAutoMovieResolveContactEvents {
      * stops. When present, replaces position and tail calls for a geometry
      * query; tail presence must agree with the weapon's declared kind. The
      * resolver retains no sample across queries or changes to stops.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieResolveContactEvents.IWeapon.sample: Produce the actual endpoints together for this exact second and current stops.
      */
     sample?(seconds: number, stops: IStops): IWeaponFrame;
   }
@@ -258,8 +248,6 @@ export namespace IAutoMovieResolveContactEvents {
      * @param grid The search's grid.
      * @param stops The stops of the search.
      * @returns The bound's reader.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the search grid and stops it is prepared for and the metre-a-second bound reader it returns.
      */
     speed?(
       grid: IAutoMovieResolveContactEvents.IGrid,
@@ -273,8 +261,6 @@ export namespace IAutoMovieResolveContactEvents {
      * the original initial overlap/touch report. Opaque distance samples alone
      * do not justify a certificate. The resolver validates clearance against
      * at(seconds), and every other body keeps its original eligibility.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States physical-certificate responsibility, clearance validation, search-span scope and the reporting behavior when no certificate is supplied.
      */
     departure?(
       contact: IAutoMovieResolveContactEvents.IInitialContact,
@@ -288,8 +274,6 @@ export namespace IAutoMovieResolveContactEvents {
      * @param seconds Seconds.
      * @param stops The stops so far.
      * @returns Metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the world-metre query point, seconds clock, current stops and positive-outside signed metre distance.
      */
     distance(
       point: IAutoMovieVector3,
@@ -312,8 +296,6 @@ export namespace IAutoMovieResolveContactEvents {
      * @param stops The stops so far.
      * @param taper The radii at `a` and at `b`, metres, for a tapered capsule weapon.
      * @returns Metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States segment endpoint frames, seconds, optional metre taper radii and the least signed distance convention needed by capsule queries.
      */
     axis?(
       a: IAutoMovieVector3,
@@ -335,8 +317,6 @@ export namespace IAutoMovieResolveContactEvents {
      * @param stops The stops before this contact.
      * @param by The id of the body carrying the striking weapon.
      * @returns The id of one of this body's weapons, or undefined.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States contact-point frames, contact second, prior stops and the optional carried weapon identity returned for a mutual stop.
      */
     carried?(
       a: IAutoMovieVector3,

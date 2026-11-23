@@ -14,8 +14,6 @@ export interface IAutoMovieMotionHumanCover<Chain> {
    * @param params One of the variants of `IAutoMovieMotionHumanCover.IParams`: `IPeek`, `ISidle`, `IWindow` or `IBreach`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   cover(params: IAutoMovieMotionHumanCover.IParams, anchor?: string): Chain;
 }

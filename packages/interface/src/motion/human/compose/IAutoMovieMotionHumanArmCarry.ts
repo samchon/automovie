@@ -70,8 +70,6 @@ export namespace IAutoMovieMotionHumanArmCarry {
      * @param resolution Optional same-body FK metadata borrowed only during this invocation.
      * @param projection Optional genuine same-body ROM projector borrowed only during this invocation.
      * @returns The goal.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States each argument and when the function is called.
      */
     goal(
       posture: IAutoMovieMotionHumanPosture,
@@ -85,8 +83,6 @@ export namespace IAutoMovieMotionHumanArmCarry {
      *
      * @param seconds Seconds since the action's start.
      * @returns A value in [0, 1].
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, and that the result is a share in [0, 1].
      */
     weight(seconds: number): number;
 
@@ -103,8 +99,6 @@ export namespace IAutoMovieMotionHumanArmCarry {
      * @param resolution Optional same-body FK metadata borrowed only during this invocation.
      * @param projection Optional genuine same-body ROM projector borrowed only during this invocation.
      * @returns The goal.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what is perceived, when, why, and the default.
      */
     perceived?(
       posture: IAutoMovieMotionHumanPosture,
@@ -125,8 +119,6 @@ export namespace IAutoMovieMotionHumanArmCarry {
      *
      * @param seconds Seconds since the action's start.
      * @returns Metres per second, positive.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what is bounded, in which unit, what it replaces and the default.
      */
     pace?(seconds: number): number;
 
@@ -176,8 +168,6 @@ export namespace IAutoMovieMotionHumanArmCarry {
      * @param end The hand's world rotation the goal's end (weight 1) shows at this second: a planned arm's own at the hold's nearer edge, else the goal as its fit reaches it.
      * @param weight The carry's weight at this second, in (0, 1).
      * @returns The hand's world rotation.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what is solved, where, and the default.
      */
     attitude?(
       posture: IAutoMovieMotionHumanPosture,

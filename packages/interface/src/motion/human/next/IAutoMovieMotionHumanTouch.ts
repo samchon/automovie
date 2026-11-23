@@ -46,8 +46,6 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
    * @param params The `balance`, `target`, `kind`, `with`, `side`, `site`, `prop`, `point`, `grasp`, `clear`, `elbow`, `arms`, `other`, `rests`, `count`, `hold`, `tangent` and `manner` of `IAutoMovieMotionHumanTouch.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   touch(params: IAutoMovieMotionHumanTouch.IParams, anchor?: string): Chain;
 
@@ -57,8 +55,6 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
    * @param params The `partner`, `kind`, `side`, `prop`, `point`, `window` and `at` of `IAutoMovieMotionHumanHighFive.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   highFive(
     params: IAutoMovieMotionHumanHighFive.IParams,
@@ -71,8 +67,6 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
    * @param params The `partner`, `region`, `handRole`, `side`, `hold` and `manner` of `IAutoMovieMotionHumanKiss.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   kiss(params: IAutoMovieMotionHumanKiss.IParams, anchor?: string): Chain;
 
@@ -82,8 +76,6 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
    * @param params The `balance`, `target`, `with`, `side` and `hold` of `IAutoMovieMotionHumanLegTouch.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   legTouch(
     params: IAutoMovieMotionHumanLegTouch.IParams,
@@ -96,8 +88,6 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
    * @param params The `IAutoMovieMotionHumanHeadRest` members, as `IAutoMovieMotionHumanHeadRest`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   headRest(params: IAutoMovieMotionHumanHeadRest, anchor?: string): Chain;
   /**
@@ -106,8 +96,6 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
    * @param params The `IAutoMovieMotionHumanBackToBack` members, as `IAutoMovieMotionHumanBackToBack`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   backToBack(params: IAutoMovieMotionHumanBackToBack, anchor?: string): Chain;
   /**
@@ -116,8 +104,6 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
    * @param params The `IAutoMovieMotionHumanSitOnLap` members, as `IAutoMovieMotionHumanSitOnLap`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   sitOnLap(params: IAutoMovieMotionHumanSitOnLap, anchor?: string): Chain;
   /**
@@ -126,8 +112,6 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
    * @param params The `IAutoMovieMotionHumanEmbraceFromBehind` members, as `IAutoMovieMotionHumanEmbraceFromBehind`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   embraceFromBehind(
     params: IAutoMovieMotionHumanEmbraceFromBehind,
@@ -436,8 +420,6 @@ export namespace IAutoMovieMotionHumanTouch {
      * @param resolution Optional same-body FK metadata borrowed only during this invocation.
      * @param projection Optional genuine same-body ROM metadata borrowed only during this invocation.
      * @returns The region's point in world metres and its unit normal, pointing away from the surface.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States both arguments, the space and unit of the point and the sense of the normal.
      */
     region(
       posture: IAutoMovieMotionHumanPosture,
@@ -519,8 +501,6 @@ export namespace IAutoMovieMotionHumanTouch {
      * @param resolution Optional same-body FK metadata borrowed only during this invocation.
      * @param projection Optional genuine same-body ROM metadata borrowed only during this invocation.
      * @returns The colliders, placed in the world, kept clear of and rested on.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States both arguments, the result's frame and the default.
      */
     others?(
       posture: IAutoMovieMotionHumanPosture,

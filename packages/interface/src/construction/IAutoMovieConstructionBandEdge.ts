@@ -14,15 +14,11 @@ export interface IAutoMovieConstructionBandEdge {
 
   /**
    * The child's chart point on its rail at a band clock.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the chart.
    */
   rail: (clock: number) => [number, number];
 
   /**
    * The band clock whose rail point stands at a child phase, in `[0, 2 pi)`: the inverse of the monotone correspondence.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the range.
    */
   clock: (phase: number) => number;
 }

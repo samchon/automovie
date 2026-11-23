@@ -23,22 +23,16 @@ export namespace IAutoMovieMotionTrajectoryPartition {
   export interface IPartition {
     /**
      * Return an existing leaf's exact end, or register the controller's new proposal.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionTrajectoryPartition.IPartition.end: Return an existing leaf's exact end, or register the controller's new proposal.
      */
     end(start: number, proposed: number): number;
 
     /**
      * Bisect the rejected start leaf until its duration meets the controller's finite positive maximumStep, or once when omitted. False means an invalid reduction or exhausted strict midpoint.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionTrajectoryPartition.IPartition.split: Bisect the rejected start leaf until its duration meets the controller's finite positive maximumStep, or once when omitted.
      */
     split(start: number, maximumStep?: number): boolean;
 
     /**
      * Release all boundaries after the shooting operation, including failure.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionTrajectoryPartition.IPartition.clear: Release all boundaries after the shooting operation, including failure.
      */
     clear(): void;
   }

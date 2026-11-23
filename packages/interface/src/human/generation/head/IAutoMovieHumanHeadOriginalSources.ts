@@ -20,8 +20,6 @@ export namespace IAutoMovieHumanHeadOriginalSources {
   export interface IOutput {
     /**
      * Empty is unrequested, unknown names throw before host work, tape-invariant names use the pre-closure host, exact top-level names select their closed-host factories, and absent/mixed/nested names retain the existing whole regional path.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Empty is unrequested, unknown names throw before host work, tape-invariant names use the pre-closure host, exact top-level names select their closed-host factories, and absent/mixed/nested names retain the existing whole regional path.
      */
     request(names?: readonly string[]): IAutoMovieHumanHeadComposer.IDefinition;
   }

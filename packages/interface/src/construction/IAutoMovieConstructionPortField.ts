@@ -20,8 +20,6 @@ export namespace IAutoMovieConstructionPortField {
   export interface IField {
     /**
      * The value and its first and second derivatives in the clock, radians.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the returned order.
      */
     at: (psi: number) => [number, number, number];
 
@@ -34,8 +32,6 @@ export namespace IAutoMovieConstructionPortField {
     /**
      * Bounds enclosing every value over a clock interval: the extreme controls of the spans the interval meets, so an admission can
      * hold a reading inside a domain where it is read instead of by the whole loop's extremes.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the interval and what the bounds enclose.
      */
     range: (from: number, to: number) => [number, number];
   }

@@ -32,32 +32,24 @@ export interface IAutoMovieShotContractSubjectReader {
   /**
    * The compiled scene node with this id, or `undefined` when the scene has
    * none.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the source table and the `undefined` answer for an absent id.
    */
   node(id: string): IAutoMovieSceneNode | undefined;
 
   /**
    * The compiled formation with this id, or `undefined` when no compiled
    * formation carries it, including when `compiled.formations` is omitted.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the source list and both `undefined` cases.
    */
   formation(id: string): IAutoMovieCompiledFormation | undefined;
 
   /**
    * The shot's performance of this scene node, or `undefined` when the node
    * is not performed in this shot.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is looked up by which key and what `undefined` means.
    */
   performance(node: string): IAutoMovieShotPerformance | undefined;
 
   /**
    * The node's rig: its model's skeleton when the model is among the compiled
    * models, otherwise the caller's `skeleton` lookup, otherwise `null`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the precedence of the two sources and the `null` answer.
    */
   skeleton(node: IAutoMovieSceneNode): IAutoMovieSkeleton | null;
 
@@ -68,8 +60,6 @@ export interface IAutoMovieShotContractSubjectReader {
    * node's held pose answers, or an empty pose of its rig when it holds none.
    *
    * Throws when the node has no rig or its motion is not compiled.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the clock for performed and unperformed nodes, the clamp, the held and empty pose fallbacks, and when it throws.
    */
   poseAt(node: IAutoMovieSceneNode, time: number): IAutoMoviePose;
 
@@ -80,8 +70,6 @@ export interface IAutoMovieShotContractSubjectReader {
    *
    * Throws when the landmark, node or compiled formation it names is absent,
    * or the node's pose cannot be sampled.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each selector kind resolves to, the unit and clock, and every throw.
    */
   spatialAt(
     selector: IAutoMovieShotSpatialSelector,
@@ -95,8 +83,6 @@ export interface IAutoMovieShotContractSubjectReader {
    * world placement.
    *
    * Throws when the subject cannot be placed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States how each subject kind is placed, why the formation's orientation is identity, and when it throws.
    */
   placementAt(subject: string, time: number): IAutoMovieTransform;
 
@@ -111,8 +97,6 @@ export interface IAutoMovieShotContractSubjectReader {
    * because the solve raised its aim and stood back by them. A formation is
    * its whole transformed footprint from `formationSubjectBox` at `time`,
    * widened by a member's radius and raised by a member's height.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the source for each subject kind, the fallback order for a node, why the floor and width are kept, and how a formation is widened and raised.
    */
   subjectBox(
     subject: string,

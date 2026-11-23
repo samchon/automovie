@@ -47,8 +47,6 @@ export namespace IAutoMovieHumanLegTube {
 
     /**
      * The girth the section asks for at a station, mm.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The girth the section asks for at a station, mm.
      */
     girth: (s: number) => number;
 

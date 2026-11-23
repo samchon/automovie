@@ -53,8 +53,6 @@ export interface IAutoMoviePerformShotProps {
   /**
    * Rig lookup by node id; null for a node with no skeleton, whose clip skips
    * the range-of-motion gate and whose subject is measured without a rig span.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the key, what null means and its two consequences.
    */
   skeleton: (node: string) => IAutoMovieSkeleton | null;
 
@@ -103,16 +101,12 @@ export interface IAutoMoviePerformShotProps {
   /**
    * Actor-registry membership; omitted, a bone target's actor is not checked
    * against a registry.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it answers and what omitting it does.
    */
   hasActorContext?: (node: string) => boolean;
 
   /**
    * Per-node joint axes the renderer uses, so ground planting and attachment
    * baking read the rig through one basis. Omitted, both use their defaults.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States who reads it, why it must match the renderer, and what omitting it does.
    */
   jointAxes?: (
     node: string,
@@ -121,8 +115,6 @@ export interface IAutoMoviePerformShotProps {
   /**
    * Per-node rest frames the renderer uses, so planting and `attachTo` clips
    * read the visible pose rather than raw rig-space forward kinematics.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States its readers, the pose it aligns them to, and the fallback.
    */
   restFrames?: (
     node: string,
@@ -132,8 +124,6 @@ export interface IAutoMoviePerformShotProps {
    * Live resolver for targets whose point changes during the shot; its `null`
    * falls back to the staged placement. Positions are world metres at
    * shot-local seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it resolves, the fallback, and the units and clock of its arguments and result.
    */
   targetAt?: (
     target: IAutoMovieActionTarget,
@@ -143,8 +133,6 @@ export interface IAutoMoviePerformShotProps {
   /**
    * The gait names each actor supplies; a `locomote` naming another gait is a
    * violation. Omitted, or `undefined` for a node, skips the check.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it lists, the violation it arms, and both ways to skip it.
    */
   gaits?: (node: string) => readonly string[] | undefined;
 

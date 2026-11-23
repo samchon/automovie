@@ -22,8 +22,6 @@ export interface IAutoMovieSweepPath {
    *
    * @param u Chord-length parameter, clamped to `[0, 1]`
    * @returns Metres
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the parameter and unit.
    */
   point(u: number): IAutoMovieVector3;
 
@@ -32,8 +30,6 @@ export interface IAutoMovieSweepPath {
    *
    * @param u Chord-length parameter, clamped to `[0, 1]`
    * @returns Unit vector
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the direction.
    */
   tangent(u: number): IAutoMovieVector3;
 
@@ -42,8 +38,6 @@ export interface IAutoMovieSweepPath {
    *
    * @param u Chord-length parameter, clamped to `[0, 1]`
    * @returns The frame at the curve point
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the frame's axes are.
    */
   frame(u: number): IAutoMovieSweepFrame;
 }

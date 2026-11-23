@@ -41,8 +41,6 @@ export namespace IAutoMovieHumanNail {
   export interface ISkin {
     /**
      * The skin's point at a station and a phase of the digit's chart, mm in the figure's frame.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Reads figure-space millimetres at a material station and chart phase.
      */
     point: (station: number, phase: number) => readonly number[];
 

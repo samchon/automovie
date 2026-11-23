@@ -67,8 +67,6 @@ export namespace IAutoMovieMotionHumanWalkPace {
 
     /**
      * The realised step period for a planned one, seconds.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkPace.IProps.period: The realised step period for a planned one, seconds.
      */
     period(seconds: number): number;
 
@@ -83,8 +81,6 @@ export namespace IAutoMovieMotionHumanWalkPace {
 
     /**
      * The share of the way the pelvis has gone at a second of the walk, from 0, never falling and reaching 1, when the way is set from outside (a cadenced station, `walkStation.cadenced`); the pelvis ramps, cruises and ramps by itself when absent.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkPace.IProps.travel: The share of the way the pelvis has gone at a second of the walk, from 0, never falling and reaching 1, when the way is set from outside (a cadenced station, `walkStation.cadenced`); the pelvis ramps, cruises and ramps by itself when absent.
      */
     travel?: (seconds: number) => number;
   }

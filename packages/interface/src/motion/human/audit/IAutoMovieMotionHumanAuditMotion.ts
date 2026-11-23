@@ -28,8 +28,6 @@ export interface IAutoMovieMotionHumanAuditMotion {
    * @param subject The person.
    * @param seconds Film seconds, within the motion.
    * @returns The bones, world frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAuditMotion.bones: A person's displayed bones.
    */
   bones(
     subject: string,
@@ -41,8 +39,6 @@ export interface IAutoMovieMotionHumanAuditMotion {
    *
    * @param subject The person.
    * @returns The actions; empty for a motion that declares no contact.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAuditMotion.segments: A person's placed actions, in film order.
    */
   segments(subject: string): readonly IAutoMovieMotionHumanAuditMotion.ISpan[];
 
@@ -57,8 +53,6 @@ export interface IAutoMovieMotionHumanAuditMotion {
    * @param support The support a contact window declares.
    * @param seconds Film seconds, within the motion.
    * @returns The support's frame, world metres; the ground's is the identity raised to its height.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAuditMotion.support: the frame a planted contact is read in, and the reading when absent.
    */
   support?(
     support: IAutoMovieMotionHumanContactWindow.Support,
@@ -75,8 +69,6 @@ export interface IAutoMovieMotionHumanAuditMotion {
    * @param subject The person.
    * @param seconds Film seconds, within the motion.
    * @returns Whether the person is in water.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAuditMotion.water: when the water, not a floor, bears a person, and the reading when absent.
    */
   water?(subject: string, seconds: number): boolean;
 }

@@ -21,8 +21,6 @@ export interface IAutoMovieMotionHumanMount<Chain> {
    * @param params The `on`, `seconds`, `rising`, `feet`, `placeFeet`, `seat`, `hands` and `equestrian` of `IAutoMovieMotionHumanRide.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   rideHorse(params: IAutoMovieMotionHumanRide.IParams, anchor?: string): Chain;
 
@@ -32,8 +30,6 @@ export interface IAutoMovieMotionHumanMount<Chain> {
    * @param params The parameters of the law, `IAutoMovieMotionHumanLeadHorse`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   leadHorse(params: IAutoMovieMotionHumanLeadHorse, anchor?: string): Chain;
 
@@ -43,8 +39,6 @@ export interface IAutoMovieMotionHumanMount<Chain> {
    * @param params The parameters of the law, `IAutoMovieMotionHumanTendHorse`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   tendHorse(params: IAutoMovieMotionHumanTendHorse, anchor?: string): Chain;
 
@@ -54,8 +48,6 @@ export interface IAutoMovieMotionHumanMount<Chain> {
    * @param params The parameters of the law, `IAutoMovieMotionHumanLunge`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   lunge(params: IAutoMovieMotionHumanLunge, anchor?: string): Chain;
 
@@ -65,8 +57,6 @@ export interface IAutoMovieMotionHumanMount<Chain> {
    * @param params The parameters of the law, `IAutoMovieMotionHumanUnseat`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   unseat(params: IAutoMovieMotionHumanUnseat, anchor?: string): Chain;
 
@@ -76,8 +66,6 @@ export interface IAutoMovieMotionHumanMount<Chain> {
    * @param params The parameters of the law, `IAutoMovieMotionHumanMounted`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   mounted(params: IAutoMovieMotionHumanMounted, anchor?: string): Chain;
 }

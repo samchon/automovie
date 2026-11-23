@@ -27,8 +27,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @param params The members of `IAutoMovieMotionHumanPickUp.IParams` except the handle, which the law fixes at the nock grip.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   takeArrow(
     params: IAutoMovieMotionHumanArchery.ITakeArrow,
@@ -41,8 +39,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @param params The members of `IAutoMovieMotionHumanPutDown.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   nockArrow(
     params: IAutoMovieMotionHumanPutDown.IParams,
@@ -55,8 +51,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @param params The members of `IAutoMovieMotionHumanWeaponPresent.IPresent` except the anchor, the hands, the line origin, the tip, the edge and the extension, which the preset fixes.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   presentBow(
     params: IAutoMovieMotionHumanArchery.IPresentBow,
@@ -69,8 +63,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @param params The members of `IAutoMovieMotionHumanOperate.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   drawBow(params: IAutoMovieMotionHumanOperate.IParams, anchor?: string): Chain;
 
@@ -80,8 +72,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @param params The members of `IAutoMovieMotionHumanRelease.IParams` and the optional `continuation`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   loose(params: IAutoMovieMotionHumanArchery.ILoose, anchor?: string): Chain;
 
@@ -91,8 +81,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @param params The members of `IAutoMovieMotionHumanOperate.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   spanCrossbow(
     params: IAutoMovieMotionHumanOperate.IParams,
@@ -105,8 +93,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @param params The members of `IAutoMovieMotionHumanWeaponPresent.IPresent` except the anchor.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   presentCrossbow(
     params: IAutoMovieMotionHumanArchery.IPresentCrossbow,
@@ -119,8 +105,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @param params The members of `IAutoMovieMotionHumanWeaponPresent.IWield` and the optional `continuation`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   shootCrossbow(
     params: IAutoMovieMotionHumanArchery.IShootCrossbow,
@@ -133,8 +117,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @param params The members of `IAutoMovieMotionHumanThrowObjectParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   throwWeapon(
     params: IAutoMovieMotionHumanThrowObjectParams,
@@ -147,8 +129,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @param params The members of `IAutoMovieMotionHumanLasso`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   lasso(params: IAutoMovieMotionHumanLasso, anchor?: string): Chain;
 }

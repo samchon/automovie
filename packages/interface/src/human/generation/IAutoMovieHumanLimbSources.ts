@@ -29,15 +29,11 @@ export namespace IAutoMovieHumanLimbSources {
   export interface IOutput {
     /**
      * Prepare just this arm/hand source owner.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Prepare just this arm/hand source owner.
      */
     arm(side: AutoMovieHumanSide): IAutoMovieHumanArmSources.IOutput;
 
     /**
      * Prepare just this leg/distal source owner.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Prepare just this leg/distal source owner.
      */
     leg(side: AutoMovieHumanSide): IAutoMovieHumanLegSources.IOutput;
   }
@@ -77,8 +73,6 @@ export namespace IAutoMovieHumanLimbSources {
 
     /**
      * Complete the genuine coupled parent only at its explicit full demand.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Complete the genuine coupled parent only at its explicit full demand.
      */
     completeLeg?: () => void;
   }

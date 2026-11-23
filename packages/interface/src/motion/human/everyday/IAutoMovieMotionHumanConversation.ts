@@ -35,8 +35,6 @@ export interface IAutoMovieMotionHumanConversation {
    * @param params The `subject`, `partner`, `turns`, `random` and `eyes` of `IAutoMovieMotionHumanConversation.IGaze`.
    * @returns Gaze layer requests in time order.
    * @throws {HumanRefusal} For a turn that does not start at a finite film second, at least 0, or does not end at a finite second after its start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the reader returns, its parameters and its refusal.
    */
   gaze(
     params: IAutoMovieMotionHumanConversation.IGaze,
@@ -48,8 +46,6 @@ export interface IAutoMovieMotionHumanConversation {
    * @param params The `subject`, `participants`, `turns`, `random` and `eyes` of `IAutoMovieMotionHumanConversation.IGroupGaze`.
    * @returns Gaze layer requests in time order; the last request of each span releases at its end.
    * @throws When a subject, span, or eye height falls outside the stated bounds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the reader returns, its parameters and its refusal.
    */
   groupGaze(
     params: IAutoMovieMotionHumanConversation.IGroupGaze,
@@ -60,8 +56,6 @@ export interface IAutoMovieMotionHumanConversation {
    *
    * @param params The `requests`, `from` and `to` of `IAutoMovieMotionHumanConversation.IShare`.
    * @returns The share in [0, 1].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the reader measures, its parameters and its range.
    */
   share(params: IAutoMovieMotionHumanConversation.IShare): number;
 }

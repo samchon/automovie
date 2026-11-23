@@ -18,8 +18,6 @@ export interface IAutoMovieMotionHumanWalkGait {
 
   /**
    * The longest step in hip heights for the Froude number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkGait.step: The longest step in hip heights for the Froude number.
    */
   step(froude: number): number;
 

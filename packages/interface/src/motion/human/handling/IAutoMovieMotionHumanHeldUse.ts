@@ -84,8 +84,6 @@ export namespace IAutoMovieMotionHumanHeldUse {
     key: IAutoMovieMotionHumanGrasp.IKey;
     /**
      * Retained synchronous callback for the PRIMARY hand's goal at a displayed posture and action-relative second. This goal places the tool and thus the assisting handle; exceptions propagate during evaluation.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanHeldUse.ISecondProps.goal: Retained synchronous callback for the PRIMARY hand's goal at a displayed posture and action-relative second. This goal places the tool and thus the assisting handle; exceptions propagate during evaluation.
      */
     goal: (
       posture: IAutoMovieMotionHumanPosture,
@@ -93,8 +91,6 @@ export namespace IAutoMovieMotionHumanHeldUse {
     ) => IAutoMovieHumanLimbGoal;
     /**
      * Retained synchronous blend-weight callback in action-relative seconds; returns the assisting hand's dimensionless contribution.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanHeldUse.ISecondProps.weight: Retained synchronous blend-weight callback in action-relative seconds; returns the assisting hand's dimensionless contribution.
      */
     weight: (seconds: number) => number;
   };

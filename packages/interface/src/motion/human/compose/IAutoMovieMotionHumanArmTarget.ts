@@ -147,8 +147,6 @@ export namespace IAutoMovieMotionHumanArmTarget {
      *
      * @param seconds Seconds since the action's start.
      * @returns A value in [0, 1].
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, and that the result is a share in [0, 1].
      */
     weight(seconds: number): number;
 

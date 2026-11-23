@@ -61,8 +61,6 @@ export namespace IAutoMovieMotionHumanPropDynamics {
      *
      * @param seconds Elapsed seconds since the drive started.
      * @returns Signed torque about the hinge axis.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Specifies the units, sign, clock and purity.
      */
     torque(seconds: number): number;
   }
@@ -112,8 +110,6 @@ export namespace IAutoMovieMotionHumanPropDynamics {
     /**
      * The horizontal force along the push at a second, newtons, positive
      * along it. Pure.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPropDynamics.ISlide.force: The horizontal force along the push at a second, newtons, positive along it. Pure.
      */
     force: (seconds: number) => number;
 

@@ -42,8 +42,6 @@ export interface IAutoMovieHumanArmRootArc {
   /**
    * The front sector, from the anterior to the lateral guide, for the speeds
    * the assembly gives its two guides.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The front sector, from the anterior to the lateral guide, for the speeds the assembly gives its two guides.
    */
   front: (
     speeds: readonly [number, number],
@@ -51,8 +49,6 @@ export interface IAutoMovieHumanArmRootArc {
 
   /**
    * The back sector, from the lateral to the posterior guide.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The back sector, from the lateral to the posterior guide.
    */
   back: (
     speeds: readonly [number, number],

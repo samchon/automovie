@@ -32,8 +32,6 @@ export namespace IAutoMovieBicubicAtlasRegistry64 {
     occurrences: (IAutoMovieBicubicAtlas64.Occurrence | undefined)[][];
     /**
      * Compare admitted normalized phase records by exact value, returning -1, 0 or 1. Distinct dyadic keys break equal rounded numeric values. Call only with canonical keys produced by the boundary owner; this optimized comparator does not repeat key admission.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States canonical-key admission, exact ordering, rounded-value tie handling and the -1/0/1 result convention.
      */
     comparePhase: (
       a: IAutoMovieCanonicalBoundaryPhase64,

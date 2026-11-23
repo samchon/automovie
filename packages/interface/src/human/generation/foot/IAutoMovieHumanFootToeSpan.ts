@@ -37,8 +37,6 @@ export namespace IAutoMovieHumanFootToeSpan {
 
     /**
      * Half breadth, dorsal half depth and plantar half depth in millimetres at line distance s in millimetres; values past cap retain the cap's section.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Half breadth, dorsal half depth and plantar half depth in millimetres at line distance s in millimetres; values past cap retain the cap's section.
      */
     size: (s: number) => [number, number, number];
 

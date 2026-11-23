@@ -52,8 +52,6 @@ export interface IAutoMovieEngineShotRuntime {
    * targets through it, `realizeShotContract` measures a model-less actor's
    * span from it, and a staged mount's parent must answer a rig carrying the
    * mount bone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the key, the meaning of `null`, and each phase that reads the rig and what it uses it for.
    */
   skeleton(node: string): IAutoMovieSkeleton | null;
 
@@ -153,16 +151,12 @@ export interface IAutoMovieEngineShotRuntime {
    * `performShot` reports a bone target on a staged node without a context as
    * missing context, which keeps it distinct from a present actor that simply
    * has no rig. Omitted, every staged node is taken to have a context.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the key, the reader, the distinction it enables and the omitted behavior.
    */
   hasActorContext?(node: string): boolean;
 
   /**
    * Clinical joint axes of a node's rig, keyed by humanoid bone, used by ground
    * IK and attachment baking; `undefined` for a node without them.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the key, the table's keying, its two consumers, why they need it, and the meaning of `undefined`.
    */
   jointAxes?(
     node: string,
@@ -171,8 +165,6 @@ export interface IAutoMovieEngineShotRuntime {
   /**
    * Clinical rest frames of a node's rig, keyed by humanoid bone, used by ground
    * IK and attachment baking; `undefined` for a node without them.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the key, the table's keying, its consumers, why the visible pose matters, and the meaning of `undefined`.
    */
   restFrames?(
     node: string,
@@ -181,8 +173,6 @@ export interface IAutoMovieEngineShotRuntime {
   /**
    * The world point of an action target at shot-local `seconds`, or `null` to
    * let the engine resolve it from the staged placements.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the time base, the space, the meaning of `null`, and the fallback.
    */
   targetAt?(
     target: IAutoMovieActionTarget,
@@ -192,8 +182,6 @@ export interface IAutoMovieEngineShotRuntime {
   /**
    * The gait names a node's actor context supplies, or `undefined` to skip the
    * check for that node.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the key, the check it feeds, the effect of `undefined` and of omission.
    */
   gaits?(node: string): readonly string[] | undefined;
 

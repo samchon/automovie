@@ -23,8 +23,6 @@ export namespace IAutoMovieHumanHeadNeckScalars {
   export interface IOutput {
     /**
      * Actual numeric radius declaration at a selected lower radius.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Actual numeric radius declaration at a selected lower radius.
      */
     radius(base: number): IAutoMovieViewPart.IOutline;
 
@@ -67,8 +65,6 @@ export namespace IAutoMovieHumanHeadNeckScalars {
 
     /**
      * Actual point on the declared lower/normal affine primitive; no completed curve is read.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Actual point on the declared lower/normal affine primitive; no completed curve is read.
      */
     point(station: number): [number, number, number];
   }

@@ -35,8 +35,6 @@ export interface IAutoMovieMotionWeaponPath {
    *
    * @param seconds Film seconds.
    * @returns World metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionWeaponPath.path: The surface's centre on its free path, ignoring its own stop.
    */
   path(seconds: number): IAutoMovieVector3;
 
@@ -45,8 +43,6 @@ export interface IAutoMovieMotionWeaponPath {
    *
    * @param seconds Film seconds.
    * @returns World metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionWeaponPath.tail: The other end of a capsule weapon's axis on its free path, when the weapon is a capsule (a forearm, a shin) rather than a sphere: the weapon is every point of the segment from `path` to `tail` within `radius`.
    */
   tail?(seconds: number): IAutoMovieVector3;
 }

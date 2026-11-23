@@ -89,8 +89,6 @@ export namespace IAutoMovieMotionHumanWalkSteps {
 
     /**
      * The realised step period for a planned one, seconds (timing variability).
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkSteps.IInput.period: The realised step period for a planned one, seconds (timing variability).
      */
     period(seconds: number): number;
 
@@ -132,36 +130,26 @@ export namespace IAutoMovieMotionHumanWalkSteps {
 
     /**
      * The rig origin before `reach`, world metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkSteps.IPlan.root: The rig origin before `reach`, world metres.
      */
     root(seconds: number): IAutoMovieVector3;
 
     /**
      * The heading, degrees.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkSteps.IPlan.yaw: The heading, degrees.
      */
     yaw(seconds: number): number;
 
     /**
      * Stride phase: 0.25 at a left heel strike, one per stride.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkSteps.IPlan.phase: Stride phase: 0.25 at a left heel strike, one per stride.
      */
     phase(seconds: number): number;
 
     /**
      * How much the body is walking, 0 standing to 1 in full stride.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkSteps.IPlan.amount: How much the body is walking, 0 standing to 1 in full stride.
      */
     amount(seconds: number): number;
 
     /**
      * A foot's scheduled stance at an instant.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkSteps.IPlan.foot: A foot's scheduled stance at an instant.
      */
     foot(
       side: "left" | "right",

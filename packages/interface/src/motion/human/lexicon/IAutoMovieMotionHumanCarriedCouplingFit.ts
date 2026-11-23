@@ -43,8 +43,6 @@ export namespace IAutoMovieMotionHumanCarriedCouplingFit {
      *
      * @param point World metres on the key pose at the origin.
      * @returns World metres on the bearer in its stance at the origin.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCarriedCouplingFit.IFit.place: A point of the key pose at the origin, placed on the bearer.
      */
     place(point: IAutoMovieVector3): IAutoMovieVector3;
   }

@@ -41,28 +41,18 @@ export interface IAutoMovieCaptureFolder {
   /** Compared round directory, or null without comparison. Reads must not mutate it. */
   readonly reference: string | null;
   /** Persist a running journal containing the union of claimed names before any corresponding file write. Reject separators, dot/dot-dot, and record.json. Empty input still publishes the current claims.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The claim contract states the input meaning, completion or iteration obligation and rejection behavior.
    */
   claim(names: readonly string[]): Promise<void>;
   /** Replace one previously claimed file; text is UTF-8. Resolve only after storage succeeds, then remember it as written. Reject unclaimed names.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The write contract states the input meaning, completion or iteration obligation and rejection behavior.
    */
   write(name: string, data: Uint8Array | string): Promise<void>;
   /** Remove a claimed file and its written-list entry. Missing files succeed; unclaimed names reject. The claim remains owned by the running journal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The remove contract states the input meaning, completion or iteration obligation and rejection behavior.
    */
   remove(name: string): Promise<void>;
   /** Read a plain file name in this destination, or the compared directory when earlier is true. Default false; reject invalid names, unavailable comparison, and storage failures. The folder forwards the host's bytes without cloning; byte sharing follows the storage host's ownership policy.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The read contract states the input meaning, completion or iteration obligation and rejection behavior.
    */
   read(name: string, earlier?: boolean): Promise<Uint8Array>;
   /** Publish complete metadata after all surviving owned writes finish. Derive state and files from successful writes rather than trusting the supplied metadata; return only after record.json is written. Caller must stop writing after publication; the concrete class has no closed-state guard.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The close contract states the input meaning, completion or iteration obligation and rejection behavior.
    */
   close(
     record: Omit<

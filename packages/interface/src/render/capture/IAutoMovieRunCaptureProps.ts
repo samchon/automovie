@@ -19,8 +19,6 @@ export interface IAutoMovieRunCaptureProps {
   /**
    * Draw one planned cell at the subject's exact raster. The returned picture must be writable because capture stamps labels into its pixels; the host owns drawing-resource cleanup.
    * The capture host implements drawing; runAutoMovieCapture awaits cells sequentially and records a rejected draw or wrong raster as a failed cell.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States plan-order invocation, required subject raster, mutable returned pixels and host-owned drawing resources.
    */
   draw: (cell: IAutoMovieCaptureCell) => Promise<IAutoMovieCaptureDrawing>;
 

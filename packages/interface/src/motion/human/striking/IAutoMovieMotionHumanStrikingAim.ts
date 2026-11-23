@@ -76,8 +76,6 @@ export namespace IAutoMovieMotionHumanStrikingAim {
      *
      * @param seconds Film seconds.
      * @returns The units, start and duration in film seconds.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the order, the causality and the timebase.
      */
     units(seconds: number): readonly IAutoMovieSuperposeMinimumJerk.IUnit[];
 
@@ -86,8 +84,6 @@ export namespace IAutoMovieMotionHumanStrikingAim {
      *
      * @param seconds Film seconds.
      * @returns World metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what is included and the frame.
      */
     goal(seconds: number): IAutoMovieVector3;
   }

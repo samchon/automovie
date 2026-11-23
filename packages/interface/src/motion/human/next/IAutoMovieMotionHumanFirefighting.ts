@@ -19,8 +19,6 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
    * @param params The `prop`, `target`, `sweeps` and `span` of `IAutoMovieMotionHumanFirefight.IExtinguish`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   extinguish(
     params: IAutoMovieMotionHumanFirefight.IExtinguish,
@@ -33,8 +31,6 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
    * @param params The `prop`, `role`, `grip`, `advance`, `target` and `sweeps` of `IAutoMovieMotionHumanFirefight.IHoseLine`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   hoseLine(
     params: IAutoMovieMotionHumanFirefight.IHoseLine,
@@ -47,8 +43,6 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
    * @param params The `prop`, `partner`, `region` and `count` of `IAutoMovieMotionHumanFirefight.IBeatFlames`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   beatFlames(
     params: IAutoMovieMotionHumanFirefight.IBeatFlames,
@@ -61,8 +55,6 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
    * @param params The `rolls` of `IAutoMovieMotionHumanFirefight.IStopDropRoll`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   stopDropRoll(
     params: IAutoMovieMotionHumanFirefight.IStopDropRoll,
@@ -74,8 +66,6 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
    * @param params The extinguisher, the fire, the sweeps and the carrying `hand` of `IAutoMovieMotionHumanFirefighting.IPass`.
    * @param anchor The action's id for `sync` and `until`, set on the sweep; none when absent.
    * @returns The chain with the take, the pin's pull and the sweep appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   pass(params: IAutoMovieMotionHumanFirefighting.IPass, anchor?: string): Chain;
 }

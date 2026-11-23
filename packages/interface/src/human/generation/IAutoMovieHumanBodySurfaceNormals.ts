@@ -22,8 +22,6 @@ export namespace IAutoMovieHumanBodySurfaceNormals {
   export interface IStationJet {
     /**
      * Actual world value/phase tangent plan, independent of physical station2.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Actual world value/phase tangent plan, independent of physical station2.
      */
     here: (phaseRadians: number) => {
       /** Sampled position in the curve's source frame, millimetres. */
@@ -50,8 +48,6 @@ export namespace IAutoMovieHumanBodySurfaceNormals {
   export interface IStationSample {
     /**
      * Actual world point reader retained by this normal calculation.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Actual world point reader retained by this normal calculation.
      */
     at: (phaseRadians: number) => AutoMovieVector3Tuple;
   }

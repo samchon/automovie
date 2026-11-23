@@ -57,15 +57,11 @@ export namespace IAutoMovieMotionHumanForceExchange {
 
     /**
      * The centre's angle from the vertical through the fulcrum at a second since the break, radians.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanForceExchange.ISwing.angle: The centre's angle from the vertical through the fulcrum at a second since the break, radians.
      */
     angle(seconds: number): number;
 
     /**
      * The angular rate at a second since the break, radians per second.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanForceExchange.ISwing.rate: The angular rate at a second since the break, radians per second.
      */
     rate(seconds: number): number;
 
@@ -74,8 +70,6 @@ export namespace IAutoMovieMotionHumanForceExchange {
      *
      * @param seconds Seconds since the base's break.
      * @returns A fresh angle and rate record, held at release afterward.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument, units, release clamp and fresh result.
      */
     sample?(seconds: number): { angle: number; rate: number };
   }

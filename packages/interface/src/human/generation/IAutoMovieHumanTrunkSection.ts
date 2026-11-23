@@ -45,16 +45,12 @@ export interface IAutoMovieHumanTrunkSection {
    * The front quadrant's displacement toward the back at a lateral place
    * (the inguinal fold), mm: the value and its first and second derivatives
    * in z.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The front quadrant's displacement toward the back at a lateral place (the inguinal fold), mm: the value and its first and second derivatives in z.
    */
   foldFront: (z: number) => [number, number, number];
 
   /**
    * The back quadrant's displacement toward the front at a lateral place
    * (the gluteal cleft), mm, with its first and second derivatives in z.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The back quadrant's displacement toward the front at a lateral place (the gluteal cleft), mm, with its first and second derivatives in z.
    */
   foldBack: (z: number) => [number, number, number];
 }

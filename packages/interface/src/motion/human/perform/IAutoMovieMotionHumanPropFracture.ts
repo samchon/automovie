@@ -82,8 +82,6 @@ export namespace IAutoMovieMotionHumanPropFracture {
 
     /**
      * The visible pieces at a finite film second, or null before the contact.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Samples replacement geometry in world space on the same film clock as contact.
      */
     at(seconds: number): readonly IPlaced<Piece>[] | null;
   }

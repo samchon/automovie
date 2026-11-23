@@ -19,8 +19,6 @@ import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 export type IAutoMovieGeometryActorReader = {
   /**
    * Resolve a world-space point in metres. Point and landmark selectors return borrowed vectors and ignore sampling options; a missing landmark throws. Actor/bone results are sampled, and an absent rig or unresolved bone throws. Actor-root results may also alias a node translation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Resolve a world-space point in metres. Point and landmark selectors return borrowed vectors and ignore sampling options; a missing landmark throws. Actor/bone results are sampled, and an absent rig or unresolved bone throws. Actor-root results may also alias a node translation. Member documentation states the supplied records, units and absence meanings used by createAutoMovieGeometryActorReader, measureAutoMovieGeometryCamera, measureAutoMovieGeometryDistance, measureAutoMovieGeometryEffect.
    */
   selector: (
     selector: IAutoMovieGeometrySelector,
@@ -36,8 +34,6 @@ export type IAutoMovieGeometryActorReader = {
 
   /**
    * Return a fresh wrapper borrowing the matching shot, node and resident model. An omitted shot searches every supplied shot; absent or multi-shot matches and missing node models throw. No sample time is read.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Return a fresh wrapper borrowing the matching shot, node and resident model. An omitted shot searches every supplied shot; absent or multi-shot matches and missing node models throw. No sample time is read. Member documentation states the supplied records, units and absence meanings used by createAutoMovieGeometryActorReader, measureAutoMovieGeometryCamera, measureAutoMovieGeometryDistance, measureAutoMovieGeometryEffect.
    */
   find: (
     actor: string,
@@ -46,8 +42,6 @@ export type IAutoMovieGeometryActorReader = {
 
   /**
    * Sample a known node in the supplied compiled shot at finite shot-local seconds in [0, duration]. The caller must first resolve the actor and provide its model's skeleton, or null for an unrigged model; unlike find, this entry does not validate node membership. Missing referenced motion throws. Returns a shallow sample with borrowed nested records.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Sample a known node in the supplied compiled shot at finite shot-local seconds in [0, duration]. The caller must first resolve the actor and provide its model's skeleton, or null for an unrigged model; unlike find, this entry does not validate node membership. Missing referenced motion throws. Returns a shallow sample with borrowed nested records. Member documentation states the supplied records, units and absence meanings used by createAutoMovieGeometryActorReader, measureAutoMovieGeometryCamera, measureAutoMovieGeometryDistance, measureAutoMovieGeometryEffect.
    */
   spatial: (
     compiled: IAutoMovieCompiledShotSource,
@@ -58,8 +52,6 @@ export type IAutoMovieGeometryActorReader = {
 
   /**
    * Resolve the actor and model within this compiled shot, then return its world root point in metres at the supplied shot-local seconds. Node TRS transforms pose-root translation; the result can alias node translation when no pose root is present.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Resolve the actor and model within this compiled shot, then return its world root point in metres at the supplied shot-local seconds. Node TRS transforms pose-root translation; the result can alias node translation when no pose root is present. Member documentation states the supplied records, units and absence meanings used by createAutoMovieGeometryActorReader, measureAutoMovieGeometryCamera, measureAutoMovieGeometryDistance, measureAutoMovieGeometryEffect.
    */
   position: (
     compiled: IAutoMovieCompiledShotSource,
@@ -69,8 +61,6 @@ export type IAutoMovieGeometryActorReader = {
 
   /**
    * Return a fresh scalar summary at finite shot-local seconds in [0, duration]: shot/actor IDs, held (selected performance or node motion is null), world-metre rootX/rootY/rootZ, and the sampled pose's jointCount. An omitted shot requires a unique actor across the map; missing motion throws.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Return a fresh scalar summary at finite shot-local seconds in [0, duration]: shot/actor IDs, held (selected performance or node motion is null), world-metre rootX/rootY/rootZ, and the sampled pose's jointCount. An omitted shot requires a unique actor across the map; missing motion throws. Member documentation states the supplied records, units and absence meanings used by createAutoMovieGeometryActorReader, measureAutoMovieGeometryCamera, measureAutoMovieGeometryDistance, measureAutoMovieGeometryEffect.
    */
   pose: (
     actor: string,

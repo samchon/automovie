@@ -24,8 +24,6 @@ export namespace IAutoMovieHumanHandHeel {
 
     /**
      * The hand's map from the form's axes to the left frame, origin placed on the forearm's wrist.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The hand's map from the form's axes to the left frame, origin placed on the forearm's wrist.
      */
     map: (q: readonly [number, number, number]) => AutoMovieVector3Tuple;
 
@@ -33,8 +31,6 @@ export namespace IAutoMovieHumanHandHeel {
      * The bone tube's point at a station `a` of the hand's axis and a phase
      * `t` of the arm's section, left frame, mm: the arm's cut, or the wrist
      * span's end section copied (the heel starts from it).
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The bone tube's point at a station `a` of the hand's axis and a phase `t` of the arm's section, left frame, mm: the arm's cut, or the wrist span's end section copied (the heel starts from it).
      */
     bone: (a: number, t: number) => AutoMovieVector3Tuple;
   }

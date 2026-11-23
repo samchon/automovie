@@ -127,8 +127,6 @@ export namespace IAutoMovieHumanBodyLane {
     digitNames: readonly string[];
     /**
      * Prepare just this actual digit original; other digits are not evaluated.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Prepare just this actual digit original; other digits are not evaluated.
      */
     digit(name: string): IDigit | undefined;
 

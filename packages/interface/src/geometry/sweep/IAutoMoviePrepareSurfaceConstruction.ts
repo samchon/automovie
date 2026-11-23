@@ -28,15 +28,11 @@ export namespace IAutoMoviePrepareSurfaceConstruction {
 
     /**
      * Resolve each sweep to its shared unsealed rig so this call can register frame and zero-cell sample slots. The one-use reader retains resulting writers until a successful read; callback errors propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States shared unsealed rigs, registration lifetime, one-use reader retention and callback failure propagation.
      */
     sweepRig: (name: string) => IAutoMovieSweepRig;
 
     /**
      * Resolve or compile the named network curve using the same endpoint nodes and geometric cells as patch boundaries. Returned rigs are retained until the observation reader runs, after registry finalization and rest evaluation.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States shared endpoint/cell geometry and rig retention through registry finalization and rest evaluation.
      */
     curveRig: (
       name: string,

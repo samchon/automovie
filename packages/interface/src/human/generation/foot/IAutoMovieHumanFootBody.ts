@@ -84,22 +84,16 @@ export namespace IAutoMovieHumanFootBody {
 
     /**
      * The section at a station as a loft sample.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The section at a station as a loft sample.
      */
     sample: (station: number) => IAutoMovieHumanLimbFrame.ISample;
 
     /**
      * The section at a station.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The section at a station.
      */
     section: (station: number) => ISection;
 
     /**
      * A guide's point at a station.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation A guide's point at a station.
      */
     guide: (
       name: "crest" | "lateral" | "medial",
@@ -124,8 +118,6 @@ export namespace IAutoMovieHumanFootBody {
 
     /**
      * Phases on the upper and lower boundaries where the across coordinate is `v`.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Phases on the upper and lower boundaries where the across coordinate is `v`.
      */
     pinches: (v: number) => {
       /** Upper boundary phase at the requested across coordinate, radians in the section's fixed phase convention. */
@@ -142,8 +134,6 @@ export namespace IAutoMovieHumanFootBody {
 
     /**
      * A world point at a phase.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation A world point at a phase.
      */
     at: (t: number) => AutoMovieVector3Tuple;
   }

@@ -78,8 +78,6 @@ export namespace IAutoMovieHumanBackProfile {
      * The forward place at a height relative to cervicale's, with its first
      * and second derivatives in height; above cervicale it holds cervicale's
      * tangent, below the PSIS level it runs on along that level's tangent.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The forward place at a height relative to cervicale's, with its first and second derivatives in height; above cervicale it holds cervicale's tangent, below the PSIS level it runs on along that level's tangent.
      */
     at: (y: number) => [number, number, number];
   }

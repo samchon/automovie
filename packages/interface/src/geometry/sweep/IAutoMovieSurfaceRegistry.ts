@@ -20,8 +20,6 @@ export interface IAutoMovieSurfaceRegistry {
    * Number of vertices registered so far.
    *
    * @returns The count
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is counted.
    */
   count(): number;
 
@@ -30,8 +28,6 @@ export interface IAutoMovieSurfaceRegistry {
    *
    * @param key Identity, not yet registered
    * @returns Its index
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the premise.
    */
   reserve(key: string): number;
 
@@ -41,8 +37,6 @@ export interface IAutoMovieSurfaceRegistry {
    * @param key Identity
    * @param make Makes the point's writer
    * @returns Its index
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when the writer is made.
    */
   vertex(
     key: string,
@@ -54,15 +48,11 @@ export interface IAutoMovieSurfaceRegistry {
    *
    * @param sample The sample
    * @returns Its index
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both kinds of point.
    */
   admit(sample: IAutoMovieSurfaceSample): number;
 
   /**
    * Resolve every sweep writer from its finest reported spacing, mirror missing sides and zero wholly unreached axes, then run dependent bindings before sweep sealing. Registration and repeated finalization are refused afterward; temporary records are cleared even if a binding throws.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the mirror and zero rules.
    */
   finalize(): void;
 
@@ -74,8 +64,6 @@ export interface IAutoMovieSurfaceRegistry {
    * @param key Exact shared sample identity
    * @param bind One-time compile callback; its reference is released after finalization, including failure
    * @throws Error if the registry has been finalized
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the callback phase, null meaning, ownership, failure lifetime and legal registration boundary.
    */
   bindSweep(
     key: string,
@@ -89,8 +77,6 @@ export interface IAutoMovieSurfaceRegistry {
    * @param what What names it, for the diagnostic
    * @returns Its index
    * @throws Error when no patch made it
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the refusal.
    */
   existing(key: string, what: string): number;
 }
@@ -120,8 +106,6 @@ export namespace IAutoMovieSurfaceRegistry {
      * pose, before control pins. The caller supplies three writable slots at
      * the scalar offset at; the output buffer is not retained. The owning rig
      * refreshes frames and scales before pose or girth evaluation reads this.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the network frame and metre units, output offset and capacity premise, current-pose meaning, pre-pin stage and output-buffer ownership.
      */
     readonly write: (out: Float64Array, at: number) => void;
   }

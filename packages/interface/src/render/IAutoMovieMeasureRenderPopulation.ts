@@ -33,8 +33,6 @@ export namespace IAutoMovieMeasureRenderPopulation {
     /**
      * Resolve a model id synchronously; cited is diagnostic owner text. Errors propagate.
      * measureAutoMovieRenderInventory supplies model resolution; measureRenderPopulation calls it synchronously with model identity and diagnostic citation, and propagates failures.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents resolver inputs, synchronous failure and request-owned model lifetime.
      */
     model: (id: string, cited: string) => IAutoMovieModel;
     /** Mutable request-local model-cost cache populated by the shared measurer. */
@@ -47,8 +45,6 @@ export namespace IAutoMovieMeasureRenderPopulation {
      * Append an owner/source metric row synchronously. Cost uses the named metric's
      * unit; this phase omits kind. Exceptions propagate and prior mutations remain.
      * The inventory caller owns owner/source metric accumulation; measureRenderPopulation invokes this synchronous sink and does not roll back prior sink effects on failure.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States metric units, omitted kind and nontransactional exception behavior.
      */
     add: (
       owner: string,

@@ -37,8 +37,6 @@ export namespace IAutoMovieHumanTrunkSolver {
 
     /**
      * Explicit legacy raw supplier; original solving and metadata never call it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit legacy raw supplier; original solving and metadata never call it.
      */
     rawNeck?: () => IAutoMovieLoftChain;
 

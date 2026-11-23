@@ -17,8 +17,6 @@ export interface IAutoMovieMotionHumanSleep<Chain> {
    *
    * @param params The `duration`, `changes`, `seed` and `on` of `IAutoMovieMotionHumanSleep.ISleep`.
    * @returns The chain with the turns appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
    */
   sleep(params: IAutoMovieMotionHumanSleep.ISleep): Chain;
 
@@ -28,8 +26,6 @@ export interface IAutoMovieMotionHumanSleep<Chain> {
    * @param params The members of `IAutoMovieMotionHumanPullCover`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   pullCover(params: IAutoMovieMotionHumanPullCover, anchor?: string): Chain;
 
@@ -39,8 +35,6 @@ export interface IAutoMovieMotionHumanSleep<Chain> {
    * @param params The members of `IAutoMovieMotionHumanLieTogether`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   lieTogether(params: IAutoMovieMotionHumanLieTogether, anchor?: string): Chain;
 }

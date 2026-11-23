@@ -57,8 +57,6 @@ export namespace IAutoMovieCrowdAgent {
      * It is called synchronously during planning, can be called repeatedly,
      * and must not mutate the obstacle. Exceptions abort the pass. Completed
      * course readers sample stored integration data without calling motion.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States purity, timebase, output units, absence and neighbouring-time reads.
      */
     motion?: (seconds: number) => {
       /** World translation in metres; y is ignored. Sampling includes 0.0005 seconds before and after queried times for velocity. */
@@ -82,8 +80,6 @@ export namespace IAutoMovieCrowdAgent {
      * second, held at the pass's ends outside it. The reader retains the
      * planned trajectory and slot mapping until the course is released;
      * each call returns new position and velocity records.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the timebase, result frames and units, and held-end behavior.
      */
     at: (seconds: number) => {
       /** Fresh world position in metres, with y = 0. */

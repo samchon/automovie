@@ -20,8 +20,6 @@ export namespace IAutoMovieHumanDigitTipCap {
   export interface IInput {
     /**
      * The section's mean radius `sqrt(width * depth)` at an arc length along the line, mm.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The section's mean radius `sqrt(width * depth)` at an arc length along the line, mm.
      */
     radius: (s: number) => number;
 

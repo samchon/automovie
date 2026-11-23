@@ -47,8 +47,6 @@ export namespace IAutoMovieHumanTrunkTape {
     }[];
     /**
      * Coupled original-parent cuts for this actual shoulder trial; failures remain explicit and the final caller retains that source pair.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Coupled original-parent cuts for this actual shoulder trial; failures remain explicit and the final caller retains that source pair.
      */
     parentsAt?(shoulder: number): NonNullable<IInput["parents"]>;
 

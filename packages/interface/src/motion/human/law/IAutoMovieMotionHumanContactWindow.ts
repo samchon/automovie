@@ -76,8 +76,6 @@ egion, as a head resting on a partner's shoulder (#4012). */
    *
    * @param share The share of the window, in [0, 1].
    * @returns The object's displacement in the hand's frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanContactWindow.inHand: A grip's in-hand motion of the held object (#3447): a rigid displacement in the hand's frame at a share of this window from 0 to 1, metres, the identity at 0. The performance composes it before the offset it stored at closure (position R_d p + t_d, rotation R_d R), so a pen turned into a writing grip or a coin rolled across the fingers moves in the hand while the hand holds it. It must be a pure function of the share. Absent, the object keeps the offset it had at closure.
    */
   inHand?(share: number): {
     /** Prop displacement in the holding hand's frame, metres; zero at share 0. */

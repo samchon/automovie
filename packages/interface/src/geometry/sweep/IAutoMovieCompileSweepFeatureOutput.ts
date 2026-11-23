@@ -18,8 +18,6 @@ export interface IAutoMovieCompileSweepFeatureOutput {
    * @param length Spine polygon length in metres, scaling longitudinal differences
    * @param guided Synchronous pre-feature unscaled radius evaluator taking u and radians and returning metres; called for absolute-radius features, never retained, and exceptions propagate
    * @returns Offset feature value, or absolute feature radius minus guided radius at the selected course point, multiplied by the compact band falloff
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States normalized u, radian angle, metre query scales, local-search limits and the synchronous nonretained guided-radius callback with propagated errors.
    */
   displacement: (
     u: number,
@@ -31,8 +29,6 @@ export interface IAutoMovieCompileSweepFeatureOutput {
 
   /**
    * Domain point at a clamped share of the centripetal knot span; v is in unwrapped turns and a collapsed course is constant.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States clamped knot-span share, unwrapped output turns, possible u overshoot and constant collapsed courses.
    */
   point: (t: number) => {
     /** Spine coordinate on the fitted course. The query share is clamped, but the cubic course itself can overshoot its authored u values. */

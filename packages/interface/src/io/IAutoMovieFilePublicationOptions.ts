@@ -14,8 +14,6 @@ export interface IAutoMovieFilePublicationOptions {
    * No listener or background task is registered, and a blocked event loop cannot
    * change caller state until control returns. Publication checks only before work.
    * The publication caller implements the synchronous query; the publication owner invokes it only before serialization/file work and owns the cancellation outcome.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States pre-work checkpoint, absent/true/false meanings, nonboolean or thrown failure and caller-owned captured state.
    */
   cancelled?: () => boolean;
 }

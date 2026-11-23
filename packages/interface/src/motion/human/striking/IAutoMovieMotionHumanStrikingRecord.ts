@@ -47,8 +47,6 @@ export namespace IAutoMovieMotionHumanStrikingRecord {
      *
      * @param seconds Film seconds.
      * @returns The contact second, or undefined.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the timebase and the meaning of undefined.
      */
     stop(seconds: number): number | undefined;
   }
@@ -67,8 +65,6 @@ export namespace IAutoMovieMotionHumanStrikingRecord {
      * What the strike decided, read from its current geometry.
      *
      * @returns The record.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanStrikingRecord.IPlan.record: What the strike decided, read from its current geometry.
      */
     record(): IAutoMovieMotionHumanStrikingRecord.IRecord;
   }

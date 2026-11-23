@@ -59,8 +59,6 @@ export namespace IAutoMovieDraftDrawingLines {
     /**
      * Synchronous inclusion predicate, called for each element and for boundary spaces until one passes. Null space denotes an unassigned element. Must keep inputs stable; exceptions propagate and the callback is not retained.
      * The caller implements kind/space selection; draftAutoMovieDrawingLines invokes it synchronously for elements and candidate boundary spaces without retaining it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States null-space meaning, stable-input duty, short-circuit calls and propagated exceptions.
      */
     drawn: (kind: string, space: string | null) => boolean;
   };

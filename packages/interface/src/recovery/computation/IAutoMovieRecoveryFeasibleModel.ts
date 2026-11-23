@@ -18,12 +18,10 @@ export interface IAutoMovieRecoveryFeasibleModel {
   width: number;
 
   /** Convert a metric step to increments in the same physical tangent chart.
-   * @evidence contracts/development/common.md#meaningful-documentation Input is a borrowed metric-coordinate step; output is an owned physical-coordinate vector of width entries.
    */
   fromMetric: (step: readonly number[]) => number[];
 
   /** Push a metric covector into the original physical tangent units.
-   * @evidence contracts/development/common.md#meaningful-documentation Borrows a metric covector and returns an owned width-vector; undefined disables optional SQP support.
    */
   toPhysicalCovector?: (value: readonly number[]) => number[];
 }

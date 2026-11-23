@@ -22,8 +22,6 @@ export interface IAutoMovieMotionClock {
    * @param name The instant.
    * @returns Seconds since the action's start.
    * @throws {Error} On an unknown name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the argument, the unit, the origin of the seconds and the refusal of an unknown name.
    */
   at(name: string): number;
 
@@ -34,8 +32,6 @@ export interface IAutoMovieMotionClock {
    * @param to The closing instant.
    * @param seconds Seconds since the action's start.
    * @returns 0 until `from`, 1 from `to`, linear between; a window of no length steps at `to`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two instants, the argument, the value before, inside and after the window and the step of a window with no length.
    */
   linear(from: string, to: string, seconds: number): number;
 
@@ -47,8 +43,6 @@ export interface IAutoMovieMotionClock {
    * @param to The closing instant.
    * @param seconds Seconds since the action's start.
    * @returns 0 until `from`, 1 from `to`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two instants, the argument, the value outside the window and the profile (Flash and Hogan 1985).
    */
   progress(from: string, to: string, seconds: number): number;
 
@@ -60,8 +54,6 @@ export interface IAutoMovieMotionClock {
    * @param fall The window it falls over.
    * @param seconds Seconds since the action's start.
    * @returns A value in [0, 1].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two windows, the argument and the range of the result.
    */
   envelope(
     rise: readonly [string, string],
@@ -73,8 +65,6 @@ export interface IAutoMovieMotionClock {
    * The instants as plan events.
    *
    * @returns One event per named instant, as a share of the duration.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that every named instant is returned once and as a share of the duration.
    */
   events(): IAutoMovieMotionEvent[];
 }

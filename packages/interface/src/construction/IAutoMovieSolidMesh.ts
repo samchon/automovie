@@ -24,8 +24,6 @@ export namespace IAutoMovieSolidMesh {
 
     /**
      * Read a point in the owner's native chart, returning world millimetres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Distinguishes owner chart parameters from world-mm result.
      */
     point(a: number, b: number): AutoMovieVector3Tuple;
   }
@@ -122,8 +120,6 @@ export namespace IAutoMovieSolidMesh {
 
     /**
      * Receive a named planning refusal or partial endpoint diagnostic.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States named versus thrown failure, partial output and callback-free default semantics.
      */
     onFailure?: (detail: string) => void;
   }

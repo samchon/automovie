@@ -38,8 +38,6 @@ export namespace IAutoMovieHumanDigitWalk {
 
     /**
      * The laws at a site: `base`, `joint <k>` (k from 1, the first joint after the base), `shaft <k>` (the middle of bone k from 0), `end`.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The laws at a site: `base`, `joint <k>` (k from 1, the first joint after the base), `shaft <k>` (the middle of bone k from 0), `end`.
      */
     law(site: string): ISiteLaw;
 

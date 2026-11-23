@@ -36,8 +36,6 @@ export namespace IAutoMoviePinStanceTargets {
 
     /**
      * Ground height at a plan position.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePinStanceTargets.IProps.groundAt: Ground height at a plan position.
      */
     groundAt: (x: number, z: number) => number;
 

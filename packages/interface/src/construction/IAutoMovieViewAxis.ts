@@ -26,15 +26,11 @@ export namespace IAutoMovieViewAxis {
      *
      * @param station Station along the part, mm.
      * @returns Origin on the axis and orthonormal chart axes, world mm.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States source-plane output and kernel station units.
      */
     at(station: number): IAutoMovieLoftSectionFrame;
 
     /**
      * Analytic value and two derivatives in station or the explicitly selected coordinate, whose endpoints use kernel mm; null at a singular/nonfinite query, absent on numerical frame-value owners.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States absence, singularity and derivative-coordinate meaning.
      */
     jet?(
       station: number,

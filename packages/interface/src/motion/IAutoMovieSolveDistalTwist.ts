@@ -89,22 +89,16 @@ export namespace IAutoMovieSolveDistalTwist {
   export interface IPrepared {
     /**
      * Effector abduction axis rotated by the actual fixed frame.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSolveDistalTwist.IPrepared.abduction: Effector abduction axis rotated by the actual fixed frame.
      */
     abduction(): IAutoMovieVector3;
 
     /**
      * Effector flexion axis, needed only for the proximal Euler convention.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSolveDistalTwist.IPrepared.flexion: Effector flexion axis, needed only for the proximal Euler convention.
      */
     flexion(): IAutoMovieVector3;
 
     /**
      * Handed clinical-zero twist, admitting that frame only when first read.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSolveDistalTwist.IPrepared.zero: Handed clinical-zero twist, admitting that frame only when first read.
      */
     zero(): IZero;
   }

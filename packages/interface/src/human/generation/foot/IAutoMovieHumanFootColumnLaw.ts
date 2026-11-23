@@ -18,15 +18,11 @@ export namespace IAutoMovieHumanFootColumnLaw {
   export interface IPlan {
     /**
      * Along-foot position in foot lengths at height measured in lateral-malleolus heights, as consumed by the column and Achilles guides.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Along-foot position in foot lengths at height measured in lateral-malleolus heights, as consumed by the column and Achilles guides.
      */
     along: (height: number) => number;
 
     /**
      * Across-foot position in foot breadths at height measured in lateral-malleolus heights, as consumed by the column and Achilles guides.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Across-foot position in foot breadths at height measured in lateral-malleolus heights, as consumed by the column and Achilles guides.
      */
     across: (height: number) => number;
   }

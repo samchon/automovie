@@ -24,7 +24,6 @@ export interface IAutoMovieRecoveryMapJointPreparation {
   gradient: number | null;
 
   /** Eliminate the admitted blocks with zero or the caller's valid damping.
-   * @evidence contracts/development/common.md#meaningful-documentation The amount must be finite nonnegative and caller admitted; current consumers pass zero or their already admitted coefficient. Returned rows/right/triangles are owned; numerical failures propagate.
    */
   eliminate: (amount: number) => IAutoMovieRecoveryMapElimination;
 }

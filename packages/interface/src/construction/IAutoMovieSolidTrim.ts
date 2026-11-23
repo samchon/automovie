@@ -33,8 +33,6 @@ export namespace IAutoMovieSolidTrim {
      *
      * @param t Loop parameter, radians, any real value.
      * @returns `[u, v, du/dt, dv/dt]`.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Gives radian periodic query and the returned chart/derivative order.
      */
     at(t: number): [number, number, number, number];
 
@@ -43,8 +41,6 @@ export namespace IAutoMovieSolidTrim {
      *
      * @param u First chart parameter.
      * @param v Second chart parameter, on any branch of a periodic phase.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States chart input and periodic branch handling; the trim comment names the sampled approximation.
      */
     inside(u: number, v: number): boolean;
 
@@ -54,8 +50,6 @@ export namespace IAutoMovieSolidTrim {
      *
      * @param t Loop parameter.
      * @param a Scale of the cross parameter, world mm per unit.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Gives inward direction, metric meaning and mm cross-parameter scale, including the unresolved fallback limitation.
      */
     ribbon(t: number, a: number): IAutoMovieBlendCrossJet;
   }

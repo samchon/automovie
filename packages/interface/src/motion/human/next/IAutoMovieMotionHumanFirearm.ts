@@ -25,8 +25,6 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
    * @param params The `target` and `track` of `IAutoMovieMotionHumanWeaponTrack.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   weaponTrack(
     params: IAutoMovieMotionHumanWeaponTrack.IParams,
@@ -39,8 +37,6 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
    * @param params The members of `IAutoMovieMotionHumanWeaponPresent.IPresent`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   presentFirearm(
     params: IAutoMovieMotionHumanWeaponPresent.IPresent,
@@ -53,8 +49,6 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
    * @param params The members of `IAutoMovieMotionHumanWeaponPresent.IWield`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   fireFirearm(
     params: IAutoMovieMotionHumanWeaponPresent.IWield,
@@ -67,8 +61,6 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
    * @param params The members of `IAutoMovieMotionHumanPickUp.IParams` except the handle, the lift and the use, which the law fixes.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   drawFirearm(
     params: IAutoMovieMotionHumanFirearm.IDrawFirearm,
@@ -81,8 +73,6 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
    * @param params The members of `IAutoMovieMotionHumanPutDown.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   holsterFirearm(
     params: IAutoMovieMotionHumanPutDown.IParams,

@@ -31,8 +31,6 @@ export namespace IAutoMovieHumanBreastFootprint {
      * @param u Along the lateral axis, mm.
      * @param v Along the up axis, mm.
      * @returns The radius, 1 at the rim.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The normalised radius of a point of the breast's plane.
      */
     rho: (u: number, v: number) => number;
   }

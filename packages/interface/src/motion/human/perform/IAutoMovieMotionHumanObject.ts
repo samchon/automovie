@@ -42,15 +42,11 @@ export namespace IAutoMovieMotionHumanObject {
 
     /**
      * Endpoints of a declared span at this model's current articulation state.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the span identity and the current model pose used by the reader.
      */
     span?(id: string): ISpanEnds;
 
     /**
      * Its colliders in its own space, for a hand to close on.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanObject.IModel.shapes: Its colliders in its own space, for a hand to close on.
      */
     shapes?(): IAutoMoviePhysicalShape[];
 
@@ -60,8 +56,6 @@ export namespace IAutoMovieMotionHumanObject {
      *
      * @param state Travel by articulation id.
      * @returns The posed object.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanObject.IModel.articulate: The object with its articulations at stated travels, for an object whose parts move (an archetype's `articulate`). Providers may expose this method on rigid models with `hasArticulations: false`.
      */
     articulate?(
       state: Readonly<Record<string, number>>,

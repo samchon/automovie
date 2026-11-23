@@ -27,8 +27,6 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @param params The `direction`, `tone`, `side`, `from`, `sag` and `seconds` of `IAutoMovieMotionHumanCollapse.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   collapse(
     params: IAutoMovieMotionHumanCollapse.IParams,
@@ -41,8 +39,6 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @param params The `from`, `speed` and `manner` of `IAutoMovieMotionHumanStagger.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   stagger(params: IAutoMovieMotionHumanStagger.IParams, anchor?: string): Chain;
 
@@ -52,8 +48,6 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @param params The `from` and `seconds` of `IAutoMovieMotionHumanKnockdown.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   knockdown(
     params: IAutoMovieMotionHumanKnockdown.IParams,
@@ -66,8 +60,6 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @param params The `rig`, `from`, `distance`, `height`, `seconds` and `wall` of `IAutoMovieMotionHumanThrown.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   thrown(params: IAutoMovieMotionHumanThrown.IParams, anchor?: string): Chain;
 
@@ -77,8 +69,6 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @param params The `outcome`, `by`, `fulcrum` and `on` of `IAutoMovieMotionHumanPerturb.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   perturb(params: IAutoMovieMotionHumanPerturb.IParams, anchor?: string): Chain;
 
@@ -88,8 +78,6 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @param params The `to`, `via`, `seconds`, `shape` and `touches` of `IAutoMovieMotionHumanWireFlight.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   wireFlight(
     params: IAutoMovieMotionHumanWireFlight.IParams,
@@ -102,8 +90,6 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @param params The `vehicle`, `edge`, `horizon` and `hold` of `IAutoMovieMotionHumanVehicleHit.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   vehicleHit(
     params: IAutoMovieMotionHumanVehicleHit.IParams,
@@ -116,8 +102,6 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @param params The `drop`, `stop` and `deceleration` of `IAutoMovieMotionHumanWireFlight.IArrest`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   wireArrest(
     params: IAutoMovieMotionHumanWireFlight.IArrest,
@@ -130,8 +114,6 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @param params The `kind` and its members of `IAutoMovieMotionHumanStuntFall.IParams`: `stairs` and `slide` for a staircase, `exit`, `pad`, `top` and `descender` for a high fall.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   stuntFall(
     params: IAutoMovieMotionHumanStuntFall.IParams,
@@ -144,8 +126,6 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @param params The `kind`, `foot`, `outcome` and `rail` of `IAutoMovieMotionHumanEnvironmentRecovery.IParams`, with `obstacle` for a trip and `coefficient` and `support` for a slip.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   environmentalRecovery(
     params: IAutoMovieMotionHumanFall.IEnvironmentRecovery,
@@ -158,8 +138,6 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @param params The `vehicle`, `side` and `horizon` of `IAutoMovieMotionHumanVehicleHit.IDive`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   vehicleDive(
     params: IAutoMovieMotionHumanVehicleHit.IDive,

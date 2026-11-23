@@ -58,8 +58,6 @@ export interface IAutoMoviePhysicalSimulation {
    * the latest completed output step. Returns new diagnostics and saturation
    * arrays. Invalid time or incomplete cache throws in cache.at. Recovery
    * targets may intentionally differ from the original authored goal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Read each joint's shortest authored-relative angular error in radians at finite film seconds in [0,input.duration]. Saturation entries come from the latest completed output step. Returns new diagnostics and saturation arrays. Invalid time or incomplete cache throws in cache.at. Recovery targets may intentionally differ from the original authored goal.
    */
   trackingAt(seconds: number): IAutoMoviePhysicalSimulationInput.IDiagnostic[];
 }

@@ -38,14 +38,10 @@ export namespace IAutoMovieLoftViewFullSource {
     readonly domain: readonly [number, number];
     /**
      * Fresh full world Point0, mm; no axis.jet is requested.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Gives mm/radian coordinates, independent capability and fresh output ownership.
      */
     point(s: number, t: number): AutoMovieVector3Tuple;
     /**
      * Actual world total2: p mm, u per mm, v per radian and corresponding second orders.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States station-mm/phase-radian derivative units, error behavior and output ownership.
      */
     jet(s: number, t: number): IAutoMovieSolidSurface.IJet;
   }

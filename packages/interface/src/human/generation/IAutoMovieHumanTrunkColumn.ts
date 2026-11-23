@@ -21,8 +21,6 @@ export namespace IAutoMovieHumanTrunkColumn {
   export interface IColumn {
     /**
      * The section's measures at a height.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The section's measures at a height.
      */
     at: (y: number) => IAutoMovieHumanTrunkSection;
 

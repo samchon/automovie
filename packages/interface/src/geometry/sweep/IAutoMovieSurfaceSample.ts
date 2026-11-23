@@ -20,8 +20,6 @@ export interface IAutoMovieSurfaceSample {
    * Make the writer of a point that is not a sweep point, registering the slots it reads; called once, when the point first becomes a vertex.
    *
    * @returns A writer taking a borrowed Float64Array and scalar offset, writing three model-space metre coordinates after bones, sweeps and curves update; the writer retains bound rig state and propagates its failures
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines factory timing, current-pose ordering, borrowed output, scalar offset and propagated writer failures.
    */
   writer(): (out: Float64Array, at: number) => void;
 

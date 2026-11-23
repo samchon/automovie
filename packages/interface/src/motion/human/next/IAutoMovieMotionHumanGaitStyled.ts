@@ -19,8 +19,6 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @param params The walk's parameters but the pace, stride and arm swing, and the drill regulation and its time.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the march appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the cadence and step source, how the step count is chosen, what overrides the cadence, its parameters, its anchor and its return.
    */
   march(params: IAutoMovieMotionHumanGait.IMarch, anchor?: string): Chain;
 
@@ -32,8 +30,6 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the double time appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the step, cadence and source, the gait it is run in, the step count, its parameters, its anchor and its return.
    */
   doubleTime(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 
@@ -45,8 +41,6 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the sneak appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the sneak's speed, step, pelvis and arms with their provisional constant, its parameters, its anchor and its return.
    */
   sneak(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 
@@ -57,8 +51,6 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the prowl appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States how the prowl differs from the sneak with its provisional constant, its parameters, its anchor and its return.
    */
   prowl(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 
@@ -69,8 +61,6 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the tiptoe appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States how the tiptoe differs from the sneak with its provisional constant, its parameters, its anchor and its return.
    */
   tiptoe(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 
@@ -82,8 +72,6 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the sad walk appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States where the sad walk's speed, step and swing come from and its trunk lean with source and status, its parameters, its anchor and its return.
    */
   sad(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 
@@ -95,8 +83,6 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the proud walk appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States where the proud walk's speed, step and swing come from and its trunk, its parameters, its anchor and its return.
    */
   proud(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 
@@ -107,8 +93,6 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @param params The walk's parameters but the pace, stride and arm swing, and the spared side.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the limp appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the limp's asymmetry with its provisional constant, its parameters, its anchor and its return.
    */
   limp(params: IAutoMovieMotionHumanGait.ILimp, anchor?: string): Chain;
 
@@ -119,8 +103,6 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @param params The walk's parameters but the pace, stride and arm swing, and the spared side.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the stiff-knee limp appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States how the stiff-knee limp differs from the limp, its parameters, its anchor and its return.
    */
   stiffLimp(params: IAutoMovieMotionHumanGait.ILimp, anchor?: string): Chain;
 
@@ -134,8 +116,6 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the drunk walk appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the drunk walk's unevenness and wander with their provisional constant, when the wander is not laid, its parameters, its anchor and its return.
    */
   drunk(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 
@@ -145,8 +125,6 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the race walk appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule the walk follows, its speed and the factors that give its signature, how it ends, its parameters, its anchor and its return.
    */
   raceWalk(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 }

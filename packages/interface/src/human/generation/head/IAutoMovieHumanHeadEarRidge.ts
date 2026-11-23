@@ -76,8 +76,6 @@ export namespace IAutoMovieHumanHeadEarRidge {
     originJet: [[number, number, number], [number, number, number]];
     /**
      * Whole native phase function and its available first/second phase derivatives.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Whole native phase function and its available first/second phase derivatives.
      */
     phase: (phi: number) => IAutoMovieLoftSectionPhase;
   }

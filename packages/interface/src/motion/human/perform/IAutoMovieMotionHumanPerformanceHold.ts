@@ -23,8 +23,6 @@ export namespace IAutoMovieMotionHumanPerformanceHold {
     subject: string;
     /**
      * Synchronous accessor for that performer's currently resolved bones, at least those `requested` (every bone when absent); the returned map is borrowed and must remain stable for the current query. Failures propagate to hold resolution.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformanceHold.IPropOwn.bones: Synchronous accessor for that performer's currently resolved bones, at least those `requested` (every bone when absent); the returned map is borrowed and must remain stable for the current query. Failures propagate to hold resolution.
      */
     bones: (
       requested?: ReadonlySet<AutoMovieHumanoidBone>,

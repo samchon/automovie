@@ -23,8 +23,6 @@ export interface IAutoMovieMotionHumanGaitAided<Chain> {
    * @param params The aid's kind and prop, the hand for a cane or crutch, and the floor stations.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the aided walk appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the support order of each aid, where the walk ends, what sets the speed with its source, its parameters, its anchor and its return.
    */
   aidWalk(params: IAutoMovieMotionHumanAidWalk, anchor?: string): Chain;
 
@@ -37,8 +35,6 @@ export interface IAutoMovieMotionHumanGaitAided<Chain> {
    * @param params The destination, waypoints, arrival heading, severity and manner.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the frail walk appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the severity grades and between which ends, where the walk ends, its parameters, its anchor and its return.
    */
   frailWalk(params: IAutoMovieMotionHumanFrailWalk, anchor?: string): Chain;
 
@@ -52,8 +48,6 @@ export interface IAutoMovieMotionHumanGaitAided<Chain> {
    * @param params The two crutch props, the floor stations, the crutch gait and the injured leg.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the crutch walk appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each station's order, the three gaits with their source, where the walk ends, its parameters, its anchor and its return.
    */
   crutchWalk(params: IAutoMovieMotionHumanCrutchWalk, anchor?: string): Chain;
 
@@ -67,8 +61,6 @@ export interface IAutoMovieMotionHumanGaitAided<Chain> {
    * @param params The cane prop, the cane hand, the technique and the sweep's seconds.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the sweep appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that the sweep rides a walk, the hand and tip paths of each technique, its refusal, its parameters, its anchor and its return.
    */
   caneSweep(params: IAutoMovieMotionHumanCaneSweep, anchor?: string): Chain;
 }

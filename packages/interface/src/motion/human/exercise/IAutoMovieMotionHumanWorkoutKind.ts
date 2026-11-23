@@ -34,8 +34,6 @@ export interface IAutoMovieMotionHumanWorkoutKind {
    *
    * @param body The body.
    * @returns Metres above the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the unit and the default.
    */
   raise?(body: IAutoMovieMotionHumanBody): number;
 
@@ -67,8 +65,6 @@ export interface IAutoMovieMotionHumanWorkoutKind {
    * @param body The body.
    * @param support The height above the floor of the prop's place the body bears on, metres, when the author names one (`on`); a kind done on equipment solves its angles from it, and others ignore it.
    * @returns The steps, at least one.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and what the first step is.
    */
   route(
     body: IAutoMovieMotionHumanBody,
@@ -82,8 +78,6 @@ export interface IAutoMovieMotionHumanWorkoutKind {
    *
    * @param body The body.
    * @returns Metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the unit and the default.
    */
   rise?(body: IAutoMovieMotionHumanBody): number;
 
@@ -97,8 +91,6 @@ export interface IAutoMovieMotionHumanWorkoutKind {
    *
    * @param body The body.
    * @returns Metres above the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the unit, where the bars stand and what a kind without it does.
    */
   bars?(body: IAutoMovieMotionHumanBody): number;
 }

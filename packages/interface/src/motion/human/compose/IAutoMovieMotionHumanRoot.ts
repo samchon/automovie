@@ -52,8 +52,6 @@ export namespace IAutoMovieMotionHumanRoot {
      *
      * @param seconds Seconds since the action's start.
      * @returns The displacement.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin and that the result is a displacement in the posture's own floor frame.
      */
     offset(seconds: number): IAutoMovieMotionHumanRoot.IOffset;
   }

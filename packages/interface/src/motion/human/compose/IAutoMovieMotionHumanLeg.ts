@@ -67,8 +67,6 @@ export namespace IAutoMovieMotionHumanLeg {
      *
      * @param seconds Seconds since the action's start.
      * @returns `true` while it is planted.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin and what the boolean means.
      */
     planted(seconds: number): boolean;
   }

@@ -46,8 +46,6 @@ export namespace IAutoMovieHumanMassSource {
     transfer?: "original-root" | "inner-prefix";
     /**
      * Same whole-parent reader that determined the root, with its explicit absence.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Same whole-parent reader that determined the root, with its explicit absence.
      */
     contact(phi: number): IContact | string;
   }

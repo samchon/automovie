@@ -61,8 +61,6 @@ export namespace IAutoMovieHumanLimbRootStrip {
      * Points at a share of the run, one per phase: 0 the ring, 1 the limb's
      * own section. A share outside `[0, 1]` reads the columns' polynomials
      * past their ends, as the chains' station differences do.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Points at a share of the run, one per phase: 0 the ring, 1 the limb's own section. A share outside `[0, 1]` reads the columns' polynomials past their ends, as the chains' station differences do.
      */
     ring(w: number): AutoMovieVector3Tuple[];
   }

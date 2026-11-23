@@ -13,8 +13,6 @@
 export interface IAutoMovieSurfaceCurveRig {
   /**
    * Re-evaluate the curve for the current pose.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when to call it.
    */
   update(): void;
 
@@ -24,8 +22,6 @@ export interface IAutoMovieSurfaceCurveRig {
    * @param t Share, 0 to 1
    * @param out Receives three numbers
    * @param at Offset into `out`
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the parameter.
    */
   point(t: number, out: Float64Array, at: number): void;
 
@@ -36,8 +32,6 @@ export interface IAutoMovieSurfaceCurveRig {
    * @param out Receives three numbers
    * @param at Offset into `out`
    * @throws Error when the curve declares no normal
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the blend.
    */
   normal(t: number, out: Float64Array, at: number): void;
 
@@ -47,8 +41,6 @@ export interface IAutoMovieSurfaceCurveRig {
    * @param out Receives three numbers
    * @param at Offset into `out`
    * @throws Error when the curve declares no direction
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the refusal.
    */
   direction(out: Float64Array, at: number): void;
 }

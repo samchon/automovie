@@ -53,8 +53,6 @@ export namespace IAutoMovieMotionHumanPlaced {
      *
      * @param seconds Seconds since the action's start.
      * @returns The weight in [0, 1]: 0 leaves the arm at `rest`, 1 lays the hand on the place.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument's origin, the range and what both ends of the range mean.
      */
     weight(seconds: number): number;
 
@@ -70,8 +68,6 @@ export namespace IAutoMovieMotionHumanPlaced {
      * @param posture The posture written so far in this frame.
      * @param seconds Seconds since the action's start.
      * @returns The point in world metres, the unit direction the surface faces (its normal, pointing away from the surface) and, when the hand's fingers must point a given way, that unit direction.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States current posture/relative seconds, world-metre point, outward unit facing and optional forward; optional FK/ROM loans belong only to this same-person invocation and must not be stored.
      */
     place(
       posture: IAutoMovieMotionHumanPosture,

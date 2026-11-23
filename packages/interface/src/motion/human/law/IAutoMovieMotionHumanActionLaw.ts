@@ -45,8 +45,6 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
    *
    * @param given The parameters the composition gave.
    * @returns The parameters planned from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.resolve: The parameters the plan reads, from those the composition gave: a row adds its fixed ones. The performance records and passes on the result, so whatever reads a placed action's parameters reads the whole set.
    */
   resolve?(given: object): object;
 
@@ -116,8 +114,6 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
    *
    * @param context Body, parameters, skill, entry state and targets.
    * @returns The plan, whose postures are pure functions of seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.plan: Plan one instance of the action.
    */
   plan(
     context: IAutoMovieMotionHumanActionContext<P>,
@@ -137,8 +133,6 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
    *
    * @param ahead What is known of this action before it is planned, and the grip weighed.
    * @returns The poses the action demands of the grip.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.demands: The poses this action will hold a prop in, asked before it is planned of the grips an earlier action is still choosing among (`pickUp`): the action's goal postures, computed from its own parameters by the functions its plan reads, so a grip the earlier action takes for them is one this action holds (goal postures planned first, Rosenbaum, Meulenbroek, Vaughan and Jansen 2001; a task's goal pose as a grasp's constraint). Nothing is planned: the action reads only what is known before it is, with the grip weighed (`IAutoMovieMotionHumanActionLaw.IAhead`). Empty when the action asks nothing of the grip, or would refuse whatever the grip; absent when it never asks.
    */
   demands?(
     ahead: IAutoMovieMotionHumanActionLaw.IAhead<P>,
@@ -154,8 +148,6 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
    *
    * @param params The action's resolved parameters.
    * @returns The plant, or undefined.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.plants: The held prop this action plants on the floor ahead as it is entered, read from its own parameters before it is planned, so the action cut into it carries the prop down to the plant over its last strides.
    */
   plants?(params: P): IAutoMovieMotionHumanActionLaw.IPlant | undefined;
 }
@@ -186,8 +178,6 @@ export namespace IAutoMovieMotionHumanActionLaw {
      *
      * @param points The working point's and the edge's affordance ids.
      * @returns The tool.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.IGrip.tool: The prop as a tool in that grip, read as `StrikingHeld.of` reads a held one: its working point and edge by affordance id.
      */
     tool(
       points: IAutoMovieMotionHumanStrikingHeld.IPoints,

@@ -24,15 +24,11 @@ export namespace IAutoMovieHumanArmHandControls {
 
     /**
      * Attach the original shared parameter, control values and jets to the arm input.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Attach the original shared parameter, control values and jets to the arm input.
      */
     connect(input: IAutoMovieHumanSectionSource): IAutoMovieHumanSectionSource;
 
     /**
      * Explicit arm scalar demand reuses identical local tape constraints.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit arm scalar demand reuses identical local tape constraints.
      */
     prepare(
       input: IAutoMovieHumanSectionSource,

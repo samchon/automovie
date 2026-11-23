@@ -116,15 +116,11 @@ export namespace IAutoMovieIntegrateAirborneRotation {
      * The root's world orientation at a second on the integration clock, held
      * at the ends outside the flight. Reads the retained trajectory without
      * calling the shape history; the caller must not mutate returned state.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateAirborneRotation.IFlight.orientation: The root's world orientation at a second on the integration clock, held at the ends outside the flight. Reads the retained trajectory without calling the shape history; the caller must not mutate returned state.
      */
     orientation: (seconds: number) => IAutoMovieQuaternion;
 
     /**
      * Body-frame rotation tangents with respect to the requested momentum directions, in their input order; an empty array when none were requested.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateAirborneRotation.IFlight.variations: Body-frame rotation tangents with respect to the requested momentum directions, in their input order; an empty array when none were requested.
      */
     variations: (seconds: number) => readonly IAutoMovieVector3[];
   }

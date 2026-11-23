@@ -34,8 +34,6 @@ export interface IAutoMovieSubjectGroup<
    * Called on every `render`, so this order is the merge order and therefore
    * fixes the bytes of the shot program; returning another order on a later
    * call changes the output.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that the order is the merge order and fixes the output bytes, and that the method runs on every render.
    */
   members(): readonly TMember[];
 
@@ -45,8 +43,6 @@ export interface IAutoMovieSubjectGroup<
    * Each call renders every member again with the same context and merges the
    * results. Nothing is cached, so a nested group re-renders its whole subtree
    * on every call.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the stable member order, the absence of caching, and that a nested group re-renders its whole subtree on every call.
    */
   render(context: IAutoMovieShotBuildContext): IAutoMovieSubjectContribution;
 }

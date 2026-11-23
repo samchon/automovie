@@ -20,8 +20,6 @@ export namespace IAutoMovieMeasureSchedule {
   export interface IClassify {
     /**
      * Whether an entry counts as an action.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMeasureSchedule.IClassify.action: Whether an entry counts as an action.
      */
     action(entry: IAutoMovieScheduleEntry): boolean;
 
@@ -30,8 +28,6 @@ export namespace IAutoMovieMeasureSchedule {
 
     /**
      * Signed displacements in the production's own lateral/linear convention; the measurement sums their absolute values. Omission contributes zero.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMeasureSchedule.IClassify.displacement: Signed displacements in the production's own lateral/linear convention; the measurement sums their absolute values. Omission contributes zero.
      */
     displacement?(entry: IAutoMovieScheduleEntry): {
       /** Lateral displacement in metres under the classifier's chosen frame. */
@@ -42,15 +38,11 @@ export namespace IAutoMovieMeasureSchedule {
 
     /**
      * True excludes the entry from busy time; absent treats every entry as busy.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMeasureSchedule.IClassify.idle: True excludes the entry from busy time; absent treats every entry as busy.
      */
     idle?(entry: IAutoMovieScheduleEntry): boolean;
 
     /**
      * A subject's presence; the whole schedule by default.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMeasureSchedule.IClassify.presence: A subject's presence; the whole schedule by default.
      */
     presence?(subject: string): {
       /** First film second of the subject's presence; defaults to zero when the callback is absent. */
@@ -61,15 +53,11 @@ export namespace IAutoMovieMeasureSchedule {
 
     /**
      * True includes the entry's interval in camera motion; absent includes no interval. Overlapping intervals count once.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMeasureSchedule.IClassify.cameraMoves: True includes the entry's interval in camera motion; absent includes no interval. Overlapping intervals count once.
      */
     cameraMoves?(entry: IAutoMovieScheduleEntry): boolean;
 
     /**
      * True counts one cut; absent counts no cuts.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMeasureSchedule.IClassify.cut: True counts one cut; absent counts no cuts.
      */
     cut?(entry: IAutoMovieScheduleEntry): boolean;
   }

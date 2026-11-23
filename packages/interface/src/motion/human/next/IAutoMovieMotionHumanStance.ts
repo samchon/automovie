@@ -24,8 +24,6 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * @param params The `seconds`, `sway` and `on` of `IAutoMovieMotionHumanStand.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   stand(params: IAutoMovieMotionHumanStand.IParams, anchor?: string): Chain;
 
@@ -35,8 +33,6 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * @param params The `by` and `seconds` of `IAutoMovieMotionHumanShift.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   shift(params: IAutoMovieMotionHumanShift.IParams, anchor?: string): Chain;
 
@@ -46,8 +42,6 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * @param params The `balance`, `toward`, `side`, `strategy` and `hold` of `IAutoMovieMotionHumanBend.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   bend(params: IAutoMovieMotionHumanBend.IParams, anchor?: string): Chain;
 
@@ -57,8 +51,6 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * @param params The `balance`, `depth`, `heels`, `hold` and `manner` of `IAutoMovieMotionHumanCrouch.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   crouch(params: IAutoMovieMotionHumanCrouch.IParams, anchor?: string): Chain;
 
@@ -68,8 +60,6 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * @param params The `balance`, `toward`, `kind` and `seconds` of `IAutoMovieMotionHumanBrace.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   brace(params: IAutoMovieMotionHumanBrace.IParams, anchor?: string): Chain;
 
@@ -79,8 +69,6 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * @param params The `left`, `right` and `seconds` of `IAutoMovieMotionHumanRest.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   rest(params: IAutoMovieMotionHumanRest.IParams, anchor?: string): Chain;
 
@@ -90,8 +78,6 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * @param params The `side`, `depth` and `duration` of `IAutoMovieMotionHumanCurtsy`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   curtsy(params: IAutoMovieMotionHumanCurtsy, anchor?: string): Chain;
 }

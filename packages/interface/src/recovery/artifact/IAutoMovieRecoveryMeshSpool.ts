@@ -36,7 +36,6 @@ export interface IAutoMovieRecoveryMeshSpool {
   counts: IAutoMovieRecoveryMeshCounts;
 
   /** Append one admitted globally indexed engine chunk.
-   * @evidence contracts/development/common.md#meaningful-documentation The chunk uses the engine global index space and the owner binds it to its run.
    */
   append: (
     chunk: IAutoMovieLocalHermiteStream64.Chunk,
@@ -44,12 +43,10 @@ export interface IAutoMovieRecoveryMeshSpool {
   ) => void;
 
   /** Flush all channels and publish a closed journal frontier.
-   * @evidence contracts/development/common.md#meaningful-documentation The output is a new frontier path and context records caller supplied provenance.
    */
   commit: (output: string, context: object) => IAutoMovieFileReceipt;
 
   /** Publish an artifact using the same immutable fragment sources.
-   * @evidence contracts/development/common.md#meaningful-documentation The output path must be unused and the returned receipt binds exact bytes.
    */
   publish: (output: string, artifact: object) => IAutoMovieByteDigest;
 }

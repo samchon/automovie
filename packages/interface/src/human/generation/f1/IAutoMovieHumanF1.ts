@@ -104,8 +104,6 @@ export namespace IAutoMovieHumanF1 {
 
     /**
      * Transport the scoped cutter seed into this assembly's original or changed source chart.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Accepts a logical family, its original search controls and the owning host face.
      */
     nativeSeed?: (
       family: IAutoMovieHumanConicLoft.IFamily,
@@ -118,8 +116,6 @@ export namespace IAutoMovieHumanF1 {
 
     /**
      * Original family before placement, by logical name, for looking up a material station.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Reads the pre-placement family whose station coordinate is used by the caller.
      */
     reference: (name: string) => IAutoMovieHumanConicLoft.IFamily;
 
@@ -154,22 +150,16 @@ export namespace IAutoMovieHumanF1 {
      * A station of a stored family carried to the pose, mm (`AutoMovieHumanConicPose.map`): `from` when `length` is absent, else the
      * length at the pose of the stretch `length` mm long that starts at `from`. A station constant read along a posed family (where a
      * face ends, where a band lands) goes through it; at the reference pose both are the numbers given.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation A station of a stored family carried to the pose, mm (`AutoMovieHumanConicPose.map`): `from` when `length` is absent, else the length at the pose of the stretch `length` mm long that starts at `from`. A station constant read along a posed family (where a face ends, where a band lands) goes through it; at the reference pose both are the numbers given.
      */
     station: (family: string, from: number, length?: number) => number;
 
     /**
      * A datum of `AutoMovieHumanF1Placing.POINTS` at the pose, mm in the figure's frame.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation A datum of `AutoMovieHumanF1Placing.POINTS` at the pose, mm in the figure's frame.
      */
     point: (name: string) => [number, number, number];
 
     /**
      * A direction of `AutoMovieHumanF1Placing.DIRECTIONS` at the pose, in the figure's frame.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation A direction of `AutoMovieHumanF1Placing.DIRECTIONS` at the pose, in the figure's frame.
      */
     direction: (name: string) => [number, number, number];
   }

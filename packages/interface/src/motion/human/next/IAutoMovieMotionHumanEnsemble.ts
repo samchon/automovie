@@ -22,8 +22,6 @@ export interface IAutoMovieMotionHumanEnsemble<Chain> {
    * @param params The `of`, `seconds` and `shift` of `IAutoMovieMotionHumanInstance.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   instance(
     params: IAutoMovieMotionHumanInstance.IParams,
@@ -97,8 +95,6 @@ export namespace IAutoMovieMotionHumanEnsemble {
      * population layer (`HumanPopulation`) and leaves it out of the
      * performance. Declared by the author, never by a camera; `full` when
      * absent.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanEnsemble.detail: How much of each member is performed, by member: `full` performs it, `instanced` displays a template member's pose moved to its place (`HumanEnsemble.instance`), `population` hands it to the instanced population layer (`HumanPopulation`) and leaves it out of the performance. Declared by the author, never by a camera; `full` when absent.
      */
     detail?: (
       member: IAutoMovieMotionHumanEnsemble.IMemberRef,
@@ -167,8 +163,6 @@ export namespace IAutoMovieMotionHumanEnsemble {
      *
      * @param name The prop's name within the member.
      * @returns The prop's subject id.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanEnsemble.IMember.prop: A prop of its own, `${subject}.${name}`: its musket, its horse.
      */
     prop(name: string): string;
   }

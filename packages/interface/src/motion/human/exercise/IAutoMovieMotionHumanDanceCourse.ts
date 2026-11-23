@@ -31,8 +31,6 @@ export interface IAutoMovieMotionHumanDanceCourse {
    *
    * @param seconds Action seconds.
    * @returns World metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the argument's timebase and the result's frame and unit.
    */
   hips(seconds: number): IAutoMovieVector3;
 
@@ -41,8 +39,6 @@ export interface IAutoMovieMotionHumanDanceCourse {
    *
    * @param seconds Action seconds.
    * @returns Degrees about +Y.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the argument's timebase and the result's axis and unit.
    */
   yaw(seconds: number): number;
 
@@ -51,8 +47,6 @@ export interface IAutoMovieMotionHumanDanceCourse {
    *
    * @param seconds Action seconds.
    * @returns Clinical angles.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the argument's timebase and that the result is the posture's clinical joint angles.
    */
   joints(seconds: number): IAutoMovieMotionHumanPosture["joints"];
 
@@ -65,8 +59,6 @@ export interface IAutoMovieMotionHumanDanceCourse {
    *
    * @param seconds Action seconds.
    * @returns Each placed hand's target.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when a dance supplies it, the argument's timebase, the result and the default when absent.
    */
   hands?(seconds: number): IAutoMovieMotionHumanDanceCourse.IHands;
 

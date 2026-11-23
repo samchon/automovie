@@ -82,8 +82,6 @@ export namespace IAutoMovieHumanGlutealConnection {
     phases: number;
     /**
      * Exact candidate-ring contact query; a retained original root must publish its own matching contact reader.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Exact candidate-ring contact query; a retained original root must publish its own matching contact reader.
      */
     contact(phi: number): IContact | string;
   }

@@ -38,8 +38,6 @@ export interface IAutoMovieMotionHumanGait<Chain>
    * @param params The destination, way, pace, Effort scales, manner, formation slot, beat and moving support.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the walk appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the walk does, where and how it ends, what fixes its speed and step count, its parameters, its anchor and its return.
    */
   walk(params: IAutoMovieMotionHumanWalkParams, anchor?: string): Chain;
 
@@ -52,8 +50,6 @@ export interface IAutoMovieMotionHumanGait<Chain>
    * @param params The destination, way, pace, Effort scales and manner.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the run appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the run does, where it ends, what the pace fixes, its parameters, its anchor and its return.
    */
   run(params: IAutoMovieMotionHumanRun.IParams, anchor?: string): Chain;
 
@@ -66,8 +62,6 @@ export interface IAutoMovieMotionHumanGait<Chain>
    * @param params The target, gap, side, pace, movement quality, manner, people to walk round and tracking.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the approach appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the approach does, where it stops, how the target is read, its parameters, its anchor and its return.
    */
   approach(
     params: IAutoMovieMotionHumanApproach.IParams,
@@ -83,8 +77,6 @@ export interface IAutoMovieMotionHumanGait<Chain>
    * @param params The destination, the hold, the loaded side, the load's mass share, the pace and the manner.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the carry appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the carry does, how it ends, what the load changes, its parameters, its anchor and its return.
    */
   carryLoad(params: IAutoMovieMotionHumanCarry.IParams, anchor?: string): Chain;
 
@@ -97,8 +89,6 @@ export interface IAutoMovieMotionHumanGait<Chain>
    * @param params The person headed off and the run's pace.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the interception appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the interception does, where it stops, what it reads, its refusal, its parameters, its anchor and its return.
    */
   intercept(
     params: IAutoMovieMotionHumanPursuit.IIntercept,
@@ -112,8 +102,6 @@ export interface IAutoMovieMotionHumanGait<Chain>
    * @param params The person fled from, the distance and the run's pace.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the flight appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the flight does, how far it goes and where it stops, its parameters, its anchor and its return.
    */
   flee(params: IAutoMovieMotionHumanPursuit.IFlee, anchor?: string): Chain;
 
@@ -126,8 +114,6 @@ export interface IAutoMovieMotionHumanGait<Chain>
    * @param params The obstacle, its opening, the posture and the walk's pace.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the passage appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the passage does, where it ends, its refusal and entry condition, its parameters, its anchor and its return.
    */
   travelDoor(
     params: IAutoMovieMotionHumanTravelDoor.IParams,

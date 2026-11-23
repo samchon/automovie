@@ -12,8 +12,6 @@ import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPla
 export interface IAutoMovieSequenceRenderAdapters {
   /**
    * Capture one resolved sequence frame and return the written frame path.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The member identifies a resolved frame, shared manifest and reported destination. Implementations must keep these shared plan inputs stable during rendering and honor the frame's shot and blend semantics; the returned path alone does not prove capture.
    */
   captureFrame: (
     frame: IAutoMovieSequenceRenderFrame,
@@ -22,8 +20,6 @@ export interface IAutoMovieSequenceRenderAdapters {
 
   /**
    * Encode the captured frame sequence and return the encoded output path.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The member states captured-sequence encoding and returned destination; the host must keep shared manifest arguments stable and complete encoding before resolving, while this signature cannot prove actual output bytes.
    */
   encode: (args: string[], outputPath: string) => Promise<string>;
 }

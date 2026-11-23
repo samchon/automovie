@@ -30,8 +30,6 @@ export interface IAutoMovieHumanWebChild {
 
   /**
    * Its point at a depth past the crest, mm.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Its point at a depth past the crest, mm.
    */
   own: (depth: number) => AutoMovieVector3Tuple;
 
@@ -58,8 +56,6 @@ export namespace IAutoMovieHumanWebChild {
 
     /**
      * The plain column at a chart distance from the pinch, margin radii.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The plain column at a chart distance from the pinch, margin radii.
      */
     law: (y: number) => Plain;
 

@@ -17,8 +17,6 @@ export interface IAutoMovieMotionHumanSwim<Chain> {
    * @param params The `kind`, `water`, `count` and `manner` of `IAutoMovieMotionHumanSwim.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   swim(params: IAutoMovieMotionHumanSwim.IParams, anchor?: string): Chain;
 
@@ -28,8 +26,6 @@ export interface IAutoMovieMotionHumanSwim<Chain> {
    * @param params The `kind`, `water`, `support`, `prop`, `wall`, `at`, `side`, `phase`, `station`, `role`, `seconds`, `partner`, `depth`, `bases`, `footRest`, `leftGrip`, `rightGrip`, `boom` and `rudder` of `IAutoMovieMotionHumanAquatic.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   aquatic(params: IAutoMovieMotionHumanAquatic.IParams, anchor?: string): Chain;
 
@@ -39,8 +35,6 @@ export interface IAutoMovieMotionHumanSwim<Chain> {
    * @param params The `water`, `duration`, `speed` and `stroke` of `IAutoMovieMotionHumanSwimImmersed`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   swimImmersed(
     params: IAutoMovieMotionHumanSwimImmersed,

@@ -9,8 +9,6 @@
 export interface IAutoMovieRenderAdapters {
   /**
    * Render the scene at clip-local `timeSeconds` and write frame `index` into `dir` under its {@link frameName}. Returns the written path.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The member defines clip-local seconds, frame ordinal, destination directory and returned path; the host must honor those naming and timing inputs, and reporting a path alone does not prove a file was written.
    */
   captureFrame: (
     timeSeconds: number,
@@ -20,8 +18,6 @@ export interface IAutoMovieRenderAdapters {
 
   /**
    * Run ffmpeg with `args` (from {@link ffmpegArgs}); resolve with `outputPath`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The member states the planned encoder arguments and requested output path. Implementations must preserve those inputs while encoding; returning a string does not prove container or pixel correctness.
    */
   encode: (args: string[], outputPath: string) => Promise<string>;
 }

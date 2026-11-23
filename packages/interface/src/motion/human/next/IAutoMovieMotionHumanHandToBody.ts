@@ -25,8 +25,6 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
    * @param params The `task`, `side`, `count`, `seconds`, `prop`, `point`, `grasp`, `other` and `manner` of `IAutoMovieMotionHumanHandToFace.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   handToFace(
     params: IAutoMovieMotionHumanHandToFace.IParams,
@@ -39,8 +37,6 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
    * @param params The `kind`, `side`, `count` and `manner` of `IAutoMovieMotionHumanSelfAction.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   selfAction(
     params: IAutoMovieMotionHumanSelfAction.IParams,
@@ -53,8 +49,6 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
    * @param params The `degrees` and `duration` of `IAutoMovieMotionHumanHeadTilt`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   headTilt(params: IAutoMovieMotionHumanHeadTilt, anchor?: string): Chain;
 
@@ -64,8 +58,6 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
    * @param params The `hold` and `manner` of `IAutoMovieMotionHumanHandToBody.ICoverFace`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   coverFace(
     params: IAutoMovieMotionHumanHandToBody.ICoverFace,
@@ -78,8 +70,6 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
    * @param params The `hand`, `count`, `hold`, `prop`, `point`, `grasp` and `manner` of `IAutoMovieMotionHumanHandToBody.IWipeTears`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   wipeTears(
     params: IAutoMovieMotionHumanHandToBody.IWipeTears,
@@ -92,8 +82,6 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
    * @param params The `hand` and `manner` of `IAutoMovieMotionHumanHandToBody.ITuckHair`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   tuckHair(
     params: IAutoMovieMotionHumanHandToBody.ITuckHair,

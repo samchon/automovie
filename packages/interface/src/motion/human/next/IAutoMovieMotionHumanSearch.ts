@@ -18,8 +18,6 @@ export interface IAutoMovieMotionHumanSearch<Chain> {
    * @param chain The searcher's chain, standing within reach of the bag's opening.
    * @param params The `bag`, `item`, `handle`, `depth` and `hand` of `IAutoMovieMotionHumanSearch.ISearchBag`.
    * @returns The chain with the search appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order, the lift out of the bag and the hand.
    */
   searchBag(
     chain: Chain,

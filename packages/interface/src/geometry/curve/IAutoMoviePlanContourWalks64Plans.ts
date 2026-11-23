@@ -16,15 +16,11 @@ export interface IAutoMoviePlanContourWalks64Plans<
 > {
   /**
    * Prepare the ordered valid local indices before resolution. Fewer than two indices require no slit; repeated selections reuse the stored walk. Insertion callbacks run synchronously and may mutate shared ring knots; their exceptions propagate without transactional rollback.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States valid ordered selections, repeated-walk reuse, synchronous ring mutation and propagated failures without rollback.
    */
   prepare: (rings: R[], selection: number[]) => void;
 
   /**
    * Resolve a nonempty valid selection after all preparation. A singleton returns the original points array; a branch returns a fresh array borrowing point tuples and incorporating refined source knots. Missing preparations or lost source identities throw, as do callback failures. Even a failed call closes preparation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States preparation ordering, singleton aliasing versus branch array ownership, source-identity failures and closure of preparation even after failure.
    */
   resolve: (rings: R[], selection: number[]) => AutoMovieVector3Tuple[];
 }

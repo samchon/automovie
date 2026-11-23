@@ -157,14 +157,10 @@ export namespace IAutoMovieMotionAudit {
     floor: number;
 
     /** Return the displayed world frame at this film second. Supply a complete, finite frame and keep it unchanged until the next callback finishes; the audit retains the preceding frame for finite-difference speed. Exceptions reject the run.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Specifies the sample callback or sampling contract, including its clock and ownership obligations.
      */
     sample: (seconds: number) => IAutoMoviePhysicalFrame;
 
     /** Return true to exempt an inter-body bone pair from overlap checking at this film second. Body ids and bone ids identify shape owners; same-body pairs are skipped without this callback. Exceptions reject the run.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Specifies the allowed callback or sampling contract, including its clock and ownership obligations.
      */
     allowed: (
       a: string,

@@ -24,8 +24,6 @@ export namespace IAutoMoviePoseJointCodec {
      * from its clinical `[flexion, abduction, twist]` in degrees.
      *
      * The codec uses its retained rig axes and rest frames. Supply finite clinical angles; the synchronous conversion returns a fresh quaternion and leaves the tuple unchanged. Errors propagate; keep rig tables stable throughout the codec lifetime.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The codec uses its retained rig axes and rest frames. Supply finite clinical angles; the synchronous conversion returns a fresh quaternion and leaves the tuple unchanged. Errors propagate; keep rig tables stable throughout the codec lifetime.
      */
     rotation: (
       bone: AutoMovieHumanoidBone,
@@ -37,8 +35,6 @@ export namespace IAutoMoviePoseJointCodec {
      * unit articulation.
      *
      * The synchronous inverse reads the same retained rig convention and picks the equivalent angle chart best admitted by ROM; it does not clamp an impossible rotation. Supply a unit quaternion, borrowed without mutation. The returned triple is fresh and errors propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The synchronous inverse reads the same retained rig convention and picks the equivalent angle chart best admitted by ROM; it does not clamp an impossible rotation. Supply a unit quaternion, borrowed without mutation. The returned triple is fresh and errors propagate.
      */
     angles: (
       bone: AutoMovieHumanoidBone,
@@ -54,8 +50,6 @@ export namespace IAutoMoviePoseJointCodec {
      * is one without a rig, where no range is read.
      *
      * This synchronous predicate reads the codec's retained effective ROM table; it performs no pose write or angular conversion. Releasing the codec releases its table references; callers keep the rig stable while using the codec.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation This synchronous predicate reads the codec's retained effective ROM table; it performs no pose write or angular conversion. Releasing the codec releases its table references; callers keep the rig stable while using the codec.
      */
     ball: (bone: AutoMovieHumanoidBone) => boolean;
   }

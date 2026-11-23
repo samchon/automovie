@@ -104,8 +104,6 @@ export namespace IAutoMovieMotionHumanPropOutcome {
     horizon: number;
     /**
      * Synchronous sweep called for each subsequent projectile. base is seconds from the ORIGINAL launch, not scene time; returned hit.time is relative to this projectile's own zero. null means no further contact. leave excludes a passed collider; departing is only the resolved bounce's departure collider. The callback owns horizon clipping; legs checks finite nonnegative hit time and strict absolute progress. Borrowed inputs are call-stable; exceptions propagate and the callback is not retained.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPropOutcome.ILegsProps.meet: Synchronous sweep called for each subsequent projectile. base is seconds from the ORIGINAL launch, not scene time; returned hit.time is relative to this projectile's own zero. null means no further contact. leave excludes a passed collider; departing is only the resolved bounce's departure collider. The callback owns horizon clipping; legs checks finite nonnegative hit time and strict absolute progress. Borrowed inputs are call-stable; exceptions propagate and the callback is not retained.
      */
     meet: (
       projectile: IAutoMovieProjectile,
@@ -115,8 +113,6 @@ export namespace IAutoMovieMotionHumanPropOutcome {
     ) => IAutoMovieMotionHumanPropOutcome.IMeeting | null;
     /**
      * Synchronous contact-record producer for every observed continuation meeting. base is original-launch-relative seconds; combine it with meeting.hit.time for launch-relative contact time. The sweep owns end <= horizon. Inputs are borrowed for the call, exceptions propagate and the callback is not retained.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPropOutcome.ILegsProps.settle: Synchronous contact-record producer for every observed continuation meeting. base is original-launch-relative seconds; combine it with meeting.hit.time for launch-relative contact time. The sweep owns end <= horizon. Inputs are borrowed for the call, exceptions propagate and the callback is not retained.
      */
     settle: (
       meeting: IAutoMovieMotionHumanPropOutcome.IMeeting,

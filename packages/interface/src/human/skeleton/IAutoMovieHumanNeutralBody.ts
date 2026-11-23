@@ -20,8 +20,6 @@ export interface IAutoMovieHumanNeutralBody {
    *
    * @param bone The Human joint.
    * @returns The unit vector in the registered frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A bone's unit direction at the bind, from its joint toward its end. The bone must exist in byBone and have a nonzero segment; the reader does not admit arbitrary names or degenerate segments.
    */
   direction(bone: string): AutoMovieVector3Tuple;
 
@@ -31,8 +29,6 @@ export interface IAutoMovieHumanNeutralBody {
    * @param from The first joint.
    * @param to The second joint.
    * @returns `to` less `from`, calibration millimetres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The vector between two joints at the bind. Both names must exist in byBone; this internal reader does not resolve missing joints.
    */
   between(from: string, to: string): AutoMovieVector3Tuple;
 }

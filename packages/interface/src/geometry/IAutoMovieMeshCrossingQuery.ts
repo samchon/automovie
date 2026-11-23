@@ -27,8 +27,6 @@ export interface IAutoMovieMeshCrossingQuery {
    * Return true only after a strict transverse or coplanar witness is found.
    * Classification and empty/malformed input rules match the callable census;
    * allPairs changes report population, never this existential decision.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the witnessed boolean, parity with the census, early termination and why allPairs does not affect the result.
    */
   crosses(
     first: IAutoMovieMesh,
@@ -49,8 +47,6 @@ export interface IAutoMovieMeshCrossingQuery {
    * vertex count requires createAutoMovieMeshCrossingQuery. Later input/output
    * edits cannot change this or another snapshot. A refit may retain a less
    * efficient partition than a fresh build, but never uses old geometric bounds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States metre/world frame, original scalar count/addressing, rigid/affine/articulated values, degenerate membership, complete finite/hole admission, failure effects, independent ownership and the possible traversal-cost limitation.
    */
   withPositions(positions: readonly number[]): IAutoMovieMeshCrossingQuery;
 }

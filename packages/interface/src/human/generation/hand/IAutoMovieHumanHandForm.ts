@@ -22,8 +22,6 @@ export interface IAutoMovieHumanHandForm {
 
   /**
    * The heel's target skin at a station and phase, the palm's run handing over to the thumb's.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The heel's target skin at a station and phase, the palm's run handing over to the thumb's.
    */
   opening: (a: number, t: number) => AutoMovieVector3Tuple;
 

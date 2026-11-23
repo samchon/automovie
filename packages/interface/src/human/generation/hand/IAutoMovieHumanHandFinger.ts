@@ -26,15 +26,11 @@ export interface IAutoMovieHumanHandFinger {
 
   /**
    * Section at a length along the line: its shape in its own frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Section at a length along the line: its shape in its own frame.
    */
   shape: (s: number) => IAutoMovieHumanDigitSection.IShape;
 
   /**
    * Section points in the left frame at a length, one per control point in phase order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Section points in the left frame at a length, one per control point in phase order.
    */
   ring: (s: number) => AutoMovieVector3Tuple[];
 

@@ -27,8 +27,6 @@ export namespace IAutoMovieHumanWalkPart {
     runs: readonly IAutoMovieViewAxis.IRun[];
     /**
      * Actual source station of a bone/share; no second axis is constructed.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Actual source station of a bone/share; no second axis is constructed.
      */
     station: (bone: number, share: number) => number;
   }

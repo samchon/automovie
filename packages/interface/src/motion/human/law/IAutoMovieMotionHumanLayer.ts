@@ -55,8 +55,6 @@ export interface IAutoMovieMotionHumanLayer {
    * Evaluate the contribution at the scheduled window weight, where zero
    * returns the incoming posture and one applies the full layer. A dependent
    * target can follow the joint geometry the provider produces at that weight.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the incoming pose, film second, shared performer context and dimensionless window weight. The implementation returns a posture in the same frame.
    */
   blend?(posture: IAutoMovieMotionHumanPosture, seconds: number, context: IAutoMovieMotionHumanLayer.IContext, weight: number): IAutoMovieMotionHumanPosture;
 
@@ -67,8 +65,6 @@ export interface IAutoMovieMotionHumanLayer {
    * @param seconds Film seconds.
    * @param context The person and the performance's queries.
    * @returns The layered posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.apply: The posture with this layer's contribution added.
    */
   apply(
     posture: IAutoMovieMotionHumanPosture,
@@ -111,15 +107,11 @@ export namespace IAutoMovieMotionHumanLayer {
      * getter may be stored in a plan, output posture or callback. The host
      * revokes its borrowed source on return or throw; a retained getter then
      * creates an independent fresh reader rather than retaining the source.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.resolution: Exact FK metadata borrowed only during this synchronous layer apply.
      */
     resolution?: () => IAutoMoviePoseResolution;
 
     /**
      * Genuine same-body direct ROM projection, borrowed only during apply; the host revokes this getter's source on return/throw and later reads create independent cold metadata. Never retain the returned projector.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.projection: Genuine same-body direct ROM projection, borrowed only during apply.
      */
     projection?: () => (pose: IAutoMoviePose) => IAutoMoviePose;
 
@@ -129,8 +121,6 @@ export namespace IAutoMovieMotionHumanLayer {
      * @param target The target.
      * @param seconds Film seconds.
      * @returns The aim.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.aim: A target's world point and outward normal at a film second.
      */
     aim(
       target: IAutoMovieMotionTarget,
@@ -147,8 +137,6 @@ export namespace IAutoMovieMotionHumanLayer {
      * follow it: gaze ahead of a turn, breath after an effort.
      *
      * @returns The action, or undefined before the person's first.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.action: The action the person performs at the second applied, so a layer can follow it: gaze ahead of a turn, breath after an effort.
      */
     action(): IAutoMovieMotionHumanLayer.IAction | undefined;
 
@@ -157,8 +145,6 @@ export namespace IAutoMovieMotionHumanLayer {
      *
      * @param channel The quantity drawn.
      * @returns The stream.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.random: The layer's draw stream for one channel.
      */
     random(channel: string): IAutoMovieRandom;
   }

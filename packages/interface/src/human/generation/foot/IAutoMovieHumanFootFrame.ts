@@ -53,8 +53,6 @@ export namespace IAutoMovieHumanFootFrame {
 
     /**
      * World point of normalised foot coordinates `[a, u, y mm]`, left frame.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation World point of normalised foot coordinates `[a, u, y mm]`, left frame.
      */
     at: (a: number, u: number, y: number) => AutoMovieVector3Tuple;
 

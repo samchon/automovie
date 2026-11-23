@@ -18,8 +18,6 @@ export interface IAutoMovieMotionHumanGaze<Chain> {
    * @param params The `target`, `with`, `cue` and `seconds` of `IAutoMovieMotionHumanLook.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   look(params: IAutoMovieMotionHumanLook.IParams, anchor?: string): Chain;
 }
@@ -133,8 +131,6 @@ export namespace IAutoMovieMotionHumanGaze {
      *
      * @param seconds Seconds since the action's start.
      * @returns A value in [0, 1].
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, and that the result is a share in [0, 1].
      */
     weight(seconds: number): number;
   }

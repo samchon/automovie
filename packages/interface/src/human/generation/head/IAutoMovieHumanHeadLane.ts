@@ -140,8 +140,6 @@ export namespace IAutoMovieHumanHeadLane {
      * Empty requests and unknown-name admission construct no source. Exact top-level requests author only selected factories; their result lists/maps take O(selected sources) to publish. A first complete or known nested/ear request retains the existing whole-catalogue costs; the completed definition itself is subsequently reused.
      * Selected and complete requests reuse identical authored top-level objects and the paired lip contact. Selected definition containers are rebuilt; complete creation borrows the retained complete definition and source map.
      * Only this immutable invocation retains its original definitions and callbacks; no global registry is added.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Includes valid originals, actual parent/source references, attempt failures and separate existing studies; creates no regional loft.
      */
     originals(
       names?: readonly string[],

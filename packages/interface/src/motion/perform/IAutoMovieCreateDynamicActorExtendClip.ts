@@ -29,8 +29,6 @@ export namespace IAutoMovieCreateDynamicActorExtendClip {
 
     /**
      * Resolve an admitted clinical pose at local seconds; null refuses the complete bake and thrown errors propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieCreateDynamicActorExtendClip.IProps.poseAt: Resolve an admitted clinical pose at local seconds; null refuses the complete bake and thrown errors propagate.
      */
     poseAt: (time: number) => IAutoMoviePose | null;
   };

@@ -29,8 +29,6 @@ export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanCh
    * @param params The exercise, the repetitions, the depth and the tempo.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainSport.exercise: Perform a standing bodyweight exercise counted in repetitions: a squat, a lunge, high knees or a jumping jack.
    */
   exercise(
     params: IAutoMovieMotionHumanExercise.IParams,
@@ -43,8 +41,6 @@ export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanCh
    * @param params The stretch, the side, the time and the intensity.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainSport.stretch: Hold and release a standing static stretch or yoga pose.
    */
   stretch(params: IAutoMovieMotionHumanStretch.IParams, anchor?: string): this;
 
@@ -55,8 +51,6 @@ export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanCh
    * @param params The step, the tempo and the beats.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainSport.dance: Dance a solo step locked to a declared beat: a bounce, a sway or a step-touch.
    */
   dance(params: IAutoMovieMotionHumanDance.IParams, anchor?: string): this;
 
@@ -66,8 +60,6 @@ export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanCh
    * @param params The front foot and the time held.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainSport.athletics: Take the sprint start's crouch into the set position, held to the gun.
    */
   athletics(
     params?: IAutoMovieMotionHumanAthletics.IParams,
@@ -80,8 +72,6 @@ export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanCh
    * @param params The time held.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainSport.gymnastics: Kick up into a handstand from standing, hold it and step down.
    */
   gymnastics(
     params?: IAutoMovieMotionHumanGymnastics.IParams,
@@ -95,8 +85,6 @@ export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanCh
    * @param params The technique, the count and the time.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainSport.martialArt: Perform a martial-art technique: a horse stance, a choku-zuki or a tai chi push.
    */
   martialArt(
     params: IAutoMovieMotionHumanMartialArt.IParams,
@@ -110,8 +98,6 @@ export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanCh
    * @param params The skill, the side and the count.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainSport.ballSport: Perform a team ball skill with an implied ball: a dribble, a dig, a set or a throw-in.
    */
   ballSport(
     params: IAutoMovieMotionHumanBallSport.IParams,
@@ -125,8 +111,6 @@ export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanCh
    * @param params The position and the time held.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainSport.baseball: Take a baseball position: the catcher's crouch, a ground ball or the batting stance.
    */
   baseball(
     params: IAutoMovieMotionHumanBaseball.IParams,
@@ -140,8 +124,6 @@ export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanCh
    * @param params The position, the side and the time held.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainSport.racket: Take a racket or golf position without the stroke: the ready position, a split step or the golf address.
    */
   racket(params: IAutoMovieMotionHumanRacket.IParams, anchor?: string): this;
 
@@ -151,8 +133,6 @@ export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanCh
    * @param params The stroke, the water's height and the cycles.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainSport.swim: Swim on a declared water plane: tread water or swim the front crawl.
    */
   swim(params: IAutoMovieMotionHumanSwim.IParams, anchor?: string): this;
 }

@@ -79,8 +79,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
   export interface IOverlayReader {
     /**
      * Apply complete edits to the fixed source and return fresh requested frames by name.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the edits, the optional demand and the fresh map.
      */
     resolveMap(
       edits: readonly IAutoMovieJointPose[],
@@ -89,8 +87,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
 
     /**
      * Apply complete edits to the fixed source and return fresh requested frames parent-first.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the edits, the optional demand and the fresh list.
      */
     resolve(
       edits: readonly IAutoMovieJointPose[],
@@ -109,8 +105,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
   export interface IReading {
     /**
      * The requested reachable bones parent-first, all of them when no names are given, as a fresh map of fresh frames.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the optional demand and the fresh map.
      */
     map(
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
@@ -118,29 +112,21 @@ export namespace IAutoMovieSkeletonPoseResolution {
 
     /**
      * A bone's row in the reading (the rig's rooted parent-first order), or -1 for a bone the rig does not reach: the index the frame reads take.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what the row is and the unreached case.
      */
     index(bone: AutoMovieHumanoidBone): number;
 
     /**
      * The world position of the bone at a row, model metres, written into the caller's vector: the record `map` returns for it would hold the same numbers.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the row, the unit, the written target and the equivalence to the map's record.
      */
     position(index: number, into: IAutoMovieVector3): IAutoMovieVector3;
 
     /**
      * The world rotation of the bone at a row, written into the caller's quaternion.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the row, the written target and the equivalence to the map's record.
      */
     rotation(index: number, into: IAutoMovieQuaternion): IAutoMovieQuaternion;
 
     /**
      * The bone at a row as a fresh record, for a caller that keeps it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the row and the fresh record.
      */
     bone(index: number): IAutoMovieResolvedBone;
   }
@@ -156,8 +142,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
   export interface IBoneDemand {
     /**
      * The captured bones of a pose this rig already admitted (`IRig.read`), fresh, without admitting again; a reading of another rig or a copied one throws.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the reading's origin, the fresh map and the refusal.
      */
     read(
       reading: IAutoMovieSkeletonPoseResolution.IReading,
@@ -165,8 +149,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
 
     /**
      * Admit the current complete pose and return the captured bones as a fresh map.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the full admission, the optional lent operation and the fresh map.
      */
     map(
       pose: IAutoMoviePose,
@@ -175,8 +157,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
 
     /**
      * Admit the current complete pose and return the captured bones' fresh model-metre frames in capture order.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the full admission, the optional lent operation and the fresh list.
      */
     resolve(
       pose: IAutoMoviePose,
@@ -195,8 +175,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
   export interface IRig {
     /**
      * Bind fixed output names, then stage each current tuple map before root construction.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the optional fixed names and the staged reader it returns.
      */
     prepareTuples(
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
@@ -207,8 +185,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * Every coordinate of a record the rig has not admitted before is checked;
      * a record it already admitted is a value, read again as the value it was
      * admitted as, since a joint record is not edited after admission.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the joint, the optional lent operation and the fresh rotation.
      */
     joint(
       joint: IAutoMovieJointPose,
@@ -217,8 +193,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
 
     /**
      * Admit and snapshot a fixed source pose, optionally binding names, for baseline-plus-edit queries.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the source, the optional names and lent operation and the overlay it returns.
      */
     preparePose(
       source: IAutoMoviePose,
@@ -228,8 +202,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
 
     /**
      * Snapshot reachable requested names and their order once for repeated queries.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the requested names and the demand it returns.
      */
     prepareBones(
       requested: ReadonlySet<AutoMovieHumanoidBone>,
@@ -237,8 +209,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
 
     /**
      * Admit a complete pose once and return it as a reading for every consumer of that pose's bones.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the pose, the optional lent operation and the reading it returns.
      */
     read(
       pose: IAutoMoviePose,
@@ -252,8 +222,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
 
     /**
      * Admit the current pose in order and return fresh requested frames directly into a name map.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the pose, the optional lent operation and names and the fresh map.
      */
     resolveMap(
       pose: IAutoMoviePose,
@@ -263,8 +231,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
 
     /**
      * Admit the current pose in order and return fresh requested model-metre frames, all when names are absent.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the pose, the optional lent operation and names and the fresh list.
      */
     resolve(
       pose: IAutoMoviePose,

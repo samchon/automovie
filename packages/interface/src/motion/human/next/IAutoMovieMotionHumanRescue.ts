@@ -16,8 +16,6 @@ export interface IAutoMovieMotionHumanRescue<Chain> {
    * @param params The `role` and `partner` of `IAutoMovieMotionHumanEdgeRescue.IParams`, with those of `IScene`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   edgeRescue(
     params: IAutoMovieMotionHumanEdgeRescue.IParams,

@@ -25,8 +25,6 @@ export interface IAutoMovieMotionHumanBathing<Chain> {
    * @param chain The chain the helper appends to; it is returned with the actions added.
    * @param params The `tub`, `floor`, `at` and `face` of `IAutoMovieMotionHumanBathing.IIntoTub`; the bather stands before the tub's apron.
    * @returns The chain with the entry appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
    */
   intoTub(chain: Chain, params: IAutoMovieMotionHumanBathing.IIntoTub): Chain;
 
@@ -35,8 +33,6 @@ export interface IAutoMovieMotionHumanBathing<Chain> {
    * @param chain The chain the helper appends to; it is returned with the actions added.
    * @param params The `tub` and `onto` of `IAutoMovieMotionHumanBathing.IOutOfTub`.
    * @returns The chain with the exit appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
    */
   outOfTub(chain: Chain, params: IAutoMovieMotionHumanBathing.IOutOfTub): Chain;
 
@@ -45,8 +41,6 @@ export interface IAutoMovieMotionHumanBathing<Chain> {
    * @param chain The chain the helper appends to; it is returned with the actions added.
    * @param params The `tap` of `IAutoMovieMotionHumanBathing.IShower`.
    * @returns The chain with the wash appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
    */
   shower(chain: Chain, params: IAutoMovieMotionHumanBathing.IShower): Chain;
 
@@ -55,8 +49,6 @@ export interface IAutoMovieMotionHumanBathing<Chain> {
    * @param chain The chain the helper appends to; it is returned with the actions added.
    * @param params The `towel` and `handle` of `IAutoMovieMotionHumanBathing.ITowelDry`.
    * @returns The chain with the drying appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
    */
   towelDry(chain: Chain, params: IAutoMovieMotionHumanBathing.ITowelDry): Chain;
 }

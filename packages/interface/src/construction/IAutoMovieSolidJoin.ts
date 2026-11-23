@@ -38,37 +38,27 @@ export namespace IAutoMovieSolidJoin {
 
     /**
      * Read the rails at finite curve parameter t in radians, or null on a local solve failure.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States curve-parameter units and nullable failure rather than assuming every mode uses part phase.
      */
     rail(t: number): IAutoMovieSolidRail.IRail | null;
 
     /**
      * Solve the rails at radian parameter t again, reporting the quantities read and the failed premise (`AutoMovieSolidRail.explain`);
      * null when the curve has no point at t.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the parameter's units and the null case.
      */
     explain(t: number): IAutoMovieSolidRail.IExplanation | null;
 
     /**
      * Read host-first and part-last boundary ribbons at radian parameter t; null means no rail.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States parameter, host/part order, borrowed rail, fresh ribbons and null result.
      */
     column(t: number): IAutoMovieSolidJoin.IColumn | null;
 
     /**
      * Sample the host chart loop at count uniform radian parameters from the seed, or null on a failed rail.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States chart coordinates, uniform seed-relative samples and early null; chart tuples are borrowed from cached rails.
      */
     loop(count: number): [number, number][] | null;
 
     /**
      * Read current chord laws at radian t, in mm; part is null for a fixed station.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States t in radians, chord values in mm and the part-null meaning.
      */
     widths(t: number): {
       /** Current host chord-law value in millimetres, read without a new finite/positive admission check. */
@@ -136,8 +126,6 @@ export namespace IAutoMovieSolidJoin {
      * The rails' sides at a curve point from a declared loop (`IAutoMovieSolidRail.IToward`), for a supplied curve that is tangential over
      * part of its turn, where the normals cannot tell them; null where the loop cannot either, which leaves no rail there. Absent, the
      * sides come from the two surfaces' normals and the kept side.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the reading, its null and the default.
      */
     toward?: (point: IAutoMovieSolidIntersection.IPoint) => IAutoMovieSolidRail.IToward | null;
 

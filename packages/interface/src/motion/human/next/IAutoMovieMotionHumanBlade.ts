@@ -26,8 +26,6 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @param params The `guard` and `seconds` of `IAutoMovieMotionHumanSwordGuard.IParams`, with those of `IAutoMovieMotionHumanSword.IWield`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   swordGuard(
     params: IAutoMovieMotionHumanSwordGuard.IParams,
@@ -40,8 +38,6 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @param params The `from` line and the members of `IAutoMovieMotionHumanSword.ICut`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   cut(params: IAutoMovieMotionHumanSword.ICut, anchor?: string): Chain;
 
@@ -51,8 +47,6 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @param params The `advance` and the members of `IAutoMovieMotionHumanSword.IAttack`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   thrust(params: IAutoMovieMotionHumanSword.IAttack, anchor?: string): Chain;
 
@@ -62,8 +56,6 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @param params The `hold` and the members of `IAutoMovieMotionHumanSwordParry.IParry`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   parry(params: IAutoMovieMotionHumanSwordParry.IParry, anchor?: string): Chain;
 
@@ -73,8 +65,6 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @param params The members of `IAutoMovieMotionHumanSwordParry.ITaken`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   taken(params: IAutoMovieMotionHumanSwordParry.ITaken, anchor?: string): Chain;
 
@@ -84,8 +74,6 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @param params The members of `IAutoMovieMotionHumanSabre`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   sabre(params: IAutoMovieMotionHumanSabre, anchor?: string): Chain;
 
@@ -95,8 +83,6 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @param params The members of `IAutoMovieMotionHumanLanceCouch`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   lanceCouch(params: IAutoMovieMotionHumanLanceCouch, anchor?: string): Chain;
 }

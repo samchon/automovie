@@ -17,8 +17,6 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the actions appended.
    * @throws {HumanRefusal} When the piece is not on the board, the target is occupied without its capture, the capture is not on the target, or a capture has no place aside.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the composition does, its parameters, its anchor, its return and its refusals.
    */
   chessMove(
     params: IAutoMovieMotionHumanTabletop.IChessMove,
@@ -32,8 +30,6 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the actions appended.
    * @throws {HumanRefusal} When no seat is named; the placement refuses a seat beyond the arm with its distance.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the composition does, its parameters, its anchor, its return and its refusals.
    */
   deal(params: IAutoMovieMotionHumanTabletop.IDeal, anchor?: string): Chain;
 
@@ -44,8 +40,6 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the actions appended.
    * @throws {HumanRefusal} When cards and places differ in number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the composition does, its parameters, its anchor, its return and its refusals.
    */
   lay(params: IAutoMovieMotionHumanTabletop.ILay, anchor?: string): Chain;
 
@@ -56,8 +50,6 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the actions appended.
    * @throws {HumanRefusal} When the deck place is beyond the arm.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the composition does, its parameters, its anchor, its return and its refusals.
    */
   shuffle(
     params: IAutoMovieMotionHumanTabletop.IShuffle,
@@ -71,8 +63,6 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the actions appended.
    * @throws {HumanRefusal} When the destination is beyond the arm.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the composition does, its parameters, its anchor, its return and its refusals.
    */
   push(params: IAutoMovieMotionHumanTabletop.IPush, anchor?: string): Chain;
 
@@ -83,8 +73,6 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the actions appended.
    * @throws {HumanRefusal} When the place is beyond the arm.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the composition does, its parameters, its anchor, its return and its refusals.
    */
   roll(params: IAutoMovieMotionHumanTabletop.IRoll, anchor?: string): Chain;
 }

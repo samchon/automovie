@@ -59,8 +59,6 @@ export namespace IAutoMovieHumanSeamKnot {
 
     /**
      * The sector's jet at a phase of its own knots, per radian.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The sector's jet at a phase of its own knots, per radian.
      */
     jet: (t: number) => Jet;
   }

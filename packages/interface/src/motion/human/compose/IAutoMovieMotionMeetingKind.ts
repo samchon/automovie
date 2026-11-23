@@ -28,8 +28,6 @@ export interface IAutoMovieMotionMeetingKind {
    * @param role The role.
    * @param contacts The contacts' world points, metres.
    * @returns The role's instants, seconds since the meeting's start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the role and the contacts it is given, and that the instants are seconds since the meeting's start.
    */
   timing(
     role: IAutoMovieMotionMeetingRole,
@@ -42,8 +40,6 @@ export interface IAutoMovieMotionMeetingKind {
    *
    * @param roles The roles, in the meeting's order.
    * @returns Each contact's world point, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the roles it is given, their order, the unit and the frame of the result, and that its absence means the mean of the default places.
    */
   place?(
     roles: readonly IAutoMovieMotionMeetingRole[],
@@ -51,8 +47,6 @@ export interface IAutoMovieMotionMeetingKind {
 
   /**
    * Place oriented anatomical contacts once from the complete pair, giving their world points and outward normals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Takes the roles in declared order and returns named world positions in metres with outward world normals.
    */
   surfaces?(roles: readonly IAutoMovieMotionMeetingRole[]): Record<string, IAutoMovieMotionMeetingKind.ISurface>;
   /**
@@ -64,8 +58,6 @@ export interface IAutoMovieMotionMeetingKind {
    * @param roles The roles, in the meeting's order.
    * @param instants The meeting's shared instants, film seconds.
    * @returns The coupling.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the coupling holds, when it is computed and from what.
    */
   couple?(
     roles: readonly IAutoMovieMotionMeetingRole[],

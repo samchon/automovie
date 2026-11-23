@@ -23,8 +23,6 @@ export interface IAutoMovieMotionHumanCare<Chain> {
    * @param params The `hold`, `prop`, `hand`, `seconds`, `rock`, `pats` and `bottle` of `IAutoMovieMotionHumanHoldInfant.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   holdInfant(
     params: IAutoMovieMotionHumanHoldInfant.IParams,
@@ -36,8 +34,6 @@ export interface IAutoMovieMotionHumanCare<Chain> {
    * @param chain The chain the helper appends to; it is returned with the actions added.
    * @param params The `at` of `IAutoMovieMotionHumanCare.IKneelBeside`.
    * @returns The chain with the kneel appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
    */
   kneelBeside(
     chain: Chain,
@@ -49,8 +45,6 @@ export interface IAutoMovieMotionHumanCare<Chain> {
    * @param chain The chain the helper appends to; it is returned with the actions added.
    * @param params The `partner` of `IAutoMovieMotionHumanCare.ICompressions`.
    * @returns The chain with the compressions appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
    */
   compressions(
     chain: Chain,
@@ -62,8 +56,6 @@ export interface IAutoMovieMotionHumanCare<Chain> {
    * @param chain The chain the helper appends to; it is returned with the actions added.
    * @param params The `partner`, `site` and `side` of `IAutoMovieMotionHumanCare.IPulse`.
    * @returns The chain with the check appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
    */
   pulse(chain: Chain, params: IAutoMovieMotionHumanCare.IPulse): Chain;
 
@@ -72,8 +64,6 @@ export interface IAutoMovieMotionHumanCare<Chain> {
    * @param chain The chain the helper appends to; it is returned with the actions added.
    * @param params The `partner`, `region` and `hold` of `IAutoMovieMotionHumanCare.IPressWound`.
    * @returns The chain with the pressure appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
    */
   pressWound(
     chain: Chain,

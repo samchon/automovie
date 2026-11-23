@@ -88,8 +88,6 @@ export namespace IAutoMovieMotionHumanOperateDrive {
      * @param progress 0 at the stroke's start, 1 at its end.
      * @param seconds The film second the prop is read at; the operation's start when absent.
      * @returns The point and outward normal.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanOperateDrive.IPart.place: The contact's world place at a progress of the stroke, on the prop as it is shown at a film second: a held prop that moves meanwhile (a bow raised while it is drawn) carries its part with it.
      */
     place(
       progress: number,

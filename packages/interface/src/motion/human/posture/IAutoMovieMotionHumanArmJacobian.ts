@@ -69,8 +69,6 @@ export namespace IAutoMovieMotionHumanArmJacobian {
     columns: IAutoMovieMotionHumanArmJacobian.IColumn[];
     /**
      * Pure synchronous forward-kinematics callback for the supplied coordinate vector; borrowed coordinates must remain stable for the call.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanArmJacobian.IReadResult.chain: Pure synchronous forward-kinematics callback for the supplied coordinate vector; borrowed coordinates must remain stable for the call.
      */
     chain: (c: readonly number[]) => IAutoMovieMotionHumanArmJacobian.IChain;
   };

@@ -18,8 +18,6 @@ export namespace IAutoMovieHumanTrunkProfileFront {
   export interface IProfile {
     /**
      * The forward place of the front midline at a height, mm.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The forward place of the front midline at a height, mm.
      */
     at: (y: number) => number;
 

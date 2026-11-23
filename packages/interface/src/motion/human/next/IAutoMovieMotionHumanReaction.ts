@@ -17,8 +17,6 @@ export interface IAutoMovieMotionHumanReaction<Chain> {
    * @param params The `from`, `intensity` and `manner` of `IAutoMovieMotionHumanFlinch.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   flinch(params: IAutoMovieMotionHumanFlinch.IParams, anchor?: string): Chain;
 
@@ -28,8 +26,6 @@ export interface IAutoMovieMotionHumanReaction<Chain> {
    * @param params The `from`, `part`, `way` and `intensity` of `IAutoMovieMotionHumanGive.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   give(params: IAutoMovieMotionHumanGive.IParams, anchor?: string): Chain;
 }

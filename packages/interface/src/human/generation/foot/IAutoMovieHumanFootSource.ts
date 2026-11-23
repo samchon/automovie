@@ -29,8 +29,6 @@ export namespace IAutoMovieHumanFootSource {
 
     /**
      * Explicitly complete a regional owner's actual original, retaining its real failure; absent on direct controls.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicitly complete a regional owner's actual original, retaining its real failure; absent on direct controls.
      */
     complete?(): IComplete;
 
@@ -83,8 +81,6 @@ export namespace IAutoMovieHumanFootSource {
 
     /**
      * Actual value and separately available physical2 within this interval.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Actual value and separately available physical2 within this interval.
      */ at(station: number): IStation;
   }
 
@@ -99,8 +95,6 @@ export namespace IAutoMovieHumanFootSource {
   export interface IStation {
     /**
      * Original local phase function, in mm and radians.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Original local phase function, in mm and radians.
      */
     phase: (phi: number) => IAutoMovieLoftSectionPhase;
 
@@ -122,8 +116,6 @@ export namespace IAutoMovieHumanFootSource {
   export interface IRegional extends ISource {
     /**
      * Complete and admit the actual coupled original, preserving its original failure.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Complete and admit the actual coupled original, preserving its original failure.
      */
     complete(): IComplete;
   }

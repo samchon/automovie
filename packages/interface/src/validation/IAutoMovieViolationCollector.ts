@@ -18,8 +18,6 @@ export interface IAutoMovieViolationCollector {
 
   /**
    * Append one canonical violation in the caller's traversal order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States insertion order, default error severity and the retained offending-value reference.
    */
   push(
     kind: AutoMovieViolationKind,
@@ -32,8 +30,6 @@ export interface IAutoMovieViolationCollector {
 
   /**
    * Push a `"warning"`-severity violation, physical-plausibility advice that does not fail validation (see {@link IAutoMovieConstraintViolation.severity}).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names warning severity, unchanged caller fields and the successful-warning envelope produced by toValidation.
    */
   warn(
     kind: AutoMovieViolationKind,
@@ -45,8 +41,6 @@ export interface IAutoMovieViolationCollector {
 
   /**
    * Finite range check `[min, max]`; pushes a `range` violation unless `value` is a finite number inside it. `value` is `unknown` so a field read off an untyped payload is narrowed here rather than cast to `number` first. Failed string conversion changes only the diagnostic representation to `an uninspectable value`; the finding retains the original value.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States closed endpoints, finite tested values, range-kind result, the unknown-input shape check and the representation fallback without changing the retained value.
    */
   range(
     path: string,
@@ -62,8 +56,6 @@ export interface IAutoMovieViolationCollector {
    * @param path Violation path of the checked string.
    * @param value String that must carry a non-whitespace character.
    * @param label Name of the field in the message.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The documentation states the violation kind, the condition, and the message form, and each parameter states its role.
    */
   nonEmpty(path: string, value: string, label: string): void;
 
@@ -73,8 +65,6 @@ export interface IAutoMovieViolationCollector {
    * @param path Violation path of the checked vector.
    * @param value Direction to check; a finite measured length above 1e-12 passes.
    * @param label Name of the direction in the messages.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The documentation states the violation kind, the per-axis paths, the length floor and when it is skipped, and each parameter states its role.
    */
   direction(path: string, value: IAutoMovieVector3, label: string): void;
 
@@ -84,8 +74,6 @@ export interface IAutoMovieViolationCollector {
    * @param path Violation path of the checked vector.
    * @param value Vector whose three components must be finite.
    * @param label Name of the vector in the messages.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The documentation states the violation kind, the per-axis path, the message form, and each parameter's role.
    */
   finiteVector(path: string, value: IAutoMovieVector3, label: string): void;
 
@@ -95,8 +83,6 @@ export interface IAutoMovieViolationCollector {
    * @param path Violation path of the checked number.
    * @param value Number that must be finite and positive, or undefined.
    * @param label Name of the number in the message.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The documentation states the accepted interval, the missing-value case and how it is reported, and each parameter's role.
    */
   positive(path: string, value: number | undefined, label: string): void;
 
@@ -106,8 +92,6 @@ export interface IAutoMovieViolationCollector {
    * @param path Violation path of the checked rotation.
    * @param value Quaternion that must be a unit rotation.
    * @param label Name of the rotation in the message.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The documentation states the violation kind, the tolerance, the non-finite case, what the message reports, and each parameter's role.
    */
   unitQuaternion(
     path: string,
@@ -117,8 +101,6 @@ export interface IAutoMovieViolationCollector {
 
   /**
    * Wrap the current findings with canonical severity folding and shared storage.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents empty, warning and failure outcomes plus shared mutable ownership instead of promising an immutable snapshot.
    */
   toValidation(): IAutoMovieValidation;
 }

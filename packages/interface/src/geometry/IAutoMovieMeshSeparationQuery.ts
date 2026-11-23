@@ -34,8 +34,6 @@ export interface IAutoMovieMeshSeparationQuery {
    * stopping at the first refuting triangle. Its `certified` equals the full
    * measurement's for the same feature and options, and it spends no more
    * budget than the full measurement would.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is decided, when it stops, that it agrees with the full measurement, and that it never costs more budget than the full measurement.
    */
   separated(
     vertices: readonly IAutoMovieVector3[],

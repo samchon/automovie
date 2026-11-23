@@ -40,8 +40,6 @@ export namespace IAutoMovieHumanTrunkConstruction {
     seat: IAutoMovieHumanTrunkNeckSeat.ISeat;
     /**
      * Explicitly request the original neck chain; no geometry is requested until this callback is called.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicitly request the original neck chain; no geometry is requested until this callback is called.
      */
     raw: () => IAutoMovieLoftChain;
   };

@@ -28,8 +28,6 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
    * @param params How long.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainTravel.stand: Stand quietly.
    */
   stand(params?: IAutoMovieMotionHumanStand.IParams, anchor?: string): this;
 
@@ -39,8 +37,6 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
    * @param params Destination and pace.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainTravel.walk: Walk to a floor point.
    */
   walk(params: IAutoMovieMotionHumanWalkParams, anchor?: string): this;
 
@@ -50,8 +46,6 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
    * @param params Destination, pace and path.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainTravel.run: Run to a floor point at a jog, a run or a sprint.
    */
   run(params: IAutoMovieMotionHumanRun.IParams, anchor?: string): this;
 
@@ -61,8 +55,6 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
    * @param params Where to land and the flight's apex.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainTravel.jump: Jump to a floor point: push off a planted foot, fly and land on both feet.
    */
   jump(params: IAutoMovieMotionHumanJump.IParams, anchor?: string): this;
 
@@ -72,8 +64,6 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
    * @param params Target, gap and pace.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainTravel.approach: Walk up to a person, prop or point and stop at an interpersonal gap.
    */
   approach(
     params: IAutoMovieMotionHumanApproach.IParams,
@@ -87,8 +77,6 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
    * @param params Destination, how the load is carried and its mass.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainTravel.carry: Walk while carrying a load in one hand, a box in both, a child on the hip, or pushing a cart.
    */
   carry(params: IAutoMovieMotionHumanCarry.IParams, anchor?: string): this;
 
@@ -99,8 +87,6 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
    * @param params The load, its handles, the way, where to and the load's level.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainTravel.pushPull: Move a heavy load by its two handles: push it ahead, pull it walking backward or drag it behind, or press it and not move it.
    */
   pushPull(
     params: IAutoMovieMotionHumanPushPull.IParams,
@@ -113,8 +99,6 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
    * @param params The flight (treads, riser, tread depth, direction), the stepping pattern and the leading foot.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainTravel.climbStairs: Climb a flight of stairs up or down, step over step or step by step.
    */
   climbStairs(
     params: IAutoMovieMotionHumanClimbStairs.IParams,
@@ -127,8 +111,6 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
    * @param params The obstacle and the leading foot.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainTravel.stepOver: Step over a low obstacle ahead, lead foot then trail foot.
    */
   stepOver(
     params: IAutoMovieMotionHumanStepOver.IParams,
@@ -143,8 +125,6 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
    * @param params How many cycles.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainTravel.crawl: Get down onto hands and knees and crawl in the diagonal pattern, crawl on the hands and feet with the knees off the floor (`bear`), or walk the hands out to a plank and the feet in to them (`inchworm`).
    */
   crawl(params?: IAutoMovieMotionHumanCrawl.IParams, anchor?: string): this;
 
@@ -154,8 +134,6 @@ export interface IAutoMovieMotionHumanChainTravel extends IAutoMovieMotionHumanC
    * @param params The ladder, a fixture prop of the scene, and the rungs climbed.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainTravel.climbLadder: Climb a fixed ladder in the four-beat pattern, three limbs always on it.
    */
   climbLadder(
     params: IAutoMovieMotionHumanClimbLadder.IParams,

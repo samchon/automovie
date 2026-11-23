@@ -56,14 +56,10 @@ export namespace IAutoMovieLocalHermiteField64 {
   export type Prepared = {
     /**
      * Increasing local phase cells for one admitted physical station interval.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The prepared owner states station indexing, millimetres, immutable course lifetime and unsupported geometric guarantees.
      */
     interval: (index: number) => IAutoMovieLocalHermiteField64.Cell[];
     /**
      * Authoritative saved-course value and right-sided partials; u=1 uses the left span.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States one-sided knot convention, physical versus normalized derivatives and saved-curve authority.
      */
     station: (index: number, u: number) => IAutoMovieLocalHermiteField64.Jet;
   };

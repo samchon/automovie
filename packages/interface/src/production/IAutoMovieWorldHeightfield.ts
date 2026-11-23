@@ -45,8 +45,6 @@ export namespace IAutoMovieWorldHeightfield {
     rows: number;
     /**
      * Called once at each lattice point in row-major order; return finite world Y in metres. Nonfinite return throws, and exceptions propagate without retry. Purity is required for deterministic baking but not enforced.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Called once at each lattice point in row-major order; return finite world Y in metres. Nonfinite return throws, and exceptions propagate without retry. Purity is required for deterministic baking but not enforced. Member documentation states the supplied records, units and absence meanings used by worldHeightfield.
      */
     height: (point: {
       /** Sample world X in metres: origin.x + column * spacing.x. */

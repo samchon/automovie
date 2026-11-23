@@ -76,8 +76,6 @@ export interface IAutoMovieMotionHumanPerformance {
    * @param subject The person.
    * @param seconds Film seconds.
    * @returns The pose.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.pose: A person's displayed canonical pose at a film second.
    */
   pose(subject: string, seconds: number): IAutoMoviePose;
 
@@ -88,8 +86,6 @@ export interface IAutoMovieMotionHumanPerformance {
    * @param subject The person.
    * @param seconds Film seconds.
    * @returns The posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.posture: A person's active posture at a film second, before layers: the posture the active action writes, or the standing posture before the first.
    */
   posture(subject: string, seconds: number): IAutoMovieMotionHumanPosture;
 
@@ -99,8 +95,6 @@ export interface IAutoMovieMotionHumanPerformance {
    * @param subject The person.
    * @param seconds Film seconds.
    * @returns Resolved bones by rig bone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.bones: A person's world bones at a film second.
    */
   bones(
     subject: string,
@@ -126,8 +120,6 @@ export interface IAutoMovieMotionHumanPerformance {
    * @param subject The prop.
    * @param seconds Film seconds.
    * @returns Its frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.prop: A prop's world frame at a film second: its rest frame until a hand grips it, then carried by the gripping hand with the offset it had when the grip closed, and left where the last grip released it. A grip is any action's contact window of kind `grip` on a hand whose support is this prop. The hand's grip socket rides the hand bone, so the prop is a child of the hand while held: the rigid coupling of the engine's `IAutoMovieAttachment`, a bone plus an offset, with the offset captured at the grip's start instead of authored. When grips overlap (a handover), the one that closed last carries the prop. A hold an action leaves (`IAutoMovieMotionHumanActionPlan.holds`) is a grip lasting until a later action takes that hand over. A released prop stays where the last grip to end released it, unless an action launched it: then it flies from the launch and rests where it struck (`HumanPropFlight`) until a later grip takes it.
    */
   prop(subject: string, seconds: number): IAutoMovieRigidTransform;
 
@@ -141,8 +133,6 @@ export interface IAutoMovieMotionHumanPerformance {
    * @param point The point's name.
    * @param seconds Film seconds.
    * @returns The point's world frame, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.site: a prop point's world frame at a film second.
    */
   site?(
     subject: string,
@@ -159,8 +149,6 @@ export interface IAutoMovieMotionHumanPerformance {
    * @param subject The prop.
    * @param seconds Film seconds.
    * @returns Travel by articulation id, in each articulation's own unit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.state: One input per coupled degree of freedom a prop's acts or tracks have moved by a film second (`HumanPerformanceObject.state`), in the latest begun writer's coordinate. A later writer of another coordinate of the same degree replaces the old one; after its end its last travel holds. A degree absent from the record starts at its leader's zero.
    */
   state(subject: string, seconds: number): Record<string, number>;
 
@@ -171,8 +159,6 @@ export interface IAutoMovieMotionHumanPerformance {
    *
    * @param subject The prop.
    * @returns The flights; none for a prop never launched.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.flights: A prop's flights in film order (`HumanPropFlight`): each launch an action published, its engine flight and its first contact, for audits and the hit record.
    */
   flights(subject: string): readonly IAutoMovieMotionHumanPropFlight.IFlight[];
 
@@ -183,15 +169,11 @@ export interface IAutoMovieMotionHumanPerformance {
    *
    * @param subject The struck person or prop; every hit when absent.
    * @returns The hits.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.hits: Every hit of the performance in time order, or those on one person or prop (`HumanPerformanceHits`): melee stops, blasts and flights' first contacts, each as the one shared interaction record.
    */
   hits(subject?: string): readonly IAutoMovieInteractionEvent[];
 
   /**
    * Stages a breakaway prop at a recorded hit, or returns null while intact.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The request binds a model and authored budget to a hit on its placed prop.
    */
   fracture<Piece extends IAutoMovieMotionHumanObject.IModel>(
     request: IAutoMovieMotionHumanPropFracture.IRequest<Piece>,
@@ -208,8 +190,6 @@ export interface IAutoMovieMotionHumanPerformance {
    * @param seconds Film seconds.
    * @returns World metres, row-major `[x, y, z, ...]`.
    * @throws {HumanRefusal} When the prop is not soft or the performance outlasts its domain's step budget.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.soft: A soft prop's particle positions at a film second: its lattice solved once over the performance from the displayed poses at its domain's fixed step, and read between the two steps around the second, so a seek costs no solve and every frame rate reads the same state (`HumanPerformanceSoft`).
    */
   soft(subject: string, seconds: number): number[];
 
@@ -223,8 +203,6 @@ export interface IAutoMovieMotionHumanPerformance {
    * @param side The hand.
    * @param seconds Film seconds.
    * @returns Newtons on the hand, world frame; zero when the hand does not hold the prop or its domain declares no compliance.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.softLoad: The force a soft prop pulls a gripping hand with at a film second (`HumanPerformanceSoft.load`): the compliant solver's force on the particle the hand holds, held over its step.
    */
   softLoad(
     subject: string,
@@ -240,8 +218,6 @@ export interface IAutoMovieMotionHumanPerformance {
    * @param at The instant.
    * @returns The film second.
    * @throws {HumanRefusal} When nothing is anchored or tracked under the name, or it has no such event.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.instant: The film second of an instant: a second as given, or a named instant of an anchored action or of a cue track.
    */
   instant(at: AutoMovieMotionHumanScheduledInstant): number;
 
@@ -250,8 +226,6 @@ export interface IAutoMovieMotionHumanPerformance {
    *
    * @param subject The person.
    * @returns The segments.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.segments: A person's placed actions, in order.
    */
   segments(subject: string): readonly IAutoMovieMotionHumanSegment[];
 
@@ -261,8 +235,6 @@ export interface IAutoMovieMotionHumanPerformance {
    *
    * @param subject The person.
    * @returns The overlays.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.overlays: The actions a person performs over their placed actions, in placement order: each rides a carrier and takes only its claimed channels.
    */
   overlays(subject: string): readonly IAutoMovieMotionHumanSegment.IOverlay[];
 
@@ -273,8 +245,6 @@ export interface IAutoMovieMotionHumanPerformance {
    * @param seconds Film seconds.
    * @param frame The aiming person's own frame and body, including their optional subject id so a carried or mounted prop is read on the supplied bones, as a self target is.
    * @returns The aim.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.aim: A target's world point and outward normal at a film second.
    */
   aim(
     target: IAutoMovieMotionTarget,
@@ -294,8 +264,6 @@ export interface IAutoMovieMotionHumanPerformance {
    * (`HumanVerdicts`). Absent or empty for a performance with none.
    *
    * @returns Each window, its mode and the engine's simulation of it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformance.simulations: the solved windows, their order and who reads them.
    */
   simulations?(): readonly IAutoMovieMotionHumanSimulation[];
 }

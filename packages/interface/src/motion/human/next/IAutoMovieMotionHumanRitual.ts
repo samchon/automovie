@@ -20,8 +20,6 @@ export interface IAutoMovieMotionHumanRitual<Chain> {
    * @param chain The performer's chain.
    * @param params The `hand` and `rite` of `IAutoMovieMotionHumanRitual.ISignOfCross`.
    * @returns The chain with four touches appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order, the hand and the rite.
    */
   signOfCross(
     chain: Chain,
@@ -34,8 +32,6 @@ export interface IAutoMovieMotionHumanRitual<Chain> {
    * @param chain The performer's chain.
    * @param params The `cross` of `IAutoMovieMotionHumanRitual.IGenuflect`.
    * @returns The chain with the genuflection appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which knee lowers, the rest and the option.
    */
   genuflect(
     chain: Chain,
@@ -49,8 +45,6 @@ export interface IAutoMovieMotionHumanRitual<Chain> {
    * @param params The `hold` of `IAutoMovieMotionHumanRitual.IKneelingPrayer`.
    * @param anchor The kneel's anchor the gesture syncs to; `kneelingPrayer` when absent. A chain that prays more than once gives each prayer its own.
    * @returns The chain with the prayer appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the posture, the hands, the hold and the anchor.
    */
   kneelingPrayer(
     chain: Chain,

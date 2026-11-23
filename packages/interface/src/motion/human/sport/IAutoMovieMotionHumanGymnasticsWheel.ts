@@ -84,8 +84,6 @@ export namespace IAutoMovieMotionHumanGymnasticsWheel {
      *
      * @param angle Degrees, clamped into the table.
      * @returns World metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGymnasticsWheel.IWheel.root: The root linearly interpolated between neighbouring rows. The supplied angle must be finite; it is clamped to [0, until].
      */
     root(angle: number): IAutoMovieVector3;
   }
@@ -103,8 +101,6 @@ export namespace IAutoMovieMotionHumanGymnasticsWheel {
     body: IAutoMovieMotionHumanBody;
     /**
      * Synchronous posture sampler at a rotation angle in degrees, with the root at the origin. Called count + 1 times to construct the table; exceptions propagate and the callback is not retained.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGymnasticsWheel.IRollProps.shaped: Synchronous posture sampler at a rotation angle in degrees, with the root at the origin. Called count + 1 times to construct the table; exceptions propagate and the callback is not retained.
      */
     shaped: (angle: number) => IAutoMovieMotionHumanPosture;
     /** Nonempty borrowed list of bearing candidates in preference order. Each candidate must name admitted bones; roll does not validate these preconditions. */

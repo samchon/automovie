@@ -18,8 +18,6 @@ export interface IAutoMovieMotionHumanWaterPolo {
    * @param params The `film`, the `ball` and the `goal`.
    * @returns Each credited goal, in film order.
    * @throws {HumanRefusal} When the goal is not a fixed, upright prop with a mouth aperture at the waterline.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the method does, its parameters and its return.
    */
   scoreGoal(
     params: IAutoMovieMotionHumanWaterPolo.IGoal,

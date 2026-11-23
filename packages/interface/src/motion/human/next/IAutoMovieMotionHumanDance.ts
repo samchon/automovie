@@ -21,8 +21,6 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * @param params The `kind`, `bpm`, `beats`, `lock`, `side`, `waltz` and `manner` of `IAutoMovieMotionHumanDance.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   dance(params: IAutoMovieMotionHumanDance.IParams, anchor?: string): Chain;
 
@@ -32,8 +30,6 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * @param params The `kind`, `position`, `movement`, `turnout`, `turns`, `direction`, `split`, `side`, `bpm`, `beats` and `lock` of `IAutoMovieMotionHumanBallet.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   ballet(params: IAutoMovieMotionHumanBallet.IParams, anchor?: string): Chain;
 
@@ -43,8 +39,6 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * @param params The `step`, `bpm`, `repeats`, `side` and `lock` of `IAutoMovieMotionHumanTapDance.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   tapDance(
     params: IAutoMovieMotionHumanTapDance.IParams,
@@ -57,8 +51,6 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * @param params The `groove`, `bpm`, `beats`, `hits`, `vary`, `side` and `lock` of `IAutoMovieMotionHumanStreetDance.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   streetDance(
     params: IAutoMovieMotionHumanStreetDance.IParams,
@@ -71,8 +63,6 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * @param params The `kind`, `bpm`, `repeats`, `centre`, `members`, `left`, `right`, `ahead`, `vary` and `lock` of `IAutoMovieMotionHumanGroupDance.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   groupDance(
     params: IAutoMovieMotionHumanGroupDance.IParams,
@@ -86,8 +76,6 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    * @throws {HumanRefusal} When `count` is not a whole number of one or more.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   slowDanceSway(
     params: IAutoMovieMotionHumanDance.ISlowDanceSway,

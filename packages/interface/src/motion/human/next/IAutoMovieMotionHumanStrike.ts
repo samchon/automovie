@@ -24,8 +24,6 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
    * @param params The `technique`, `hand`, `at`, `accuracy`, `feint` and `manner` of `IAutoMovieMotionHumanPunch.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   punch(params: IAutoMovieMotionHumanPunch.IParams, anchor?: string): Chain;
 
@@ -35,8 +33,6 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
    * @param params The `technique`, `leg`, `at`, `accuracy` and `feint` of `IAutoMovieMotionHumanKick.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   kick(params: IAutoMovieMotionHumanKick.IParams, anchor?: string): Chain;
 
@@ -46,8 +42,6 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
    * @param params The `at` and `leg` of `IAutoMovieMotionHumanKnee.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   knee(params: IAutoMovieMotionHumanKnee.IParams, anchor?: string): Chain;
 
@@ -57,8 +51,6 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
    * @param params The `technique`, `at`, `arm` and `feint` of `IAutoMovieMotionHumanCloseStrike.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   closeStrike(
     params: IAutoMovieMotionHumanCloseStrike.IParams,
@@ -71,8 +63,6 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
    * @param params The `technique`, `at`, `leg`, `spin` and `jump` of `IAutoMovieMotionHumanFootStrike.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   footStrike(
     params: IAutoMovieMotionHumanFootStrike.IParams,
@@ -85,8 +75,6 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
    * @param params The `direction`, `steps`, `length`, `turn`, `lead` and `guard` of `IAutoMovieMotionHumanStep.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   step(params: IAutoMovieMotionHumanStep.IParams, anchor?: string): Chain;
 
@@ -96,8 +84,6 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
    * @param params The `kind`, `count`, `seconds`, `lead` and `manner` of `IAutoMovieMotionHumanMartialArt.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   martialArt(
     params: IAutoMovieMotionHumanMartialArt.IParams,

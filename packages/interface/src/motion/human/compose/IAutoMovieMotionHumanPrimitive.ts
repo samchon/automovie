@@ -65,8 +65,6 @@ export interface IAutoMovieMotionHumanPrimitive {
    * @param resolution Optional exact FK source borrowed only during this same-body synchronous write; never retain it in a plan, output or callback.
    * @param projection Optional genuine same-body direct ROM projector, used only for actual current solves during this write.
    * @returns The posture; fields outside the claimed channels are ignored.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the posture and the seconds it is given, that the seconds lie in the primitive's window and that fields outside the claimed channels are ignored.
    */
   write(
     posture: IAutoMovieMotionHumanPosture,
@@ -84,8 +82,6 @@ export interface IAutoMovieMotionHumanPrimitive {
    * nothing.
    *
    * @param before The posture so far at any second of the action, as `write` is given it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when it is called, by whom, why and what it is given.
    */
   prepare?(before: IAutoMovieMotionHumanPrimitive.Reader): void;
 }

@@ -16,8 +16,6 @@ export interface IAutoMovieMotionHumanHorrorCreature<Chain> {
    * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes, and the stiff side.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the gait does with its provisional constant, where it ends, its parameters, its anchor and its return.
    */
   shamble(params: IAutoMovieMotionHumanGait.ILimp, anchor?: string): Chain;
 
@@ -27,8 +25,6 @@ export interface IAutoMovieMotionHumanHorrorCreature<Chain> {
    * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes, and the stiff side.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the gait does with its provisional constant, where it ends, its parameters, its anchor and its return.
    */
   lurch(params: IAutoMovieMotionHumanGait.ILimp, anchor?: string): Chain;
 
@@ -38,8 +34,6 @@ export interface IAutoMovieMotionHumanHorrorCreature<Chain> {
    * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the gait does with its provisional constant, where it ends, its parameters, its anchor and its return.
    */
   stalk(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 }

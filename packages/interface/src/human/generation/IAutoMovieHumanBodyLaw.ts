@@ -96,8 +96,6 @@ export namespace IAutoMovieHumanBodyLaw {
 
     /**
      * Explicit engine-evaluated legacy neck interval; ordinary source/metadata reads do not request raw geometry.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit engine-evaluated legacy neck interval; ordinary source/metadata reads do not request raw geometry.
      */
     neckRaw(): IAutoMovieLoftChain;
 

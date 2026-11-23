@@ -33,8 +33,6 @@ export namespace IAutoMovieHumanScapularMass {
 
     /**
      * The base's phase at a lateral place on the back at the centre's height.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The base's phase at a lateral place on the back at the centre's height.
      */
     phaseOf: (z: number) => number;
 

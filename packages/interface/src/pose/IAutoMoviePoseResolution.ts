@@ -31,8 +31,6 @@ export interface IAutoMoviePoseResolution {
    * @param axes The bone's clinical axes; absent, the default basis.
    * @param frame The bone's clinical rest frame; absent, rest-relative angles.
    * @returns A fresh unit quaternion.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the joint's degree/null coordinates, the absent axes and frame cases and the fresh unit result.
    */
   joint(
     joint: IAutoMovieJointPose,
@@ -48,8 +46,6 @@ export interface IAutoMoviePoseResolution {
    * @param parentPosition The parent's world position, model metres.
    * @param articulation The bone-local rotation `joint` returned.
    * @returns The bone's fresh resolved frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input's frame and unit and the fresh resolved result.
    */
   bone(
     bone: IAutoMovieBone,

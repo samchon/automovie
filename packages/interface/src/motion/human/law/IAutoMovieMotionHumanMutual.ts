@@ -33,8 +33,6 @@ export interface IAutoMovieMotionHumanMutual<
    * @param cast Who performs each role, by subject id.
    * @param anchor The joined action's anchor, when the author gave one: each role's action is anchored `${anchor}.${role}`, so a role can name another's instants (a catch reads its throw). Absent when the author gave none.
    * @returns The action's name and its own parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanMutual.act: The action one role performs.
    */
   act(
     role: Role,

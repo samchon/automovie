@@ -209,20 +209,14 @@ export namespace IAutoMovieHumanConicLoft {
     axis: IAutoMovieViewAxis.IAxis;
     /**
      * Canonical full source in caller cap/relief scope, without loft or turn sampling.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Accepts the logical family whose cap and relief scope to read.
      */
     source: (family: IFamily) => IAutoMovieViewPart;
     /**
      * Original source producer, including every scalar, cap and actual requested relief scope.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Accepts the family and explicit material stations in millimetres.
      */
     part: (family: IFamily, stations: number[]) => IAutoMovieViewPart;
     /**
      * The same original law in the reflected chart, retaining its source clock and all native derivatives.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Accepts the source family and reflected logical name.
      */
     mirror: (family: IFamily, name: string) => IFamily;
   }

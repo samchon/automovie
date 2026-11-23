@@ -60,8 +60,6 @@ export namespace IAutoMovieHumanFootWebLine {
 
     /**
      * The forefoot crest's height over the floor at a place along the foot, foot lengths.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The forefoot crest's height over the floor at a place along the foot, foot lengths.
      */
     depth: (a: number) => number;
   }

@@ -31,8 +31,6 @@ export namespace IAutoMovieHumanGlutealParent {
     }[];
     /**
      * Admitted source-native AP intervals, or the explicit unavailable premise.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Admitted source-native AP intervals, or the explicit unavailable premise.
      */
     chord(y: number, z: number): IChord[] | string;
   }

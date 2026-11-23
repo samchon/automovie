@@ -24,8 +24,6 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
    * @param params The `balance`, `kind`, `side`, `target`, `region`, `count`, `hold`, `depth`, `effort`, `turn`, `shape`, `aim` and `manner` of `IAutoMovieMotionHumanGesture.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   gesture(params: IAutoMovieMotionHumanGesture.IParams, anchor?: string): Chain;
 
@@ -35,8 +33,6 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
    * @param params The `phrase`, `target`, `offset`, `from`, `swing`, `cycles`, `mirror`, `side`, `surface`, `shape`, `facing`, `hold`, `manner`, `held` and `point` of `IAutoMovieMotionHumanArmPhrase.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   armPhrase(
     params: IAutoMovieMotionHumanArmPhrase.IParams,

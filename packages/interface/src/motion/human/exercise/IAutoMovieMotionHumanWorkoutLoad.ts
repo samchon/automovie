@@ -89,8 +89,6 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
      * @param resolution Optional FK source borrowed from this same synchronous write.
      * @param projection Optional genuine same-body ROM metadata from that write.
      * @returns The same posture with the holding arms' goals.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
      */
     apply(
       posture: IAutoMovieMotionHumanPosture,
@@ -104,8 +102,6 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
      *
      * @param posture The loaded posture before transition offsets.
      * @throws {HumanRefusal} When either arm cannot keep the support grip in its measured frame.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Names the authored phase and the supporting hand read in the fitted pose.
      */
     admit?(posture: IAutoMovieMotionHumanPosture): void;
 

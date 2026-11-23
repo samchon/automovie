@@ -30,8 +30,6 @@ export namespace IAutoMovieConstructionComposedEnd {
 
     /**
      * The section's point at a child phase, mm, with its derivative in the phase; period `2 pi`.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the result, the units and the period.
      */
     at: (psi: number) => { point: AutoMovieVector3Tuple; first: AutoMovieVector3Tuple; second?: AutoMovieVector3Tuple };
 
@@ -75,16 +73,12 @@ export namespace IAutoMovieConstructionComposedEnd {
     /**
      * The outline at a parameter `t` in `[0, pieces.length)`: piece `floor(t)` at the share `t - floor(t)` of its phase interval, with
      * its first derivative in `t` and, where the section supplies one, its second; the first derivative turns at each whole `t`, a fork.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the parameter, the results and where the tangent turns.
      */
     at: (t: number) => { point: AutoMovieVector3Tuple; first: AutoMovieVector3Tuple; second?: AutoMovieVector3Tuple };
 
     /**
      * The distance in the end plane from a point's foot on the plane to the outline, mm: the least over the pieces, each solved on its
      * section's own curve from its nearest sample.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the distance, its plane and how it is found.
      */
     distance: (point: AutoMovieVector3Tuple) => number;
   }

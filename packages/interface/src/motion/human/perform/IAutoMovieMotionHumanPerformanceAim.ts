@@ -40,8 +40,6 @@ export namespace IAutoMovieMotionHumanPerformanceAim {
 
     /**
      * Their bones.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformanceAim.IFrame.bones: Their bones.
      */
     bones: (
       requested?: ReadonlySet<AutoMovieHumanoidBone>) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;

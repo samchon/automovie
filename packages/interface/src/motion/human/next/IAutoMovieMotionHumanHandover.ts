@@ -29,8 +29,6 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @param params The `prop`, `to`, `handle`, `hand`, `receiverHand`, `mass` and `outcome` of `IAutoMovieMotionHumanHandoverAction.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   handOver(
     params: IAutoMovieMotionHumanHandoverAction.IParams,
@@ -43,8 +41,6 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @param params The `prop`, `from`, `handle`, `hand`, `giverHand`, `mass` and `outcome` of `IAutoMovieMotionHumanReceive.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   receive(params: IAutoMovieMotionHumanReceive.IParams, anchor?: string): Chain;
 
@@ -54,8 +50,6 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @param params The `role`, `partner`, `at`, `baton`, `end`, `side` and `zone` of `IAutoMovieMotionHumanRelayPass.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   relayPass(
     params: IAutoMovieMotionHumanRelayPass.IParams,
@@ -68,8 +62,6 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @param params The `partner`, `hand` and `pumps` of `IAutoMovieMotionHumanHandshake.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   handshake(
     params: IAutoMovieMotionHumanHandshake.IParams,

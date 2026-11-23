@@ -36,15 +36,11 @@ export namespace IAutoMovieLoftSectionNative {
   export interface ICurve {
     /**
      * Read the finite local point in millimetres at phi radians; numerical rejection throws from the native reader.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines polar-radian input, local-mm output and propagated native admission failure.
      */
     point(phi: number): AutoMovieVector2Tuple;
 
     /**
      * Read that same point and its first two phase partials at phi radians; numerical rejection throws from the native reader.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines polar-radian input, local-mm output and propagated native admission failure.
      */
     phase(phi: number): IAutoMovieLoftSectionPhase;
   }

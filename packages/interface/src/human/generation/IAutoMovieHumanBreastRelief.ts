@@ -29,8 +29,6 @@ export namespace IAutoMovieHumanBreastRelief {
 
     /**
      * The base's phase at a lateral place on the front at the bust point's height.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The base's phase at a lateral place on the front at the bust point's height.
      */
     phaseOf: (z: number) => number;
   }

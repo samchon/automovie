@@ -24,8 +24,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @param params The `hold` and `link` of `IAutoMovieMotionHumanBindPartner`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   bindPartner(params: IAutoMovieMotionHumanBindPartner, anchor?: string): Chain;
 
@@ -35,8 +33,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @param params The `prop`, `partner`, `region`, `side`, `point` and `hold` of `IAutoMovieMotionHumanDressPartner`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   dressPartner(
     params: IAutoMovieMotionHumanDressPartner,
@@ -49,8 +45,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @param params The `prop`, `partner`, `hand` and `hold` of `IAutoMovieMotionHumanCoatPartner`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   coatPartner(params: IAutoMovieMotionHumanCoatPartner, anchor?: string): Chain;
 
@@ -60,8 +54,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @param params The `prop`, `partner`, `hand`, `finger` and `side` of `IAutoMovieMotionHumanSlipRing`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   slipRing(params: IAutoMovieMotionHumanSlipRing, anchor?: string): Chain;
 
@@ -71,8 +63,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @param params The `side` and `hold` of `IAutoMovieMotionHumanPresentHand`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   presentHand(params: IAutoMovieMotionHumanPresentHand, anchor?: string): Chain;
 
@@ -82,8 +72,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @param params The `prop`, `partner` and `side` of `IAutoMovieMotionHumanPlaceOverHead`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   placeOverHead(
     params: IAutoMovieMotionHumanPlaceOverHead,
@@ -97,8 +85,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @param params The partner and side of `IAutoMovieMotionHumanGetDressed.IStraightenPartnerTie`.
    * @param anchor A stable cue id for the smoothing action; none when absent.
    * @returns The same kind of chain with one touch appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States whose tie, the gesture, the chosen hand and the cue.
    */
   straightenPartnerTie(
     chain: Chain,
@@ -113,8 +99,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @param params The cuff of `IAutoMovieMotionHumanGetDressed.IAdjustCuff`.
    * @param anchor A stable cue id for the adjustment; none when absent.
    * @returns The same kind of chain with one touch appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which wrist is presented, which hand reaches and what the cue identifies.
    */
   adjustCuff(
     chain: Chain,

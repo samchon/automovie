@@ -24,8 +24,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @param params The `position`, `hold` and `manner` of `IAutoMovieMotionHumanLieDown.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   lieDown(params: IAutoMovieMotionHumanLieDown.IParams, anchor?: string): Chain;
 
@@ -35,8 +33,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @param params The `pattern`, `lead` and `manner` of `IAutoMovieMotionHumanGetUp.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   getUp(params: IAutoMovieMotionHumanGetUp.IParams, anchor?: string): Chain;
 
@@ -46,8 +42,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @param params The `direction` of `IAutoMovieMotionHumanRoll.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   roll(params: IAutoMovieMotionHumanRoll.IParams, anchor?: string): Chain;
 
@@ -57,8 +51,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @param params The `balance`, `kind`, `cycles` and `manner` of `IAutoMovieMotionHumanCrawl.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   crawl(params: IAutoMovieMotionHumanCrawl.IParams, anchor?: string): Chain;
 
@@ -68,8 +60,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @param params The `to`, `lead`, `backbend` and `height` of `IAutoMovieMotionHumanCrabWalk.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   crabWalk(
     params: IAutoMovieMotionHumanCrabWalk.IParams,
@@ -82,8 +72,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @param params The `kind` and `side` of `IAutoMovieMotionHumanDive.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   dive(params: IAutoMovieMotionHumanDive.IParams, anchor?: string): Chain;
 
@@ -93,8 +81,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @param params The `prop`, `surface`, `edge`, `position`, `rise`, `hold` and `manner` of `IAutoMovieMotionHumanLieOnSurface`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   lieOnSurface(
     params: IAutoMovieMotionHumanLieOnSurface,
@@ -107,8 +93,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @param params The `to`, `via`, `on`, `hold` and `manner` of `IAutoMovieMotionHumanTurnOver`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   turnOver(params: IAutoMovieMotionHumanTurnOver, anchor?: string): Chain;
 
@@ -118,8 +102,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @param params The `toward`, `halfTurns`, `to`, `end` and `manner` of `IAutoMovieMotionHumanLogRoll`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   logRoll(params: IAutoMovieMotionHumanLogRoll, anchor?: string): Chain;
 }

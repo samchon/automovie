@@ -12,17 +12,14 @@ export interface IAutoMovieRecoveryMapMetric {
   width: number;
 
   /** Apply inverse-transpose upper-factor action to a physical covector.
-   * @evidence contracts/development/common.md#meaningful-documentation Borrows a sorted sparse physical row and returns its owned metric row with the same affine offset.
    */
   whiten: (row: IAutoMovieSimplexAtom) => IAutoMovieSimplexAtom;
 
   /** Apply inverse upper-factor action and restore physical parameter column units.
-   * @evidence contracts/development/common.md#meaningful-documentation Borrows a width-coordinate metric vector and returns an owned physical increment; invalid dimensions or pivots throw.
    */
   unwhiten: (step: readonly number[]) => number[];
 
   /** Multiply by the physical metric factor transpose, in camera-first order.
-   * @evidence contracts/development/common.md#meaningful-documentation Borrows a width metric covector and returns an owned physical covector; nonfinite output throws.
    */
   toPhysicalCovector: (value: readonly number[]) => number[];
 }

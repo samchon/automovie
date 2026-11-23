@@ -41,8 +41,6 @@ export interface IAutoMovieSurfaceRig {
    * @param targets Optionally receives the packed limit targets, the same length
    * @returns The largest distance between a fitted vertex's limit point and its target, metres; 0 without the fit
    * @throws Error when a buffer has the wrong length, the posed bones differ from the rest bones, or a sweep or curve refuses the pose
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, outputs, return value and refusals.
    */
   pose(
     posed: readonly IAutoMovieResolvedBone[],

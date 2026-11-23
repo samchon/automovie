@@ -89,8 +89,6 @@ export interface IAutoMovieFitChainToTargetProps {
    * swivel circle chosen by a cost of the joints), and `bend` is not read.
    * The fit reports the value it chose by (`IAutoMovieSeededChainFit.value`).
    * Omitted, `bend` is the hint.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the three quaternion frames, non-negative score, task priority, reported value and absence behavior; the score's scale is the caller's.
    */
   strain?: (
     upper: IAutoMovieQuaternion,
@@ -125,8 +123,6 @@ export interface IAutoMovieFitChainToTargetProps {
    * obstructed swivel loses to a clear one whatever the bend hint, the
    * reference or the effector's rotation prefer. Omitted, only the rig's
    * ranges decide.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two arguments and their frame, the degrees returned, that 0 means allowed and the result is never negative, how it ranks against the range of motion overshoot and what an absent callback means.
    */
   obstruction?: (mid: IAutoMovieVector3, end: IAutoMovieVector3) => number;
 

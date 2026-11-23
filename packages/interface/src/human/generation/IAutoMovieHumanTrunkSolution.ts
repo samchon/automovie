@@ -44,8 +44,6 @@ export interface IAutoMovieHumanTrunkSolution {
 
   /**
    * Explicit raw demand used only by the legacy chain builder; ordinary property/JSON reads do not execute it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Explicit raw demand used only by the legacy chain builder; ordinary property/JSON reads do not execute it.
    */
   rawNeck?: () => IAutoMovieLoftChain;
 

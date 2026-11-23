@@ -26,8 +26,6 @@ export interface IAutoMovieShotDefinition<Context = undefined> {
    * Deterministic code that returns the typed engine program synchronously.
    *
    * defineShot stores it unexecuted. After registration-id admission, compileDefinedShot calls it once with the caller's context as a method of the returned registration, so a builder must not rely on the original definition as its `this`. A throw becomes builder-failed at `$shot.build`; production source build refuses returned thenables rather than awaiting them.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that registration does not run the builder, the call count and argument at compilation, the synchronous return requirement, and the diagnostic code and path a throw produces.
    */
   build(context: Context): IAutoMovieShotProgram;
 }

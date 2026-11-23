@@ -101,8 +101,6 @@ export namespace IAutoMovieMotionHumanStrikingStroke {
      * Where the joint returns to, read when the return starts (at the
      * contact or the stop), so it may rest on what arrives before then (a
      * step corrected over the delivery).
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what is returned and when it is read.
      */
     back(): IAutoMovieVector3;
 
@@ -120,8 +118,6 @@ export namespace IAutoMovieMotionHumanStrikingStroke {
      * The weapon's signed gap to the struck body at a second, given the end
      * joint's position then; positive while apart. Absent when nothing can be
      * met (a strike at the air).
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the sign and the meaning of absence.
      */
     gap?: (end: IAutoMovieVector3, seconds: number) => number;
 
@@ -157,8 +153,6 @@ export namespace IAutoMovieMotionHumanStrikingStroke {
      *
      * @param seconds Film seconds.
      * @returns World metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the timebase and the frame.
      */
     end(seconds: number): IAutoMovieVector3;
 
@@ -167,8 +161,6 @@ export namespace IAutoMovieMotionHumanStrikingStroke {
      *
      * @param seconds Film seconds.
      * @returns The contact second, or undefined.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the timebase and the meaning of undefined.
      */
     stop(seconds: number): number | undefined;
 
@@ -178,8 +170,6 @@ export namespace IAutoMovieMotionHumanStrikingStroke {
      *
      * @param seconds Film seconds.
      * @returns World metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what the free path is and who reads it.
      */
     free(seconds: number): IAutoMovieVector3;
   }

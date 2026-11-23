@@ -20,15 +20,11 @@ export interface IAutoMovieMotionHumanPropReader {
    *
    * @param seconds Film seconds.
    * @returns The frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPropReader.frame: Its displayed world frame at a film second.
    */
   frame(seconds: number): IAutoMovieRigidTransform;
 
   /**
    * The original launch publication displaying the prop at a film second, if the reader tracks flights and one still owns the prop.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Returns the borrowed publication identity for the prop's active flight on the film clock.
    */
   launchAt?(seconds: number): IAutoMovieMotionPropLaunch | undefined;
 
@@ -38,8 +34,6 @@ export interface IAutoMovieMotionHumanPropReader {
    * @param seconds The later film second, at interception.
    * @param before An earlier film second on the same launch to read for its approach.
    * @returns The launch identity and both world frames, if this flight owns both samples.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the two film clocks, window, and launch identity and world frame outputs.
    */
   flightApproach?(
     seconds: number,
@@ -48,8 +42,6 @@ export interface IAutoMovieMotionHumanPropReader {
 
   /**
    * The prop socket currently carrying this prop, if a socket is its displayed carrier at these film seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Declares film seconds and the identity of the active carrier and socket.
    */
   mountAt?(
     seconds: number,
@@ -60,8 +52,6 @@ export interface IAutoMovieMotionHumanPropReader {
    *
    * @param seconds Film seconds.
    * @returns The holding performer and hand, or none when no hand holds it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Declares film seconds and the identity of the holding performer and hand.
    */
   holderAt?(seconds: number): IAutoMovieMotionHumanPropReader.IHolder | undefined;
 
@@ -70,8 +60,6 @@ export interface IAutoMovieMotionHumanPropReader {
    *
    * @param seconds Film seconds.
    * @returns Travel by articulation id.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPropReader.state: The travel of each of its articulations an act or its own track has moved by a film second (`HumanPerformance.state`); an articulation absent from the record is at rest. Read at plan time like `frame`, so an act that operates a part starts from where the part is. Absent from a context that tracks no state, where every articulation is at rest.
    */
   state?(seconds: number): Readonly<Record<string, number>>;
 }

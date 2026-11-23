@@ -32,8 +32,6 @@ export namespace IAutoMoviePrepareJointRotationCoefficientDots {
     (reference: IAutoMovieJointPose): readonly IDot[];
     /**
      * Propose degree swivels of q=cosine*cos(psi/2)+sine*sin(psi/2), or decline.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareJointRotationCoefficientDots.IReader.swivels: Propose degree swivels of q=cosine*cos(psi/2)+sine*sin(psi/2), or decline.
      */
     swivels(
       reference: IAutoMovieJointPose,

@@ -19,8 +19,6 @@ export interface IAutoMovieCurveParentContext {
 
   /**
    * Rotate a finite local vector into world coordinates without translation, preserving its physical units.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States local/world charts, unit preservation and failure conditions.
    */
   direction(
     bone: string,
@@ -29,8 +27,6 @@ export interface IAutoMovieCurveParentContext {
 
   /**
    * Transform a finite local millimetre point to world millimetres using the resolved affine matrix.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States input/output units and unknown-node/nonfinite failure.
    */
   point(
     bone: string,
@@ -39,8 +35,6 @@ export interface IAutoMovieCurveParentContext {
 
   /**
    * Rotate a finite world vector back to a node chart with the transpose of its resolved proper rotation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the world-to-local direction and the orthonormal premise.
    */
   inverseDirection(
     bone: string,
@@ -49,8 +43,6 @@ export interface IAutoMovieCurveParentContext {
 
   /**
    * Pull a world millimetre point into the node chart by subtracting world translation and applying the inverse direction transform.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both coordinate charts and millimetre translation.
    */
   inversePoint(
     bone: string,
@@ -59,15 +51,11 @@ export interface IAutoMovieCurveParentContext {
 
   /**
    * Return an independent copy of a resolved world frame, with the original node and parent keys preserved.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Clarifies that rotation/translation are resolved world values despite the original parent key.
    */
   frame(bone: string): IAutoMovieCurveHierarchyFrame64;
 
   /**
    * Admit an owner boundary once, clone and deep-freeze its complete field, then retain the genuine token for later binding. Deep freezing expects the supported acyclic plain coefficient record; arbitrary cyclic extra properties are outside this input contract.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States owner authentication, copy/freeze behavior, units inherited from the boundary and same-instance binding.
    */
   publish(
     region: string,
@@ -77,8 +65,6 @@ export interface IAutoMovieCurveParentContext {
 
   /**
    * Authenticate the declared consumer against this context's genuine publication and return the same immutable boundary object.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States exact-instance authentication and shared-return ownership.
    */
   bind(
     region: string,

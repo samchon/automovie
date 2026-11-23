@@ -51,8 +51,6 @@ export namespace IAutoMovieCompileAttach {
      * exists. Omit for a parent that holds its staged placement throughout.
      * Called synchronously once per baked key, including both endpoints; neither
      * the callback nor returned frame is retained. Exceptions abort baking.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The parent's ridden world frame at shot-local second t, or null before its coupling starts. The staged parentTransform applies when no ridden frame exists. Omit for a parent that holds its staged placement throughout. Member documentation states the supplied records, units and absence meanings used by compileAttach.
      */
     parentTransformAt?: (t: number) => IAutoMovieTransform | null;
 

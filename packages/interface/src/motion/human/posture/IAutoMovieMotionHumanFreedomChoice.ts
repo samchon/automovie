@@ -72,8 +72,6 @@ export namespace IAutoMovieMotionHumanFreedomChoice {
      *
      * @param values The freedoms' values, inside their bounds.
      * @returns The misses, not negative.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the unit and the order of the result.
      */
     judge(values: readonly number[]): Iterable<number>;
   }

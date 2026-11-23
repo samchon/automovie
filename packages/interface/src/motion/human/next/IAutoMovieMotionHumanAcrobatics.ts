@@ -27,8 +27,6 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @param params The `seconds` and `manner` of `IAutoMovieMotionHumanGymnastics.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   gymnastics(
     params: IAutoMovieMotionHumanGymnastics.IParams,
@@ -41,8 +39,6 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @param params The `to`, `apex`, `way` and `turns` of `IAutoMovieMotionHumanSalto.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   salto(params: IAutoMovieMotionHumanSalto.IParams, anchor?: string): Chain;
 
@@ -52,8 +48,6 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @param params The `to` and `seconds` of `IAutoMovieMotionHumanCartwheel.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   cartwheel(
     params: IAutoMovieMotionHumanCartwheel.IParams,
@@ -66,8 +60,6 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @param params The `lead` and `seconds` of `IAutoMovieMotionHumanRoundOff.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   roundOff(
     params: IAutoMovieMotionHumanRoundOff.IParams,
@@ -80,8 +72,6 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @param params The `lead` of `IAutoMovieMotionHumanHandspring.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   handspring(
     params: IAutoMovieMotionHumanHandspring.IParams,
@@ -94,8 +84,6 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @param params The `on`, `bounces`, `apex` and `shape` of `IAutoMovieMotionHumanTrampoline.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   trampoline(
     params: IAutoMovieMotionHumanTrampoline.IParams,
@@ -108,8 +96,6 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @param params The `from`, `edge`, `deploy`, `track`, `turn`, `toggles` and `landing` of `IAutoMovieMotionHumanSkydive.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   skydive(params: IAutoMovieMotionHumanSkydive.IParams, anchor?: string): Chain;
 
@@ -119,8 +105,6 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @param params The `on`, `frame` and `figures` of `IAutoMovieMotionHumanTrick`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   trick(params: IAutoMovieMotionHumanTrick, anchor?: string): Chain;
 
@@ -130,8 +114,6 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @param params The `left`, `right`, `frame`, `hold` and `step` of `IAutoMovieMotionHumanRoman`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   roman(params: IAutoMovieMotionHumanRoman, anchor?: string): Chain;
 }

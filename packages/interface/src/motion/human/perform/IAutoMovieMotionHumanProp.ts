@@ -53,8 +53,6 @@ export interface IAutoMovieMotionHumanProp {
    *
    * @param seconds Film seconds.
    * @returns The frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.motion: The prop's world frame at a film second, for a prop that moves by itself: a vehicle on its course, a horse at its gait, a lift. While set, the prop is where this says and no grip carries it; what bears on it (a rider's seat, a hand on its wheel) is carried with it.
    */
   motion?(seconds: number): IAutoMovieRigidTransform;
 
@@ -69,8 +67,6 @@ export interface IAutoMovieMotionHumanProp {
    * @param id The point's name, one of `points`.
    * @param seconds Film seconds.
    * @returns The point and its outward unit normal, world metres; undefined for a point that only moves with the prop's frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.point: A named point in the world at a film second, for a prop whose parts move within it: a pedal on its crank, a stirrup on a trotting horse, a handle on a door that swings. `points` holds a point where it is in the prop at rest, and the prop's frame alone carries it rigidly; a point this knows is read here instead, so a foot or a hand aimed at it follows the part and not the place the part had at rest.
    */
   point?(
     id: string,
@@ -142,8 +138,6 @@ export interface IAutoMovieMotionHumanProp {
    * @param state Travel by articulation id, in each articulation's own unit; an articulation left out stays at rest.
    * @returns The posed contacts and colliders.
    * @throws {Error} When a travel lies outside its articulation's range.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.articulate: The prop posed at stated travels of its articulations, for a prop whose parts an act moves (a door's leaf, a trigger, a bowstring): its contacts and colliders in its own frame with the parts moved. The performance reads it at the travels the drives and tracks give at a second (`HumanPerformance.state`), so a hand reaching a handle after the door was opened goes to where the handle is. A rigid object's model adapter can also expose this reader.
    */
   articulate?(
     state: Readonly<Record<string, number>>,
@@ -271,8 +265,6 @@ export namespace IAutoMovieMotionHumanProp {
 
     /**
      * The model's authored span endpoints in this posed model's local frame.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the model identity, posed frame and absence when a model supplies no spans.
      */
     span?(id: string): IAutoMovieMotionHumanObject.ISpanEnds;
   }
@@ -297,8 +289,6 @@ export namespace IAutoMovieMotionHumanProp {
      *
      * @param seconds Seconds since the track's start.
      * @returns The travel.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.ITrack.travel: The travel at a second of the track, in the articulation's own unit. Pure.
      */
     travel(seconds: number): number;
 

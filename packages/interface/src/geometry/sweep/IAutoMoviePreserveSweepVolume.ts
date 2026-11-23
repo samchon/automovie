@@ -42,8 +42,6 @@ export namespace IAutoMoviePreserveSweepVolume {
 
     /**
      * Synchronous serializer used only during compilation: write twelve scalars at scalar offset at, ordered origin XYZ then x, y and normal axes. Origins use model metres, axes are dimensionless; the destination is borrowed for the call and errors propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States twelve-scalar layout and offset, metre origins, dimensionless axes, synchronous borrowed output and propagated errors.
      */
     writeFrame: (
       frame: IAutoMovieSweepFrame,

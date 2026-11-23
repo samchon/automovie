@@ -39,15 +39,11 @@ export namespace IAutoMoviePrepareBicubicAtlasBoundary64 {
 
     /**
      * Resolve a control:id or authority:name:phaseKey identity to its equivalence representative, path-compressing the private alias map. An unrelated key returns unchanged; this callback performs no admission.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States canonical key forms, representative resolution, path-compression effects and unchanged unrelated keys without repeated admission.
      */
     root: (key: string) => string;
 
     /**
      * Return the shared cached millimetre point for an admitted authority and exact canonical phase. Missing authority/key admission is a caller error; evaluation exceptions propagate. The returned tuple aliases positions and must not be mutated.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States admitted authority/phase inputs, millimetre units, shared cached tuple identity, immutability and propagated evaluation failure.
      */
     canonicalPoint: (
       authority: string,

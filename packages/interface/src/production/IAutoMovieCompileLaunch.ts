@@ -44,8 +44,6 @@ export namespace IAutoMovieCompileLaunch {
      * The lead solver calls it synchronously, potentially repeatedly at different
      * times. It must describe one stable trajectory during the solve; callback
      * exceptions propagate and the callback is not retained after compilation.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The target's world position at shot-local second `t`, when it moves during the shot. Supplied, the aim leads the mover to the intercept; omitted, the launch is a static intercept on `target`. Member documentation states the supplied records, units and absence meanings used by compileLaunch.
      */
     targetAt?: (t: number) => IAutoMovieVector3;
 

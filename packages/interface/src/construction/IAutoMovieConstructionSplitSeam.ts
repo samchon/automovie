@@ -56,8 +56,6 @@ export namespace IAutoMovieConstructionSplitSeam {
      * and a curved seam's fallback tangent are retained shared vectors.
      *
      * @param t The share of the length from the first end, in `[0, 1]`.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Gives normalized share input, endpoint clamping, numerical inversion and fresh point versus shared tangent ownership.
      */
     at(t: number): IAutoMovieConstructionSplitSeam.IPoint;
   }

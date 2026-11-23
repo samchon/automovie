@@ -117,8 +117,6 @@ export interface IAutoMovieMotionHumanActionPlan {
    * @param resolution Optional exact FK source borrowed only for this synchronous unchanged-body evaluation; never retained in the plan, posture, preparation evidence or a returned callback.
    * @param projection Optional genuine same-body ROM projector borrowed for this call only; every actual direct joint is still projected, and unknown functions fall back to ordinary admission.
    * @returns The borrowed posture; when a demand is supplied, only requested channels are guaranteed current.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionPlan.posture: The posture at a second of the action.
    */
   posture(
     seconds: number,
@@ -130,8 +128,6 @@ export interface IAutoMovieMotionHumanActionPlan {
   /**
    * Drop anything memoised from reads made before the performance settled. A plan whose geometry depends on another person or prop may build it on its first posture call; a call during schedule resolution can read a half-placed performance, so the performance calls this on every plan once every action is placed, before any pose is evaluated again.
    * `contacts` may be a getter over the same memo.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionPlan.settle: Drop anything memoised from reads made before the performance settled. A plan whose geometry depends on another person or prop may build it on its first posture call; a call during schedule resolution can read a half-placed performance, so the performance calls this on every plan once every action is placed, before any pose is evaluated again. `contacts` may be a getter over the same memo.
    */
   settle?(): void;
 
@@ -174,8 +170,6 @@ export interface IAutoMovieMotionHumanActionPlan {
    * Receive this action's resolved contacts, once, after the schedule is placed and before any pose is shown; a law that takes them replaces its own contact scan. A stop changes the pose only, never the duration, the events or the decisive instant.
    *
    * @param events This action's weapons' first contacts, in time order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionPlan.stop: Receive this action's resolved contacts, once, after the schedule is placed and before any pose is shown; a law that takes them replaces its own contact scan. A stop changes the pose only, never the duration, the events or the decisive instant.
    */
   stop?(events: readonly IAutoMovieMotionWeaponContact[]): void;
 
@@ -193,8 +187,6 @@ export interface IAutoMovieMotionHumanActionPlan {
    * Receive the flight's whole-body rotation, once, after placement and the contacts and before any pose is shown, like `stop`: between take-off and touchdown the plan then returns its posture with that `rotation` (`IAutoMovieMotionHumanPosture.rotation`). It changes the pose only, never the duration, the events or the decisive instant.
    *
    * @param rotation The rotation at a second of this action, seconds since its start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionPlan.airborne: Receive the flight's whole-body rotation, once, after placement and the contacts and before any pose is shown, like `stop`: between take-off and touchdown the plan then returns its posture with that `rotation` (`IAutoMovieMotionHumanPosture.rotation`). It changes the pose only, never the duration, the events or the decisive instant.
    */
   airborne?(
     rotation: (seconds: number) => IAutoMovieHumanPostureRotation,

@@ -86,14 +86,10 @@ export namespace IAutoMovieHumanHandPalm {
     worldCollar: boolean;
     /**
      * Project a world-millimetre point on the zero-based source row into [local u, accumulated station, local v], all millimetres. A point more than 1e-6 mm from that row's plane throws.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Project a world-millimetre point on the zero-based source row into [local u, accumulated station, local v], all millimetres. A point more than 1e-6 mm from that row's plane throws.
      */
     into(row: number, point: AutoMovieVector3Tuple): AutoMovieVector3Tuple;
     /**
      * Return [local u, accumulated station, local v] millimetres to its recorded world plane. The station must match a retained row within 1e-6 mm or the call throws.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Return [local u, accumulated station, local v] millimetres to its recorded world plane. The station must match a retained row within 1e-6 mm or the call throws.
      */
     out(point: AutoMovieVector3Tuple): AutoMovieVector3Tuple;
   }

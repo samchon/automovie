@@ -24,8 +24,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @param params The `seat`, `through` and `seconds` of `IAutoMovieMotionHumanTravelCar.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   travelCar(
     params: IAutoMovieMotionHumanTravelCar.IParams,
@@ -38,8 +36,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @param params The `bench`, `width`, `through`, `floor`, `turnSeconds`, `clearance`, `landingDistance`, `duckDegrees`, `stagger` and `liftShare` of `IAutoMovieMotionHumanTravelCarExit.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   travelCarExit(
     params: IAutoMovieMotionHumanTravelCarExit.IParams,
@@ -52,8 +48,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @param params The `door`, `handle`, `seconds` and `side` of `IAutoMovieMotionHumanTravelLeaf.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   travelLeaf(
     params: IAutoMovieMotionHumanTravelLeaf.IParams,
@@ -66,8 +60,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @param params The parameters of the law, `IAutoMovieMotionHumanRide.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   rideVehicle(
     params: IAutoMovieMotionHumanRide.IParams,
@@ -80,8 +72,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @param params The parameters of the law, `IAutoMovieMotionHumanBoard`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   board(params: IAutoMovieMotionHumanBoard, anchor?: string): Chain;
 
@@ -91,8 +81,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @param params The parameters of the law, `IAutoMovieMotionHumanHandrimStroke`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   handrimStroke(
     params: IAutoMovieMotionHumanHandrimStroke,
@@ -105,8 +93,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @param params The parameters of the law, `IAutoMovieMotionHumanBicycleEffort`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   bicycleEffort(
     params: IAutoMovieMotionHumanBicycleEffort,
@@ -119,8 +105,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @param params The parameters of the law, `IAutoMovieMotionHumanBikeGuide`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   bikeGuide(params: IAutoMovieMotionHumanBikeGuide, anchor?: string): Chain;
 
@@ -130,8 +114,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @param params The parameters of the law, `IAutoMovieMotionHumanBikeTransfer`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   bikeTransfer(
     params: IAutoMovieMotionHumanBikeTransfer,
@@ -144,8 +126,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @param params The parameters of the law, `IAutoMovieMotionHumanSpacecraftGlide`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   spacecraftGlide(
     params: IAutoMovieMotionHumanSpacecraftGlide,

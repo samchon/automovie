@@ -38,15 +38,11 @@ export interface IAutoMovieGridSolidMeshGrid {
 
   /**
    * Original kept source, independent of the sampling margin.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes original kept-source membership from the residual after retained full cells, in native chart coordinates.
    */
   source: (u: number, v: number) => boolean;
 
   /**
    * Original source minus already retained full cells.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes original kept-source membership from the residual after retained full cells, in native chart coordinates.
    */
   residual: (u: number, v: number) => boolean;
 
@@ -73,8 +69,6 @@ export interface IAutoMovieGridSolidMeshGrid {
    * holding the centroid, a band's corner column at f1's crotch fork, where
    * the band's columns converge within one cell, took the wrong diagonal and
    * folded 63 degrees. Missing skin points, a singular chart fit, or a nonfinite/nonpositive fitted metric use [0, metric], the face mean.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines matched vertex/chart inputs, shear/scale output and the world-derived local metric.
    */
   local: (
     ids: readonly number[],

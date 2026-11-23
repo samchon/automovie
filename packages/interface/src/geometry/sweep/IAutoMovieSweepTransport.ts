@@ -33,8 +33,6 @@ export interface IAutoMovieSweepTransport {
    * Recompile the curve and, when the transport carries frames, the frame table from the arrays.
    *
    * @throws Error as `frameAutoMovieSweepSpine` documents
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the refusals' source.
    */
   update(): void;
 
@@ -42,8 +40,6 @@ export interface IAutoMovieSweepTransport {
    * Length of the point polygon, the chord-length scale of `u`.
    *
    * @returns Metres
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit.
    */
   length(): number;
 
@@ -53,8 +49,6 @@ export interface IAutoMovieSweepTransport {
    * @param u Chord-length parameter
    * @param out Receives three numbers
    * @param at Offset into `out`
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the output.
    */
   point(u: number, out: Float64Array, at: number): void;
 
@@ -65,8 +59,6 @@ export interface IAutoMovieSweepTransport {
    * @param out Receives three numbers
    * @param at Offset into `out`
    * @throws Error when the tangent vanishes there
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the refusal.
    */
   tangent(u: number, out: Float64Array, at: number): void;
 
@@ -77,8 +69,6 @@ export interface IAutoMovieSweepTransport {
    * @param out Receives twelve numbers
    * @param at Offset into `out`
    * @throws Error when the transport was created without frames
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the layout and refusal.
    */
   frame(u: number, out: Float64Array, at: number): void;
 }

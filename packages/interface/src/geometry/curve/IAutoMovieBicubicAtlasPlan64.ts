@@ -28,14 +28,10 @@ export namespace IAutoMovieBicubicAtlasPlan64 {
     fanVertices: Map<string, Map<string, IAutoMovieBicubicAtlas64.Vertex>>;
     /**
      * Euclidean norm of the supplied three components, preserving their units; no direction normalization or finite-value admission is implied.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States that Euclidean norm preserves operand units without normalizing directions or admitting finite values.
      */
     norm: (p: AutoMovieVector3Tuple) => number;
     /**
      * Three-dimensional cross product returning a new tuple. Output units are the product of operand units; this callback does not normalize the result.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States allocation of a new cross-product tuple, product units and absence of result normalization.
      */
     cross: (
       a: AutoMovieVector3Tuple,

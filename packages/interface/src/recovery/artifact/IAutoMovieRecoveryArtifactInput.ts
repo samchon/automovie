@@ -74,17 +74,14 @@ export interface IAutoMovieRecoveryArtifactInput {
   output: string;
 
   /** Sample current generated vertex and triangle populations.
-   * @evidence contracts/development/common.md#meaningful-documentation States the sampled quantities and owner-defined lifetime.
    */
   counts: () => IAutoMovieRecoveryModelCounts;
 
   /** Sample host memory byte populations and update observed peaks.
-   * @evidence contracts/development/common.md#meaningful-documentation States the sampled quantities and owner-defined lifetime.
    */
   memory: () => IAutoMovieMemoryUsage;
 
   /** Read the run observed heap and resident byte peaks.
-   * @evidence contracts/development/common.md#meaningful-documentation States the sampled quantities and owner-defined lifetime.
    */
   peaks: () => IAutoMovieMemoryPeaks;
 }

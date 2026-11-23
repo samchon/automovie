@@ -37,8 +37,6 @@ export interface IAutoMoviePhysicalPlayback {
   readonly supportWrenches: readonly IAutoMoviePhysicalSupportWrench[];
 
   /** Return the latest actual ownership event for body/bone at or before finite local seconds in [0,duration]. Throws for invalid time or no preceding event; does not reconstruct ownership from authored policy.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies the ownershipAt callback or sampling contract, including its clock and ownership obligations.
    */
   ownershipAt(
     body: string,
@@ -47,8 +45,6 @@ export interface IAutoMoviePhysicalPlayback {
   ): IAutoMoviePhysicalOwnershipEvent["kind"];
 
   /** Sample finite local seconds in [0,duration] in any order. Linearly interpolate positions and velocities and shortest-arc interpolate rotations between stored frames. Returns a detached mutable frame; out-of-domain time throws.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies the at callback or sampling contract, including its clock and ownership obligations.
    */
   at(seconds: number): IAutoMoviePhysicalFrame;
 }

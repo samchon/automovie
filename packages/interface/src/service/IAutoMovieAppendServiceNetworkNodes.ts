@@ -50,8 +50,6 @@ export namespace IAutoMovieAppendServiceNetworkNodes {
 
     /**
      * Finite-positive scalar gate for non-null port sections in square metres. Receives value, exact path, label and out and appends findings. Called synchronously and not retained by the validator; exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Finite-positive scalar gate for non-null port sections in square metres. Receives value, exact path, label and out and appends findings. Called synchronously and not retained by the validator; exceptions propagate. Member documentation states the supplied records, units and absence meanings used by appendServiceNetworkNodes.
      */
     positive: (
       value: number,
@@ -62,8 +60,6 @@ export namespace IAutoMovieAppendServiceNetworkNodes {
 
     /**
      * Synchronous finite-nonnegative scalar gate for port demand in its system unit. Receives value, exact path, label and out; errors are appended and callback exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronous finite-nonnegative scalar gate for port demand in its system unit. Receives value, exact path, label and out; errors are appended and callback exceptions propagate. Member documentation states the supplied records, units and absence meanings used by appendServiceNetworkNodes.
      */
     nonNegative: (
       value: number,

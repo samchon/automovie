@@ -36,8 +36,6 @@ export interface IAutoMovieSweepSurface {
    * @param t Clamped share of the complete centripetal knot span, 0 to 1
    * @returns u along the spine and v in unwrapped turns
    * @throws Error when the feature index does not exist
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the index, knot parameter, units and refusal.
    */
   feature(
     index: number,
@@ -58,8 +56,6 @@ export interface IAutoMovieSweepSurface {
    * @param loop Outer loop 0 or a hole index; omitted, 0
    * @returns Unscaled section-plane coordinates in metres; parameter correspondence may pass through its origin
    * @throws Error for an unknown loop or a non-finite generated shape
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States scale ordering, frame, units, loop numbering and valid authored zero.
    */
   shape(u: number, v: number, loop?: number): IAutoMovieSweepSection.IPoint;
 
@@ -71,8 +67,6 @@ export interface IAutoMovieSweepSurface {
    * @param loop 0 for the section, `k` for hole `k - 1`; omitted, 0
    * @returns Metres along the plane's first and second axes
    * @throws Error for a non-finite scaled result or a nonzero section point lost to arithmetic underflow
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the loop numbering and unit.
    */
   section(u: number, v: number, loop?: number): IAutoMovieSweepSection.IPoint;
 
@@ -82,8 +76,6 @@ export interface IAutoMovieSweepSurface {
    * @param u Along the spine
    * @param v Around it
    * @returns Metres, positive for direction correspondence; parameter correspondence permits zero at an authored origin point
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit.
    */
   radius(u: number, v: number): number;
 
@@ -93,8 +85,6 @@ export interface IAutoMovieSweepSurface {
    * @param u Along the spine
    * @param v Around it
    * @returns Metres, positive for direction correspondence; parameter correspondence permits zero at an authored origin point
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the relation to `radius`.
    */
   profile(u: number, v: number): number;
 
@@ -103,8 +93,6 @@ export interface IAutoMovieSweepSurface {
    *
    * @param u Along the spine
    * @returns A positive factor
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the default.
    */
   scale(u: number): number;
 
@@ -113,8 +101,6 @@ export interface IAutoMovieSweepSurface {
    *
    * @param u Along the spine
    * @returns The frame
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the frame includes.
    */
   frame(u: number): IAutoMovieSweepFrame;
 
@@ -125,8 +111,6 @@ export interface IAutoMovieSweepSurface {
    * @param v Around it
    * @param loop 0 for the section, `k` for hole `k - 1`; omitted, 0
    * @returns Metres
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit.
    */
   point(u: number, v: number, loop?: number): IAutoMovieVector3;
 
@@ -137,8 +121,6 @@ export interface IAutoMovieSweepSurface {
    * @param v Around it
    * @param loop 0 for the section, `k` for hole `k - 1`; omitted, 0
    * @returns Dimensionless model-space unit vector, or zero when the finite-difference cross product is zero; hole orientation follows its authored winding
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the orientation of the normal.
    */
   normal(u: number, v: number, loop?: number): IAutoMovieVector3;
 
@@ -149,8 +131,6 @@ export interface IAutoMovieSweepSurface {
    * @param v Around it
    * @param loop 0 for the section, `k` for hole `k - 1`; omitted, 0
    * @returns Model-space metres per normalized u, not a unit tangent; endpoint differences divide by their actual clipped span
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit.
    */
   along(u: number, v: number, loop?: number): IAutoMovieVector3;
 }

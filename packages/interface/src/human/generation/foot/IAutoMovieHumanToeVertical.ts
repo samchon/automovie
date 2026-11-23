@@ -33,8 +33,6 @@ export namespace IAutoMovieHumanToeVertical {
     hidden: IAutoMovieHumanFootConnection.IChord;
     /**
      * Read [height, upper, lower, plantar] in millimetres at the same physical source station in millimetres, using the retained outlines; source evaluation failures throw.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Read [height, upper, lower, plantar] in millimetres at the same physical source station in millimetres, using the retained outlines; source evaluation failures throw.
      */
     at: (station: number) => [number, number, number, number];
   }

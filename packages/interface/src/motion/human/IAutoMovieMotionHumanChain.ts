@@ -83,8 +83,6 @@ export namespace IAutoMovieMotionHumanChain {
      *
      * @param subject The person.
      * @returns The chain.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChain.IConstructor.subject: An empty chain of a person: no action until one is appended.
      */
     subject(subject: string): IAutoMovieMotionHumanChain;
 
@@ -101,8 +99,6 @@ export namespace IAutoMovieMotionHumanChain {
      * @param laws The registered laws, each under the name it carries.
      * @returns What starts a chain of the extended kind.
      * @throws {Error} When a key differs from its law's name, or names something the chain already has.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChain.IConstructor.extend: The chain with a typed method for each law a production registers: the production's own actions are appended exactly like the vocabulary's. ```ts const Chain = HumanChain.extend({ salute }); Chain.subject("a").walk({ to }).salute({ hold: 1.5 }).stand(); new HumanPerformance({ seed, performers, laws: [salute], composition }); ```
      */
     extend<
       Laws extends Readonly<
@@ -131,8 +127,6 @@ export namespace IAutoMovieMotionHumanChain {
      * @param args The shared parameters, then an optional anchor: each role's action is anchored `anchor.role`.
      * @returns The joined composition.
      * @throws {Error} When one person is cast in two roles.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChain.IConstructor.mutual: Join people's chains in a mutual action: one thing they do together, such as a handshake, a handover or a lift. Every chain of the cast plays first, side by side, and then every role performs its part of the mutual action at once, so each person's earlier actions are placed before any role plans the meeting. `HumanMutual` holds the vocabulary's mutual actions; a production states its own as an `IAutoMovieMotionHumanMutual` over its registered laws. ```ts HumanChain.mutual(HumanMutual.handOver, { giver: a, receiver: b }, { prop: "cup", handle: "body" }); ```
      */
     mutual<Params extends object, Role extends string>(
       mutual: IAutoMovieMotionHumanMutual<Params, Role>,
@@ -149,8 +143,6 @@ export namespace IAutoMovieMotionHumanChain {
      * @param a One person's chain; the giver of a handover.
      * @param b The other's; the receiver.
      * @returns The mutual actions, each returning the joined composition.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChain.IConstructor.pair: Two people's chains joined for a mutual action: `mutual` for the two that every film has, a handshake and a handover.
      */
     pair(
       a: IAutoMovieMotionHumanChain,
@@ -220,8 +212,6 @@ export namespace IAutoMovieMotionHumanChain {
      *
      * @param subject The person.
      * @returns The chain.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChain.IExtension.subject: An empty chain of a person.
      */
     subject(subject: string): IAutoMovieMotionHumanChain.Extended<Laws>;
   }

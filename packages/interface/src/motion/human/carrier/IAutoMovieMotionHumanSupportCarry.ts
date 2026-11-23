@@ -34,8 +34,6 @@ export namespace IAutoMovieMotionHumanSupportCarry {
   export interface ICarry {
     /**
      * A world point at the start, where the support has carried it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSupportCarry.ICarry.point: A world point at the start, where the support has carried it.
      */
     point(p: IAutoMovieVector3): IAutoMovieVector3;
 

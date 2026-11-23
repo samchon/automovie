@@ -26,8 +26,6 @@ export interface IAutoMovieMotionHumanPlayback {
 
   /**
    * Optional owned setup after placement, contacts and flight are final.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Setup consumes the native data available at finalized placement. The display waits for setup before borrowing those phases.
    */
   readonly prepare?: () => void;
 }
@@ -67,8 +65,6 @@ export namespace IAutoMovieMotionHumanPlayback {
 
     /**
      * Transfer the genuine fit to the same unchanged, complete bare leaf at most once.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation A consumed or unavailable fit yields undefined. A successful transfer owns the leaf's actual fit and seeds.
      */
     readonly takeFit?: () => IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined;
   }

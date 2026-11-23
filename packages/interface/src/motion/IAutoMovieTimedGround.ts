@@ -15,8 +15,6 @@ export interface IAutoMovieTimedGround {
   /**
    * Read the eligible ground's model Y in metres. Root samples are observed
    * for path admission and feet for stance. Null means no static ground.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the point frame, seconds and metre units, kinds, and null meaning.
    */
   at: (
     seconds: number,

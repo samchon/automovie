@@ -21,8 +21,6 @@ export interface IAutoMovieHumanBindingPlane {
 
   /**
    * The step the share climbs on, over -1 to 1.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The step the share climbs on, over -1 to 1.
    */
   step: (x: number) => number;
 

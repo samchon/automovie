@@ -45,16 +45,12 @@ export namespace IAutoMovieMotionHumanCourse {
 
     /**
      * The posture at a second with the hips a distance along the heading, metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the second, hips' place in metres along the heading and returned actual posture. An optional same-body FK source belongs only to this synchronous course solve and must not enter the posture or a retained callback.
      */
     posture: (seconds: number, along: number,
       resolution?: IAutoMoviePoseResolution.ISource) => IAutoMovieMotionHumanPosture;
 
     /**
      * Where the extrapolated centre of mass is asked at a second, world metres along the heading.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument in seconds and the returned place in world metres along the heading.
      */
     target: (seconds: number) => number;
 

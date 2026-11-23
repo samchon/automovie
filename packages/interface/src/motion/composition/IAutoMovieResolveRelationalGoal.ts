@@ -68,8 +68,6 @@ export namespace IAutoMovieResolveRelationalGoal {
 
     /**
      * Its prior world pose of every segment at an instant.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieResolveRelationalGoal.IBody.pose: Its prior world pose of every segment at an instant.
      */
     pose(seconds: number): Record<string, IAutoMovieRigidTransform>;
 
@@ -78,8 +76,6 @@ export namespace IAutoMovieResolveRelationalGoal {
 
     /**
      * Its held support at an instant, for a performer.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieResolveRelationalGoal.IBody.support: Its held support at an instant, for a performer.
      */
     support(seconds: number): IAutoMovieResolveRelationalGoal.ISupport;
 

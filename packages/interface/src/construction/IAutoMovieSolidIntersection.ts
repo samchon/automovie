@@ -134,8 +134,6 @@ export namespace IAutoMovieSolidIntersection {
      * @param t The parameter, radians, any real value.
      * @returns The point, its phases on the branch of the traced point it
      *   starts from, or null where Newton fails there.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States finite parameter input, periodic shift and nullable local correction.
      */
     at(t: number): IAutoMovieSolidIntersection.IPoint | null;
   }

@@ -75,8 +75,6 @@ export namespace IAutoMovieConstructionSkinCut {
      * The rail's station at a phase with its first and second phase derivatives, mm and mm per radian. The same phase always returns the
      * same numbers. It throws `AutoMovieLoftAdmissionError` at a phase between the admitted ones where the skin does not cross the
      * surface or is tangent to it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the result, its determinism and its failure.
      */
     at: (psi: number) => [number, number, number];
 

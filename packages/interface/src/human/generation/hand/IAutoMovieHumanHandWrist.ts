@@ -24,8 +24,6 @@ export interface IAutoMovieHumanHandWrist {
   /**
    * Hull perimeter of the forearm's tube cut by a plane through a point, mm;
    * the plane's normal faces the shoulder, as the tube's sections do.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Hull perimeter of the forearm's tube cut by a plane through a point, mm; the plane's normal faces the shoulder, as the tube's sections do.
    */
   girth(
     point: [number, number, number],

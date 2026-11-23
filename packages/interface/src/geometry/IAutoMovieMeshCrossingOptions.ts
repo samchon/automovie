@@ -29,8 +29,6 @@ export interface IAutoMovieMeshCrossingOptions {
    * index buffers. The callback must not mutate geometry. Omitted counts every
    * strict intersection. The connected face and lash clearance readers use it
    * to classify individual insertion witnesses without exempting a pair.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the point's frame, the ordinal space of both triangle arguments, the no-mutation rule, the omitted default, and who uses it.
    */
   acceptTransversePoint?: (
     point: readonly number[],

@@ -24,22 +24,16 @@ export namespace IAutoMovieHumanLegSourceFamily {
   export interface IOutput {
     /**
      * Latest actual coupled definition, or the base before explicit assembly.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Latest actual coupled definition, or the base before explicit assembly.
      */
     current(): IAutoMovieHumanLegWalk.IDefinition;
 
     /**
      * Same bounded calf-to-cap authority without forcing the full leg or upper-parent completion.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Same bounded calf-to-cap authority without forcing the full leg or upper-parent completion.
      */
     ankle(): IAnkle;
 
     /**
      * Replace the current coupled definition with a trial or final proximal prefix against this parent at station in calibration millimetres; binding alone does not complete the parent.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Replace the current coupled definition with a trial or final proximal prefix against this parent at station in calibration millimetres; binding alone does not complete the parent.
      */
     bind(
       parent: IAutoMovieHumanSourceDefinition,
@@ -85,8 +79,6 @@ export namespace IAutoMovieHumanLegSourceFamily {
 
     /**
      * Successfully complete the owning trunk before full demand, or throw its failure; binding a trial alone is not completion.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Successfully complete the owning trunk before full demand, or throw its failure; binding a trial alone is not completion.
      */
     complete?: () => void;
   }

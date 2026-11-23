@@ -31,8 +31,6 @@ export namespace IAutoMovieParameterizeSweepSection {
   export type IResult = {
     /**
      * Evaluate finite t modulo one; returns a new mutable metre point in section x/y axes. The compiled closure retains authored point/axis/exponent data, so keep the section immutable. This is curve parameter, not generally polar angle or arc-length share.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States modulo-one parameter queries, newly owned metre points, retained immutable section coefficients and distinction from angle or arclength.
      */
     point: (t: number) => IAutoMovieSweepSection.IPoint;
 

@@ -31,8 +31,6 @@ export interface IAutoMovieScheduleLaws {
    * @param of The track's name.
    * @param entries Entries placed so far, in walk order.
    * @returns The instants, or undefined.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieScheduleLaws.instants: The instants of a track the laws compute from what is placed so far, read when an `at` names neither an anchor nor a track of `cues`: the hits a struck person has received, known only once their strikers are placed. Undefined for a name the laws do not know, which the walk then refuses as a missing anchor. Pure in the entries given.
    */
   instants?(
     of: string,
@@ -43,8 +41,6 @@ export interface IAutoMovieScheduleLaws {
    * The second an intent must start at for its named instant to fall on a
    * target second. It places nothing: the intent is timed again when it
    * is placed at the second returned.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieScheduleLaws.align: The second an intent must start at for its named instant to fall on a target second. It places nothing: the intent is timed again when it is placed at the second returned.
    */
   align?(
     intent: IAutoMovieIntent,
@@ -55,8 +51,6 @@ export interface IAutoMovieScheduleLaws {
 
   /**
    * Duration and contact of an intent.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieScheduleLaws.timing: Duration and contact of an intent.
    */
   timing(
     intent: IAutoMovieIntent,
@@ -66,8 +60,6 @@ export interface IAutoMovieScheduleLaws {
   /**
    * The share of an intent's duration at which a `proximity` cut happens,
    * found from the production's motion, or undefined when it never does.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieScheduleLaws.until: The share of an intent's duration at which a `proximity` cut happens, found from the production's motion, or undefined when it never does.
    */
   until?(
     intent: IAutoMovieIntent,
@@ -82,8 +74,6 @@ export interface IAutoMovieScheduleLaws {
 
   /**
    * Outcome class for the draft entry before it is appended; absent callback or undefined result omits outcome. The draft contains no outcome or state.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieScheduleLaws.outcome: Outcome class for the draft entry before it is appended; absent callback or undefined result omits outcome. The draft contains no outcome or state.
    */
   outcome?(
     entry: IAutoMovieScheduleEntry,
@@ -92,8 +82,6 @@ export interface IAutoMovieScheduleLaws {
 
   /**
    * Production-owned state for the same draft passed to outcome, without outcome attached. Undefined omits state; other values are retained by reference and are not deep-frozen. The engine does not interpret their shape.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieScheduleLaws.state: Production-owned state for the same draft passed to outcome, without outcome attached. Undefined omits state; other values are retained by reference and are not deep-frozen. The engine does not interpret their shape.
    */
   state?(
     entry: IAutoMovieScheduleEntry,

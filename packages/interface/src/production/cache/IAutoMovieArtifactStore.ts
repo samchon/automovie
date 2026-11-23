@@ -18,8 +18,6 @@ export interface IAutoMovieArtifactStore {
   /**
    * The entry written under `key`, or `undefined` when there is none.
    * Missing entries resolve undefined; malformed keys, missing digest metadata and storage failures reject. The resolver propagates storage failures and only repairs entries it can read and hash.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes absent entries from malformed-key, metadata and storage rejection; the resolver verifies returned bytes before reuse.
    */
   read(key: string): Promise<IAutoMovieArtifactStore.IEntry | undefined>;
 
@@ -27,15 +25,11 @@ export interface IAutoMovieArtifactStore {
    * Replace the entry under `key` atomically, so a reader sees the old or the new entry, never a part.
    * Keep entry.bytes stable until the promise settles. The store owns any
    * retained copy; later caller mutation must not alter the stored generation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Requires atomic generation replacement and states byte-buffer stability through settlement and storage ownership afterward.
    */
   write(key: string, entry: IAutoMovieArtifactStore.IEntry): Promise<void>;
 
   /**
    * Delete the entry under `key`; removing an absent key succeeds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives absent-key deletion success so corrupt-entry repair can remove a generation without racing an independent removal.
    */
   remove(key: string): Promise<void>;
 
@@ -43,8 +37,6 @@ export interface IAutoMovieArtifactStore {
    * The `sha256:` content digest of `bytes`, the same value every store computes.
    * Read bytes without mutation; the caller keeps them stable until settlement.
    * The result is lowercase hexadecimal after the prefix and hashes every byte.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Fixes whole-buffer SHA-256, lowercase prefixed spelling and asynchronous byte stability so host adapters produce comparable content identities.
    */
   digest(bytes: Uint8Array): Promise<string>;
 }

@@ -12,7 +12,6 @@ import type {
  */
 export interface IAutoMovieRecoveryMapTriangularMetric extends IAutoMovieRecoveryMapMetric {
   /** Preflight one fixed inverse-transpose row before choosing the model metric.
-   * @evidence contracts/development/common.md#meaningful-documentation Borrows a sparse physical row and transfers a complete matching-offset row or null; success certifies this action only, not future vectors or normal convergence.
    */
   tryWhiten: (row: IAutoMovieSimplexAtom) => IAutoMovieSimplexAtom | null;
 }

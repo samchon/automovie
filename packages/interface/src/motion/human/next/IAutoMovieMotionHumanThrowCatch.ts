@@ -25,8 +25,6 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @param params The `at`, `style`, `hand`, `prop`, `angle`, `attitude`, `implement` and `manner` of `IAutoMovieMotionHumanThrowObjectParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   throwObject(
     params: IAutoMovieMotionHumanThrowObjectParams,
@@ -39,8 +37,6 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @param params The `from`, `hands`, `side`, `ball` and `glove` of `IAutoMovieMotionHumanCatchObject.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   catchObject(
     params: IAutoMovieMotionHumanCatchObject.IParams,
@@ -53,8 +49,6 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @param params The `hand`, `prop` and `launch` of `IAutoMovieMotionHumanRelease.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   release(params: IAutoMovieMotionHumanRelease.IParams, anchor?: string): Chain;
 
@@ -64,8 +58,6 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @param params The `ball`, `foot`, `toward`, `speed`, `lift` and `manner` of `IAutoMovieMotionHumanKickBall.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   kickBall(
     params: IAutoMovieMotionHumanKickBall.IParams,
@@ -78,8 +70,6 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @param params The `pattern`, `balls`, `height`, `throws` and `drops` of `IAutoMovieMotionHumanJuggle.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   juggle(params: IAutoMovieMotionHumanJuggle.IParams, anchor?: string): Chain;
 
@@ -89,8 +79,6 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @param params The `event`, `implement`, `area` and `distance` of `IAutoMovieMotionHumanFieldThrow.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   fieldThrow(
     params: IAutoMovieMotionHumanFieldThrow.IParams,
@@ -103,8 +91,6 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @param params The `kind`, `stick`, `ball`, `toward`, `hand`, `seconds` and `speed` of `IAutoMovieMotionHumanStickBall.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   stickBall(
     params: IAutoMovieMotionHumanStickBall.IParams,
@@ -117,8 +103,6 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @param params The `kind`, `side`, `count`, `manner`, `prop`, `at`, `flightSeconds` and `contactAt` of `IAutoMovieMotionHumanBallSport.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   ballSport(
     params: IAutoMovieMotionHumanBallSport.IParams,

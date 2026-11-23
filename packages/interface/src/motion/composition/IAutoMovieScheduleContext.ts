@@ -22,8 +22,6 @@ export interface IAutoMovieScheduleContext {
    * part holding the subject's actions is itself waiting on this read (two
    * parts that read each other), "none" when no part holds any. Absent
    * where the walk places in declaration order only.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the call's effect, its three results and when the member is absent.
    */
   demand?: (subject: string) => IAutoMovieScheduleContext.Demand;
 
@@ -34,8 +32,6 @@ export interface IAutoMovieScheduleContext {
    * pose (the entry pose at a group's start), so only a read past it needs
    * that part placed (`demand`). Absent where the walk places in declaration
    * order only.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the instant returned, what a law may read up to it and when the member is absent.
    */
   horizon?: (subject: string) => number | undefined;
 
@@ -48,8 +44,6 @@ export interface IAutoMovieScheduleContext {
    * the partner's part is itself being placed (two actions that start
    * together and read each other). Absent where the walk places in
    * declaration order only.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the instant returned, when it is returned, the reading it marks and when the member is absent.
    */
   meeting?: (subject: string) => number | undefined;
 
@@ -58,8 +52,6 @@ export interface IAutoMovieScheduleContext {
    * of that anchor finds it placed: "placed" when such a part was placed,
    * "none" when no waiting part holds it. Absent where the walk places in
    * declaration order only.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the call's effect, its results and when the member is absent.
    */
   demandAnchor?: (anchor: string) => IAutoMovieScheduleContext.Demand;
 }

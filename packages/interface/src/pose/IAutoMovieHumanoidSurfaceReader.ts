@@ -19,22 +19,16 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 export interface IAutoMovieHumanoidSurfaceReader {
   /**
    * Return the retained resolved rest bone; throw if the rig contains no such bone. The returned record is borrowed from the reader's map.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Return the retained resolved rest bone; throw if the rig contains no such bone. The returned record is borrowed from the reader's map.
    */
   at(bone: AutoMovieHumanoidBone): IAutoMovieResolvedBone;
 
   /**
    * Union the segment's neutral collider bounds in rig-world metres. A missing segment throws; an empty shape list leaves positive-infinite minima and negative-infinite maxima. Each result is newly allocated.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Union the segment's neutral collider bounds in rig-world metres. A missing segment throws; an empty shape list leaves positive-infinite minima and negative-infinite maxima. Each result is newly allocated.
    */
   bounds(bone: AutoMovieHumanoidBone): IAutoMovieSubjectBox;
 
   /**
    * Convert a rig-world metre point and outward direction to the named bone's rest frame. Directions are normalized before rotation; omitted forward leaves the returned frame's forward absent. A missing bone throws.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Convert a rig-world metre point and outward direction to the named bone's rest frame. Directions are normalized before rotation; omitted forward leaves the returned frame's forward absent. A missing bone throws.
    */
   local(
     bone: AutoMovieHumanoidBone,
@@ -45,8 +39,6 @@ export interface IAutoMovieHumanoidSurfaceReader {
 
   /**
    * Locate a region's source station in rig-world metres: the collider-box centre for `toward: "centre"`, otherwise the specified share between two rest joints. Missing referenced bones or segments propagate the corresponding reader failure.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Locate a region's source station in rig-world metres: the collider-box centre for `toward: "centre"`, otherwise the specified share between two rest joints. Missing referenced bones or segments propagate the corresponding reader failure.
    */
   station(
     station: IAutoMovieHumanoidSurfaceRegions.IStation,
@@ -54,8 +46,6 @@ export interface IAutoMovieHumanoidSurfaceReader {
 
   /**
    * Return only the farthest collider-exit point in rig-world metres; origin is a rig-world metre point and direction is normalized by the surface reader. A missing segment or ray with no admitted exit throws.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Return only the farthest collider-exit point in rig-world metres; origin is a rig-world metre point and direction is normalized by the surface reader. A missing segment or ray with no admitted exit throws.
    */
   exit(
     bone: AutoMovieHumanoidBone,
@@ -65,8 +55,6 @@ export interface IAutoMovieHumanoidSurfaceReader {
 
   /**
    * Return the farthest exit from the segment's convex collider union and that collider's outward normal. Origin is rig-world metres; direction is normalized. A missing segment or no admitted exit throws, and the returned point/normal records are newly computed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Return the farthest exit from the segment's convex collider union and that collider's outward normal. Origin is rig-world metres; direction is normalized. A missing segment or no admitted exit throws, and the returned point/normal records are newly computed.
    */
   surface(
     bone: AutoMovieHumanoidBone,

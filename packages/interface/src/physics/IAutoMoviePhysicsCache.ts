@@ -59,14 +59,10 @@ export interface IAutoMoviePhysicsCache {
   readonly duration: number;
 
   /** Read finite local seconds in [0,duration] without advancing a solver. Returns a detached mutable frame using linear position/velocity and shortest-arc quaternion interpolation. Throws for invalid time or unavailable bounding frames.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies the at callback or sampling contract, including its clock and ownership obligations.
    */
   at(seconds: number): IAutoMoviePhysicalFrame;
 
   /** Return the last causal ownership event for body/bone at or before finite local seconds in [0,duration], including substep transitions. Throws for invalid time or absent matching history.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies the ownershipAt callback or sampling contract, including its clock and ownership obligations.
    */
   ownershipAt(
     body: string,

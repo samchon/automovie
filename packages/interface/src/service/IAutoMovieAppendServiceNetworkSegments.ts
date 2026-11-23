@@ -46,8 +46,6 @@ export namespace IAutoMovieAppendServiceNetworkSegments {
 
     /**
      * Synchronous finite-positive gate for radius in metres and section in square metres; receives value, path, label and out, appends findings and propagates exceptions.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronous finite-positive gate for radius in metres and section in square metres; receives value, path, label and out, appends findings and propagates exceptions. Member documentation states the supplied records, units and absence meanings used by appendServiceNetworkSegments.
      */
     positive: (
       value: number,
@@ -58,15 +56,11 @@ export namespace IAutoMovieAppendServiceNetworkSegments {
 
     /**
      * Synchronous Euclidean distance in metres between two borrowed world points; used with 1e-9 metre slack for distinct consecutive route vertices. Not retained; exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronous Euclidean distance in metres between two borrowed world points; used with 1e-9 metre slack for distinct consecutive route vertices. Not retained; exceptions propagate. Member documentation states the supplied records, units and absence meanings used by appendServiceNetworkSegments.
      */
     distance: (one: IAutoMovieVector3, other: IAutoMovieVector3) => number;
 
     /**
      * Synchronous endpoint check for borrowed route point and target port position in world metres; receives path, port id and out. The standard validator appends gaps above 1e-6 metres. Not retained; exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronous endpoint check for borrowed route point and target port position in world metres; receives path, port id and out. The standard validator appends gaps above 1e-6 metres. Not retained; exceptions propagate. Member documentation states the supplied records, units and absence meanings used by appendServiceNetworkSegments.
      */
     coincident: (
       point: IAutoMovieVector3,

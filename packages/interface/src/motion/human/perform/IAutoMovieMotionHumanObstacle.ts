@@ -27,8 +27,6 @@ export interface IAutoMovieMotionHumanObstacle {
 
   /**
    * Where a moving obstacle is at a film second; `footprint` is then in its own frame, placed by `HumanObstacleMotion.at`. Still when absent.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanObstacle.motion: Where a moving obstacle is at a film second; `footprint` is then in its own frame, placed by `HumanObstacleMotion.at`. Still when absent.
    */
   motion?: (seconds: number) => {
     /** Obstacle root position in world metres. */

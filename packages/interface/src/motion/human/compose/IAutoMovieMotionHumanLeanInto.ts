@@ -55,8 +55,6 @@ export namespace IAutoMovieMotionHumanLeanInto {
 
     /**
      * The wrist's goal on a posture at a progress of the stroke in [0, 1], world metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the original posture/stroke-progress inputs and returned world-metre wrist goal without replacing a caller's progress-to-time policy.
      */
     wrist: (
       posture: IAutoMovieMotionHumanPosture,
@@ -67,15 +65,11 @@ export namespace IAutoMovieMotionHumanLeanInto {
      * The working arm's goal on a posture at the stroke's start, so the
      * balance weighs the arm where it reaches; the arm as the posture holds
      * it when absent.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the goal returned, why the balance reads it and the default.
      */
     arm?: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieHumanLimbGoal;
 
     /**
      * The refusal's message for a wrist left `beyond` metres out of reach at a lean of `limit` degrees.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the two arguments, the metres out of reach and the lean limit in degrees, and that the returned message is the refusal's words.
      */
     refuse: (beyond: number, limit: number) => string;
   }
@@ -91,8 +85,6 @@ export namespace IAutoMovieMotionHumanLeanInto {
   export interface ILean {
     /**
      * The least pitch in degrees that reaches at a progress; throws the refusal when the limit does not. Optional same-person FK is borrowed only by this synchronous observation.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the original posture/progress inputs, optional same-person FK borrowed only through this pitch call, returned degrees and original out-of-reach refusal.
      */
     pitch: (
       posture: IAutoMovieMotionHumanPosture,
@@ -102,8 +94,6 @@ export namespace IAutoMovieMotionHumanLeanInto {
 
     /**
      * A posture tipped by a pitch in degrees, the hips shifted back to balance it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the posture and the pitch in degrees taken and the tipped posture returned with the hips shifted back to balance it.
      */
     tip: (
       posture: IAutoMovieMotionHumanPosture,
@@ -112,8 +102,6 @@ export namespace IAutoMovieMotionHumanLeanInto {
 
     /**
      * The primitive that leans in by `ready`, follows the stroke's progress and straightens from `relax`.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the clock it is built on and the primitive returned: leaning in by ready, following the stroke and straightening from relax.
      */
     primitive: (clock: IAutoMovieMotionClock) => IAutoMovieMotionHumanPrimitive;
   }

@@ -107,8 +107,6 @@ export namespace IAutoMovieMotionHumanCatchObject {
      *
      * @param seconds Seconds since the action's start.
      * @returns World metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCatchObject.IPlan.object: The object's centre at a second of the action.
      */
     object(seconds: number): IAutoMovieVector3;
   }
@@ -127,8 +125,6 @@ export namespace IAutoMovieMotionHumanCatchObject {
      *
      * @param context The action's context.
      * @returns The plan with its object path.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the input context and that the result carries the object path.
      */
     plan(context: IAutoMovieMotionHumanActionContext<IStageParams>): IPlan;
   }

@@ -50,15 +50,11 @@ export namespace IAutoMovieHumanMouthConstruction {
 
     /**
      * Height of the lips' contact line at a share of the half width from the midline.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Height of the lips' contact line at a share of the half width from the midline.
      */
     contact(u: number): number;
 
     /**
      * Forward coordinate of the skin at a height and a lateral place.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Forward coordinate of the skin at a height and a lateral place.
      */
     front(y: number, z: number): number;
   }

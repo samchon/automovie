@@ -52,8 +52,6 @@ export namespace IAutoMovieHumanTrunkGuides {
 
     /**
      * The lateral shares of its first and second guide in a section.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The lateral shares of its first and second guide in a section.
      */
     shares: (s: IAutoMovieHumanTrunkSection) => [number, number];
   }

@@ -33,8 +33,6 @@ export namespace IAutoMovieSolidCycle {
      * For a winding cycle sampled from an exact curve `u = along(v)` of this chart: the curve's station at a phase. A segment whose two
      * stored vertices both lie on it (`along(v) === u` at each, as the builder evaluated them) is read along the curve between them, not
      * as the chord through them; a vertex inserted later off the curve leaves its segments read as chords. Absent, every segment is a chord.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States which chart the curve is in, which segments read it, and what an inserted off-curve vertex or an absent curve leaves as chords.
      */
     along?: (v: number) => number;
 
@@ -131,16 +129,12 @@ export namespace IAutoMovieSolidCycle {
     /**
      * Whether a chart point lies on the face's kept side of the curve, or on it; absent where the cycle's own chart is already the
      * exact curve (a band's station line).
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the reading and the absent case.
      */
     kept?: (u: number, v: number) => boolean;
 
     /**
      * The neighbour's chart point corresponding to a chart point past the curve: the point's foot on the curve by the owner's
      * correspondence, read in the neighbour's chart.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the foot and the chart it returns.
      */
     across: (u: number, v: number) => [number, number];
   }

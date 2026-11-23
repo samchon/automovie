@@ -22,8 +22,6 @@ export interface IAutoMovieMotionHumanDanceBeats {
    *
    * @param k The beat, from 1; a fraction falls between beats.
    * @returns Action seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the beat's base, that a fraction falls between beats, and the result's timebase.
    */
   at(k: number): number;
 }

@@ -17,8 +17,6 @@ export interface IAutoMovieMotionHumanCarryPerson<Chain> {
    * @param params The `by`, `on` and `seconds` of `IAutoMovieMotionHumanCarried.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   carryPerson(
     params: IAutoMovieMotionHumanCarried.IParams,
@@ -31,8 +29,6 @@ export interface IAutoMovieMotionHumanCarryPerson<Chain> {
    * @param params The `lift` and `setDown` of `IAutoMovieMotionHumanCarriedLift.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   carriedLift(
     params: IAutoMovieMotionHumanCarriedLift.IParams,

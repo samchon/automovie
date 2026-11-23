@@ -32,8 +32,6 @@ export interface IAutoMovieRunVideoCaptureProps {
   /**
    * Runs FFmpeg with the given arguments and resolves when it ends successfully.
    * The host implements FFmpeg process execution; runAutoMovieVideoCapture awaits each planned command, and the host must reject failure and release process resources.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States argument ownership, successful-completion resolution, rejection and process-cleanup responsibility.
    */
   run: (args: readonly string[]) => Promise<void>;
 

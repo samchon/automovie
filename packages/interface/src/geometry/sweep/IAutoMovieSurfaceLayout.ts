@@ -33,8 +33,6 @@ export interface IAutoMovieSurfaceLayout {
    * @param columns Faces along `s`
    * @param rows Faces along `t`
    * @param wrap Whether column `columns` is column 0, for a patch closing on itself
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States every argument.
    */
   emit(
     patch: number,
@@ -51,8 +49,6 @@ export interface IAutoMovieSurfaceLayout {
    * @param quads Each face's four corners counterclockwise: vertex index and patch coordinates
    * @param columns The count the patch's record reports along `s`
    * @param rows The count the patch's record reports along `t`
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the corner record and the counts reported.
    */
   emitFaces(
     patch: number,
@@ -65,8 +61,6 @@ export interface IAutoMovieSurfaceLayout {
    * Refuse a layout in which a directed edge appears twice.
    *
    * @throws Error when patches overlap or wind inconsistently
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the refusal.
    */
   check(): void;
 }

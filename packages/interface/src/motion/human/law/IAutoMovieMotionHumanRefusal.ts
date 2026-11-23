@@ -63,8 +63,6 @@ export interface IAutoMovieMotionHumanRefusal extends Error {
    *
    * @param where The performer, the action and the occurrence.
    * @returns The located refusal; this one when it is located already.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanRefusal.locate: This refusal with its place in the film, keeping any place it already names: a law that named its own performer or action is not overwritten.
    */
   locate(
     where: IAutoMovieMotionHumanRefusal.IWhere,
@@ -128,8 +126,6 @@ export namespace IAutoMovieMotionHumanRefusal {
      *
      * @param props The refusal's facts.
      * @returns The message.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanRefusal.IConstructor.message: The message of a refusal: `performer.act#instance axis: reason; feasible: ...; fix: ...`, the place left out until it is known.
      */
     message(props: IAutoMovieMotionHumanRefusal.IProps): string;
 
@@ -139,8 +135,6 @@ export namespace IAutoMovieMotionHumanRefusal {
      *
      * @param feasible The set.
      * @returns The text.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanRefusal.IConstructor.describe: A feasible set as text: `0.12 to 0.71 m`, `at least 1`, or the alternatives listed.
      */
     describe(feasible: IAutoMovieMotionHumanRefusal.Feasible): string;
   }

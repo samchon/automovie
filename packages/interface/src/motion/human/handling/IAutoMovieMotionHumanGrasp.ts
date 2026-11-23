@@ -93,8 +93,6 @@ export namespace IAutoMovieMotionHumanGrasp {
      *
      * @param bones The fitted body's bones.
      * @returns Metres, not negative.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what is measured, in which unit and when it is absent.
      */
     judge?(
       bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -166,8 +164,6 @@ export namespace IAutoMovieMotionHumanGrasp {
     bound: number;
     /**
      * Synchronous candidate score over aligned grasp-then-stroke arrays. keys contains the existing composite degree/millimetre arm-fit scores; judged and bounds are metres, with NaN where no explicit judge/bound exists (including the first grasp). The caller defines score units and must handle sentinels and validity. Its result is compared with bound; callback exceptions propagate, and the borrowed arrays are call-local.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGrasp.IReachableRequired.measure: Synchronous candidate score over aligned grasp-then-stroke arrays. keys contains the existing composite degree/millimetre arm-fit scores; judged and bounds are metres, with NaN where no explicit judge/bound exists (including the first grasp). The caller defines score units and must handle sentinels and validity. Its result is compared with bound; callback exceptions propagate, and the borrowed arrays are call-local.
      */
     measure: (
       keys: readonly number[],

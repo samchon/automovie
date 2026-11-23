@@ -47,8 +47,6 @@ export namespace IAutoMovieEvaluateImplicitProjection64 {
     };
     /**
      * Read the immutable scalar field, gradient and Hessian at a millimetre query point. Exceptions propagate; failed continuation may query sixteen additional ray intervals for diagnostics before throwing.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States immutable millimetre queries, scalar/gradient/Hessian units, callback error propagation and extra diagnostic-ray reads after failed continuation.
      */
     field: (point: AutoMovieVector3Tuple) => {
       /** Scalar field value at the supplied point, in the same unit as target.value. */

@@ -20,8 +20,6 @@ export interface IAutoMovieMotionHumanSeat<Chain> {
    * @param params The `balance`, `seat`, `back`, `seconds`, `legs` and `manner` of `IAutoMovieMotionHumanSit.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   sit(params: IAutoMovieMotionHumanSit.IParams, anchor?: string): Chain;
 
@@ -31,8 +29,6 @@ export interface IAutoMovieMotionHumanSeat<Chain> {
    * @param params The `balance`, `to` and `manner` of `IAutoMovieMotionHumanRise.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   rise(params: IAutoMovieMotionHumanRise.IParams, anchor?: string): Chain;
 
@@ -42,8 +38,6 @@ export interface IAutoMovieMotionHumanSeat<Chain> {
    * @param params The `balance`, `kind`, `knee`, `hold`, `rise`, `at` and `manner` of `IAutoMovieMotionHumanKneel.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   kneel(params: IAutoMovieMotionHumanKneel.IParams, anchor?: string): Chain;
 
@@ -53,8 +47,6 @@ export interface IAutoMovieMotionHumanSeat<Chain> {
    * @param params The `side` and `hold` of `IAutoMovieMotionHumanCrossAnkleOverKnee`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   crossAnkleOverKnee(
     params: IAutoMovieMotionHumanCrossAnkleOverKnee,
@@ -67,8 +59,6 @@ export interface IAutoMovieMotionHumanSeat<Chain> {
    * @param params The `side`, `count`, `cadence` and `amplitude` of `IAutoMovieMotionHumanSeatedHeelBounce`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   seatedHeelBounce(
     params: IAutoMovieMotionHumanSeatedHeelBounce,

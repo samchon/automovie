@@ -23,15 +23,11 @@ export namespace IAutoMovieCreateCompiledSlotSummary {
   export type IResult = {
     /**
      * Synchronously fold one borrowed finite world-space position in metres. Its components are read immediately and no point reference is retained; callers preserve ascending slot order for digest-stable centroid arithmetic.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronously fold one borrowed finite world-space position in metres. Its components are read immediately and no point reference is retained; callers preserve ascending slot order for digest-stable centroid arithmetic. Member documentation states the supplied records, units and absence meanings used by createCompiledSlotSummary, summarizeCompiledSlotChunks, summarizeCompiledSlotRange.
      */
     add: (point: IAutoMovieVector3) => void;
 
     /**
      * Return fresh wrappers around the live summary vectors. This does not reset or seal the fold; the caller must stop adding and may release the accumulator after taking ownership.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Return fresh wrappers around the live summary vectors. This does not reset or seal the fold; the caller must stop adding and may release the accumulator after taking ownership. Member documentation states the supplied records, units and absence meanings used by createCompiledSlotSummary, summarizeCompiledSlotChunks, summarizeCompiledSlotRange.
      */
     finish: () => IAutoMoviePlacementSummary;
   };

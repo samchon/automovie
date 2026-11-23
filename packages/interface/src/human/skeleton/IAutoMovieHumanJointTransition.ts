@@ -48,8 +48,6 @@ export namespace IAutoMovieHumanJointTransition {
 
     /**
      * Whether a sample belongs to the joint's two bones and side.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Whether a sample belongs to the joint's two bones and side.
      */
     held: (index: number) => boolean;
 

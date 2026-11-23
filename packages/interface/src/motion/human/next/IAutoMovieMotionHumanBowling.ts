@@ -17,8 +17,6 @@ export interface IAutoMovieMotionHumanBowling<Chain> {
    * @param params The `distance`, `from`, `to`, `seconds` and `hand` of `IAutoMovieMotionHumanBowlingSlide.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the method does, its parameters and its return.
    */
   slide(
     params: IAutoMovieMotionHumanBowlingSlide.IParams,
@@ -31,8 +29,6 @@ export interface IAutoMovieMotionHumanBowling<Chain> {
    * @param params The `pins` and the baked `result`.
    * @returns The ids of the pins down at the cache end.
    * @throws {RangeError} When a pin has no hull base below its centre of mass, or is missing from the cache.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the method does, its parameters and its return.
    */
   readPinfall(
     params: IAutoMovieMotionHumanBowling.IReadPinfall,

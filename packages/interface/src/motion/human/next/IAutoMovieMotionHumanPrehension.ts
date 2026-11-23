@@ -23,8 +23,6 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
    * @param params The `prop`, `handle`, `hand`, `lift` and `use` of `IAutoMovieMotionHumanPickUp.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   pickUp(params: IAutoMovieMotionHumanPickUp.IParams, anchor?: string): Chain;
 
@@ -34,8 +32,6 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
    * @param params The `prop`, `at`, `on`, `onto`, `yaw`, `rotation` and `hand` of `IAutoMovieMotionHumanPutDown.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   putDown(params: IAutoMovieMotionHumanPutDown.IParams, anchor?: string): Chain;
 
@@ -45,8 +41,6 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
    * @param params The `kind`, `prop`, `side`, `axis`, `angle` and `to` of `IAutoMovieMotionHumanRegrasp.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   regrasp(params: IAutoMovieMotionHumanRegrasp.IParams, anchor?: string): Chain;
 
@@ -56,8 +50,6 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
    * @param params The `left`, `right` and `seconds` of `IAutoMovieMotionHumanCarryHang.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   carryHang(
     params: IAutoMovieMotionHumanCarryHang.IParams,
@@ -70,8 +62,6 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
    * @param params The pickup's own parameters and `closeAt`, the seconds from the action's time zero to grip closure, of `IAutoMovieMotionHumanPickUpMoving`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   pickUpMoving(
     params: IAutoMovieMotionHumanPickUpMoving,
@@ -84,8 +74,6 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
    * @param params The `prop`, `hand` and `onto` of `IAutoMovieMotionHumanPutDownAperture`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   putDownAperture(
     params: IAutoMovieMotionHumanPutDownAperture,
@@ -145,15 +133,11 @@ export namespace IAutoMovieMotionHumanPrehension {
 
     /**
      * The wrist at a second of the transport (clamped to its span), metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPrehension.ITransport.wrist: The wrist at a second of the transport (clamped to its span), metres.
      */
     wrist(seconds: number): IAutoMovieVector3;
 
     /**
      * The hand's world rotation at a second of the transport.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPrehension.ITransport.turn: The hand's world rotation at a second of the transport.
      */
     turn(seconds: number): IAutoMovieQuaternion;
   }

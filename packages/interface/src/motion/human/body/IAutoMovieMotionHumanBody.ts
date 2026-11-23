@@ -83,8 +83,6 @@ export interface IAutoMovieMotionHumanBody {
    *
    * @param side The arm's side.
    * @returns The shoulder's angles, or null for a rig without an arm chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the angles are, what reads them, when they are read and the null.
    */
   hanging: (side: AutoMovieHumanSide) => IAutoMovieResolvedJointAngles | null;
 }

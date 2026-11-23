@@ -24,8 +24,6 @@ export interface IAutoMovieMotionPropDrive {
    *
    * @param seconds Seconds since the action's start.
    * @returns The travel.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionPropDrive.travel: The articulation's travel at a second of the action, in its own unit (degrees for a turning kind, metres otherwise). Pure.
    */
   travel(seconds: number): number;
 }

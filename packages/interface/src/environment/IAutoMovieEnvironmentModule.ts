@@ -41,8 +41,6 @@ export namespace IAutoMovieEnvironmentModule {
      * @param id Environment-relative item key or `item/anchor` path.
      * @returns The named rigid frame, in world metres.
      * @throws If the referenced name is absent or the requested dependency creates a cycle.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the relative path, world frame and failure cases.
      */
     anchor(id: string): IAutoMovieTransform;
   }

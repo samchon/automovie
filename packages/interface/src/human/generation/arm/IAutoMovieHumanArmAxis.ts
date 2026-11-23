@@ -42,15 +42,11 @@ export namespace IAutoMovieHumanArmAxis {
   export interface IAxis {
     /**
      * Point at a walk length.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Point at a walk length.
      */
     at(s: number): AutoMovieVector3Tuple;
 
     /**
      * Unit heading at a walk length, away from the shoulder.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Unit heading at a walk length, away from the shoulder.
      */
     heading(s: number): AutoMovieVector3Tuple;
 
@@ -61,8 +57,6 @@ export namespace IAutoMovieHumanArmAxis {
      * Walk length of a station a distance down the forearm from the elbow
      * centre, along it; inside the turn, the share of the way from the
      * turn's middle to its end.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Walk length of a station a distance down the forearm from the elbow centre, along it; inside the turn, the share of the way from the turn's middle to its end.
      */
     fore(d: number): number;
 
@@ -70,8 +64,6 @@ export namespace IAutoMovieHumanArmAxis {
      * Walk length of a station a distance down the humerus from the shoulder
      * centre; inside the turn, the share of the way from its start to its
      * middle.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Walk length of a station a distance down the humerus from the shoulder centre; inside the turn, the share of the way from its start to its middle.
      */
     upper(d: number): number;
 

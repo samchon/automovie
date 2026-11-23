@@ -93,16 +93,12 @@ export namespace IAutoMovieHumanHeadCanonical {
      * One requested interval scalar restriction and engine loft, then constant-time reuse.
      * Returns the same adapter for the same immutable placement and generating family.
      * Only one placement identity and its actual adapter survive with this preparation.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Placement retains its actual calibration-mm domain; the independent upper tape parameter is not read.
      */
     lower(
       placement: IAutoMovieHumanNeckSource.IOutput,
     ): IAutoMovieHumanNeckConstruction.IOutput;
     /**
      * Borrow the same lower original before either consumer requests a loft.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Borrow the same lower original before either consumer requests a loft.
      */
     lowerSource(
       placement: IAutoMovieHumanNeckSource.IOutput,
@@ -116,8 +112,6 @@ export namespace IAutoMovieHumanHeadCanonical {
      * The full closure is attempted once per immutable preparation, including a failed attempt, without a raw loft; retained reads return its result or rethrow its original failure.
      * Production, original sections and raw readers borrow that identical selected part or observe the same original failure; a new input context owns a fresh attempt.
      * The result or original error and immutable source dependencies live with this one invocation, without a global failure cache.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Stage observations record actual work, excluding time spent waiting before this demand.
      */
     closed(): IOutput;
   }

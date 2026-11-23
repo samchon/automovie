@@ -53,22 +53,16 @@ export namespace IAutoMovieHumanFootToeBreadth {
 
     /**
      * The point at a length along the line.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The point at a length along the line.
      */
     pointAt: (s: number) => AutoMovieVector3Tuple;
 
     /**
      * The toe's own half breadth at a length along the line, mm, before the neighbours.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The toe's own half breadth at a length along the line, mm, before the neighbours.
      */
     shape: (s: number) => number;
 
     /**
      * The half breadth at a length along the line, mm.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The half breadth at a length along the line, mm.
      */
     half: (s: number) => number;
   }

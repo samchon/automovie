@@ -56,14 +56,10 @@ export namespace IAutoMovieHoldSurfaceGirths {
     vertices: number;
     /**
      * Return the sealed compiled rig for an existing network sweep name. The solve installs radial girth factors on these same rigs; do not return unrelated new rigs on successive calls.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States stable named rig identity and mutation of those same rigs by the girth solver.
      */
     sweepRig: (name: string) => IAutoMovieSweepRig;
     /**
      * Re-evaluate and fit the complete network at rest using current girth factors, overwriting the supplied packed metre control positions. Called once per solve step; exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States whole-network rest re-evaluation using current girths, synchronous packed-metre output mutation and propagated exceptions.
      */
     rest: (positions: Float64Array) => void;
     /** Writable packed rest control XYZ buffer in metres, with 3*vertices entries. Overwritten by rest evaluations and read by the limit-perimeter measurement; caller retains ownership. A failed solve can leave the rigs and this buffer at its last evaluated trial; there is no whole-solve rollback. */

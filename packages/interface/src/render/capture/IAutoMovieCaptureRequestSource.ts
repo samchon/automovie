@@ -11,15 +11,11 @@
 export interface IAutoMovieCaptureRequestSource {
   /**
    * The text of a key, null or undefined when the key is absent, and the empty string for a key given without a value, which turns a switch on.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each absence returns and what an empty value means.
    */
   get(key: string): string | null | undefined;
 
   /**
    * Every key given, a key given twice listed twice.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is listed and how a repeat appears.
    */
   keys(): Iterable<string>;
 }

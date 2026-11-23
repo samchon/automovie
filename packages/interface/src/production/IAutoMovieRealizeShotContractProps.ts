@@ -76,8 +76,6 @@ export interface IAutoMovieRealizeShotContractProps {
    * only for a node whose model is not in `compiled.models`; `null` means the
    * node has no rig, so its joint-angle predicates fail and its pose root is
    * not folded into its placement.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when it is consulted, its precedence below compiled models, and the effect of a `null` answer on predicates and placement.
    */
   skeleton?: (node: string) => IAutoMovieSkeleton | null;
 

@@ -37,8 +37,6 @@ export namespace IAutoMovieConstructionSplitBand {
      * round the face (a port's rails), mm; absent, station at every phase.
      * railAt calls this synchronously without clamping, caching or catching
      * exceptions. Keep the callback and source surface stable during a build.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the unit and the absent case.
      */
     along?: (psi: number) => number;
   }

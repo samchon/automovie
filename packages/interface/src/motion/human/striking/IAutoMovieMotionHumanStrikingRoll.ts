@@ -36,8 +36,6 @@ export namespace IAutoMovieMotionHumanStrikingRoll {
   export interface IChoice {
     /**
      * The hand frame the freedoms' values give.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanStrikingRoll.IChoice.frame: The hand frame the freedoms' values give.
      */
     frame: (
       values: readonly number[],

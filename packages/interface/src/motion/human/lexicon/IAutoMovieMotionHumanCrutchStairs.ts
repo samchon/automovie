@@ -42,8 +42,6 @@ export namespace IAutoMovieMotionHumanCrutchStairs {
   export interface ILaw extends IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCrutchStairs> {
     /**
      * From one crutch's staged floor frame, the climb's parameters and the climb's first film second (zero when absent), the crutch's world frame at each film second.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the start's default, the reader's timebase and the result's frame.
      */
     track: (
       start: IAutoMovieRigidTransform,

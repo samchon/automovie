@@ -27,8 +27,6 @@ export namespace IAutoMovieHumanTrunkGroinWidth {
 
     /**
      * The ring's girth at a trial half width, mm: the hull of its own section.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The ring's girth at a trial half width, mm: the hull of its own section.
      */
     girth: (width: number) => number;
   }

@@ -14,8 +14,6 @@ import type { IAutoMovieHumanWebColumn } from "./IAutoMovieHumanWebColumn";
 export interface IAutoMovieHumanWebSurface {
   /**
    * Dimensionless chart level at row r: -1 at the parent's ring, 0 at the crest and own.depth / web.rho at the child's section. r uses the row count supplied to AutoMovieHumanWebSurface.of and may be fractional.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A row's level in the chart of a web's child.
    */
   levelOf: (
     r: number,
@@ -25,8 +23,6 @@ export interface IAutoMovieHumanWebSurface {
 
   /**
    * Fractional row at dimensionless chart level x, inverse to levelOf on the parent's-ring-to-child interval. Levels below -1 saturate to the ring's row; callers supply the same child and web used for levelOf.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The row at a level of the chart of a web's child: the inverse of `levelOf`.
    */
   rowOf: (
     x: number,
@@ -36,8 +32,6 @@ export interface IAutoMovieHumanWebSurface {
 
   /**
    * Registered-frame margin point in millimetres. share is signed depth past the ring divided by the margin radius, clamped to [-1, 1]; side selects the signed margin direction, normally -1 or 1.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A margin's lip at a depth past the ring, as a share of its radius.
    */
   lip: (
     web: IAutoMovieHumanWeb,
@@ -47,8 +41,6 @@ export interface IAutoMovieHumanWebSurface {
 
   /**
    * Registered-frame point in millimetres on a column near a web, at fractional row r in the configured row count. Column and child geometry must stay unchanged while this surface retains their endpoint calculations.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A column near a web at a row: the saddle's translational chart.
    */
   chart: (
     col: IAutoMovieHumanWebSurface.Plain,
@@ -58,8 +50,6 @@ export interface IAutoMovieHumanWebSurface {
 
   /**
    * Prepare a reader for a column away from the webs. Its fractional row argument uses the configured row count and returns registered-frame millimetres between the parent's and child's copied jets. The prepared reader owns that fixed column's sampled curve.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A column away from the webs: its point at a row, between the parent's and child's copied jets.
    */
   plainAt: (
     col: IAutoMovieHumanWebSurface.Plain,

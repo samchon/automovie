@@ -38,7 +38,6 @@ export namespace IAutoMovieClampPose {
      * @param abduction Its abduction, degrees, or null at rest.
      * @param twist Its twist, degrees, or null at rest.
      * @returns The joint in range.
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieClampPose.IJoints.values: The record `(joint)` gives for a joint of these values.
      */
     values(
       bone: AutoMovieHumanoidBone,

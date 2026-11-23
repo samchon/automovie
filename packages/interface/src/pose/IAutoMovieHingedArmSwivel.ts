@@ -58,8 +58,6 @@ export namespace IAutoMovieHingedArmSwivel {
   export interface IPrepared {
     /**
      * Borrow one unchanged model-metre point and optional radian hinge range.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines point/range units, unchanged target scope and target-reader ownership.
      */
     target(point: IAutoMovieVector3, range?: IAutoMovieHingedChainGeometry["range"]): IPreparedTarget;
   }
@@ -75,15 +73,11 @@ export namespace IAutoMovieHingedArmSwivel {
   export interface IPreparedTarget {
     /**
      * Actual hinge roots in direct order, or null at the same degeneracy gates.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines ordered radian roots, actual model-metre shortfalls and null meaning through IStop and the source's original degeneracy contract.
      */
     branches(): IAutoMovieHingedArmSwivel.IStop[] | null;
 
     /**
      * Build one actual branch's poser for a swivel in degrees, without rig policy.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines radian hinge input, degree swivel input and bone-local upper/lower output; the returned poser owns one fixed lower rotation reused within that branch and fresh upper rotations.
      */
     pose(theta: number): IAutoMovieHingedArmSwivel.IPoseResult;
 
@@ -91,8 +85,6 @@ export namespace IAutoMovieHingedArmSwivel {
      * Read one radian hinge branch's algebraic upper half-angle family.
      * The returned coefficients use bone-local frames and degree swivels as
      * defined by IHarmonic; this query does not admit goals or constraints.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines radian hinge input, bone-local coefficient frames, degree swivel conversion and the separate actual goal/constraint admission.
      */
     harmonic?(theta: number): IHarmonic;
   }
@@ -116,8 +108,6 @@ export namespace IAutoMovieHingedArmSwivel {
     lower: IAutoMovieQuaternion;
     /**
      * Build the degree-swivel reader from this completed branch's unchanged geometry.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The returned reader takes swivel degrees and returns bone-local upper/lower quaternions; coefficients and lower articulation must stay unchanged during use.
      */
     pose(): IAutoMovieHingedArmSwivel.IPoseResult;
   }

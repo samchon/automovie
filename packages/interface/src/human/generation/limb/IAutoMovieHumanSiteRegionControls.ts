@@ -24,15 +24,11 @@ export namespace IAutoMovieHumanSiteRegionControls {
 
     /**
      * Supply the same complete local scalar boundary and qualified jets to the host input.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Supply the same complete local scalar boundary and qualified jets to the host input.
      */
     connect(input: IAutoMovieHumanSectionSource): IAutoMovieHumanSectionSource;
 
     /**
      * Explicit whole-host scalar demand; local sites are reused only for identical numeric tuples.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Explicit whole-host scalar demand; local sites are reused only for identical numeric tuples.
      */
     prepare(
       input: IAutoMovieHumanSectionSource,

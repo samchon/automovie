@@ -11,15 +11,11 @@
 export interface IAutoMovieCaptureStorage {
   /**
    * The names of the entries of a folder, files and folders alike. Rejects when the folder does not exist.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is listed and the missing-folder rejection.
    */
   readdir(path: string): Promise<string[]>;
 
   /**
    * Create a folder and any missing parent; an existing folder is kept.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is created and that an existing folder is kept.
    */
   mkdir(
     path: string,
@@ -31,22 +27,16 @@ export interface IAutoMovieCaptureStorage {
 
   /**
    * The bytes of a file. Rejects when the file does not exist.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is returned and the missing-file rejection.
    */
   readFile(path: string): Promise<Uint8Array>;
 
   /**
    * Write a file whole, replacing one of the same path; text is written as UTF-8.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the replacement rule and the text encoding.
    */
   writeFile(path: string, data: Uint8Array | string): Promise<void>;
 
   /**
    * Delete a file; with `force`, a path that does not exist is not an error.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is deleted and what `force` changes.
    */
   rm(
     path: string,

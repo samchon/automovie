@@ -29,8 +29,6 @@ export interface IAutoMovieMotionHumanChainManual extends IAutoMovieMotionHumanC
    * @param params Target, recruitment, cue and time.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainManual.look: Stand and look at a target, turning the eyes, head and trunk.
    */
   look(params: IAutoMovieMotionHumanLook.IParams, anchor?: string): this;
 
@@ -40,8 +38,6 @@ export interface IAutoMovieMotionHumanChainManual extends IAutoMovieMotionHumanC
    * @param params The gesture and its options.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainManual.gesture: Make a communicative gesture of the hands, head or trunk.
    */
   gesture(params: IAutoMovieMotionHumanGesture.IParams, anchor?: string): this;
 
@@ -51,8 +47,6 @@ export interface IAutoMovieMotionHumanChainManual extends IAutoMovieMotionHumanC
    * @param params Each hand's place and the time.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainManual.rest: Stand with the hands at rest places (pockets, hips, crossed arms).
    */
   rest(params?: IAutoMovieMotionHumanRest.IParams, anchor?: string): this;
 
@@ -64,8 +58,6 @@ export interface IAutoMovieMotionHumanChainManual extends IAutoMovieMotionHumanC
    * @param params The region, the kind, the part of the hand, the hand and the timing.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainManual.touch: Lay a hand on a partner's or one's own region and move it there by a kind of touch: a tap, a pat, a stroke, a rub, a press, a squeeze, a hold or a scratch.
    */
   touch(params: IAutoMovieMotionHumanTouch.IParams, anchor?: string): this;
 
@@ -76,8 +68,6 @@ export interface IAutoMovieMotionHumanChainManual extends IAutoMovieMotionHumanC
    * @param params The kind, the hand and the count.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainManual.selfAction: Perform a whole-body self action: a stretch, victory arms, a fist pump, a neck or shoulder roll.
    */
   selfAction(
     params: IAutoMovieMotionHumanSelfAction.IParams,
@@ -91,8 +81,6 @@ export interface IAutoMovieMotionHumanChainManual extends IAutoMovieMotionHumanC
    * @param params The task, the hand, the count and the time.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainManual.handToFace: Perform a hand-to-face task of daily living: drink, eat, phone, read or groom.
    */
   handToFace(
     params: IAutoMovieMotionHumanHandToFace.IParams,
@@ -105,8 +93,6 @@ export interface IAutoMovieMotionHumanChainManual extends IAutoMovieMotionHumanC
    * @param params The item.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainManual.dress: Put on a hat or a pair of glasses with both hands.
    */
   dress(params: IAutoMovieMotionHumanDress.IParams, anchor?: string): this;
 
@@ -117,8 +103,6 @@ export interface IAutoMovieMotionHumanChainManual extends IAutoMovieMotionHumanC
    * @param params The tool, the work point, the hand and the cycles.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainManual.useTool: Work a one-handed tool in cycles over a work point: a hammer, a saw, a spoon or a screwdriver.
    */
   useTool(params: IAutoMovieMotionHumanUseTool.IParams, anchor?: string): this;
 
@@ -128,8 +112,6 @@ export interface IAutoMovieMotionHumanChainManual extends IAutoMovieMotionHumanC
    * @param params The surface point, the hand and the cycles.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainManual.wipe: Wipe a level surface with the flat palm in circles.
    */
   wipe(params: IAutoMovieMotionHumanWipe.IParams, anchor?: string): this;
 
@@ -140,8 +122,6 @@ export interface IAutoMovieMotionHumanChainManual extends IAutoMovieMotionHumanC
    * @param params The mechanism and the hand.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainManual.operate: Press a button, turn a knob, slide a drawer or swing a door by its handle.
    */
   operate(params: IAutoMovieMotionHumanOperate.IParams, anchor?: string): this;
 
@@ -152,8 +132,6 @@ export interface IAutoMovieMotionHumanChainManual extends IAutoMovieMotionHumanC
    * @param params The keyboard's prop subject and the text.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainManual.typeText: Type a text on a keyboard with the index fingertips, holding the current posture.
    */
   typeText(
     params: IAutoMovieMotionHumanTypeText.IParams,

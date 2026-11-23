@@ -59,8 +59,6 @@ export namespace IAutoMovieConstructionProfileSource {
 
     /**
      * Membership of the same original field at its physical station and original curve clock.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Names physical-station millimetres and the original clock rather than the prepared piece's normalized coordinate.
      */
     contains(station: number, clock: number): boolean;
 
@@ -70,8 +68,6 @@ export namespace IAutoMovieConstructionProfileSource {
      * an empty array means no retained interval. Consumers must treat returned
      * arrays as borrowed readonly data. Profile preparation does not call this
      * optional capability or validate its ordering.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines original-clock intervals, absent/null versus empty results, readonly borrowing and lack of preparation-time extraction checks.
      */
     intervals?(station: number): readonly (readonly [number, number])[] | null;
   }
@@ -150,8 +146,6 @@ export namespace IAutoMovieConstructionProfileSource {
      * Actual local point in millimetres at physical station millimetres and
      * original clock. It may remain available at a collapsed tip where jet is
      * null. Readers validate finite pairs and build their own world vectors.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States physical station and original-clock arguments, local millimetre output and Point0 availability independent of tip derivatives.
      */
     point(station: number, clock: number): AutoMovieVector2Tuple;
 
@@ -160,8 +154,6 @@ export namespace IAutoMovieConstructionProfileSource {
      * clock. An absent method falls back to this owner's jet; an implemented
      * method returning null is a refusal and does not fall back. A nonnull
      * reading may still have tt=null. Readers do not mutate its arrays.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Distinguishes absent-method fallback, explicit null refusal and a nonnull reading with unavailable second order.
      */
     phase?(
       station: number,
@@ -173,8 +165,6 @@ export namespace IAutoMovieConstructionProfileSource {
      * null where unavailable. A prepared surface jet request converts null
      * into an admission exception and requires a complete plane jet too.
      * Consumers read the returned arrays without mutation or long-term retention.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines complete local total2, its source units, null admission failure and nonmutating temporary consumption.
      */
     jet(
       station: number,

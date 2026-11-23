@@ -18,8 +18,6 @@ efrigerator, shelf, swing and hand of IAutoMovieMotionHumanDining.IInspectRefrig
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the handle operation followed by the shelf look appended.
    * @throws {HumanRefusal} When the additional opening is nonpositive or nonfinite.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the composition does, its parameters, its anchor, its return and its refusal.
    */
   inspectRefrigerator(
     params: IAutoMovieMotionHumanDining.IInspectRefrigerator,

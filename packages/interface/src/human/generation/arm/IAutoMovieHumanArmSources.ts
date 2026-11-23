@@ -24,15 +24,11 @@ export namespace IAutoMovieHumanArmSources {
   export interface IOutput {
     /**
      * Request the retained complete arm definition; the first demand prepares the arm controls and later demands return that definition. Preparation failures propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Request the retained complete arm definition; the first demand prepares the arm controls and later demands return that definition. Preparation failures propagate.
      */
     definition(): IAutoMovieHumanSourceDefinition;
 
     /**
      * Return fresh assembly metadata referring to the retained arm definition and original joints; the assembly supplies the trunk fold separately.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Return fresh assembly metadata referring to the retained arm definition and original joints; the assembly supplies the trunk fold separately.
      */
     arm(): Omit<IAutoMovieHumanBodyLane.ISide["arm"], "trunk">;
 
@@ -41,15 +37,11 @@ export namespace IAutoMovieHumanArmSources {
 
     /**
      * Request a side-qualified digit name from digitNames, reusing its retained palm controls and result; return undefined for an unknown name. Preparation failures propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Request a side-qualified digit name from digitNames, reusing its retained palm controls and result; return undefined for an unknown name. Preparation failures propagate.
      */
     digit(name: string): IAutoMovieHumanBodyLane.IDigit | undefined;
 
     /**
      * Request all four fingers and the thumb in digitNames order; return a new array containing the retained digit results. Preparation failures propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Request all four fingers and the thumb in digitNames order; return a new array containing the retained digit results. Preparation failures propagate.
      */
     fingers(): IAutoMovieHumanBodyLane.IDigit[];
   }

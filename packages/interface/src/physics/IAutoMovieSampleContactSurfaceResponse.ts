@@ -33,8 +33,6 @@ export namespace IAutoMovieSampleContactSurfaceResponse {
      * Contact centre transported into that same frame.
      *
      * Synchronously transport the sampled contact event into the same current metre frame as point. Return a finite point without mutating the borrowed event; exceptions propagate. The returned point is read immediately and no callback or point is retained after sampling.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronously transport the sampled contact event into the same current metre frame as point. Return a finite point without mutating the borrowed event; exceptions propagate. The returned point is read immediately and no callback or point is retained after sampling.
      */
     center: (receipt: IAutoMovieContactReceipt) => IAutoMovieVector3;
     /** Explicit appearance radius, metres. */

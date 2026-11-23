@@ -73,8 +73,6 @@ export namespace IAutoMovieBoxExcludedSwivels {
      * The joint's bone-local rotation at a swivel, degrees: a fixed rotation turned about a fixed axis by the swivel.
      *
      * Return the bone-local unit rotation for swivel degrees, following one fixed-axis rotation of a fixed base pose. Sampling is synchronous; equal angles must return equivalent rotations without mutating shared inputs. The returned exclusion predicate retains sampled coefficients, not this callback.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Return the bone-local unit rotation for swivel degrees, following one fixed-axis rotation of a fixed base pose. Sampling is synchronous; equal angles must return equivalent rotations without mutating shared inputs. The returned exclusion predicate retains sampled coefficients, not this callback.
      */
     rotation: (swivel: number) => IAutoMovieQuaternion;
   };

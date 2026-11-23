@@ -112,8 +112,6 @@ export namespace IAutoMovieHumanHeadComposer {
      * A completed raw result is reused by name. Resolving that name first reads the source map or scans the independent studies; the first raw request performs the engine loft.
      * compose and selected raw readers borrow the identical raw result and original callbacks.
      * Only this call-owned definition retains its requested results; no cross-input cache is added.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Creates only the requested raw result, with studies separate from production topology.
      */
     loft(name: string): IAutoMovieViewLoft.IResult;
   }
@@ -160,8 +158,6 @@ export namespace IAutoMovieHumanHeadComposer {
      * Performs the actual constraint once on explicit first demand.
      * Subsequent production and inspection calls receive the identical canonical result or original failure.
      * Only this invocation retains the actual selected source and attempt.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Separates available guides and observed completion from required public-input geometry.
      */
     closed(): IAutoMovieHumanHeadCanonical.IOutput;
     /** Already requested raw mass, or null; this readonly observation never creates a loft. */
@@ -175,8 +171,6 @@ export namespace IAutoMovieHumanHeadComposer {
      * The first request performs one engine loft; subsequent requests return the retained result in constant time.
      * Explicit raw consumers borrow the same result; ordinary source-leaf realization receives the actual part independently.
      * Only this call-owned source closure retains a requested loft; there is no global cache.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The returned raw result belongs to this immutable source preparation.
      */
     loft(): IAutoMovieViewLoft.IResult;
     /** Same original neck family as the mass; null only without base context. */

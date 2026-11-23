@@ -47,8 +47,6 @@ export namespace IAutoMovieMotionHumanTouchStance {
 
     /**
      * Adds shoulder-girdle assistance to the input posture before the stance lifts the working shoulder or raises the heels. The reach envelope supplies `share` in [0, 1], and stance preparation uses full assistance at 1. When absent, the stance uses the input posture directly.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the input posture, the dimensionless share, the order of application and the default when absent.
      */
     girdles?: (
       posture: IAutoMovieMotionHumanPosture,
@@ -66,8 +64,6 @@ export namespace IAutoMovieMotionHumanTouchStance {
 
     /**
      * The current ankle frames when the base's adjustment step moves them during the stroke.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Reads both ankle points and rotations from the current posture during heel lift.
      */
     placements?: (
       posture: IAutoMovieMotionHumanPosture,
@@ -75,8 +71,6 @@ export namespace IAutoMovieMotionHumanTouchStance {
 
     /**
      * The heel rise's share when a step has to finish before its foot rolls onto the toes.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Takes action-local seconds and returns the dimensionless share multiplying the rise angle.
      */
     heels?: (clock: IAutoMovieMotionClock, seconds: number) => number;
 
@@ -88,8 +82,6 @@ export namespace IAutoMovieMotionHumanTouchStance {
 
     /**
      * The wrist's goal on a posture at a progress of the stroke in [0, 1], world metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the arguments, a posture and the stroke progress in [0, 1], and the wrist goal returned in world metres.
      */
     wrist: (
       posture: IAutoMovieMotionHumanPosture,
@@ -98,15 +90,11 @@ export namespace IAutoMovieMotionHumanTouchStance {
 
     /**
      * The working arm's goal on a posture at the stroke's start, laid on its region, so the lean's balance weighs the arm where it reaches (`IAutoMovieMotionHumanLeanInto.IProps.arm`); the arm as the posture holds it when absent.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the goal returned, who reads it and the default.
      */
     arm?: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieHumanLimbGoal;
 
     /**
      * The refusal's message for a wrist left `beyond` metres out of reach at a lean of `limit` degrees.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the two arguments, the metres out of reach and the lean limit in degrees, and that the returned message is the refusal's words.
      */
     refuse: (beyond: number, limit: number) => string;
 
@@ -140,8 +128,6 @@ export namespace IAutoMovieMotionHumanTouchStance {
 
     /**
      * The primitives that rise and lean by `ready`, follow the stroke and come back from `relax`: none when the arm reaches as it stands.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the clock it is built on and the primitives returned, none when the arm reaches as it stands.
      */
     primitives: (
       clock: IAutoMovieMotionClock,

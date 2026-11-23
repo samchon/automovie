@@ -34,20 +34,14 @@ export namespace IAutoMovieHumanTrunkSectionFamily {
     fullness: IAutoMovieHumanTrunkViews.ISite["fullness"];
     /**
      * Solve this unchanged box/tape once at its first original-source demand.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Solve this unchanged box/tape once at its first original-source demand.
      */
     resolve(): IFullness;
     /**
      * Evaluate that original plane's conic family at the actual candidate shoulder.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Evaluate that original plane's conic family at the actual candidate shoulder.
      */
     section(shoulder: number): IAutoMovieViewSection.ISection;
     /**
      * Admit this exact support box's native shoulder reach once, including a null refusal.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Admit this exact support box's native shoulder reach once, including a null refusal.
      */
     range(): IAutoMovieViewSection.IRange | null;
   }

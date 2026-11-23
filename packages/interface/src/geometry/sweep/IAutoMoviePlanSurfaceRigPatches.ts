@@ -27,26 +27,18 @@ export namespace IAutoMoviePlanSurfaceRigPatches {
     registry: IAutoMovieSurfaceRegistry;
     /**
      * Resolve an existing named sweep to the same compiled rig used by the network; unknown names throw in the supplied resolver.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States resolution of the existing network's shared rig and unknown-name failure.
      */
     sweepRig: (name: string) => IAutoMovieSweepRig;
     /**
      * Select and admit the current tier's safe positive integer count from a count record. what provides diagnostic context; exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States current-tier positive safe-integer count admission and diagnostic context with propagated errors.
      */
     count: (counts: IAutoMovieSurfaceNetwork.ICounts, what: string) => number;
     /**
      * Construct a stable sweep-point identity from name and u/v, using the same clamped-u and wrapped-turn quantization as all registry users. Numeric proximity does not supply identity.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States named sweep identity with clamped normalized u and wrapped turns, using the registry's common quantization rather than positional welding.
      */
     sweepKey: (name: string, u: number, v: number) => string;
     /**
      * Sample an edge in its declared order, retaining shared sweep/curve identities and local footprint reaches. what identifies admission failures; callback exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States declared edge order, shared primitive identities, local cell reaches and propagated admission failures.
      */
     sample: (
       edge: IAutoMovieSurfaceNetwork.IEdge,
@@ -54,8 +46,6 @@ export namespace IAutoMoviePlanSurfaceRigPatches {
     ) => IAutoMovieSurfaceSample[];
     /**
      * Sample an ordered closed edge loop with matching endpoints and compatible counts. Return its unique cyclic samples; topology inconsistencies throw before patch emission.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States closed-loop endpoint/count compatibility, unique cyclic samples and topology failure before patch emission.
      */
     loop: (
       edges: IAutoMovieSurfaceNetwork.IEdge[],

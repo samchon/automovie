@@ -30,8 +30,6 @@ export interface IAutoMovieMeshRayCaster {
    * Travel to the nearest unexcluded triangle, in metres along the normalized
    * ray, or null when none lies in [minimum, maximum]. The value is the raw
    * computed travel, so a hit at the origin can be negative zero.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit, the interval, the null case and that the raw travel can be negative zero.
    */
   nearest: (
     origin: readonly number[],
@@ -46,8 +44,6 @@ export interface IAutoMovieMeshRayCaster {
    * when none lies in [minimum, maximum]. Its travel equals `nearest`'s for the
    * same arguments, and equal travel selects the lowest ordinal. The record is
    * newly allocated and owned by the caller.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that travel matches `nearest`, the lowest-ordinal tie rule, the null case and that the record belongs to the caller.
    */
   nearestHit: (
     origin: readonly number[],
@@ -60,8 +56,6 @@ export interface IAutoMovieMeshRayCaster {
   /**
    * Whether any unexcluded triangle lies in [minimum, maximum]. It returns at
    * the first admitted hit in traversal order, which need not be the nearest.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what true means, that it stops at the first admitted hit, and that that hit need not be the nearest.
    */
   blocked: (
     origin: readonly number[],

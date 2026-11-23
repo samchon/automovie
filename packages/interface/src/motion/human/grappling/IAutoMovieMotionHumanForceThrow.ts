@@ -58,8 +58,6 @@ export namespace IAutoMovieMotionHumanForceThrow {
      *
      * @param seconds Seconds since the action's start.
      * @returns The posture.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanForceThrow.IProps.yieldAt: The yield's posture before the broken base.
      */
     yieldAt(seconds: number): IAutoMovieMotionHumanPosture;
 
@@ -69,8 +67,6 @@ export namespace IAutoMovieMotionHumanForceThrow {
      * @param part The foot.
      * @param to The share it ends at.
      * @returns The window.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanForceThrow.IProps.plant: A foot's plant on the floor from the start.
      */
     plant(
       part: "leftFoot" | "rightFoot",

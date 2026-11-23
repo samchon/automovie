@@ -12,8 +12,6 @@ export interface IAutoMovieCompileSweepGuideOutput {
 
   /**
    * Radius in metres, positive and finite at a successful query.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Reads the compiled profile at normalized spine u; results are positive finite metres and invalid profile evaluation throws.
    */
   radius: (u: number) => number;
 }

@@ -23,16 +23,12 @@ export interface IAutoMoviePlanarCurveSource {
   closed: boolean;
 
   /** Evaluate in millimetres; nonfinite coordinates refuse the affected arc.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit of the returned point and what a nonfinite coordinate does to the arc that reads it; the interface comment states determinism and input ownership.
    */
   evaluate(t: number): Readonly<AutoMovieVector2Tuple>;
 
   /** Evaluate mm/parameter^order. At a nonsmooth break, left/right requests
    * select the exact incident chart's endpoint derivative; omission selects
    * the caller's ordinary point value and makes no one-sided promise.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the derivative's unit per order, the one-sided selection at a break and what omitting the side promises.
    */
   derivative(
     t: number,

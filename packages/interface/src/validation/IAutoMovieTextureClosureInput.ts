@@ -27,8 +27,6 @@ export interface IAutoMovieTextureClosureInput {
   /**
    * Resolve supplied image-header facts for an authored asset path, including
    * an unregistered scene reference, or return undefined for unavailable facts.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines authored path input, borrowed media/dimension output and undefined meaning, including unregistered environment references and the separation between header facts and full decoding.
    */
   facts: (asset: string) => IAutoMovieTextureImageFacts | undefined;
 }

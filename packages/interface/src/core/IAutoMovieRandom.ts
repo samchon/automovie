@@ -14,29 +14,21 @@ export interface IAutoMovieRandom {
 
   /**
    * Return a fresh mutable tuple of four unsigned 32-bit words. Index must be an integer in 0..Number.MAX_SAFE_INTEGER or the call throws; no stream state advances.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents index refusal, unsigned words, fresh tuple ownership and absence of a cursor.
    */
   block(index: number): [number, number, number, number];
 
   /**
    * Return the first block word, an integer in 0..4294967295, with the same index admission and stateless semantics as block.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents first-word selection, unsigned range and shared index admission.
    */
   uint32(index: number): number;
 
   /**
    * Return a dimensionless double in [0,1), combining 27 bits from the first block word and 26 from the second; invalid indices throw.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the double range, 53-bit composition and invalid-index behavior.
    */
   float(index: number): number;
 
   /**
    * Return a new stream derived by hashing this lowercase seed and ordered UTF-8 ids with separators. Use stable subject/channel ids, outermost first; empty text or an empty argument list is accepted and still hashed. No input array or mutable cursor is retained.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents child seed derivation, id ordering, accepted empty inputs and ownership.
    */
   stream(...ids: string[]): IAutoMovieRandom;
 }

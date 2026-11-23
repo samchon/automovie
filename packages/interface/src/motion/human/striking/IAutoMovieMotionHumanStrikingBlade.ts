@@ -65,8 +65,6 @@ export namespace IAutoMovieMotionHumanStrikingBlade {
      * @param progress 0 at the ready pose, 1 at the decisive pose, more than 1 through the follow-through.
      * @param seconds Seconds since the action's start, for a path that follows something moving (an aim kept on a walking target); a path of a stroke ignores it.
      * @returns The hand's grip frame, world.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the progress's three marks, what the seconds are for and the result's frame.
      */
     path(
       progress: number,
@@ -86,8 +84,6 @@ export namespace IAutoMovieMotionHumanStrikingBlade {
      *
      * @param seconds Seconds since the action's start.
      * @returns The displacement, world metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument's timebase, the result's frame and unit, its purpose and the default when absent.
      */
     follow?(seconds: number): IAutoMovieVector3;
 

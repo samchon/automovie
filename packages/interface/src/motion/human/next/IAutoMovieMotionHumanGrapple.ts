@@ -22,8 +22,6 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @param params The partner, the table, who wins, the bout's seconds and the pin.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the arm wrestle appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bout's phases and end, how the roles agree, its parameters, its anchor and its return.
    */
   armWrestle(
     params: IAutoMovieMotionHumanArmWrestle.IParams,
@@ -36,8 +34,6 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @param params The `balance`, `partner`, `grip`, `hand`, `hold`, `under` and `manner` of `IAutoMovieMotionHumanClinch.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   clinch(params: IAutoMovieMotionHumanClinch.IParams, anchor?: string): Chain;
 
@@ -47,8 +43,6 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @param params The `role` and `partner` of `IAutoMovieMotionHumanGrapple.IParams`, with those of `IScene`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   grapple(params: IAutoMovieMotionHumanGrapple.IParams, anchor?: string): Chain;
 
@@ -58,8 +52,6 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @param params The `partner`, `depth` and `hold` of `IAutoMovieMotionHumanKuzushi.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   kuzushi(params: IAutoMovieMotionHumanKuzushi.IParams, anchor?: string): Chain;
 
@@ -69,8 +61,6 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @param params The `partner`, `region` and `side` of `IAutoMovieMotionHumanLungeGrab.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   lungeGrab(
     params: IAutoMovieMotionHumanLungeGrab.IParams,
@@ -83,8 +73,6 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @param params The `by`, `fulcrum` and `on` of `IAutoMovieMotionHumanForceResponse.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
    */
   forceResponse(
     params: IAutoMovieMotionHumanForceResponse.IParams,

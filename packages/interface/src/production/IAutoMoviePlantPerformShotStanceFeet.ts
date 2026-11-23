@@ -40,8 +40,6 @@ export namespace IAutoMoviePlantPerformShotStanceFeet {
     previous: IAutoMovieBeatEndState | null | undefined;
     /**
      * Synchronous rig lookup for eligible actors. Null skips the actor; answers are borrowed during solving and exceptions propagate without rolling back earlier replacements.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Synchronous rig lookup for eligible actors. Null skips the actor; answers are borrowed during solving and exceptions propagate without rolling back earlier replacements. Member documentation states the supplied records, units and absence meanings used by plantPerformShotStanceFeet.
      */
     skeleton: (node: string) => IAutoMovieSkeleton | null;
     /**

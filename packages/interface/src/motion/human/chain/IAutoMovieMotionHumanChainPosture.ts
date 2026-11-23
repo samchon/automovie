@@ -27,8 +27,6 @@ export interface IAutoMovieMotionHumanChainPosture extends IAutoMovieMotionHuman
    * @param params The seat, the seated back and the time seated.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainPosture.sit: Sit down on a seat behind the performer.
    */
   sit(params: IAutoMovieMotionHumanSit.IParams, anchor?: string): this;
 
@@ -38,8 +36,6 @@ export interface IAutoMovieMotionHumanChainPosture extends IAutoMovieMotionHuman
    * @param params Nothing: rising takes no parameter.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainPosture.rise: Stand up from the seat the performer sits on.
    */
   rise(params?: IAutoMovieMotionHumanRise.IParams, anchor?: string): this;
 
@@ -49,8 +45,6 @@ export interface IAutoMovieMotionHumanChainPosture extends IAutoMovieMotionHuman
    * @param params Distance and time seated after.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainPosture.shift: Edge sideways along the seat.
    */
   shift(params: IAutoMovieMotionHumanShift.IParams, anchor?: string): this;
 
@@ -60,8 +54,6 @@ export interface IAutoMovieMotionHumanChainPosture extends IAutoMovieMotionHuman
    * @param params Target, hand, strategy and hold.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainPosture.bend: Bend down to bring a hand to a low point, feet planted.
    */
   bend(params: IAutoMovieMotionHumanBend.IParams, anchor?: string): this;
 
@@ -71,8 +63,6 @@ export interface IAutoMovieMotionHumanChainPosture extends IAutoMovieMotionHuman
    * @param params Depth, heels and hold.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainPosture.crouch: Crouch or squat over the planted feet, hold, then stand again.
    */
   crouch(params?: IAutoMovieMotionHumanCrouch.IParams, anchor?: string): this;
 
@@ -82,8 +72,6 @@ export interface IAutoMovieMotionHumanChainPosture extends IAutoMovieMotionHuman
    * @param params The kind of kneel, the knee, the hold and whether to rise.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainPosture.kneel: Kneel on one knee, on both, or sit back on the heels, then rise.
    */
   kneel(params?: IAutoMovieMotionHumanKneel.IParams, anchor?: string): this;
 
@@ -93,8 +81,6 @@ export interface IAutoMovieMotionHumanChainPosture extends IAutoMovieMotionHuman
    * @param params The lying position and the hold.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainPosture.lieDown: Lie down on the floor from standing, supine, prone or on a side.
    */
   lieDown(params?: IAutoMovieMotionHumanLieDown.IParams, anchor?: string): this;
 
@@ -105,8 +91,6 @@ export interface IAutoMovieMotionHumanChainPosture extends IAutoMovieMotionHuman
    * @param params The pattern, the leading foot and the manner.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainPosture.getUp: Get up from the floor to standing: from the back, the front, or the hands and knees.
    */
   getUp(params?: IAutoMovieMotionHumanGetUp.IParams, anchor?: string): this;
 
@@ -117,8 +101,6 @@ export interface IAutoMovieMotionHumanChainPosture extends IAutoMovieMotionHuman
    * @param params The stances and the surface a row's contacts touch.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainPosture.support: Move the body's weight across a sequence of supports, each stance's new supports bearing before the old ones let go.
    */
   support(params: IAutoMovieMotionHumanSupport.IParams, anchor?: string): this;
 
@@ -130,8 +112,6 @@ export interface IAutoMovieMotionHumanChainPosture extends IAutoMovieMotionHuman
    * @param params The starting holds and the ordered one-limb changes.
    * @param anchor An optional anchor id.
    * @returns The chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainPosture.wallClimb: Climb a wall on fixed holds, each stance holding at least three limbs on distinct holds.
    */
   wallClimb(
     params: IAutoMovieMotionHumanWallClimb,
