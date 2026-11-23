@@ -36,7 +36,10 @@ interface IDeliveryHost {
   >;
 }
 
-/** Scene and encoded evidence from a single release attempt on the output directory. */
+/**
+ * Scene and encoded evidence from a single release attempt on the output
+ * directory.
+ */
 interface IDeliveryReport {
   subject: string;
   revision: ReturnType<typeof readAutoMovieRevision>;
@@ -49,8 +52,16 @@ interface IDeliveryReport {
     "index" | "seconds" | "hash"
   >[];
   diagnostics: IAutoMovieDrawnVideoResult["diagnostics"] | null;
+  /**
+   * The soundtrack mixed from the subject's sound list: its digest, each line's
+   * PCM digest and the master's measurements.
+   */
+  sound: IAutoMovieDrawnVideoResult["sound"] | null;
   delivery: DeliveryAudit | null;
-  /** How the encoded file differs from its video and audio profiles; empty when it conforms, null when not checked. */
+  /**
+   * How the encoded file differs from its video and audio profiles; empty when
+   * it conforms, null when not checked.
+   */
   profile: IAutoMovieDeliveryProfileFinding[] | null;
   source: IAutoMovieDeliveryContentAudit.ISource | null;
   failure?: { phase: string; message: string };
@@ -65,7 +76,10 @@ const SPEC: Parameters<typeof Render.renderAutoMovieDrawnVideo>[0]["spec"] = {
   crf: 18,
 };
 
-/** Defaults measure long enough intervals to distinguish them from a transient frame or sample. */
+/**
+ * Defaults measure long enough intervals to distinguish them from a transient
+ * frame or sample.
+ */
 const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
   black: {
     minimumDuration: { ticks: 1, timeBase: [1, 5] },
@@ -90,10 +104,10 @@ const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
  * (`auditAutoMovieDeliveryProfile`); a mismatch blocks like a blocking audit
  * finding and the report's `profile` records each field with its expected and
  * observed values. A blocked attempt replaces the report and preserves the
- * former film.
- * A failed encode still reports the frames and scene inspection already drawn.
- * If the approved film or its report cannot be installed, the former film is
- * put back, so the film and report on disk always come from the same attempt.
+ * former film. A failed encode still reports the frames and scene inspection
+ * already drawn. If the approved film or its report cannot be installed, the
+ * former film is put back, so the film and report on disk always come from the
+ * same attempt.
  */
 export async function renderAutoMovieVideo(
   props: {
@@ -142,6 +156,7 @@ export async function renderAutoMovieVideo(
       args: [],
       frames: [],
       diagnostics: null,
+      sound: null,
       delivery: null,
       profile: null,
       source: null,
@@ -162,8 +177,15 @@ export async function renderAutoMovieVideo(
         audio:
           soundtrack === null ? null : path.resolve(props.root, soundtrack),
         write: (file, data) => fs.writeFile(file, data),
+        read: async (file) => fs.readFile(path.resolve(props.root, file)),
         encode: async (args, drawn) => {
           attempt.args = args;
+          // The soundtrack lives in the frame scratch, which is released, so
+          // the report names it by file name beside its digest.
+          attempt.sound =
+            drawn.sound === undefined
+              ? null
+              : { ...drawn.sound, file: path.posix.basename(drawn.sound.file) };
           attempt.frames = drawn.frames.map(({ index, seconds, hash }) => ({
             index,
             seconds,
@@ -402,7 +424,10 @@ async function removeEmptyReservation(reservation: string): Promise<void> {
   });
 }
 
-/** Selects the first usable cursor in each audit while retaining complete details in the report. */
+/**
+ * Selects the first usable cursor in each audit while retaining complete
+ * details in the report.
+ */
 function releaseFindings(
   diagnostics: IDeliveryReport["diagnostics"],
   delivery: DeliveryAudit,
@@ -461,7 +486,10 @@ function releaseFindings(
   return details;
 }
 
-/** Formats the available output frame and film seconds without inventing an audio frame. */
+/**
+ * Formats the available output frame and film seconds without inventing an
+ * audio frame.
+ */
 function cursor(seconds: number, frame?: number): string {
   return (
     (frame === undefined ? "" : " at frame " + frame) + " (" + seconds + " s)"

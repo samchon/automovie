@@ -54,6 +54,9 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
               ...(production.delivery === undefined
                 ? {}
                 : { delivery: production.delivery }),
+              ...(production.sound === undefined
+                ? {}
+                : { sound: production.sound }),
               height: film.height ?? 720,
               markKinds: [
                 ...(production.markKinds ?? []),

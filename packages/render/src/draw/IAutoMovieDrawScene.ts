@@ -1,6 +1,7 @@
 import type {
   IAutoMovieDeliveryContentAudit,
   IAutoMovieFilmOptics,
+  IAutoMovieFilmSound,
   IAutoMovieInspectionDiagnostics,
   IAutoMovieMark,
 } from "@automovie/interface";
@@ -32,6 +33,12 @@ export interface IAutoMovieDrawScene {
 
   /** Optional source intent for auditing the delivered file. */
   delivery?: IAutoMovieDeliveryContentAudit.IIntent;
+
+  /**
+   * Optional adopted sound list, which the render mixes into the delivered
+   * soundtrack.
+   */
+  sound?: IAutoMovieFilmSound;
 
   /** The subject's own named views, each placing a camera in world metres at a second; absent when it has none. */
   views?: Readonly<

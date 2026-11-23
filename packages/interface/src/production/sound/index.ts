@@ -1,3 +1,4 @@
+export type { IAutoMovieAdmitProductionTtsReceipt } from "./IAutoMovieAdmitProductionTtsReceipt";
 export type { IAutoMovieApplyInteriorAcousticResponse } from "./IAutoMovieApplyInteriorAcousticResponse";
 export type { IAutoMovieDeriveInteriorAcousticResponse } from "./IAutoMovieDeriveInteriorAcousticResponse";
 export type { IAutoMovieDeriveProductionSoundPlan } from "./IAutoMovieDeriveProductionSoundPlan";
@@ -7,6 +8,7 @@ export type { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRang
 export type { IAutoMovieDialogueSpeakerBinding } from "./IAutoMovieDialogueSpeakerBinding";
 export type { IAutoMovieDialogueVisemeCompilation } from "./IAutoMovieDialogueVisemeCompilation";
 export type { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTimeline";
+export type { IAutoMovieFilmSound } from "./IAutoMovieFilmSound";
 export type { IAutoMovieJoinDialogueVisemes } from "./IAutoMovieJoinDialogueVisemes";
 export type { IAutoMovieProductionPhonemesToVisemes } from "./IAutoMovieProductionPhonemesToVisemes";
 export type { IAutoMovieProductionSoundRaster } from "./IAutoMovieProductionSoundRaster";

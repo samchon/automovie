@@ -2,6 +2,7 @@ import type {
   IAutoMovieContactReceipt,
   IAutoMovieDeliveryContentAudit,
   IAutoMovieFilmOptics,
+  IAutoMovieFilmSound,
   IAutoMovieMark,
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalOwnershipEvent,
@@ -23,7 +24,7 @@ import type * as THREE from "three";
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment names what one mount holds; each member states what it owns and when it runs.
  * @evidence contracts/development/design.md#principled-representation Playback, seeking and capture all place the scene through one seek per second, so a second reached by any path draws the same state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hosts read the film scene and placement, optional soft surfaces, and the review sources: physical marks, named views, and film marks.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The hosts read the film scene and placement, optional soft surfaces, the delivery intent and sound list, and the review sources: physical marks, named views, and film marks.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists; named views move only a separate inspection camera, so the film camera and delivered captures are unchanged.
  */
 export interface IFilmProduction {
@@ -111,6 +112,9 @@ export interface IFilmProduction {
   optics?: (seconds: number) => IAutoMovieFilmOptics;
   /** Optional source intent for the delivered media, including any soundtrack. */
   delivery?: IAutoMovieDeliveryContentAudit.IIntent;
+
+  /** Optional adopted sound: lines with their receipts, cues, speaker bindings and score ducking, which `npm run render` mixes into the delivered soundtrack; a film with a sound list leaves `delivery.audio.path` unset. */
+  sound?: IAutoMovieFilmSound;
 
   /** The film's cut, layout and declared breaks, so motion is never examined across a cut or break. Absent treats the whole film as one continuous shot. */
   playback?: Pick<

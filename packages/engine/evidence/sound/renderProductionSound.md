@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Fixed frame-to-sample owners place event/cue/dialogue boundaries; Float32 accumulation, declared event palette, optional propagation/room receipts, cue unit-rate reading and linear dialogue fitting precede a whole-master 0.95 peak limiter and analysis of the exact limited generation.
+Fixed frame-to-sample owners place event/cue/dialogue boundaries; Float32 accumulation, declared event palette, optional propagation/room receipts, cue unit-rate reading and unit-rate dialogue placement from each line's start tick, refused when the line exceeds its speech span, precede a whole-master 0.95 peak limiter and analysis of the exact limited generation.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The pure mix receives adopted mono buffers through identity maps, keeping decoding and byte provenance outside engine arithmetic; unavailable room receipts throw, and this public renderer currently has test-only repository reach rather than a wired film-runtime host.
+The pure mix receives adopted mono buffers through identity maps, keeping decoding and byte provenance outside engine arithmetic; unavailable room receipts throw, and render's film sound route calls it for every delivered soundtrack mixed from a sound list.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -26,4 +26,4 @@ Cue ranges are calculated once, adopted buffers are validated once per reference
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The caller owns fresh master/analysis; dry, responded, fitted and loudness arrays leave scope after completion/failure, with film-duration-driven storage and no decoder, process, audio device or completed-mix cache.
+The caller owns fresh master/analysis; dry, responded and loudness arrays leave scope after completion/failure, with film-duration-driven storage and no decoder, process, audio device or completed-mix cache.

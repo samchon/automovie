@@ -1,6 +1,6 @@
 # Film sound
 
-Finish generated takes' sound together and verify it with the user. Follow the loudness target for any film with sound. Source beds, effects and score through [acquisition](acquisition.md) and sound effects.
+Finish generated takes' sound together and verify it with the user. Follow the loudness target for any film with sound. Source beds, effects and score through [acquisition](acquisition.md) and sound effects. A direct 3D film declares its adopted lines, their receipts and its cues in its [sound list](soundtrack.md#sound-list), which the render mixes.
 
 ## Separation
 

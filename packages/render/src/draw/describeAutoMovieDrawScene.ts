@@ -14,9 +14,19 @@ import { autoMovieViewerNamedViewpoints } from "../scene/subjectViewpoint/autoMo
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 
 /**
- * Describe a created subject as a capture plans against it, from the scene as `create` left it: no second is sought, because a subject need not hold every second, such as a case that samples only its own instants.
+ * Describe a created subject as a capture plans against it, from the scene as
+ * `create` left it: no second is sought, because a subject need not hold every
+ * second, such as a case that samples only its own instants.
  *
- * Named instants are the subject's own, copied. Views are the subject's own names, then the inspection's named viewpoints. Drawables are the inspection paths of the drawn objects, one world box per distinct path, the union of the boxes of every object sharing it; an object with an empty box is left out. Mark kinds are the subject's declared `markKinds` and those it supplies at second 0, then `trail`, `trail/now`, `edge` and every `defect/<kind>`, the kinds the inspection draws from its own sampling and measurement. Declaring a later kind admits its capture without seeking through the film or inventing a marker at zero; its geometry still comes from `marks` at the drawn second.
+ * Named instants are the subject's own, copied. Views are the subject's own
+ * names, then the inspection's named viewpoints. Drawables are the inspection
+ * paths of the drawn objects, one world box per distinct path, the union of the
+ * boxes of every object sharing it; an object with an empty box is left out.
+ * Mark kinds are the subject's declared `markKinds` and those it supplies at
+ * second 0, then `trail`, `trail/now`, `edge` and every `defect/<kind>`, the
+ * kinds the inspection draws from its own sampling and measurement. Declaring a
+ * later kind admits its capture without seeking through the film or inventing a
+ * marker at zero; its geometry still comes from `marks` at the drawn second.
  */
 export function describeAutoMovieDrawScene(
   name: string,
@@ -56,6 +66,8 @@ export function describeAutoMovieDrawScene(
     width: scene.width,
     height: scene.height,
     ...(scene.delivery === undefined ? {} : { delivery: scene.delivery }),
+    ...(scene.sound === undefined ? {} : { sound: scene.sound }),
+    ...(scene.cut === undefined ? {} : { cut: scene.cut }),
     views: [
       ...Object.keys(scene.views ?? {}),
       ...autoMovieViewerNamedViewpoints().map(

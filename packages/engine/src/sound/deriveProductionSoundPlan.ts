@@ -8,6 +8,7 @@ import {
   IAutoMovieFilmTimeline,
   IAutoMovieFilmTimelineSegment,
   IAutoMovieFormationBounds,
+  type IAutoMovieProductionDialogueLine,
   IAutoMovieProductionSoundCue,
   IAutoMovieProductionSoundEvent,
   IAutoMovieProductionSoundPlan,
@@ -31,10 +32,12 @@ import { transformFormationBounds } from "../transformFormationBounds";
 import { transformFormationPoint } from "../transformFormationPoint";
 import { assertProductionScoreDucking } from "./assertProductionScoreDucking";
 import { deriveAutoMovieSoundPropagation } from "./deriveAutoMovieSoundPropagation";
+import { productionSpeechEndFrame } from "./productionSpeechEndFrame";
 import { resolveProductionSoundEventCues } from "./resolveProductionSoundEventCues";
 
 /**
- * Lower semantic shot events and authored cues/dialogue onto one finished-film sound clock.
+ * Lower semantic shot events and authored cues/dialogue onto one finished-film
+ * sound clock.
  */
 export const deriveProductionSoundPlan: (
   props: IAutoMovieDeriveProductionSoundPlan.IProps,
@@ -202,34 +205,67 @@ export const deriveProductionSoundPlan: (
     events,
     cues,
     dialogue: props.timeline.tracks.captions.map(
-      (line: {
-        id: string;
-        text: string;
-        language: string;
-        speaker?: string | undefined;
-        startFrame: number;
-        endFrame: number;
-      }): {
-        id: string;
-        text: string;
-        language: string;
-        speaker?: string | undefined;
-        startFrame: number;
-        endFrame: number;
-      } => ({ ...line }),
+      (
+        caption: IAutoMovieFilmTimeline["tracks"]["captions"][number],
+      ): IAutoMovieProductionDialogueLine =>
+        captionDialogueLine(props, caption),
     ),
   };
+};
+
+/**
+ * Lower one caption into a dialogue line: over its speech span when the caption
+ * has adopted speech, over its caption window otherwise.
+ *
+ * A caption may stay up longer than its speech but not end before it, because
+ * the line it captions would still be playing; a speech span past the film's
+ * last frame has no samples to play in.
+ */
+const captionDialogueLine: (
+  props: IAutoMovieDeriveProductionSoundPlan.IProps,
+  caption: IAutoMovieFilmTimeline["tracks"]["captions"][number],
+) => IAutoMovieProductionDialogueLine = (
+  props: IAutoMovieDeriveProductionSoundPlan.IProps,
+  caption: IAutoMovieFilmTimeline["tracks"]["captions"][number],
+): IAutoMovieProductionDialogueLine => {
+  const line: IAutoMovieProductionDialogueLine = {
+    id: caption.id,
+    text: caption.text,
+    language: caption.language,
+    ...(caption.speaker === undefined ? {} : { speaker: caption.speaker }),
+    startFrame: caption.startFrame,
+    endFrame: caption.endFrame,
+  };
+  const samples: number | undefined = props.speechSamples?.get(caption.id);
+  if (samples === undefined) return line;
+  const speechEndFrame: number = productionSpeechEndFrame(
+    { ...props.timeline, sampleRate: 48_000 },
+    caption.startFrame,
+    samples,
+  );
+  if (speechEndFrame > props.timeline.totalFrames)
+    throw new Error(
+      `Dialogue line "${caption.id}" speaks until frame ${speechEndFrame}, past the film's last frame ${props.timeline.totalFrames}.`,
+    );
+  if (caption.endFrame < speechEndFrame)
+    throw new Error(
+      `Caption "${caption.id}" ends on frame ${caption.endFrame}, before its speech ends on frame ${speechEndFrame}.`,
+    );
+  return { ...line, endFrame: speechEndFrame };
 };
 
 /**
  * One subject's contribution to an event's sound source: where its members are
  * centered, how many there are, and how far they lie from that center.
  *
- * Variance is a modeled mean squared radius in square metres; group values
- * use a uniform-box approximation and combine by the parallel-axis identity.
+ * Variance is a modeled mean squared radius in square metres; group values use
+ * a uniform-box approximation and combine by the parallel-axis identity.
  */
 interface IAutoMovieSoundMass {
-  /** Modeled centre in the shot's world metre frame; temporary subject records may borrow it. */
+  /**
+   * Modeled centre in the shot's world metre frame; temporary subject records
+   * may borrow it.
+   */
   centroid: IAutoMovieVector3;
 
   /** Equal-source member count supplied by the compiled subject. */
@@ -438,7 +474,11 @@ const cloneAcousticProfile: (
           : { provider: { ...profile.provider } }),
       };
 
-/** Fold UTF-16 code units through 32bit FNV arithmetic to seed the procedural palette; collisions are allowed and this value does not certify plan or asset identity. */
+/**
+ * Fold UTF-16 code units through 32bit FNV arithmetic to seed the procedural
+ * palette; collisions are allowed and this value does not certify plan or asset
+ * identity.
+ */
 const soundSeed: (value: string) => number = (value: string): number => {
   let hash: number = 0x811c9dc5;
   for (let index: number = 0; index < value.length; ++index) {
@@ -448,7 +488,11 @@ const soundSeed: (value: string) => number = (value: string): number => {
   return hash >>> 0;
 };
 
-/** Clip the calculated pan to the declared scalar interval; NaN remains NaN for malformed spatial arithmetic rather than being replaced by a plausible direction. */
+/**
+ * Clip the calculated pan to the declared scalar interval; NaN remains NaN for
+ * malformed spatial arithmetic rather than being replaced by a plausible
+ * direction.
+ */
 const clamp: (value: number, minimum: number, maximum: number) => number = (
   value: number,
   minimum: number,

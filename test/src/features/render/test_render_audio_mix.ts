@@ -1,113 +1,105 @@
+import { renderProductionSound } from "@automovie/engine";
 import { decodeProductionAudioAsset } from "@automovie/ingest";
-import type { IAutoMovieAudioMixCue } from "@automovie/interface";
-import {
-  encodeAutoMovieWavPcm16,
-  mixAutoMovieAudioPcm,
-} from "@automovie/render";
+import type {
+  IAutoMovieProductionSoundCue,
+  IAutoMovieProductionSoundPlan,
+} from "@automovie/interface";
+import { encodeAutoMovieWavPcm16 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-/** Audio cues sum sample-accurately with equal-power pan, refuse clipping, and encode to PCM16 WAV that decodes back.
+import { nclose } from "../internal/predicates";
+
+/**
+ * The film's one mixer places cue trims sample-accurately and sums them, and
+ * its master encodes to a PCM16 WAV that decodes back.
  *
  * Scenarios:
- * 1. A one-sample source placed at 0.5 s lands on output sample 50 at 100 Hz, centred at cos(pi/4) on both channels; full left pan puts it on the left only.
- * 2. Overlapping cues add, rate 2 reads every other source sample, an offset skips source samples, and edge fades taper the first and last samples.
- * 3. A sum above 1, a cue reading past its source and an unknown source are refused.
- * 4. The encoded WAV has the canonical header and decodes through the public decoder to the stereo mean within one quantization step.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs `ingest`, `encodeAutoMovieWavPcm16`, `mixAutoMovieAudioPcm` on in-memory inputs and asserts the returned observations through 3x TestValidator.predicate, 1x TestValidator.equals; 4 numbered scenarios (first: A one-sample source placed at 0.5 s lands on output sample 50 at 100 Hz, centred at cos(pi/4) on both...; last: The encoded WAV has the canonical header and decodes through the public decoder to the stereo mean within...). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
- * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (3 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
- * @evidence contracts/development/testing.md#distinguishing-cases Contributes 4 numbered scenarios (first: A one-sample source placed at 0.5 s lands on output sample 50 at 100 Hz, centred at cos(pi/4) on both...; last: The encoded WAV has the canonical header and decodes through the public decoder to the stereo mean within...), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_render_audio_mix`, which owns every case it runs; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A one-sample source placed at 0.5 s lands on output sample 50 at 100 Hz, centred at cos(pi/4) on both channels; full left pan puts it on...).
+ * 1. A cue starting on frame 2 at 24 fps lands on sample 4000; every sample before
+ *    it is silent and its trim from source frame 1 reads source sample 2000
+ *    first.
+ * 2. A second cue on the same trim at half gain sums with the first: every mixed
+ *    sample is 1.5 times the first cue's source sample under one master gain.
+ * 3. A one-frame fade-in starts the cue at silence and reaches the full trim after
+ *    2000 samples; the sample after the cue's last frame is silent.
+ * 4. The encoded WAV has the canonical header and decodes through the public
+ *    decoder to the stereo mean within one quantization step.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios with the input and the placement, sum, fade or round trip each pins.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs engine's `renderProductionSound`, render's `encodeAutoMovieWavPcm16` and ingest's decoder on in-memory inputs. A cue placed one sample off, a trim read from the wrong source sample, cues that do not add, or a fade that does not start from silence fails.
+ * @evidence contracts/development/testing.md#independent-expectations At 24 fps a frame is 48000 / 24 = 2000 samples, so frame 2 starts at sample 4000 and source frame 1 at sample 2000; gains 1 and 0.5 sum to 1.5. Ratios against one master gain make the expectations independent of the master's loudness normalization. The WAV values follow the round(x × 32767) and 1/32768 scales.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers the silent sample before a cue, its first and last samples, a summed overlap, a faded edge and the sample after its end; cue refusals belong to `test_film_production_sound_cue_admission`.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_render_audio_mix`; it registers no dynamic cases and starts no process.
  */
 export function test_render_audio_mix(): void {
-  const centre: number = Math.cos(Math.PI / 4);
-  const mix = (
-    cues: IAutoMovieAudioMixCue[],
-    sources: Record<string, Float32Array>,
-    fadeSeconds: number = 0,
-  ): ReturnType<typeof mixAutoMovieAudioPcm> =>
-    mixAutoMovieAudioPcm({
-      sampleRate: 100,
-      frames: 100,
-      sources,
-      cues,
-      fadeSeconds,
-    });
-  const click: Float32Array = new Float32Array([0.5]);
-  const placed = mix([{ asset: "click", seconds: 0.5, gain: 1 }], { click });
-  const panned = mix([{ asset: "click", seconds: 0.5, gain: 1, pan: -1 }], {
-    click,
+  // A source whose samples name their own index, so a trim is visible.
+  const source: Float32Array = Float32Array.from(
+    { length: 8000 },
+    (_: unknown, index: number): number =>
+      0.05 * Math.sin((2 * Math.PI * 440 * index) / 48_000) +
+      0.01 * (index / 8000),
+  );
+  const cue = (
+    id: string,
+    gain: number,
+    fadeInFrames: number,
+  ): IAutoMovieProductionSoundCue => ({
+    id,
+    asset: "tone",
+    startFrame: 2,
+    durationFrames: 2,
+    sourceOffsetFrame: 1,
+    sourceDurationFrames: 4,
+    gain,
+    fadeInFrames,
+    fadeOutFrames: 0,
+    bus: "effects",
+    seed: 1,
   });
-  TestValidator.predicate(
-    "sample-accurate equal-power placement",
-    Math.abs(placed.left[50]! - 0.5 * centre) < 1e-7 &&
-      Math.abs(placed.right[50]! - 0.5 * centre) < 1e-7 &&
-      placed.left[49] === 0 &&
-      placed.left[51] === 0 &&
-      Math.abs(panned.left[50]! - 0.5) < 1e-7 &&
-      Math.abs(panned.right[50]!) < 1e-7,
-  );
+  const plan = (
+    cues: IAutoMovieProductionSoundCue[],
+  ): IAutoMovieProductionSoundPlan => ({
+    version: 1,
+    inputFingerprint: "test_render_audio_mix",
+    fps: 24,
+    totalFrames: 24,
+    sampleRate: 48_000,
+    channels: 2,
+    events: [],
+    cues,
+    dialogue: [],
+  });
+  const mix = (cues: IAutoMovieProductionSoundCue[]): Float32Array =>
+    renderProductionSound({
+      plan: plan(cues),
+      assets: new Map([["tone", source]]),
+    }).pcm;
 
-  // Sums, rates, offsets and fades.
-  const ramp: Float32Array = new Float32Array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6]);
-  const summed = mix(
-    [
-      { asset: "click", seconds: 0.1, gain: 1 },
-      { asset: "click", seconds: 0.1, gain: 0.5 },
-      { asset: "ramp", seconds: 0.2, gain: 1, rate: 2 },
-      {
-        asset: "ramp",
-        seconds: 0.4,
-        gain: 1,
-        offsetSeconds: 0.02,
-        durationSeconds: 0.02,
-      },
-    ],
-    { click, ramp },
-  );
-  const faded = mix([{ asset: "ramp", seconds: 0, gain: 1 }], { ramp }, 0.02);
+  const summed: Float32Array = mix([cue("a", 1, 0), cue("b", 0.5, 0)]);
+  const gain: number = summed[4000 * 2]! / (1.5 * source[2000]!);
   TestValidator.predicate(
-    "sums, rates, offsets and fades",
-    Math.abs(summed.left[10]! - 0.75 * centre) < 1e-7 &&
-      [0.1, 0.3, 0.5].every(
-        (x: number, k: number): boolean =>
-          Math.abs(summed.left[20 + k]! - x * centre) < 1e-7,
+    "cue placement, trim and sum",
+    summed.slice(0, 4000 * 2).every((x: number): boolean => x === 0) &&
+      gain > 0 &&
+      [0, 1, 999, 3999].every(
+        (k: number): boolean =>
+          nclose(
+            summed[(4000 + k) * 2]!,
+            gain * 1.5 * source[2000 + k]!,
+            1e-5,
+          ) && summed[(4000 + k) * 2] === summed[(4000 + k) * 2 + 1],
       ) &&
-      summed.left[23] === 0 &&
-      Math.abs(summed.left[40]! - 0.3 * centre) < 1e-7 &&
-      Math.abs(summed.left[41]! - 0.4 * centre) < 1e-7 &&
-      summed.left[42] === 0 &&
-      faded.left[0] === 0 &&
-      Math.abs(faded.left[1]! - 0.2 * centre * 0.5) < 1e-7 &&
-      Math.abs(faded.left[2]! - 0.3 * centre) < 1e-7 &&
-      faded.left[5] === 0,
+      summed[8000 * 2] === 0,
   );
 
-  // Refusals.
-  const refusals: string[] = [];
-  for (const [label, run] of [
-    [
-      "clipping",
-      () => mix([{ asset: "click", seconds: 0, gain: 4 }], { click }),
-    ],
-    [
-      "past source",
-      () =>
-        mix([{ asset: "ramp", seconds: 0, gain: 1, durationSeconds: 0.07 }], {
-          ramp,
-        }),
-    ],
-    [
-      "unknown source",
-      () => mix([{ asset: "none", seconds: 0, gain: 1 }], { click }),
-    ],
-  ] as const)
-    try {
-      run();
-      refusals.push(`${label} accepted`);
-    } catch {}
-  TestValidator.equals("mix refusals", refusals, []);
+  const faded: Float32Array = mix([cue("a", 1, 1)]);
+  const fadedGain: number = faded[6000 * 2]! / source[4000]!;
+  TestValidator.predicate(
+    "a one-frame fade-in starts at silence",
+    faded[4000 * 2] === 0 &&
+      nclose(faded[5000 * 2]!, fadedGain * 0.5 * source[3000]!, 1e-5) &&
+      nclose(faded[7999 * 2]!, fadedGain * source[5999]!, 1e-5),
+  );
 
   // WAV round trip.
   const left: Float32Array = new Float32Array([0, 0.5, -1, 1]);

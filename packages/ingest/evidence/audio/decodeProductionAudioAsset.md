@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Chunks are found by id in RIFF order with the even-byte pad rule, the format fields are checked against WAVEFORMATEXTENSIBLE's own consistency rules and the KSDATAFORMAT GUID template, samples scale by 1/32768 or read as IEEE floats, and resampling is two-tap linear interpolation; that interpolation has no anti-alias filter, which the documentation states as the remaining limitation when a source is downsampled.
+Chunks are found by id in RIFF order with the even-byte pad rule, the format fields are checked against WAVEFORMATEXTENSIBLE's own consistency rules and the KSDATAFORMAT GUID template, samples scale by 1/32768 or read as IEEE floats, and a rate change is delegated to the band-limited windowed-sinc converter `resampleProductionAudio`, whose low-pass cuts below the lower Nyquist frequency at either direction of conversion.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One linear pass validates the container, a second folds frames to mono, and a third resamples only when the rates differ; private refusal, chunk and hex helpers keep WAVE parsing local, while production speech probes consume the public decoder's format facts and mono samples.
+One linear pass validates the container, a second folds frames to mono, and the converter runs only when the rates differ; private refusal, chunk and hex helpers keep WAVE parsing local, while production speech probes consume the public decoder's format facts and mono samples.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -14,7 +14,7 @@ No file, path or rate is special-cased: every unsupported declaration throws wit
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-The documentation cites the WAVEFORMATEXTENSIBLE rules it enforces, lists the supported subset, gives the PCM scale, stereo fold, resampled length and aliasing limitation, and states the refusal message shape and parameter units.
+The documentation cites the WAVEFORMATEXTENSIBLE rules it enforces, lists the supported subset, gives the PCM scale, stereo fold, resampled length and the band-limited conversion, and states the refusal message shape and parameter units.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

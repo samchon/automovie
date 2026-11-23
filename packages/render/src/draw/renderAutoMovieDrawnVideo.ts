@@ -1,10 +1,17 @@
 import type {
+  AutoMovieGuidePass,
+  IAutoMovieDeliveredCutEntry,
   IAutoMovieDrawnPass,
   IAutoMovieDrawnVideoResult,
   IAutoMovieInspectionDiagnostics,
+  IAutoMovieMixFilmSound,
   IAutoMovieRenderSpec,
 } from "@automovie/interface";
 
+import { mixAutoMovieFilmSound } from "../audio/mixAutoMovieFilmSound.js";
+import { AutoMovieControlChannelWriter } from "../delivery/AutoMovieControlChannelWriter.js";
+import { admitAutoMovieControlPasses } from "../delivery/admitAutoMovieControlPasses.js";
+import { planAutoMovieDeliveredCut } from "../delivery/planAutoMovieDeliveredCut.js";
 import { planAutoMovieVideoEncoding } from "../delivery/planAutoMovieVideoEncoding.js";
 import { frameName } from "../frameName.js";
 import { frameTimes } from "../frameTimes.js";
@@ -14,11 +21,45 @@ import { reduceAutoMovieInspectionEpisodes } from "../scene/inspection/reduceAut
 import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";
 
 /**
- * Render a drawn subject into one video: draw every frame of its clock through the draw page's function, write each as a PNG, then encode them once.
+ * Render a drawn subject into one video: draw every frame of its clock through
+ * the draw page's function, write each as a PNG, then encode them once.
  *
- * The clock and raster are the subject's, read from the session, so the spec takes no frame format. The encoding is admitted and planned by `planAutoMovieVideoEncoding` before the first frame is drawn, so a clock that is not a whole number of frames or an odd raster costs no drawing. Frame `i` is drawn at `frameTimes`' second `i / fps` in the `beauty` pass through the subject's own camera, and written as `<frameDir>/frame_<i>.png`; frames are drawn and written one at a time, in order. The encoder then runs once with the planned arguments. When a frame supplies diagnostics, the output clock binds the sample to that frame and the audit reports coverage against the full schedule.
+ * The clock and raster are the subject's, read from the session, so the spec
+ * takes no frame format. The encoding is admitted and planned by
+ * `planAutoMovieVideoEncoding` before the first frame is drawn, so a clock that
+ * is not a whole number of frames or an odd raster costs no drawing. Frame `i`
+ * is drawn at `frameTimes`' second `i / fps` in the `beauty` pass through the
+ * subject's own camera, and written as `<frameDir>/frame_<i>.png`; frames are
+ * drawn and written one at a time, in order. The encoder then runs once with
+ * the planned arguments. When a frame supplies diagnostics, the output clock
+ * binds the sample to that frame and the audit reports coverage against the
+ * full schedule.
  *
- * Files and processes are the host's: `write` stores a file and `encode` runs FFmpeg, so the order of every step runs under a unit test. `encode` is handed the frame receipts and scene audit with its arguments, so they survive an encoder failure. A draw, write or encode failure rejects at once and leaves the files written so far to the host.
+ * A subject that declares a sound list gets its soundtrack from it: before the
+ * first frame, `mixAutoMovieFilmSound` reads the list's files through `read`,
+ * admits and mixes them, and the WAVE master is written as
+ * `<frameDir>/soundtrack.wav` and encoded as the film's soundtrack; the
+ * result's `sound` carries its digest, each line's PCM digest and the master's
+ * analysis. A subject that declares a sound list and a soundtrack `audio` is
+ * refused.
+ *
+ * A subject that supplies a `cut` gets the result's `cut`: one row per entry
+ * with the output frames it is live in, from `planAutoMovieDeliveredCut` over
+ * the same instants the frames are drawn at, mapped before the first frame.
+ *
+ * With `controls`, each frame is drawn in `beauty` and every control pass in
+ * one `frame` call, so all passes share the frame's seek and camera; the
+ * control pictures are written as `<controls.frameDir>/frame_<i>.<pass>.png` by
+ * `AutoMovieControlChannelWriter` and are never encoded, because a viewing
+ * encode changes depth values and mask colours. The result's `controls` lists
+ * each channel's convention and file digests. The passes are admitted by
+ * `admitAutoMovieControlPasses` before any frame is drawn.
+ *
+ * Files and processes are the host's: `write` stores a file, `read` reads a
+ * sound-list file and `encode` runs FFmpeg, so the order of every step runs
+ * under a unit test. `encode` is handed the frame receipts and scene audit with
+ * its arguments, so they survive an encoder failure. A draw, write or encode
+ * failure rejects at once and leaves the files written so far to the host.
  */
 export async function renderAutoMovieDrawnVideo(props: {
   /** The opened draw session of the subject. */
@@ -33,21 +74,46 @@ export async function renderAutoMovieDrawnVideo(props: {
   /** The video file the encoder writes. */
   outputPath: string;
 
-  /** A complete soundtrack to mux, or null for none. */
+  /**
+   * A complete soundtrack to mux, or null for none; it must be null when the
+   * subject declares a sound list.
+   */
   audio: string | null;
 
   /** Store one file whole. */
   write: (path: string, data: Uint8Array) => Promise<void>;
 
   /**
+   * Read one file of the subject's sound list whole, by its production-relative
+   * path.
+   */
+  read: (path: string) => Promise<Uint8Array>;
+
+  /**
    * Run FFmpeg with the arguments, resolving once it succeeded. It also
-   * receives the drawn frames and scene audit, already complete, so a host
-   * can keep them when encoding fails.
+   * receives the drawn frames and scene audit, already complete, so a host can
+   * keep them when encoding fails.
    */
   encode: (
     args: readonly string[],
-    drawn: Pick<IAutoMovieDrawnVideoResult, "frames" | "diagnostics">,
+    drawn: Pick<
+      IAutoMovieDrawnVideoResult,
+      "frames" | "diagnostics" | "sound" | "cut" | "controls"
+    >,
   ) => Promise<void>;
+
+  /**
+   * Control channels drawn beside the film: guide passes other than `beauty`,
+   * each named once, written under `frameDir`; absent or empty draws the film
+   * alone.
+   */
+  controls?: {
+    /** The passes, in the order their files and record entries take. */
+    passes: readonly string[];
+
+    /** Folder the control frame files are written into. */
+    frameDir: string;
+  };
 }): Promise<IAutoMovieDrawnVideoResult> {
   const { subject } = props.session;
   const spec: IAutoMovieRenderSpec = {
@@ -58,14 +124,71 @@ export async function renderAutoMovieDrawnVideo(props: {
       fps: subject.fps,
     },
   };
+  if (subject.sound !== undefined && props.audio !== null)
+    throw new Error(
+      `Subject "${subject.name}" declares both a sound list and the soundtrack "${props.audio}"; a film's sound comes from one of them.`,
+    );
+  const soundtrack: string | null =
+    subject.sound === undefined
+      ? props.audio
+      : `${props.frameDir}/soundtrack.wav`;
   const plan: ReturnType<typeof planAutoMovieVideoEncoding> =
     planAutoMovieVideoEncoding({
       spec,
       durationSeconds: subject.durationSeconds,
       frameDir: props.frameDir,
       outputPath: props.outputPath,
-      audio: props.audio,
+      audio: soundtrack,
     });
+
+  // The sound list is mixed before any frame is drawn, so a refused receipt
+  // or a missing file costs no drawing.
+  let sound: IAutoMovieDrawnVideoResult["sound"];
+  if (subject.sound !== undefined && soundtrack !== null) {
+    const mixed: IAutoMovieMixFilmSound.IResult = await mixAutoMovieFilmSound({
+      sound: subject.sound,
+      frameRate: {
+        numerator: plan.frameRate[0],
+        denominator: plan.frameRate[1],
+      },
+      totalFrames: plan.frameCount,
+      read: props.read,
+    });
+    await props.write(soundtrack, mixed.wav);
+    sound = {
+      file: soundtrack,
+      sha256: mixed.sha256,
+      receipts: mixed.lines.map(
+        (
+          line: IAutoMovieMixFilmSound.ILine,
+        ): { line: string; pcmDigest: string } => ({
+          line: line.line.id,
+          pcmDigest: line.receipt.pcmDigest,
+        }),
+      ),
+      analysis: mixed.analysis,
+    };
+  }
+
+  // The cut is mapped onto the very instants the frames are drawn at, before
+  // any is drawn, so a malformed cut costs no drawing.
+  const times: number[] = frameTimes(subject.fps, subject.durationSeconds);
+  const cut: IAutoMovieDeliveredCutEntry[] | undefined =
+    subject.cut === undefined
+      ? undefined
+      : planAutoMovieDeliveredCut({ timeline: subject.cut, times });
+
+  // Control channels are admitted before any frame is drawn.
+  const passes: Exclude<AutoMovieGuidePass, "beauty">[] =
+    admitAutoMovieControlPasses(props.controls?.passes ?? []);
+  const channels: AutoMovieControlChannelWriter | undefined =
+    props.controls === undefined || passes.length === 0
+      ? undefined
+      : new AutoMovieControlChannelWriter({
+          passes,
+          frameDir: props.controls.frameDir,
+          write: props.write,
+        });
 
   // Every frame of the clock, drawn and written in order.
   const frames: {
@@ -75,11 +198,16 @@ export async function renderAutoMovieDrawnVideo(props: {
     hash: string;
   }[] = [];
   const packets: IAutoMovieInspectionDiagnostics[] = [];
-  const times: number[] = frameTimes(subject.fps, subject.durationSeconds);
   for (const [index, seconds] of times.entries()) {
-    const { picture, diagnostics }: IAutoMovieDrawnPass = (
-      await props.session.frame(seconds, ["beauty"], "delivery")
-    )[0]!;
+    // The film and its control channels in one call, so every pass shares
+    // the frame's seek and camera.
+    const pictures: IAutoMovieDrawnPass[] = await props.session.frame(
+      seconds,
+      ["beauty", ...passes],
+      "delivery",
+    );
+    const { picture, diagnostics }: IAutoMovieDrawnPass = pictures[0]!;
+    await channels?.add(index, seconds, pictures.slice(1));
     if (diagnostics !== undefined) {
       const { time } = diagnostics;
       if (
@@ -105,9 +233,15 @@ export async function renderAutoMovieDrawnVideo(props: {
     packets.length === 0
       ? undefined
       : reduceAutoMovieInspectionEpisodes(packets, times.length);
-  const drawn: Pick<IAutoMovieDrawnVideoResult, "frames" | "diagnostics"> = {
+  const drawn: Pick<
+    IAutoMovieDrawnVideoResult,
+    "frames" | "diagnostics" | "sound" | "cut" | "controls"
+  > = {
     frames,
     ...(diagnostics === undefined ? {} : { diagnostics }),
+    ...(sound === undefined ? {} : { sound }),
+    ...(cut === undefined ? {} : { cut }),
+    ...(channels === undefined ? {} : { controls: channels.finish() }),
   };
   await props.encode(plan.args, drawn);
   return { ...drawn, args: plan.args, frameRate: plan.frameRate };

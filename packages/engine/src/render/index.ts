@@ -20,6 +20,7 @@ export * from "./compareAutoMovieRenderIds";
 export * from "./compareAutoMovieRenderTarget";
 export * from "./constants";
 export * from "./deriveAutoMovieSemanticMask";
+export * from "./digestAutoMovieBytes";
 export * from "./digestAutoMovieSemanticMask";
 export * from "./encodeAutoMoviePng";
 export * from "./evaluateAutoMovieRenderBudget";

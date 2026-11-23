@@ -1,6 +1,7 @@
 import {
   Quaternion,
   cutSequence,
+  renderProductionSound,
   sequenceEventTimeline,
 } from "@automovie/engine";
 import type {
@@ -20,7 +21,6 @@ import {
   buildInstancedEffect,
   buildModel,
   collectAutoMovieOwnedResources,
-  mixAutoMovieAudioPcm,
   renderSequenceAndSee,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -66,14 +66,15 @@ interface IRead {
  * Film playback of a foam rehearsal token and a decorative breakaway panel.
  *
  * Scenarios:
- * 1. In the wide shot the panel is whole. The next camera enters at the
- *    contact, displaying its detached tile, a local glow and a short sound.
- * 2. The performer reacts two frames after the contact. Subsequent capture
- *    reads show the tile departing, while the same panel remains in place.
- * 3. In the alternate take the token passes the panel. The panel stays
- *    whole, the response remains at rest and the contact layer is silent.
- * 4. Reversed and repeated reads through the same native scene settle to the
- *    same matrices, head angles, sample positions and video clock.
+ *
+ * 1. In the wide shot the panel is whole. The next camera enters at the contact,
+ *    displaying its detached tile, a local glow and a short sound.
+ * 2. The performer reacts two frames after the contact. Subsequent capture reads
+ *    show the tile departing, while the same panel remains in place.
+ * 3. In the alternate take the token passes the panel. The panel stays whole, the
+ *    response remains at rest and the contact layer is silent.
+ * 4. Reversed and repeated reads through the same native scene settle to the same
+ *    matrices, head angles, sample positions and video clock.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Specifies the two theatrical outcomes, visible edit, exact clock and reverse capture.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public motion, editorial, capture, particle display and PCM mix entry points. Capture observes generated model parts, native billboard matrices, actual pose, light intensity and audio samples.
@@ -86,7 +87,10 @@ export async function test_film_stage_screen_cue(): Promise<void> {
   await verifyTake(false);
 }
 
-/** Collect one full capture route and re-read staged values by absolute source time. */
+/**
+ * Collect one full capture route and re-read staged values by absolute source
+ * time.
+ */
 async function verifyTake(contact: boolean): Promise<void> {
   const pane: Panel = panel();
   const placed: IAutoMovieRigidTransform = HumanObject.frame({
@@ -192,23 +196,55 @@ async function verifyTake(contact: boolean): Promise<void> {
     nclose(events[0]!.globalTime, 0) &&
       (hit === undefined || nclose(events[1]!.globalTime, 6 / FPS)),
   );
+  // One film frame of a decaying click, mixed by the film's one mixer at the
+  // contact frame; the alternate take has no cue and stays silent.
   const click: Float32Array = Float32Array.from(
-    { length: AUDIO_HZ / 25 },
+    { length: AUDIO_HZ / FPS },
     (_: unknown, index: number): number =>
-      0.26 *
-      Math.cos((index / AUDIO_HZ) * 2 * Math.PI * 190) *
-      Math.exp((-7 * index) / (AUDIO_HZ / 25)),
+      index >= AUDIO_HZ / 25
+        ? 0
+        : 0.26 *
+          Math.cos((index / AUDIO_HZ) * 2 * Math.PI * 190) *
+          Math.exp((-7 * index) / (AUDIO_HZ / 25)),
   );
-  const audio: ReturnType<typeof mixAutoMovieAudioPcm> = mixAutoMovieAudioPcm({
-    sampleRate: AUDIO_HZ,
-    frames: (3 * AUDIO_HZ) / 4,
-    sources: { click },
-    cues:
-      hit === undefined
-        ? []
-        : [{ asset: "click", seconds: events[1]!.globalTime, gain: 1 }],
-    fadeSeconds: 0,
-  });
+  const contactFrame: number | undefined =
+    hit === undefined ? undefined : Math.round(events[1]!.globalTime * FPS);
+  const audio: { left: Float32Array } =
+    contactFrame === undefined
+      ? { left: new Float32Array((3 * AUDIO_HZ) / 4) }
+      : {
+          left: ((pcm: Float32Array): Float32Array =>
+            pcm.filter((_: number, index: number): boolean => index % 2 === 0))(
+            renderProductionSound({
+              plan: {
+                version: 1,
+                inputFingerprint: "test_film_stage_screen_cue",
+                fps: FPS,
+                totalFrames: (3 * FPS) / 4,
+                sampleRate: 48_000,
+                channels: 2,
+                events: [],
+                cues: [
+                  {
+                    id: "click",
+                    asset: "click",
+                    startFrame: contactFrame,
+                    durationFrames: 1,
+                    sourceOffsetFrame: 0,
+                    sourceDurationFrames: 1,
+                    gain: 1,
+                    fadeInFrames: 0,
+                    fadeOutFrames: 0,
+                    bus: "effects",
+                    seed: 0,
+                  },
+                ],
+                dialogue: [],
+              },
+              assets: new Map([["click", click]]),
+            }).pcm,
+          ),
+        };
   const spec: IAutoMovieRenderSpec = {
     target: cut.sequence.id,
     frameFormat: { fps: FPS, width: 384, height: 216 },

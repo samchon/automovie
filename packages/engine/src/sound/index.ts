@@ -9,5 +9,6 @@ export * from "./productionPhonemesToVisemes";
 export * from "./productionSoundEventTone";
 export * from "./productionSoundSpectrogram";
 export * from "./productionSoundWaveform";
+export * from "./productionSpeechEndFrame";
 export * from "./renderProductionSound";
 export * from "./sampleAutoMovieDialogueExpression";
