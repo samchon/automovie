@@ -1,21 +1,3 @@
-# src/animals/QuadrupedTimedRoute.ts#QuadrupedTimedRoute
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two route forms and how a timed plan is read.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The admitted plan and the course of legs the ride's admission and clocks read.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by rideQuadruped, kept apart for its size.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/animals/QuadrupedTimedRoute.ts#QuadrupedTimedRoute.IRoute
 
 ## @evidence contracts/development/common.md#meaningful-documentation

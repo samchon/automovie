@@ -23,14 +23,6 @@ const PROFILE: string = "Coarse wall-mounted climbing ledge for a film set";
  * @param seed The seed for any unspecified size or mass.
  * @returns A rigid hold with named grip and toe frames.
  * @throws {AutoMovieArchetypeRefusal} When a prescribed dimension is outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the mounting face, dimension axes and two contact frames.
- * @evidence contracts/development/implementation.md#principled-implementation One rectangle's dimensions own the collider, top face and exposed lip.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the authored dimensions, build one part and place two contacts from its size.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The toe patch matches the whole top face, while the grip stays on the separate front edge. The coarse rectangular profile and bands are identified as provisional.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Builds one part and two contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent ledge.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no inputs after returning the ledge.
  */
 export function createClimbingHold(
   params: createClimbingHold.IParams = {},
@@ -95,11 +87,6 @@ export function createClimbingHold(
 
 /**
  * The ledge's dimensions, scene placement inputs and named actor contacts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives units, directions, role of each contact and provisional ranges.
- * @evidence contracts/development/design.md#principled-representation Three lengths define the ledge and its two contact roles.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The author can name the prop and fix its width, rise, depth and mass.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The dimension bands use metres and kilograms, with the chosen simplified sizes identified as provisional.
  */
 export namespace createClimbingHold {
   /** The exposed lip and the top bearing patch. */

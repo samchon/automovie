@@ -1,21 +1,3 @@
-# src/weapons/AutoMovieArchetypeFirearm.ts#AutoMovieArchetypeFirearm
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the shared lock-time and flintlock model once, which lock times are read and why the others borrow, and where the unread lock values are.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Two read lock times in seconds and the band spanning them; the flintlock's three worked parts, their two hinges about the gun's cross axis and the pan as a socket.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The one owner of what the handguns and long guns share; each producer keeps its own calibre, dimensions and bands.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No forum or encyclopedia figure stands as a source; a borrowed band names its lenders and the failed search, and every unread lock place and angle is a named estimate.
-
 # src/weapons/AutoMovieArchetypeFirearm.ts#AutoMovieArchetypeFirearm.layFlintlock
 
 ## @evidence contracts/development/common.md#meaningful-documentation

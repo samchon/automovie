@@ -1,19 +1,3 @@
-# src/vehicles/BoatOars.ts#BoatOars
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it builds and what it gives the rowing ride.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each oar a swivel of two chained articulations, a turn about the upright and a lift about the pin riding it, with the handle riding the lift; the geometry one record the builder and the ride share.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `build` for `createBoat`, `geometry` for `rowBoat`, and the read rules both use.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The oars' sizes follow from the span by the boatbuilders' rules, not from a separate guess per boat.
-
 # src/vehicles/BoatOars.ts#BoatOars.blade
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/animals/QuadrupedCorner.ts#QuadrupedCorner
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the geometry, the reach, the move and the edges left alone.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The footing's own planes and their shared bounds, and the limb's pastern length.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by the hoof track's foothold placement.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No constant: the reach is the pastern's own length, the edges the planes' own bounds.
-
 # src/animals/QuadrupedCorner.ts#QuadrupedCorner.Clear
 
 ## @evidence contracts/development/common.md#meaningful-documentation

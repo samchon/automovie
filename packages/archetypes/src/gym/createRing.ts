@@ -31,14 +31,6 @@ const SIDES: readonly ["north", "south", "east", "west"] = [
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The ring.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the ring stands and its contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A platform box of the drawn height whose square is the drawn inside size and an apron; a post rod at each corner of the inside square rising to the top rope; four ropes on each side at the guide's heights, scaled to the drawn top rope's height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the platform, the posts, the ropes, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ropes are straight rigid rods, not slack; no turnbuckles, pads or steps; the apron's width and the parts' sizes are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms One platform, four posts and four ropes per level.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createRing(
   params: createRing.IParams = {},
@@ -153,11 +145,6 @@ export function createRing(
 
 /**
  * Companion types, constants and bands of {@link createRing}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension the guide sets: the inside square, the platform's height and the top rope's height above the canvas.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The canvas fighters stand on, the top ropes and the corners a bout reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the AIBA guide's as read; it states no mass, so the mass band is provisional; the posts' section is a named estimate.
  */
 export namespace createRing {
   /** The apron beyond the ropes on each side, metres: the AIBA guide's 85 cm. */

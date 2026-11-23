@@ -1,21 +1,3 @@
-# src/animals/EquineObstacle.ts#EquineObstacle
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is read from the footing and the frame of the result.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each obstacle is an interval of course distance and a top height above the leg's ground.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `EquineJump` to admit and plan a jump.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Only authored geometry is read; no obstacle is inferred from a cue.
-
 # src/animals/EquineObstacle.ts#EquineObstacle.IObstacle
 
 ## @evidence contracts/development/common.md#meaningful-documentation

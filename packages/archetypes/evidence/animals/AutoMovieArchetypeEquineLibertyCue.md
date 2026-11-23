@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineLibertyCue.ts#AutoMovieArchetypeEquineLibertyCue
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names every cue and its owner.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Phases or a rest's authored timing, with the few parameters each needs.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The rows join the stance's cue union; the recline and fall are `AutoMovieArchetypeEquineLiberty`'s.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/animals/AutoMovieArchetypeEquineLibertyCue.ts#AutoMovieArchetypeEquineLibertyCue.IBow
 
 ## @evidence contracts/development/common.md#meaningful-documentation

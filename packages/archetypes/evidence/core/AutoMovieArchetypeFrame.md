@@ -1,21 +1,3 @@
-# src/core/AutoMovieArchetypeFrame.ts#AutoMovieArchetypeFrame
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the unit, the scale premise and the model's axes.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Rigid frames as translation and unit quaternion; a rigid motion is the same pair read as a map, so composing and moving need no matrix.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The few operations producers, articulation and sites all call; vector and quaternion arithmetic stays with the engine's `Vector3` and `Quaternion`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scale is always one, stated here, so no operation silently drops a scale it was given.
-
 # src/core/AutoMovieArchetypeFrame.ts#AutoMovieArchetypeFrame.IMotion
 
 ## @evidence contracts/development/common.md#meaningful-documentation

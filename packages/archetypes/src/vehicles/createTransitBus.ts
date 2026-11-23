@@ -27,14 +27,6 @@ import { addTransitBusSeating } from "./addTransitBusSeating";
  * @param params The model id, supplied as an option or as a positional string.
  * @param seed Draws the aisle width in the Xcelsior seat-model range. Omit it for the nominal 0.59 m aisle.
  * @returns A bus at rest with both passenger doors shut.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States local axes, both paired door controls, boarding supports and handholds, and the seeded or nominal aisle fit.
- * @evidence contracts/development/implementation.md#principled-implementation One sourced draw sets the width between opposing seat banks and the aisle affordance. Shared door bay dimensions set the side openings, paired leaves and public contacts. Opposite slider axes and a 1:1 follower keep each opening centered.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the cabin, the two axles and wheel housings, and then the door, seat and handhold affordances.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Door locations, pocket-slide mechanisms, flat passenger floor, seat layout and clearances are scenic approximations. Driver controls, working ramps and wheel spin are outside this model.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds a bounded set of primitive parts and binds each moving leaf once.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each scene id gets a separately poseable model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Acquires no external resources and holds only the returned model.
  */
 export function createTransitBus(
   params: { id?: string } | string = {},
@@ -152,11 +144,6 @@ export function createTransitBus(
 
 /**
  * Authorable passenger contacts and door controls in the bus frame.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Groups the named affordances by passenger use.
- * @evidence contracts/development/design.md#principled-representation A closed union retains the compiler's model-local name checks.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Offers the doors, boarding supports and passenger contacts built by the bus.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither arbitrary strings nor generated part ids form part of the contact contract.
  */
 export namespace createTransitBus {
   /**

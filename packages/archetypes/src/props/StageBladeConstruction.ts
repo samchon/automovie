@@ -87,14 +87,6 @@ const PROFILES = {
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames: the grip, the point and any edge.
  * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes its shared digital parts, the guard ownership and the contact regions.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the named display length and shaft coordinates. The selected producer owns the decoration and grip type.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds three common parts, calls the guard builder and adds the hand contact, the point and any edge.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the measured or explicitly provisional figures recorded by the geometry owner.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds the selected profile once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the legacy draw and the profile's parts and frames.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs or resources.
  */
 export function StageBladeConstruction(
   kind: createStageBladeProp.Kind,
@@ -200,11 +192,6 @@ export function StageBladeConstruction(
 
 /**
  * Shared display measurements and guard geometry.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names each project-owned display measurement in metres.
- * @evidence contracts/development/design.md#principled-representation Keeps guard parameters in the same model frame as the grip and shaft.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The decoration callback receives the builder and the existing dimensions used by the guard and binding.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the dimensions already used by the visible shaft.
  */
 export namespace StageBladeConstruction {
   /** Model-space locations and sizes for a form’s additional geometry. */

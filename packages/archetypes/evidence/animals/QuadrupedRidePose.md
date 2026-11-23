@@ -1,21 +1,3 @@
-# src/animals/QuadrupedRidePose.ts#QuadrupedRidePose
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Separates unchanged foot goals, terminal shape/orientation, one constrained body-root trajectory, source-carried accessories and generic-FK emission.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Four declared foot targets constrain the same body root, while source lengths and parent-local attachments define every solved limb.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Internal to the shared ride; course timing, body construction, exact limb mathematics, physical support and generic FK keep their existing owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No detached proximal joint, stretched bone, endpoint-only floor assumption, species branch, prior-frame cache or implicit anatomical limit is represented.
-
 # src/animals/QuadrupedRidePose.ts#QuadrupedRidePose.IGoal
 
 ## @evidence contracts/development/common.md#meaningful-documentation

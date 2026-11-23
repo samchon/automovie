@@ -39,14 +39,6 @@ import { createCostumeVambrace } from "./createCostumeVambrace";
  * @param seed The seed that picks the read piece left free and draws every dimension left free inside its band; absent, the first piece and the middle of each band.
  * @returns The piece.
  * @throws {AutoMovieArchetypeRefusal} For an unsupported piece/dimension, invalid used body measures, inverted cuirass heights or a mail mass/coverage that cannot contain a positive wall and cavity.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each kind covers, how it is fitted or left as read, where it is centred and how it rides its bone.
- * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates the legacy selector and calls the selected profile once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bounding-box fallback, filled body proxy, hidden collision/mass solid or invented historical wall/hand dimensions. Missing and associated components retain their record scope. Coarse authored geometry and equivalent mail material do not establish specimen shape, drape, protection or a universal glance outcome.
- * @evidence contracts/development/implementation.md#efficient-algorithms Bounded O(N squared) helmet cells or O(N) limb cells and constant torso panels, followed by shared core per-cell hull and mass work; no iterative model fitting.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createArmour(
   params: createArmour.IParams,
@@ -80,11 +72,6 @@ const PAD: string =
 
 /**
  * Companion types, bands, records and the bone rule of {@link createArmour}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, dimension, record and band states what it is and its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions of kinds and read pieces, each record whole; the thickness and padding as cited bands; a body's measure as the interface's own record, so the producer fits any body the motion laws read.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The piece, its `wear` place and the bone it rides (#3500).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Literal museum envelopes/mass and body fitting boundaries remain independent; authored coarse openings and steel-equivalent mail are not asserted as measured artifact geometry. Helmet padding and plate glance retain their explicit provisional sources.
  */
 export namespace createArmour {
   /** The canonical factories for saved kinds, read after the catalogue loads. */

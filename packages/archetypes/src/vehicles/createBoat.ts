@@ -25,14 +25,6 @@ type Producer = (
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The boat.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or one the kind lacks.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the boat floats, its axes, who sits, stands and holds where, the oars' articulations, and what is out of scope.
- * @evidence contracts/development/implementation.md#principled-implementation Selects the canonical producer for the saved hull kind and forwards all dimensions and selectors.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One validated kind selects its own hull and outfit producer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The saved parameters pass unchanged to the selected producer, which owns their admission and its provisional constants.
- * @evidence contracts/development/implementation.md#efficient-algorithms One kind check and one table lookup before the selected producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBoat(
   params: createBoat.IParams,
@@ -51,11 +43,6 @@ export function createBoat(
 
 /**
  * Companion types, constants and bands of {@link createBoat}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and its source, or that none was read and which to read.
- * @evidence contracts/development/design.md#principled-representation Closed unions, one cited band per dimension per kind, and the seats' places as named constants.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What sitting, standing, boarding and rowing read (#3497): the thwarts, the floor, the gunwale, the ends, the oars.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The launch is one measured boat, so its bands are single figures.
  */
 export namespace createBoat {
   /** The canonical factories for saved kinds, read after the catalogue loads. */

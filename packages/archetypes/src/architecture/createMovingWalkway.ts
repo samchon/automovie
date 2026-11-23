@@ -38,14 +38,6 @@ const LANDING: number = 1;
  * @param seed The seed for any unfixed dimension.
  * @returns The walkway with its landing, band and handrail contacts.
  * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the drawn structure and the separate moving band.
- * @evidence contracts/development/implementation.md#principled-implementation One level band of the drawn length and pallet width between two landings, handrails at the drawn height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the plates, band and rails, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Length, pallet width and handrail height are KONE's read ranges. The rail offset, plate thickness, landing depth and mass are provisional construction estimates.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts and five contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after returning the model.
  */
 export function createMovingWalkway(
   params: createMovingWalkway.IParams = {},
@@ -152,11 +144,6 @@ export function createMovingWalkway(
 
 /**
  * The walkway's dimensions and its moving pallet band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives each dimension's unit and source and the band model's frame.
- * @evidence contracts/development/design.md#principled-representation Lengths in metres and mass in kilograms, each with its band.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer, `rideMovingWalkway` and the escalator test read these members.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A horizontal autowalk only; KONE's inclined autowalks are not drawn.
  */
 export namespace createMovingWalkway {
   /** The two fixed landings, the moving band's resting surface and the two handrails. */

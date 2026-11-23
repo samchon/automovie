@@ -22,14 +22,6 @@ import { buildTennisRacketHead } from "./buildTennisRacketHead";
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The racket.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the racket stands and its three contacts and what reads them.
- * @evidence contracts/development/implementation.md#principled-implementation A handle rod, throat rod and dimensioned head, with an oval padel head or a split tennis frame and 16 by 19 string bed over its original physics.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, handle, throat and head, then the three contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tennis keeps its declared head and throat collision and mass primitives transparent. Its two visible meshes contribute neither mass nor colliders. Head thickness uses a named estimate.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most five parts, with a fixed ring resolution and string pattern.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createRacket(
   params: createRacket.IParams,
@@ -153,11 +145,6 @@ export function createRacket(
 
 /**
  * Companion types, constants and bands of {@link createRacket}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the sports and one band per dimension per kind; the rules bound the length and the head, the makers' sizes the rest.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The handle a hand takes, the face and the line a swing reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is a rule or a maker's figure as read, the rule's own limit where it states only one; a figure no source read gives is provisional and says so; the head's thickness is a named estimate.
  */
 export namespace createRacket {
   /** The kinds. */

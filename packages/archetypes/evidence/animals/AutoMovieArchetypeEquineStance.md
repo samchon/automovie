@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineStance.ts#AutoMovieArchetypeEquineStance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the base, the rows, the chaining of responses, the refusals and the instants.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A ride in, a ride out on the same film clock, the base ride's before its end.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One continuation; the poses are the rows' and the solve `EquineBodyPose`'s.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No response runs over a moving base.
-
 # src/animals/AutoMovieArchetypeEquineStance.ts#AutoMovieArchetypeEquineStance.after
 
 ## @evidence contracts/development/common.md#meaningful-documentation

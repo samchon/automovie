@@ -21,14 +21,6 @@ import {
  * @param params The model's id.
  * @param seed The seed; the flag has no drawn dimension.
  * @returns The flag.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the rule's dimensions and the affordances.
- * @evidence contracts/development/implementation.md#principled-implementation The length, width and thickness are the middles of the IFAF Flag Football Rules' bands.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One strip, then the three affordances.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The strip is rigid; its cloth does not flutter.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createFootballFlag(
   params: createFootballFlag.IParams = {},
@@ -70,11 +62,6 @@ export function createFootballFlag(
 
 /**
  * Companion types and constants of {@link createFootballFlag}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, parameter and constant states what it is and its source.
- * @evidence contracts/development/design.md#principled-representation The dimensions are the rule's, in metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Where the flag is worn, held and ends.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The affordance names are a closed union.
  */
 export namespace createFootballFlag {
   /** `socket`, where it clips to the belt; `grip`, its middle; `tip`, its free end. */

@@ -38,14 +38,6 @@ const ESTIMATES: Readonly<{ panel: number; foot: number }> = {
  * @param seed The seed that draws a wall mirror's size when it is not given and every dimension left free inside its band; absent, the first size and the middle of each band.
  * @returns The mirror.
  * @throws {AutoMovieArchetypeRefusal} For a size Bobrick does not list or one named for a standing mirror, a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where each kind stands and its contact.
- * @evidence contracts/development/implementation.md#principled-implementation One of Bobrick's standard sizes whole, its frame and wall offset, at the ADA's limit for the bottom edge; IKEA's overall width, height and depth for the standing mirror.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a wall mirror's size, draw the dimensions, the frame and glass or the panel and feet, then the contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The glass is a slab; the standing mirror's panel thickness and feet are construction estimates.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createMirror(
   params: createMirror.IParams,
@@ -139,11 +131,6 @@ export function createMirror(
 
 /**
  * Companion types and bands of {@link createMirror}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions, Bobrick's standard sizes among them, and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The face a person looks into (#3468 N15).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Where the standard gives only a limit, the band is that limit and says so; masses no source gives are provisional.
  */
 export namespace createMirror {
   /** The kinds of mirror. */

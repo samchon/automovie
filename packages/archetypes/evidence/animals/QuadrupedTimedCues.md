@@ -1,21 +1,3 @@
-# src/animals/QuadrupedTimedCues.ts#QuadrupedTimedCues
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a cue requests and where the speed still chooses.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A cue is a film-second interval and a gait, lowered to the same legs a course of legs states.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by QuadrupedTimedRoute; the stride decision and admission read the legs as they always do.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No row order or speed picks a cued gait; a gait the speed cannot carry is refused by the ride's admission.
-
 # src/animals/QuadrupedTimedCues.ts#QuadrupedTimedCues.ICue
 
 ## @evidence contracts/development/common.md#meaningful-documentation

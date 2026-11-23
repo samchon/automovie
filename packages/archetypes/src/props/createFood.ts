@@ -43,14 +43,6 @@ const NAMES: Readonly<Record<createFood.Kind, string>> = {
  * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The food.
  * @throws {AutoMovieArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each food lies, where it is held and bitten, and how two hands tear a loaf.
- * @evidence contracts/development/implementation.md#principled-implementation A loaf as two boxes of half its drawn length each, its drawn width and height, the `+X` one on the slider; an apple as one ball of the drawn diameter; a drumstick as its meat and its knuckle on one axis, the meat as thick as the drawn diameter. Every grip's frame lies at the centre of the part it closes on, with that part's span across the grip as the aperture.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the kind's parts, grip and bite.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A loaf's dome and an apple's dimples are not modelled; the stalk, a drumstick's shape and the tear's travel are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createFood(
   params: createFood.IParams,
@@ -237,11 +229,6 @@ export function createFood(
 
 /**
  * Companion types, constants and bands of {@link createFood}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of three generic foods, one cited band per dimension per kind; a drumstick's shape is a provisional band with its search recorded.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip a hand takes, the bite the mouth meets, and a loaf's hold and tear for two hands (#3501).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every food has the same `grip` and `bite`, so an eating act is written once; no food is one production's dish. The stalk, the knuckle and the tear's travel are named estimates.
  */
 export namespace createFood {
   /** The kinds. */

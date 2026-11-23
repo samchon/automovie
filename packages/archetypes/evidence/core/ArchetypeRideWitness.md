@@ -1,21 +1,3 @@
-# src/core/ArchetypeRideWitness.ts#ArchetypeRideWitness
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes the native producer identity and private exact-input geometry handoff.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A registered ride guards its original observation descriptors. A local witness pairs exact scalar inputs with private geometry from the same producer.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Only the native quadruped producer and tow consumer use this module.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The weak registry contains only reader provenance. Geometry can live only in a current operation witness.
-
 # src/core/ArchetypeRideWitness.ts#ArchetypeRideWitness.Reader
 
 ## @evidence contracts/development/common.md#meaningful-documentation

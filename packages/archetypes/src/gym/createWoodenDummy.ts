@@ -31,14 +31,6 @@ const LISTINGS: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The wooden dummy.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the origin, axes, parts, affordances and which band is provisional.
- * @evidence contracts/development/implementation.md#principled-implementation Rods for the trunk, three arms and the leg at the listed spacing, a facing frame at each struck place.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, five parts, five affordances.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arm height is a named provisional band, since no listing read fixes it.
- * @evidence contracts/development/implementation.md#efficient-algorithms Five parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createWoodenDummy(
   params: createWoodenDummy.IParams = {},
@@ -130,11 +122,6 @@ export function createWoodenDummy(
 
 /**
  * Companion types and bands of {@link createWoodenDummy}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension over the listed dummies, the arm height and mass provisional.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The five places a wing chun drill strikes (#4014).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The stand is the placement's; the arms are fixed, not sprung.
  */
 export namespace createWoodenDummy {
   /**

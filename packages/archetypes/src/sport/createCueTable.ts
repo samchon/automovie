@@ -32,14 +32,6 @@ const MOUTH = {
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The table.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the table stands, its contacts, and what is left out with why.
- * @evidence contracts/development/implementation.md#principled-implementation The WPA's playing surface, bed height, nose height as its share of the ball's diameter and rail width.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, split the bounded bed and rails around each pocket, then record their aiming and support affordances.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rail caps are level with their cushion noses. Box cuts approximate pocket jaws and preserve open physical mouths at the WPA widths.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed number of regions per table.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createCueTable(
   params: createCueTable.IParams = {},
@@ -158,11 +150,6 @@ export function createCueTable(
 
 /**
  * Companion types and bands of {@link createCueTable}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension; the nose height as the rule's share of the ball's diameter.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bed a shot is played on and the rails a bridge rests on (#3468 N11).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Pocket mouths use WPA diameters and remain distinct from the bed and rail hand targets.
  */
 export namespace createCueTable {
   /**

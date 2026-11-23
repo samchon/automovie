@@ -16,14 +16,6 @@ import {
  * @param seed The seed that picks the model when none is given; absent, the first model.
  * @returns The torch.
  * @throws {AutoMovieArchetypeRefusal} For a model the torch does not have, or a fixed dimension that is the model's own figure.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the torch stands and its three contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A barrel rod of the model's length and diameter and a head rod of the maker's head diameter at its top, the switch a point on the barrel's side below the head.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, two parts, three contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The switch is a contact on the barrel, not a part; the head's size and the switch's travel are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createTorch(
   params: createTorch.IParams = {},
@@ -110,11 +102,6 @@ export function createTorch(
 
 /**
  * Companion types, constants and bands of {@link createTorch}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Each model one maker's torch whole, never a size between two.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The barrel a hand takes, the lens an aim reads and the switch a thumb presses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The length, the barrel's diameter and the mass are the maker's as read for each model; the head's length and the switch's travel are named estimates.
  */
 export namespace createTorch {
   /** The head's diameter, metres: the Maglite 2-Cell and 3-Cell D's 57 mm. */

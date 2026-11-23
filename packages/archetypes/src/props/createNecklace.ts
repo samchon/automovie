@@ -56,14 +56,6 @@ const PIECES: number = 24;
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
  * @returns The loop.
  * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, why it is one closed loop, its frame and its four contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The ellipse's front-to-back half-axis is solved so that its perimeter (Ramanujan's approximation) is the drawn length at the drawn breadth.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, solve the ellipse, lay the loop, the pendant, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The loop is rigid and drawn as straight pieces; the breadth, the chain's mass and the ribbon's hang are marked provisional.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed bisection and a fixed number of pieces.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createNecklace(
   params: createNecklace.IParams = {},
@@ -180,11 +172,6 @@ export function createNecklace(
 
 /**
  * Companion types, constants and bands of {@link createNecklace}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, dimension, contact and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed kind and contact union and sourced bands for each kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the producer and its callers read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The chain's lengths are the jewellers'; the ribbon's hang, the breadth and the chain's mass are provisional.
  */
 export namespace createNecklace {
   /** The kinds: a chain with a small pendant, or a ribbon medal. */

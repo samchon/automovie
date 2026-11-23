@@ -37,14 +37,6 @@ type Producer = (
  * @param seed The seed that picks the model and its options and draws every dimension left free inside its band; absent, the first model and option, and each dimension the middle of its band.
  * @returns The carrier.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, one the kind lacks or one the model reads, or a model or option the kind does not offer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the carrier stands, where it is pushed or drawn from and where it is loaded.
- * @evidence contracts/development/implementation.md#principled-implementation Selects the canonical producer for the saved kind while preserving its original parameters and seed.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One validated kind selects its own producer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The saved parameters pass unchanged to the selected producer, which owns their admission and its provisional constants.
- * @evidence contracts/development/implementation.md#efficient-algorithms One kind check and one table lookup before the selected producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createCart(
   params: createCart.IParams,
@@ -63,11 +55,6 @@ export function createCart(
 
 /**
  * Companion types, constants and bands of {@link createCart}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is; each band and constant its source, or that none was read and which to read.
- * @evidence contracts/development/design.md#principled-representation Closed unions, the read models and their options picked whole (`CART_MODELS`), one cited band per dimension a model leaves free, a kind lacking the dimensions of the parts it does not have.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What a pushing, driving, riding or towing act reads (#3372, #3351, #3495): the handles, the seats, the floors, the shafts, the pole's end and the wheels' turn.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A horse-drawn kind draws the horse's withers height from `createHorse`'s band, and a cart takes the girth that height gives the horse, so the places it takes from the horse fit the horse that draws it; a rickshaw takes its shafts' height from the measured human wrist.
  */
 export namespace createCart {
   /** The canonical factories for saved kinds, read after the catalogue loads. */

@@ -34,14 +34,6 @@ const NAMES: Readonly<Record<createHolster.Kind, string>> = {
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
  * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names shared carrier fit and form-owned geometry.
- * @evidence contracts/development/implementation.md#principled-implementation Preserves seed, fit, slot admission and mass. The producer adds its own mesh and wearable frames.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve catalogue and slot offsets, invoke one shape owner and build once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the measured or explicitly provisional figures recorded by the geometry owner.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds the selected profile once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the legacy draw and the profile's parts and frames.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs or resources.
  */
 export function StageCarrierConstruction(
   kind: createHolster.Kind,
@@ -153,11 +145,6 @@ export function StageCarrierConstruction(
 
 /**
  * Geometry callback for the display carrier catalogue.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the resolved, metre-scale dimensions and the number of seats.
- * @evidence contracts/development/design.md#principled-representation Keeps the count separate from the dimensions and uses native model data.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A geometry owner receives only its builder and resolved dimensions and slots.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses positive banded dimensions and existing model ids.
  */
 export namespace StageCarrierConstruction {
   /** Draws one carrier in its own local wear frame. */

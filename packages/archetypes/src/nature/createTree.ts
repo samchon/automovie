@@ -54,14 +54,6 @@ const BRANCHES: string =
  * @returns The tree.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  * @throws {RangeError} For a branch count that is not a whole number from 0 to `MAX_BRANCHES`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the tree stands, its parts, its contact, how its mass and balance follow and why it carries no friction.
- * @evidence contracts/development/implementation.md#principled-implementation A trunk rod of the drawn diameter to the crown base the drawn share of the height sets, a crown ball above it; the mass is the allometric equation's dry biomass from the diameter in centimetres times one plus the moisture, shared by the stem ratios.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the mass and its shares, the two parts, the contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The trunk's taper, its roots and any branch the author does not ask for are not drawn, and drawn branches are level rods; the crown's ball is its depth across, a construction detail no act reads.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createTree(
   params: createTree.IParams,
@@ -209,11 +201,6 @@ export function createTree(
 
 /**
  * Companion types, constants and bands of {@link createTree}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of species; the size, the crown base share and the moisture are bands, the mass derived from them by the published equations, never drawn.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bole a person leans on or hides behind, at the height its diameter is measured (#3468's N9).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band and coefficient is read; the crown base share is a European oak study's, applied to white oak and so provisional.
  */
 export namespace createTree {
   /** The kinds: a white oak and a Douglas-fir. */

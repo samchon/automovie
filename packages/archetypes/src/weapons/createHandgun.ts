@@ -22,14 +22,6 @@ import { HandgunActions } from "./HandgunActions";
  * @param seed The seed that picks the model and the sights left free and draws every dimension left free inside its band; absent, the first model, the first sights and the middle of each band.
  * @returns The handgun.
  * @throws {AutoMovieArchetypeRefusal} For a model not of the frame, sights on a pistol without them, a fixed dimension outside its band, or one the model or the sights give.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is and is not modelled, how the pistol stands and what each contact is.
- * @evidence contracts/development/implementation.md#principled-implementation Three boxes from the picked pistol's published outside sizes; the trigger face stands at the published reach from the backstrap and moves by the published travel; a loaded pistol adds the difference between the makers' loaded and unloaded masses. A revolver and a flintlock pistol are `HandgunActions`'s, their sight radius derived where no maker gives it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model and the sights, draw the other dimensions, build the grip, the slide and the trigger, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The grip is upright, without its rake, and there is no trigger guard; neither changes where a hand or a finger goes.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createHandgun(
   params: createHandgun.IParams,
@@ -189,11 +181,6 @@ export function createHandgun(
 
 /**
  * Companion types and bands of {@link createHandgun}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each frame, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions of frames, read pistols and sights, each pistol whole from its own maker's table, and one band per dimension a pistol leaves, provisional where it applies another maker's figure.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The outside sizes, the trigger's reach and travel and the sight line an aiming and holding act read (#3374).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Loading is a parameter that adds a published mass, not a second set of bands; nothing between two pistols or two sights is drawn, and no maker's figure stands in another maker's pistol.
  */
 export namespace createHandgun {
   /** The frames: a full-size or compact self-loading pistol, a revolver or a flintlock pistol. */

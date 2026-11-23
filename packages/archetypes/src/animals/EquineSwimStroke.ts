@@ -27,14 +27,6 @@ import { minimumJerk } from "@automovie/engine";
  * @param phase The stroke phase in cycles; any finite number, wrapped to [0, 1).
  * @returns The three included angles of that end's measured joints and the slope of its upper bone, degrees.
  * @throws {RangeError} For a nonfinite phase.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both sources, the angle conventions, the cycle origin, which event phases are measured and which authored, and the unmeasured proximal swing.
- * @evidence contracts/development/implementation.md#principled-implementation Each joint runs a minimum-jerk path between its measured mean extremes at its event phases, the closed-form point-to-point profile, so the extremes and their order are exact and velocity is continuous through each event.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Wrap the phase, then evaluate one two-segment cycle per joint from the shared event table.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angles are the studies' Table 2 means, not tuned values; the authored event phases and proximal slopes are named as authored in their tables.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four constant-time cycle evaluations per call.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its two inputs.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh four-number record.
  */
 export function EquineSwimStroke(
   end: EquineSwimStroke.End,
@@ -54,11 +46,6 @@ export function EquineSwimStroke(
 
 /**
  * Types and cited tables of {@link EquineSwimStroke}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each type states its angle convention and unit and each table its source.
- * @evidence contracts/development/design.md#principled-representation Included angles in degrees and phases in cycles per joint, the studies' own measures.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The stroke's event table and its angle record, read by `EquineSwimPose` and the crossing.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Measured means and authored phases are named apart; no anatomical limit is implied.
  */
 export namespace EquineSwimStroke {
   /** The fore or the hind stroke. */

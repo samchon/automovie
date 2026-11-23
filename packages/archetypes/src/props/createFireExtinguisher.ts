@@ -38,14 +38,6 @@ const SIZE: Readonly<createFireExtinguisher.ISize> = {
  *
  * @param params The optional scene id.
  * @returns The extinguisher and its contacts, metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the read size, the frame and each contact.
- * @evidence contracts/development/implementation.md#principled-implementation A cylinder, a valve, a handle, a lever on a hinge, a pin on a slider and a horn.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Record the size, lay the parts, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The valve's proportions, lever travel and pin pull are named estimates; height, diameter, width and mass are read.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Six parts and six contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createFireExtinguisher(
   params: createFireExtinguisher.IParams = {},
@@ -183,11 +175,6 @@ export function createFireExtinguisher(
 
 /**
  * The inputs, contacts and size of {@link createFireExtinguisher}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scene id input, the contacts, the dimensions and the size.
- * @evidence contracts/development/design.md#principled-representation Metres, degrees and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The handle, lever, pin, ring and nozzle the PASS drill reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The size is the read model's; no dimension is authorable.
  */
 export namespace createFireExtinguisher {
   /** The carrying handle, the lever and its tip, the pin and its ring, and the nozzle. */

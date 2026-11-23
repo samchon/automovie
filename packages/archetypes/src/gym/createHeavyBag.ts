@@ -25,14 +25,6 @@ const EVERLAST: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The heavy bag.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where the origin is, which side is struck, its two contacts and that a swing is not modelled.
- * @evidence contracts/development/implementation.md#principled-implementation A rod of the drawn diameter and height below its hook, the target's frame on the bag's surface at mid-height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No chain is drawn, since no source read gives its length; a production hangs the hook where its chain ends.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createHeavyBag(
   params: createHeavyBag.IParams = {},
@@ -86,11 +78,6 @@ export function createHeavyBag(
 
 /**
  * Companion types and bands of {@link createHeavyBag}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension over the bags the search found, provisional as a whole.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The face a strike lands on and the point it hangs from (#3468 F6: `punch`, `kick`).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The chain is left to the placement, since no source read gives its length.
  */
 export namespace createHeavyBag {
   /**

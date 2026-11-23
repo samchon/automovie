@@ -1,19 +1,3 @@
-# src/core/AutoMovieArchetypeFracture.ts#AutoMovieArchetypeFracture
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a set is, where the threshold lives, what breaking leaves, how fragments leave and what is not modelled.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A set is an id and the producer's own part ids; a hit is its energy and momentum; the result is the remainder and fragments as archetypes, each with a velocity.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `split` for `AutoMovieArchetype.broken`, the set, the hit and the broken result #3499 asks for, and the fragment and piece records the result and `AutoMovieArchetype.broken` pass.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No seeded spread or shard pattern is invented: a fragment is a declared set whole, and its velocity is momentum over mass.
-
 # src/core/AutoMovieArchetypeFracture.ts#AutoMovieArchetypeFracture.ISet
 
 ## @evidence contracts/development/common.md#meaningful-documentation

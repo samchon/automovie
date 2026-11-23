@@ -1,21 +1,3 @@
-# src/core/ArchetypeMassArithmetic.ts#ArchetypeMassArithmetic
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the mass/centroid purpose, ordinary numeric path and exact exceptional path.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Scaled convex means and products/quotients are the same physical formulas; binary64 inputs are exact dyadic rationals and round only at the exceptional path's final result.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Scalar/vector means, weight normalization, local products, ratio, weighted-product readers, product and sum serve existing primitive, composite and line-moment consumers without geometry, material or model ownership.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No physical cap, tolerance, clamp or cached scene state changes an input. A genuinely unrepresentable scalar remains infinite for its mass-property caller to refuse.
-
 # src/core/ArchetypeMassArithmetic.ts#ArchetypeMassArithmetic.ratio
 
 ## @evidence contracts/development/common.md#meaningful-documentation

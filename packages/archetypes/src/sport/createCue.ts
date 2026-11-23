@@ -27,14 +27,6 @@ const WEIGHT: string =
  * @param seed The seed that draws the butt and the shaft when they are not given and every dimension left free inside its band; absent, the first of each and the middle of each band.
  * @returns The cue.
  * @throws {AutoMovieArchetypeRefusal} For a butt Viking or a shaft McDermott does not list, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the cue lies, its halves and its three contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The makers' 58 in from McDermott's statement that a carom cue is 2 in shorter than a pool cue's, split as Cuetec's 29 in butt and 29 in shaft; the butt one of Viking's three diameters; the tip one of McDermott's four shaft diameters, each within the WPA's limit; the mass at the makers' standard weights.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the butt and the shaft, draw the dimensions, the butt and the shaft, then the three contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The butt is one cylinder; the shaft is one tapered rod as two.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createCue(
   params: createCue.IParams = {},
@@ -139,11 +131,6 @@ export function createCue(
 
 /**
  * Companion types and bands of {@link createCue}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Viking's butts and McDermott's shafts picked whole, one cited band per remaining dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two hands' places, the butt's size a grasp reads and the tip a stroke carries through the ball (#3468 N11).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every size a hand or a stroke reads is a read model or a read band; no diameter between two listed is made.
  */
 export namespace createCue {
   /**

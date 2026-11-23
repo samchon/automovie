@@ -10,14 +10,6 @@ import { createPracticeBaton } from "./createPracticeBaton";
  * @param seed The seed used by the selected producer.
  * @returns The original model and its contacts.
  * @throws {AutoMovieArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the saved input and selected model.
- * @evidence contracts/development/implementation.md#principled-implementation Admit the saved kind and use its producer's bands and original seed domain.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the kind and call the corresponding public producer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The selected producer still validates the original dimensions and choices.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed kind table selects the producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls use the same construction.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
  */
 export function createClub(
   params: createClub.IParams,
@@ -41,11 +33,6 @@ export function createClub(
 
 /**
  * Companion types and bands of {@link createClub}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions of kinds and read models, each model whole, and one cited band per dimension a model leaves; a bat's profile constants are lengths along it, named.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The length, the mass and the handle a swing reads (#3374), and the two contacts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No balance point or inertia is declared: both follow from the shape. Nothing between two models is drawn; Cross's 84 cm bat is aluminium, so it is not one of this solid wood bat's models.
  */
 export namespace createClub {
   /** The kinds of club. */

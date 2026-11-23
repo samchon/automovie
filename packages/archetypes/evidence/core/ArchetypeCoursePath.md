@@ -1,19 +1,3 @@
-# src/core/ArchetypeCoursePath.ts#ArchetypeCoursePath
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it owns and who calls it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The legs as a table of rows, each with its start, its run on the ground and its length along its grade, and a pose as a place and a heading.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `lay` and `advance`, called by `ArchetypeCourseLegs.plan`, and the two records they pass.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/core/ArchetypeCoursePath.ts#ArchetypeCoursePath.IRow
 
 ## @evidence contracts/development/common.md#meaningful-documentation

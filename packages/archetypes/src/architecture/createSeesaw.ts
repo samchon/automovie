@@ -42,14 +42,6 @@ const RISE: number = 0.45;
  * @param seed The seed for any unfixed dimension.
  * @returns The seesaw's post.
  * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the pivot axis and the separate beam.
- * @evidence contracts/development/implementation.md#principled-implementation A post to the pivot height and a ground contact.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the post.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every size is a provisional construction estimate, marked on its band.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after returning the model.
  */
 export function createSeesaw(
   params: createSeesaw.IParams = {},
@@ -92,11 +84,6 @@ export function createSeesaw(
 
 /**
  * The seesaw's dimensions and its rocking beam.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives each dimension's unit and source and the beam model's frame and contacts.
- * @evidence contracts/development/design.md#principled-representation Lengths in metres and mass in kilograms, each with its band.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer, `rideSeesaw` and the playground test read these members.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The beam is rigid and turns only about the pivot.
  */
 export namespace createSeesaw {
   /** The ground around the seesaw. */

@@ -27,14 +27,6 @@ const POLE: string =
  * @param seed The seed that draws a pole vault mat's layout when it is not given and every dimension left free inside its band; absent, the first layout and the middle of each band.
  * @returns The mat.
  * @throws {AutoMovieArchetypeRefusal} For a layout the rules do not give or one named for a high jump mat, a fixed dimension outside its band, or one only the other kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the mat lies and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation One box of the rules' length, width and height, a pole vault mat's length its layout's whole; its top is the contact, as large as the top.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a pole vault mat's layout, draw the dimensions, one box, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bed is rigid: how far it gives under a body is the landing act's. A pole vault mat's cut-out round the box is not drawn.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createLandingMat(
   params: createLandingMat.IParams,
@@ -97,11 +89,6 @@ export function createLandingMat(
 
 /**
  * Companion types and bands of {@link createLandingMat}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union, a pole vault mat's two layouts picked whole, and one band per remaining dimension per kind; the rules give the least size, which each band takes.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The top's height and extent a landing reads, and the one contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A pole vault mat's length is its layout's, never a size between the rules' two.
  */
 export namespace createLandingMat {
   /** The kinds of mat. */

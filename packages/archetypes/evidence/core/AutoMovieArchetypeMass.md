@@ -1,21 +1,3 @@
-# src/core/AutoMovieArchetypeMass.ts#AutoMovieArchetypeMass
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the density rule, who supplies the total mass and why the distribution is computed.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Rigid-body mass properties in SI units in the model's axes: a centre in metres and the six distinct components of the symmetric inertia tensor about it in kg m squared.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The archetypes own it because `IAutoMovieBody` carries a mass and a centre but no inertia; acts that swing or carry a thing read the tensor (#3202 decision 6).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No per-archetype mass constant or bounding proxy: primitive closed forms and explicitly declared cell hulls supply the composite's local solids.
-
 # src/core/AutoMovieArchetypeMass.ts#AutoMovieArchetypeMass.IInertia
 
 ## @evidence contracts/development/common.md#meaningful-documentation

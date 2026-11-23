@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineBreathing.ts#AutoMovieArchetypeEquineBreathing
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the stride lock and its source, the free clock and its rest source, the recovery, how the girth and the carried tack move, the nostrils and what is authored.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A ride in and a ride out on the same clock, with the breath readable per second.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One layer and its breath reader.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No simulation: every value is a closed form of the clock and the ride's own hoof events.
-
 # src/animals/AutoMovieArchetypeEquineBreathing.ts#AutoMovieArchetypeEquineBreathing.IEffort
 
 ## @evidence contracts/development/common.md#meaningful-documentation

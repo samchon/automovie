@@ -37,14 +37,6 @@ interface IEnds {
  * @param seed The seed that draws the horse's free dimensions other than the withers height, which the age fixes; absent, each takes the middle of its band.
  * @returns The foal, with the horse's affordances and dimensions.
  * @throws {AutoMovieArchetypeRefusal} For an age below 0 or above 183 days.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each growth curve, its source or that it is authored and provisional, how the bone fractions follow and the age range.
- * @evidence contracts/development/implementation.md#principled-implementation The horse's equid builder on a foal profile whose height and bone fractions are the growth curves at the age.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the age, build the profile, build the equid.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An age outside birth to weaning refuses.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work over the horse's build.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the horse's body, builder and tack.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The producer retains nothing.
  */
 export function createFoal(
   params: createFoal.IParams = {},
@@ -89,11 +81,6 @@ export function createFoal(
 
 /**
  * Companion types, growth and profile of {@link createFoal}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each member is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation An age in days and growth fractions of mature size.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The foal's own data; its tack, contacts and dimensions are the horse's.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The provisional fractions are named as such.
  */
 export namespace createFoal {
   /** The producer's name. */

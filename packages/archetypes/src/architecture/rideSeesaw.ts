@@ -34,14 +34,6 @@ const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * @param ride The push-off seconds and each rock's duration.
  * @returns The beam's angle, its frame and the low end at each ride second.
  * @throws {AutoMovieArchetypeRefusal} For push-offs out of order, or closer than one rock.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the clock, the rest limits, the push-off rule and the start.
- * @evidence contracts/development/implementation.md#principled-implementation The beam's limits are its ground contacts; each authored push-off starts one rest-to-rest rock between them.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the push-offs, then read the rock a second falls in.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The rock duration is the author's input; the limits are geometry.
- * @evidence contracts/development/implementation.md#efficient-algorithms One scan of the push-offs per read.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each read is independent arithmetic.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the push-off list while the caller keeps the ride.
  */
 export function rideSeesaw(
   seesaw: AutoMovieArchetype<createSeesaw.Affordance, createSeesaw.Dimension>,
@@ -95,11 +87,6 @@ export function rideSeesaw(
 
 /**
  * The seesaw ride's parameters and readers.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and clock.
- * @evidence contracts/development/design.md#principled-representation Seconds and degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The playground test reads these members.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The push-offs are explicit instants, not a period.
  */
 export namespace rideSeesaw {
   /**

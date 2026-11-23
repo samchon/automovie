@@ -23,13 +23,6 @@ const STAGED: string =
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
  * @returns The fin with its wear socket.
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the socket and the blade area the motion reads.
- * @evidence contracts/development/implementation.md#principled-implementation A foot pocket box and a thin blade box ahead of it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, build two parts and one socket.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The blade is rigid; its flex is not modelled.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts and one contact.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSwimFin(
   params: createSwimFin.IParams = {},
@@ -89,11 +82,6 @@ export function createSwimFin(
 
 /**
  * Dimensions and the socket of {@link createSwimFin}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the socket, the blade dimensions and their staged provenance.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms in provisional bands.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The wear socket and the blade a fin-swimming law reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is marked provisional.
  */
 export namespace createSwimFin {
   /** The foot pocket, and the blade's upper face. */

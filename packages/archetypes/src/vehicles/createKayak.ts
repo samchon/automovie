@@ -36,13 +36,6 @@ type Build = AutoMovieArchetypeBuilder<
  * @param params Optional scene identity and fixed reference dimensions.
  * @param seed Provenance seed. The reference dimensions are fixed.
  * @returns One enclosed-deck hull with an open cockpit.
- * @evidence contracts/development/common.md#meaningful-documentation Defines the reference sites, axes, open cockpit and seated interfaces.
- * @evidence contracts/development/implementation.md#principled-implementation A repeated thin-shell cross section provides the sides and floor. Separate deck panels meet the coaming without filling the cockpit.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read dimensions, loft the shell, then install the contact-bearing furnishings.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No collider or visual surface spans the cockpit opening. The seat and foot contacts come from their respective solids.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed section family and two footbrace placements.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One section array positions the shell and coaming walls. One plate construction serves both braces.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The built product owns its geometry. No scene or caller data is retained.
  */
 export function createKayak(
   params: createKayak.IParams = {},
@@ -234,11 +227,6 @@ function brace(builder: Build, id: createKayak.Brace, sign: number): void {
 
 /**
  * Fixed dimension sites and the three contact affordance names.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the measured sites, units and cockpit contacts.
- * @evidence contracts/development/design.md#principled-representation A closed dimension and contact vocabulary for one sit-inside hull.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Independent of canoes and the shape of the hand-held paddle.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Provenance for the published dimensions is separate from the installed geometry estimates.
  */
 export namespace createKayak {
   /** The pan and paired footbrace faces. */

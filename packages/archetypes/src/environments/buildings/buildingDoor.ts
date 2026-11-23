@@ -21,14 +21,6 @@ import type { createBuilding } from "./createBuilding";
  * The wall cut uses the fixed frame's measured extent. The moving leaf's
  * geometry and handle points share the same hinge-relative coordinates; a
  * normal staged node rotation carries both. Shot time comes from the caller.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines what stays static, the source of aperture dimensions, the hinge frame and the shot clock.
- * @evidence contracts/development/implementation.md#principled-implementation Recursively carried door parts are selected by authored affordance relationships; subtracting the hinge pivot gives the rigid leaf pose expected by portal geometry and staged object clips.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The ordinary door producer owns sizes and range. This adapter owns only division and re-expression around the root of the moving node.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A chord greater than 180 degrees cannot retain its authored direction through ordinary shortest-arc quaternion samples, so such a timed swing is refused. The leaf model is kinematic and makes no aggregate mass claim.
- * @evidence contracts/development/implementation.md#efficient-algorithms Operates on one door's bounded part and contact population, and constructs at most two keys.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A reusable plan makes one distinct interactive node per occurrence; this adapter never shares a live model identifier across placements.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The output holds two finite model records and the optional caller-owned rotation clip. The part filter and source door are released after preparation.
  */
 export function buildingDoor(
   id: string,
@@ -169,11 +161,6 @@ export function buildingDoor(
 
 /**
  * Measured aperture and linked stage models of an existing door instance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the measured aperture, hinge pivot and shot-time clip. The fixed frame stays in sill coordinates and the moving leaf uses hinge coordinates.
- * @evidence contracts/development/design.md#principled-representation Width, height and offset are in metres of the door opening. A nullable clip means the door remains at its closed pose.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Wall and visible door share measured aperture and hardware geometry, with the existing authored clip for motion.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The moving prop carries the original hardware and hand contacts. The wall and fixed doorway do not share parts with that moving prop.
  */
 export namespace buildingDoor {
   /**

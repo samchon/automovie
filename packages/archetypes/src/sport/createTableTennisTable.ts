@@ -21,14 +21,6 @@ import {
  * @param params The model's id.
  * @param seed The seed; the table has no drawn dimension.
  * @returns The table.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the laws each dimension comes from and the affordances.
- * @evidence contracts/development/implementation.md#principled-implementation Every dimension is the ITTF Laws of Table Tennis' (2.1.1, 2.2.2); the top's thickness and the legs' section are provisional construction.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the top, the net and the legs, then record the affordances.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The net is a solid sheet the ball meets, not a gate.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed number of parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createTableTennisTable(
   params: createTableTennisTable.IParams = {},
@@ -103,11 +95,6 @@ export function createTableTennisTable(
 
 /**
  * Companion types and constants of {@link createTableTennisTable}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, parameter and constant states what it is and its source.
- * @evidence contracts/development/design.md#principled-representation The dimensions are the laws', in metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The playing surface, the net and the two end lines a rally is played across.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The affordance names are a closed union.
  */
 export namespace createTableTennisTable {
   /** `surface`, the playing surface's centre; `net`, the net's top centre; `end` and `far`, the middles of the two end lines. */

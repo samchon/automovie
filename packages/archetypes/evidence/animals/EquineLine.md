@@ -1,21 +1,3 @@
-# src/animals/EquineLine.ts#EquineLine
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is laid, by whom, its length and the refusal.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A ride in, a ride out on the same clock; the held point is a world point at each film second.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One layer; the line's geometry and its held run's alignment are the span owner's.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The lead is the model's own span; no second line is drawn.
-
 # src/animals/EquineLine.ts#EquineLine.Held
 
 ## @evidence contracts/development/common.md#meaningful-documentation

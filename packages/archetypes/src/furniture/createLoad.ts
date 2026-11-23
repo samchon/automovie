@@ -28,14 +28,6 @@ const SACK: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The load.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, contents heavier than `createLoad.CONTENTS`, or any contents in a sack.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the load lies and where it is held.
- * @evidence contracts/development/implementation.md#principled-implementation One dimensioned box; a crate's contents add to its own mass, and are bounded so the heaviest crate stays at the 25 kg HSE gives for a man's lift close to the body between knuckle and elbow height (INDG143, Figure 1, https://www.hse.gov.uk/pubns/indg143.pdf).
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the contents, draw the dimensions, one part and its three contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A sack does not sag; it is a rigid shape at rest.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createLoad(
   params: createLoad.IParams,
@@ -130,11 +122,6 @@ export function createLoad(
 
 /**
  * Companion types and bands of {@link createLoad}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The span between the two hands, the height they take the load at and the mass (#3370).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The lifting limit is a named constant with its source.
  */
 export namespace createLoad {
   /** The kinds of load. */

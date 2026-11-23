@@ -54,14 +54,6 @@ const ESTIMATES: Readonly<{ plate: number; body: number; stud: number }> = {
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The tower.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, where each faucet stands, what each contact is and what is left out.
- * @evidence contracts/development/implementation.md#principled-implementation Perlick's tower height, column, base, head depth and faucet spacing; Micro Matic's faucet length, spout, drop and lever stud, a standard faucet that fits a standard tower's shank.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the mass, then the base, column and head, then each faucet with its two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The head is one level cylinder as long as the faucets' spacing plus its depth; the plate's, body's and stud's thicknesses are construction estimates; the mass is provisional.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Nine parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBeerTap(
   params: createBeerTap.IParams = {},
@@ -162,11 +154,6 @@ export function createBeerTap(
 
 /**
  * Companion types and bands of {@link createBeerTap}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; the band its source.
- * @evidence contracts/development/design.md#principled-representation The makers' single figures as constants; the one unread mass a provisional band.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The spouts a glass is held under and the studs a hand pulls (#3468 N14).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A handle's length and throw no sheet gives are left out, not invented.
  */
 export namespace createBeerTap {
   /**

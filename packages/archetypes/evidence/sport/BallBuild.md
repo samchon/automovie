@@ -1,21 +1,3 @@
-# src/sport/BallBuild.ts#BallBuild
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the original ball draw namespace and the model record it preserves.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Keeps dimensions in metres and mass in kilograms with the original per-kind bands and provenance.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One draw and its tables serve the public producers and the saved-recipe dispatcher.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The same draw records bands, fixed figures and model choices.
-
 # src/sport/BallBuild.ts#BallBuild.DrawMaterial
 
 ## @evidence contracts/development/common.md#meaningful-documentation

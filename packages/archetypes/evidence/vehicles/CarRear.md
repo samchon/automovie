@@ -1,21 +1,3 @@
-# src/vehicles/CarRear.ts#CarRear
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it builds and on what.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each class's rear as boxes on the layout's planes, with its lid, door or gate as an articulation and its floor as a surface.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One builder, `build`, called by `createCar`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-One branch per class, each reading the layout.
-
 # src/vehicles/CarRear.ts#CarRear.build
 
 ## @evidence contracts/development/common.md#meaningful-documentation

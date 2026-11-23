@@ -1,21 +1,3 @@
-# src/animals/PrepareQuadrupedPose.ts#PrepareQuadrupedPose
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Separates native ride emission from the public prepared reader.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The original prepared FK owns an achieved private emission capability.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Only the native quadruped ride can request the ODE part-copy mode.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No new public option, unachieved pose or cached emitted model.
-
 # src/animals/PrepareQuadrupedPose.ts#PrepareQuadrupedPose.ordinary
 
 ## @evidence contracts/development/common.md#meaningful-documentation

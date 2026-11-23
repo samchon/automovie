@@ -26,14 +26,6 @@ import { createStageQuiver } from "./createStageQuiver";
  * @param seed The seed that picks the ride and the blade left free and draws every dimension left free inside its band; absent, the first ride, the first blade and the middle of each band.
  * @returns The container.
  * @throws {AutoMovieArchetypeRefusal} For a ride or a blade not of the kind, a fixed dimension outside its band or one the ride gives, or a number of slots that is not a whole number from 1 to the kind's capacity.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each kind hangs and stands, what each contact is and where a carried item sits.
- * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates the legacy selector and calls the selected profile once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No retention strap, cant, hanging angle, buckle or stitching; a scabbard is straight and does not taper or curve with a sabre's blade. The scabbard's throat's length and lip are the shipped scabbard's construction estimates, which only its belt hanger's offset reads, as it did; a quiver's hangers sit at its rim and its middle.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts, and one contact per slot.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createHolster(
   params: createHolster.IParams = {},
@@ -59,11 +51,6 @@ export function createHolster(
 
 /**
  * Companion types, constants and bands of {@link createHolster}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the five carriers and one cited band per dimension per kind; a carrier's slots are numbered contacts, so each item's place is a contact an act names.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The opening and the item places a draw reads and the hangers it is worn by (#3374, #3485). A scabbard and a sheath keep the `mouth` and `belt` the shipped scabbard had.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each container is a kind of one producer, not a producer per weapon; the holster is the default kind, so a call without a kind builds the holster as before. Bands a source read gives are cited; the others are provisional with their search, and the throat, the flap and the hangers are named estimates. A ride is one of the maker's three, and a scabbard is made to one blade, a read sword whole or a kind whose source states a range, never to a length between two swords.
  */
 export namespace createHolster {
   /** The canonical factories for saved kinds, read after the catalogue loads. */

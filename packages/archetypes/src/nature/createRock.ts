@@ -27,14 +27,6 @@ const GRANITE: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The stone.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the stone rests, how its mass follows its size and its contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A ball of the size class's drawn diameter; the mass is the sphere's volume, pi d cubed over six, times granite's measured specific gravity and water's density.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, its mass, the kind's contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A stone's irregular shape is drawn round; no facet a hand or a foot uses is lost by it.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createRock(
   params: createRock.IParams,
@@ -105,11 +97,6 @@ export function createRock(
 
 /**
  * Companion types, constants and bands of {@link createRock}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation The geologists' size classes as kinds and granite's measured specific gravity as a band; the mass is derived, never drawn.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip a hand takes and the top and side a body uses (#3468's N9).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No stone is one scene's: the class and the seed make it.
  */
 export namespace createRock {
   /** The kinds: the Udden-Wentworth cobble and boulder classes. */

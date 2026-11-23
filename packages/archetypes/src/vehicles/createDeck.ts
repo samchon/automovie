@@ -30,14 +30,6 @@ const ESTIMATES: Readonly<{ plate: number }> = { plate: 0.02 };
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The deck.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, a length that is not positive, or a beam no wider than the two stanchions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the stretch is, which dimensions are the site's, how the guardrails are laid out, what is not modelled, its axes and contacts, and how it floats and carries.
- * @evidence contracts/development/implementation.md#principled-implementation Every guardrail size is ISO 5480's, single figures at its limits; the stanchions the fewest bays inside the spacing, the lower rails the fewest courses inside the openings, both derived from the drawn bounds and the site's length; the mass is steel's density times the parts' volumes.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, admit the site, lay out the stanchions and the courses, the plate, each side's guardrail, then the contacts and the mass.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The plate's thickness is a construction estimate after a recorded search; the taper, sheer, camber, stays and brackets are not modelled.
- * @evidence contracts/development/implementation.md#efficient-algorithms One box per stanchion and one rod per course per side.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createDeck(
   params: createDeck.IParams,
@@ -175,11 +167,6 @@ export function createDeck(
 
 /**
  * Companion types, reference and bands of {@link createDeck}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, parameter and dimension states what it is; each band its source; the reference its ship.
- * @evidence contracts/development/design.md#principled-representation The deck's length and beam required site parameters, the ship's; one cited band per guardrail dimension, each a single figure at the standard's limit; the mass derived, not drawn.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What standing on a moving deck, holding its rail and carrying a gun or cargo read (#3497): the walking surface and the two toprails.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The limits are taken as single figures, not widened into a guessed range; the plate's thickness is a stated estimate.
  */
 export namespace createDeck {
   /** The affordance ids: `deck`, the walking surface between the stanchions; `leftRail`, `rightRail`, the toprails along the `+X` and `-X` sides. */

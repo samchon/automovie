@@ -49,14 +49,6 @@ const DISPLAY_HEIGHTS: Readonly<Record<createStageWeaponProp.Kind, number>> = {
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
  * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the digital base shape and the geometry builder contract.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the historical stage draw, shared grip and shaft, and a form-specific added shape.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the base, runs the decoration once, then registers the common grip.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the measured or explicitly provisional figures recorded by the geometry owner.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds the selected profile once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the legacy draw and the profile's parts and frames.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs or resources.
  */
 export function StageShaftConstruction(
   kind: createStageWeaponProp.Kind,
@@ -115,11 +107,6 @@ export function StageShaftConstruction(
 
 /**
  * The base dimensions offered to the owning silhouette builder.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the model and its visible display dimensions.
- * @evidence contracts/development/design.md#principled-representation The three distances are metres in the stage form’s origin and axes.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the dimensions required to place the top silhouette are available.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The geometry builder receives the computed shaft dimensions.
  */
 export namespace StageShaftConstruction {
   /** Builder for named digital stage silhouette contacts. */

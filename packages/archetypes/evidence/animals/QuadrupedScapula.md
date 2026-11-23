@@ -1,21 +1,3 @@
-# src/animals/QuadrupedScapula.ts#QuadrupedScapula
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the bar, its centre, its rest and the only-as-needed turning law.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A turn about the model X axis through the rotation centre moves the shoulder joint on an arc; the root-height bound and the least turn are closed forms on that arc.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns the scapula's dimensions and arc; the root interval and the ride pose read it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No prismatic slide or stretched bone; the blade turns rigidly within the cited range.
-
 # src/animals/QuadrupedScapula.ts#QuadrupedScapula.Fore
 
 ## @evidence contracts/development/common.md#meaningful-documentation

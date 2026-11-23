@@ -1,21 +1,3 @@
-# src/animals/QuadrupedHoofTrack.ts#QuadrupedHoofTrack
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Owns the articulation goals derived from native landing frames and signed stance travel.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A landed body frame, centre offset and interval determine a fixed hoof target. A following stance is present during swing only.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by the ride's curved footprint path. Gait, stance timing and exact terminal geometry remain in their existing owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The contact moves only during the declared swing and the model-space relative orientation uses the original landing frame.
-
 # src/animals/QuadrupedHoofTrack.ts#QuadrupedHoofTrack.IStance
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -14,14 +14,6 @@ import { StationeryDraw } from "./StationeryDraw";
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
  * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Loose paper sheet or folding map with a shared writing-surface contract.
- * @evidence contracts/development/implementation.md#principled-implementation The folded map has a fixed base and an equal moving panel with a crease at their boundary.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the saved recipe, then build this prop and its own contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The folded shape has one rigid crease. The loose sheet exposes its grip and face.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds one rigid sheet or two hinged panels with a fixed inventory of named contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The named and saved entry points share this producer and its original draw stream.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
  */
 export function createPaper(
   params?: createPaper.ISheetParams,
@@ -135,11 +127,6 @@ export function createPaper(
 
 /**
  * The paper formats and their stable names in authored scenes.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The paper formats and their stable names in authored scenes.
- * @evidence contracts/development/design.md#principled-representation The format chooses either the loose sheet or the two-layer map with a crease.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Lists the same closed format set read by the producer and by the gallery.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every value names a real produced geometry.
  */
 export namespace createPaper {
   /** A loose sheet or a map that opens at one crease. */

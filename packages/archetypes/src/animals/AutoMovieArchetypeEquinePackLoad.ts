@@ -22,14 +22,6 @@ import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
  * @param load The box hung on each side, metres and kilograms.
  * @returns The two load models and their placements at a ride's sample.
  * @throws {AutoMovieArchetypeRefusal} For a horse without the pack saddle's load contacts, a nonpositive size or mass, or a box that overhangs its pad.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the contact convention, the box's placement, the balance rule and the refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Each load is rigidly attached to its posed contact frame: its world placement is the ride's placement composed with that frame.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the box against both pads, build one box model per side, then compose placements per sample.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An overhanging box is refused, never scaled to fit.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two contact reads and two compositions per sample.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The two box models are built once and shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the two box models.
  */
 export function AutoMovieArchetypeEquinePackLoad(
   horse: AutoMovieArchetype<
@@ -129,11 +121,6 @@ export function AutoMovieArchetypeEquinePackLoad(
 
 /**
  * Types of {@link AutoMovieArchetypeEquinePackLoad}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each type's units and frames.
- * @evidence contracts/development/design.md#principled-representation A box's three positive lengths and mass, the two closed load sides and the prepared models and sampler.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `AutoMovieArchetypeEquinePackLoad` and its callers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One box serves both sides, as balanced loads require.
  */
 export namespace AutoMovieArchetypeEquinePackLoad {
   /** The two load contacts of a pack saddle. */

@@ -27,14 +27,6 @@ const BAR: number = 0.011;
  * @param seed The seed that draws each size and style not given and every dimension left free inside its band; absent, the first of each list and the middle of each band.
  * @returns The door.
  * @throws {AutoMovieArchetypeRefusal} For a size or style the standard or the maker does not list, a backset or lever named for hardware without one, a fixed dimension outside its band or one the door's hardware lacks, or hardware named for a sliding door.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the door's plane and origin, which way it opens, what moves with what and what each hand contact is.
- * @evidence contracts/development/implementation.md#principled-implementation A leaf box in a three-piece frame, which a sliding door has without the jamb on the side its leaf runs out past; the hinge axis points down for a left hinge and up for a right one so that a positive travel swings the leaf toward `+Z`, and the latch's axis points so that a positive travel presses the levers down. A left-hinged door is the mirror image of a right-hinged one in the `YZ` plane.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the leaf's standard sizes, a latch's backset and a lever's style, draw the remaining dimensions, then build the frame and the leaf with its articulation, then the hardware of each face.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No latch bolt, closer or panel detail; the opening force is a drawn dimension for an act to read, not simulated. Hardware named for a sliding door is refused, never ignored.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most ten parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createDoor(
   params: createDoor.IParams = {},
@@ -324,11 +316,6 @@ export function createDoor(
 
 /**
  * Companion types and bands of {@link createDoor}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions for the kind, the hinge side, the hardware, the standard's leaf sizes, the lock's backsets and its lever styles, each picked whole, and one cited band per remaining dimension per hardware, in metres, degrees and newtons.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The dimensions are those a door-opening act reads (#3371): the hardware's height and place, the turn that frees the latch, the swing and the clear opening.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Hardware a door does not have has no band: a plate door has no latch turn.
  */
 export namespace createDoor {
   /** A hinged leaf's breaking energy, joules: 80 J, the lowest impact level of ASTM F476-14's ram test, at which "a typical softwood door frame without reinforcement will break and allow the door to be forced open", as US patent 11280110 B1 states it (https://patents.google.com/patent/US11280110B1/en); a ram's blow, provisional for a kick, which no source read measures. */

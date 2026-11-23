@@ -20,14 +20,6 @@ import {
  * @param seed The seed that draws a yoga mat's length when it is not given and every dimension left free inside its band; absent, the first length and the middle of each band.
  * @returns The mat.
  * @throws {AutoMovieArchetypeRefusal} For a length Manduka does not list with a mass, or one named for a gym mat, a fixed dimension outside its band, or one only the other kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the mat lies and its contact.
- * @evidence contracts/development/implementation.md#principled-implementation One box of the length, width and thickness; a yoga mat's length and mass are one of Manduka's mats whole.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a yoga mat's length, draw the dimensions, one part, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The mat is rigid and flat; it does not give under a body.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createExerciseMat(
   params: createExerciseMat.IParams,
@@ -92,11 +84,6 @@ export function createExerciseMat(
 
 /**
  * Companion types and bands of {@link createExerciseMat}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation A closed union of the two mats, Manduka's yoga mats picked whole, and one band per remaining dimension each.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one top a floor exercise bears on.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is a maker's mat as read; the gym mat's two listings are one product's spread, a band; Manduka's 68 in mat has no read mass and is not built.
  */
 export namespace createExerciseMat {
   /** The kinds. */

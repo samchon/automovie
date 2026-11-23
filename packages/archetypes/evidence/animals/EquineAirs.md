@@ -1,21 +1,3 @@
-# src/animals/EquineAirs.ts#EquineAirs
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each air, its sourced angle or ballistic height and which values are authored.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each air is a stance plan: a start and end state, a pose by share and, for the leaps, a pose by second of the hold.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `EquineStanceRows.plan` for the school cues.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No flight is simulated: heights are the closed-form ballistic apex of the authored flight time.
-
 # src/animals/EquineAirs.ts#EquineAirs.pitch
 
 ## @evidence contracts/development/common.md#meaningful-documentation

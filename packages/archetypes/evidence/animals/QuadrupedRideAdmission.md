@@ -1,21 +1,3 @@
-# src/animals/QuadrupedRideAdmission.ts#QuadrupedRideAdmission
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States which speeds are admitted against which gait and how gaps are refused.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A pure check over the admitted course plan and the species' declared gait domains.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Called only by `rideQuadruped`, kept apart so the ride stays within its size.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No speed is clamped into a domain; an undeclared one is refused.
-
 # src/animals/QuadrupedRideAdmission.ts#QuadrupedRideAdmission.IDomain
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,19 +1,3 @@
-# src/core/AutoMovieArchetypeSea.ts#AutoMovieArchetypeSea
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the surface model, the spectrum and its source, the boat's following and when it holds, and determinism.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A sea is its components (frequency, wavenumber, amplitude, phase) and the heading they travel, from which elevation and slope are closed-form at any point and second.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `of` builds a sea and `float` carries a level still-water ride on it, the `sea` option water-borne rides take (#3497).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No random source but the seed's counter stream; no frame grid enters the surface.
-
 # src/core/AutoMovieArchetypeSea.ts#AutoMovieArchetypeSea.IOptions
 
 ## @evidence contracts/development/common.md#meaningful-documentation

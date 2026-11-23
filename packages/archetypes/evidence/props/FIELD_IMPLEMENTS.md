@@ -1,21 +1,3 @@
-# src/props/FIELD_IMPLEMENTS.ts#FIELD_IMPLEMENTS
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what each figure is, where it is read, and why the table is its own file.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One record per implement, every member a read figure converted through `AutoMovieArchetypeUnits`.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by its own `BANDS`, which `createLongTool` takes, and by `build`, which `createLongTool` calls.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Each figure names its page; the two head woods are named as the manual's first-listed choice.
-
 # src/props/FIELD_IMPLEMENTS.ts#FIELD_IMPLEMENTS.build
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -22,14 +22,6 @@ import { SiegeArm } from "./SiegeArm";
  * @returns The engine.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or one the kind lacks.
  * @throws {RangeError} If no positive representable moving section or fitting clears its complete declared angular floor domain.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the engine stands, each contact and articulation, and what the throw does.
- * @evidence contracts/development/implementation.md#principled-implementation Draw the unchanged dimensions, then lay the frame, pivot/control fittings and tip-carried cradle through SiegeArm.lay and SiegeStructure. Generic articulation and part spans realize the same contacts in every pose.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, lay, build.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No crew is built in. Unsourced moving sections are designed by complete angular solid support and the real socket follows that section. Every real solid participates in the existing total-mass composite volume/default-density allocation; it is not a measured component-mass calibration. Source lengths, angle/band/seed contracts and the separate reduced beam-tip launch law remain unchanged; independent sling dynamics or rated strength are not claimed.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One builder pass.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSiegeEngine(
   params: createSiegeEngine.IParams,
@@ -72,11 +64,6 @@ export function createSiegeEngine(
 
 /**
  * Companion types, bands and the throw of {@link createSiegeEngine}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source or its estimate.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The arm, the counterweight, the pouch, the pin, the winch and the frame a crew's act reads (#3486, #3489), and the throw's track and launch.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The throw is the arm's own swing under gravity, from the arm's read masses; nothing about it is scripted.
  */
 export namespace createSiegeEngine {
   /** The kinds: a counterweight trebuchet and a mangonel, a traction trebuchet. */

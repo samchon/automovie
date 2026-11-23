@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeQuadrupedEars.ts#AutoMovieArchetypeQuadrupedEars
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the two real plate parts, metre/height-fraction conversion, complete pinna dimensions, authored rectangular interpretation and head-root seating.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An explicit positive length, width and plate thickness plus a finite neutral direction determine each mirrored box; a containing root disk is admitted by the existing head owner.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Optional body data and one lay operation serve the equid producers without another body, skeleton, material or source-measurement table.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No species, seed, speed, picture or biological thickness/angle limit selects geometry. Missing source dimensions are not invented by this owner and an oversized root refuses rather than changing the head.
-
 # src/animals/AutoMovieArchetypeQuadrupedEars.ts#AutoMovieArchetypeQuadrupedEars.IProfile
 
 ## @evidence contracts/development/common.md#meaningful-documentation

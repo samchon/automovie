@@ -18,14 +18,6 @@ import { createWashbasin } from "./createWashbasin";
  * @param seed The seed used by the selected producer under the original draw key.
  * @returns The selected fixture in its original frame.
  * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a rejected model or dimension.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the saved recipe and draw namespace.
- * @evidence contracts/development/implementation.md#principled-implementation Resolve the old kind, then let its canonical producer admit the original inputs.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One kind check and one dispatch.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass all arguments to the named producer so saved invalid inputs still raise their refusal.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The kind table is bounded.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both entry points run the exact same producer.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The dispatcher keeps no inputs or intermediate state.
  */
 export function createSanitary(
   params: createSanitary.IParams,
@@ -42,11 +34,6 @@ export function createSanitary(
 
 /**
  * Companion types, constants and bands of {@link createSanitary}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and estimate states what it is.
- * @evidence contracts/development/design.md#principled-representation Closed unions of kinds, contacts and dimensions, and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Retains the original recipe shape, measurement tables, and the stable producer for each saved kind.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A toilet's lid is an articulation with its part, never a flag; the estimates are named, not hidden in the construction.
  */
 export namespace createSanitary {
   /** The kinds of fixture. */

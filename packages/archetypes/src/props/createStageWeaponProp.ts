@@ -17,14 +17,6 @@ import { createStageShaftProp } from "./createStageShaftProp";
  * @param seed A seed for the builder's draw session.
  * @returns A foam model with a named grip for kinematic staging.
  * @throws {AutoMovieArchetypeRefusal} When the outline or height is out of range.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names each catalogue outline, the fixed scale assigned by the outline, the optional height override, and the common grip approach.
- * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates the legacy selector and calls the selected profile once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses authored digital silhouettes and a nominal mass. Articulation is scene-authored with no inferred reaction.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each silhouette records a fixed number of primitives, convex strips and affordances.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared builder records each primitive for both its model and geometry consumers.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each model owns its data and the producer retains no state.
  */
 export function createStageWeaponProp(
   params: createStageWeaponProp.IParams,
@@ -56,11 +48,6 @@ export function createStageWeaponProp(
 
 /**
  * Authoring controls and affordance ids for the stage silhouettes.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the forms, metre scale, named hand sites, motion marks and link pivot.
- * @evidence contracts/development/design.md#principled-representation The outline is a closed literal union with one scale parameter independent of scene identity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Provides the named outline and display height used by the producer and the hold name used by the scene.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Unsupported outlines and inadmissible heights are refused by the shared draw owners.
  */
 export namespace createStageWeaponProp {
   /** The canonical factories for saved kinds, read after the catalogue loads. */

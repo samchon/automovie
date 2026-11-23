@@ -24,14 +24,6 @@ const CONCEPT2: string =
  * @param seed The seed that draws the legs when they are not given and every dimension left free inside its band; absent, the standard legs and the middle of each band.
  * @returns The rowing machine.
  * @throws {AutoMovieArchetypeRefusal} For legs Concept2 does not list or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the machine stands, the way the rower faces and its four contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A rail box of the drawn length on two feet, a seat box on it at the picked legs' height, a flywheel box at the front, two stretcher plates turned back by a fixed tilt and a handle rod before them.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the legs, draw the dimensions, the rail and its feet, the seat, the flywheel, the stretchers, the handle.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The seat does not slide and the chain is not drawn; the rail is level; the parts' sizes are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Eight parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createRowingMachine(
   params: createRowingMachine.IParams = {},
@@ -186,11 +178,6 @@ export function createRowingMachine(
 
 /**
  * Companion types, constants and bands of {@link createRowingMachine}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation The maker's standard and tall legs picked whole, one band per remaining dimension, the maker's figures as read; the seat's height is the one a seated workout reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The seat, the handle and the two stretchers a rower uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The seat's height and the mass are one of the maker's two legs as read, never mixed, the footprint the maker's; the maker gives no handle width, so its band is provisional; the parts' sizes are named estimates.
  */
 export namespace createRowingMachine {
   /** The rail's section, metres: an estimate. */

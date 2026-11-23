@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineCutting.ts#AutoMovieArchetypeEquineCutting
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the mirror law, the reaction and the protected side.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The horse's timed marks are the cow's, delayed by the reaction time and offset toward the herd; the shared timed ride rides them.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One planner returning ordinary timed marks.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No speed or reversal beyond the declared gaits and reaction is admitted; the refusal gives the bound.
-
 # src/animals/AutoMovieArchetypeEquineCutting.ts#AutoMovieArchetypeEquineCutting.ICut
 
 ## @evidence contracts/development/common.md#meaningful-documentation

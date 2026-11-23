@@ -34,14 +34,6 @@ const CASE: Readonly<createStageCasing.ICase> = {
  *
  * @param params The optional scene id.
  * @returns The inert casing and its contact frames, metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the cartridge, its frame, its two contacts and which sizes are read.
- * @evidence contracts/development/implementation.md#principled-implementation A rim, a body at the base diameter and a neck at the neck diameter, together the read case length.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Record the dimensions, lay rim, body and neck, then the two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The neck's length and the mass are named provisional estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts and two contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createStageCasing(
   params: createStageCasing.IParams = {},
@@ -107,11 +99,6 @@ export function createStageCasing(
 
 /**
  * The inputs, contacts and case figures of {@link createStageCasing}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scene id input, the contacts, the recorded dimensions and the case figures.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms; the case figures name which are read and which are estimated.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The pinch and the mouth a scene places a casing by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The read cartridge fixes the casing, so no dimension is authorable.
  */
 export namespace createStageCasing {
   /** The pinch across the body and the open mouth. */

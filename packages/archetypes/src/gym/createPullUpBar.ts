@@ -26,14 +26,6 @@ const FIG: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The bar.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two kinds, how it stands and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation One bar at its height and an upright under each end; the horizontal bar's three sizes are the norm's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, three rods, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No guy wires, feet or wall mounts; a gym bar's sizes are estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three rods.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createPullUpBar(
   params: createPullUpBar.IParams,
@@ -96,11 +88,6 @@ export function createPullUpBar(
 
 /**
  * Companion types and bands of {@link createPullUpBar}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one band per dimension per kind, the norm's for the horizontal bar and marked estimates for a gym's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bar's height, length and thickness a hanging body reads, and the one contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No balance point or inertia is declared.
  */
 export namespace createPullUpBar {
   /** The kinds of bar. */

@@ -24,13 +24,6 @@ import { createCohortQuadruped } from "./createCohortQuadruped";
  * @param seed Without a fixed cohort, draws whole adult references uniformly; seedless construction retains the male reference. An explicit antler request admits only the sourced male reference.
  * @returns The model; bare selected male/female references use their respective 60.4/39.5 kg means.
  * @throws {AutoMovieArchetypeRefusal} For unsupported cohorts, female antlers, invalid mass/lead, or a lead without explicitly authored whole-model mass.
- * @evidence contracts/development/common.md#meaningful-documentation Separates sex/age-specific 1995 body/antler observations from older same-sex 1997 skeletal samples, authored catalogue frequencies and coarse branching; equipment requires explicit total mass.
- * @evidence contracts/development/implementation.md#principled-implementation AutoMovieArchetypeDeerBody owns the cited Boso means and real bone lengths. Seat the complete beam base disk inside the head through the common capsule erosion, then preserve the source curve-length control and existing axis-tip spacing by a right triangle. Branch origins follow that same beam and retain their authored lengths; no source head measure changes.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit equipment mass ownership, let the shared factory pick one whole adult reference and add sourced male antlers only when its cohort and request admit them.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Different trait counts and separate skeletal specimens are not asserted paired. Straight beam controls and two tines are construction proxies, not recovered antler surfaces, and no measured body mass silently includes newly authored equipment.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most two fixed-size profile/rig/addition plans establish seed-independent admission, then only one body and its optional fixed-size antlers are emitted without mesh fitting.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared body/reference/lead owners build the model. The shared head attachment owner supplies one seated positive-side root mirrored for both antlers; the same beam vector locates all branch origins.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent scalar model records without retained callbacks, global registry, process or renderer.
  */
 export function createDeer(
   params: createDeer.IParams = {},
@@ -162,11 +155,6 @@ export function createDeer(
 
 /**
  * The adult reference's source antler dimensions and authored coarse controls.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names optional reference mass, antler presence, exact source dimensions and explicitly constructed branching.
- * @evidence contracts/development/design.md#principled-representation The shared authored contract separates a bare measured mean from equipment mass; source beam dimensions and estimated tines remain distinct records.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieArchetypeDeerBody owns the body and skull references while this producer owns only its antler addition.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Source curve length is a coarse beam control, not a claim of recovered curvature or exact branching anatomy.
  */
 export namespace createDeer {
   /** Explicit previous adult-male reference; its bare mass still comes from the source row. */

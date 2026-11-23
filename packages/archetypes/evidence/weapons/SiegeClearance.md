@@ -1,21 +1,3 @@
-# src/weapons/SiegeClearance.ts#SiegeClearance
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines model metres, degree intervals, one fixed vertical pivot, exact box/cylinder support families, outward binary64 arithmetic and maximum representable section design without an authored floor gap.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A point's height is H+y*cos(angle)+z*sin(angle). Box support reduces to its YZ corners; an X-axis cylinder subtracts radius and a sagittal cylinder reduces its circular support to two sinusoidal signs at each endpoint.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns only the siege construction's angular support and representable section search; existing primitive geometry, articulation, launch and total mass remain with their owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No pose grid, picture tuning, runtime projection, raised ground, safety padding or hidden proxy replaces the emitted solid.
-
 # src/weapons/SiegeClearance.ts#SiegeClearance.minimum
 
 ## @evidence contracts/development/common.md#meaningful-documentation

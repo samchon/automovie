@@ -27,14 +27,6 @@ const HOYT: string =
  * @param seed The seed that picks the model and the draw weight left free and draws every dimension left free inside its band; absent, the first model, the first draw weight and the middle of each band.
  * @returns The bow.
  * @throws {AutoMovieArchetypeRefusal} For a model or a draw weight not of the kind, a fixed dimension outside its band, or one the model or the draw weight gives.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the bow stands, where its back and string face, where it is held, how the string draws and the limbs follow, and where the arrow sits and lies.
- * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates the legacy selector and calls the selected profile once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The limbs' taper and bend, a recurve's tips and the horn nocks are not drawn: each limb turns stiff about the grip; no contact reads more. The string's radius is half the read arrow nock width it fits. A crossbow's stock is a box of its fore-end's section, its taper not drawn; its cranequin's axle direction and its stirrup's height are unread and placed provisionally; its draw weight is unread, so it has none.
- * @evidence contracts/development/implementation.md#efficient-algorithms Six parts for a bow and nine for a crossbow; the limbs' table is bisected once per bow.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The string's halves are `AutoMovieArchetypeBuilder.span`'s lines from the limb tips to the nock, so they stay on them in any pose.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBow(
   params: createBow.IParams,
@@ -60,11 +52,6 @@ export function createBow(
 
 /**
  * Companion types, constants, bands and rules of {@link createBow}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension, constant and rule states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of bows, named for what they are, and of the read models and draw weights, each whole; the brace height follows the length by the brace rule or is read; the draw force is a dimension of its own, and the launch reads the bow's own dimensions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip the bow hand takes, the string the drawing hand pulls, the nock and rest the arrow uses and the limbs that follow (#3481); the arrow is `createProjectile`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing between two models or two draw weights is drawn; the grips' power band, the recurve's estimated upper weight and riser masses, and the launch's curve and efficiency are marked provisional.
  */
 export namespace createBow {
   /** The canonical factories for saved kinds, read after the catalogue loads. */

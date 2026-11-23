@@ -1,21 +1,3 @@
-# src/architecture/ServiceCabinet.ts#ServiceCabinet
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies what the three service object constructions share.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The measured bands and model choices supply the cabinet's outer box and consistent front and side measurement frames.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Shared cabinet setup and two contact frames; each producer supplies its own fascia and other parts.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Contacts for distinct controls are owned only by the producer recording those controls.
-
 # src/architecture/ServiceCabinet.ts#ServiceCabinet.ICabinet
 
 ## @evidence contracts/development/common.md#meaningful-documentation

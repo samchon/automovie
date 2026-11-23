@@ -23,14 +23,6 @@ const UNREAD: string =
  * @param seed The seed that draws the model when it is not given and every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The sled.
  * @throws {AutoMovieArchetypeRefusal} For a model Rogue does not list or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the sled stands, which way it is pushed and its three contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A base box of one Rogue sled's length and width, and two pole rods from its back corners up to that sled's handle height, the drawn spacing apart; each handle is the pole's top, a hand's breadth below its end.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the sled, draw the spacing, the base, the two poles with their handles, the deck.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The poles stand upright, not raked back; no plate horns or runners; the base's and the poles' thickness are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSled(
   params: createSled.IParams = {},
@@ -106,11 +98,6 @@ export function createSled(
 
 /**
  * Companion types, constants and bands of {@link createSled}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Rogue's two sleds picked whole, one band for the spacing; the handle's height and spacing are the two a push reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two handles a push takes, named as `pushSled` reads them by default, and the deck.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The height, the base's size and the mass are one of Rogue's two sleds as read, never mixed; no source gives the uprights' spacing, so its band is provisional; the base's and the poles' thickness and the hand's breadth are named estimates.
  */
 export namespace createSled {
   /** The base's thickness, metres: an estimate. */

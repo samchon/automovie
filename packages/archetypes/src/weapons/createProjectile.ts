@@ -24,14 +24,6 @@ import { projectileFlight } from "./projectileFlight";
  * @param seed The seed that picks the object left free and draws every dimension left free inside its band; absent, the first object and the middle of each band.
  * @returns The projectile.
  * @throws {AutoMovieArchetypeRefusal} For an object not of the kind, a fixed dimension outside its band, or one the object gives.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each projectile rests or stands, how it is held, and what waits.
- * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates the legacy selector and calls the selected profile once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arrow's or a bolt's fletching, an arrow's head and a bolt head's facets are not drawn; no contact reads them.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createProjectile(
   params: createProjectile.IParams,
@@ -60,11 +52,6 @@ export function createProjectile(
 
 /**
  * Companion types, constants and bands of {@link createProjectile}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of projectiles, named for what they are, never for a period or a film, and of the read objects, each whole; calibre is a dimension, and a shot's weight is its own object's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The body or shaft a hand takes, an arrow's and a bolt's nock and point, and each kind's flight data, attitude and outcome (#3482), which the model body carries for the flight (#3479).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No kind is built whose contacts lack a source; a bolt head's density over its shaft's is the ratio of read steel and ash densities, which places its balance. No object's figure stands in another's record: a figure an object does not give is drawn from a provisional band citing the read objects' range of it.
  */
 export namespace createProjectile {
   /** The canonical factories for saved kinds, read after the catalogue loads. */

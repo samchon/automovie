@@ -23,14 +23,6 @@ const TRAVEL: string = "switch travel, not read at a source";
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The control.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where the control is, which way it faces and what moves.
- * @evidence contracts/development/implementation.md#principled-implementation A plate box and one moving face bound to a `button` whose frame faces out of the wall.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the plate and the face, declare the button.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rocker is pressed like a button, straight in; its tilt is not modelled.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSwitch(
   params: createSwitch.IParams,
@@ -100,11 +92,6 @@ export function createSwitch(
 
 /**
  * Companion types and bands of {@link createSwitch}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The height a finger reaches to, the size it aims at and the travel it presses (#3371).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Both kinds share one affordance and one set of dimensions.
  */
 export namespace createSwitch {
   /** The kinds of control. */

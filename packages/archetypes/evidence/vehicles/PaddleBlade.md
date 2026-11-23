@@ -1,21 +1,3 @@
-# src/vehicles/PaddleBlade.ts#PaddleBlade
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each blade extends along the signed shaft axis in model metres.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Three longitudinal spans form a tapered blade. The grip and tip contacts read the drawn axis.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Shares only blade, grip and tip construction between the two independent paddle producers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Callers own their own shaft, blade dimensions, handedness and geometry. No dispatch on craft names.
-
 # src/vehicles/PaddleBlade.ts#PaddleBlade.draw
 
 ## @evidence contracts/development/common.md#meaningful-documentation

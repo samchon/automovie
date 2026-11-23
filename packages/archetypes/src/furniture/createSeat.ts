@@ -56,14 +56,6 @@ const METAL: string = "#5b5f66";
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The seat.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or a number of places the kind does not have.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, where the seat frame stands, how places are addressed and where the origin is.
- * @evidence contracts/development/implementation.md#principled-implementation Dimensioned boxes and rods placed from the drawn seat height, depth, width and back height; the seat affordance follows the `seat` convention of `AutoMovieAffordanceKind`.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, lay the seat, then the support, back and arms each under the kinds that have them.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sat-on dimensions come only from `BANDS`. Uncited and stated on their constants or here: leg and slab thickness, which shape the picture only; the back panel's thickness, which is the `grip`'s aperture; the footrest's 24 mm bar; and an arm pad's length of 0.7 of the seat depth.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of parts per kind.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSeat(
   params: createSeat.IParams,
@@ -308,11 +300,6 @@ export function createSeat(
 
 /**
  * Companion types and bands of {@link createSeat}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions for the kind, the affordance ids and the free dimensions, and one cited band per dimension per kind, in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The dimensions are those a sitter's act reads (#3370): seat height, depth and width, back and arm height; mass is there because a model's body needs one.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A kind without a dimension has no band for it, so a stool cannot be given a back height.
  */
 export namespace createSeat {
   /** The kinds of seat. */

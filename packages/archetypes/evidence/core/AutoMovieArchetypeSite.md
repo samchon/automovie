@@ -1,21 +1,3 @@
-# src/core/AutoMovieArchetypeSite.ts#AutoMovieArchetypeSite
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each kind's coordinates, the site's frame and the single site of a point contact.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Normalised coordinates over the extent the kind's own fields give, so a site is stated without knowing the archetype's size and stays on the affordance for every seed.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function; the choice among sites belongs to the motion grammar's site axis (#3357).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No site is named after an archetype's part; a coordinate outside 0 to 1 is refused instead of clamped onto the edge.
-
 # src/core/AutoMovieArchetypeSite.ts#AutoMovieArchetypeSite.at
 
 ## @evidence contracts/development/common.md#meaningful-documentation

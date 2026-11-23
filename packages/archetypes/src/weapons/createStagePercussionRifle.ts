@@ -40,14 +40,6 @@ const PROFILE: Readonly<StagePeriodGunConstruction.IProfile> = {
  *
  * @param params The optional scene id.
  * @returns The inert model and its contact frames, metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the record, the frame and the lock's contacts, and that nothing moves.
- * @evidence contracts/development/implementation.md#principled-implementation Lays the shared stock and barrel at the Met record's overall and barrel lengths, the barrel's bore at its calibre and the mass at its weight, then the hammer and nipple.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared stock and contacts first, then this lock.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stock depth and width, barrel wall and pull are named provisional estimates in the record string.
- * @evidence contracts/development/implementation.md#efficient-algorithms Eight parts and nine contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stock construction with the matchlock.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createStagePercussionRifle(
   params: createStagePercussionRifle.IParams = {},
@@ -101,11 +93,6 @@ export function createStagePercussionRifle(
 
 /**
  * The inputs and contacts of {@link createStagePercussionRifle}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scene id input, the lock contacts and the recorded dimensions.
- * @evidence contracts/development/design.md#principled-representation The shared handling contacts plus this lock's two, and the read lengths and mass.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the percussion lock's own contacts beside the shared ones.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The record fixes the silhouette, so no dimension is authorable.
  */
 export namespace createStagePercussionRifle {
   /** The lock's contacts: the nipple a cap sits on and the hammer's spur. */

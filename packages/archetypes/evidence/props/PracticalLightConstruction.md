@@ -1,21 +1,3 @@
-# src/props/PracticalLightConstruction.ts#PracticalLightConstruction
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Static practical-light bodies with authored grip, hanging and render-light bindings.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each construction applies the selected variant's coordinate frame and dimensions.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Used by the named producers and the legacy selector.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No shape dispatch is shared between unrelated mechanisms.
-
 # src/props/PracticalLightConstruction.ts#PracticalLightConstruction.PendantContact
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -22,14 +22,6 @@ const PICTURE: string = "a piece of wall for the picture, not read at a source";
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The wall.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the wall's plane and what each contact is for.
- * @evidence contracts/development/implementation.md#principled-implementation One box; the face, the top edge and the seat follow the `surface`, `ledge` and `seat` conventions on it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, its contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No coping, skirting or texture.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createWall(
   params: createWall.IParams,
@@ -105,11 +97,6 @@ export function createWall(
 
 /**
  * Companion types and bands of {@link createWall}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The height a lean, a sit, a vault or a mantle reads (#3371, #3363).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Only a low wall declares a seat.
  */
 export namespace createWall {
   /** The kinds of wall: `full` rises to a ceiling, `low` ends between seat height and guard height. */

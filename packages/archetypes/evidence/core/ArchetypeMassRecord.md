@@ -1,21 +1,3 @@
-# src/core/ArchetypeMassRecord.ts#ArchetypeMassRecord
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the one owner of scalar mass, finite record premises and complete tensor reduction.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Uses the existing SI mass-property and six-component symmetric tensor records without another wrapper representation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-mass, admit and finish serve of, parts, combine and about's shared input/output boundary; no material, geometry or rendering API is introduced.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Finite/nonnegative checks are numerical admission, not a claim to prove an authored tensor positive semidefinite or an authored placement rigid.
-
 # src/core/ArchetypeMassRecord.ts#ArchetypeMassRecord.mass
 
 ## @evidence contracts/development/common.md#meaningful-documentation

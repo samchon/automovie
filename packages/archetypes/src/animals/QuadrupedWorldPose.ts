@@ -29,14 +29,6 @@ const AXES: readonly QuadrupedWorldPose.Axis[] = ["x", "y", "z"];
  * @param carriers The bone carrying each non-bone part and each contact, as `QuadrupedCarriage.of` gives them.
  * @returns The prepared reader, emitter and blender.
  * @throws {RangeError} When the animal lacks a bar of the shared quadruped body.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the representation, its frames, the read and emit inverse pair and the cited blending method with its continuity guarantee.
- * @evidence contracts/development/implementation.md#principled-implementation Rigid forward kinematics over the fixed parent-local attachments; Bollo's quintic inertialization of rotation-vector and translation offsets through the engine's `inertializeOffset`.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the neutral rig once; read, emit, capture and blend are four small stateless operations over it.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone length or attachment changes; a bone missing from a read model is refused by the skeleton reader rather than left at a default.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each read, emit and blend is O(B) in the 21 bones plus the carrier emission's O(P+A); capture is O(B) once per cut.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The neutral frames, parent order and rest attachments are prepared once and shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the neutral frames and attachments of one animal; every returned pose and model is the caller's.
  */
 export function QuadrupedWorldPose<Id extends string, D extends string>(
   animal: AutoMovieArchetype<Id, D>,
@@ -199,11 +191,6 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
 
 /**
  * Types and the forward kinematics of {@link QuadrupedWorldPose}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each type states its frame and unit.
- * @evidence contracts/development/design.md#principled-representation A world root frame with parent-local rotations, and per-axis offsets with rates, the quantities a rigid tree and its inertialization need.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the crossing and the swim pose; the carriers are `QuadrupedCarriage`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No bone length or attachment is part of a pose, so a pose cannot stretch a bar.
  */
 export namespace QuadrupedWorldPose {
   /** One world axis. */

@@ -1,21 +1,3 @@
-# src/animals/QuadrupedRideTerminal.ts#QuadrupedRideTerminal
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is read once and what each binding returns.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A chain and its terminal capsule or cylinder bound per orientation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Prepared by the ride pose for each limb.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No endpoint-only ground proxy is retained.
-
 # src/animals/QuadrupedRideTerminal.ts#QuadrupedRideTerminal.IEnd
 
 ## @evidence contracts/development/common.md#meaningful-documentation

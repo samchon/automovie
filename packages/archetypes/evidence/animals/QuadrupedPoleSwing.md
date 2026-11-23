@@ -1,21 +1,3 @@
-# src/animals/QuadrupedPoleSwing.ts#QuadrupedPoleSwing
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the arc, the two bounds, the clearance condition, the bar's attitude and the apex it asks.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The poles, the terminal bar's axis and radius, its path and the swing's rise.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read once per swing by the ride on routes whose footing has poles.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The crossing is read on the hoof's own path against the footing's own bounds, not assumed from a swing timing.
-
 # src/animals/QuadrupedPoleSwing.ts#QuadrupedPoleSwing.Crossings
 
 ## @evidence contracts/development/common.md#meaningful-documentation

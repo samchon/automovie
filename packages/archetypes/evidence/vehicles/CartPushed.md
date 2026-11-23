@@ -1,21 +1,3 @@
-# src/vehicles/CartPushed.ts#CartPushed
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it builds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A basket or tray box on wheels with handle bars at the drawn height.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two builders `createCart` calls for its pushed kinds.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Each kind is its own builder; no shared shape is forced on both.
-
 # src/vehicles/CartPushed.ts#CartPushed.trolley
 
 ## @evidence contracts/development/common.md#meaningful-documentation

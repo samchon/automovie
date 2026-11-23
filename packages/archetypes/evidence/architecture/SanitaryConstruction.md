@@ -1,21 +1,3 @@
-# src/architecture/SanitaryConstruction.ts#SanitaryConstruction
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the namespace holds, the frame every construction shares and what the estimates may size.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Code CAD over the builder's primitives from named dimensions, one construction per kind of the producer's closed union.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Each named plumbing fixture producer reads its own construction and its geometry's estimates.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No construction reads another kind's dimension; the estimates are named here, not hidden in the arithmetic, and none places a contact.
-
 # src/architecture/SanitaryConstruction.ts#SanitaryConstruction.washbasin
 
 ## @evidence contracts/development/common.md#meaningful-documentation

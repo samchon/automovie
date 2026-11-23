@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeQuadrupedFooting.ts#AutoMovieArchetypeQuadrupedFooting
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines named surface geometry and support roles on a film route.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The planes own horizontal extent, independent tilt and world height. Coordinate frame and valid ranges are admitted at runtime.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Uses points, orientations and geometric primitives from their existing owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Authored set surfaces supply landing height and slope. There is no inferred path from the pictured terrain.
-
 # src/animals/AutoMovieArchetypeQuadrupedFooting.ts#AutoMovieArchetypeQuadrupedFooting.IPlane
 
 ## @evidence contracts/development/common.md#meaningful-documentation

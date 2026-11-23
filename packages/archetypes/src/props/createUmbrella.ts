@@ -23,14 +23,6 @@ const POWER: string =
  * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The umbrella.
  * @throws {AutoMovieArchetypeRefusal} For a model BLUNT's comparison does not list, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the umbrella stands, where it is held and what opening it adds.
- * @evidence contracts/development/implementation.md#principled-implementation A handle rod and a shaft rod to the closed length, a stick umbrella's shaft keeping its length open or closed; open adds a canopy disc of the published open diameter.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the handle and its grip, the shaft, then the canopy when open.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The canopy is a flat disc, not a ribbed dome, and a closed umbrella's fabric is not drawn, only its ribs; the handle's length is CCOHS's, and the shaft's radius and the canopy's thickness are construction estimates that no act reads and no band declares; the ferrule is not drawn. A closed umbrella opens by its runner's articulation, the ribs' span giving the canopy's size; open builds the opened disc whole.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createUmbrella(
   params: createUmbrella.IParams = {},
@@ -123,11 +115,6 @@ export function createUmbrella(
 
 /**
  * Companion types, constants and bands of {@link createUmbrella}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation The maker's two models whole, and the one remaining cited band; open or closed is a parameter because the canopy's size, not a part's place, changes.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The handle a hand takes and the canopy a shot reads (#3468's N15).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The open diameter, closed length and mass are the maker's as read; the handle's diameter is a grip band applied, provisional, and its length CCOHS's; the shaft's radius and the canopy's thickness are construction estimates.
  */
 export namespace createUmbrella {
   /** The shaft's radius, metres: a construction estimate that no act reads and no band declares. */

@@ -23,14 +23,6 @@ const UNHCR: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The tent.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the tent is and is not, how it stands, its parts, its doors and its mass.
- * @evidence contracts/development/implementation.md#principled-implementation A walls box, two roof slabs and two vestibule boxes from the specification's read sizes, the vestibules reaching half the base length beyond the frame's centre; four apertures at the read door sizes.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the body, the roof, the vestibules, then the doors.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Fabric, poles, guy ropes and the vestibules' sloped ends are not drawn; the roof slabs' thickness is a construction detail no act reads.
- * @evidence contracts/development/implementation.md#efficient-algorithms Five parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createTent(
   params: createTent.IParams,
@@ -125,11 +117,6 @@ export function createTent(
 
 /**
  * Companion types, constants and bands of {@link createTent}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of tents named for what they are, each band the specification's read figure.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The doors a person passes and the tent's extent (#3468's N9).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A camping tent is not built until a maker gives its door's width and height; the relief tent's doors are its specification's.
  */
 export namespace createTent {
   /** The kinds: UNHCR's relief family tent. */

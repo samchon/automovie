@@ -1,21 +1,3 @@
-# src/animals/EquineComfortRows.ts#EquineComfortRows
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each row, the shared support rules and that amplitudes are authored.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each row is a stance plan: start and end states, a pose by share and, for the paw and the shake, a pose by second of the hold.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `EquineStanceRows.plan` for the comfort rows.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No sliding support: a planted hoof keeps its anchor and a moving hoof is lifted or scrapes on the floor plane by intent.
-
 # src/animals/EquineComfortRows.ts#EquineComfortRows.owns
 
 ## @evidence contracts/development/common.md#meaningful-documentation

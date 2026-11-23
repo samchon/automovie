@@ -35,14 +35,6 @@ const SIZE: Readonly<createFoldingKnife.ISize> = {
  *
  * @param params The optional scene id.
  * @returns The knife and its contacts, metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the provisional size, the frame, the hinge, the lock and each contact.
- * @evidence contracts/development/implementation.md#principled-implementation A handle slab and a blade on a half-turn hinge at the pivot, the blade folding into the handle's slot.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Record the size, lay the handle and the blade, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every size is a named provisional estimate.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two parts and four contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createFoldingKnife(
   params: createFoldingKnife.IParams = {},
@@ -130,11 +122,6 @@ export function createFoldingKnife(
 
 /**
  * The inputs, contacts and size of {@link createFoldingKnife}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scene id input, the contacts, the dimensions and the size.
- * @evidence contracts/development/design.md#principled-representation Metres, degrees and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hinge, the handle, the stud and the point an act reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The size is fixed; no dimension is authorable.
  */
 export namespace createFoldingKnife {
   /** The blade's hinge, the handle, the thumb stud and the point. */

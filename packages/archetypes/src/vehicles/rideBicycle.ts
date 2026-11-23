@@ -23,14 +23,6 @@ import type { createBicycle } from "./createBicycle";
  * @param gear Teeth in use and optional freewheel intervals in course metres, such as a road coast or the stretches a bicycle is wheeled by hand. The default teeth are 34 and 17, a ratio of 2 from the compact road chainsets and 11 to 28 tooth cassettes Wikipedia's Bicycle gearing article lists (https://en.wikipedia.org/wiki/Bicycle_gearing). Omit coasting for fixed-drive behavior. UCI article 1.3.025 separates competition road and track drive equipment, https://www.uci.org/regulations/3MyLDDrwJCJJ0BGGOFzOat .
  * @returns The ride.
  * @throws {AutoMovieArchetypeRefusal} When a tooth count is not a positive whole number, a leg is reversed (a bicycle freewheels backward, so its crank would run back by the distance, which no rider does), a bend at the fastest the course lets it be taken needs more than `rideBicycle.LEAN` degrees of lean (as `AutoMovieArchetypeCourse.admitLean` refuses), or the course is malformed.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the gear relation, the instants added and the default gear with its source.
- * @evidence contracts/development/implementation.md#principled-implementation The development of a chain drive: wheel circumference times chainring teeth over sprocket teeth per crank turn. The crank's travel is taken modulo a full turn, which leaves the pose unchanged and keeps the number small. The lean is the steady-turn balance of `AutoMovieArchetypeCourse.lean`.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the gear, plan the course unless planned, admit its direction and its bends' lean, list the dead-centre instants from its distance, then one pose function.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coasting holds the crank at its phase upon entering the declared interval while both wheels continue rolling. Braking speed is supplied by the course.
- * @evidence contracts/development/implementation.md#efficient-algorithms One instant per half turn of the crank over the course; constant work per sample.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The course is planned once, for the dead-centre instants and for the ride that samples it; the lean check is the one the motorcycle's ride uses.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the bicycle and the plan for as long as the caller keeps the ride.
  */
 export function rideBicycle(
   bicycle: AutoMovieArchetype<
@@ -174,11 +166,6 @@ function single(coast: rideBicycle.Coast): coast is rideBicycle.Interval {
 
 /**
  * The bicycle lean limit, the drive gear and an airborne take over a grounded ride.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the provisional lean limit, the gear with its freewheel stretches and the instant shape, the horizontal drive, gravitational flight, and refused approaches for the hop.
- * @evidence contracts/development/design.md#principled-representation A named lean angle, course intervals in metres as ordered pairs, teeth as counts, and disjoint flight intervals on the course and contact clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bicycle owns the lean limit, the gear its ride reads and the optional jump over its own ride.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps the authored wheel and rider contact clock. A returned ride publishes each flight as takeoff and touchdown instants, which a later hop reads so it cannot overlap them.
  */
 export namespace rideBicycle {
   /** The greatest lean, degrees: provisional. No figure for a bicycle was read at a source; the road motorcycle's limit of `rideMotorcycle.LEAN` is taken as the bound a narrower tyre does not exceed. */

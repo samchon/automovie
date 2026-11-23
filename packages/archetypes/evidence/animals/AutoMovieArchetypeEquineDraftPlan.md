@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineDraftPlan.ts#AutoMovieArchetypeEquineDraftPlan
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the stages, the trace states, the authored inputs and the sample.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Closed unions for the stages and trace states; metres, seconds and the existing course legs for the inputs.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned beside `AutoMovieArchetypeEquineDraft`, its only producer; read by its callers and specs.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Trace slack and tension are authored visible states, not a simulated cable or a measured force.
-
 # src/animals/AutoMovieArchetypeEquineDraftPlan.ts#AutoMovieArchetypeEquineDraftPlan.Stage
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -22,14 +22,6 @@ import { wheelchairHandrimFrame } from "./wheelchairHandrimFrame";
  * @param course The course its root follows, or its plan.
  * @returns The ride, with the course's instants.
  * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeRide.along` does for a malformed course.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what moves, the rolling relation and how a performer can follow the rim.
- * @evidence contracts/development/implementation.md#principled-implementation A plan of legs gives the signed heading change, so the outer and inner axle ends travel different signed distances. Each spin is signed travel over circumference and wrapped to the knob range.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose function over `AutoMovieArchetypeRide.along`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The unwrapped heading accumulates exact authored arc fractions on courses of legs. Both wheels still turn alike on timed curves, which do not expose unwrapped heading. Casters do not swivel.
- * @evidence contracts/development/implementation.md#efficient-algorithms Prepares the turns once. Sampling sums each turn's clamped extent with no integration or previous sample.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The ride's plan is shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the chair and the plan for as long as the caller keeps the ride.
  */
 export function rideWheelchair(
   chair: AutoMovieArchetype<
@@ -103,11 +95,6 @@ export function rideWheelchair(
  * engagement. Use a bilateral catch for a straight push and a selected
  * inside rim for a turn braked around that wheel. See the observed inner
  * and outer hand roles in https://pmc.ncbi.nlm.nih.gov/articles/PMC10293636/.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes how to place repeated catch and release windows on one prop clock.
- * @evidence contracts/development/design.md#principled-representation Each window selects a material point by its angle at the catch and the hands that take it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Author and prop reader use the same clock. The existing renderer and motion law continue to read the posed rim frame.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Distinct hands may act independently. Two selections on the same rim cannot compete at any sample.
  */
 export namespace rideWheelchair {
   /**

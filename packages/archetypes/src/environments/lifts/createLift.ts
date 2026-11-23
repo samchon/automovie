@@ -23,14 +23,6 @@ import { liftStopHeights } from "./liftStopHeights";
  * @param input Lift geometry, named stops and timeline in shot-local seconds.
  * @returns A reusable environment definition and its boarding query.
  * @throws If the timeline is invalid, or on placement if the stops or shaft are not aligned.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the source coordinate convention, supported frames, prop anchors, timeline and failure boundaries.
- * @evidence contracts/development/implementation.md#principled-implementation Validates timeline order and door interlocks, then generates the stock rigid car, admits compatible named stops through the existing built environment, and lowers ordinary stage pieces and object-motion tracks.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One reusable definition closes over the immutable schedule. Placement owns geometry and the transfer query projects the already admitted open intervals into the existing motion grammar.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only full-open stationary windows allow a requested crossing. No inference of a missing stop, permissive fallback, artificial stretching or real elevator controller is involved.
- * @evidence contracts/development/implementation.md#efficient-algorithms Timeline preparation is O(K) with O(K + F) input copying for K keys and F stops. Placement resolves F stops, runs the wall and building admission, and lowers tracks for participating animated nodes. Transfer visits only this stop's open windows.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable authored data and open intervals are reused for every occurrence and transfer. The seeded car and geometry are built once per placement because the occurrence namespace, seed and references define that placement.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A module retains only copied authored data and one bounded open-window index. A placement returns its own plain records and opens no resources.
  */
 export function createLift(input: createLift.IProps): createLift.IDefinition {
   const props: createLift.IProps = structuredClone(input);
@@ -171,10 +163,6 @@ function prepareSchedule(props: createLift.IProps): Map<string, Interval[]> {
 
 /**
  * The lift definition's authorable geometry, stop clock and crossing contracts.
- * @evidence contracts/development/common.md#meaningful-documentation The members name the sill references, metre frame and shot-local schedule.
- * @evidence contracts/development/design.md#principled-representation One stop table and one timeline drive the building and motion projections.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Houses the definition's paired input and query types.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Adds no generic simulation or motion-law dialect.
  */
 export namespace createLift {
   /**

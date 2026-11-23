@@ -55,14 +55,6 @@ const CAPACITY: Readonly<Record<createDrinkware.Kind, number>> = {
  * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The vessel.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or a fill outside 0 to 1.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, where the grips and the lip stand and how the vessel is oriented.
- * @evidence contracts/development/implementation.md#principled-implementation Dimensioned rods from the drawn height and diameters; grip frames follow the `handle` convention with the wrapped axis along the vessel's or the handle bar's axis, and the content's mass is the fill times the stated capacity at water's density.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then build the body and the kind's own parts with their grips.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body is a straight cylinder: a glass's taper and a bottle's shoulder are left out as picture detail that no contact reads.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most six parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createDrinkware(
   params: createDrinkware.IParams,
@@ -285,11 +277,6 @@ export function createDrinkware(
 
 /**
  * Companion types and bands of {@link createDrinkware}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions for the kind, the affordance ids and the free dimensions, one cited band per dimension per kind, in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The dimensions are those a grasp and a sip read (#3369): the diameters a hand wraps, the height the lip stands at, the mass carried.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A kind without a part has no band for it, so a glass cannot be given a handle.
  */
 export namespace createDrinkware {
   /** A beer bottle's breaking energy, joules, by its fill: "Full bottles broke at 30J impact energy, empty bottles at 40J", standard half-litre beer bottles in a drop tower (Bolliger et al., Are full or empty beer bottles sturdier and does their fracture-threshold suffice to break the human skull?, J. Forensic Leg. Med. 16(3):138-142, 2009, abstract, https://britglass.org.uk/knowledge-base/digital-library-and-information-services/are-full-or-empty-beer-bottles-sturdier-and). A part-filled bottle's, which no source read gives, is absent, so it does not break. */

@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeQuadrupedLateralRestPlan.ts#AutoMovieArchetypeQuadrupedLateralRestPlan
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the additional time states and world placement.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A lateral hold and two rigid roll intervals use explicit model and time units.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Retains the existing sternal clip's type parameters and shares its animal output.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Bounds come from the sampled supported body. Params claim authored movement without measured angles or kinetics.
-
 # src/animals/AutoMovieArchetypeQuadrupedLateralRestPlan.ts#AutoMovieArchetypeQuadrupedLateralRestPlan.IParams
 
 ## @evidence contracts/development/common.md#meaningful-documentation

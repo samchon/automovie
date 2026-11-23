@@ -1,19 +1,3 @@
-# src/weapons/CartridgeBox.ts#CartridgeBox
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is laid and why it is its own file.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The tins' read parts and the flap's estimates as named members, and one builder.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `TINS`, `FLAP` and `lay`, which `createHolster` calls for `pouch`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every unread size is a named estimate with its search.
-
 # src/weapons/CartridgeBox.ts#CartridgeBox.lay
 
 ## @evidence contracts/development/common.md#meaningful-documentation

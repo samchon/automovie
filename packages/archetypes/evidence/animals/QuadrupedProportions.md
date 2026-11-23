@@ -1,21 +1,3 @@
-# src/animals/QuadrupedProportions.ts#QuadrupedProportions
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each record's unit, reference points and the limb order.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each limb's four values from the top bone down, in the forms the anatomical studies report.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `AutoMovieArchetypeQuadrupedBody.IBody` and by each species' stated proportions, such as `createHorse.LENGTHS`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A species without a separate withers part states its share as 0 instead of omitting it.
-
 # src/animals/QuadrupedProportions.ts#QuadrupedProportions.LimbValues
 
 ## @evidence contracts/development/common.md#meaningful-documentation

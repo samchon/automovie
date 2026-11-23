@@ -1,21 +1,3 @@
-# src/animals/EquineLateral.ts#EquineLateral
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each figure's rule, its source, the frame of the offset and what the rigid trunk leaves out.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each figure is a record discriminated by `kind` with only the fields its geometry needs; the plan is a heading offset in degrees as a function of film seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `EquineFootwork` when a leg names a figure and by the ride's body placement.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Angles beyond the rule's, legs of the wrong shape and pirouette radii the hind pivot cannot hold are refused.
-
 # src/animals/EquineLateral.ts#EquineLateral.Side
 
 ## @evidence contracts/development/common.md#meaningful-documentation

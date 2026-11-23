@@ -22,14 +22,6 @@ type Producer = (
  * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
  * @returns The original generated model and its local contacts.
  * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Replay a saved storage variant with the original dimensions, identifier and model choices.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the storage draw namespace.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createStorage(
   params: createStorage.IParams,
@@ -49,11 +41,6 @@ export function createStorage(
 
 /**
  * Companion types and bands of {@link createStorage}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions, each kind's read models among them, and one cited band per remaining dimension per kind; drawers, pulls and shelves are numbered from the bottom.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The pulls' heights and the travel an opening act reads, the face a push meets, and the shelves things are set on (#3370, #3371, #3468 N16).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A slider's `+X` is its travel and a grip's `+X` is the bar the hand wraps, which differ on a drawer, so the slide and the pull are two affordances and neither frame is bent to serve both.
  */
 export namespace createStorage {
   /** Each saved selector's named producer. */

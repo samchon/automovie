@@ -24,14 +24,6 @@ const RULES: string =
  * @param seed The seed that draws each figure left free inside its band; absent, the middle of each band.
  * @returns The throwing place.
  * @throws {AutoMovieArchetypeRefusal} For an unknown event or a fixed figure outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the layout, the frame and the contact of each event.
- * @evidence contracts/development/implementation.md#principled-implementation A thin ring of the rule's inside diameter, or a runway strip ending at the arc's middle, with one surface contact at the floor.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the figures, then the circle or the runway end.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No stop board, sector lines or cage; the ring's band width and the mass are named estimates; the runway's arc is drawn as its chord.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createThrowingCircle(
   params: createThrowingCircle.IParams,
@@ -106,11 +98,6 @@ export function createThrowingCircle(
 
 /**
  * Companion types, constants and bands of {@link createThrowingCircle}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each event, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of events, each with the bands its rule gives.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The circle or the arc, the one contact a throw reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The diameters, width and radius are the rules'; only the marking's height and the mass are estimates.
  */
 export namespace createThrowingCircle {
   /** The marking's height above the floor, metres: an estimate drawn so the place shows. */

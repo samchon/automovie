@@ -29,14 +29,6 @@ const FR: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The pool edge.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or one only the other kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where the deck, the wall and the water are, which way a swimmer faces, each contact, and how a ladder and the missing law stand.
- * @evidence contracts/development/implementation.md#principled-implementation The end wall as one block from the deck down to the pool's floor at the rules' least depth, the rest ledge a box on its face at the rules' depth below the water, and a platform as a pedestal set back from the wall under a top slab tilted by the drawn slope, the slab as thick as the 0.04 m FR 2.7 names, its front on the wall's line.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the wall and the ledge, then the platform when the kind has one.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The water is a contact, not a part; the deck's run behind the edge, the ledge's thickness and the pedestal's recess are named construction estimates (`createPoolEdge.ESTIMATES`), none placing a contact.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most five parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createPoolEdge(
   params: createPoolEdge.IParams,
@@ -193,11 +185,6 @@ export function createPoolEdge(
 
 /**
  * Companion types, constants and bands of {@link createPoolEdge}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and estimate states what it is; each band its clause.
- * @evidence contracts/development/design.md#principled-representation Closed unions; every height is stated from the water's surface, as the rules state them, and placed from the deck through the freeboard.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The water plane a swim reads, the edge and ledge a swimmer holds or stands on, and the platform a start uses (#3468 F7).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rules' least values are taken where they give only a limit, and said to be.
  */
 export namespace createPoolEdge {
   /** The kinds: the bare end wall, and the end wall with a starting platform. */

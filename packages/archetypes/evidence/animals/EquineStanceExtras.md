@@ -1,21 +1,3 @@
-# src/animals/EquineStanceExtras.ts#EquineStanceExtras
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the row families and their owners.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A union of the families' rows and one dispatch.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `EquineStanceRows.plan`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/animals/EquineStanceExtras.ts#EquineStanceExtras.Row
 
 ## @evidence contracts/development/common.md#meaningful-documentation

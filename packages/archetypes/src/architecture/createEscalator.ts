@@ -55,14 +55,6 @@ const LANDING: number = 1;
  * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band, an
  * inclination or speed EN 115-1 does not admit at the rise, or a rise too
  * low for both transition curves.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the drawn structure, the separate moving tread and the EN 115-1 admission.
- * @evidence contracts/development/implementation.md#principled-implementation The step band is two horizontal runs of whole steps, two circular transitions of the standard's least radii and a straight incline whose length closes the rise.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, admit the rated speed and inclination, derive the profile, then draw the plates, step band and rails and place the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step pitch, speeds, widths, inclinations, radii and handrail heights are KONE's read values. The rail offset, plate thickness, landing depth and mass are provisional construction estimates.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Eleven parts and four contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after returning the model.
  */
 export function createEscalator(
   params: createEscalator.IParams = {},
@@ -228,11 +220,6 @@ export function createEscalator(
 /**
  * The escalator's dimensions, rated speed, step-band profile and moving
  * tread.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives each dimension's unit and source, the profile's stations and the tread's frame.
- * @evidence contracts/development/design.md#principled-representation Lengths in metres, inclination in degrees and speed in m/s. The profile holds the closed-form step band, and stations are metres along it from the lower comb.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer, `rideEscalator` and the escalator test read these members.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Inclination and speed are closed unions of the offered values. Admission of their combination stays with the producer.
  */
 export namespace createEscalator {
   /** The two fixed landings and the two handrails at their lower horizontal run. */

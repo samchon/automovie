@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineGoniometry.ts#AutoMovieArchetypeEquineGoniometry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States acquisition ownership, shared coordinate/length units, plane orientation, degree output and the distinction between landmark measurement and anatomical admission.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Three ordered points and an explicit oriented plane define two projected rays; source DOI and bone select the matching clinical convention. Unknown runtime limits remain outer-null.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Archetypes owns measurement of its equine references; the engine's existing Vector3 owns vector arithmetic and AutoMovieArchetypeEquineJointLimits owns the primary statistics and comparison.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No inferred camera plane, mirrored anatomy, coarse-bar landmark mapping or clinical mean-to-admission conversion enters the interface.
-
 # src/animals/AutoMovieArchetypeEquineGoniometry.ts#AutoMovieArchetypeEquineGoniometry.IInput
 
 ## @evidence contracts/development/common.md#meaningful-documentation

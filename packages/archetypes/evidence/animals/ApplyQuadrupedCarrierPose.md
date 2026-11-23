@@ -1,21 +1,3 @@
-# src/animals/ApplyQuadrupedCarrierPose.ts#ApplyQuadrupedCarrierPose
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the independent primitive record and its native clone owner.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The qualified shape is a tree of ordinary owned data records with scalar leaves.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Only native quadruped preparation and ODE hitch emission consume this protocol.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Unsupported graphs or overridden clone functions use the existing generic clone.
-
 # src/animals/ApplyQuadrupedCarrierPose.ts#ApplyQuadrupedCarrierPose.emit
 
 ## @evidence contracts/development/common.md#meaningful-documentation

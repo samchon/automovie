@@ -61,14 +61,6 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * @param params The performer id and body, and up to one distinct costume model per slot.
  * @returns The models and their initial worn bindings for the scene.
  * @throws {AutoMovieArchetypeRefusal} For a mismatched slot, reused model id, missing piece, a body without the slot's joints or a trunk piece without its height.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the slots, the segment each piece covers and how its centre and axes are placed.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the body's own rest joint positions and anthropometric measure to place each piece's documented wear centre on the segment it covers, then expresses that frame in the slot bone's chained rest rotation.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit one piece per named slot, preserve its id, locate its segment on the rest body, then compute its worn binding.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No detached layer, duplicate geometry, baked actor mesh or fixed offset. Mismatched or reused pieces and bodies without the slot's joints refuse.
- * @evidence contracts/development/implementation.md#efficient-algorithms Processes at most eight pieces, each with one bone-chain walk of at most the rig's depth.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses canonical wear contacts, the body's rest record and the shared prop binding contract.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned bindings reference only the caller's models and independently owned offset records.
  */
 export function assembleCostumeArmour(
   params: assembleCostumeArmour.IParams,
@@ -137,11 +129,6 @@ export function assembleCostumeArmour(
 
 /**
  * Costume piece selection and the binding consumed by a scene.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scene identity, the wearer's rest body, accepted costume slots and separate worn models.
- * @evidence contracts/development/design.md#principled-representation Uses closed costume slots, the interface's own body record and canonical motion-prop worn records.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Each slot identifies one existing renderable model and one bone. The body exposes only the rest joints, bone records and measure the placement reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Duplicate ids, incompatible types and bodies without the slot's joints are refused during assembly.
  */
 export namespace assembleCostumeArmour {
   /** Bones supported by the existing head, chest, hand and limb costume pieces. */

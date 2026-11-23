@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeQuadrupedJoints.ts#AutoMovieArchetypeQuadrupedJoints
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines primitive admission, closed bone identities, adjacent endpoint closure and physically connected parent-local roots, all in the source model frame.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The 21 bars supply finite rigid frames, positive shapes and their directed endpoints; no body dimensions or species pose table rebuilds another animal.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One read prepares the limbs, neck and fixed attachment observations needed by locomotion and rest. Primitive validation stays here and torso connection geometry stays with QuadrupedAttachments.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Missing or unsupported geometry, dummy bone attachment, nonunit transforms, gaps and detached roots refuse rather than acquiring guessed heights, casts or replacement parts.
-
 # src/animals/AutoMovieArchetypeQuadrupedJoints.ts#AutoMovieArchetypeQuadrupedJoints.read
 
 ## @evidence contracts/development/common.md#meaningful-documentation

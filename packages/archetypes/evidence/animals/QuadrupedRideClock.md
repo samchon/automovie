@@ -1,21 +1,3 @@
-# src/animals/QuadrupedRideClock.ts#QuadrupedRideClock
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Separates admitted requests, boundary support clocks and committed legacy handovers, and states which spatial samples remain untouched.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A clock reads the course's temporal domain and declared neighbouring gait domains; neither a held path nor a retained gait invents a new observed speed row.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Internal to rideQuadruped; table interpolation and transition selection remain with AutoMovieArchetypeQuadrupedGait and QuadrupedChange.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No species case, arbitrary tolerance, global speed clamp, mutable registry or scene-specific exception decides a continuation.
-
 # src/animals/QuadrupedRideClock.ts#QuadrupedRideClock.IClock
 
 ## @evidence contracts/development/common.md#meaningful-documentation

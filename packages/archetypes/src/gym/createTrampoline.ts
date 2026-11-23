@@ -25,14 +25,6 @@ const FIG: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The trampoline.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it stands and its contact.
- * @evidence contracts/development/implementation.md#principled-implementation A bed at its height inside a frame of four rails on four legs, sized by the norm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, a bed, four rails, four legs, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No springs are drawn; the bed's give is the law's, not drawn.
- * @evidence contracts/development/implementation.md#efficient-algorithms Nine primitives.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createTrampoline(
   params: createTrampoline.IParams = {},
@@ -114,11 +106,6 @@ export function createTrampoline(
 
 /**
  * Companion types and bands of {@link createTrampoline}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension, the norm's where it states one.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bed's size and height a jumper reads, and the one contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The bed's stiffness is the jumping law's, not the prop's.
  */
 export namespace createTrampoline {
   /** The bed's drawn thickness, metres. */

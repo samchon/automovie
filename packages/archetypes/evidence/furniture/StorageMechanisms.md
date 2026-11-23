@@ -1,21 +1,3 @@
-# src/furniture/StorageMechanisms.ts#StorageMechanisms
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Furniture construction selections with hinged, sliding and open storage mechanisms.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each construction applies the selected variant's coordinate frame and dimensions.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Used by the named producers and the legacy selector.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No shape dispatch is shared between unrelated mechanisms.
-
 # src/furniture/StorageMechanisms.ts#StorageMechanisms.HingedKind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

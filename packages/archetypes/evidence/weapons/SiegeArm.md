@@ -1,21 +1,3 @@
-# src/weapons/SiegeArm.ts#SiegeArm
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States how the frame and arm stand, the travel's sense and what the swing models.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The frame and the arm as boxes and rods, the arm a hinge, the counterweight a hinge that follows it, the swing a pendulum of three masses.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The builder and the pendulum `createSiegeEngine` calls.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The frame's sizes no source gives are named estimates.
-
 # src/weapons/SiegeArm.ts#SiegeArm.pendulum
 
 ## @evidence contracts/development/common.md#meaningful-documentation

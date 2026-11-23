@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeQuadrupedSkeleton.ts#AutoMovieArchetypeQuadrupedSkeleton
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the part source, parent-local rig, explicit accessory/contact carriers and independent pose operation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The closed AutoMovieArchetypeQuadrupedBody vocabulary is represented by the generic interface tree and resolved by the engine's species-independent FK.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The animal owner supplies anatomy and explicit attachments; the engine supplies admission and transform composition, preserving producer-owned construction and the serialized model/contact vocabulary.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No humanoid fingers stand in for animal bones and no unmeasured anatomical ROM is invented; every accessory and contact needs an explicit carrier when posed.
-
 # src/animals/AutoMovieArchetypeQuadrupedSkeleton.ts#AutoMovieArchetypeQuadrupedSkeleton.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

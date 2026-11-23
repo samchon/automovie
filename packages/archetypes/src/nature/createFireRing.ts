@@ -24,14 +24,6 @@ const RING: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The fire ring.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the ring stands, how it is drawn, its two contacts and why it carries no friction.
- * @evidence contracts/development/implementation.md#principled-implementation Plates of the read thickness and height, each as wide as its side of the polygon whose faces touch the read outside circle, turned round the vertical axis; the mass is the read weight.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, lay the plates round the circle, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The round band is drawn as a polygon of `SEGMENTS` plates and its flange is not drawn; no contact reads either.
- * @evidence contracts/development/implementation.md#efficient-algorithms `SEGMENTS` parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createFireRing(
   params: createFireRing.IParams,
@@ -106,11 +98,6 @@ export function createFireRing(
 
 /**
  * Companion types, constants and bands of {@link createFireRing}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of rings, each band the maker's read figure through `AutoMovieArchetypeUnits`.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rim a foot or a pot meets and the fire's place (#3468's N9).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is read; the segment count only draws the circle.
  */
 export namespace createFireRing {
   /** The kinds: a 30 in campground fire ring. */

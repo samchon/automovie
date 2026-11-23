@@ -94,14 +94,6 @@ const UNITS: Readonly<
  * @param seed Optional number or text used to draw unfixed sizes.
  * @returns The ship and its deck, boarding and crew contacts.
  * @throws {AutoMovieArchetypeRefusal} When the profile is unknown or a dimension falls outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the waterline, axes, physical contacts, scale controls and public ride owners.
- * @evidence contracts/development/implementation.md#principled-implementation Three longitudinal hull runs share deck-edge vertices with the rails. The centre rail is split at the physical boarding opening, and the bench tops position the seat frames.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the profile, build the common hull and contacts, then place the selected deck furniture.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The sources establish silhouettes alone. The sizes and mass are explicitly provisional, and the solid hull has no inaccessible interior contacts.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds fixed-size section and furnishing layouts and sends only eight corners at a time to the convex-cell owner.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independently authored set.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds nothing beyond the returned archetype.
  */
 export function createScenicShip(
   params: createScenicShip.IParams,
@@ -449,11 +441,6 @@ function profileBands(
 
 /**
  * Public choices and contact names of createScenicShip.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Declares the profile choices, local contact availability and units.
- * @evidence contracts/development/design.md#principled-representation Closed kind, dimension and contact ids with SI overrides through the producer's admitted bands.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Specifies only the authored ship and the contact sites its actors can use.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The four rows and two banks are closed literals and their contacts exist on the oared profile alone.
  */
 export namespace createScenicShip {
   /**

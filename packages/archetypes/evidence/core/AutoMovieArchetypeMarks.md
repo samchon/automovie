@@ -1,21 +1,3 @@
-# src/core/AutoMovieArchetypeMarks.ts#AutoMovieArchetypeMarks
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what each mark draws, how marks are grouped and how they are named.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Plain `IAutoMovieMark` data in the model's placed space, the form the shared inspection instrument draws for any owner.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function; the archetypes own it because they own what an affordance's fields mean.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The outline is computed from the same fields the sites read, so a mark cannot show an extent a site does not have.
-
 # src/core/AutoMovieArchetypeMarks.ts#AutoMovieArchetypeMarks.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

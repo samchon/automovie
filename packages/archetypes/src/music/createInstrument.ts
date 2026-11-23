@@ -13,14 +13,6 @@ import { createViolin } from "./createViolin";
  * @param seed The seed used by the selected producer.
  * @returns The original model and its contacts.
  * @throws {AutoMovieArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the saved input and selected model.
- * @evidence contracts/development/implementation.md#principled-implementation Admit the saved kind and use its producer's bands and original seed domain.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the kind and call the corresponding public producer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The selected producer still validates the original dimensions and choices.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed kind table selects the producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls use the same construction.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
  */
 export function createInstrument(
   params: createInstrument.IParams,
@@ -37,11 +29,6 @@ export function createInstrument(
 
 /**
  * Companion types and bands of {@link createInstrument}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is.
- * @evidence contracts/development/design.md#principled-representation Closed unions; template ids number the keys, frets and strings over any count, the precedent of a ladder's rungs; one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The keys, frets, strings and holds the playing and carrying acts read (#3446, #3465, #3466).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A key is a pressed part, never a flag; a fret is a place on the fingerboard, not a part.
  */
 export namespace createInstrument {
   /** The kinds of instrument. */

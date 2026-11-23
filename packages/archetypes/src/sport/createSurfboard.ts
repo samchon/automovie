@@ -19,14 +19,6 @@ import {
  * @param seed The seed that draws the board when it is not given and every dimension left free inside its band; absent, the first board and the middle of each band.
  * @returns The board.
  * @throws {AutoMovieArchetypeRefusal} For a board the chart does not list, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the board lies, how its model is chosen and what each contact represents.
- * @evidence contracts/development/implementation.md#principled-implementation One of the chart's three boards whole, its length, width and thickness as the chart gives them; the deck on top and the rail at the board's widest point.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the board, draw the mass, then place the deck, stance and rail readings from its dimensions.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No board between the chart's rows is made; the board is a box: no outline, rocker or fins.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSurfboard(
   params: createSurfboard.IParams = {},
@@ -146,11 +138,6 @@ export function createSurfboard(
 
 /**
  * Companion types and bands of {@link createSurfboard}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation A closed union of the chart's boards, each built whole; the mass, which the chart does not give, a provisional band.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The deck the body meets and the rail a hand carries it by (#3468 N11).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass, which the chart does not give, is provisional.
  */
 export namespace createSurfboard {
   /** The boards read: the Lost Driver 2.0's 5'10, 6'0 and 6'2. */

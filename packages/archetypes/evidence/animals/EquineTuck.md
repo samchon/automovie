@@ -1,21 +1,3 @@
-# src/animals/EquineTuck.ts#EquineTuck
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the source, the values used, what is left untucked and why.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One measured fold in degrees and a hanging hoof height from the limb's reach.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by the ride's swing goals while a jump carries them.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No hock angle is invented: the hind fold follows from the measured shortening.
-
 # src/animals/EquineTuck.ts#EquineTuck.Tuck
 
 ## @evidence contracts/development/common.md#meaningful-documentation

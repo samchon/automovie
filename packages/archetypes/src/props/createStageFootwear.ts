@@ -62,14 +62,6 @@ const PROFILES: Readonly<Record<createStageFootwear.Kind, IFootwearProfile>> = {
  * @param seed Selects dimensions left unbound by the author.
  * @returns The shaped footwear and its three actor-facing contacts.
  * @throws {AutoMovieArchetypeRefusal} For an unavailable form or an out-of-band size.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States form, clear opening, toe axis and heel support.
- * @evidence contracts/development/implementation.md#principled-implementation Separate walls establish a genuine hollow footprint with a sole; the rear grip and heel seat use the same measured part dimensions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the profile and sizes, then build the shell and named contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The foot opening is bounded by walls rather than a filled stand-in. The sock is a coarse prop shape.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds a fixed set of parts and contact records.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both forms use their shared cavity and attachment contract.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a complete model and retains no inputs.
  */
 export function createStageFootwear(
   params: createStageFootwear.IParams,
@@ -192,11 +184,6 @@ export function createStageFootwear(
 
 /**
  * Supported footwear profiles, their contacts and authorable dimensions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the stage profiles, clearance parameters and attachment points.
- * @evidence contracts/development/design.md#principled-representation The closed union keeps each digital profile and each contact identifiable.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two forms reuse the same opening and contact geometry with separate wall and mass constants.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The model's dimensions describe coarse clearances, independently of Human geometry.
  */
 export namespace createStageFootwear {
   /** The fixed profile identifiers. */

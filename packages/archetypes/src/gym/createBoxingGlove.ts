@@ -23,14 +23,6 @@ const IBA: string =
  * @param seed The seed that draws the weight when it is not given and every dimension left free inside its band; absent, the first weight and the middle of each band.
  * @returns The glove.
  * @throws {AutoMovieArchetypeRefusal} For a weight the rules do not set or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the glove lies, where the hand goes in and which face strikes.
- * @evidence contracts/development/implementation.md#principled-implementation A fist box of the IBA appendix's length and height at the drawn width, and a cuff box behind it of the appendix's cuff length, narrower by the proportion its figure draws; the mass is one of the rules' three glove weights, whole.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the weight, draw the dimensions, two parts, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No thumb and no lacing, so one model serves either hand; the cuff's narrowing is a construction proportion read off the appendix's figure.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBoxingGlove(
   params: createBoxingGlove.IParams = {},
@@ -111,11 +103,6 @@ export function createBoxingGlove(
 
 /**
  * Companion types, constants and bands of {@link createBoxingGlove}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation The rules' three weights picked whole, one band per remaining dimension; the length, height, cuff and weight are the IBA's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The socket a hand is dressed into and the face a punch lands with (#3468 F6: `guard`, `punch`).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The glove's width is provisional and its cuff's narrowing is read off a figure; a training glove's heavier padding is the same model at a fixed heavier mass, not a kind.
  */
 export namespace createBoxingGlove {
   /** The cuff's width and height as a share of the fist's, about three quarters as IBA Appendix 11's side view draws it: a construction proportion read off the figure, which places no contact. */

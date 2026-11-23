@@ -25,14 +25,6 @@ const SECTORS: number = 16;
  * @param params The model's id.
  * @param seed The seed that draws the green's side within its band; absent, the middle.
  * @returns The green.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the open cup, the sector construction and the affordances.
- * @evidence contracts/development/implementation.md#principled-implementation The R&A and USGA Rules of Golf define the hole as 4.25 in (108 mm) across and at least 4 in (101.6 mm) deep. The green's side is a provisional practice-green size.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the side, build the sectors and the cup bottom, then record the two affordances.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The cup wall is a 16-sided polygon inscribed in the rule's circle; the turf is flat, with no slope, grain or speed of its own.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed number of parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createPuttingGreen(
   params: createPuttingGreen.IParams = {},
@@ -108,11 +100,6 @@ export function createPuttingGreen(
 
 /**
  * Companion types and constants of {@link createPuttingGreen}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, parameter and constant states what it is and its source.
- * @evidence contracts/development/design.md#principled-representation The cup's diameter and depth are the rule's, in metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The putting surface a ball rolls on and the cup a putt is credited to.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The affordance names are a closed union.
  */
 export namespace createPuttingGreen {
   /** `green`, the putting surface at Y = 0; `cup`, the hole's centre on it. */

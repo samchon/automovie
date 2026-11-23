@@ -1,21 +1,3 @@
-# src/animals/QuadrupedTail.ts#QuadrupedTail
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the anatomy, the least turn, the plane it turns in and its limit.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The tail's own bar, the footing beneath its end and one rotation about its joint.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `rideQuadruped` on routes whose techniques meet steep faces.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The tail is turned, never shortened or let through the ground; a turn beyond `ROM` is not taken, and the footing's own check then refuses the pose.
-
 # src/animals/QuadrupedTail.ts#QuadrupedTail.carry
 
 ## @evidence contracts/development/common.md#meaningful-documentation

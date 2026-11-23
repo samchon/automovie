@@ -33,14 +33,6 @@ const SIZES: Readonly<Record<createPalette.Kind, createPalette.ISize>> = {
  * @param params The kind and the optional scene id.
  * @returns The board and its contacts, metres.
  * @throws {AutoMovieArchetypeRefusal} For a kind outside the set.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the kinds, the frame and both contacts.
- * @evidence contracts/development/implementation.md#principled-implementation One slab with its hold at the edge and its working face over the rest.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Check the kind, record the dimensions, lay the slab, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cloth is a rigid sheet; its drape is not modelled. Every size is a named provisional estimate.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part and two contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createPalette(
   params: createPalette.IParams,
@@ -105,11 +97,6 @@ export function createPalette(
 
 /**
  * The inputs, contacts and sizes of {@link createPalette}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the kinds, the contacts, the dimensions and the size.
- * @evidence contracts/development/design.md#principled-representation A closed kind union; metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hold and the working face an act reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The kind fixes the size.
  */
 export namespace createPalette {
   /** A painter's palette, a piece of cloth or a ribbon. */

@@ -24,14 +24,6 @@ import {
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The rope.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it hangs and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation One rope rod from the anchor down its length.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one rod, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sway or stretch is modelled; the sizes are estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms One rod.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createClimbingRope(
   params: createClimbingRope.IParams = {},
@@ -85,11 +77,6 @@ export function createClimbingRope(
 
 /**
  * Companion types and bands of {@link createClimbingRope}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension, marked estimates.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The anchor's height, the rope's length, thickness and mass, and the one contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No tension is declared: the rope hangs from its anchor.
  */
 export namespace createClimbingRope {
   /** The affordance ids: `line`, the rope's middle on its axis, `+X` up the rope. */

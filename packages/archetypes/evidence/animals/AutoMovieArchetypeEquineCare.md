@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineCare.ts#AutoMovieArchetypeEquineCare
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each care point, its frame convention and how it follows the posed equid.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Affordance records in the rest model's space, each bound to one part.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by a scene that stages a handler: the points join the horse prop's contacts and their frames its contact reader.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every point is on a part's surface; none is placed by a fitted offset.
-
 # src/animals/AutoMovieArchetypeEquineCare.ts#AutoMovieArchetypeEquineCare.IPoints
 
 ## @evidence contracts/development/common.md#meaningful-documentation

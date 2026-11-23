@@ -1,21 +1,3 @@
-# src/core/ArchetypeCourseTimed.ts#ArchetypeCourseTimed
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the interpolation, what it keeps continuous and who calls it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The samples use one shared tangent per knot and an arc-length table. Exactly coincident positions set both boundary tangents to zero. A stationary run uses one facing derived from the adjoining curve.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function, `plan`, and the two constants that set its tables.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/core/ArchetypeCourseTimed.ts#ArchetypeCourseTimed.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

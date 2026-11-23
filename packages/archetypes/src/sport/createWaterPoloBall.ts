@@ -21,13 +21,6 @@ const RULES: string =
  * @param params Scene identity and optional regulation dimensions.
  * @param seed Draws free dimensions within their bands.
  * @returns A spherical ball with the shared throw and catch affordances.
- * @evidence contracts/development/common.md#meaningful-documentation States the model anchor, shape, mass and grip frame.
- * @evidence contracts/development/implementation.md#principled-implementation Converts the supplied circumference to physical radius and uses the same center and diameter for the collider and grip.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw two dimensions, use one sphere and place two physical sites.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The model uses the size and mass band rather than another sport's ball silhouette.
- * @evidence contracts/development/implementation.md#efficient-algorithms One rigid part and two named affordances.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each draw owns one independently sized ball.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No external state.
  */
 export function createWaterPoloBall(
   params: createWaterPoloBall.IParams = {},
@@ -78,11 +71,6 @@ export function createWaterPoloBall(
 
 /**
  * Physical circumference and mass and the spherical grip sites.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Declares the selected class, measurement sites and units.
- * @evidence contracts/development/design.md#principled-representation Both fitted radius and grip width follow the same drawn circumference.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The public producer exposes only a scene id, the two regulation dimensions and two affordances.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Both size and weight state their precise federation limits.
  */
 export namespace createWaterPoloBall {
   /** The ball center and highest point. */

@@ -10,14 +10,6 @@ import { WornPropDraw } from "./WornPropDraw";
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
  * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Hat with a brim pinch and a crown socket.
- * @evidence contracts/development/implementation.md#principled-implementation The brim carries the right-side pinch and the crown top owns the socket facing the head.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the saved recipe, then build this prop and its own contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The coarse brim and crown are rigid with their saved thickness.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds two parts and two contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The named and saved entry points share this producer and its original draw stream.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
  */
 export function createHat(
   params: Pick<
@@ -71,11 +63,6 @@ export function createHat(
 
 /**
  * The contacts and dimensions of {@link createHat}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
- * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createHat {
   /** The contacts this producer builds; a numbered family's count follows its inputs. */

@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeQuadrupedEquipment.ts#AutoMovieArchetypeQuadrupedEquipment
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the rest frame, authored SI dimensions, rig fit, common geometry/contact ownership and physical limits.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Two independently optional equipment assemblies carry closed contact identities and explicit positive physical lengths; no invented material coefficient or segment mass share is required.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-This owner only adds yoke/pack parts and their hook sites to the builder. The existing lead/collar owner and the producer's total mass remain separate.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Source anatomy, maker compliance and load-bearing capacity are not inferred from authored coarse equipment. No horse geometry, weight law or implicit dimensional default is copied.
-
 # src/animals/AutoMovieArchetypeQuadrupedEquipment.ts#AutoMovieArchetypeQuadrupedEquipment.ISphere
 
 ## @evidence contracts/development/common.md#meaningful-documentation

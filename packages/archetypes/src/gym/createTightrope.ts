@@ -21,14 +21,6 @@ import {
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The rope.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it stands and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation One wire at its height between two posts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, three rods, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No guy lines or tensioner; the sizes are estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three rods.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createTightrope(
   params: createTightrope.IParams = {},
@@ -84,11 +76,6 @@ export function createTightrope(
 
 /**
  * Companion types and bands of {@link createTightrope}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension, marked estimates.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The wire's height, span and thickness a walker reads, and the one contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No tension is declared: the walk derives it from the sag.
  */
 export namespace createTightrope {
   /** A post's radius, metres. An estimate, not read at a source. */

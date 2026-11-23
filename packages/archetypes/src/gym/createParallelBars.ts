@@ -26,14 +26,6 @@ const FIG: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The bars.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two kinds, how they stand and the two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Two rods at the bars' height and spacing, each on two uprights set in from its ends; the parallel bars' sizes are the norm's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, two bars, four uprights, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A round rod stands for the norm's oval rail, no base joins the uprights, and a dip station's sizes are estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Six rods.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createParallelBars(
   params: createParallelBars.IParams,
@@ -106,11 +98,6 @@ export function createParallelBars(
 
 /**
  * Companion types and bands of {@link createParallelBars}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one band per dimension per kind, the norm's for the parallel bars and marked estimates for a dip station.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bars' height, length, spacing and thickness a supported body reads, and the two contacts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No balance point or inertia is declared.
  */
 export namespace createParallelBars {
   /** The kinds of bars. */

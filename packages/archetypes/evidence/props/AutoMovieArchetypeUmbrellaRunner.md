@@ -1,21 +1,3 @@
-# src/props/AutoMovieArchetypeUmbrellaRunner.ts#AutoMovieArchetypeUmbrellaRunner
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the mechanism, the runner's closed form and how the canopy's size follows it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One slider and one coupled hinge per rib, tabled from the closed-form linkage.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The construction `createUmbrella` calls and the ids it declares.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The rib count, the open angle and the stretcher's proportions are named construction estimates.
-
 # src/props/AutoMovieArchetypeUmbrellaRunner.ts#AutoMovieArchetypeUmbrellaRunner.Rib
 
 ## @evidence contracts/development/common.md#meaningful-documentation

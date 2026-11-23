@@ -1,21 +1,3 @@
-# src/props/KeyboardHardware.ts#KeyboardHardware
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The records identify the selected manufacturer figures and the key field's position and dimensions.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The kind selects one set of measured keyboard dimensions in metres and mass in kilograms.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Both input devices share their base and key geometry. The laptop producer owns its lid.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The model input must be present in the table for the selected kind.
-
 # src/props/KeyboardHardware.ts#KeyboardHardware.Kind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

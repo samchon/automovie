@@ -31,14 +31,6 @@ import { buildingModel } from "./buildingModel";
  * @param props Named endpoints and the connector's physical dimensions.
  * @returns A placed environment module supplying geometry, support and route.
  * @throws Error for missing anchors, incompatible landing heights, an oblique fitted opening or invalid flight dimensions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States named landing authority, dimensions, result populations and refusals.
- * @evidence contracts/development/implementation.md#principled-implementation A rigid horizontal span frame comes from world XZ landing separation. Its direction must align with either sign of each fitted opening's horizontal normal within 1e-9 in cosine. Closed slabs use the two top edges and thickness; steps take equal run and rise from that same span.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolves endpoints and fits the requested variant before a common slab emitter creates one model and support per section.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bridge requires level endpoints, a ramp can enforce an authored maximum slope and a stair cannot hide a level or excessively large flight. No stair bypasses authored landing and host clearance design.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for a bridge or ramp, linear in the admitted step count for one flight.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Resolves a new occurrence's landing frames and geometry once; no cache shares placements.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reusable definition retains a copy of its scalar dimensions and anchor names. One result owns a bounded set of slab records and does not retain a placement callback.
  */
 export function createPassage(
   props: createPassage.IProps,
@@ -222,11 +214,6 @@ export function createPassage(
 
 /**
  * Static span construction choices specific to the passage producer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The span variants define metre dimensions, signed rise, slope ratio or equal stair treads. Endpoints select a named landing or an opening with named jamb and soffit frames.
- * @evidence contracts/development/design.md#principled-representation A fixed named landing pair determines the run and rise. Stairs have a discrete count and ramps may have a maximum gradient.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Common dimensions stay in one record, with variant controls for steps or slope. Room and terrain anchors can both serve as scenic landings.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The endpoints supply the run. An opening publishes the jamb and soffit frames needed to check approach direction, width and specified headroom. The host owns the adjoining landing space.
  */
 export namespace createPassage {
   /**

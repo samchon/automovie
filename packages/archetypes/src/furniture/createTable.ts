@@ -36,14 +36,6 @@ const KNEE: number = 0.305;
  * @param seed The seed that picks a listed size when none is given and draws every dimension left free inside its band; absent, the first size and the middle of each band.
  * @returns The table.
  * @throws {AutoMovieArchetypeRefusal} For a size the kind does not list, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled and which edge is the front.
- * @evidence contracts/development/implementation.md#principled-implementation A top slab at the drawn height on legs or a plinth; the top is declared twice, as the `surface` a person works and leans at and as the `stack-top` an object is set on, and each edge is a `ledge` facing out.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions and pick a listed size, build the top and its support, then the top's contacts and the four edges.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No drawer or apron. The legs stand with their centres `LEG_INSET` in from the top's edges and are `LEG_RADIUS` round, so the top overhangs their outer faces by the difference on every side, and an altar's pedestals stand `LEG_INSET` in from the top's ends; a counter's and a service counter's top overhangs its base by `COUNTER_OVERHANG` at the front and a bar counter's by the guideline's knee space, each base flush with the top at the back and at both ends. A pupil desk's top is its sheet's 5/8 in; the others' 40 mm and an altar's pedestals (`ALTAR_PEDESTAL`) are construction estimates no act reads.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most five parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createTable(
   params: createTable.IParams,
@@ -190,11 +182,6 @@ export function createTable(
 
 /**
  * Companion types and bands of {@link createTable}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The height a seated or standing person works at and the top's size (#3370, #3468 N6, N12, N16).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A size a sheet lists as discrete steps is picked whole from `SIZES`, never drawn between two; every other dimension is a band.
  */
 export namespace createTable {
   /** The kinds of table. */

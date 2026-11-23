@@ -39,14 +39,6 @@ type Producer = (
  * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
  * @returns The original generated model and its local contacts.
  * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Replay a saved vessel variant with the original dimensions, identifier and model choices.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the vessel draw namespace.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createVessel(
   params: createVessel.IParams,
@@ -66,11 +58,6 @@ export function createVessel(
 
 /**
  * Companion types, constants and bands of {@link createVessel}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the five vessels: a bowl and an ashtray each one read model whole, the others one band per dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rim, the inside and the hold each vessel is used by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read, never a size between two models; the IKEA bowl's and a pan's weight alone is not given, so that model's mass and those bands are provisional; the wall's and the handles' sizes are named estimates.
  */
 export namespace createVessel {
   /** Each saved selector's named producer. */

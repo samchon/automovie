@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineExpressionCue.ts#AutoMovieArchetypeEquineExpressionCue
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a cue is, its film-second window, its blending and where its vocabulary comes from.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A discriminated union of window cues and one instant cue, each on the film clock in seconds, with targets in world metres.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned here and read by `AutoMovieArchetypeEquineExpression`; each member is a channel the layer poses.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Alternatives are union members, never optional fields that combine into meaningless states.
-
 # src/animals/AutoMovieArchetypeEquineExpressionCue.ts#AutoMovieArchetypeEquineExpressionCue.Target
 
 ## @evidence contracts/development/common.md#meaningful-documentation

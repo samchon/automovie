@@ -1,21 +1,3 @@
-# src/core/AutoMovieArchetypeMaterial.ts#AutoMovieArchetypeMaterial
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines physical material names, measured friction pairs, restitution reference conditions, explicit authored coefficients and unknown measurements.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A closed physical-material vocabulary and cited coefficient records separate contact metadata from optical materials. Restitution may be unknown rather than an invented number; runtime admission checks material names and explicit coefficients.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieArchetypeBuilder and the compatible AutoMovieArchetypeFriction facade read one contact-material catalogue; the restitution owner retains the primary experimental records without copying their numbers into producers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No producer name selects contact coefficients, and no material substitutes for a different unmeasured surface. A reference specimen is never automatically transferred to a coarse body.
-
 # src/core/AutoMovieArchetypeMaterial.ts#AutoMovieArchetypeMaterial.Kind
 
 ## @evidence contracts/development/common.md#meaningful-documentation

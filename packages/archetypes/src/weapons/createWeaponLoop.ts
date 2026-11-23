@@ -23,14 +23,6 @@ const WALL: number = 0.008;
  * @param seed The seed that picks the ring left free and draws every dimension left free inside its band; absent, the first ring and the middle of each band.
  * @returns The carrier.
  * @throws {AutoMovieArchetypeRefusal} For a ring not of the kind, a fixed dimension outside its band, or one the ring gives.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the carrier stands, how a club sits in it and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Four wall boxes round a square opening of the drawn aperture, as tall as the drawn length, and a strap box from the walls' side toward the wearer.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the ring, draw the other dimensions, the four walls, the strap, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The opening is square, not round; the strap is rigid; the wall's thickness is a named estimate.
- * @evidence contracts/development/implementation.md#efficient-algorithms Five parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createWeaponLoop(
   params: createWeaponLoop.IParams,
@@ -110,11 +102,6 @@ export function createWeaponLoop(
 
 /**
  * Companion types, constants and bands of {@link createWeaponLoop}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the two carriers and of the read rings, each whole, and one band per dimension a ring leaves, the opening sized to the club it holds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The opening a draw leaves and the strap it is worn by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A belt ring's opening is one maker's as read, never between two; no source gives a ring's depth or a bat sleeve's size, so those bands are provisional, set from the bat the rule allows; the strap's length is a named estimate.
  */
 export namespace createWeaponLoop {
   /** The kinds: a belt loop a baton hangs through, a back sleeve a bat stands in. */

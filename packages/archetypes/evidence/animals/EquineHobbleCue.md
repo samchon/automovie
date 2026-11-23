@@ -1,21 +1,3 @@
-# src/animals/EquineHobbleCue.ts#EquineHobbleCue
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the movement a fore hobble leaves.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One stance row joining the stance's cue union through `EquineStanceExtras`.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned here and read by `EquineHobbleRows`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/animals/EquineHobbleCue.ts#EquineHobbleCue.IHops
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -33,14 +33,6 @@ const RUNG: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The ladder.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or a number of rungs that is not a whole number from 2 to 30.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the ladder's foot, the way it is climbed, its tilt and how rungs are named.
- * @evidence contracts/development/implementation.md#principled-implementation Rungs at one drawn spacing along the ladder's own line, which is upright or tilted by the pitch; a leaning ladder's pitch is fixed by the quarter-length rule of 29 CFR 1926.1053(b)(5)(i), whose arccosine of one quarter is 75.5 degrees.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the count, draw the dimensions, lay the two rails and the rungs along one direction.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No feet, hooks or cage.
- * @evidence contracts/development/implementation.md#efficient-algorithms One rod per rung and two rails.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createLadder(
   params: createLadder.IParams,
@@ -159,11 +151,6 @@ export function createLadder(
 
 /**
  * Companion types and bands of {@link createLadder}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation A template literal type closes the rung ids over any count; one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rung spacing, width and diameter and the pitch a climbing act reads (#3371, #3363).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A rung's frame faces out of the ladder's plane on the climber's side, so a hand and a foot use the same contact.
  */
 export namespace createLadder {
   /** The kinds of ladder. */

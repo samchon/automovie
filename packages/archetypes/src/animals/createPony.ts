@@ -18,14 +18,6 @@ import { createHorse } from "./createHorse";
  * @param seed The seed that draws the breed and every dimension left free inside its band; absent, the Shetland, and each dimension the middle of its band.
  * @returns The pony.
  * @throws {AutoMovieArchetypeRefusal} For a breed not in `MEASURES`, a fixed dimension outside its band (the height and the girth are the breed's own, so fixing either is refused), or a tack that is not one of `AutoMovieArchetypeEquine.TACKS`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the pony shares with the horse, how its breed is chosen, how its size, proportions and mass shares are derived and how it rides.
- * @evidence contracts/development/implementation.md#principled-implementation The breed drawn whole over the measured breeds, then the horse's equid builder on that breed's profile: its own height and girth, its mass by `AutoMovieArchetypeEquine.mass`, bone fractions from its own measures (Brooks et al. 2010), and the horse's mass shares by Nauwelaerts et al. 2011's size-independence below 600 kg. The law gives the Shetland 174 kg, the Welsh Mountain Pony 250, the Dartmoor 255, the Welsh Pony 330 and the Connemara 427. The weighed ponies read beside it are checks, not anchors, their heights unread: van den Bogert's five of 165 to 240 kg (as Nauwelaerts et al. 2011 report) and Pearson et al. 1998's three of 174, 184 and 220 kg, so the Welsh Pony's and the Connemara's distance above them is no evidence against the law; breed pages give the Connemara about 300 to 450 kg, secondary.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the breed, then one call of `AutoMovieArchetypeEquine.equid` on its profile.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing between two breeds is produced. The humerus and the femur keep the horse's fractions, provisional as `EquineSegments.lengths` states; the standing angles and the head, neck and tail shapes are the horse's.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The equid builder's own.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the horse's builder, tack and gait table.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createPony(
   params: createPony.IParams = {},
@@ -54,11 +46,6 @@ export function createPony(
 
 /**
  * Companion types, breeds and profile of {@link createPony}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each member is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the measured breeds, and the horse's equid profile with a breed's name, bands and bone fractions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The pony's own data; its tack, contacts and dimensions are the horse's.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A breed is built whole from its own means; no band runs across the breeds.
  */
 export namespace createPony {
   /** The producer's name. */

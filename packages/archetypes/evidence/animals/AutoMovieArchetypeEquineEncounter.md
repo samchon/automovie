@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineEncounter.ts#AutoMovieArchetypeEquineEncounter
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the clock, how each act is aimed and staged, the response, the retreat and the refusals.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Two rides in, two rides out on the same clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One entry.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Contacts are touches at surfaces; no physics.
-
 # src/animals/AutoMovieArchetypeEquineEncounter.ts#AutoMovieArchetypeEquineEncounter.stage
 
 ## @evidence contracts/development/common.md#meaningful-documentation

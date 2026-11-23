@@ -1,21 +1,3 @@
-# src/architecture/StreetFixtureDraw.ts#StreetFixtureDraw
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the measured input and the shared post contact.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The fixed profile supplies a band's range or a whole manufacturer model; a post contact uses the exact span and diameter of its shaft.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Assists the common draw and cylindrical shaft contact while the named producer builds all visible parts.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The profile keeps model-owned values, the measured unit declaration and the original namespace.
-
 # src/architecture/StreetFixtureDraw.ts#StreetFixtureDraw.IFixture
 
 ## @evidence contracts/development/common.md#meaningful-documentation

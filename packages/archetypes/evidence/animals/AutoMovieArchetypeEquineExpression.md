@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineExpression.ts#AutoMovieArchetypeEquineExpression
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is layered, what is kept, the blending, the reach solve and its refusals, and the instants added.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A ride in, a ride out with its marks, on the same film clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One layer and its ride type; the cues are `AutoMovieArchetypeEquineExpressionCue`'s and the posing `EquineExpressionPose`'s.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No species branch beyond the admission of an equid's bridled head; no change to the base ride.
-
 # src/animals/AutoMovieArchetypeEquineExpression.ts#AutoMovieArchetypeEquineExpression.IRide
 
 ## @evidence contracts/development/common.md#meaningful-documentation

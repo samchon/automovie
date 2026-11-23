@@ -22,14 +22,6 @@ const RULE: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The baton.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the baton stands, its three contacts and what reads them.
- * @evidence contracts/development/implementation.md#principled-implementation One rod of the drawn length and diameter; its mass the drawn mass, a hollow tube's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, three contacts.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The rule's baton is a plain tube, which this is; its hollowness is its mass.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createRelayBaton(
   params: createRelayBaton.IParams = {},
@@ -102,11 +94,6 @@ export function createRelayBaton(
 
 /**
  * Companion types and bands of {@link createRelayBaton}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation One band per dimension, the rule's limits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The tube a hand takes and the two ends a pass pushes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The length and the diameter are the rule as read; the rule sets only a least mass, so the mass band is provisional.
  */
 export namespace createRelayBaton {
   /**

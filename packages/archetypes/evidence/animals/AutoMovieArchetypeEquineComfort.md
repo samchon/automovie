@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineComfort.ts#AutoMovieArchetypeEquineComfort
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each act's expansion, the neutral return, the seeded cycle and what is authored.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Acts in, a ride out; an idle cycle is a list of acts.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two entries: play acts over a halt, and draw an idle cycle.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The behaviours are the stance's and the expression layer's own; no pose is duplicated here.
-
 # src/animals/AutoMovieArchetypeEquineComfort.ts#AutoMovieArchetypeEquineComfort.after
 
 ## @evidence contracts/development/common.md#meaningful-documentation

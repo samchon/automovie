@@ -22,14 +22,6 @@ import {
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The rack.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it stands, which side the lifter is on and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation Two uprights the rack's width apart and a short hook on each at the rest's height; the rest is where a bar laid on both hooks has its middle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, two uprights, two hooks, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No base, safeties or cross-members; every band is an estimate and says so.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four shapes.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createRack(
   params: createRack.IParams,
@@ -96,11 +88,6 @@ export function createRack(
 
 /**
  * Companion types and bands of {@link createRack}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and that it is an estimate.
- * @evidence contracts/development/design.md#principled-representation A closed union and one band per dimension, each marked provisional.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rest's height and the rack's width a racked bar reads, and the one contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No balance point or inertia is declared.
  */
 export namespace createRack {
   /** The kinds of rack. */

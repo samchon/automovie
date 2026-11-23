@@ -55,14 +55,6 @@ const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
  * @param seed Draws any omitted dimensions. Without a seed, use each band's midpoint.
  * @returns One framed panel with two pole grips and a front surface site.
  * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the shared prop, local axes, units, seed and motion sites.
- * @evidence contracts/development/implementation.md#principled-implementation Each pole shares an axis with the corresponding panel edge and grip.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draws dimensions, builds the panel and mirrored supports, then adds the front marker.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Independent bands keep the poles above the panel's lower edge without clamping any author dimension.
- * @evidence contracts/development/implementation.md#efficient-algorithms Emits three primitives and three contacts from six dimension draws.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model per call.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no evaluation state.
  */
 export function createScenicParadeBanner(
   params: createScenicParadeBanner.IParams = {},
@@ -141,11 +133,6 @@ export function createScenicParadeBanner(
 /**
  * Fixed banner dimensions in metres and prop mass in kilograms, plus an optional scene id.
  * The producer validates overrides against bands that leave an exposed grip below the panel on each pole.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Groups the optional metre and kilogram controls with the model producer.
- * @evidence contracts/development/design.md#principled-representation Optional numeric overrides cover only named dimensions and mass. The producer checks their ranges at runtime.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the shared banner inputs without creating a second geometry or grip description.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A single width positions both poles, and the same pole diameter applies to each. Runtime bands preserve the exposed grip.
  */
 export namespace createScenicParadeBanner {
   /**

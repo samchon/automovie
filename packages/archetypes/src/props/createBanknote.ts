@@ -29,14 +29,6 @@ const NOTE: Readonly<createBanknote.INote> = {
  *
  * @param params The optional scene id.
  * @returns The inert note and its contact frames, metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the source size and mass, the frame and how notes bundle.
- * @evidence contracts/development/implementation.md#principled-implementation One box at the read size and mass.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Record the dimensions, lay the note, then the shared contacts.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Every figure is read.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part and three contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the tabletop contacts with the card, chip and die.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createBanknote(
   params: createBanknote.IParams = {},
@@ -72,11 +64,6 @@ export function createBanknote(
 
 /**
  * The inputs, contacts and size of {@link createBanknote}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scene id input, the contacts, the dimensions and the note size.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms from the read note.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The shared tabletop contacts a bundle and a count read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The read note fixes the size, so no dimension is authorable.
  */
 export namespace createBanknote {
   /** The shared pinch, underside and upper sockets. */

@@ -10,14 +10,6 @@ import { LongImplementDraw } from "./LongImplementDraw";
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
  * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Fishing rod standing on its butt, with a lower grip and an axial tip.
- * @evidence contracts/development/implementation.md#principled-implementation The selected whole model supplies the length and mass. The grip stays centered above the butt and the tip follows the end.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the saved recipe, then build this prop and its own contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The rod remains the original rigid visual proxy.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds the rod and two contact frames.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The named and saved entry points share this producer and its original draw stream.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
  */
 export function createFishingRod(
   params: Pick<LongImplementDraw.IParams, "id" | "shaftDiameter"> & {
@@ -74,11 +66,6 @@ export function createFishingRod(
 
 /**
  * The contacts and dimensions of {@link createFishingRod}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
- * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createFishingRod {
   /** The contacts this producer builds; a numbered family's count follows its inputs. */

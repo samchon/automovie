@@ -23,14 +23,6 @@ const CASE: Readonly<{ depth: number; height: number }> = {
  * @param seed The seed that draws the model when it is not given; absent, the first.
  * @returns The showcase.
  * @throws {AutoMovieArchetypeRefusal} For a model the maker's sheet does not list.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, which side is whose, how the model is chosen and each contact.
- * @evidence contracts/development/implementation.md#principled-implementation One read model whole, its length and its mass as the sheet gives them; the depth and height both models share.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, then the case, then the two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No showcase between the two read is made; the case is one block, since the glass shelves' heights, the sliding doors' sizes and the side the kick plate is recessed on are not given.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createShowcase(
   params: createShowcase.IParams = {},
@@ -89,11 +81,6 @@ export function createShowcase(
 
 /**
  * Companion types and constants of {@link createShowcase}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each model, affordance and constant states what it is and its source.
- * @evidence contracts/development/design.md#principled-representation A closed union of the models read, each built whole; no continuous size stands between them.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The top a customer leans on and the edge the hands rest on (#3468 N4).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Doors no sheet sizes are typed as unread, not left out of the record.
  */
 export namespace createShowcase {
   /** The models read: Econoco's Full Vision showcases, 48 and 70 in long. */

@@ -29,13 +29,6 @@ import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
  * @param cohort Whole pooled or classified adult-female reference; pooled by default.
  * @returns Fresh coarse body controls; the producer owns the separate hump and tack.
  * @throws {RangeError} For nonpositive or nonfinite instance height.
- * @evidence contracts/development/common.md#meaningful-documentation States every measurement path, separate cohort, cross-cohort normalization, unknown anatomical pose and construction-only quantity; no visual verdict or ROM claim is made.
- * @evidence contracts/development/implementation.md#principled-implementation One selected surface-mean vector gives body/neck/head controls. The borrowed Egyptian limb-to-pooled-height ratios are uniformly scaled to its height as an explicit provisional transfer; no group-specific limb measurement is invented. The shared profile preserves the withers apex and complete head extent.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Keep body/limb records distinct and supply their normalized data to QuadrupedBodyProfile's common geometry owner; hump generation remains with the producer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No horse proportions, mass allocation, hoof material, invented paired allometry or passive limits enter this profile. Source standing angles remain reference data, never disguised as the authored absolute pitches.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar arithmetic and two fixed four-bar arrays; the shared owner's fixed admission scans add no tessellation, fitting, iterative solver or geometry search.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Source means are reused by reference while every returned array and nested profile record is fresh; no completed model or pose is replayed.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the result and no query or external handle is retained. Omitted mass shares and foot material preserve their explicit unknown status in the shared builder.
  */
 export function AutoMovieArchetypeCamelBody(
   withersHeight?: number,
@@ -82,11 +75,6 @@ export function AutoMovieArchetypeCamelBody(
 
 /**
  * Primary body/limb records and explicitly authored dromedary construction controls.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names each source, cohort, metre/degree unit and construction gap; standing internal angles remain distinct from rigid-bar directions and ROM.
- * @evidence contracts/development/design.md#principled-representation Independent published cohorts are separate records, with named authored choices for the common coarse rig; no statistical covariance or individual allometry is asserted.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The body and camel producer read these shape inputs. The existing shared rig remains the only limb layout and the producer separately owns the hump.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No unknown physical property or trait distribution is invented; source table dispersion inconsistencies are not used as probability bands.
  */
 export namespace AutoMovieArchetypeCamelBody {
   /** Closed whole-reference choices, with the original pooled reference retained. */

@@ -28,14 +28,6 @@ import {
  * @param options A gallery seed or, with a positional id, the seat height options.
  * @returns The carriage at rest with the door pairs closed.
  * @throws {AutoMovieArchetypeRefusal} When the height is nonfinite or outside the 17–19 inch scenic contact band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the model coordinates, paired door controls, fixed matching platform dimensions, seedless seat height and the accepted seat-height override.
- * @evidence contracts/development/implementation.md#principled-implementation The reference supplies the envelope, floor, door pitch and width, truck arrangement and seating widths. One validated height determines both seat geometry and contact. Paired leaves use opposite slider axes with a positive 1:1 coupling.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the shell and doors, end walls and trucks, seats and grab rails, then the fixed boarding contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body and interior details are staged estimates, including sheet thickness, cushion depth and pole stations. The seat-height band uses the RVAA Committee's transfer-seat recommendation for scenic staging. The gap between cars has no bellows.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of primitive sections and two independently transformed leaves per door.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds an independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no model or external resource.
  */
 export function createRailCarriage(
   params: createRailCarriage.IParams | string = {},
@@ -384,11 +376,6 @@ type DoorId = DoorPair[number];
 
 /**
  * Fixed shell dimensions, named carriage contacts and the authored seat height.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines contact names, the seat-height datum and the two dimensions shared with the platform.
- * @evidence contracts/development/design.md#principled-representation Two sourced shell sizes, a closed union of support and articulation ids and a typed scenic dimension in metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the model's contacts, supported seat dimension and geometry shared with the platform.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Both shell dimensions come from the same reference design. A sourced closed band limits the separate seat dimension.
  */
 export namespace createRailCarriage {
   /**

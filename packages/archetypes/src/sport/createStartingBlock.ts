@@ -27,14 +27,6 @@ const UNREAD: string =
  * @param seed The seed that draws the model when it is not given and every setting left free inside its band; absent, the first model and the middle of each band.
  * @returns The starting block.
  * @throws {AutoMovieArchetypeRefusal} For a model Polanik does not list with its sizes, or a fixed setting outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the block lies, where each plate stands and how it is tilted, and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A rail box of one Polanik block's bar width, and two plate boxes of its footplates' size, each turned about `X` by the drawn angle so its face looks forward and up, its lowest edge on the rail's top.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the block, draw the settings, the rail, then each plate with its contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No spikes, ratchets or pedal faces; the rail's height and the plates' thickness are named estimates; the rail runs only as far back as the rear plate, not the bar's full length.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createStartingBlock(
   params: createStartingBlock.IParams = {},
@@ -135,11 +127,6 @@ export function createStartingBlock(
 
 /**
  * Companion types, constants and bands of {@link createStartingBlock}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Polanik's blocks picked whole, their bar, plates and mass together; one band per setting a sprinter adjusts: how far back the plates stand, how far apart and how steep.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two plates a crouch start presses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass and the plates' and rail's sizes are one Polanik block's as read, never mixed, and the TEAM block, whose sizes were not read, is not built; the rule and the makers set no setback, spacing or angle, so those bands are provisional.
  */
 export namespace createStartingBlock {
   /** Each plate's thickness, metres: an estimate. */

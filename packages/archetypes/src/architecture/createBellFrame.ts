@@ -24,14 +24,6 @@ const BELL: string =
  * @param seed Seed for dimensions left free, or the band midpoints when absent.
  * @returns The scenery, including its front step contact.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the floor origin, front direction, step position and fixed pose.
- * @evidence contracts/development/implementation.md#principled-implementation Four posts leave an open bay below a convex gabled canopy. Convex flared sections and narrow cylindrical bands give the bell's visible outline. The step frame and extent derive from the plinth's unobstructed front strip.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the frame dimensions, place the plinth and posts, then add the canopy and hanging silhouette.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts This is fixed scenery; the bell's convex solids represent its visible envelope. The museum reference supplies appearance, while the dimensions are fictional estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms The part count and the size of each convex input are fixed.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds an independent scene model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Uses no host or external resources.
  */
 export function createBellFrame(
   params: createBellFrame.IParams = {},
@@ -166,11 +158,6 @@ export function createBellFrame(
 
 /**
  * Dimensions of {@link createBellFrame}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States dimensions, units, optional identity and the basis of the bands.
- * @evidence contracts/development/design.md#principled-representation SI bands drive the frame, canopy, bell and the clearance above the front step through the shared draw session.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Authors choose the overall framing dimensions; bell proportions and step placement follow the frame.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The fictional size estimates are recorded separately from the museum's appearance reference.
  */
 export namespace createBellFrame {
   /**

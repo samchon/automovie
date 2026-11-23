@@ -26,14 +26,6 @@ const ADA: string = "2010 ADA Standards (https://www.access-board.gov/ada/)";
  * @param seed The seed that draws a grab bar's wall when it is not given and every dimension left free inside its band; absent, the rear wall and the middle of each band.
  * @returns The bar.
  * @throws {AutoMovieArchetypeRefusal} For a wall named for a bar that has none, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the bar's direction, how it is gripped and what is left out.
- * @evidence contracts/development/implementation.md#principled-implementation One rod at the drawn height with two supports; the `bar` frame lies on the rod's axis with the rod's diameter as its `aperture`, and a rail's or a grab bar's height is the top of its gripping surface, as the standard measures it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a grab bar's wall, draw the dimensions with its length over them, then the bar, its two supports, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bracket, flange or footing detail.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBar(
   params: createBar.IParams,
@@ -109,11 +101,6 @@ export function createBar(
 
 /**
  * Companion types and bands of {@link createBar}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The diameter a hand wraps, the height it reaches and the length it may travel along (#3371, #3363).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One affordance for every kind: a bar is a bar.
  */
 export namespace createBar {
   /** The kinds of bar: a gymnastics high bar, a wall grab bar, a level handrail. */

@@ -44,14 +44,6 @@ const DOUGLAS: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The cannon.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the gun stands, each contact and articulation, what is provisional and why it carries no friction.
- * @evidence contracts/development/implementation.md#principled-implementation Every size and weight is the manual's, built by `buildFieldGun`; the dimensions are its single figures, so the gun is the one the manual describes.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the gun, and weigh it.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None here; the construction's shortcuts are `buildFieldGun`'s.
- * @evidence contracts/development/implementation.md#efficient-algorithms One builder pass.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createCannon(
   params: createCannon.IParams,
@@ -96,11 +88,6 @@ export function createCannon(
 
 /**
  * Companion types and bands of {@link createCannon}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind, each a single read figure.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The gun's working points, its elevation and its wheels (#3484), and the figures a scene measures it by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The provisional screw and the unread pointing rings are stated, not hidden.
  */
 export namespace createCannon {
   /** The kinds of cannon: the 6-pdr field gun, a 32-pounder naval gun on its truck carriage, a mortar on its bed, and a swivel gun on its yoke. */

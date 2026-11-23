@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineFordPlan.ts#AutoMovieArchetypeEquineFordPlan
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the crossing's inputs, its phases, events and samples, and the authored limb coordination.
-
-## @evidence contracts/development/design.md#principled-representation
-
-World metres, seconds and degrees with closed phase and event unions; the water is one horizontal height and the ground authored planes.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned beside `AutoMovieArchetypeEquineFord`, its only producer; read by its callers and the rider's crossing.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No inferred terrain or water; every height is the author's.
-
 # src/animals/AutoMovieArchetypeEquineFordPlan.ts#AutoMovieArchetypeEquineFordPlan.Phase
 
 ## @evidence contracts/development/common.md#meaningful-documentation

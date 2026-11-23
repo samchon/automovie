@@ -31,14 +31,6 @@ const ROUND: string =
  * @param seed The seed that picks the model left free and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The shield.
  * @throws {AutoMovieArchetypeRefusal} For a model not of the kind, a fixed dimension outside its band, or one the model gives.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the shield stands, what it is built of and what each contact is.
- * @evidence contracts/development/implementation.md#principled-implementation The disc, boss and grip record the existing mass geometry. The foam variant sizes the arm loop and lateral rim marks from the same radius and thickness as the board.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the model's dimensions, then place its rigid parts and marks relative to the board.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stage loop is fixed foam geometry with a contact frame for authoring. It carries no cloth, tension or implied humanoid constraint.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of parts and affordances.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createShield(
   params: createShield.IParams,
@@ -216,11 +208,6 @@ export function createShield(
 
 /**
  * Companion types, constants and bands of {@link createShield}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from or that it is an estimate.
- * @evidence contracts/development/design.md#principled-representation Closed unions of kinds and read bucklers, each whole, and one cited band per dimension a model leaves, in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The diameter and mass a block reads, the grip, face, boss and rim it is held and struck by (#3202's buckler and round shield), and the place it hangs on a back (#3500).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every kind has every dimension, a buckler's from one measured buckler, never between two; the uncited sizes are named constants, not literals in the builder.
  */
 export namespace createShield {
   /** The kinds of shield. */

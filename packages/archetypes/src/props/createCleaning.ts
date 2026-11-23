@@ -28,14 +28,6 @@ const SPONGE: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The thing.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it lies and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation One box of the drawn width, length and thickness.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cloth does not drape and a sponge does not squeeze; both are rigid boxes.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createCleaning(
   params: createCleaning.IParams,
@@ -101,11 +93,6 @@ export function createCleaning(
 
 /**
  * Companion types and bands of {@link createCleaning}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation A closed union of the two and one band per dimension each.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hold and the wiping face.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read, the cloth's folded in four; the sponge's weight is not given, so its mass band is provisional.
  */
 export namespace createCleaning {
   /** The kinds: a cloth folded in four, a kitchen sponge. */

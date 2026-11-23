@@ -1,21 +1,3 @@
-# src/core/AutoMovieArchetypeConvexCell.ts#AutoMovieArchetypeConvexCell
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines cell ownership, local SI units, shared geometry and the distinction between one convex wall and a hollow assembly.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One copied local point set supplies the engine hull, its visible closed boundary and its uniform-solid mass properties. Part TRS places all three together.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The builder produces cells; mass, collision and placed assemblies read the same records. There is no mesh inference or object-kind registry.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A cell is a convex solid, never the convex envelope of an entire concave or hollow object. Input and output geometry ownership is explicit.
-
 # src/core/AutoMovieArchetypeConvexCell.ts#AutoMovieArchetypeConvexCell.Table
 
 ## @evidence contracts/development/common.md#meaningful-documentation

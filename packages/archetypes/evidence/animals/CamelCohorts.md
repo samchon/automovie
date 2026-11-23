@@ -1,21 +1,3 @@
-# src/animals/CamelCohorts.ts#CamelCohorts
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the source table, sample, SI conversion, whole-row ownership and missing group frequencies, mass and dispersion.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A closed reference key selects one complete seven-trait body vector; pooled and classified means remain distinct records.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieArchetypeCamelBody and createCamel share these current source dimensions and cohort selection keys; unconsumed thigh measurements and invented population bands are absent.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Group means are never interpolated, independently mixed, relabelled as breeds or weighted by unknown group counts.
-
 # src/animals/CamelCohorts.ts#CamelCohorts.Name
 
 ## @evidence contracts/development/common.md#meaningful-documentation

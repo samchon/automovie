@@ -1,21 +1,3 @@
-# src/animals/QuadrupedRigDelta.ts#QuadrupedRigDelta
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the complete quadruped vocabulary, finite unit-scale world frames and the current-times-inverse-neutral rigid map shared by model emission and body support measurement.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The existing frame motion type and closed bone map represent a rigid change of carrier coordinates; no new geometry, rig or contact vocabulary is introduced.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-between serves both current consumers' frame deltas and move applies them with the same admission; geometry cloning and span evaluation stay with their owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Missing frames, nonunit scale and absent carriers are refused rather than inferred, and no species or humanoid slot selects a transform.
-
 # src/animals/QuadrupedRigDelta.ts#QuadrupedRigDelta.between
 
 ## @evidence contracts/development/common.md#meaningful-documentation

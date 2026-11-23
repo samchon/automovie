@@ -35,14 +35,6 @@ const MASS: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
  * @returns The cane.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, its frame and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The length is the maker's range; the grip lies a grip's length below the top.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, build the shaft, the red band and the grip, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shaft, the grip's length and the mass are marked provisional.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createLongCane(
   params: createLongCane.IParams = {},
@@ -115,11 +107,6 @@ export function createLongCane(
 
 /**
  * Companion types, constants and bands of {@link createLongCane}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each dimension, contact and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed contact union and sourced bands, one per dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the producer and its callers read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The length is the maker's; the shaft, the grip and the mass are provisional.
  */
 export namespace createLongCane {
   /** The contacts: the grip the hand holds and the floor tip. */

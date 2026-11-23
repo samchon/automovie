@@ -24,14 +24,6 @@ const RULE: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The hammer.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the hammer stands and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A head sphere of the drawn diameter, a wire rod up from its top and a handle rod across the top, the drawn length from the head's bottom to the handle's inside.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, three parts, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wire is rigid and straight, as the hammer is when whirled; the handle is a straight bar, not a triangular loop; the wire's and the handle's sizes are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createHammerThrow(
   params: createHammerThrow.IParams,
@@ -110,11 +102,6 @@ export function createHammerThrow(
 
 /**
  * Companion types, constants and bands of {@link createHammerThrow}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation The two senior categories and one band per dimension each, the rule's limits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The handle the hands take and the head a swing whirls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is the rule as read; where the rule gives only a minimum mass or a maximum length, the model takes that limit; the wire's and the handle's sizes are named estimates.
  */
 export namespace createHammerThrow {
   /** The categories. */

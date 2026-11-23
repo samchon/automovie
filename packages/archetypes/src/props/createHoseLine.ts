@@ -39,14 +39,6 @@ const SIZE: Readonly<createHoseLine.ISize> = {
  *
  * @param params The optional scene id.
  * @returns The hose line and its contacts, metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the trade size, the frame and each contact.
- * @evidence contracts/development/implementation.md#principled-implementation A hose run on a bend at the operator's hold, a lead and a nozzle, a bail on a hinge, and one grip per team member along the line.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Record the size, lay the hose, nozzle and bail, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hose is two rigid straight runs either side of one bend at the operator's hold; its sag and other kinks are not modelled. Every figure but the bore is a named estimate.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts and seven contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createHoseLine(
   params: createHoseLine.IParams = {},
@@ -180,11 +172,6 @@ export function createHoseLine(
 
 /**
  * The inputs, contacts and size of {@link createHoseLine}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scene id input, the contacts, the dimensions and the size.
- * @evidence contracts/development/design.md#principled-representation Metres, degrees and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two members' grips, the bail and the outlet the hose drill reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The size is fixed; no dimension is authorable.
  */
 export namespace createHoseLine {
   /** The nozzle grip, the bail and its handle, the backup grip and the outlet. */

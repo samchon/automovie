@@ -34,14 +34,6 @@ const GEOMETRY: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The bicycle.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the bicycle's origin and front, the crank's zero and turning sense, and how the saddle height is measured.
- * @evidence contracts/development/implementation.md#principled-implementation Rods for the frame's tubes from the bottom bracket, the two axles and the saddle; the saddle's top lies `saddleHeight` up the seat tube from the bottom bracket's centre, the point LeMond's 0.883 of the inseam is measured to (Bini, Hume and Croft 2011, Sports Med 41:463, section 3.1.1). The crank's frame points out of the left side so that a right-handed turn about it carries the top of the stroke forward.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, place the five points of the frame, then the parts and the affordances on them.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The round wheel forms carry visible spin markers. Chain, gears and brakes are not modeled.
- * @evidence contracts/development/implementation.md#efficient-algorithms About fifteen parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBicycle(
   params: createBicycle.IParams = {},
@@ -230,11 +222,6 @@ export function createBicycle(
 
 /**
  * Companion types and bands of {@link createBicycle}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one band per dimension; the fit dimensions are those bicycle fitting measures (saddle height from the bottom bracket, crank length, reach).
- * @evidence contracts/development/design.md#minimal-and-owned-surface What a pedalling and a steering act read (#3372): the saddle, the grips, the crank's length and the pedals' places.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One crank articulation turns both arms, so the two pedals cannot fall out of phase.
  */
 export namespace createBicycle {
   /** The rear axle from the bottom bracket, metres: a typical road chain stay, not read at a source. */

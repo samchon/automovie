@@ -46,14 +46,6 @@ import { createPony } from "./createPony";
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The animal.
  * @throws {AutoMovieArchetypeRefusal} For a kind that is not one of `KINDS`, and as the kind's producer refuses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what every kind shares, what differs and which producer each kind is.
- * @evidence contracts/development/implementation.md#principled-implementation Admit the kind, then call its producer, which builds the shared body from its species' data and adds its tack.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One choice, one call.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown kind is refused with the kinds there are.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work beyond the producer's.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The horse is `createHorse`'s, unchanged.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createQuadruped(
   params: createQuadruped.IParams,
@@ -71,11 +63,6 @@ export function createQuadruped(
 
 /**
  * Companion types and species of {@link createQuadruped}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, type and species table states what it is.
- * @evidence contracts/development/design.md#principled-representation A closed union of kinds, each with its producer and its species' data: the body's proportions, the gait table and the parts that nod with the head.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The kinds and the species table the ride reads; each kind's proportions and gaits stay with their sources in its own producer and gait table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No species branch in the shared body or the ride: an animal's species is found by its producer's name and read as data.
  */
 export namespace createQuadruped {
   /** The kinds. */

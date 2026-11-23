@@ -28,14 +28,6 @@ const PMAG: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The magazine.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the magazine stands, how it seats in a well, and its three contacts.
- * @evidence contracts/development/implementation.md#principled-implementation One box of the published length, width and depth; a loaded magazine adds the published difference between the loaded and the empty weight, the rounds' mass.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, three contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The base plate's lip, the feed lips and a rifle magazine's curve are not modelled; no contact needs them.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createMagazine(
   params: createMagazine.IParams,
@@ -105,11 +97,6 @@ export function createMagazine(
 
 /**
  * Companion types, constants and bands of {@link createMagazine}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the two magazines and one cited band per dimension each; loading is a parameter that adds a published mass, as on `createHandgun`.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The end that seats in the well, the body a hand takes and the plate a palm strikes, which a reload reads (#3483, `reloadFirearm`).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Its own producer, not a projectile kind: it holds rounds, it is not launched. Every band is a maker's or a retailer's published figure for that one magazine; GLOCK's own magazine, 708 less 630 g, is another maker's, so it stays out of Strike's.
  */
 export namespace createMagazine {
   /** The kinds: a pistol's double-stack magazine and a rifle's 30-round magazine. */

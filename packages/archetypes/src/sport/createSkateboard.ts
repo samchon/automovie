@@ -41,14 +41,6 @@ const ESTIMATES: Readonly<{ wheel: number; baseplate: number }> = {
  * @param seed The seed that draws the deck when it is not given and every dimension left free inside its band; absent, the first deck and the middle of each band.
  * @returns The skateboard.
  * @throws {AutoMovieArchetypeRefusal} For a deck the maker's pages do not list, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the board stands, how its deck is chosen and where the contact readings are.
- * @evidence contracts/development/implementation.md#principled-implementation One of Powell Peralta's two decks whole, its width, length and wheelbase as the maker's page gives them; its thickness seven 1/16 in veneers, Powell Peralta's ply count times Roarockit's veneer; the deck's underside the Independent truck's 55 mm over the axle, the axle a 52 mm wheel's radius off the ground.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the deck, trucks and wheels, then derive their contact readings from the same dimensions.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No deck between the two read is made; the deck is flat, with no concave or kicked nose and tail; the wheels' width and the trucks' blocks are construction estimates.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Nine parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSkateboard(
   params: createSkateboard.IParams = {},
@@ -185,11 +177,6 @@ export function createSkateboard(
 
 /**
  * Companion types and bands of {@link createSkateboard}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation A closed union of the decks read, each built whole; the thickness a derivation from a read ply count and a read veneer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The deck the feet stand on and the ends a foot presses (#3468 N11).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass, which no page read gives, is provisional.
  */
 export namespace createSkateboard {
   /** The decks read: Powell Peralta's Kilian Martin Wolf 4, 7.75 by 31.75 in, and Chin Mask, 8.5 by 33.5 in. */

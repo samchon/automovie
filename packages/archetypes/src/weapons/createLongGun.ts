@@ -21,14 +21,6 @@ import { LongGunLock } from "./LongGunLock";
  * @param seed The seed that picks the model left free and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The long gun.
  * @throws {AutoMovieArchetypeRefusal} For a model not of the kind, a fixed dimension outside its band, or one the model gives.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is and is not modelled, how the gun lies and what each contact is.
- * @evidence contracts/development/implementation.md#principled-implementation Rods and boxes along the barrel's line from the published overall and barrel lengths; the trigger stands at the length of pull from the butt plate, the measure that fits a gun to an arm, and the carbine's stock travel is the difference between its published extended and retracted lengths. The stock stops short of the grip so the firing hand's hold stands clear, and the fixed tube it slides on is longer than the travel, so the drawn stock never parts from the receiver.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, draw the other dimensions, lay the stock, neck, receiver, barrel and fore-end, then the contacts and the one slider.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No magazine, sights' shape or sling; the sight line is a frame above the barrel.
- * @evidence contracts/development/implementation.md#efficient-algorithms Seven parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createLongGun(
   params: createLongGun.IParams,
@@ -224,11 +216,6 @@ export function createLongGun(
 
 /**
  * Companion types and bands of {@link createLongGun}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions of kinds and of a carbine's read models, each weighed whole, and one cited band per dimension a model leaves.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The length of pull, the two hands' places and the butt a shouldering act reads (#3374).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts `travel` is the carbine's stock's or the shotgun's pump's slide; the period and repeating kinds' sliders are `LongGunLock`'s, their travels its derivations and estimates. No mass between two carbines is drawn, and the army manual's lengths stay out of the maker's carbines.
  */
 export namespace createLongGun {
   /** The kinds of long gun. */

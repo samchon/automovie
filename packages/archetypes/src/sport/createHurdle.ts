@@ -23,14 +23,6 @@ const RULE: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The hurdle.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the hurdle stands, which side the runner comes from and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Two upright rods at the drawn width's ends, a foot box under each running back from it, and a top bar box of the rule's depth whose top is the drawn height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, feet, uprights and bar, then the two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No counterweights or toppling force; the feet's and uprights' sizes are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Five parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createHurdle(
   params: createHurdle.IParams,
@@ -118,11 +110,6 @@ export function createHurdle(
 
 /**
  * Companion types, constants and bands of {@link createHurdle}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the senior races, each its rule's height to 3 mm; the width and the mass shared.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The edge a hurdler clears and the bar a hand takes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The heights, the width and the least mass are the rule as read; the rule sets no greatest mass, so the mass band's upper end is provisional; the feet's and uprights' sizes are named estimates inside the rule's limits.
  */
 export namespace createHurdle {
   /** The races: the men's 110 m and the women's 100 m sprint hurdles, and the men's and the women's 400 m hurdles. */

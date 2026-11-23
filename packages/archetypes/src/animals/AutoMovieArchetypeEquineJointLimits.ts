@@ -12,14 +12,6 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
  *
  * @param bone The bone whose proximal joint is being inspected.
  * @returns Read-only source observations and explicitly unknown runtime limits.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The lookup and compare operation define proximal bone mapping, study-specific included-angle degrees, paired mean/SD tuples, source identity/conditions, unsupported joints and unknown runtime limits. Compare requires one retained DOI and a finite [0,360] angle and reports signed endpoint-SD differences, not probability or pose admission.
- * @evidence contracts/development/implementation.md#principled-implementation The closed anatomical lookup copies the primary rows in their original landmark conventions. Compare selects one requested DOI, orders the caller's same-convention angle against its endpoint means, and divides signed differences by the fixed positive reported SDs. No local Euler calibration is implied.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The lookup switch selects one table row set and copies its nested statistics/source records; compare validates the angle, reuses the lookup, refuses a missing source and computes one diagnostic.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Standing extension stays labelled as standing, distinct cohorts and marker rays are not pooled, and no mean, SD multiplier, unmeasured axis or uncalibrated landmark becomes an anatomical limit or a zero rotation.
- * @evidence contracts/development/implementation.md#efficient-algorithms Lookup and comparison take O(S) time for S source rows, at most two; independent copied output uses O(S) space and comparison adds constant working storage.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The ten fixed primary rows and their three source descriptions have one module owner; compare reuses the lookup and recomputes only caller-dependent arithmetic without caching temporal/model results.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The module retains ten rows and three source records; lookup clones all exposed nested records/tuples so returned data cannot mutate the reference table. Calls acquire no handles or retain caller observations.
  */
 export function AutoMovieArchetypeEquineJointLimits(
   bone: AutoMovieArchetypeQuadrupedBody.Bone,
@@ -89,11 +81,6 @@ export function AutoMovieArchetypeEquineJointLimits(
 
 /**
  * Clinical reference types and comparison of measured included angles.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The six joint names, named degree mean/SD tuples, three retained DOI identities, cohort/side/sedation/acquisition/loading conditions and separately reported ROM are explicit. Reference is a discriminated union of missing observations and measured joints; diagnostics retain their selected source and define signed SD differences.
- * @evidence contracts/development/design.md#principled-representation Closed measured joints and source DOIs prevent unsupported identities; paired degree statistics are not interval endpoints. The reference union couples missing joint identity to missing data; limits remain outer-null, with all local axes unknown. Runtime validation handles finite angle/range and source-joint correspondence.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Archetypes owns the one horse source table and its clinical reference/comparison types. Skeleton inspection and marker goniometry consume them while the engine retains generic rigid articulation and its existing limit semantics.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No unsupported joint alias, imported human slot, guessed symmetry or universal breed bound appears. Standing extension, absent ROM, unmeasured axes and uncalibrated coarse-bar landmarks preserve their distinct unknown or observational meaning; a diagnostic position is not anatomical acceptance.
  */
 export namespace AutoMovieArchetypeEquineJointLimits {
   /**

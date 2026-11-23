@@ -16,14 +16,6 @@ import {
  * @param params The kind, any dimension the author fixes, and the load's mass.
  * @returns The load at rest.
  * @throws {AutoMovieArchetypeRefusal} For a nonpositive dimension or mass.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands, its contacts and that its sizes are estimates.
- * @evidence contracts/development/implementation.md#principled-implementation Each kind is laid from bars and boxes on the ground plane with its contacts on the parts that bear them.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the sizes, then one builder per kind.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unread sizes are named estimates the author can override; a nonpositive one refuses.
- * @evidence contracts/development/implementation.md#efficient-algorithms A dozen parts at most.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createDragged(
   params: createDragged.IParams,
@@ -168,11 +160,6 @@ export function createDragged(
 
 /**
  * Types and construction sizes of {@link createDragged}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, contact, dimension and size states what it is and that sizes are estimates.
- * @evidence contracts/development/design.md#principled-representation Closed unions of kinds, contacts and dimensions, and metre and kilogram sizes per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What a dragged ride and a ploughman read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No size claims a source.
  */
 export namespace createDragged {
   /** The kinds of ground-drawn load. */

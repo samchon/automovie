@@ -1,21 +1,3 @@
-# src/core/AutoMovieArchetypeCourse.ts#AutoMovieArchetypeCourse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a course is, why its curvature is piecewise constant, the speed profile with and without marks, grades, reversing, pauses, the timed form and the heading convention.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An arc-and-line path with a profile of piecewise-constant acceleration, the tangent-continuous path of road alignment whose state at any second is closed-form: distance from the profile, position and heading from the leg; or a C1 path through timed samples. Both plan into one record with pure samplers.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The course records, their plans and samplers, which every ride of this package reads, with `lean`, `banked`, `admitLean` and `admitRadius` for the rides that lean into a turn or steer at a lock; the motion grammar's ride relation reads the same plan for the rider (#3352). The speed profile itself is the engine's (#3493, P13 on #3503).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Legs are a discriminated union, so a straight leg cannot carry a radius; speeds are never negative, reversing being a leg's flag, so curvature and lean keep their signs' meanings.
-
 # src/core/AutoMovieArchetypeCourse.ts#AutoMovieArchetypeCourse.Leg
 
 ## @evidence contracts/development/common.md#meaningful-documentation

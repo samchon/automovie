@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeQuadrupedGait.ts#AutoMovieArchetypeQuadrupedGait
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a species gives, how height enters and the stride's zero.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Declared period/contact rows by speed and touchdown fractions describe a gait in SI units; each supplying table owns whether its values are observed statistics, derived representative clocks or authored construction inputs.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-What `rideQuadruped` reads to pose the limbs and name the footfalls, and what a riding act reads to lock a rising trot to a diagonal (#3352).
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No fitted curve stands in for the rows; a speed outside a gait's declared range, or a gait the species has no table for, is refused.
-
 # src/animals/AutoMovieArchetypeQuadrupedGait.ts#AutoMovieArchetypeQuadrupedGait.Gait
 
 ## @evidence contracts/development/common.md#meaningful-documentation

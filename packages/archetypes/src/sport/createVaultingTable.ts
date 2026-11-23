@@ -23,14 +23,6 @@ const NORMS: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The table.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the table stands and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation A top block of the drawn length and width whose top stands at the drawn height, on a column and a base plate; the top is the contact.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, base, column, top, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The top is a flat block; its rounded front edge and padding are not drawn. The column and base sizes are estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createVaultingTable(
   params: createVaultingTable.IParams,
@@ -94,11 +86,6 @@ export function createVaultingTable(
 
 /**
  * Companion types, constants and bands of {@link createVaultingTable}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the men's and women's heights and one band per dimension, each to the norms' centimetre.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The top's height and extent a vault reads, and the one contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The pedestal's sizes are named estimates; they shape the picture and no contact.
  */
 export namespace createVaultingTable {
   /** The top block's thickness, metres. An estimate, not read at a source. */

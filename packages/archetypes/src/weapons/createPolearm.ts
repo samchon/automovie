@@ -51,14 +51,6 @@ const POWER: string =
  * @param seed The seed that picks the head left free and draws every dimension left free inside its band; absent, the first head and the middle of each band.
  * @returns The weapon.
  * @throws {AutoMovieArchetypeRefusal} For a head not of the kind, a fixed dimension outside its band or one the head gives, or a head length fixed on a staff, or a lance's shaft length fixed, which its head sets.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the weapon stands, how the hands share the shaft, what the lengths measure and the two ends.
- * @evidence contracts/development/implementation.md#principled-implementation A shaft rod and, for a spear and a lance, a head box of its head's width carrying its head's mass as its share of the whole, the shaft the rest, so the balance point moves toward the head; mass properties follow from the parts under the whole's mass. A lance's shaft is the read lance's overall length less its head.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the head, draw the other dimensions, a lance's shaft from its head, the shaft and its bar, a lance's grip, the head, the two ends.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No socket, lugs or butt cap; the head's thickness is a construction proportion of its read width, which no act reads, since the head's mass, not its volume, places the balance.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part for a staff, two for a spear or a lance.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createPolearm(
   params: createPolearm.IParams,
@@ -165,11 +157,6 @@ export function createPolearm(
 
 /**
  * Companion types, constants and bands of {@link createPolearm}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from or that it is an estimate.
- * @evidence contracts/development/design.md#principled-representation Closed unions of kinds and catalogued spearheads, each whole, and one cited band per dimension a head leaves, in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The shaft with sites along it, the two ends, the lengths and the mass a two-handed strike or thrust reads (#3202's spear and staff), and the lance's grip a couched charge reads (#3466, #3482).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A staff has no head length band, so fixing one on a staff is refused. No spearhead's figure stands in another's record: a spear's head is one of the two catalogued heads that state their weight, and its socket, which neither states, is drawn from a provisional band citing the read sockets of other heads.
  */
 export namespace createPolearm {
   /** The kinds of polearm. */

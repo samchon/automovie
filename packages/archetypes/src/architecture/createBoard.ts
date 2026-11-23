@@ -100,14 +100,6 @@ const NAMES: Readonly<Record<createBoard.Kind, string>> = {
  * @param seed The seed that draws the size when it is not given and every dimension left free inside its band; absent, the kind's first size and the middle of each band.
  * @returns The board.
  * @throws {AutoMovieArchetypeRefusal} For a size the kind's maker does not list, a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the board hangs, where each kind is mounted and its contacts.
- * @evidence contracts/development/implementation.md#principled-implementation One of the maker's standard sizes whole, its height and width together; the makers' depths and trays; the whiteboard's base at the classroom standard's 915 mm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the size, draw the dimensions, then the board, its tray and the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The frame is the board's block; the tray's lip is a construction estimate.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBoard(
   params: createBoard.IParams,
@@ -199,11 +191,6 @@ export function createBoard(
 
 /**
  * Companion types and bands of {@link createBoard}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions, each kind's standard sizes among them, and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The face written or pinned on and the tray a marker rests on (#3468 N6).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A mounting height no source gives is left to the production, not invented.
  */
 export namespace createBoard {
   /** The kinds of board. */

@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineComfortCue.ts#AutoMovieArchetypeEquineComfortCue
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the rows, the acts and their sources.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Discriminated unions of phases or windows with their few parameters.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The rows join the stance's cue union; the acts are what `AutoMovieArchetypeEquineComfort` takes.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Closed literals, not free text.
-
 # src/animals/AutoMovieArchetypeEquineComfortCue.ts#AutoMovieArchetypeEquineComfortCue.IRest
 
 ## @evidence contracts/development/common.md#meaningful-documentation

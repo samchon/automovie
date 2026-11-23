@@ -17,14 +17,6 @@ import { rideQuadruped } from "./rideQuadruped";
  * @param gait The gait of every stride whose leg names none; the speed chooses it when absent.
  * @returns The ride, its samples in the world.
  * @throws {AutoMovieArchetypeRefusal} When no authored surface lies under the course's start, and as `rideQuadruped` refuses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States why the datum moves, the translation, which outputs are raised and the frame the plan keeps.
- * @evidence contracts/development/implementation.md#principled-implementation A rigid vertical translation of footing and samples leaves every relation of the ride to its footing unchanged.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the datum, ride over the lowered footing, raise the two samplers.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The datum is the authored surface under the start, not a fitted offset; an uncovered start refuses.
- * @evidence contracts/development/implementation.md#efficient-algorithms One landing query and S plane copies at preparation; one vector addition per sample.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The underlying ride's preparation serves every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the underlying ride and one height.
  */
 export function AutoMovieArchetypeQuadrupedDatumRide<
   Affordance extends string,
@@ -88,11 +80,6 @@ export function AutoMovieArchetypeQuadrupedDatumRide<
 
 /**
  * Types of {@link AutoMovieArchetypeQuadrupedDatumRide}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the required footing.
- * @evidence contracts/development/design.md#principled-representation A ride course whose footing is required, since the datum is read from it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `AutoMovieArchetypeQuadrupedDatumRide`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace AutoMovieArchetypeQuadrupedDatumRide {
   /** A quadruped's course with its authored footing required. */

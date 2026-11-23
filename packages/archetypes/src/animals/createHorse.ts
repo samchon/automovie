@@ -20,14 +20,6 @@ import type { QuadrupedProportions } from "./QuadrupedProportions";
  * @param seed The seed that draws every free dimension inside its band and the seat and the reins among their read sizes; absent, each dimension takes the middle of its band and each size the first listed.
  * @returns The horse.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, a tack that is not one of `AutoMovieArchetypeEquine.TACKS`, or a seat or reins not among `AutoMovieArchetypeEquine.SEATS` and `AutoMovieArchetypeEquine.REINS`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the horse stands, that its parts are the shared quadruped's bones, how it is posed, where the body ends and where each tack's contacts are.
- * @evidence contracts/development/implementation.md#principled-implementation The shared equid builder (`AutoMovieArchetypeEquine.equid`) on the horse's profile, laying the shared body (`AutoMovieArchetypeQuadrupedBody.lay`) from the horse's proportions: segment lengths as fractions of withers height from Kubo et al. 1992 and Matsuura et al. 2008, and segment mass shares from Kubo et al. 1992, Table 5, stated per part so the mass properties follow the measured distribution; the tack is placed on the rig's landmarks.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `AutoMovieArchetypeEquine.equid` on `PROFILE`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's simplifications are `AutoMovieArchetypeQuadrupedBody.lay`'s and the tack's estimates `EquineSaddle`'s, `EquineHarness`'s, `EquinePack`'s, `EquineSideSaddle`'s and `EquineSurcingle`'s, stated there; `EquineTack` lays the selected tack.
- * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones, the withers and a few tens of tack parts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieArchetypeEquine.equid`, which the pony shares; each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createHorse(
   params: createHorse.IParams = {},
@@ -66,11 +58,6 @@ export function createHorse(
 
 /**
  * Companion types, proportions and bands of {@link createHorse}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each bone, affordance, dimension, proportion and band states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation The horse's proportions in the shared quadruped body's forms, segment lengths as fractions of withers height and segment masses as percentages of body mass, the two forms the equine studies report.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The horse's proportions, tack and bands; the bone vocabulary is `AutoMovieArchetypeQuadrupedBody`'s, shared by every quadruped (#3373, #2805, #3496).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No humanoid bone stands in for a horse's, the defect #2805 removed.
  */
 export namespace createHorse {
   /** The parameters: the equid's (`AutoMovieArchetypeEquine.IParams`) and the horse cohort. */

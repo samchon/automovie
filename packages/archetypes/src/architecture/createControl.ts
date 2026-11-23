@@ -28,14 +28,6 @@ const RISE: number = 20;
  * @param seed The seed that draws a lever's model when it is not given and every dimension left free inside its band; absent, the first lever and the middle of each band.
  * @returns The control.
  * @throws {AutoMovieArchetypeRefusal} For a lever the sheet does not list, a lever named for a dial, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where the control stands, how each kind moves, why the lever states no travel, and each contact.
- * @evidence contracts/development/implementation.md#principled-implementation One of the maker's levers whole, its hub, arm, knob and mass as its row gives them, the knob at its length along an arm rising 20 degrees from the hub's centre half the hub out from the panel; the selector head at the maker's diameter, depth proud of the panel, turn and weight; the axis height in the ADA's reach range.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the height, pick a lever's row, then the kind's parts and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No lever between the sheet's rows is made; the panel and the shaft behind it are the machine's, not built.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createControl(
   params: createControl.IParams,
@@ -178,11 +170,6 @@ function row(
 
 /**
  * Companion types, constants and bands of {@link createControl}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, lever, affordance, constant and dimension states what it is; each band, lever and constant its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions, a lever one of the sheet's rows whole, and the selector's read single figures as constants.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The knob a hand takes, the shaft it turns and the dial it twists (#3468 N14).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A lever's throw no sheet gives is left out, not invented.
  */
 export namespace createControl {
   /** The kinds of control. */

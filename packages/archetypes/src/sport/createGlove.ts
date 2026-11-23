@@ -20,14 +20,6 @@ import {
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The glove.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the glove lies, its two contacts and how it is worn.
- * @evidence contracts/development/implementation.md#principled-implementation One padded box of the drawn width and length, as thick as the kind's padding; the pocket at the palm's centre on top, the opening at the wrist's end.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fingers, webbing or lacing; the thickness is a named estimate.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createGlove(
   params: createGlove.IParams,
@@ -89,11 +81,6 @@ export function createGlove(
 
 /**
  * Companion types, constants and bands of {@link createGlove}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the two gloves the rules size and one band per dimension per kind, the rules' limits at the top.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The opening a hand enters and the pocket a catch reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the rule's limits as read, which the model takes; the rule leaves the weight free and no maker's weight was read, so the masses are provisional; the padding's thickness is a named estimate.
  */
 export namespace createGlove {
   /** The kinds. */

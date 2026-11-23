@@ -33,14 +33,6 @@ const ESTIMATES: Readonly<{ flat: number }> = { flat: 0.05 };
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The cell front.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or a width too narrow for two bars at the drawn centres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the grille stands, which side the cell is and how its bars are named.
- * @evidence contracts/development/implementation.md#principled-implementation The maker's bar diameter and centres, its flat bars every 12 in, the rule's least ceiling for the grille's height; the bars as many as fit the cell's width.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, derive the bars from the width and admit them, the uprights, the flat bars, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No door, frame or ribbing; the flat bars' width is a construction estimate.
- * @evidence contracts/development/implementation.md#efficient-algorithms One rod per bar and one box per flat bar.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createCellFront(
   params: createCellFront.IParams,
@@ -115,11 +107,6 @@ export function createCellFront(
 
 /**
  * Companion types and bands of {@link createCellFront}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, parameter and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation The front's width a required site parameter, the cell's, as a wall's run is, the bar count derived from it; one cited band per dimension; the reference the narrowest width the read code admits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bars a hand grips (#3468 N16).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass per bar, which no source read gives, is provisional.
  */
 export namespace createCellFront {
   /** The affordance ids: `bar1` upward from `-X`, each upright bar. */

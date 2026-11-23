@@ -31,14 +31,6 @@ type Producer = (
  * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
  * @returns The original generated model and its local contacts.
  * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Replay a saved scenicContainer variant with the original dimensions, identifier and model choices, and the cargo pod's retained contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the scenicContainer draw namespace. A saved cargo pod runs the shared pod construction without the added mount.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table, except the saved cargo pod whose contact set differs.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data. The cargo pod's two paths share its geometry construction and draw.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createScenicContainer(
   params: createScenicContainer.IParams,
@@ -63,11 +55,6 @@ export function createScenicContainer(
 
 /**
  * Silhouettes, sizing and placement vocabulary for {@link createScenicContainer}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Specifies dimensions, local axes and which surface exists on each silhouette.
- * @evidence contracts/development/design.md#principled-representation A closed silhouette union draws one band per dimension and each kind declares one real support.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The props producer owns the shape and uses the standard archetype surface contract.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Illustrative bands carry provenance and the fictional kind is identified as such.
  */
 export namespace createScenicContainer {
   /** Each saved selector's named producer. */

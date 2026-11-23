@@ -1,21 +1,3 @@
-# src/animals/EquineRideTerrain.ts#EquineRideTerrain
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is prepared and who reads each part.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One record of the route's technique plan, footing and the three per-sample readers over them.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `rideQuadruped`, which keeps its body, gait and pose solving.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every reader leaves the ride unchanged where no technique or footing asks otherwise.
-
 # src/animals/EquineRideTerrain.ts#EquineRideTerrain.ITerrain
 
 ## @evidence contracts/development/common.md#meaningful-documentation

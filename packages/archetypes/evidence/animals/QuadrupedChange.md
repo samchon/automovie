@@ -1,21 +1,3 @@
-# src/animals/QuadrupedChange.ts#QuadrupedChange
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a change point is, where it comes from and the gap.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A speed in metres per second per pair of neighbouring gaits, by one of four closed rules a species states with its source.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The change points `rideQuadruped` reads when the speed chooses the gait.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No species branch: a species states its rules as data, each with its source or as provisional.
-
 # src/animals/QuadrupedChange.ts#QuadrupedChange.Rule
 
 ## @evidence contracts/development/common.md#meaningful-documentation

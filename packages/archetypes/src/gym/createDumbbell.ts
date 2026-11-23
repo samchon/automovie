@@ -24,14 +24,6 @@ import {
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The dumbbell.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it lies, how the heads are sized and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation The heads' size follows from the mass at steel's density (`AutoMovieArchetypeDensity.STEEL`, EN 1991-1-1's), so no head size is stated beside the mass and the two cannot disagree.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, size the heads, lay three rods, one contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Round heads stand for the hexagonal ones of a rubber dumbbell, and no maker's sizes were read: every band is an estimate and says so.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three rods.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createDumbbell(
   params: createDumbbell.IParams,
@@ -115,11 +107,6 @@ export function createDumbbell(
 
 /**
  * Companion types and bands of {@link createDumbbell}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and that it is an estimate.
- * @evidence contracts/development/design.md#principled-representation A closed union and one band per dimension; the heads' size is derived, not a dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The handle a hand reads and the mass a scene chooses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No head size, balance point or inertia is declared.
  */
 export namespace createDumbbell {
   /** The kinds of dumbbell. */

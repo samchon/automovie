@@ -1,19 +1,3 @@
-# src/core/AutoMovieArchetypeTrack.ts#AutoMovieArchetypeTrack
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a track is, the pendulum's equation and its two solutions, the ease, the launch and the held ends.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A track is a pure function of film seconds over one articulation, the closed-form or integrated solution read the same way, so a performance reads it as it reads an act's drive.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `pendulum` reads a hinged body's figures, `swing` and `ease` make the two tracks #3476 asks for, each with an optional launch, and `agm` gives the exact period's mean that fixes `SMALL`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A track never leaves its articulation's range: a swing or an ease that would is refused when it is made, never clamped.
-
 # src/core/AutoMovieArchetypeTrack.ts#AutoMovieArchetypeTrack.ITrack
 
 ## @evidence contracts/development/common.md#meaningful-documentation

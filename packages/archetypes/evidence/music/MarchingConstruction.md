@@ -1,21 +1,3 @@
-# src/music/MarchingConstruction.ts#MarchingConstruction
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the namespace builds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Code CAD over the builder's primitives from named dimensions.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two constructions and the estimates they read; read only by `createInstrument`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every size no source gives is a named estimate here.
-
 # src/music/MarchingConstruction.ts#MarchingConstruction.sideDrum
 
 ## @evidence contracts/development/common.md#meaningful-documentation

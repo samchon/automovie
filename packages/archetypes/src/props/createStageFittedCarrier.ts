@@ -30,14 +30,6 @@ const MASS: number = 0.25;
  * @param params A generated padded display model and optional carrier id.
  * @returns The carrier and its model-space contact frames, in metres.
  * @throws {AutoMovieArchetypeRefusal} If the display model or the proposed identity cannot be fitted.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the carrier axes, display dependency and four contact frames.
- * @evidence contracts/development/implementation.md#principled-implementation Derives a rectangular channel from the spherical cap and shaft of the digital producer. Separate boxes represent the channel walls and closed bottom.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the display envelope, build the hollow carrier, and place the mouth, opening, seated and wear frames.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No box closes the opening or overlaps the seated cap. The carried model keeps its own geometry and identity.
- * @evidence contracts/development/implementation.md#efficient-algorithms Reads three parts of a fixed-size model and builds five boxes and four contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the generated part dimensions rather than duplicating the padded display catalogue.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Does not keep the display model or any external resources.
  */
 export function createStageFittedCarrier(
   params: createStageFittedCarrier.IParams,
@@ -146,11 +138,6 @@ export function createStageFittedCarrier(
 
 /**
  * The padded display input and fitted carrier contacts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the separate padded display, carrier identity and distinct root and physical contact frames.
- * @evidence contracts/development/design.md#principled-representation Each named site is a model-local support or pose frame in metres. The producer validates the counterpart profile.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The counterpart provides the measured dimensions. The caller names two different display subjects. The lazy gallery reference supplies the real padded display through its public producer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Geometry is produced only for an admitted fit.
  */
 export namespace createStageFittedCarrier {
   /** The wear hook, the physical mouth and the two pose frames. */

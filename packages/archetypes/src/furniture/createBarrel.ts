@@ -44,14 +44,6 @@ const NAMES: Readonly<Record<createBarrel.Kind, string>> = {
  * @param seed The seed that draws a drum's model when it is not given and every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The barrel, empty.
  * @throws {AutoMovieArchetypeRefusal} For a model the drum maker does not list or one named for a keg, a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the barrel stands and where it is held.
- * @evidence contracts/development/implementation.md#principled-implementation One cylinder of the drawn diameter and height; the hands' places are the top rim's two ends of the `X` diameter, and the top's outline a polygon inscribed in the rim.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a drum's model, draw the dimensions with its height and mass over them, then one part and its three contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rolling hoops, bungs, spear or handholes: the rim stands for the gripped chime or skirt.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBarrel(
   params: createBarrel.IParams,
@@ -132,11 +124,6 @@ export function createBarrel(
 
 /**
  * Companion types and bands of {@link createBarrel}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The span between the two hands, the height they take the barrel at and its mass (#3468 N16).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass is the empty barrel's; a band read only in search results is provisional.
  */
 export namespace createBarrel {
   /** The kinds of barrel. */

@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineTeamPlan.ts#AutoMovieArchetypeEquineTeamPlan
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the hitch kinds, each horse's place, the course, the states and the sample.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Closed unions for the hitch kinds, roles and stages; metres, seconds and course legs for the inputs.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned beside `AutoMovieArchetypeEquineTeam`, its only producer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Trace and breeching states are authored looks by role and stage, not simulated forces.
-
 # src/animals/AutoMovieArchetypeEquineTeamPlan.ts#AutoMovieArchetypeEquineTeamPlan.Hitch
 
 ## @evidence contracts/development/common.md#meaningful-documentation

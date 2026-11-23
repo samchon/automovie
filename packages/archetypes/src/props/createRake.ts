@@ -22,13 +22,6 @@ const STAGED: string =
  * @param params Scene identity, the kind and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
  * @returns The tool with its contacts.
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the two kinds and the contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Coarse boxes and a rod sized by the drawn dimensions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, then build the head, the tines, the handle and the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rigid coarse parts; the tines are one box.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts and two contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createRake(
   params: createRake.IParams = {},
@@ -96,11 +89,6 @@ export function createRake(
 
 /**
  * Kinds, dimensions and contacts of {@link createRake}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the kinds, the contacts, the dimensions and their staged provenance.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms in provisional bands.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The face and the shaft a law reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is marked provisional.
  */
 export namespace createRake {
   /** A tined rake, or a bladed hoe. */

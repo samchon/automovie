@@ -1,21 +1,3 @@
-# src/animals/EquineExpressionPose.ts#EquineExpressionPose
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is re-posed, what is kept exactly and how carried parts and spans follow.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Channel values and the source's rest frames in, one re-posed sample out.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Called by `AutoMovieArchetypeEquineExpression` for each sample; FK, carrier deltas and span laying stay with their owners.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No limb, trunk or contact is moved by this layer.
-
 # src/animals/EquineExpressionPose.ts#EquineExpressionPose.IChannels
 
 ## @evidence contracts/development/common.md#meaningful-documentation

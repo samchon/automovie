@@ -29,14 +29,6 @@ const SIZE: Readonly<createEasel.ISize> = {
  *
  * @param params The optional scene id.
  * @returns The easel and its canvas surface, metres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, which way the canvas faces and its surface.
- * @evidence contracts/development/implementation.md#principled-implementation Two legs, a cross bar and a canvas slab, the canvas surface on its painted face.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Record the size, lay the legs and canvas, then the surface.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The canvas is upright, not raked. Every size is a named provisional estimate.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Four parts and one contact.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createEasel(
   params: createEasel.IParams = {},
@@ -102,11 +94,6 @@ export function createEasel(
 
 /**
  * The inputs, contact and size of {@link createEasel}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scene id input, the contact, the dimensions and the size.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The canvas surface a stroke reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The size is fixed; no dimension is authorable.
  */
 export namespace createEasel {
   /** The canvas' painted face. */

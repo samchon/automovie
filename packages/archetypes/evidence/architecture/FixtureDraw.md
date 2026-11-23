@@ -1,21 +1,3 @@
-# src/architecture/FixtureDraw.ts#FixtureDraw
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the saved measurement tables and shared installed-fixture draw.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each family keeps the units and draw key recorded in its saved recipes; its construction receives the same measured values.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Shares one draw and material setup for wall-backed appliances and bathroom fixtures and publishes each old unit table from one owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The selected producer supplies a fixed row and validates its own dimensions against the original bands.
-
 # src/architecture/FixtureDraw.ts#FixtureDraw.IContactWriter
 
 ## @evidence contracts/development/common.md#meaningful-documentation

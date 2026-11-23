@@ -17,14 +17,6 @@ import { createWashingMachine } from "./createWashingMachine";
  * @param seed The seed used by the selected producer under the original draw key.
  * @returns The selected fixture in its original frame.
  * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a rejected model or dimension.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the saved recipe and draw namespace.
- * @evidence contracts/development/implementation.md#principled-implementation Resolve the old kind, then let its canonical producer admit the original inputs.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One kind check and one dispatch.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass all arguments to the named producer so saved invalid inputs still raise their refusal.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The kind table is bounded.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both entry points run the exact same producer.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The dispatcher keeps no inputs or intermediate state.
  */
 export function createAppliance(
   params: createAppliance.IParams,
@@ -41,11 +33,6 @@ export function createAppliance(
 
 /**
  * Companion types, constants and bands of {@link createAppliance}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is.
- * @evidence contracts/development/design.md#principled-representation Closed unions; template ids close the numbered shelves, zones and knobs over any count; one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Retains the original recipe shape, measurement tables, and the stable producer for each saved kind.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A door and the handle it carries are two affordances, the handle riding the hinge, as a wardrobe's are.
  */
 export namespace createAppliance {
   /** The kinds of appliance. */

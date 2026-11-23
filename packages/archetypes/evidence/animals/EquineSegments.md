@@ -1,21 +1,3 @@
-# src/animals/EquineSegments.ts#EquineSegments
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the source, how the means were obtained, what each measure spans and what is not measured.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each breed's mean surface lengths in centimetres with its sample size, as the dataset reports them, and the bone fractions derived from them in the horse's own form.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The measures the equids read, and the one derivation every equid shares.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No fraction is guessed: a measured segment scales the horse's fraction by its breed's ratio to the Thoroughbred's, and an unmeasured one keeps the horse's, stated as provisional.
-
 # src/animals/EquineSegments.ts#EquineSegments.IBreed
 
 ## @evidence contracts/development/common.md#meaningful-documentation

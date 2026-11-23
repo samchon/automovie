@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquine.ts#AutoMovieArchetypeEquine
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the shared build, breed, tack, dimension and gait model once, with the frame and units.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Closed unions for tack, contact, dimension and seat and rein sizes, a profile record per equid, and one builder over them.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The members every equid producer reads; each producer keeps its own proportions, bands and params.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No producer copies the build or the tack: a new equid supplies a profile.
-
 # src/animals/AutoMovieArchetypeEquine.ts#AutoMovieArchetypeEquine.Tack
 
 ## @evidence contracts/development/common.md#meaningful-documentation

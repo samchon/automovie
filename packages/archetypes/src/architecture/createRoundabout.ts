@@ -31,14 +31,6 @@ const INBOARD: number = 0.1;
  * @param seed The seed for any unfixed dimension.
  * @returns The roundabout's base.
  * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the spindle and the separate disc.
- * @evidence contracts/development/implementation.md#principled-implementation A spindle under the disc's platform height and a ground contact.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the spindle.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every size is a provisional construction estimate, marked on its band.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after returning the model.
  */
 export function createRoundabout(
   params: createRoundabout.IParams = {},
@@ -82,11 +74,6 @@ export function createRoundabout(
 
 /**
  * The roundabout's dimensions and its rotating disc.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives each dimension's unit and source and the disc model's frame and contacts.
- * @evidence contracts/development/design.md#principled-representation Lengths in metres and mass in kilograms, each with its band.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer, `rideRoundabout` and the playground test read these members.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The disc is rigid and turns only about the spindle.
  */
 export namespace createRoundabout {
   /** The ground around the roundabout. */

@@ -28,14 +28,6 @@ const ESTIMATES: Readonly<{ leg: number; shell: number }> = {
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The chair.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the chair stands, its contact, and what is left out with the missing law.
- * @evidence contracts/development/implementation.md#principled-implementation The maker's footprint, height, seat height and seat size; each leg a rod from a footprint corner to the matching seat corner.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the legs, the seat and back, then the contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tray or harness; the legs' and shell's sections are construction estimates.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Six parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createHighChair(
   params: createHighChair.IParams = {},
@@ -113,11 +105,6 @@ export function createHighChair(
 
 /**
  * Companion types and bands of {@link createHighChair}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The seat a child sits on (#3468 N13).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass, which the page does not give, is provisional.
  */
 export namespace createHighChair {
   /** The affordance id: `seat`, the seat, facing `+Z`. */

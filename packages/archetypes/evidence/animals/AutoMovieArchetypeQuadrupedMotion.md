@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeQuadrupedMotion.ts#AutoMovieArchetypeQuadrupedMotion
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it gives and from what.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A swing's share along and up as functions of its normalised time, and the head's pitch as a function of the stride's phase.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two profiles `rideQuadruped` poses with, kept apart so the ride stays readable.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The path between targets is the engine's minimum-jerk owner's, not a curve of this module's own.
-
 # src/animals/AutoMovieArchetypeQuadrupedMotion.ts#AutoMovieArchetypeQuadrupedMotion.swing
 
 ## @evidence contracts/development/common.md#meaningful-documentation

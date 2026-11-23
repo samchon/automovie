@@ -37,14 +37,6 @@ const SASH: Readonly<{ rail: number; depth: number; pane: number }> = {
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The window.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or a nonpositive or non-finite fracture calibration.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the window's plane, which side the room is on and what moves.
- * @evidence contracts/development/implementation.md#principled-implementation A wall panel below the sill, two jambs and a head surround two full-height stiles and two rails between them, with a nonoverlapping pane in their clear opening. Named authored rail width, sash depth and pane thickness determine those solids. A casement's downward hinge axis on `+X` swings it toward `-Z`; sliders run up or toward `-X`. The parent articulation binds all sash geometry, and fracture retains its surviving rails and handle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the surround and the sash, place the handle, then the articulation and the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One sash, no glazing bars or fixed sliding half. Rail construction and equal-density volume-based mass allocation are authored approximations. The pane leaves whole, without an invented shard pattern. No bag-impact reference or universal glass threshold is substituted for the author's specimen calibration.
- * @evidence contracts/development/implementation.md#efficient-algorithms Ten primitive parts and four affordances; work and storage are constant per window.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createWindow(
   params: createWindow.IParams,
@@ -239,11 +231,6 @@ export function createWindow(
 
 /**
  * Companion types and bands of {@link createWindow}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The sill a body leans on or climbs, the handle's height and the sash's travel (#3371).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts `sash` is a hinge on one kind and a slider on the others, the articulation each really has, under one id an opening act names. A hung sash's handle sits on its bottom rail, so its height follows the sill and that kind declares no `handleHeight` it would not use; sill plus rail stays inside the cited reach range.
  */
 export namespace createWindow {
   /** Historical bag-impact reference, joules: 25 ft-lbf was the first drop breaking through two of five new annealed panes in Meshulam's IIBEC 2019 test (https://iibec.org/publication-post/on-the-weakening-of-weathered-window-glass-and-its-effect-on-human-impact-resistance-two-fatality-case-studies/). It is neither a universal glass threshold nor a sash-release measurement, and is never applied automatically; `fractureEnergy` is an independent authored calibration. */

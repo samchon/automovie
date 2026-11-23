@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineLunge.ts#AutoMovieArchetypeEquineLunge
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each rein's course, the speeds, the lean, the halt, the turns and the refusals.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A centre, a radius, a starting bearing and the reins with their works, in metres, seconds and degrees.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The plan and its line; the gaits, lean and turns are the ride's and the stance's.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The least radius is the gait's own speed bound; no circle is admitted by a table.
-
 # src/animals/AutoMovieArchetypeEquineLunge.ts#AutoMovieArchetypeEquineLunge.IPoint
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -37,14 +37,6 @@ const STANCE: number = 0.02;
  * @param seed The seed that draws the length when it is not given and every dimension left free inside its band; absent, the first length and the middle of each band.
  * @returns The ski.
  * @throws {AutoMovieArchetypeRefusal} For a length LINE does not list or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the ski lies, its outline, boot anchor and lower contact readings.
- * @evidence contracts/development/implementation.md#principled-implementation LINE's widths and one of its lengths whole, with the stance behind the centre by its 20 mm, Rossignol's patented thickness range for the middle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the length, draw the dimensions, the two halves, then the contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each half is a box at its two ends' mean width; no sidecut curve, rocker, camber or binding.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createSki(
   params: createSki.IParams = {},
@@ -126,11 +118,6 @@ export function createSki(
 
 /**
  * Companion types and bands of {@link createSki}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation LINE's lengths picked whole, one cited band per remaining dimension; the shape's widths and the stance are the maker's constants.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The place the boot stands (#3468 N11).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The thickness is a patent's claimed range, not one model's, and says so.
  */
 export namespace createSki {
   /** The boot stance, lower contact strip and its left and right boundaries near the stance. */

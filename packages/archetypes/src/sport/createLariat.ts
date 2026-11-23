@@ -20,14 +20,6 @@ import {
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The lariat.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it lies, what is rigid and its four contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The loop as `SEGMENTS` rods round a circle, the hondo a short rod, the spoke one rod and the tail `TURNS` circles of `SEGMENTS` rods; the rope's diameter the drawn one; the coils hold what of the length the loop and spoke do not.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, the loop, the hondo, the spoke, the coils, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The rope is rigid; the coil's radius and the hondo's size are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms A few dozen rods.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createLariat(
   params: createLariat.IParams = {},
@@ -159,11 +151,6 @@ export function createLariat(
 
 /**
  * Companion types, constants and bands of {@link createLariat}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension; every figure no source read gives is provisional and says so.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two hands' holds, the hondo and the loop an act reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The segment count, the hondo's length and the coil's radius are named estimates.
  */
 export namespace createLariat {
   /** Rods a circle of rope is drawn with. */

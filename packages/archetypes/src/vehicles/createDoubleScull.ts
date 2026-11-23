@@ -54,13 +54,6 @@ type Build = AutoMovieArchetypeBuilder<
  * @param params Optional scene identity and fixed figures within the stated dimensions.
  * @param seed Provenance seed. The reference figures themselves are fixed.
  * @returns Open racing hull, two sliding seats, four footplates and four sculls.
- * @evidence contracts/development/common.md#meaningful-documentation States the model axes, waterline, moving parts, estimates and measurement sources.
- * @evidence contracts/development/implementation.md#principled-implementation The open thin hull uses lofted wall cells, both seat frames ride their modeled sliders and each oar uses two colocal articulated pivots.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the shell once, then repeat the station geometry twice with different origins and ids.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The cockpit is open and the seats, stretcher faces and blade tips come from the drawn parts.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of short hull cells and station parts are prepared per model.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One cross-section family spans the hull and both stations share one rigging construction.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned builder product owns its model buffers without retaining scene or caller data.
  */
 export function createDoubleScull(
   params: createDoubleScull.IParams = {},
@@ -328,11 +321,6 @@ function scull(
 
 /**
  * Fixed reference hull measurements and station contact ids.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Declares the units, read sources and each composed contact name.
- * @evidence contracts/development/design.md#principled-representation Uses two closed station ids for the corresponding model parts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only exposes the overrides and contacts the staged crew consumes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries measured figures with their provenance and labels the assembled mass calculation.
  */
 export namespace createDoubleScull {
   /** Forward station and rear station. */

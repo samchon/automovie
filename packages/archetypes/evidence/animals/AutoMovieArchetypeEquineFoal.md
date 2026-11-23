@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineFoal.ts#AutoMovieArchetypeEquineFoal
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States how following, suckling and the foaling are staged and what is authored.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Rides in, rides and cues out on one clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Three entries and the udder reader.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The rests and the reach are the shared ones.
-
 # src/animals/AutoMovieArchetypeEquineFoal.ts#AutoMovieArchetypeEquineFoal.IFollow
 
 ## @evidence contracts/development/common.md#meaningful-documentation

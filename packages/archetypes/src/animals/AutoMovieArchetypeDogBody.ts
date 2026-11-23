@@ -20,14 +20,6 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
  *
  * @param cohort The complete measured cohort, never a blend of its traits.
  * @returns Its coarse control proportions; no anatomical or visual validation is claimed.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Separates measured landmarks from the explicitly constructed control rig.
- * @evidence contracts/development/implementation.md#principled-implementation Convert centimetres to height fractions and solve the initial hind triangle by the cosine rule. The shared body owner then connects any detached provisional root to its unchanged torso solid, preserving all four lengths, terminal endpoint and distal carriage.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the cohort, form limb lengths and standing directions, then return one profile.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Surface measurements are not asserted to be true bone lengths; no horse segment mass or hoof material is copied.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant-size arithmetic.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure profile construction.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function AutoMovieArchetypeDogBody(
   cohort: AutoMovieArchetypeDogBody.Cohort,
@@ -80,11 +72,6 @@ export function AutoMovieArchetypeDogBody(
 
 /**
  * The measured Husky cohorts and their surface landmarks in centimetres.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the source, units and whole-cohort interpretation.
- * @evidence contracts/development/design.md#principled-representation The source's Pet, Show and Sled columns are retained whole.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies createDog's draw and the shared rig, not a second skeleton representation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts These population means are not claimed to be a measured individual or independent sampling bands.
  */
 export namespace AutoMovieArchetypeDogBody {
   /** Huson et al.'s three usage cohorts, not separate breeds. */

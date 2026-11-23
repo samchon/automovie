@@ -23,14 +23,6 @@ const LURE: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
  * @returns The lure.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, how it lies and its contact.
- * @evidence contracts/development/implementation.md#principled-implementation One block of the drawn length and mass with the eye at its front.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, build the body, the contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The blade and hooks are drawn as one body, marked provisional.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createLure(
   params: createLure.IParams = {},
@@ -77,11 +69,6 @@ export function createLure(
 
 /**
  * Companion types, constants and bands of {@link createLure}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each dimension and contact states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed contact union and sourced bands.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the producer and its callers read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The bands are the catalogue's, the block shape provisional.
  */
 export namespace createLure {
   /** The contact: the eye the line ties to. */

@@ -30,13 +30,6 @@ type Build = AutoMovieArchetypeBuilder<
  * @param params Optional scene identity and fixed aperture overrides.
  * @param seed Provenance seed. The reference dimensions are fixed.
  * @returns A floating frame, open scoring aperture and visible net pocket.
- * @evidence contracts/development/common.md#meaningful-documentation Defines the score plane, physical opening and specified regulation.
- * @evidence contracts/development/implementation.md#principled-implementation Visible rectangular posts surround a 3 by 0.90 metre opening and a thin top, side and rear net pocket set behind the score plane.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the dimensions, put the posts and floats outside the mouth, then create the pocket and mouth frame.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The mouth stays open from the front. The depth is the cleared space behind the score line.
- * @evidence contracts/development/implementation.md#efficient-algorithms The net uses a fixed coarse lattice with about sixty rigid strands.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fore and aft frame and net coordinates share the drawn dimensions.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources All geometry belongs to the returned model.
  */
 export function createWaterPoloGoal(
   params: createWaterPoloGoal.IParams = {},
@@ -165,11 +158,6 @@ function net(
 
 /**
  * The aperture and net dimensions for one deep-water reference field.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the mouth, its fixed dimensions, and the staged assembly mass.
- * @evidence contracts/development/design.md#principled-representation The dimensions represent physical inside-to-inside distances and depth behind the front plane.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The single mouth frame is the open-scoring volume consumed by shot resolution.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The regulation dimensions and staging estimate preserve their own provenance.
  */
 export namespace createWaterPoloGoal {
   /** Goal opening at the front face. */

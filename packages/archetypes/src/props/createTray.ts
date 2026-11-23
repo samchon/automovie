@@ -24,14 +24,6 @@ type Producer = (
  * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
  * @returns The original generated model and its local contacts.
  * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Replay a saved tray variant with the original dimensions, identifier and model choices.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the tray draw namespace.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createTray(
   params: createTray.IParams,
@@ -51,11 +43,6 @@ export function createTray(
 
 /**
  * Companion types, constants and bands of {@link createTray}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the two carriers and one band per dimension each.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The floor things are set on and the holds it is carried by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read; their weights are not given, so the mass bands are provisional; the wall's and the handle's sizes are named estimates.
  */
 export namespace createTray {
   /** Each saved selector's named producer. */

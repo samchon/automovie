@@ -19,14 +19,6 @@ import {
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The kerb or step.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how it stands, which side is approached and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation One box of the drawn length along `X`, depth along `Z` and height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A kerb's top is level and square, with no batter or bullnose.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createKerb(
   params: createKerb.IParams,
@@ -89,11 +81,6 @@ export function createKerb(
 
 /**
  * Companion types and bands of {@link createKerb}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation A closed union of the two and one band per dimension each; the height is the one a stepping act reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The top a foot lands on and the edge it clears.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The kerb's unit and upstand and the step's riser and tread are the sources as read, a code's limit where it gives one; a step's width and mass are given by none, so they are provisional.
  */
 export namespace createKerb {
   /** The kinds: a road kerb unit and a single free-standing step. */

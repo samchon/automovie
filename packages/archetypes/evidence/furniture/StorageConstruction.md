@@ -1,21 +1,3 @@
-# src/furniture/StorageConstruction.ts#StorageConstruction
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is built and the shared frame.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Code CAD over the builder's primitives from named dimensions; doors and drawers are parts on their articulations.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The constructions, the drawer cabinets' make-up and the estimates they read; read only by `createStorage`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A slider's `+X` is its travel and a grip's `+X` is the bar the hand wraps, which differ on a drawer, so the slide and the pull are two affordances; a pull no source places is left out rather than placed by guess.
-
 # src/furniture/StorageConstruction.ts#StorageConstruction.faces
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -27,13 +27,6 @@ const STEEL: string = "#9aa1a6";
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
  * @returns The bay with its bar-top surface.
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the racking arrangement and the authored height.
- * @evidence contracts/development/implementation.md#principled-implementation A rod bar between two A-frame ends, each end two rods from the ground to the bar.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the bar, the ends and the surface.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bar top is the drawn height; no bicycle geometry is read.
- * @evidence contracts/development/implementation.md#efficient-algorithms Five rods and one affordance.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createTransitionRack(
   params: createTransitionRack.IParams = {},
@@ -95,11 +88,6 @@ export function createTransitionRack(
 
 /**
  * Dimensions and the bar contact of {@link createTransitionRack}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the bar contact, the dimensions and their staged provenance.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms in bands; one surface on the bar top.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bar top a racked saddle rests on, read by a staged triathlon take.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is marked provisional.
  */
 export namespace createTransitionRack {
   /** The bar's top, where a saddle nose rests. */

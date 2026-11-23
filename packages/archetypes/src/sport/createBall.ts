@@ -11,14 +11,6 @@ import { createSphericalBall } from "./createSphericalBall";
  * @param seed The seed used by the selected producer.
  * @returns The original model and its contacts.
  * @throws {AutoMovieArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the saved input and selected model.
- * @evidence contracts/development/implementation.md#principled-implementation Admit the saved kind and use its producer's bands and original seed domain.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the kind and call the corresponding public producer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The selected producer still validates the original dimensions and choices.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed kind table selects the producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls use the same construction.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
  */
 export function createBall(
   params: createBall.IParams,
@@ -42,11 +34,6 @@ export function createBall(
 
 /**
  * Companion types, constants and bands of {@link createBall}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the games and one band per dimension per kind, each a rule's limits; a rule's circumference becomes a diameter by dividing by pi.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The size and mass a kick, a throw or a catch reads, and the two contacts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Only the oval balls and the puck have a length; each band uses its rule or identified estimate.
  */
 export namespace createBall {
   /** The kinds of ball. */

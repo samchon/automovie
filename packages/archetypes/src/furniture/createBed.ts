@@ -25,14 +25,6 @@ type Producer = (
  * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
  * @returns The original generated model and its local contacts.
  * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Replay a saved bed variant with the original dimensions, identifier and model choices.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the bed draw namespace.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createBed(
   params: createBed.IParams,
@@ -52,11 +44,6 @@ export function createBed(
 
 /**
  * Companion types and bands of {@link createBed}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The surface a body lies on, the height it rises from, and the rails, upper bed and guardrail the care and children's beds add (#3370, #3363, #3468 N5, N13, N16).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A mattress on the floor has no height of its own: its surface is its thickness.
  */
 export namespace createBed {
   /** Each saved selector's named producer. */

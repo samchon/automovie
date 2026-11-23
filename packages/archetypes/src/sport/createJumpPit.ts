@@ -22,14 +22,6 @@ const RULES: string =
  * @param seed The seed that draws each figure left free inside its band; absent, the middle of each band.
  * @returns The jump pit.
  * @throws {AutoMovieArchetypeRefusal} For a fixed figure outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the layout, the frame and both contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Two boxes sunk below the runway so their tops lie at 0, sized by the rules' figures, and two upright surface contacts at their tops' centres.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the figures, the board, then the sand.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No plasticine indicator and no runway surface; the sand's depth and the mass are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createJumpPit(
   params: createJumpPit.IParams = {},
@@ -95,11 +87,6 @@ export function createJumpPit(
 
 /**
  * Companion types, constants and bands of {@link createJumpPit}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per figure the rules bound, in metres, and the depths and mass as named estimates.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The board and the sand, the two contacts a long jump reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rule bands are the rules' own; only the sand's depth and the mass are estimates.
  */
 export namespace createJumpPit {
   /** The board's depth below its top, metres: TR29.2's 0.10 m. */

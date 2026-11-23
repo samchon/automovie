@@ -1,21 +1,3 @@
-# src/vehicles/CartCoach.ts#CartCoach
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it builds and where the axles stand.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One running gear for both: a rear pair, a front pair on a two-sided `wheel` articulation, and the pole on it; each body on that gear.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two builders `createCart` calls for its four-wheeled kinds.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The running gear is one helper, not a copy per kind.
-
 # src/vehicles/CartCoach.ts#CartCoach.wagon
 
 ## @evidence contracts/development/common.md#meaningful-documentation

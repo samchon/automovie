@@ -39,14 +39,6 @@ const MASS: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
  * @returns The crutch.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, how it stands, its three contacts and the fitting rule.
- * @evidence contracts/development/implementation.md#principled-implementation The length is the maker's adjustable range; the handgrip's height follows the clinical fitting rule as a share of the length.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the shaft, the handgrip and the pad, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The twin side rails are drawn as one shaft; the tube, pad and mass are marked provisional.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createAxillaryCrutch(
   params: createAxillaryCrutch.IParams = {},
@@ -139,11 +131,6 @@ export function createAxillaryCrutch(
 
 /**
  * Companion types, constants and bands of {@link createAxillaryCrutch}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each dimension, contact and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed contact union and sourced bands, one per dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the producer and its callers read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The length is the maker's; the handgrip's share follows the fitting rule; the pad, tube and mass are provisional.
  */
 export namespace createAxillaryCrutch {
   /** The contacts: the handgrip, the floor tip and the underarm pad's top. */

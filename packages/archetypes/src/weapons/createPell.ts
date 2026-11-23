@@ -18,14 +18,6 @@ import {
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The pell.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where the post stands, what the target is and how a height on it is named.
- * @evidence contracts/development/implementation.md#principled-implementation One wooden cylinder of the drawn height and thickness under the drawn mass.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The post is not set in the ground: a strike's reaction is the striking act's to stage, and the model carries the post's own mass only.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createPell(
   params: createPell.IParams = {},
@@ -77,11 +69,6 @@ export function createPell(
 
 /**
  * Companion types and bands of {@link createPell}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source or that it is an estimate.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one band per dimension, in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The face a drill aims at and the post's size (#3202's pell as a strike target).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is provisional and says which reading it lacks.
  */
 export namespace createPell {
   /**

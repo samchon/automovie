@@ -1,21 +1,3 @@
-# src/animals/AutoMovieArchetypeEquineGaitedProfile.ts#AutoMovieArchetypeEquineGaitedProfile
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names each gait, its breed and the source of each clock.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each gait is a species gait row set with its own phases, read by the shared ride as any gait.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Supplies one table per breed; the ordinary horse keeps its four gaits.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Only a declared breed admits its gait, which is explicit-only: the speed never chooses it and no other gait stands in for it.
-
 # src/animals/AutoMovieArchetypeEquineGaitedProfile.ts#AutoMovieArchetypeEquineGaitedProfile.Breed
 
 ## @evidence contracts/development/common.md#meaningful-documentation

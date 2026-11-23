@@ -1,21 +1,3 @@
-# src/animals/EquineCampOut.ts#EquineCampOut
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States why the hindquarters lower, the closed-form angle, the stepping and what is authored.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A stance plan.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `EquineComfortRows.plan` for the camp row.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No search: the pitch is closed form; reach is still admitted by the stance.
-
 # src/animals/EquineCampOut.ts#EquineCampOut.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

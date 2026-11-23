@@ -84,14 +84,6 @@ const ESTIMATES: Readonly<{ lid: number; bar: number }> = {
  * @param seed The seed that draws the model when it is not given; absent, the kind's first.
  * @returns The container.
  * @throws {AutoMovieArchetypeRefusal} For a model the kind's maker does not list.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands, how its model is chosen, its contacts and why its lid does not open.
- * @evidence contracts/development/implementation.md#principled-implementation One read model whole, every size and the mass as its maker gives them; the handle where the total depth passes the body.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, then build the body, lid and the kind's extra parts, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No container between the two read is made; a bin's taper and a dumpster's sloped front and lid are boxes; the lid's and handle's sections are construction estimates.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most five parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBin(
   params: createBin.IParams,
@@ -232,11 +224,6 @@ export function createBin(
 
 /**
  * Companion types and constants of {@link createBin}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, model and affordance states what it is; each model its source.
- * @evidence contracts/development/design.md#principled-representation A closed union of the models read, each built whole, listed by kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The handle a bin is hauled by, the lid it is opened at and the face it is pushed at (#3468 N2).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A lid with no source for its opening states no travel.
  */
 export namespace createBin {
   /** The kinds of container. */

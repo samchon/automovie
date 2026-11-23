@@ -24,14 +24,6 @@ const SAUCER: string =
  * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The plate.
  * @throws {AutoMovieArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the plate lies, that its well is not drawn, and its four contacts.
- * @evidence contracts/development/implementation.md#principled-implementation One slab of the read diameter or length and width and the read height, round as a disc or oblong as a box; every contact is on that slab's own faces and edges, and the stacking outline is a regular polygon on the plate's circle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part, four contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No foot, well or rim lip is drawn, since no page read sizes them; the pinch is therefore the plate's whole height.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part and an outline of a fixed number of points.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createTableware(
   params: createTableware.IParams,
@@ -144,11 +136,6 @@ export function createTableware(
 
 /**
  * Companion types, constants and bands of {@link createTableware}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the round plate, the platter and the saucer, a round one drawn by its diameter and the platter by its length and width, each read model whole, and one cited band per dimension for the saucer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The face food and other plates rest on, the edge a hand pinches and the underside two hands carry from (#3501); a bowl is `createVessel`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every plate has the same four contacts, so serving, clearing and stacking are written once; each model is one read plate whole, never a size between two, its mass its page's packed weight.
  */
 export namespace createTableware {
   /** The kinds: a round plate, from a side plate to a dinner plate, an oblong serving platter and a cup's saucer. */

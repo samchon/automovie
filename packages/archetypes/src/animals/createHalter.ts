@@ -28,14 +28,6 @@ const MASS: number = 0.4;
  * @param head The head it is fitted to: the head capsule's length from poll to nose and its radius, metres.
  * @param params The model's id.
  * @returns The halter.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the straps, the fit, the two contacts and which values are authored.
- * @evidence contracts/development/implementation.md#principled-implementation Two square loops of half-side the head radius plus half a strap's thickness, in the planes across the head at the poll and at the noseband, joined by a cheek strap each side.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the head, lay ten straps, declare two contacts, build.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Strap size, noseband place and mass are named authored values; a nonpositive head refuses.
- * @evidence contracts/development/implementation.md#efficient-algorithms Ten parts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shared builder.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createHalter(
   head: createHalter.IHead,
@@ -108,11 +100,6 @@ export function createHalter(
 
 /**
  * Companion types of {@link createHalter}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each type states what it is and its units.
- * @evidence contracts/development/design.md#principled-representation The head a halter fits, in metres, and its contacts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the producer and a scene read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace createHalter {
   /** The contacts: `grip`, the crown's top a hand carries it by; `seat`, the halter's own head frame, laid on the horse's `headgear`. */

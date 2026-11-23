@@ -37,14 +37,6 @@ const ESTIMATES: Readonly<{ run: number; tape: number }> = {
  * @param seed The seed that draws a strap's model when it is not given and every dimension left free inside its band; absent, the first strap and the middle of each band.
  * @returns The handhold.
  * @throws {AutoMovieArchetypeRefusal} For a strap HAPPICH does not list or one named for a pole, a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each kind's place, its contacts and its static use with the missing law.
- * @evidence contracts/development/implementation.md#principled-implementation The federal rule's handrail diameter, the bus specification's overhead height, one of HAPPICH's straps whole, its length and its mass with its clamping piece, and its loop.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a strap's model, draw the dimensions, then the pole, or the rail and the strap, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The strap is one straight tape to its loop's foot; the rail's run and the tape's section are construction estimates.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createHandhold(
   params: createHandhold.IParams,
@@ -156,11 +148,6 @@ export function createHandhold(
 
 /**
  * Companion types and bands of {@link createHandhold}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions, HAPPICH's straps among them, and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The pole, rail and strap a standing hand holds (#3468 N7).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Where a source gives only a least height, the band is that least and says so.
  */
 export namespace createHandhold {
   /** The kinds of handhold. */

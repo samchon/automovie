@@ -24,14 +24,6 @@ const NORMS: string =
  * @param seed Draws unspecified dimensions within their bands; absent selects their midpoints.
  * @returns The framed apparatus with two independently posed suspensions.
  * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the floor frame, the separate grips and the swing axes.
- * @evidence contracts/development/implementation.md#principled-implementation Identical convex sections rotated around the ring centres share the visible and physical boundary with an open middle. The hangers and contacts share their own attachment transforms.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw dimensions, build the fixed frame, then place the two suspensions from the same ring section.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Fore-aft travel is authored. The coarse frame and faceted ring use measured contact geometry, with no collider spanning the open centre.
- * @evidence contracts/development/implementation.md#efficient-algorithms Prepares one small convex hull and places a fixed number of rigid instances.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both rings and all their sections share a prepared cell. The common articulation owner turns each suspension and its grip.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Construction retains no external resources.
  */
 export function createStillRings(
   params: createStillRings.IParams = {},
@@ -178,11 +170,6 @@ export function createStillRings(
 
 /**
  * Companion dimensions and independently posed contacts of {@link createStillRings}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the pivot, grip, and dimension origins.
- * @evidence contracts/development/design.md#principled-representation Supply measured dimensions and one pivot and grip per suspension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface No new articulation or prop contact type.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Grips lie on the lower ring wall and travel with their colliders.
  */
 export namespace createStillRings {
   /** One grip and the fore-aft pivot that carries it on each side. */

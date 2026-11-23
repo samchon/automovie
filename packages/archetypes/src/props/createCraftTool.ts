@@ -36,14 +36,6 @@ const KINDS: Readonly<Record<createCraftTool.Kind, createCraftTool.ISize>> = {
  * @param params The kind and the optional scene id.
  * @returns The tool and its contacts, metres.
  * @throws {AutoMovieArchetypeRefusal} For a kind outside the set.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the kinds, the frame and each contact.
- * @evidence contracts/development/implementation.md#principled-implementation One rod of the kind's length and radius, the grip a third back from the middle of its held span and the tip at its end.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Check the kind, record the dimensions, lay the rod, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every size is a named provisional estimate.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part and at most three contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no inputs.
  */
 export function createCraftTool(
   params: createCraftTool.IParams,
@@ -114,11 +106,6 @@ export function createCraftTool(
 
 /**
  * The inputs, contacts and sizes of {@link createCraftTool}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the kinds, the contacts, the dimensions and the size.
- * @evidence contracts/development/design.md#principled-representation A closed kind union; metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip, the tip and a knitting needle's stitch an act reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The kind fixes the size; no dimension is authorable.
  */
 export namespace createCraftTool {
   /** The four tools. */

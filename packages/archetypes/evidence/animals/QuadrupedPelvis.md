@@ -1,21 +1,3 @@
-# src/animals/QuadrupedPelvis.ts#QuadrupedPelvis
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the bar, its joint, the provisional lever, its rest and the joint bound and turn.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A turn about the model X axis through the lumbosacral joint moves each hip on an arc, the shoulder blade's arc (`QuadrupedScapula.glenoid`), shared by both hips.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns the pelvis's range, the hinds' joint root bound and the shared turn; the root interval and the ride pose read them.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No detached hip or stretched bone; the pelvis turns rigidly within the cited range.
-
 # src/animals/QuadrupedPelvis.ts#QuadrupedPelvis.IHip
 
 ## @evidence contracts/development/common.md#meaningful-documentation

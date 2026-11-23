@@ -1,21 +1,3 @@
-# src/animals/EquineStanceRows.ts#EquineStanceRows
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the share convention, the weight transfer before each release and the continuity at release.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A start state, an end state and a pose as a function of share.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `AutoMovieArchetypeEquineStance`; each response is one row.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every amplitude is a named authored value.
-
 # src/animals/EquineStanceRows.ts#EquineStanceRows.IState
 
 ## @evidence contracts/development/common.md#meaningful-documentation

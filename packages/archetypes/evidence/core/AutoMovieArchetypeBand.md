@@ -1,19 +1,3 @@
-# src/core/AutoMovieArchetypeBand.ts#AutoMovieArchetypeBand
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what a call records.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A constructor for `IAutoMovieArchetypeBand` that keeps the citation beside the numbers at the place they are written.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `of`, its shorthand in metres, and the one source text many producers share.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No default source: a band without a citation cannot be written.
-
 # src/core/AutoMovieArchetypeBand.ts#AutoMovieArchetypeBand.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

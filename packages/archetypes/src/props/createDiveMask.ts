@@ -19,13 +19,6 @@ const STAGED: string =
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
  * @returns The item with its contacts.
- * @evidence contracts/development/common.md#meaningful-documentation States the frame and the contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Coarse boxes, rods and balls sized by the drawn dimensions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, then build the parts and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rigid coarse parts; straps and hoses are not modelled.
- * @evidence contracts/development/implementation.md#efficient-algorithms A few parts and contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createDiveMask(
   params: createDiveMask.IParams = {},
@@ -78,11 +71,6 @@ export function createDiveMask(
 
 /**
  * Dimensions and the socket of {@link createDiveMask}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the contacts, the dimensions and their staged provenance.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms in provisional bands.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The wear socket and points a scene or law reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is marked provisional.
  */
 export namespace createDiveMask {
   /** The skirt's seat on the face, and the nose pocket. */

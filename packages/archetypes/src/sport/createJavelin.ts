@@ -23,14 +23,6 @@ const RULE: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The javelin.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the javelin stands and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A shaft of the drawn length and diameter in two lengths meeting at the drawn centre of gravity's distance from the point, their mass shares the ones that put the whole's centre of mass there, as the rule places it, and a cord rod a few millimetres thicker, as wide as the rule's cord, centred on it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the shaft's two lengths, the cord, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shaft is a cylinder, not tapered to the point and the tail, its mass shared between its two lengths only to place the rule's balance; the cord's thickness is a named estimate and its mass, unread, is not counted.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createJavelin(
   params: createJavelin.IParams,
@@ -116,11 +108,6 @@ export function createJavelin(
 
 /**
  * Companion types, constants and bands of {@link createJavelin}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation The two senior categories and one band per dimension each, the rule's limits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The cord a hand takes and the point a throw leads with.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is the rule as read; where the rule gives only a minimum mass or a maximum length, the model takes that limit; the cord's thickness is a named estimate.
  */
 export namespace createJavelin {
   /** The categories. */

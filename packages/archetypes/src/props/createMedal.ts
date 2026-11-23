@@ -30,14 +30,6 @@ const RIBBON: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
  * @returns The medal.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, how it hangs and its contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A ribbon of the drawn hang and a disc of the drawn diameter and mass, with the hand's hold and the worn face.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, build the ribbon and the disc, the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ribbon is one rigid strip, marked provisional.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createMedal(
   params: createMedal.IParams = {},
@@ -105,11 +97,6 @@ export function createMedal(
 
 /**
  * Companion types, constants and bands of {@link createMedal}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each dimension and contact states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed contact union and sourced bands.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the producer and its callers read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The bands are the organisers' figures; the ribbon's hang is provisional.
  */
 export namespace createMedal {
   /** The contacts: the ribbon's top a hand takes, and the disc's worn back. */

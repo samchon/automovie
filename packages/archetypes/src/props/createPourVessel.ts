@@ -73,14 +73,6 @@ const SIDES: number = 16;
  * @param seed Draws remaining dimensions. Omit it to use the band midpoints.
  * @returns The model and its three rigid contact sites.
  * @throws {AutoMovieArchetypeRefusal} For an unknown kind or out-of-band fixed dimension.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies both catalogue variants, the open dimensions and units, and each vessel's rest frame and contact sites.
- * @evidence contracts/development/implementation.md#principled-implementation Two polygonal sections on the same radial planes bound per-sector convex wall cells. Their same ring locates the lip and closes against a solid floor. Three rods form the handle and share its bar axis with the hook affordance.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build floor and wall cells, then add the handle and rim contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Physical and visible walls share one bounded solid per sector. The opening and handle clearance remain free of enclosing hulls.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed sixteen wall cells of eight corners, one floor of thirty-two corners and three handle rods per model.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call admits one independently dimensioned vessel.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder returns only the in-memory vessel data and acquires no external resource.
  */
 export function createPourVessel(
   params: createPourVessel.IParams,
@@ -241,11 +233,6 @@ function section(
 
 /**
  * Authoring types for the two rigid serving vessels.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the supported kinds and optional fixed inputs.
- * @evidence contracts/development/design.md#principled-representation Two closed silhouettes use the same physical units and static contact vocabulary.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies only the kind and input record of the producer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Dimensions describe empty props and leave authored liquid state with the pour action.
  */
 export namespace createPourVessel {
   /** The serving vessel variants admitted by the factory and listed in the catalogue. */

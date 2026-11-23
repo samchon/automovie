@@ -27,14 +27,6 @@ const TRIANGLE: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The machine.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the machine's origin and front and where the rider's seat, hands and feet go.
- * @evidence contracts/development/implementation.md#principled-implementation Two wheels a wheelbase apart, a body box, a seat slab at the drawn seat height and a handlebar the drawn width across; a scooter's body stands under its seat only, with a front shield under the handlebar and the floorboard between the two, the step-through that tells it from a motorcycle; the foot contacts are `pedal` plates without travel, the kind a foot rests on.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the read machine whole (`MODELS`), draw the dimensions no maker states, the wheels and the body by kind, then the seat, the bar and the foot contacts, a scooter's with its shield.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No engine, tank or controls; the front wheel does not steer, since a single-track vehicle turns by its lean.
- * @evidence contracts/development/implementation.md#efficient-algorithms Eight parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createMotorcycle(
   params: createMotorcycle.IParams,
@@ -222,11 +214,6 @@ export function createMotorcycle(
 
 /**
  * Companion types and bands of {@link createMotorcycle}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions, each kind's read machines whole, and a cited band for each dimension no maker states.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rider's three contacts and their places (#3372): the seat's height, the bar's width, the foot rests.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A scooter has a floorboard and a motorcycle has pegs; neither declares the other's.
  */
 export namespace createMotorcycle {
   /** The kinds of machine. */

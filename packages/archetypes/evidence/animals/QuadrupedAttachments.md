@@ -1,21 +1,3 @@
-# src/animals/QuadrupedAttachments.ts#QuadrupedAttachments
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes explicit neutral construction from motion: the former connects an authored control rig to its torso capsules, while the latter only reads and admits fixed source attachments.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Parent capsules have their axis/radius, and an attachment carries both model and primitive-centre parent coordinates. Neutral construction preserves four bar lengths, foot X/Z and distal carriage while placing the terminal cylinder's sole at ground Y=0.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieArchetypeQuadrupedBody uses the shared capsule definitions and neutral construction; AutoMovieArchetypeQuadrupedJoints uses the part attachment admission. The ride receives fixed attachment metadata without a species branch or another skeleton representation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The explicit grounding and closest-solid construction operates only on initial provisional geometry, never on a requested moving root or foot. Already grounded and connected chains stay unchanged; impossible geometry refuses instead of stretching or using a speed/breed fixture.
-
 # src/animals/QuadrupedAttachments.ts#QuadrupedAttachments.Parent
 
 ## @evidence contracts/development/common.md#meaningful-documentation

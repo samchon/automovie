@@ -24,13 +24,6 @@ const STAGED: string =
  * @param params Scene identity and dimensions within their bands.
  * @param seed Draws free dimensions within their bands.
  * @returns The bundle with its sites.
- * @evidence contracts/development/common.md#meaningful-documentation States the frame and every site.
- * @evidence contracts/development/implementation.md#principled-implementation A box and a ball sized by the drawn length and head.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, then build the bundle, the head and the sites.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rigid coarse bundle; limbs are swaddled and not modelled.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts and five sites.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createInfant(
   params: createInfant.IParams = {},
@@ -119,11 +112,6 @@ export function createInfant(
 
 /**
  * Dimensions and sites of {@link createInfant}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the sites, the dimensions and their staged provenance.
- * @evidence contracts/development/design.md#principled-representation Metres and kilograms in provisional bands.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The sites the infant-care law reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is marked provisional.
  */
 export namespace createInfant {
   /** The seat, the support sites, the mouth and the head. */

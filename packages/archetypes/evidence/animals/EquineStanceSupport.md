@@ -1,21 +1,3 @@
-# src/animals/EquineStanceSupport.ts#EquineStanceSupport
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the shared rules and the weight-transfer criterion with its authored margin.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Pure functions over trunk motions, anchors and limb chains in the base model's space.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by `EquineStanceRows` only.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None.
-
 # src/animals/EquineStanceSupport.ts#EquineStanceSupport.placed
 
 ## @evidence contracts/development/common.md#meaningful-documentation

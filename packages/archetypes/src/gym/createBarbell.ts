@@ -28,14 +28,6 @@ const IWF: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The barbell.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the bar lies, where its origin is and what that asks of a scene, and the two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The shaft between the collars, laid in pieces so each hand's place has its own, a sleeve each side out to the bar's length, and one disc stack per side whose thickness grows with the load; every length the rule fixes is the rule's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, lay the shaft, the sleeves and the discs, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One solid stack stands for a side's discs, its thickness an estimate per kilogram, and the mass is spread over the shapes by volume, so the loaded bar's inertia about its length is not a measured one; no knurling and no collars' clamps.
- * @evidence contracts/development/implementation.md#efficient-algorithms Seven rods, nine when loaded.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBarbell(
   params: createBarbell.IParams,
@@ -142,11 +134,6 @@ export function createBarbell(
 
 /**
  * Companion types and bands of {@link createBarbell}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind; what the rule fixes for both bars is a named constant.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bar's size and mass, the hands' spacing and the load a lift reads, and the two contacts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No balance point or inertia is declared: both follow from the shape.
  */
 export namespace createBarbell {
   /** The kinds of bar. */

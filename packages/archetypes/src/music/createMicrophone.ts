@@ -30,14 +30,6 @@ const AURAY: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The microphone or stand.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or one only the other kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each kind lies or stands and every contact, with the slider's direction.
- * @evidence contracts/development/implementation.md#principled-implementation A handle rod of the tail's diameter and a grille ball of the head's, spanning the length, all one microphone's; three legs to the cited spread, a lower and an upper tube at the stand's lowest height, a level boom of the cited length and a clip at its end, the upper tube, boom and clip bound to the height slider whose travel is the cited range.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then one branch per kind with its parts and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A handle's taper and a boom's tilt are not drawn; the tubes' diameters, the legs' hub height, the tubes' overlap and the clip's size are named construction estimates (`createMicrophone.ESTIMATES`), none placing a contact.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most eight parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createMicrophone(
   params: createMicrophone.IParams,
@@ -165,11 +157,6 @@ export function createMicrophone(
 
 /**
  * Companion types, constants and bands of {@link createMicrophone}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and estimate states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind; the stand's height range is an articulation's travel, not a dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip and the head a singer's hand and mouth meet, and the clip and height a stand is loaded and set by (#3468 F8).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The stand's tube sizes, hub and clip are named estimates; the boom does not tilt; the handheld is the Sennheiser e 835 alone, since no other microphone's tail was read to build one whole.
  */
 export namespace createMicrophone {
   /** The kinds. */

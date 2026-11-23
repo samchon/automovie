@@ -41,14 +41,6 @@ const GEOMETRY: Readonly<{
  * @param params The scene id and optional mass in kilograms.
  * @param seed Draws the mass if the author leaves it open.
  * @returns A skate with a boot socket and three runner contact sites.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the part, geometry, measured dimensions, contacts and provisional inputs.
- * @evidence contracts/development/implementation.md#principled-implementation Places the collar above the boot and builds the runner and both holder posts from the same dimensions as their contact sites.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One mass draw, dimensions for the boot and runner, two holder placements and four contact sites.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts References the published size without presenting the straight steel strip or boot-shell approximation as a replica.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed part and contact count.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call draws and constructs its own object.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no work after publishing the archetype.
  */
 export function createIceSkate(
   params: createIceSkate.IParams = {},
@@ -127,11 +119,6 @@ export function createIceSkate(
 
 /**
  * Scene inputs and named positions of the skate.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the boot and runner locations and the input units.
- * @evidence contracts/development/design.md#principled-representation One mass input and four physical alignment sites.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Gives scene placement one boot socket and measurable runner positions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the part coordinates for every contact.
  */
 export namespace createIceSkate {
   /** The boot socket, runner centerline and its two lower edges. */

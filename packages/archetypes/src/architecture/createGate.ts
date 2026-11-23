@@ -35,14 +35,6 @@ const ESTIMATES: Readonly<{ wing: number }> = { wing: 0.02 };
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The gate.
  * @throws {AutoMovieArchetypeRefusal} For a passage the kind's maker does not list, a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the lane's frame, each kind's parts, its contacts, and why the arm and wings are no contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The makers' cabinet sizes and barrier and wing heights, and one of each maker's read passage widths whole; the arm's reach and section from the Trilock drawing.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the passage, draw the dimensions, then the cabinets, the barrier, then the two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One arm stands for the tripod's three; a wing is a slab from the elevation's 200 mm up to its height; their place along the cabinet and the wing's thickness are construction estimates.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most four parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createGate(
   params: createGate.IParams,
@@ -141,11 +133,6 @@ export function createGate(
 
 /**
  * Companion types and bands of {@link createGate}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions, each kind's read passages among them, and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The lane a person passes and the cabinet top a hand meets (#3468 N7).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A barrier no source places along its cabinet is drawn but not declared.
  */
 export namespace createGate {
   /** The kinds of gate. */

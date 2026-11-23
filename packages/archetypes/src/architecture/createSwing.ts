@@ -32,14 +32,6 @@ const ESTIMATE: string =
  * @param seed The seed for any unfixed dimension.
  * @returns The swing frame.
  * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band, or a seat that would hang at or above the beam.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, the pivot axis, the separate seat and the swing plane.
- * @evidence contracts/development/implementation.md#principled-implementation Two posts, one beam and the hanging length from the pivot to the seat's clearance.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, admit the hanging length, then draw the frame.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The seat clearance is EN 1176-2's figure as a summary states it; every other size is a provisional construction estimate.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after returning the model.
  */
 export function createSwing(
   params: createSwing.IParams = {},
@@ -107,11 +99,6 @@ export function createSwing(
 
 /**
  * The swing's dimensions and its hanging seat.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives each dimension's unit and source and the seat model's frame and contacts.
- * @evidence contracts/development/design.md#principled-representation Lengths in metres and mass in kilograms, each with its band.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer, `rideSwing` and the playground test read these members.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The chains are rigid in this coarse model: the seat and the chain grips swing as one body about the pivot.
  */
 export namespace createSwing {
   /** The ground under the swing, where a rider stands and lands. */

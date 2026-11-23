@@ -23,14 +23,6 @@ const BUGABOO: string =
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The pram.
  * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how the pram stands, who pushes it from where and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Four wheel discs at the chassis' corners, a bassinet box of the drawn length and width on them, two push rods from its back up and back to the drawn handle height, and the push bar across their tops.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the wheels, the bassinet, the push rods and the bar, then the two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No hood, springs or brake; the wheels do not turn; the wheels', bassinet's and rods' sizes are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Eight parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createPram(
   params: createPram.IParams = {},
@@ -126,11 +118,6 @@ export function createPram(
 
 /**
  * Companion types, constants and bands of {@link createPram}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension a maker varies; the handle's height is the one a push reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bar a push takes, named as `createCart`'s trolley names it, and the bassinet.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes, the wheels and the mass are the maker's as read; the parts' sizes are named estimates.
  */
 export namespace createPram {
   /** The wheels' radii, metres: the Bugaboo Fox 5's 8.5 in front and 12 in rear wheels. */
