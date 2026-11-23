@@ -202,3 +202,21 @@ No member beyond what the pass's pixels need.
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the pixel meaning and each member's unit.
+
+# src/render/delivery/IAutoMovieControlRecord.ts#IAutoMovieControlRecord.IGraphicsPlate
+
+## @evidence contracts/development/design.md#principled-representation
+
+The graphics pass's convention: straight-alpha colour over a transparent background, the one control pass whose alpha is data.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Written by autoMovieControlConvention for the `graphics` pass and read by a finishing step that composites from it.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+No matte threshold or premultiplied variant: the record names the one encoding the writer produces.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what the plate holds, what is held out and how its alpha is encoded.

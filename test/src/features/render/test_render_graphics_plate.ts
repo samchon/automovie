@@ -1,0 +1,128 @@
+import { createDevice } from "@automovie/archetypes";
+import type {
+  IAutoMovieModel,
+  IAutoMovieScene,
+  IAutoMovieSurfaceGraphicTrack,
+} from "@automovie/interface";
+import {
+  AUTOMOVIE_GUIDE_PASSES,
+  type IAutoMovieRenderModeHandle,
+  type IAutoMovieSurfaceGraphicsObject,
+  applyRenderMode,
+  buildModel,
+  buildScene,
+  prepareAutoMovieSurfaceGraphics,
+} from "@automovie/render";
+import { TestValidator } from "@nestia/e2e";
+import * as THREE from "three";
+
+import { renderFixtureNode } from "../internal/renderFixtureNode";
+
+/**
+ * The `graphics` pass draws surface graphics as beauty does and holds every
+ * other mesh out as depth only, over no backdrop.
+ *
+ * Scenarios:
+ *
+ * 1. `graphics` is a listed guide pass.
+ * 2. Under the pass, the phone's graphic meshes keep their beauty materials, and
+ *    every other mesh, the phone's case included, takes a material that writes
+ *    depth but no colour, so an occluder still hides the screen.
+ * 3. The scene's backdrop is removed and its fog kept.
+ * 4. Restoring the pass puts back every material, the backdrop and the fog.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the pass membership, material, backdrop and restore facts the test pins.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies the pass through applyRenderMode to a mounted phone with a prepared graphic and reads materials, background and fog.
+ * @evidence contracts/development/testing.md#independent-expectations The pass rules come from issue #4100: graphics as in beauty, everything else depth-only, transparent background.
+ * @evidence contracts/development/testing.md#distinguishing-cases A case drawn in colour, a graphic replaced, a black backdrop or a lost fog fails. Alpha readback and the occluder's half-screen matte need a WebGL host and belong to the visual check.
+ * @evidence contracts/development/testing.md#execution-ownership In-memory Three scene graph; no renderer.
+ */
+export async function test_render_graphics_plate(): Promise<void> {
+  TestValidator.predicate(
+    "graphics is a guide pass",
+    AUTOMOVIE_GUIDE_PASSES.includes("graphics"),
+  );
+  const phone: IAutoMovieModel = createDevice({ id: "phone", kind: "phone" });
+  const scene: IAutoMovieScene = {
+    id: "desk",
+    name: null,
+    nodes: [renderFixtureNode("phone-a", phone.id)],
+    cameras: [],
+    lights: [],
+  };
+  const object: ReturnType<typeof buildModel> = buildModel(phone);
+  const mounted: ReturnType<typeof buildScene> = buildScene(
+    scene,
+    (): ReturnType<typeof buildModel> => object,
+  );
+  const tracks: IAutoMovieSurfaceGraphicTrack[] = [
+    {
+      node: "phone-a",
+      surface: "screen",
+      keys: [
+        {
+          time: 0,
+          graphic: {
+            emission: { kind: "emissive", luminance: 200 },
+            background: { r: 0.1, g: 0.1, b: 0.1, a: null, hex: null },
+            layers: [],
+          },
+        },
+      ],
+    },
+  ];
+  const graphics: IAutoMovieSurfaceGraphicsObject =
+    await prepareAutoMovieSurfaceGraphics({
+      shot: { surfaceGraphics: tracks, duration: 1 },
+      scene,
+      models: [phone],
+      resolveNode: (): ReturnType<typeof buildModel> => object,
+    });
+  graphics.apply(0);
+  const fog: THREE.Fog = new THREE.Fog(0x808080, 1, 30);
+  const backdrop: THREE.Color = new THREE.Color(0x203040);
+  mounted.scene.fog = fog;
+  mounted.scene.background = backdrop;
+  const graphicMeshes: Set<THREE.Object3D> = new Set();
+  graphics.roots[0]!.traverse((entry: THREE.Object3D): void => {
+    if ((entry as THREE.Mesh).isMesh === true) graphicMeshes.add(entry);
+  });
+  const before: Map<THREE.Mesh, THREE.Material | THREE.Material[]> = new Map();
+  mounted.scene.traverse((entry: THREE.Object3D): void => {
+    if ((entry as THREE.Mesh).isMesh === true)
+      before.set(entry as THREE.Mesh, (entry as THREE.Mesh).material);
+  });
+
+  const handle: IAutoMovieRenderModeHandle = applyRenderMode(
+    mounted.scene,
+    "graphics",
+  );
+  let graphicsKept: boolean = true;
+  let othersHeldOut: boolean = true;
+  for (const [mesh, material] of before) {
+    if (graphicMeshes.has(mesh)) graphicsKept &&= mesh.material === material;
+    else
+      othersHeldOut &&=
+        (mesh.material as THREE.Material).colorWrite === false &&
+        (mesh.material as THREE.Material).depthWrite === true;
+  }
+  TestValidator.predicate("graphics keep their beauty materials", graphicsKept);
+  TestValidator.predicate("every other mesh writes depth only", othersHeldOut);
+  TestValidator.predicate(
+    "no backdrop, fog kept",
+    mounted.scene.background === null && mounted.scene.fog === fog,
+  );
+  handle.restore();
+  TestValidator.predicate(
+    "restore puts everything back",
+    [...before].every(
+      ([mesh, material]: [
+        THREE.Mesh,
+        THREE.Material | THREE.Material[],
+      ]): boolean => mesh.material === material,
+    ) &&
+      mounted.scene.background === backdrop &&
+      mounted.scene.fog === fog,
+  );
+  graphics.dispose();
+}

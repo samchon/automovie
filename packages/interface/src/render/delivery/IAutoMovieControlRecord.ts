@@ -116,7 +116,8 @@ export namespace IAutoMovieControlRecord {
     | INormalCamera
     | IOutlineHull
     | IPoseSegments
-    | IAlbedoBaseColour;
+    | IAlbedoBaseColour
+    | IGraphicsPlate;
 
   /**
    * Depth as grey linear in camera distance: `clamp(1 - viewZ / rangeMetres, 0,
@@ -219,5 +220,18 @@ export namespace IAutoMovieControlRecord {
 
     /** Unlit base colour. */
     kind: "base-colour";
+  }
+
+  /**
+   * The surface graphics alone as the beauty pass draws them, every other
+   * mesh held out by depth, written as RGBA with straight alpha: the
+   * compositing plate for legible screens and lettering.
+   */
+  export interface IGraphicsPlate {
+    /** The pass. */
+    pass: "graphics";
+
+    /** Straight-alpha colour over a transparent background. */
+    kind: "straight-alpha";
   }
 }

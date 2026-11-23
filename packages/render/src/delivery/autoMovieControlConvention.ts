@@ -45,5 +45,7 @@ export function autoMovieControlConvention(
       return { pass, kind: "bone-segments" };
     case "albedo":
       return { pass, kind: "base-colour" };
+    case "graphics":
+      return { pass, kind: "straight-alpha" };
   }
 }

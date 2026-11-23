@@ -350,12 +350,15 @@ export function installAutoMovieDraw(
       const resolved: ReturnType<typeof resolveAt> = resolveAt(call.seconds);
       // A transparent draw clears to alpha 0 and leaves the scene's backdrop
       // undrawn; an opaque draw clears opaque, as the page always did.
-      const transparent: boolean = call.background === "transparent";
-      if (transparent && call.request.shade !== "beauty")
+      // The graphics plate is always drawn over a transparent background, so
+      // its alpha is the graphics' coverage.
+      const transparent: boolean =
+        call.background === "transparent" || call.request.shade === "graphics";
+      if (call.background === "transparent" && call.request.shade !== "beauty")
         throw new Error(
           `A transparent background is drawn only in the beauty pass, not ${call.request.shade}`,
         );
-      if (transparent && scene.optics !== undefined)
+      if (call.background === "transparent" && scene.optics !== undefined)
         throw new Error(
           `Subject "${loaded.name}" declares optics, whose film response stage writes opaque pixels; a transparent render needs a subject without optics`,
         );

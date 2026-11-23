@@ -82,7 +82,10 @@ export class AutoMovieControlChannelWriter {
           `Control frame ${index} has no ${pass} picture in its place`,
         );
       if (pass === "mask") this.admitMask(index, drawn.semanticMask ?? null);
-      const bytes: Uint8Array = await encodeAutoMovieRasterPng(drawn.picture);
+      // The graphics plate keeps its straight alpha as the compositing matte.
+      const bytes: Uint8Array = await encodeAutoMovieRasterPng(drawn.picture, {
+        alpha: pass === "graphics",
+      });
       await this.write(
         `${this.frameDir}/${guidePassFrameName(index, pass)}`,
         bytes,

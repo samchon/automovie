@@ -18,6 +18,7 @@ import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderM
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 import { autoMovieSemanticMaskOf } from "./semanticMask/index.js";
+import { applyAutoMovieGraphicsMode } from "./surfaceGraphic/applyAutoMovieGraphicsMode.js";
 import { hideAutoMovieSurfaceGraphics } from "./surfaceGraphic/hideAutoMovieSurfaceGraphics.js";
 
 /** A renderable that is NOT a mesh: a line/grid/helper, points, or a sprite. */
@@ -86,8 +87,11 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
  *   `createAutoMovieAlbedoMaterial` per original material: the material channel
  *   for a neural renderer that is given lighting separately.
  *
- * Surface graphics from `prepareAutoMovieSurfaceGraphics` draw in `beauty` and
- * `mask` only; every other pass hides them for its duration.
+ * Surface graphics from `prepareAutoMovieSurfaceGraphics` draw in `beauty`,
+ * `mask` and `graphics` only; every other pass hides them for its duration.
+ * - `graphics`: {@link applyAutoMovieGraphicsMode}: the surface graphics as
+ *   beauty draws them, every other mesh writing depth only, no backdrop, with
+ *   the scene's fog and image lighting kept.
  *
  * Every pass that swaps a material carries a formation's baked cycle onto the
  * replacement, so a marching crowd marches in `depth`, `normal`, `mask`,
@@ -163,6 +167,9 @@ export const applyRenderMode: (
         }
         case "pose":
           return (): IAutoMovieRenderModeHandle => applyPoseMode(scene);
+        case "graphics":
+          return (): IAutoMovieRenderModeHandle =>
+            applyAutoMovieGraphicsMode(scene);
         case "albedo":
           return (): IAutoMovieRenderModeHandle =>
             overrideAutoMovieRenderModeMaterials(
@@ -185,12 +192,18 @@ export const applyRenderMode: (
   // afterward and stays visible). Restore reverses these three suspensions and
   // the pass builder's own resources and background transition.
   const restoreRenderables: () => void = hideNonMeshRenderables(scene);
-  const restoreFog: () => void = suspendFog(scene);
-  const restoreEnvironment: () => void = suspendEnvironment(scene);
+  // The graphics plate keeps the beauty pass's fog and image lighting and
+  // removes the backdrop itself, so it suspends neither.
+  const restoreFog: () => void =
+    mode === "graphics" ? (): void => {} : suspendFog(scene);
+  const restoreEnvironment: () => void =
+    mode === "graphics" ? (): void => {} : suspendEnvironment(scene);
   // Surface graphics draw only in beauty and mask: elsewhere the prop's own
   // surface beneath already draws, and a control channel carries no lettering.
   const restoreGraphics: () => void =
-    mode === "mask" ? (): void => {} : hideAutoMovieSurfaceGraphics(scene);
+    mode === "mask" || mode === "graphics"
+      ? (): void => {}
+      : hideAutoMovieSurfaceGraphics(scene);
   // A builder that throws returns no handle, so the three suspensions above
   // would have no way back and the scene would keep drawing on black with its
   // atmosphere off for the rest of the session. The semantic mask pass is the

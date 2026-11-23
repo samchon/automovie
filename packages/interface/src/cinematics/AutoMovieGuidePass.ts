@@ -22,6 +22,11 @@
  *   mapping; alpha-test cutouts are kept, a surface the beauty pass skips stays
  *   hidden and every other surface is opaque; the material channel. Roughness,
  *   metalness and emission are not produced.
+ * - `graphics`: the surface graphics alone, as `beauty` draws them, with every
+ *   other mesh writing depth only so whatever stands in front hides them, on a
+ *   transparent background whose alpha is the graphics' coverage; the plate a
+ *   finishing step composites legible screens and lettering from. Raised
+ *   lettering is ordinary geometry and stays out.
  *
  * The closed union makes an unknown pass name a type error at the authoring
  * surface; render's `AUTOMOVIE_GUIDE_PASSES` carries the matching runtime list
@@ -47,4 +52,7 @@ export type AutoMovieGuidePass =
   | "pose"
 
   /** Unlit material base colour on black. */
-  | "albedo";
+  | "albedo"
+
+  /** Surface graphics alone over a transparent background. */
+  | "graphics";
