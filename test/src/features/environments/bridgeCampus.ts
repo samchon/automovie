@@ -16,26 +16,19 @@ import type {
 import { bakeEnvironmentPerformance } from "./bakeEnvironmentPerformance";
 import type { compileEnvironmentExample } from "./compileEnvironmentExample";
 import { environmentLiftActor } from "./environmentLiftActor";
+import { environmentLiftSchedule } from "./environmentLiftSchedule";
 
 /** Occupied upper and lower floors in two blocks linked by a bridge and lift. */
 export function bridgeCampus(): compileEnvironmentExample.IInput {
-  const seconds: number = 10;
   const west: ReturnType<typeof tower> = tower("east");
   const east: ReturnType<typeof tower> = tower("west");
+  const schedule: readonly createLift.IKey[] = environmentLiftSchedule;
   const lift: ReturnType<typeof createLift> = createLift({
     car: { callHeight: 1.18 },
     stops: { ground: 0, upper: 3.4 },
     landingDepth: 1.2,
     gap: 0.055,
-    schedule: [
-      { seconds: 0, stop: "ground", doors: "closed" },
-      { seconds: 1, stop: "ground", doors: "open" },
-      { seconds: 3.6, stop: "ground", doors: "open" },
-      { seconds: 4.2, stop: "ground", doors: "closed" },
-      { seconds: 6.2, stop: "upper", doors: "closed" },
-      { seconds: 7, stop: "upper", doors: "open" },
-      { seconds: 9.6, stop: "upper", doors: "open" },
-    ],
+    schedule,
   });
   const environment: IAutoMovieEnvironment = createEnvironment({
     id: "campus",
@@ -108,7 +101,13 @@ export function bridgeCampus(): compileEnvironmentExample.IInput {
     environment,
     id: "campus/lift",
     lift,
+    schedule,
   });
+  // The shot lasts as long as the lift's schedule and its rider's act.
+  const seconds: number = Math.max(
+    rider.film.duration,
+    schedule[schedule.length - 1]!.seconds,
+  );
   const transfer: ReturnType<typeof bakeEnvironmentPerformance> =
     bakeEnvironmentPerformance(rider.film, rider.actor, seconds);
   return {

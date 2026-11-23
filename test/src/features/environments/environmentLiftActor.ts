@@ -32,6 +32,7 @@ export function environmentLiftActor(input: {
   environment: IAutoMovieEnvironment;
   id: string;
   lift: ReturnType<typeof createLift>;
+  schedule: readonly createLift.IKey[];
   node?: string;
 }): { film: HumanPerformance; actor: IAutoMovieStageActor } {
   const { environment, id, lift } = input;
@@ -112,8 +113,15 @@ export function environmentLiftActor(input: {
         }),
       }),
   };
-  // The upper doors stand open from 12 s (`environmentLiftFixture`).
-  const exitFrom: number = 12.1;
+  // The rider waits in the cab until the lift's schedule has it docked at the
+  // upper stop with its doors open.
+  const opened: createLift.IKey | undefined = input.schedule.find(
+    (key: createLift.IKey): boolean =>
+      key.stop === "upper" && key.doors === "open",
+  );
+  if (opened === undefined)
+    throw new Error(`The lift ${id} never opens at its upper stop.`);
+  const exitFrom: number = opened.seconds;
   const wait: IAutoMovieMotionHumanActionLaw = {
     name: "liftCabWait",
     interrupts: AutoMovieMotionHumanStance.stand.interrupts,

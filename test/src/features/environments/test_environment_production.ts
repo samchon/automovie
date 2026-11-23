@@ -22,6 +22,7 @@ import { nclose, vclose } from "../internal/predicates";
 import { bankedParkRide } from "./bankedParkRide";
 import { bridgeCampus } from "./bridgeCampus";
 import { compileEnvironmentExample } from "./compileEnvironmentExample";
+import { environmentLiftSchedule } from "./environmentLiftSchedule";
 import { hillsideStop } from "./hillsideStop";
 import { pondTrail } from "./pondTrail";
 import { railShuttle } from "./railShuttle";
@@ -281,9 +282,14 @@ export function test_environment_production(): void {
       vclose(getFloor("traveller"), { x: 15, y: 3.4, z: 4 }, 0.03) &&
       nclose(heightAt(bridge.shot.source.scene.space!, 9.5, 4)!, 3.4, 0.001),
   );
+  // The cab is docked at the upper stop from the schedule's first key there.
+  const docked: number = environmentLiftSchedule.find(
+    (key: (typeof environmentLiftSchedule)[number]): boolean =>
+      key.stop === "upper",
+  )!.seconds;
   TestValidator.predicate(
     "the staged cab rises to the next level and the transfer finishes on its landing",
-    nclose(cab(8).y - cab(0.2).y, 3.4, 0.001) &&
+    nclose(cab(docked).y - cab(0.2).y, 3.4, 0.001) &&
       vclose(getFloor("lift-rider"), { x: 15.32, y: 3.4, z: -1.06 }, 0.14) &&
       campus.environment.anchors["garden/amenities/seat"] !== undefined,
   );
