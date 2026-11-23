@@ -1,7 +1,6 @@
 import type {
   IAutoMovieActionCall,
   IAutoMovieActionSynthesizer,
-  IAutoMovieBeatEndState,
   IAutoMovieCamera,
   IAutoMovieClip,
   IAutoMovieCompiledFormation,
@@ -13,7 +12,6 @@ import type {
   IAutoMovieFormationMotion,
   IAutoMovieInteractionEvent,
   IAutoMovieLight,
-  IAutoMovieMaskedContent,
   IAutoMovieMotion,
   IAutoMoviePerformShotCoverageJob,
   IAutoMoviePerformShotProps,
@@ -42,10 +40,8 @@ import { admitShotEditorialMarkers } from "../validation/admitShotEditorialMarke
 import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
 import { appendPolygonBodyCuesArtifact } from "../validation/appendPolygonBodyCuesArtifact";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
-import { validateMotion } from "../validation/validateMotion";
 import { validateShotArtifact } from "../validation/validateShotArtifact";
 import { admitPerformShotSurfaces } from "./admitPerformShotSurfaces";
-import { admitPerformShotFlames } from "./flame/admitPerformShotFlames";
 import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compilePerformShotCameras } from "./compilePerformShotCameras";
 import { compilePerformShotLaunches } from "./compilePerformShotLaunches";
@@ -53,12 +49,16 @@ import { compilePerformShotPracticalLights } from "./compilePerformShotPractical
 import { copyPolygonBodyCue } from "./copyPolygonBodyCue";
 import { coupleObjects } from "./coupleObjects";
 import { createPerformShotSubjectFramer } from "./createPerformShotSubjectFramer";
+import { admitPerformShotFlames } from "./flame/admitPerformShotFlames";
 import { gateAuthoredObjectMotions } from "./gateAuthoredObjectMotions";
 import { gatePerformShotActions } from "./gatePerformShotActions";
 import { gatePerformShotBlocking } from "./gatePerformShotBlocking";
 import { gatePerformShotCamera } from "./gatePerformShotCamera";
+import { gatePerformShotCompiledMotions } from "./gatePerformShotCompiledMotions";
 import { gatePerformShotFrameOverlaps } from "./gatePerformShotFrameOverlaps";
 import { gatePerformShotRegionOverlaps } from "./gatePerformShotRegionOverlaps";
+import { gatePerformShotScript } from "./gatePerformShotScript";
+import { memoizePerformShotSynthesis } from "./memoizePerformShotSynthesis";
 import { plantPerformShotStanceFeet } from "./plantPerformShotStanceFeet";
 import { validatePerformShotId } from "./validatePerformShotId";
 
@@ -74,9 +74,12 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
 };
 
 /**
- * Fold one beat's action calls into an {@link IAutoMovieShot} through {@link compilePerformance}, gating both sides of the seam.
+ * Fold one beat's action calls into an {@link IAutoMovieShot} through
+ * {@link compilePerformance}, gating both sides of the seam.
  *
- * The performing list is `revise.final` when the revise pass produced one and `draft` otherwise. The stages run in order, and the first stage group that reports a violation returns every violation of that group and stops:
+ * The performing list is `revise.final` when the revise pass produced one and
+ * `draft` otherwise. The stages run in order, and the first stage group that
+ * reports a violation returns every violation of that group and stops:
  *
  * 1. Input: unique script beat ids, the shot's `lightMotions` against the staged
  *    lights and its polygon body cues against staged rigs and practical surface
@@ -93,14 +96,26 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
  * 3. Performance: the stage list compiles, stance feet are planted by
  *    {@link plantPerformShotStanceFeet}, every channel a region mask would drop
  *    is reported at the author's `region` (or `onHit`) field, and every clip
- *    must pass `validateMotion` against its rig.
+ *    must pass `validateMotion` against its rig, both by
+ *    {@link gatePerformShotCompiledMotions}.
  * 4. Coupling: per-beat `attachTo` handoffs and staged mounts are baked by
  *    {@link coupleObjects}.
  * 5. Authored object clips are gated by {@link gateAuthoredObjectMotions}.
- * 6. Practical lights bind staged emitters to the final object clips and share light channel admission with authored clips.
- * 7. Cameras: the live camera's move and each coverage take compile through the framing grammar, subjects measured by {@link createPerformShotSubjectFramer}, and any physical clearance envelope is checked by {@link compileCameraClearanceReports}.
+ * 6. Practical lights bind staged emitters to the final object clips and share
+ *    light channel admission with authored clips.
+ * 7. Cameras: the live camera's move and each coverage take compile through the
+ *    framing grammar, subjects measured by
+ *    {@link createPerformShotSubjectFramer}, and any physical clearance envelope
+ *    is checked by {@link compileCameraClearanceReports}.
  *
- * A shot with no frame action is locked off on the scene's first camera. Positional targets resolve against every staged placement, cameras included, so an actor may look down the lens, but a camera performs only frame. Only a camera subject may name a formation. The assembled artifact is checked independently and a failure throws as a compilation defect. This does not prove every possible authored failure was located earlier: typed outer containers, generated event-id collisions, mutable callbacks and downstream arithmetic remain distinct exception boundaries.
+ * A shot with no frame action is locked off on the scene's first camera.
+ * Positional targets resolve against every staged placement, cameras included,
+ * so an actor may look down the lens, but a camera performs only frame. Only a
+ * camera subject may name a formation. The assembled artifact is checked
+ * independently and a failure throws as a compilation defect. This does not
+ * prove every possible authored failure was located earlier: typed outer
+ * containers, generated event-id collisions, mutable callbacks and downstream
+ * arithmetic remain distinct exception boundaries.
  */
 export function performShot(
   props: IAutoMoviePerformShotProps,
@@ -123,7 +138,7 @@ export function performShot(
       ): [string, IAutoMovieCompiledFormation] => [formation.id, formation],
     ),
   );
-  const synthesize: IAutoMovieActionSynthesizer = memoizeSynthesis(
+  const synthesize: IAutoMovieActionSynthesizer = memoizePerformShotSynthesis(
     props.synthesize,
     props.previous,
   );
@@ -172,10 +187,8 @@ export function performShot(
   };
 
   // 1. Input.
-  const beat: IAutoMovieScript["beats"][number] | undefined = gateScript(
-    context,
-    props.script,
-  );
+  const beat: IAutoMovieScript["beats"][number] | undefined =
+    gatePerformShotScript(context, props.script);
   const lightMotions: IAutoMovieClip[] | undefined =
     props.lightMotions === undefined ? undefined : [...props.lightMotions];
   appendLightMotionsArtifact(
@@ -291,27 +304,12 @@ export function performShot(
       },
       { duration: performance.duration, out },
     );
-  for (const drop of compiled.masked)
-    out.push(
-      "type",
-      plan.stageActionPaths[drop.action]!,
-      `${drop.actor}'s clip authors ${maskedContent(drop)}, which the "${drop.region}" body region does not carry, so the performance would drop that content; set region to one that owns it ("fullBody" owns every bone and the root, only "face" carries an expression), or move the content to its own action`,
-      drop.region,
-    );
-  for (const [node, motion] of Object.entries(motions)) {
-    const rig: IAutoMovieSkeleton | null = skeleton(node);
-    if (rig === null) continue;
-    const validated: IAutoMovieValidation = validateMotion({
-      motion,
-      skeleton: rig,
-    });
-    if (validated.success === false)
-      for (const violation of validated.violations)
-        out.items.push({
-          ...violation,
-          path: violation.path.replace("$input", `$compiled["${node}"]`),
-        });
-  }
+  gatePerformShotCompiledMotions(
+    out,
+    compiled,
+    plan.stageActionPaths,
+    skeleton,
+  );
   if (out.items.length > 0) return failure();
 
   // 4. Admitted parent rigs can prepare only their demanded attachment ancestry.
@@ -431,66 +429,4 @@ export function performShot(
         .join("; ")}`,
     );
   return { success: true, shot, motions, plants };
-}
-
-/**
- * Refuse duplicate script beat ids and answer the beat the performance names, the first declaration of its id.
- */
-function gateScript(
-  context: IAutoMovieEnginePerformShotGateContext,
-  script: IAutoMovieScript,
-): IAutoMovieScript["beats"][number] | undefined {
-  const first: Map<string, number> = new Map();
-  script.beats.forEach(
-    (beat: IAutoMovieScript["beats"][number], index: number): void => {
-      const existing: number | undefined = first.get(beat.id);
-      if (existing === undefined) first.set(beat.id, index);
-      else
-        context.out.push(
-          "type",
-          `$script.beats[${index}].id`,
-          `script beat id "${beat.id}" is duplicated; first declared at $script.beats[${existing}].id`,
-          beat.id,
-        );
-    },
-  );
-  const index: number | undefined = first.get(context.performance.beat);
-  return index === undefined ? undefined : script.beats[index];
-}
-
-/**
- * The synthesizer once per action object and actor, with the prior beat state bound, so every stage that needs a clip shares one.
- */
-function memoizeSynthesis(
-  synthesize: IAutoMovieActionSynthesizer,
-  previous: IAutoMovieBeatEndState | null | undefined,
-): IAutoMovieActionSynthesizer {
-  const cache: WeakMap<
-    IAutoMovieActionCall,
-    Map<string, IAutoMovieMotion | null>
-  > = new WeakMap();
-  return (
-    action: IAutoMovieActionCall,
-    actor: string,
-  ): IAutoMovieMotion | null => {
-    let byActor: Map<string, IAutoMovieMotion | null> | undefined =
-      cache.get(action);
-    if (byActor === undefined) {
-      byActor = new Map();
-      cache.set(action, byActor);
-    }
-    if (byActor.has(actor)) return byActor.get(actor)!;
-    const motion: IAutoMovieMotion | null = synthesize(action, actor, previous);
-    byActor.set(actor, motion);
-    return motion;
-  };
-}
-
-/** What a masked clip authored that its region drops, in words. */
-function maskedContent(drop: IAutoMovieMaskedContent): string {
-  return [
-    ...(drop.bones.length > 0 ? [`the bones ${drop.bones.join(", ")}`] : []),
-    ...(drop.root ? ["a root displacement"] : []),
-    ...(drop.expression ? ["an expression"] : []),
-  ].join(" and ");
 }
