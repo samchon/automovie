@@ -20,7 +20,7 @@ The namespace declares nothing beyond its three records.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what the mix reads through `read`, which package admits, decodes and mixes, and every refusal.
+States what the mix reads through `read`, which package admits, decodes, levels, mixes and masters, the optional loudness targets with their EBU R 128 fallback, and every refusal.
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -38,7 +38,7 @@ No file system type appears; the host callback keeps render free of `node:` impo
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the WAVE format, the digest form, that the plan and analysis describe the mix, and the order of the lines.
+States the WAVE format, the digest form, that the plan, analysis and loudness record describe the master, and the order of the lines.
 
 ## @evidence contracts/development/design.md#principled-representation
 

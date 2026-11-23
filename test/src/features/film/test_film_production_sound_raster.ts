@@ -25,10 +25,14 @@ import {
  *
  * Scenarios:
  *
- * 1. The existing sound-film mix produces correctly sized waveform/spectrogram bytes with opaque alpha.
- * 2. Invalid pixel dimensions and incomplete stereo frames retain their named refusals.
- * 3. Positive heights 1..3 preserve a visible centre row; very large finite peaks saturate the viewport without unbounded row traversal.
- * 4. NaN and infinity samples are refused before drawing, while empty stereo input remains an opaque silent raster.
+ * 1. The existing sound-film mix produces correctly sized waveform/spectrogram
+ *    bytes with opaque alpha.
+ * 2. Invalid pixel dimensions and incomplete stereo frames retain their named
+ *    refusals.
+ * 3. Positive heights 1..3 preserve a visible centre row; very large finite peaks
+ *    saturate the viewport without unbounded row traversal.
+ * 4. NaN and infinity samples are refused before drawing, while empty stereo input
+ *    remains an opaque silent raster.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Real planning/mixing and both CPU raster drawers produce observable byte buffers and refusals; tiny-height centre pixels catch negative-radius omission and huge finite peaks must return a fully bounded column.
  * @evidence contracts/development/testing.md#independent-expectations Four channels per pixel and alpha255 follow the RGBA contract; tiny canvases have a centre row floor(height/2), and an over-height bar fills all eight rows. A silent eight-row control supplies contrasting background and centreline bytes solely to identify painted rows; this geometric metamorphic check is not an independent palette or spectral oracle, and no implementation color codes are transcribed.
@@ -45,7 +49,17 @@ export function test_film_production_sound_raster(): void {
   });
   const mixed: IAutoMovieRenderedProductionSound = renderProductionSound({
     plan,
-    dialogue: new Map([["line", Float32Array.from([0.5])]]),
+    // A 0.3 s 220 Hz line at 0.1 peak inside the caption's 0.4 s window.
+    dialogue: new Map([
+      [
+        "line",
+        Float32Array.from(
+          { length: 14_400 },
+          (_: unknown, index: number): number =>
+            0.1 * Math.sin((2 * Math.PI * 220 * index) / 48_000),
+        ),
+      ],
+    ]),
   });
   const waveform: IAutoMovieProductionSoundRaster = productionSoundWaveform(
     mixed.pcm,

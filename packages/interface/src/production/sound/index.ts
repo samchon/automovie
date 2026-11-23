@@ -10,6 +10,9 @@ export type { IAutoMovieDialogueVisemeCompilation } from "./IAutoMovieDialogueVi
 export type { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTimeline";
 export type { IAutoMovieFilmSound } from "./IAutoMovieFilmSound";
 export type { IAutoMovieJoinDialogueVisemes } from "./IAutoMovieJoinDialogueVisemes";
+export type { IAutoMovieLoudnessIntent } from "./IAutoMovieLoudnessIntent";
+export type { IAutoMovieLoudnessMeter } from "./IAutoMovieLoudnessMeter";
+export type { IAutoMovieMasterProductionSound } from "./IAutoMovieMasterProductionSound";
 export type { IAutoMovieProductionPhonemesToVisemes } from "./IAutoMovieProductionPhonemesToVisemes";
 export type { IAutoMovieProductionSoundRaster } from "./IAutoMovieProductionSoundRaster";
 export type { IAutoMovieRenderedProductionSound } from "./IAutoMovieRenderedProductionSound";

@@ -3,6 +3,8 @@ import type { IAutoMovieProductionSoundAnalysis } from "../../production/IAutoMo
 import type { IAutoMovieProductionSoundPlan } from "../../production/IAutoMovieProductionSoundPlan.js";
 import type { IAutoMovieProductionTtsReceipt } from "../../production/IAutoMovieProductionTtsReceipt.js";
 import type { IAutoMovieFilmSound } from "../../production/sound/IAutoMovieFilmSound.js";
+import type { IAutoMovieLoudnessIntent } from "../../production/sound/IAutoMovieLoudnessIntent.js";
+import type { IAutoMovieRenderedProductionSound } from "../../production/sound/IAutoMovieRenderedProductionSound.js";
 
 /**
  * Inputs and result of mixing a film's sound list into its delivered
@@ -16,9 +18,12 @@ export namespace IAutoMovieMixFilmSound {
    * Render's `mixAutoMovieFilmSound` reads every line's WAVE file and receipt
    * and every cue's asset through `read`, admits each receipt against its
    * bytes, decodes every file at 48 kHz, builds the sound plan on this clock
-   * and mixes it with engine's `renderProductionSound`. It refuses duplicate
-   * line or cue ids, a file `read` cannot supply, naming its path, and every
-   * refusal of admission, decoding, planning and mixing.
+   * and mixes it with engine's `renderProductionSound`, levelling each line to
+   * the dialogue target of `loudness`; engine's `masterProductionSound` then
+   * brings the mix to the integrated target under the true-peak ceiling. It
+   * refuses a line outside the levelling range, a master that misses the
+   * tolerance, duplicate line or cue ids, a file `read` cannot supply, naming
+   * its path, and every refusal of admission, decoding, planning and mixing.
    */
   export interface IProps {
     /** The film's sound list. */
@@ -32,6 +37,9 @@ export namespace IAutoMovieMixFilmSound {
 
     /** Read one production-relative file whole; reject when it cannot be read. */
     read: (path: string) => Promise<Uint8Array>;
+
+    /** The production's loudness targets; absent, the mix uses EBU R 128. */
+    loudness?: IAutoMovieLoudnessIntent | undefined;
   }
 
   /** The mixed soundtrack, the plan it was mixed from, and the adopted lines. */
@@ -47,6 +55,9 @@ export namespace IAutoMovieMixFilmSound {
 
     /** Measurements of the master before 16-bit quantization. */
     analysis: IAutoMovieProductionSoundAnalysis;
+
+    /** The targets the mix applied, each line's gain and the master stage. */
+    loudness: IAutoMovieRenderedProductionSound.ILoudness;
 
     /**
      * Each adopted line in list order, with its admitted receipt and its

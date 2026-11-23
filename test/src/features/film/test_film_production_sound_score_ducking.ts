@@ -15,10 +15,15 @@ import { nclose, throwsError } from "../internal/predicates";
  * Score ducking uses adopted dialogue placement and affects only the music bus.
  *
  * Scenarios:
- * 1. Two overlapping adopted lines use the stronger attenuation without stacking; compare independent sample expectations across attack, hold and release.
- * 2. A caption without adopted PCM does not duck, an omitted policy preserves the dry mix, and the ambience remains at its input gain.
- * 3. Fractional-rate and film-edge samples preserve absolute ramp anchors, including virtual anchors beyond the safe sample range.
- * 4. Both the planner and the public mixer reject a gain above unity, a fractional or negative ramp, and a raw null policy.
+ *
+ * 1. Two overlapping adopted lines use the stronger attenuation without stacking;
+ *    compare independent sample expectations across attack, hold and release.
+ * 2. A caption without adopted PCM does not duck, an omitted policy preserves the
+ *    dry mix, and the ambience remains at its input gain.
+ * 3. Fractional-rate and film-edge samples preserve absolute ramp anchors,
+ *    including virtual anchors beyond the safe sample range.
+ * 4. Both the planner and the public mixer reject a gain above unity, a fractional
+ *    or negative ramp, and a raw null policy.
  *
  * @evidence contracts/development/common.md#meaningful-documentation The four scenarios identify the audible time, bus, adoption and admission boundaries.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public production planner and mixer, then reads sample values from stereo output and checks public failure paths.
@@ -80,18 +85,48 @@ export function test_film_production_sound_score_ducking(): void {
     ["music.wav", new Float32Array(24_000).fill(0.25)],
     ["room.wav", new Float32Array(24_000).fill(0.125)],
   ]);
+  // Each adopted line is a 1000-sample 1 kHz tone at 0.07 peak, near the
+  // −23 LUFS dialogue target, so levelling accepts it. The beds are read with
+  // the speech removed: the same plan and lines mixed over silent beds are
+  // subtracted, leaving the music and ambience the ducking shapes.
+  const tone: Float32Array = Float32Array.from(
+    { length: 1_000 },
+    (_: unknown, index: number): number =>
+      0.07 * Math.sin((2 * Math.PI * 1_000 * index) / 48_000),
+  );
   const dialogue: ReadonlyMap<string, Float32Array> = new Map([
-    ["a", new Float32Array(1)],
-    ["b", new Float32Array(1)],
+    ["a", tone],
+    ["b", tone],
   ]);
+  const silentBeds: ReadonlyMap<string, Float32Array> = new Map(
+    [...assets].map(
+      ([asset, samples]: [string, Float32Array]): [string, Float32Array] => [
+        asset,
+        new Float32Array(samples.length),
+      ],
+    ),
+  );
   const mix: (
     plan: IAutoMovieProductionSoundPlan,
     lines?: ReadonlyMap<string, Float32Array>,
   ) => Float32Array = (
     plan: IAutoMovieProductionSoundPlan,
     lines: ReadonlyMap<string, Float32Array> = dialogue,
-  ): Float32Array =>
-    renderProductionSound({ plan, assets, dialogue: lines }).pcm;
+  ): Float32Array => {
+    const full: Float32Array = renderProductionSound({
+      plan,
+      assets,
+      dialogue: lines,
+    }).pcm;
+    const speech: Float32Array = renderProductionSound({
+      plan,
+      assets: silentBeds,
+      dialogue: lines,
+    }).pcm;
+    return full.map(
+      (value: number, index: number): number => value - speech[index]!,
+    );
+  };
   const actual: Float32Array = mix(ducked);
   const dryPcm: Float32Array = mix(dry);
   const expected: ReadonlyArray<readonly [number, number]> = [
@@ -125,9 +160,7 @@ export function test_film_production_sound_score_ducking(): void {
     },
     scoreDucking: policy,
   });
-  const singleLine: ReadonlyMap<string, Float32Array> = new Map([
-    ["a", new Float32Array(1)],
-  ]);
+  const singleLine: ReadonlyMap<string, Float32Array> = new Map([["a", tone]]);
   // At 48 kHz the exact frame period is 1,601.6 samples. Rounding the
   // absolute anchors gives 1,602 to 3,203 and 6,406 to 9,610.
   const ntscPcm: Float32Array = mix(ntsc, singleLine);

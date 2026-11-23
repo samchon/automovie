@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Specifies the selected artifact, stream and evidence returned.
+Specifies the selected artifact, stream, the optional loudness meter it passes on and evidence returned.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

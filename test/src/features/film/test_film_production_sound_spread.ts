@@ -1,5 +1,6 @@
 import {
   deriveProductionSoundPlan,
+  masterProductionSound,
   materializeCompiledFormation,
   renderProductionSound,
 } from "@automovie/engine";
@@ -53,7 +54,10 @@ const CROWD_COUNT: number = 5;
 const CROWD_INTERVAL: number = 4;
 const CROWD_REACH: number = ((CROWD_COUNT - 1) / 2) * CROWD_INTERVAL;
 
-/** The near mass has tightly packed members at z = -2; the listener is one metre above its anchor. */
+/**
+ * The near mass has tightly packed members at z = -2; the listener is one metre
+ * above its anchor.
+ */
 const NEAR_COUNT: number = 400;
 const NEAR_INTERVAL: number = 0.02;
 const NEAR_REACH: number = ((NEAR_COUNT - 1) / 2) * NEAR_INTERVAL;
@@ -63,9 +67,7 @@ const NEAR_Z: number = -2;
 const CLOSED: number = 0.5;
 const CUE_END: number = 2;
 
-/**
- * One rank of `count` members on a stated line, as the builder materializes it.
- */
+/** One rank of `count` members on a stated line, as the builder materializes it. */
 const unit: (props: {
   id: string;
   count: number;
@@ -99,7 +101,10 @@ const unit: (props: {
 /**
  * The far mass closes its own intervals to half of themselves.
  *
- * Translation stays at zero throughout, and the anchor is the unit's own centroid, so nothing about where the mass is heard from moves: the cue changes how large it is and nothing else, which is what leaves the spread as the only quantity a case below can be reading.
+ * Translation stays at zero throughout, and the anchor is the unit's own
+ * centroid, so nothing about where the mass is heard from moves: the cue
+ * changes how large it is and nothing else, which is what leaves the spread as
+ * the only quantity a case below can be reading.
  */
 const CLOSE_RANKS: IAutoMovieFormationMotion[] = [
   {
@@ -122,7 +127,10 @@ const CLOSE_RANKS: IAutoMovieFormationMotion[] = [
   },
 ];
 
-/** Declare the original rest, closed, mixed and near event subjects for this planner test. */
+/**
+ * Declare the original rest, closed, mixed and near event subjects for this
+ * planner test.
+ */
 const contract: () => IAutoMovieShotContract = (): IAutoMovieShotContract =>
   ({
     id: "spread-shot",
@@ -153,7 +161,10 @@ const contract: () => IAutoMovieShotContract = (): IAutoMovieShotContract =>
     ),
   }) as IAutoMovieShotContract;
 
-/** Build the original crowd, lone emitter and spacing-only cue inputs consumed by the planner. */
+/**
+ * Build the original crowd, lone emitter and spacing-only cue inputs consumed
+ * by the planner.
+ */
 const compiled: () => IAutoMovieCompiledShotSource =
   (): IAutoMovieCompiledShotSource =>
     ({
@@ -247,7 +258,10 @@ const timeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline =>
     tracks: { audio: [], captions: [], effects: [] },
   }) as IAutoMovieFilmTimeline;
 
-/** Read the required planned event by its authored id; a missing event fails the owning assertions. */
+/**
+ * Read the required planned event by its authored id; a missing event fails the
+ * owning assertions.
+ */
 const eventOf: (
   plan: IAutoMovieProductionSoundPlan,
   id: string,
@@ -260,7 +274,8 @@ const eventOf: (
   )!;
 
 /**
- * The mean squared distance from the centre of a box to a point drawn uniformly inside it, over its half-extents: one third of its squared half-diagonal.
+ * The mean squared distance from the centre of a box to a point drawn uniformly
+ * inside it, over its half-extents: one third of its squared half-diagonal.
  */
 const boxVariance: (half: {
   x: number;
@@ -280,25 +295,41 @@ const squaredDistance: (
   (left.x - right.x) ** 2 + (left.y - right.y) ** 2 + (left.z - right.z) ** 2;
 
 /**
- * The adopted extended-source approximation combines uniform-box variance with displacement between subject centres.
+ * The adopted extended-source approximation combines uniform-box variance with
+ * displacement between subject centres.
  *
- * The independently written formula `variance = sum_i n_i (variance_i + |c_i - c|^2) / sum_i n_i` includes both authored box variance and centre displacement. Omitting the displacement gives a different answer for the displaced lone emitter. The box approximation is the supported planner model, not the actual discrete crowd variance or an empirical acoustic measurement.
+ * The independently written formula `variance = sum_i n_i (variance_i + |c_i -
+ * c|^2) / sum_i n_i` includes both authored box variance and centre
+ * displacement. Omitting the displacement gives a different answer for the
+ * displaced lone emitter. The box approximation is the supported planner model,
+ * not the actual discrete crowd variance or an empirical acoustic measurement.
  *
- * The spacing-only cue reduces the compiled bounds at the later event while preserving the count and anchor. This pair detects a planner that keeps the designed spread after the cue.
+ * The spacing-only cue reduces the compiled bounds at the later event while
+ * preserving the count and anchor. This pair detects a planner that keeps the
+ * designed spread after the cue.
  *
  * Scenarios:
  *
  * 1. A lone mass is heard at the RMS radius of the box its compiled bounds
- * describe: one rank of five at four-metre intervals reaches 8 m, so the spread is `8 / sqrt(3)`.
+ *    describe: one rank of five at four-metre intervals reaches 8 m, so the
+ *    spread is `8 / sqrt(3)`.
  * 2. That mass closing its own intervals to half is heard at half the spread, at
- * the same count and from the same place, so what the cue changed is the size and nothing else. Reading the designed bounds instead would report the same number twice.
+ *    the same count and from the same place, so what the cue changed is the
+ *    size and nothing else. Reading the designed bounds instead would report
+ *    the same number twice.
  * 3. A lone source beside that mass is one combined source whose spread is the
- * parallel-axis sum, which is strictly larger than either the mass's own spread or the count-weighted mean of the two variances. That second comparison is the cross term: without it the answer would be 4.216 m rather than 9.888 m.
- * 4. The post-mix limiter owns the headroom a crowd's own level does not: a mass
- * of four hundred at z = -2 mixes past full scale and returns within 1e-6 of the 0.95 ceiling with nothing clipped, while the same plan without it stays below that ceiling.
+ *    parallel-axis sum, which is strictly larger than either the mass's own
+ *    spread or the count-weighted mean of the two variances. That second
+ *    comparison is the cross term: without it the answer would be 4.216 m
+ *    rather than 9.888 m.
+ * 4. The master stage owns the headroom a crowd's own level does not: a mass of
+ *    four hundred at z = -2 mixes past full scale, which the mix's analysis
+ *    counts as clipped samples, and its master holds the true peak at or under
+ *    the limiter ceiling with nothing clipped, while the same plan without it
+ *    mixes below full scale.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Plans static, closing and combined masses and mixes a near loud crowd, asserting uniform-box/parallel-axis spread, cue-scaled extent, weighted XZ centre and limited versus quiet master behavior.
- * @evidence contracts/development/testing.md#independent-expectations Fixture geometry supplies box variance and the complete count-weighted parallel-axis calculation including centre displacement; the literal 0.95 ceiling is the mixer contract, and no empirical acoustic or external loudness reference is claimed.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans static, closing and combined masses and mixes a near loud crowd, asserting uniform-box/parallel-axis spread, cue-scaled extent, weighted XZ centre and clipped mix versus limited master versus quiet mix behavior.
+ * @evidence contracts/development/testing.md#independent-expectations Fixture geometry supplies box variance and the complete count-weighted parallel-axis calculation including centre displacement; full scale is the PCM range and the ceiling is the master's reported contract value, and no empirical acoustic or external loudness reference is claimed.
  * @evidence contracts/development/testing.md#distinguishing-cases Keeps one mass, spacing-only cue motion, a displaced lone source plus mass, and loud versus quiet plans; population scaling at equal footprint remains in the density entry.
  * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_production_sound_spread and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A lone mass is heard at the RMS radius of the box its compiled bounds).
@@ -380,7 +411,7 @@ export function test_film_production_sound_spread(): void {
       nclose(Math.sqrt(withoutTheCrossTerm), 4.216, 1e-3),
   );
 
-  // 4. the limiter owns the headroom, and only when there is none left.
+  // 4. the master stage owns the headroom, and the mix keeps the mass's level.
   const loud: IAutoMovieRenderedProductionSound = renderProductionSound({
     plan,
   });
@@ -393,8 +424,12 @@ export function test_film_production_sound_spread(): void {
       ),
     },
   });
+  const mastered: IAutoMovieRenderedProductionSound = masterProductionSound({
+    plan,
+    rendered: loud,
+  });
   TestValidator.predicate(
-    "a mass loud enough to leave no headroom is limited, and a plan with headroom is not",
+    "a mass loud enough to leave no headroom clips the mix and is limited by the master",
     eventOf(plan, "near").memberCount === NEAR_COUNT &&
       // The independently stated impulse law puts the near event over full scale.
       (0.5 *
@@ -402,11 +437,14 @@ export function test_film_production_sound_spread(): void {
         eventOf(plan, "near").densityGain) /
         Math.SQRT2 >
         1 &&
-      nclose(loud.analysis.samplePeak, 0.95, 1e-6) &&
-      loud.analysis.clippingSamples === 0 &&
+      loud.analysis.samplePeak > 1 &&
+      loud.analysis.clippingSamples > 0 &&
+      mastered.analysis.clippingSamples === 0 &&
+      mastered.analysis.truePeakDbtp !== null &&
+      mastered.analysis.truePeakDbtp <= mastered.loudness.ceilingDbtp &&
       quiet.analysis.samplePeak > 0 &&
-      quiet.analysis.samplePeak < 0.95 &&
-      loud.analysis.samplePeak > quiet.analysis.samplePeak,
+      quiet.analysis.samplePeak < 1 &&
+      quiet.analysis.clippingSamples === 0,
   );
 
   TestValidator.predicate(

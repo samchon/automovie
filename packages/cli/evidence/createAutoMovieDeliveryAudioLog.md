@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Describes audio frame-log coverage, reconciliation with PCM and the container end.
+Describes audio frame-log coverage, reconciliation with PCM and the container end, and carries the scan's loudness measurement onto the decoded stream.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -7,6 +7,7 @@ import {
   assertProductionAacProfile,
   assertProductionVideoProfile,
   auditAutoMovieDeliveryContent,
+  createAutoMovieLoudnessMeter,
   renderAutoMovieDrawnVideo,
   resolveProductionVideoProfile,
 } from "@automovie/render";
@@ -57,6 +58,7 @@ export async function test_cli_render_video_delivery(): Promise<void> {
       render: {
         renderAutoMovieDrawnVideo,
         auditAutoMovieDeliveryContent,
+        createAutoMovieLoudnessMeter,
         AUTOMOVIE_MP4_SRGB_COLOUR,
         assertProductionAacProfile,
         assertProductionVideoProfile,

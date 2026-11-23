@@ -17,13 +17,21 @@ import { createAutoMovieRandom } from "../random/createAutoMovieRandom";
 import { deriveAutoMovieSeed } from "../random/deriveAutoMovieSeed";
 import { analyzeProductionSound } from "./analyzeProductionSound";
 import { applyAutoMovieInteriorAcousticResponse } from "./applyAutoMovieInteriorAcousticResponse";
+import { levelProductionDialogueLine } from "./levelProductionDialogueLine";
 import { productionScoreDuckingEnvelope } from "./productionScoreDuckingEnvelope";
 import { productionSoundEventTone } from "./productionSoundEventTone";
+import { resolveProductionLoudness } from "./resolveProductionLoudness";
 
 /**
  * Mix semantic events, authored cue trims and supplied dialogue into a fresh
- * stereo master. When enabled, score ducking attenuates the music bus around
- * the placed dialogue with adopted PCM, before the master limiter.
+ * stereo mix. When enabled, score ducking attenuates the music bus around the
+ * placed dialogue with adopted PCM.
+ *
+ * Loudness follows the production's intent, or EBU R 128 without one
+ * (`resolveProductionLoudness`): each dialogue line is levelled to the dialogue
+ * target as placed (`levelProductionDialogueLine`). The mix has no master
+ * stage, so its samples may leave [−1, 1]; `masterProductionSound` brings it to
+ * the integrated target under the true-peak ceiling.
  */
 export const renderProductionSound: (
   props: IAutoMovieRenderProductionSound.IProps,
@@ -57,6 +65,10 @@ export const renderProductionSound: (
     if (source !== undefined)
       assertFiniteProductionPcm(source, `dialogue line "${line}"`);
   }
+  const targets: Pick<
+    IAutoMovieRenderedProductionSound.ILoudness,
+    "intent" | "source" | "dialogueLufs" | "ceilingDbtp"
+  > = resolveProductionLoudness(props.loudness);
   const sampleFrames: number = frameToSample(
     props.plan,
     props.plan.totalFrames,
@@ -100,6 +112,7 @@ export const renderProductionSound: (
         cue.bus === "music" ? scoreEnvelope : undefined,
       ),
   );
+  const lines: IAutoMovieRenderedProductionSound.ILoudness["lines"] = [];
   for (const line of props.plan.dialogue) {
     const source: Float32Array<ArrayBufferLike> | undefined =
       props.dialogue?.get(line.id);
@@ -114,24 +127,31 @@ export const renderProductionSound: (
       throw new Error(
         `Production sound dialogue line "${line.id}" has ${source.length} samples, but its speech span from frame ${line.startFrame} to ${line.endFrame} holds ${Math.max(0, end - start)} samples inside the ${sampleFrames}-sample film.`,
       );
+
+    // Each line is levelled as it is placed, so a line's level follows its
+    // measured loudness rather than whatever level its generator wrote.
+    const fade: (index: number) => number = (index: number): number =>
+      edgeEnvelope(index, source.length, 240);
+    const levelled: { measuredLufs: number; gainDb: number } =
+      levelProductionDialogueLine({
+        id: line.id,
+        samples: source,
+        fade,
+        targetLufs: targets.dialogueLufs,
+      });
+    lines.push({ id: line.id, ...levelled });
+    const gain: number = 10 ** (levelled.gainDb / 20);
     for (let index: number = 0; index < source.length; ++index) {
-      const envelope: number = edgeEnvelope(index, source.length, 240);
-      const value: number = source[index]! * envelope * 0.72;
+      const value: number = source[index]! * fade(index) * gain;
       pcm[(start + index) * 2] += value;
       pcm[(start + index) * 2 + 1] += value;
     }
   }
   assertFiniteProductionPcm(pcm, "generated production mix");
-  let peak: number = 0;
-  for (const value of pcm) peak = Math.max(peak, Math.abs(value));
-  if (peak > 0.95) {
-    const scale: number = 0.95 / peak;
-    for (let index: number = 0; index < pcm.length; ++index)
-      pcm[index] = Math.fround(pcm[index]! * scale);
-  }
   return {
     pcm,
     analysis: analyzeProductionSound(props.plan, pcm, sampleAtFrame),
+    loudness: { ...targets, lines },
   };
 };
 

@@ -3,6 +3,7 @@ import {
   canonicalizeAutoMovieJson,
   digestAutoMovieBytes,
   hashAutoMovieFnv1a64,
+  masterProductionSound,
   productionSpeechEndFrame,
   renderProductionSound,
   utf8Bytes,
@@ -32,9 +33,12 @@ const SAMPLE_RATE = 48_000 as const;
  * its line and bytes and decodes the line at 48 kHz; ingest decodes each cue's
  * asset at 48 kHz. The sound plan takes the film's clock, places each line over
  * its speech span (`productionSpeechEndFrame` of its 48 kHz sample count) and
- * each cue as listed, and engine's `renderProductionSound` mixes it. The master
- * is encoded as a 48 kHz stereo 16-bit WAVE file, so the same list and bytes
- * give the same soundtrack bytes.
+ * each cue as listed, and engine's `renderProductionSound` mixes it, levelling
+ * each line to the dialogue target of `loudness` (EBU R 128 without one).
+ * Engine's `masterProductionSound` brings the mix to the integrated target
+ * under the true-peak ceiling and refuses it when it misses the tolerance. The
+ * master is encoded as a 48 kHz stereo 16-bit WAVE file, so the same list and
+ * bytes give the same soundtrack bytes.
  *
  * It refuses, before reading any file, a line id or cue id that repeats; it
  * refuses a file `read` cannot supply, naming the path, so a wrong path never
@@ -168,16 +172,25 @@ export async function mixAutoMovieFilmSound(
     dialogue,
   };
 
-  const rendered: IAutoMovieRenderedProductionSound = renderProductionSound({
+  // The mix levels each line to the dialogue target; the master stage then
+  // meets the integrated target under the true-peak ceiling.
+  const rendered: IAutoMovieRenderedProductionSound = masterProductionSound({
     plan,
-    dialogue: new Map(
-      admitted.map(
-        (
-          entry: IAutoMovieAdmitProductionTtsReceipt.IResult,
-        ): [string, Float32Array] => [entry.receipt.line, entry.audio.samples],
+    rendered: renderProductionSound({
+      plan,
+      dialogue: new Map(
+        admitted.map(
+          (
+            entry: IAutoMovieAdmitProductionTtsReceipt.IResult,
+          ): [string, Float32Array] => [
+            entry.receipt.line,
+            entry.audio.samples,
+          ],
+        ),
       ),
-    ),
-    assets,
+      assets,
+      ...(props.loudness === undefined ? {} : { loudness: props.loudness }),
+    }),
   });
   const frames: number = rendered.pcm.length / 2;
   const left: Float32Array = new Float32Array(frames);
@@ -192,6 +205,7 @@ export async function mixAutoMovieFilmSound(
     sha256: digestAutoMovieBytes(wav),
     plan,
     analysis: rendered.analysis,
+    loudness: rendered.loudness,
     lines: admitted.map(
       (
         entry: IAutoMovieAdmitProductionTtsReceipt.IResult,

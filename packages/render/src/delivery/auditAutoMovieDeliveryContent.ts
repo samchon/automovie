@@ -23,11 +23,18 @@ const MEDIA: readonly Media[] = ["video", "audio"];
  * shows the same condition it was drawn; elsewhere encoding introduced it, or,
  * without complete reference evidence, it stays unclassified. Unexpected and
  * unclassified intervals always block; drawn ones block unless the production
- * waives authored approval. Findings retain the effective thresholds and the
- * source evidence needed to reproduce the audit.
+ * waives authored approval. When the commission carries loudness targets, the
+ * decoded audio's measured integrated loudness must lie within the tolerance of
+ * the target and its true peak at or under the maximum; each miss blocks with
+ * the measured value. The audit reads the decoded delivery, because lossy
+ * encoding can raise true peak above the value before encoding. Findings retain
+ * the effective thresholds and the source evidence needed to reproduce the
+ * audit.
  *
- * @param props The hashed artifact, commissioned clock, decoded stream evidence and the reference measurement of the encoder's input.
- * @returns The coverage and content findings and whether they permit delivering the artifact.
+ * @param props The hashed artifact, commissioned clock, decoded stream evidence
+ *   and the reference measurement of the encoder's input.
+ * @returns The coverage and content findings and whether they permit delivering
+ *   the artifact.
  */
 export function auditAutoMovieDeliveryContent(
   props: Audit,
@@ -58,6 +65,17 @@ export function auditAutoMovieDeliveryContent(
   ])
     if (!Number.isFinite(threshold) || threshold < 0 || threshold > 1)
       throw new Error("Invalid delivery detector threshold");
+
+  if (
+    expected.loudness !== undefined &&
+    (![
+      expected.loudness.integratedLufs,
+      expected.loudness.toleranceLu,
+      expected.loudness.maximumTruePeakDbtp,
+    ].every(Number.isFinite) ||
+      expected.loudness.toleranceLu < 0)
+  )
+    throw new Error("Invalid delivery loudness targets");
 
   const [frames, seconds] = expected.frameRate;
   const filmEnd: Timestamp = {
@@ -158,6 +176,8 @@ export function auditAutoMovieDeliveryContent(
         });
       }
     }
+    if (media === "audio" && expected.loudness !== undefined)
+      findings.push(...loudnessFindings(stream, expected.loudness));
   }
   return {
     source,
@@ -170,7 +190,53 @@ export function auditAutoMovieDeliveryContent(
   };
 }
 
-/** Checks that decoded evidence starts at zero and continuously covers the commissioned presentation. */
+/**
+ * Checks the decoded audio's measured loudness against the targets: integrated
+ * loudness outside the tolerance blocks, and so does a true peak over the
+ * maximum. A stream without a measurement, or whose blocks all fall under the
+ * absolute gate, has no loudness to accept and blocks as a loudness finding.
+ */
+function loudnessFindings(
+  stream: Decoded,
+  targets: NonNullable<Audit["expected"]["loudness"]>,
+): Finding[] {
+  const findings: Finding[] = [];
+  const measuredLufs: number | null = stream.loudness?.integratedLufs ?? null;
+  if (
+    measuredLufs === null ||
+    Math.abs(measuredLufs - targets.integratedLufs) > targets.toleranceLu
+  )
+    findings.push({
+      kind: "loudness",
+      blocking: true,
+      media: "audio",
+      streamIndex: stream.index,
+      measuredLufs,
+      targetLufs: targets.integratedLufs,
+      toleranceLu: targets.toleranceLu,
+      reason:
+        measuredLufs === null
+          ? `The decoded audio has no integrated loudness to compare with the ${targets.integratedLufs} LUFS target`
+          : `Integrated loudness ${measuredLufs.toFixed(2)} LUFS misses the ${targets.integratedLufs} LUFS target by ${Math.abs(measuredLufs - targets.integratedLufs).toFixed(2)} LU, beyond ${targets.toleranceLu} LU`,
+    });
+  const measuredDbtp: number | null = stream.loudness?.truePeakDbtp ?? null;
+  if (measuredDbtp !== null && measuredDbtp > targets.maximumTruePeakDbtp)
+    findings.push({
+      kind: "true-peak",
+      blocking: true,
+      media: "audio",
+      streamIndex: stream.index,
+      measuredDbtp,
+      maximumDbtp: targets.maximumTruePeakDbtp,
+      reason: `True peak ${measuredDbtp.toFixed(2)} dBTP exceeds the ${targets.maximumTruePeakDbtp} dBTP maximum`,
+    });
+  return findings;
+}
+
+/**
+ * Checks that decoded evidence starts at zero and continuously covers the
+ * commissioned presentation.
+ */
 function coversFilm(
   media: Media,
   stream: Decoded,
@@ -190,8 +256,8 @@ function coversFilm(
 
 /**
  * Indexes the drawn source's own detector intervals for one medium, clipped to
- * the film. Returns null when the reference does not completely cover the
- * film, so no interval can be attributed to it.
+ * the film. Returns null when the reference does not completely cover the film,
+ * so no interval can be attributed to it.
  */
 function referenceWindows(
   media: Media,

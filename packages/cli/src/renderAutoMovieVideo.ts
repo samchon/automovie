@@ -12,7 +12,9 @@ import * as path from "node:path";
 import type { AutoMovieCaptureHost } from "./AutoMovieCaptureHost";
 import { AutoMovieRenderOutputReservation } from "./AutoMovieRenderOutputReservation";
 import type { IAutoMovieDeliveryProfileFinding } from "./IAutoMovieDeliveryProfileFinding";
+import { auditAutoMovieAlphaSamples } from "./auditAutoMovieAlphaSamples";
 import { auditAutoMovieDeliveryProfile } from "./auditAutoMovieDeliveryProfile";
+import { listAutoMovieReleaseFindings } from "./listAutoMovieReleaseFindings";
 import { publishAutoMovieRenderAttempt } from "./publishAutoMovieRenderAttempt";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
 import { runAutoMovieDeliveryDecode } from "./runAutoMovieDeliveryDecode";
@@ -27,6 +29,7 @@ interface IDeliveryHost {
     typeof Render,
     | "renderAutoMovieDrawnVideo"
     | "auditAutoMovieDeliveryContent"
+    | "createAutoMovieLoudnessMeter"
     | "AUTOMOVIE_MP4_SRGB_COLOUR"
     | "assertProductionAacProfile"
     | "assertProductionVideoProfile"
@@ -48,7 +51,13 @@ interface IDeliveryReport {
   revision: ReturnType<typeof readAutoMovieRevision>;
   backend: string;
   status: "published" | "blocked" | "failed";
-  video: "film.mp4" | null;
+  video: "film.mp4" | "film.mov" | null;
+  /**
+   * Present for a transparent render: its `film.mov` is a layer with straight
+   * alpha and writes no audio track, because the film it is composited into
+   * keeps the soundtrack.
+   */
+  layer?: { background: "transparent"; audio: "none" };
   args: readonly string[];
   frames: Pick<
     IAutoMovieDrawnVideoResult["frames"][number],
@@ -109,8 +118,11 @@ const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
 /**
  * Renders one subject and publishes an approved film beside its shared report.
  * Every measurable audit runs on the drawn frames or the exact staged encoded
- * bytes. The encoded file must also carry its declared picture profile and,
- * with a soundtrack, the AAC profile, or no audio track without one
+ * bytes. The decoded audio's integrated loudness and true peak, measured by the
+ * production render's BS.1770-5 meter, must meet the targets the sound-list mix
+ * applied or, for a supplied soundtrack, the declared loudness intent. The
+ * encoded file must also carry its declared picture profile and, with a
+ * soundtrack, the AAC profile, or no audio track without one
  * (`auditAutoMovieDeliveryProfile`); a mismatch blocks like a blocking audit
  * finding and the report's `profile` records each field with its expected and
  * observed values. A blocked attempt replaces the report and preserves the
@@ -124,6 +136,16 @@ const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
  * report's `source.sha256`; the folder is staged and installed in the same
  * publish step as the film, so a blocked or failed attempt keeps the former
  * `controls/` with the former film.
+ *
+ * With `background` `transparent`, the beauty pass is drawn over a transparent
+ * background and its straight-alpha PNG files are wrapped unencoded into
+ * `film.mov` in `media/automovie/<film>/transparent` by default, so a layer
+ * attempt never replaces the film's report. The layer carries no audio: the
+ * film's required soundtrack is not expected, none is passed to the wrap and
+ * the report's `layer` says so. The black check, which reads a transparent
+ * frame as black, does not block; the profile check is replaced by
+ * `auditAutoMovieAlphaSamples`, which requires one sample per drawn frame with
+ * the frame file's bytes.
  */
 export async function renderAutoMovieVideo(
   props: {
@@ -144,6 +166,12 @@ export async function renderAutoMovieVideo(
      * `<out>/controls/`; absent or empty draws the film alone.
      */
     passes?: readonly string[];
+    /**
+     * `transparent` renders a straight-alpha layer as `film.mov` with no audio,
+     * into `media/automovie/<film>/transparent` by default; absent or `scene`
+     * renders the film.
+     */
+    background?: "scene" | "transparent";
   },
   run: typeof runAutoMovieFfmpeg = runAutoMovieFfmpeg,
 ): Promise<{
@@ -157,11 +185,22 @@ export async function renderAutoMovieVideo(
     props: props.props,
   });
   const { name, delivery: intent } = session.subject;
+
+  // A transparent layer has its own folder, so its attempts never replace the
+  // report of the film in `videos/`.
+  const transparent: boolean = props.background === "transparent";
+  const file: "film.mp4" | "film.mov" = transparent ? "film.mov" : "film.mp4";
   const out = path.resolve(
     props.root,
-    props.out ?? path.join("media", "automovie", name, "videos"),
+    props.out ??
+      path.join(
+        "media",
+        "automovie",
+        name,
+        transparent ? "transparent" : "videos",
+      ),
   );
-  const video = path.join(out, "film.mp4");
+  const video = path.join(out, file);
   const report = path.join(out, "render-report.json");
   const reservation = path.join(out, ".render-publish");
   let reservationTicket: string | undefined;
@@ -175,7 +214,7 @@ export async function renderAutoMovieVideo(
       reservation,
       out,
     );
-    const candidate = path.join(staging, "film.mp4");
+    const candidate = path.join(staging, file);
     const pendingReport = path.join(staging, "render-report.json");
     const attempt: IDeliveryReport = {
       subject: name,
@@ -190,11 +229,21 @@ export async function renderAutoMovieVideo(
       delivery: null,
       profile: null,
       source: null,
+      ...(transparent
+        ? {
+            layer: {
+              background: "transparent" as const,
+              audio: "none" as const,
+            },
+          }
+        : {}),
     };
     const writeReport = async (): Promise<void> =>
       fs.writeFile(pendingReport, JSON.stringify(attempt, null, 2) + "\n");
     let phase = "draw";
-    const soundtrack: string | null = intent?.audio?.path ?? null;
+    const soundtrack: string | null = transparent
+      ? null
+      : (intent?.audio?.path ?? null);
     try {
       const frameRoot = path.join(props.root, ".cache", "render");
       await fs.mkdir(frameRoot, { recursive: true });
@@ -215,6 +264,7 @@ export async function renderAutoMovieVideo(
         spec: SPEC,
         frameDir: scratch.split(path.sep).join("/"),
         outputPath: candidate,
+        ...(transparent ? { background: "transparent" as const } : {}),
         ...(controls === null
           ? {}
           : {
@@ -254,14 +304,19 @@ export async function renderAutoMovieVideo(
         file: path.relative(out, candidate).split(path.sep).join("/"),
         sha256: hash.digest("hex"),
       };
+      // The decoded audio meets the targets the mix applied (the production's
+      // own or EBU R 128), or the production's own for a supplied soundtrack.
+      const loudness =
+        attempt.sound?.loudness.intent ?? intent?.loudness ?? undefined;
       const expected = {
         frameCount: result.frames.length,
         frameRate: result.frameRate,
-        audioRequired: intent?.audio?.required ?? false,
+        audioRequired: transparent ? false : (intent?.audio?.required ?? false),
         contentRequired: intent !== undefined,
         ...(intent?.allowances === undefined
           ? {}
           : { allowances: intent.allowances }),
+        ...(loudness === undefined ? {} : { loudness }),
       };
       const thresholds = intent?.thresholds ?? THRESHOLDS;
       const streams = await runAutoMovieDeliveryDecode(
@@ -270,6 +325,7 @@ export async function renderAutoMovieVideo(
         expected,
         thresholds,
         run,
+        props.host.render.createAutoMovieLoudnessMeter,
       );
       // The drawn frames and the soundtrack as the encoder read them, measured
       // the same way, before the frame scratch is released.
@@ -290,17 +346,28 @@ export async function renderAutoMovieVideo(
 
       // The file must carry the picture and sound profiles its types declare;
       // the encoder muxed a soundtrack exactly when it had a second input.
-      attempt.profile = await auditAutoMovieDeliveryProfile({
-        render: props.host.render,
-        path: candidate,
-        width: session.subject.width,
-        height: session.subject.height,
-        frameRate: result.frameRate,
-        audio: attempt.args.indexOf("-i", attempt.args.indexOf("-i") + 2) >= 0,
-      });
+      // A transparent layer instead holds each drawn PNG file as one sample.
+      attempt.profile = transparent
+        ? await auditAutoMovieAlphaSamples({
+            path: candidate,
+            frames: result.frames.map(({ file }) => file),
+          })
+        : await auditAutoMovieDeliveryProfile({
+            render: props.host.render,
+            path: candidate,
+            width: session.subject.width,
+            height: session.subject.height,
+            frameRate: result.frameRate,
+            audio:
+              attempt.args.indexOf("-i", attempt.args.indexOf("-i") + 2) >= 0,
+          });
 
       const failures = [
-        ...releaseFindings(attempt.diagnostics, attempt.delivery),
+        ...listAutoMovieReleaseFindings(
+          attempt.diagnostics,
+          attempt.delivery,
+          transparent ? ["black"] : [],
+        ),
         ...attempt.profile.map(
           (finding: IAutoMovieDeliveryProfileFinding): string =>
             `unsupported-${finding.media}-profile.${finding.field}: expected ${finding.expected}, observed ${finding.observed}`,
@@ -313,7 +380,7 @@ export async function renderAutoMovieVideo(
 
       phase = "publish";
       attempt.status = "published";
-      attempt.video = "film.mp4";
+      attempt.video = file;
       await writeReport();
       if (controls !== null)
         await writeControlRecord(controls.staged, {
@@ -334,7 +401,7 @@ export async function renderAutoMovieVideo(
         video,
         pendingReport,
         report,
-        previous: path.join(staging, "previous.mp4"),
+        previous: path.join(staging, "previous-" + file),
         ...(controls === null
           ? {}
           : {
@@ -398,77 +465,5 @@ async function writeControlRecord(
   await fs.writeFile(
     path.join(folder, "record.json"),
     JSON.stringify(record, null, 2) + "\n",
-  );
-}
-
-/**
- * Selects the first usable cursor in each audit while retaining complete
- * details in the report.
- */
-function releaseFindings(
-  diagnostics: IDeliveryReport["diagnostics"],
-  delivery: DeliveryAudit,
-): string[] {
-  const details: string[] = [];
-  if (diagnostics?.hasBlockingFinding) {
-    const blocking = diagnostics.episodes.find(
-      ({ worst: { finding } }) =>
-        finding.category === "error" && finding.confidence === "confirmed",
-    );
-    const first =
-      blocking?.first.finding.category === "error" &&
-      blocking.first.finding.confidence === "confirmed"
-        ? blocking.first
-        : blocking?.worst;
-    details.push(
-      first === undefined
-        ? "Scene inspection failed"
-        : first.finding.code +
-            cursor(first.time.filmSeconds, first.time.outputFrame),
-    );
-  }
-  if (diagnostics?.unresolvedRequiredCoverage) {
-    const unresolved = diagnostics.coverage.find(
-      ({ coverage }) =>
-        coverage.required &&
-        (coverage.status === "deferred" || coverage.status === "unsupported"),
-    );
-    details.push(
-      unresolved === undefined
-        ? "Required scene inspection coverage is unresolved"
-        : "Required scene " +
-            unresolved.coverage.check +
-            " coverage is unresolved" +
-            cursor(unresolved.first.filmSeconds, unresolved.first.outputFrame),
-    );
-  }
-
-  for (const finding of delivery.findings) {
-    if (!finding.blocking) continue;
-    if (finding.kind !== "content") {
-      details.push(finding.media + ": " + finding.reason);
-      continue;
-    }
-    const {
-      ticks,
-      timeBase: [numerator, denominator],
-    } = finding.start;
-    details.push(
-      finding.outcome +
-        " " +
-        finding.detector +
-        cursor((ticks * numerator) / denominator, finding.firstOutputFrame),
-    );
-  }
-  return details;
-}
-
-/**
- * Formats the available output frame and film seconds without inventing an
- * audio frame.
- */
-function cursor(seconds: number, frame?: number): string {
-  return (
-    (frame === undefined ? "" : " at frame " + frame) + " (" + seconds + " s)"
   );
 }

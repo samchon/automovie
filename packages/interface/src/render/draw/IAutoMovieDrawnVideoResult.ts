@@ -1,4 +1,5 @@
 import type { IAutoMovieProductionSoundAnalysis } from "../../production/IAutoMovieProductionSoundAnalysis.js";
+import type { IAutoMovieRenderedProductionSound } from "../../production/sound/IAutoMovieRenderedProductionSound.js";
 import type { IAutoMovieControlRecord } from "../delivery/IAutoMovieControlRecord.js";
 import type { IAutoMovieDeliveredCutEntry } from "../delivery/IAutoMovieDeliveredCutEntry.js";
 import type { IAutoMovieDeliveryContentAudit } from "../delivery/IAutoMovieDeliveryContentAudit.js";
@@ -71,5 +72,12 @@ export namespace IAutoMovieDrawnVideoResult {
 
     /** Measurements of the mixed master before 16-bit quantization. */
     analysis: IAutoMovieProductionSoundAnalysis;
+
+    /**
+     * The loudness targets the mix applied (the production's, or EBU R 128),
+     * the limiter ceiling, each line's gain and the master stage; the delivery
+     * audit checks the decoded file against `loudness.intent`.
+     */
+    loudness: IAutoMovieRenderedProductionSound.ILoudness;
   }
 }

@@ -73,7 +73,7 @@ The profile records, for each delivered video:
 - caption tracks, with their format and style guide;
 - for generated video, the disclosure its release owes.
 
-For a film with sound, it also records the audio tracks and sample rate, the loudness target with its measurement method and true-peak limit, and any stems or music-and-effects mix the release requires.
+For a film with sound, it also records the audio tracks and sample rate, the loudness target with its measurement method and true-peak limit, and any stems or music-and-effects mix the release requires. A direct 3D film carries the loudness target, tolerance and true-peak limit into its delivery intent's `loudness` record, which the render mixes and checks against, as [film sound](../audio/film-sound.md#loudness) explains.
 
 For standalone audio, record the promised format, sample rate and any required loudness targets.
 

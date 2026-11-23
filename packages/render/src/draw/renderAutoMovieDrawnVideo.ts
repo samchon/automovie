@@ -11,6 +11,7 @@ import type {
 import { mixAutoMovieFilmSound } from "../audio/mixAutoMovieFilmSound.js";
 import { AutoMovieControlChannelWriter } from "../delivery/AutoMovieControlChannelWriter.js";
 import { admitAutoMovieControlPasses } from "../delivery/admitAutoMovieControlPasses.js";
+import { planAutoMovieAlphaWrap } from "../delivery/planAutoMovieAlphaWrap.js";
 import { planAutoMovieDeliveredCut } from "../delivery/planAutoMovieDeliveredCut.js";
 import { planAutoMovieVideoEncoding } from "../delivery/planAutoMovieVideoEncoding.js";
 import { frameName } from "../frameName.js";
@@ -37,10 +38,11 @@ import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";
  *
  * A subject that declares a sound list gets its soundtrack from it: before the
  * first frame, `mixAutoMovieFilmSound` reads the list's files through `read`,
- * admits and mixes them, and the WAVE master is written as
- * `<frameDir>/soundtrack.wav` and encoded as the film's soundtrack; the
- * result's `sound` carries its digest, each line's PCM digest and the master's
- * analysis. A subject that declares a sound list and a soundtrack `audio` is
+ * admits and mixes them to the subject's `delivery.loudness` targets (EBU R 128
+ * without them), and the WAVE master is written as `<frameDir>/soundtrack.wav`
+ * and encoded as the film's soundtrack; the result's `sound` carries its
+ * digest, each line's PCM digest, the master's analysis and the loudness
+ * record. A subject that declares a sound list and a soundtrack `audio` is
  * refused.
  *
  * A subject that supplies a `cut` gets the result's `cut`: one row per entry
@@ -54,6 +56,13 @@ import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";
  * encode changes depth values and mask colours. The result's `controls` lists
  * each channel's convention and file digests. The passes are admitted by
  * `admitAutoMovieControlPasses` before any frame is drawn.
+ *
+ * With `background` `transparent`, each frame is drawn over a transparent
+ * background and written as a straight-alpha RGBA PNG, and `encode` is handed
+ * `planAutoMovieAlphaWrap`'s vector, which wraps the files unencoded with no
+ * audio; the subject's soundtrack and sound list are left to its film, and
+ * control passes are refused, because guide passes keep their black
+ * background.
  *
  * Files and processes are the host's: `write` stores a file, `read` reads a
  * sound-list file and `encode` runs FFmpeg, so the order of every step runs
@@ -114,6 +123,14 @@ export async function renderAutoMovieDrawnVideo(props: {
     /** Folder the control frame files are written into. */
     frameDir: string;
   };
+
+  /**
+   * `transparent` draws every frame over a transparent background, writes
+   * straight-alpha RGBA PNG files and wraps them unencoded into the output by
+   * `planAutoMovieAlphaWrap`, with no soundtrack; absent or `scene` draws the
+   * opaque film.
+   */
+  background?: "scene" | "transparent";
 }): Promise<IAutoMovieDrawnVideoResult> {
   const { subject } = props.session;
   const spec: IAutoMovieRenderSpec = {
@@ -128,8 +145,15 @@ export async function renderAutoMovieDrawnVideo(props: {
     throw new Error(
       `Subject "${subject.name}" declares both a sound list and the soundtrack "${props.audio}"; a film's sound comes from one of them.`,
     );
-  const soundtrack: string | null =
-    subject.sound === undefined
+  // A transparent layer carries no sound; the film it is composited into does.
+  const transparent: boolean = props.background === "transparent";
+  if (transparent && (props.controls?.passes.length ?? 0) !== 0)
+    throw new Error(
+      `Subject "${subject.name}" cannot draw control passes over a transparent background; guide passes keep their own black background`,
+    );
+  const soundtrack: string | null = transparent
+    ? null
+    : subject.sound === undefined
       ? props.audio
       : `${props.frameDir}/soundtrack.wav`;
   const plan: ReturnType<typeof planAutoMovieVideoEncoding> =
@@ -153,6 +177,9 @@ export async function renderAutoMovieDrawnVideo(props: {
       },
       totalFrames: plan.frameCount,
       read: props.read,
+      ...(subject.delivery?.loudness === undefined
+        ? {}
+        : { loudness: subject.delivery.loudness }),
     });
     await props.write(soundtrack, mixed.wav);
     sound = {
@@ -167,6 +194,7 @@ export async function renderAutoMovieDrawnVideo(props: {
         }),
       ),
       analysis: mixed.analysis,
+      loudness: mixed.loudness,
     };
   }
 
@@ -205,6 +233,7 @@ export async function renderAutoMovieDrawnVideo(props: {
       seconds,
       ["beauty", ...passes],
       "delivery",
+      transparent ? "transparent" : undefined,
     );
     const { picture, diagnostics }: IAutoMovieDrawnPass = pictures[0]!;
     await channels?.add(index, seconds, pictures.slice(1));
@@ -220,7 +249,10 @@ export async function renderAutoMovieDrawnVideo(props: {
       packets.push({ ...diagnostics, time: { ...time, outputFrame: index } });
     }
     const file: string = `${props.frameDir}/${frameName(index)}`;
-    await props.write(file, await encodeAutoMovieRasterPng(picture));
+    await props.write(
+      file,
+      await encodeAutoMovieRasterPng(picture, { alpha: transparent }),
+    );
     frames.push({
       index,
       seconds,
@@ -243,6 +275,16 @@ export async function renderAutoMovieDrawnVideo(props: {
     ...(cut === undefined ? {} : { cut }),
     ...(channels === undefined ? {} : { controls: channels.finish() }),
   };
-  await props.encode(plan.args, drawn);
-  return { ...drawn, args: plan.args, frameRate: plan.frameRate };
+  // A transparent render wraps its PNG files as they are; the opaque film is
+  // encoded on the planned vector.
+  const args: string[] = transparent
+    ? planAutoMovieAlphaWrap({
+        frameDir: props.frameDir,
+        outputPath: props.outputPath,
+        frameRate: plan.frameRate,
+        frameCount: plan.frameCount,
+      })
+    : plan.args;
+  await props.encode(args, drawn);
+  return { ...drawn, args, frameRate: plan.frameRate };
 }

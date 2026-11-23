@@ -72,3 +72,6 @@ export * from "./delivery/assertProductionAacProfile.js";
 export * from "./delivery/AUTOMOVIE_PRODUCTION_AAC_PROFILE.js";
 export * from "./delivery/AUTOMOVIE_MP4_SRGB_COLOUR.js";
 export * from "./delivery/AUTOMOVIE_MP4_UNITY_MATRIX.js";
+// The delivery host measures decoded audio with the same meter the mix uses,
+// and reaches it through the production's render.
+export { createAutoMovieLoudnessMeter } from "@automovie/engine";

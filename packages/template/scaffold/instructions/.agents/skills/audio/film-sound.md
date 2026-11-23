@@ -24,6 +24,8 @@ Keep per-clip generated audio for close effects. Run one ambience bed across sce
 
 Record the release's integrated loudness target and tolerance, measurement scope and true-peak limit in the [delivery profile](../production/project-context.md#the-delivery-profile). Ask the user which release specification applies, such as [EBU R128](https://tech.ebu.ch/publications/r128).
 
+A direct 3D film also writes those targets in its delivery intent's `loudness` record: `integratedLufs`, `toleranceLu`, `maximumTruePeakDbtp` and, when dialogue sits at its own level, `dialogueLufs`. The render levels each adopted line to the dialogue target, which is `integratedLufs` without `dialogueLufs`, and refuses a line that needs more than 12 dB either way; regenerate such a line nearer the target. It then brings the mix to `integratedLufs` under a true-peak limiter 1 dB below `maximumTruePeakDbtp`, because encoding can raise true peak. It checks the decoded `film.mp4` against the same targets and blocks a miss. Without the record it uses EBU R 128: −23 LUFS, 0.5 LU and −1 dBTP. `render-report.json` records which targets applied, each line's gain and the measured loudness and true peak.
+
 Measure on the decoded mix, by [ITU-R BS.1770](https://www.itu.int/rec/R-REC-BS.1770) with dialogue gating where the target asks for it, that loudness and true peak meet the target and that every spoken line rises over the bed.
 
 Keep dialogue, music and effects on separate tracks through the whole mix, so the stems and any music-and-effects mix the profile asks for can be exported; a generated take's speech reaches its own track only through separation.
