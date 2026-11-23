@@ -24,6 +24,7 @@ export * from "./createAutoMovieMeshDeformer";
 export * from "./createAutoMovieMeshDepthSampler";
 export * from "./createAutoMovieMeshRayCaster";
 export * from "./createAutoMovieMeshSeparationQuery";
+export * from "./createAutoMovieMeshWindingQuery";
 export * from "./createAutoMovieSignedMeshQuery";
 export * from "./createAutoMovieSupportSectionQuery";
 export * from "./curve";

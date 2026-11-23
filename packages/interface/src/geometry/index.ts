@@ -60,6 +60,7 @@ export type { IAutoMovieMeshSeparationVerdict } from "./IAutoMovieMeshSeparation
 export type { IAutoMovieMeshTarget } from "./IAutoMovieMeshTarget";
 export type { IAutoMovieMeshTopology } from "./IAutoMovieMeshTopology";
 export type { IAutoMovieMeshTransform } from "./IAutoMovieMeshTransform";
+export type { IAutoMovieMeshWinding } from "./IAutoMovieMeshWinding";
 export type { IAutoMovieMinimizeMeshClearance } from "./IAutoMovieMinimizeMeshClearance";
 export type { IAutoMovieModelCrossing } from "./IAutoMovieModelCrossing";
 export type { IAutoMoviePiecewisePlanarCurveSource } from "./IAutoMoviePiecewisePlanarCurveSource";
