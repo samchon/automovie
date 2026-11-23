@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Measure populations then simulations with one model cache, complete resource closure, material resolution and shadow/outline/background passes, preserving phase addition order and explicit unknown totals. Frame bounds maximize supported tiers; geometryBytes covers declared prototype/surface buffers rather than all native chunk clones/instance streams.
+Measure populations then simulations with one model cache, complete resource closure, material resolution, surface-graphic feed targets and their scene passes (`measureAutoMovieRenderFeeds`, each shown feed redrawing the scene with its shadow maps), and shadow/outline/background passes, preserving phase addition order and explicit unknown totals. Frame bounds maximize supported tiers; geometryBytes covers declared prototype/surface buffers rather than all native chunk clones/instance streams.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

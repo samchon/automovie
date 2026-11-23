@@ -37,6 +37,7 @@ import type {
 
 import { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
+import { measureAutoMovieRenderFeeds } from "./measureAutoMovieRenderFeeds";
 import { measureAutoMovieRenderTextureClosure } from "./measureAutoMovieRenderTextureClosure";
 import { measureRenderPopulation } from "./measureRenderPopulation";
 import { measureRenderSimulation } from "./measureRenderSimulation";
@@ -522,6 +523,40 @@ export const measureAutoMovieRenderInventory: (
       "pass",
     );
   }
+  // A feed target is one more texture, and a shown feed redraws the scene,
+  // its shadow maps included, into it once per frame.
+  const feeds: measureAutoMovieRenderFeeds.IResult =
+    measureAutoMovieRenderFeeds(subject);
+  const sceneDraws: number = casters.reduce(
+    (
+      sum: number,
+      caster: { depthFaces: number; filterDraws: number },
+    ): number => sum + opaqueDraws * caster.depthFaces + caster.filterDraws,
+    opaqueDraws,
+  );
+  const sceneTriangles: number = casters.reduce(
+    (
+      sum: number,
+      caster: { depthFaces: number; filterDraws: number },
+    ): number => sum + opaqueTriangles * caster.depthFaces + caster.filterDraws,
+    opaqueTriangles,
+  );
+  for (const track of feeds.tracks) {
+    const source: string = `surfaceGraphics["${track.owner}"]`;
+    add(track.owner, source, "textures", track.targets, "runtime");
+    add(track.owner, source, "textureBytes", track.bytes, "runtime");
+    add(track.owner, source, "drawCalls", track.passes * sceneDraws, "pass");
+    add(
+      track.owner,
+      source,
+      "triangles",
+      track.passes * sceneTriangles,
+      "pass",
+    );
+  }
+  drawCalls += feeds.passes * sceneDraws;
+  triangles += feeds.passes * sceneTriangles;
+
   const image: string | null = subject.scene.environment?.image ?? null;
   if (image !== null) {
     drawCalls += 1;
@@ -541,8 +576,9 @@ export const measureAutoMovieRenderInventory: (
     vertices: partial ? null : vertices,
     drawCalls,
     materials: materials.size + defaultMaterials,
-    textures: textureAllocations,
-    textureBytes,
+    textures:
+      textureAllocations === null ? null : textureAllocations + feeds.targets,
+    textureBytes: textureBytes === null ? null : textureBytes + feeds.bytes,
     geometryBytes: partial ? null : geometryBytes,
     lights: subject.scene.lights.length,
     shadowMaps,
