@@ -260,6 +260,9 @@ catalogs:
     prettier:
       specifier: ^3.5.3
       version: 3.8.3
+    prettier-plugin-jsdoc:
+      specifier: ^1.8.1
+      version: 1.8.1
     typescript:
       specifier: ^7.0.2
       version: 7.0.2
@@ -358,6 +361,9 @@ importers:
       prettier:
         specifier: catalog:typescript
         version: 3.8.3
+      prettier-plugin-jsdoc:
+        specifier: catalog:typescript
+        version: 1.8.1(prettier@3.8.3)(supports-color@7.2.0)
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -2761,6 +2767,9 @@ packages:
     peerDependencies:
       react: '>=16.8'
 
+  binary-searching@2.0.5:
+    resolution: {integrity: sha512-v4N2l3RxL+m4zDxyxz3Ne2aTmiPn8ZUpKFpdPtO+ItW1NcTCXA7JeHG5GMBSvoKSkQZ9ycS+EouDVxYB9ufKWA==}
+
   boolean@3.2.0:
     resolution: {integrity: sha512-d0II/GO9uf9lfUHH2BQsjxzRJZBdsjgsBiW4BvhWk/3qoKwQFjIDVN19PfX8F2D/r9PCMTtLWjYVCFrpeYUzsw==}
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
@@ -2871,6 +2880,10 @@ packages:
   commander@8.3.0:
     resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
     engines: {node: '>= 12'}
+
+  comment-parser@1.4.9:
+    resolution: {integrity: sha512-+2AvZKjJaNq9GQljm3tr0utwrig5BL+jgJGvz5rDpGKNIp+ojcRXWUwBbh/sGIi1QCprR6PsKFakub+w1v+4hQ==}
+    engines: {node: '>= 12.0.0'}
 
   commondir@1.0.1:
     resolution: {integrity: sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg==}
@@ -4273,6 +4286,12 @@ packages:
   postcss@8.5.15:
     resolution: {integrity: sha512-FfR8sjd4em2T6fb3I2MwAJU7HWVMr9zba+enmQeeWFfCbm+UOC/0X4DS8XtpUTMwWMGbjKYP7xjfNekzyGmB3A==}
     engines: {node: ^10 || ^12 || >=14}
+
+  prettier-plugin-jsdoc@1.8.1:
+    resolution: {integrity: sha512-XuMqBWTc3b/8eCOe+OlZlFy9Z413a7WOmF4i5hDGtjbtIFOdvRrVtGjXR2Feye3TrLWhkkkHheNXPTyYKxw3nA==}
+    engines: {node: '>=14.13.1 || >=16.0.0'}
+    peerDependencies:
+      prettier: ^3.0.0
 
   prettier@3.8.3:
     resolution: {integrity: sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==}
@@ -6351,6 +6370,8 @@ snapshots:
       mathjax-full: 3.2.2
       react: 19.3.1
 
+  binary-searching@2.0.5: {}
+
   boolean@3.2.0: {}
 
   brace-expansion@5.0.6:
@@ -6441,6 +6462,8 @@ snapshots:
   commander@7.2.0: {}
 
   commander@8.3.0: {}
+
+  comment-parser@1.4.9: {}
 
   commondir@1.0.1: {}
 
@@ -8160,6 +8183,15 @@ snapshots:
       nanoid: 3.3.12
       picocolors: 1.1.1
       source-map-js: 1.2.1
+
+  prettier-plugin-jsdoc@1.8.1(prettier@3.8.3)(supports-color@7.2.0):
+    dependencies:
+      binary-searching: 2.0.5
+      comment-parser: 1.4.9
+      mdast-util-from-markdown: 2.1.0(supports-color@7.2.0)
+      prettier: 3.8.3
+    transitivePeerDependencies:
+      - supports-color
 
   prettier@3.8.3: {}
 
