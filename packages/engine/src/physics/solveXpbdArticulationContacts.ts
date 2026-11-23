@@ -26,11 +26,6 @@ import { solveXpbdSupportComplementarity } from "./solveXpbdSupportComplementari
  * points make that system rank-deficient, so its diagonal carries a
  * Tikhonov term of `sqrt(eps)` times itself, the float64 scale at which it
  * changes no well-posed solution.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the source, the rows, the test impulses, both solves and the regularization.
- * @evidence contracts/development/design.md#principled-representation A namespace over one tree's factor and the step's contacts; impulses in newton seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One entry and its record, called by solveXpbdArticulation for each motor-driven tree; the row types shared with the rows' owner and both solves.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Bounds and coefficients are the contacts'; nothing is tuned here.
  */
 export namespace solveXpbdArticulationContacts {
   /**
@@ -44,14 +39,6 @@ export namespace solveXpbdArticulationContacts {
    * @param task The root's momentum task, when the supports should meet one.
    * @param warm The tree's active sets from the previous substep, for the task's cascade.
    * @returns The combined response with the impulses to record; `base` itself, recording nothing, when no support takes part or the rows are singular.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is returned and both fallbacks.
-   * @evidence contracts/development/implementation.md#principled-implementation Mirtich 1996, chapter 6: K from unit test impulses through the articulated-body algorithm, then the cascade with a task or the complementarity solve without one.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Collect rows, then the task's cascade, else propagate tests, assemble K, solve, combine.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A singular system leaves the floating response instead of dividing.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One propagation (two linear sweeps) per row, then one of the two solves over the rows.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every test impulse reuses the tree's one factor.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh arrays; retains nothing.
    */
   export function solve(
     tree: AutoMovieXpbdArticulation.ITree,
@@ -247,11 +234,6 @@ export namespace solveXpbdArticulationContacts {
 
   /**
    * One actuated axis between a pressed support and the root: a joint-impulse unknown.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the edge, the axis and the cap.
-   * @evidence contracts/development/design.md#principled-representation Indices into the tree and a cap in newton metre seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built here and read by solveXpbdSupportCascade.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The cap is the motor's own over the substep.
    */
   export interface IActuator {
     /** The edge's index in the tree's edges. */
@@ -355,14 +337,6 @@ export namespace solveXpbdArticulationContacts {
    * dynamic friction impulse.
    *
    * @param held The solve to record.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each row adds to and why.
-   * @evidence contracts/development/implementation.md#principled-implementation A support's impulse is momentum the contact gave, so it belongs to the contact's own accumulators that the receipts read.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the records.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the final solve is recorded, after the caps settle.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the records.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each record is written once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mutates only the step's contacts; retains nothing.
    */
   export function commit(held: IHeld): void {
     for (const record of held.records)
@@ -373,11 +347,6 @@ export namespace solveXpbdArticulationContacts {
   /**
    * A support solve: the combined response and the impulses to record on
    * the contacts once it is final.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both parts.
-   * @evidence contracts/development/design.md#principled-representation A response and impulse records in newton seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by solve, applied by the caller and recorded by commit.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The response stays separate from recording, so a solve the caps redo is never recorded.
    */
   export interface IHeld {
     /** The motors' response with the supports' impulses added. */
@@ -389,11 +358,6 @@ export namespace solveXpbdArticulationContacts {
 
   /**
    * One support impulse to record.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the contact, the kind and the amount.
-   * @evidence contracts/development/design.md#principled-representation The contact record, whether it is a normal row, and the impulse in newton seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by solve and read by commit.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A patch records its tangential magnitude on its first contact, where the contact passes keep the patch's friction.
    */
   export interface IRecord {
     /** The contact recorded on. */
@@ -409,11 +373,6 @@ export namespace solveXpbdArticulationContacts {
   /**
    * One contact row: a unit force along a direction at a point of one tree
    * body.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the body, point, direction, bound, velocity and contact.
-   * @evidence contracts/development/design.md#principled-representation Tree indices, metres from the tree origin, a unit direction and newton seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by AutoMovieXpbdSupportRows.collect and read by the solves here, by solveXpbdSupportCascade and by solveXpbdSupportComplementarity.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values are the contacts' own.
    */
   export interface IRow {
     /** The body's index in the tree's states. */
@@ -437,11 +396,6 @@ export namespace solveXpbdArticulationContacts {
 
   /**
    * One taking-part patch's rows and friction.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the friction, the given normal, the prior friction and the rows.
-   * @evidence contracts/development/design.md#principled-representation A coefficient, newton seconds and row indices.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by AutoMovieXpbdSupportRows.collect and read by both solves.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values are the contacts' own.
    */
   export interface IPatch {
     /** The patch's Coulomb coefficient. */
@@ -463,11 +417,6 @@ export namespace solveXpbdArticulationContacts {
 
   /**
    * The rows and patches of one tree.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rows and the patches.
-   * @evidence contracts/development/design.md#principled-representation Two arrays; patches index the rows.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by AutoMovieXpbdSupportRows.collect and read by both solves.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values are the contacts' own.
    */
   export interface ISet {
     /** Every row. */
@@ -479,11 +428,6 @@ export namespace solveXpbdArticulationContacts {
 
   /**
    * A pair of values on a patch's two tangential rows: a sliding direction or a friction impulse.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both members.
-   * @evidence contracts/development/design.md#principled-representation Two components on the rows' tangent directions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by AutoMovieXpbdSupportRows.collect and solveXpbdSupportComplementarity; read by solveXpbdSupportCascade through IPatch.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No unit is implied beyond the owner's.
    */
   export interface ISlip {
     /** Along the first tangential row. */

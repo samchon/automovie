@@ -19,11 +19,6 @@ const { add, dot, scale, sub, unit } = AutoMovieSolidVector;
 /**
  * What a split derives from its declared planes (`IAutoMovieConstructionSplit.ICut`, `ICompose`): a child's rail as its skin cut by
  * planes written in a named frame, and from a composed end the forks on the host's ring, the seam planes and every child's rail.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two derivations and their sources.
- * @evidence contracts/development/design.md#principled-representation Planes fixed in a section's frame are resolved through that frame, and the composed end's forks, seam planes and rails are computed from the children's skins, so every result is a function of the parts' frames.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A frame record, a child record, the derived record and three functions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every failed premise is returned as a named refusal; nothing is clamped, tabulated or repaired.
  */
 export namespace AutoMovieConstructionSplitCompose {
   /**
@@ -32,14 +27,6 @@ export namespace AutoMovieConstructionSplitCompose {
    * @param frame The section's frame, mm.
    * @param sign The sign that turns `v x u` to the third axis.
    * @returns The basis, or null when the frame's axes span no plane.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation The stations advance along `v x u` of a section's frame, so the signed product is the direction out of an end.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three normalizations.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A degenerate frame returns null; no default axis is substituted.
-   * @evidence contracts/development/common.md#meaningful-documentation States the axes and the null case.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure conversion coordinates no work.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record.
    */
   export function basis(
     frame: { origin: readonly number[]; u: readonly number[]; v: readonly number[] },
@@ -74,14 +61,6 @@ export namespace AutoMovieConstructionSplitCompose {
    * @param child The child.
    * @param samples Phases at which the cut is admitted, the band's columns.
    * @returns The cut, or the refusal naming the child.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Each plane is carried from its named frame into kernel coordinates and the rail is the child's skin on their common kept region (`AutoMovieConstructionSkinCut`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Frame, planes, then the cut.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A zero normal and every refusal of the cut are returned with the child's name.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the refusal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The cut's own cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One cut per child coordinates no shared work.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the caller-owned cut.
    */
   export function cut(
     declared: IAutoMovieConstructionSplit.ICut,
@@ -117,14 +96,6 @@ export namespace AutoMovieConstructionSplitCompose {
    *
    * @param input The declaration, the host's ring and frame, the children and the band's columns.
    * @returns The derived members, or the refusal.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Sections, composition, the ring's crossings with each seam plane by sign change and bisection, then the offset wedge's cut of each child.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Four steps in the order their results are needed.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a section not admitted in the plane, every refusal of the composition, a seam plane that does not cross the ring twice, forks that do not nest and every refusal of a rail; no phase is authored or snapped. Two ring crossings between two of the ring's samples are not seen.
-   * @evidence contracts/development/common.md#meaningful-documentation States each step and the refusals.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Per child two cuts; per seam one pass round the ring at eight samples per band column and two bisections.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each seam plane serves its host forks and both neighbours' rails.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the caller-owned record; the sections are released.
    */
   export function derive(input: {
     compose: IAutoMovieConstructionSplit.ICompose;

@@ -8,14 +8,6 @@ import { IAutoMovieShotStoryTime } from "@automovie/interface";
  * the same clock as one that does not. Nothing is validated here: a non-finite
  * input, or an overflow, yields a non-finite story time.
  * `evaluateAutoMovieStorySync` reports a non-finite result as an unresolved operand.
- *
- * @evidence contracts/development/implementation.md#principled-implementation The interface defines story time as `originSeconds + t * rate` with an omitted rate of one, and this evaluates exactly that expression in double precision, one multiply and one add, with no clamping or rounding.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The single definition of the story map; `autoMovieStoryInterval`, `evaluateAutoMovieStorySync` and `inheritProductionLighting` all call it, so the rate default lives in one place.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No caller, shot or rate is special-cased, and invalid pins are left to the callers that own their diagnostics instead of being silently defaulted here.
- * @evidence contracts/development/common.md#meaningful-documentation States the formula and the rate default, the unit, that nothing is validated and what invalid input yields, and how the validating callers handle it.
- * @evidence contracts/development/implementation.md#efficient-algorithms One multiply and one add per call, constant time with no allocation.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure scalar map with no coordination across calls; recomputing it is cheaper than any lookup.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a number, allocates nothing, and keeps no reference to the pin after returning.
  */
 export const autoMovieStoryTime = (
   pin: IAutoMovieShotStoryTime,

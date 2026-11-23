@@ -18,11 +18,6 @@ import { solveXpbdContacts } from "./solveXpbdContacts";
  * "Fast and Simple Physics using Sequential Impulses"). Each such point
  * gives a normal row along its push direction; each patch gives two
  * tangential rows at its points' centroid (patch friction).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States which patches and points take part and every row a patch gives.
- * @evidence contracts/development/design.md#principled-representation A namespace over one tree and the step's contacts; rows in the tree origin's frame, impulses in newton seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by solveXpbdArticulationContacts, solveXpbdSupportCascade and solveXpbdSupportComplementarity.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Coefficients are the contacts' own.
  */
 export namespace AutoMovieXpbdSupportRows {
   /**
@@ -32,14 +27,6 @@ export namespace AutoMovieXpbdSupportRows {
    * @param contacts The step's contacts.
    * @param h The substep, seconds.
    * @returns The rows and patches, normals then tangents per patch.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is collected and in which order.
-   * @evidence contracts/development/implementation.md#principled-implementation Mirtich 1996 point rows and patch friction; Catto 2006 touching points.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the manifolds: points, then the patch's tangential rows.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A patch with no point touching is skipped; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the contacts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The contacts are new every substep.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh rows; retains nothing.
    */
   export function collect(
     tree: AutoMovieXpbdArticulation.ITree,
@@ -165,14 +152,6 @@ export namespace AutoMovieXpbdSupportRows {
    *
    * @param row The row.
    * @returns The spatial impulse, moment then force, about the tree origin.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the impulse and its layout.
-   * @evidence contracts/development/implementation.md#principled-implementation A force d at r is (r x d, d).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One spatial impulse.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure computation over its argument.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh array; retains nothing.
    */
   export function impulse(row: Contacts.IRow): number[] {
     return AutoMovieXpbdArticulation.spatialImpulse(row.point, row.direction);
@@ -185,14 +164,6 @@ export namespace AutoMovieXpbdSupportRows {
    * @param row The row.
    * @param response The response.
    * @returns Metres per second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read.
-   * @evidence contracts/development/implementation.md#principled-implementation The row's functional is its own unit impulse, so K is symmetric.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One dot product.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure computation over its arguments.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function along(
     row: Contacts.IRow,

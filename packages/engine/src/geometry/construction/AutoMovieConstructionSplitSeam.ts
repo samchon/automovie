@@ -12,11 +12,6 @@ const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
  * A split's curved seam (`IAutoMovieConstructionSplit.IProfile`): the curve both bands start from in place of the straight chord, in the seam plane that holds the chord and the host end's outward normal.
  *
  * The curve is the clamped cubic spline, on chord-length parameters (mm) between its knots, so it is parameterized by its own course and may run out along the host before it turns across the end, through the seam's first end (the host's end ring at phase `a`), the authored knots and its second end (phase `b`). At each end its unit tangent is the line where the host's tangent plane meets the seam plane: out of the host at the first end, into it at the second. The seam therefore leaves both forks along the host's own surface. Columns read it at equal arclength shares.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the plane, the curve, its end tangents, its parameter and its refusals.
- * @evidence contracts/development/design.md#principled-representation Represents A split's curved seam (`IAutoMovieConstructionSplit.IProfile`): the curve both bands start from in place of the straight chord, in the seam plane that holds the chord and the host end's outward normal: companion namespace of 4 members (`IAutoMovieConstructionSplitSeam.IPoint`, `ISeam`, `create`, `GAUSS`); units and frames named in its text: second, radians, world. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConstructionSplitSeam` in packages/engine/src/geometry/construction/AutoMovieConstructionSplitSeam.ts; its surface is the 4 members listed and the text shows 4 other files naming it, mostly packages/engine (3), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieConstructionSplitSeam {
   /**
@@ -30,14 +25,6 @@ export namespace AutoMovieConstructionSplitSeam {
    * @param input.knots The interior knots `[along, depth]`, mm.
    * @param input.heading A direction the plane holds in place of the end normal (`IAutoMovieConstructionSplit.IProfile.heading`), or absent.
    * @returns The seam, or the refusal.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Plane from the chord and the end normal, end tangents from the host's tangent planes, then the clamped spline and its arclength.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass: plane, knots, tangents, solve, lengths.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a collapsed chord, an end normal along the chord, a knot outside the chord's span or on its neighbour, and an end whose tangent plane holds no direction of the seam plane.
-   * @evidence contracts/development/common.md#meaningful-documentation States its refusals in its result.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in knots.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The two end jets serve both the ends and their tangents.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned seam retains its arrays.
    */
   export function create(
     input: IAutoMovieConstructionSplitSeam.ICreateInput,
@@ -277,14 +264,6 @@ export namespace AutoMovieConstructionSplitSeam {
    * @param input.normal The host end section's unit normal out of the host.
    * @param input.heading A direction the plane holds in place of the end normal (a composed end's bisector, `IAutoMovieConstructionSplit.ICompose`), or absent.
    * @returns The chord as a seam, or the refusal.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation The chord and its plane are the ones `create` builds its curve in, so a straight and a curved seam are ruled alike.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Ends, plane, then a linear reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses coincident forks and an end normal along the chord, as `create` does.
-   * @evidence contracts/development/common.md#meaningful-documentation States its plane and its refusals.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time per reading.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The two end jets serve both ends and the plane.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains two ends and one normal.
    */
   export function straight(
     input: IAutoMovieConstructionSplitSeam.IStraightInput,

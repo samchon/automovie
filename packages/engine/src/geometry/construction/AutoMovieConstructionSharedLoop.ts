@@ -23,11 +23,6 @@ import { AutoMovieSolidSharedCurve } from "./AutoMovieSolidSharedCurve";
  * the host and drops its foot on the part; `AutoMovieConstructionWidths` reads each width at the curve's points, the fold's turn among
  * them; the result is what `AutoMovieSolidBody.merge` takes as a join whose curve is supplied, so the rails, the blend, the trims and
  * the faces are the traced join's own.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the record becomes, which owners it reads and who consumes the result.
- * @evidence contracts/development/design.md#principled-representation One owner supplies the shared boundary to the host's trim, the blend and the part (construction.md, Connections); nothing here interpolates the loop a second time.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The prepared input, the refusal and one builder.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A refused premise returns its name and numbers; no part of the loop falls back to a trace.
  */
 export namespace AutoMovieConstructionSharedLoop {
   /**
@@ -38,14 +33,6 @@ export namespace AutoMovieConstructionSharedLoop {
    * @param host The host's atlas.
    * @param face The atlas face the loop lies on, `seed.hostFace`'s.
    * @returns The input, or the refusal.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Admits the loop's numbers, reads it through the port curve's owner, builds the shared contact with the join's own count, tolerance and grazing angle, and reads both width laws on it; a `point` seed's part chart point starts the first foot.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three owners called in order, each refusal passed on under its own name.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped or retried; a `station` width, which needs the part's phase as the parameter, is refused by the width owner.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the units and the result.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One port curve, one shared contact of `count` feet and two width laws of `count` readings each.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The contact's stored points serve the width laws and the join.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prepared input retains the contact, the laws and the borrowed surfaces for the join's lifetime.
    */
   export function create(
     node: IAutoMovieConstructionJoin,

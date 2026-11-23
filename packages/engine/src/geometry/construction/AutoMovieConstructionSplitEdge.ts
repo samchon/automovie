@@ -25,11 +25,6 @@ const { combine, sub } = AutoMovieSolidVector;
  * `V` is 0 with its first two derivatives at the loop and 1 with them zero at the rail, so `S` keeps the strip's loop edge and its
  * cross 2-jets at both edges and ends on `E(c)` itself. The displacement `E - B(L, .)` vanishes at every column and is the strip's
  * interpolation error between them. Every derivative is the chain rule on the child's 2-jet, the rail's and the correspondence's.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the carried band, the weight's flatness and what each edge keeps.
- * @evidence contracts/development/design.md#principled-representation One generating owner for the child's seam: the band's end edge evaluates the child on its rail curve, the curve the child's rail cycle keeps, so the two faces share one edge between columns (construction.md, Connections: Ownership), as a port's exact band does on its rail.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The carried band with its two correspondence readers, and one builder.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Refuses a correspondence that does not advance; nothing is refitted and the cross ribbons are the strip's own.
  */
 export namespace AutoMovieConstructionSplitEdge {
   /**
@@ -42,14 +37,6 @@ export namespace AutoMovieConstructionSplitEdge {
    * @param childPhases The child's phase at each column, unwrapped along the clock.
    * @param start The loop's own curve at a band clock with its first and second clock derivatives (the host's ring on an arc, the shared seam on a seam), or absent to keep the strip's loop edge. With it the band's loop edge is that curve at every clock, carried by the complementary weight `1 - V`, so two bands that read one seam share its points and tangents between columns as well as at them; the curve's tangent turns at a fork, where the loop has its corner.
    * @returns The carried band, or the refusal.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation The strip plus a displacement onto the owner's curve weighted by the quintic smoothstep, flat to second order at both edges, so both edges' cross 2-jets are the strip's and the end edge is the child on its rail.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The correspondence field, the rail's point with two clock derivatives, then one jet reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a correspondence whose derivative reaches zero from the field's own bounds; no derivative is differenced.
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(n) to prepare; a reading takes two strip jets, one child jet and one rail reading.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The correspondence field is prepared once for every reading.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The surface retains the strip, the child, the rail reader and one field.
    */
   export function carried(
     strip: IAutoMovieSolidSurface,

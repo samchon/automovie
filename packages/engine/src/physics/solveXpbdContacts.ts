@@ -28,20 +28,10 @@ import { physicalShapePenetration } from "./physicalShapePenetration";
  * repeats as often as the position passes, applies dynamic friction, an
  * impulse against the slip of at most what the cone leaves over all
  * sweeps, `(mu lambda_n - lambda_t) / h`, and at most what stops the slip, then sets the normal velocity to the restitution of the pre-step approach when that approach is faster than gravity gives in two substeps, and to rest otherwise.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three phases, the depth beyond the allowed error, the compliance, both frictions and the restitution threshold.
- * @evidence contracts/development/design.md#principled-representation A namespace over the world's colliders with each contact's witnesses in body frames and its multipliers in newton seconds squared.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `AutoMovieXpbdWorld.step` drives the three phases; the contacts it returns are what the simulation's receipts read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Coefficients are the colliders' and the world's; nothing is tuned here.
  */
 export namespace solveXpbdContacts {
   /**
    * One contact of a step: the pair, its normal and witnesses, and its multipliers.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the pair, its normal, witnesses, materials and multipliers.
-   * @evidence contracts/development/design.md#principled-representation Body-frame witnesses in metres, multipliers in newton seconds squared, impulses in newton seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Created by detect and read by the position and velocity passes and the world's manifolds.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Witnesses are stored in body frames so the passes read them at the current poses.
    */
   export interface IContact {
     /** The first collider. */
@@ -94,11 +84,6 @@ export namespace solveXpbdContacts {
 
   /**
    * Whether two colliders may touch; false excludes the pair from response and overlap reports.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what a false answer excludes.
-   * @evidence contracts/development/design.md#principled-representation A predicate over two colliders.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplied by the physical simulation's self-exclusions and consulted by detect.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts One predicate serves contact response and sensor overlaps.
    */
   export type Filter = (
     a: AutoMovieXpbdCollider,
@@ -116,14 +101,6 @@ export namespace solveXpbdContacts {
    * @param filter The pair filter.
    * @param band Depth below a support plane still counted as touching, metres.
    * @returns The contacts, in pair order; sensors included, flagged by their colliders.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bounds test, the filter, the manifold and the sensor case.
-   * @evidence contracts/development/implementation.md#principled-implementation Bounding boxes prune pairs; physicalShapePairContact gives depth and normal; physicalShapeContactManifold gives the patch points (Ericson 2005; Gregorius 2015).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pair loop delegating geometry to its owners.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every pair passing the bounds and the filter is measured exactly.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Quadratic in colliders for the bounds test, one exact query per overlapping pair.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each step's predicted poses differ, so nothing carries over.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh contacts; retains nothing.
    */
   export function detect(
     colliders: readonly AutoMovieXpbdCollider[],
@@ -209,14 +186,6 @@ export namespace solveXpbdContacts {
    * @param h The substep, seconds.
    * @param allowed The depth left uncorrected, metres.
    * @param frequency The contact spring's natural frequency, hertz.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the compliant depth correction and the friction projection.
-   * @evidence contracts/development/implementation.md#principled-implementation Macklin et al. 2016 compliance alpha = w / omega^2 on depth beyond the allowed error; static friction as a Coulomb projection of the accumulated tangential multiplier onto mu lambda_n.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the contacts: normal, then tangential.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sensors are skipped; coefficients are the contact's.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in contacts per pass.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Multipliers accumulate on the contacts for the step only.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mutates only the bodies it is given; allocates only transient vectors.
    */
   export function positions(
     contacts: readonly IContact[],
@@ -327,14 +296,6 @@ export namespace solveXpbdContacts {
    * @param contacts The step's contacts.
    * @param h The substep, seconds.
    * @param gravity The world gravity's magnitude, metres per second squared.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States dynamic friction's budget and the restitution rule.
-   * @evidence contracts/development/implementation.md#principled-implementation Mueller et al. 2020, sec. 3.6: dynamic friction bounded by the cone's remaining impulse, then the normal velocity set to the restitution of the pre-step approach above 2 g h.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Friction then normal, each with its own generalized inverse mass.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only pressing contacts are treated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in contacts per sweep.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The friction budget accumulates on the contacts for the step only.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mutates only the bodies it is given; allocates only transient vectors.
    */
   export function velocities(
     contacts: readonly IContact[],
@@ -452,14 +413,6 @@ export namespace solveXpbdContacts {
    *
    * @param contacts The step's contacts, the points of one pair adjacent.
    * @returns One array per pair; the contacts are the given records.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the grouping, its order and the sensor exclusion.
-   * @evidence contracts/development/implementation.md#principled-implementation detect emits a pair's points together, so consecutive equal pair indices form its patch.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop that opens a group whenever the pair changes.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sensors are skipped; no pair has its own rule.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in contacts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each pass groups the step's current contacts; nothing is cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh arrays over the given records; retains nothing.
    */
   export function manifolds(contacts: readonly IContact[]): IContact[][] {
     const result: IContact[][] = [];

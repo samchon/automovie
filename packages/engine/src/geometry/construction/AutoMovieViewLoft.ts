@@ -68,11 +68,6 @@ interface Row {
  * sections, because skipping a row cannot remove that invalid original field.
  * Unreachable girth keeps its reach endpoint with a diagnostic. Fewer than two
  * surviving sections publish no final chain. Source records and inputs remain immutable.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the inputs' premises, the poles' domes, the chain stations' continuity with its derivation and the result's fields.
- * @evidence contracts/development/design.md#principled-representation The result carries its actual four-quarter sections and split chains separately, with their source frames, the final field and its continuity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One create operation owns view-part admission and publication. Station records expose the admitted geometry to inspection and the compatibility layer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A rejected source keeps its diagnostic, never publishes a replacement shape, and a split chain declares only the continuity of its joins.
  */
 export namespace AutoMovieViewLoft {
   /**
@@ -80,14 +75,6 @@ export namespace AutoMovieViewLoft {
    *
    * @param part The part.
    * @returns The chain, its surface, its sections and its diagnostics.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Retains original direct scalar sources as final local authority and actual analytic frame jets; explicit compatibility coefficients keep their existing common closing coordinate or ordinary SeamStation law, sampled from each station's own section or chain.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Source admission, section construction and final chain construction remain consecutive stages with explicit diagnostics.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid source/fullness/sections retain their diagnostics. A direct field with a rejected prepared station is not published through surviving compatibility rows, and no fallback section is introduced.
-   * @evidence contracts/development/common.md#meaningful-documentation The namespace describes ownership, totality, the pole rule, the chain stations and the final coefficient interpolation; source values use the value-only owner.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each source is prepared once. An O(L+K) station-set and declared-knot coverage pass precedes section solves; each station then solves one section or prepares one chain, and coefficient/frame preparation and ordinary field solves are linear in layer rows and component widths.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses prepared scalar sources across station values; SeamStation skips source-owned tables and reuses each ordinary curvature table for its slope solve.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned direct chain owns original scalar preparations and O(LN) compatibility bindings alongside its sections; temporary samples are call-local and no cross-part cache is added.
    */
   export function create(part: IAutoMovieViewPart): IAutoMovieViewLoft.IResult {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];

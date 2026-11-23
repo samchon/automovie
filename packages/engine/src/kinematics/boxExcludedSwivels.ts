@@ -54,14 +54,6 @@ import { swivelJointReadings } from "./swivelJointReadings";
  *
  * @param props The joint and its rotation by swivel.
  * @returns Whether every swivel in `[low, high]`, degrees, is refused; a joint with nothing to refuse refuses no swivel.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the premise on the rotation, why each entry is a sinusoid, each bound's sinusoid for both charts, the margin and why every refusal is certain, and every case that refuses nothing.
- * @evidence contracts/development/implementation.md#principled-implementation Rodrigues' formula makes each entry an exact sinusoid in the swivel, so each bound's crossing swivels are a sinusoid's two arccos roots, and an angle's interval maps through the rest frame and the chart exactly as `decomposeJointRotationOnBasis` and `alternateRigJointAngles` read it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The entries are fitted once, each reading's axes give their bound sinusoids, the sinusoids their arcs, the arcs one merged list per reading, and the test reads the lists.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sound by construction, never by sampling: an arc is refused only from its sinusoid's roots with the joints' tolerance to spare, and a case the analysis does not cover refuses nothing rather than guessing.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three rotations and nine dot products each fit the entries, a few arcs per reading are merged once, and each test is a scan of a handful of merged arcs.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The fit, the arcs, their union and its test are `swivelArcs`'s, shared with a point's bounds; the arcs are built once per rotation and read by every test of its sweep.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the two merged arc lists in the returned test only.
  */
 export function boxExcludedSwivels(
   props: IAutoMovieBoxExcludedSwivels.IProps,

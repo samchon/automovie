@@ -1,11 +1,6 @@
 import type { IAutoMovieConstructionLocalScaleMinorant } from "@automovie/interface";
 /**
  * IAutoMovieConstructionLocalScaleMinorant.Certify one uniform attenuation of a positive nonuniform scale field.
- *
- * @evidence contracts/development/design.md#principled-representation Dimensionless factors and natural logarithmic upper bounds constrain one constant multiplier; the caller retains geometry and derivative units.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the attenuation and numerical postconditions consumed by SplitBand; the geometry owner supplies its existing certificate.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Has no scene data, common-factor fallback, scalar geometry predicate or configurable search.
- * @evidence contracts/development/common.md#meaningful-documentation States the discrete scope, scalar units and separation from geometric certification.
  */
 export namespace AutoMovieConstructionLocalScaleMinorant {
   /**
@@ -28,14 +23,6 @@ export namespace AutoMovieConstructionLocalScaleMinorant {
    * @param forwardCaps Nonempty original admitted forward constraints.
    * @param certifyColumn Original owner's literal scaled-vector and geometry certificate.
    * @returns A new certified field or a named refusal; never retries or mutates inputs.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Uniform attenuation preserves nonuniform ratios. Positive binary64 encodings are ordered, so one predecessor guards the ratio; literal numerical and geometry checks close every result rather than assuming log/exp inverses or downward closure in floating point.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates inputs, re-certifies held factors, chooses one alpha, then certifies the candidate. The geometry callback retains the existing predicate at its owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Has no fitted threshold, iteration, retry, common-factor input, clipping or silent fallback. Unchanged admissible values use alpha exactly 1.
-   * @evidence contracts/development/common.md#meaningful-documentation States scalar/log units, subnormal and refusal behavior, callback effects, and discrete versus continuous scope.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(N+C) numerical work and storage for N columns and C forward caps, plus C held and N final callback calls; no geometry queries or searches are owned here.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One pure invocation consumes completed field/cap work and coordinates no cross-request effects.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Arrays and the index map belong to one call; only the accepted field and limiting indices escape, with no retained module state.
    */
   export function create(
     lastField: readonly number[],
