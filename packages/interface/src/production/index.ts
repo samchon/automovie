@@ -155,6 +155,7 @@ export type { IAutoMoviePlantPerformShotStanceFeet } from "./IAutoMoviePlantPerf
 export type { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
 export type { IAutoMoviePlaybackEditorialMarker } from "./IAutoMoviePlaybackEditorialMarker";
 export type { IAutoMoviePlaybackEvent } from "./IAutoMoviePlaybackEvent";
+export type { IAutoMoviePlaybackLayer } from "./IAutoMoviePlaybackLayer";
 export type { IAutoMoviePlaybackSample } from "./IAutoMoviePlaybackSample";
 export type { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
 export type { IAutoMoviePointSubjectBox } from "./IAutoMoviePointSubjectBox";

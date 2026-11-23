@@ -14,7 +14,7 @@ A mismatched render target or empty schedule refuses; output path overrides are 
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-The planner documents editorial versus output fps and target equality; manifest members state seconds, trim offsets, blend weights and host paths.
+The planner documents editorial versus output fps and target equality; manifest members state seconds, trim offsets, each blend's progress and kind, and host paths.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

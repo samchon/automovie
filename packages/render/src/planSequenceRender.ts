@@ -21,7 +21,11 @@ import { frameTimes } from "./frameTimes.js";
 import { renderPathStem } from "./renderPathStem.js";
 
 /**
- * Build the render-layer manifest for a committed sequence. The output FPS is controlled by the render spec; the cut's fps is preserved as editorial metadata. Trim, playback-rate and transition arithmetic is delegated to the engine playback timeline, then copied into the manifest so the capture host has no hidden timing rules.
+ * Build the render-layer manifest for a committed sequence. The output FPS is
+ * controlled by the render spec; the cut's fps is preserved as editorial
+ * metadata. Trim, playback-rate and transition arithmetic is delegated to the
+ * engine playback timeline, then copied into the manifest so the capture host
+ * has no hidden timing rules.
  */
 export const planSequenceRender: (
   props: IAutoMoviePlanSequenceRenderProps,
@@ -117,7 +121,11 @@ const transitionSpans: (
   );
 
 /**
- * Resolve every output frame in one forward sweep. Frame times come from {@link frameTimes} (`i / fps`, strictly increasing), so a single {@link playbackCursor} walks the timeline once, O(frames + entries) instead of a per-frame scan, landing on the same live entry a per-frame resolve would, so the samples are byte-identical.
+ * Resolve every output frame in one forward sweep. Frame times come from
+ * {@link frameTimes} (`i / fps`, strictly increasing), so a single
+ * {@link playbackCursor} walks the timeline once, O(frames + entries) instead of
+ * a per-frame scan, landing on the same live entry a per-frame resolve would,
+ * so the samples are byte-identical.
  */
 const frameSamples: (
   sequence: IAutoMovieSequence,
@@ -150,6 +158,7 @@ const frameSamples: (
                 shot: sample.blend.shot,
                 shotTimeSeconds: sample.blend.time,
                 alpha: sample.blend.alpha,
+                kind: sample.blend.kind,
               },
       };
     },
