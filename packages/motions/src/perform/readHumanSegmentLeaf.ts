@@ -22,20 +22,23 @@ import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { HumanSegmentLayer } from "./HumanSegmentLayer";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 import type { HumanSegmentPose } from "./HumanSegmentPose";
-import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { demandedHumanChannels } from "./demandedHumanChannels";
+import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
 import { unfollowedHumanChannels } from "./unfollowedHumanChannels";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
 
-/** The arms, placed at the anchor course (`readHumanSegmentLeaf.anchors`) where the plan's own course does not place them. */
+/**
+ * The arms, placed at the anchor course (`readHumanSegmentLeaf.anchors`) where
+ * the plan's own course does not place them.
+ */
 const ARMS: readonly AutoMovieHumanLimb[] = ["leftArm", "rightArm"];
 
 /**
  * Read the action before its entering offset, including current holds and
- * overlays. A read with no fits of its own places the arms at the plan's
- * swivel course (`readHumanSegmentLeaf.swivels`) and every other arm fit at
- * the action's anchor course (`readHumanSegmentLeaf.anchors`).
+ * overlays. A read with no fits of its own places the arms at the plan's swivel
+ * course (`readHumanSegmentLeaf.swivels`) and every other arm fit at the
+ * action's anchor course (`readHumanSegmentLeaf.anchors`).
  */
 export function readHumanSegmentLeaf(
   person: IAutoMovieMotionHumanSegment.IPerson,
@@ -210,7 +213,10 @@ export function readHumanSegmentLeaf(
   };
 }
 
-/** Whether a plan second lies inside the plan's legs-still window (`IAutoMovieMotionHumanActionPlan.legsStill`), where the legs keep one fit. */
+/**
+ * Whether a plan second lies inside the plan's legs-still window
+ * (`IAutoMovieMotionHumanActionPlan.legsStill`), where the legs keep one fit.
+ */
 function still(
   plan: IAutoMovieMotionHumanActionPlan,
   seconds: number,
@@ -232,26 +238,24 @@ export namespace readHumanSegmentLeaf {
 
   /**
    * A plan's swivel course of every limb goal it writes
-   * (`courseLimbSwivels.swivels`): knots at the plan's ends and events,
-   * refined where interpolation leaves a knot's own fit. A displayed second
-   * places each limb at the course's swivel and branch against the goal it
-   * shows, so a near-tie no longer hops between frames and no read sweeps.
-   * The course's first knot is placed at each arm as the entry displays it
-   * (`HumanLimbFit.seed` on the entry's pose), so an arm whose goal carries
-   * on across a cut keeps the branch and swivel it was shown with rather
-   * than a cold fit's, which may take the other elbow side for the same
-   * goal.
+   * (`courseLimbSwivels.swivels`): knots on the frame grid and at the plan's
+   * events, each continuing the one before. A displayed second places each limb
+   * at the course's swivel and branch against the goal it shows, so a near-tie
+   * no longer hops between frames and no read sweeps. The course's first knot
+   * is placed at each arm as the entry displays it (`HumanLimbFit.seed` on the
+   * entry's pose), so an arm whose goal carries on across a cut keeps the
+   * branch and swivel it was shown with rather than a cold fit's, which may
+   * take the other elbow side for the same goal.
    *
    * @param plan The segment's plan.
    * @param body The performer's body.
    * @param entry The displayed pose the segment is entered with.
    * @returns The course, made once per plan.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States what is coursed, where it is read and why.
    * @evidence contracts/development/implementation.md#principled-implementation The branch and swivel are the course's; the goal stays the displayed one.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One course per plan.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every knot is a full resolve of the plan's own posture.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Knots only where the swivel path leaves its interpolation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One continued fit per frame and event, made once per plan; a read interpolates two knots.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The course and its knots are kept per plan.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held weakly by its plan.
    */
@@ -291,35 +295,36 @@ export namespace readHumanSegmentLeaf {
     return found;
   }
 
-  /** The segments whose anchors are being read: a read nested in one takes no anchors. */
+  /**
+   * The segments whose anchors are being read: a read nested in one takes no
+   * anchors.
+   */
   const ANCHORING: WeakSet<IAutoMovieMotionHumanSegment> = new WeakSet();
 
   /**
-   * The anchor course of a displayed second's arm fits: each fit's swivel
-   * and branch, prescribed (`IAutoMovieSwivelNear.prescribed`), as
-   * `courseLimbSwivels` gives the plan's own arms. Anchors lie on a fixed
-   * grid of the plan's clock, `1 / AutoMovieMotionHumanArmPlanned.LEAST`
-   * seconds apart: the least waypoint spacing of a planned arm, between
-   * which a goal at a daily reach's peak speed travels at most that plan's
-   * spacing. Each anchor is read once, the first cold and each later one
-   * continuing the one before it (`anchor`), and kept by the segment; that
-   * read is never shown. A second between two anchors takes
-   * each fit's shortest-turn interpolation of their swivels where both give
-   * it on one branch, and otherwise the nearer anchor's seed (the other's
-   * where only it gives the fit); an anchor second takes its own seeds. The
-   * closed form places each arm at that swivel on its displayed goal and
-   * falls back to refining from it only where the placement misses the goal,
-   * leaves the range of motion or meets what the arm keeps clear of
-   * (Tolani, Goswami and Badler 2000, §3.2.4:
-   * the swivel is the one free parameter of an arm on its goal). None while
-   * an anchor is read.
+   * The anchor course of a displayed second's arm fits: each fit's swivel and
+   * branch, prescribed (`IAutoMovieSwivelNear.prescribed`), as
+   * `courseLimbSwivels` gives the plan's own arms. Anchors lie on a fixed grid
+   * of the plan's clock, `1 / AutoMovieMotionHumanArmPlanned.LEAST` seconds
+   * apart: the least waypoint spacing of a planned arm, between which a goal at
+   * a daily reach's peak speed travels at most that plan's spacing. Each anchor
+   * is read once, the first continuing the arms the entry displays and each
+   * later one continuing the one before
+   * it (`anchor`), and kept by the segment; that read is never shown. A second
+   * between two anchors takes each fit's shortest-turn interpolation of their
+   * swivels where both give it on one branch, and otherwise the nearer anchor's
+   * seed (the other's where only it gives the fit); an anchor second takes its
+   * own seeds. The closed form places each arm at that swivel on its displayed
+   * goal and falls back to refining from it only where the placement misses the
+   * goal, leaves the range of motion or meets what the arm keeps clear of
+   * (Tolani, Goswami and Badler 2000, §3.2.4: the swivel is the one free
+   * parameter of an arm on its goal). None while an anchor is read.
    *
    * @param person The person.
    * @param segment The action.
    * @param t Film seconds.
    * @param prepared The read's preparation.
    * @returns The arm fits' seeds by name, or none.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the grid and its source, the chained anchor reads, the interpolation, the fallback and when nothing is given.
    * @evidence contracts/development/implementation.md#principled-implementation The swivel is the one free coordinate of an arm on its goal (Tolani §3.2.4); interpolating it between anchor fits chained from the action's start keeps the branch and the elbow continuous across anchors, and the anchors are fixed seconds of the action read under the placed state, so a second's pose never depends on the order seconds are read in.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two bracketing anchors, each one kept-map lookup or the chain's missing reads, then one pass over their fit names.
@@ -382,7 +387,10 @@ export namespace readHumanSegmentLeaf {
     return out;
   }
 
-  /** An anchor's film second: the plan second `index` spacings in, clamped to the plan. */
+  /**
+   * An anchor's film second: the plan second `index` spacings in, clamped to
+   * the plan.
+   */
   function second(
     segment: IAutoMovieMotionHumanSegment,
     index: number,
@@ -392,15 +400,16 @@ export namespace readHumanSegmentLeaf {
   }
 
   /**
-   * An anchor's arm fits, kept by the segment under the person's overlay
-   * count, since a read under fewer overlays (`HumanSegmentShown.laid`)
-   * shows other fits. The anchors are chained from the action's start: the
-   * first is read cold, and each later one continues the one before it
-   * (each fit refined from that anchor's seed of it, keeping its branch and
-   * swivel where they stay legal), the warm start from the previous swivel
-   * a display holds a limb's branch by. A missing anchor reads every
-   * missing one below it first, once each, so an anchor's fits depend on
-   * the action alone, never on which second was read first.
+   * An anchor's arm fits, kept by the segment under the person's overlay count,
+   * since a read under fewer overlays (`HumanSegmentShown.laid`) shows other
+   * fits. The anchors are chained from the action's start: the first continues
+   * the leaf arms the entry displays (`HumanLimbFit.seed` on its pose), the rest
+   * of its fits read cold, and each later one continues the one before it (each fit refined from
+   * that anchor's seed of it, keeping its branch and swivel where they stay
+   * legal), the warm start from the previous swivel a display holds a limb's
+   * branch by. A missing anchor reads every missing one below it first, once
+   * each, so an anchor's fits depend on the action alone, never on which second
+   * was read first.
    */
   function anchor(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -415,8 +424,12 @@ export namespace readHumanSegmentLeaf {
     if (found !== undefined) return found;
     let first: number = index;
     while (first > 0 && segment.anchors?.has(key(first - 1)) !== true) --first;
+    // The first anchor continues the arms the entry displays (the cut's own
+    // swivel and branch, `HumanLimbFit.seed`), so the anchors leave the cut
+    // where the display showed each arm rather than from a cold fit, which
+    // may take another solution of the same goal.
     let kept: IAutoMovieMotionHumanSegment.IAnchorFits | undefined =
-      first === 0 ? undefined : segment.anchors!.get(key(first - 1));
+      first === 0 ? entered(person, segment) : segment.anchors!.get(key(first - 1));
     for (let i: number = first; i <= index; ++i) {
       const previous: IAutoMovieMotionHumanSegment.IAnchorFits | undefined =
         kept;
@@ -444,6 +457,23 @@ export namespace readHumanSegmentLeaf {
     }
     return kept!;
   }
+  /** Each leaf arm's swivel and branch as the segment's entry displays it, by its fit's name; an arm the entry pose cannot seed is left to a cold fit. */
+  function entered(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment,
+  ): IAutoMovieMotionHumanSegment.IAnchorFits {
+    const seeds: Map<string, IAutoMovieSwivelSeed | null> = new Map();
+    for (const limb of ARMS) {
+      const seed: IAutoMovieSwivelSeed | null = HumanLimbFit.seed(
+        person.performer.body,
+        segment.context.entry.pose,
+        limb,
+      );
+      if (seed !== null) seeds.set(`leaf::${limb}`, seed);
+    }
+    return seeds;
+  }
+
   /** The composed posture and the fits produced on this read. */
   export interface IReading {
     /** Authored posture with the overlay contacts. */

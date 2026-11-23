@@ -255,3 +255,33 @@ Reuses common goal/shape reflection and HumanArmMirror's mirrored hull points wh
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The caller owns the returned goal and mirrored records; unchanged fields are borrowed and shared hull points follow their source-array weak cache. This wrapper owns no retained state, handles or tasks.
+
+# src/posture/HumanLimbFit.ts#HumanLimbFit.continues
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what the query answers, when it is null and which refusals pass through.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The fit's own arc continuation decides: null exactly where its admitted arc vanished, the refusal `fit` raises for it told apart by identity.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One call of `fit` and one test of what it threw.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Every other refusal is rethrown; nothing is retried or relaxed.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One continued fit, the same as `fit`.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+Delegates to `fit`, which owns its preparation.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Retains nothing; the refusals it made are held weakly.

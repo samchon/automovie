@@ -451,13 +451,40 @@ export namespace HumanLimbFit {
    * its seed that takes the hand's asked turn.
    */
   function vanishedRefusal(limb: AutoMovieHumanLimb): HumanRefusal {
-    return new HumanRefusal({
+    const refusal: HumanRefusal = new HumanRefusal({
       kind: "reach",
       axis: "rotation",
       value: limb,
       reason: `the ${limb}'s hand turn leaves every swivel its continued elbow can reach: the arc of swivels where the wrist's range and the forearm's twist admit the turn vanished, and the next lies on another elbow path`,
       fix: "ease the hand's asked turn or move its site so one elbow path keeps it, or plan the span so the elbow changes path between frames",
     });
+    VANISHED.add(refusal);
+    return refusal;
+  }
+
+  /** The refusals `vanishedRefusal` made, told apart from every other one by identity. */
+  const VANISHED: WeakSet<HumanRefusal> = new WeakSet();
+
+  /**
+   * A plan-time query of the arc continuation: the fit `fit` gives, or null
+   * where the continued arm's admitted arc vanished
+   * (`IAutoMovieSwivelSeed.vanished`), so a law choosing among targets (a
+   * grasp's turn, a site) keeps only those its arm reaches on one elbow path
+   * from the seed it continues. One continued fit, no search beyond the
+   * fit's own; every other refusal is thrown as `fit` throws it.
+   *
+   * @param args The arguments of `fit`; `near` is the seed continued, its `admitted` arc the one to keep.
+   * @returns The fit, or null where its admitted arc vanished.
+   */
+  export function continues(
+    ...args: Parameters<typeof fit>
+  ): IAutoMovieSeededChainFit | null {
+    try {
+      return fit(...args);
+    } catch (error) {
+      if (error instanceof HumanRefusal && VANISHED.has(error)) return null;
+      throw error;
+    }
   }
 
   /**
