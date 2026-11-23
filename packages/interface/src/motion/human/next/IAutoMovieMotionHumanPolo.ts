@@ -14,22 +14,9 @@ export interface IAutoMovieMotionHumanPolo<Chain> {
    * @param params The `on`, `frame`, `mallet`, `ball`, `side`, `stroke`, `contact`, `lean` and `speed` of `IAutoMovieMotionHumanPolo`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPolo.polo is provided by the chain that implements IAutoMovieMotionHumanPolo.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPolo.polo is provided by the chain that implements IAutoMovieMotionHumanPolo.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanPolo.polo is provided by the chain that implements IAutoMovieMotionHumanPolo.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanPolo.polo is provided by the chain that implements IAutoMovieMotionHumanPolo.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanPolo.polo is provided by the chain that implements IAutoMovieMotionHumanPolo.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanPolo.polo is provided by the chain that implements IAutoMovieMotionHumanPolo.
    */
   polo(params: IAutoMovieMotionHumanPolo.IPolo, anchor?: string): Chain;
 }
-
-/**
- * The parameter types of the Polo methods.
- */
-export namespace IAutoMovieMotionHumanPolo {}
 
 export namespace IAutoMovieMotionHumanPolo {
   /**

@@ -1,4 +1,4 @@
-﻿import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
@@ -17,25 +17,12 @@ export interface IAutoMovieMotionHumanSittingVolley<Chain> {
    * @param params The `seconds`, `lateral`, `hand` and `target` of `IAutoMovieMotionHumanSittingVolley`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSittingVolley.sittingVolley is provided by the chain that implements IAutoMovieMotionHumanSittingVolley.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSittingVolley.sittingVolley is provided by the chain that implements IAutoMovieMotionHumanSittingVolley.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSittingVolley.sittingVolley is provided by the chain that implements IAutoMovieMotionHumanSittingVolley.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSittingVolley.sittingVolley is provided by the chain that implements IAutoMovieMotionHumanSittingVolley.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSittingVolley.sittingVolley is provided by the chain that implements IAutoMovieMotionHumanSittingVolley.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSittingVolley.sittingVolley is provided by the chain that implements IAutoMovieMotionHumanSittingVolley.
    */
   sittingVolley(
     params: IAutoMovieMotionHumanSittingVolley.ISittingVolley,
     anchor?: string,
   ): Chain;
 }
-
-/**
- * The parameter types of the SittingVolley methods.
- */
-export namespace IAutoMovieMotionHumanSittingVolley {}
 
 export namespace IAutoMovieMotionHumanSittingVolley {
   /**
